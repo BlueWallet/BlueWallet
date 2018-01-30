@@ -1,0 +1,20 @@
+diff --git a/node_modules/metro-bundler/src/JSTransformer/worker/minify.js b/node_modules/metro-bundler/src/JSTransformer/worker/minify.js
+index f2663e1..b7410cb 100644
+--- a/node_modules/metro-bundler/src/JSTransformer/worker/minify.js
++++ b/node_modules/metro-bundler/src/JSTransformer/worker/minify.js
+@@ -38,7 +38,7 @@ filename)
+ 
+ function minify(inputCode, inputMap) {
+   const result = uglify.minify(inputCode, {
+-    mangle: false,
++    mangle: { toplevel: true },
+     output: {
+       ascii_only: true,
+       quote_style: 3,
+@@ -63,4 +63,4 @@ function minify(inputCode, inputMap) {
+ 
+ module.exports = {
+   noSourceMap,
+-  withSourceMap };
++  withSourceMap };
+\ No newline at end of file

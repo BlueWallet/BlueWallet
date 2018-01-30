@@ -1,0 +1,68 @@
+{
+  "name": "BlueWallet",
+  "version": "0.9.7",
+  "private": true,
+  "devDependencies": {
+    "jest-expo": "^23.0.0",
+    "react-native-scripts": "1.8.1",
+    "react-test-renderer": "16.0.0",
+    "rn-nodeify": "^8.3.0",
+    "snazzy": "^7.0.0",
+    "standard": "^10.0.3"
+  },
+  "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
+  "scripts": {
+    "prepare": "git apply -R --ignore-whitespace patches/metro-bundler+0.9.2.patch",
+    "start": "react-native-scripts start",
+    "eject": "react-native-scripts eject",
+    "android": "react-native-scripts android",
+    "ios": "react-native-scripts ios",
+    "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack",
+    "test": "node node_modules/jest/bin/jest.js --watch"
+  },
+  "jest": {
+    "preset": "jest-expo"
+  },
+  "dependencies": {
+    "asyncstorage-down": "^3.1.1",
+    "bignumber.js": "^5.0.0",
+    "bitcoinjs-lib": "^3.3.2",
+    "buffer": "^4.9.1",
+    "expo": "^23.0.6",
+    "frisbee": "^1.6.4",
+    "isaac": "0.0.5",
+    "node-libs-react-native": "^1.0.1",
+    "process": "^0.11.10",
+    "react": "16.0.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-23.0.0.tar.gz",
+    "react-native-camera": "^0.12.0",
+    "react-native-elements": "^0.18.5",
+    "react-native-level-fs": "^3.0.0",
+    "react-native-qrcode": "^0.2.6",
+    "react-navigation": "^1.0.0-beta.23",
+    "readable-stream": "^1.1.14",
+    "request-promise-native": "^1.0.5",
+    "secure-random": "^1.1.1",
+    "stream-browserify": "^1.0.0"
+  },
+  "react-native": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  },
+  "browser": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  }
+}
