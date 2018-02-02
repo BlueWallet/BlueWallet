@@ -7,7 +7,12 @@ Built with React Native, Expo and BlockCypher API.
 * Private keys never leave your device
 * SegWit-first. Replace-By-Fee support
 
-Alpha version, do not rely on it for now! 
+Alpha version, do not rely on it too much for now! 
+
+![blue wallet](https://raw.githubusercontent.com/Overtorment/BlueWallet/master/gif.gif  "Blue Wallet screenshots gif")
+
+
+
 
 ## RUN IT
 
