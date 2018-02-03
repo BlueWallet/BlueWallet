@@ -31,7 +31,7 @@ npm start
 ## ALTERNATIVELY
 
 * Install Expo Client
-* Launch BlueWallet from https://expo.io/@overtorment/bluewallet (not secure!)
+* Launch BlueWallet from https://expo.io/@overtorment/bluewallet
 
 
 ## AUTHOR
