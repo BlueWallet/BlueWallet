@@ -7,7 +7,12 @@ Built with React Native, Expo and BlockCypher API.
 * Private keys never leave your device
 * SegWit-first. Replace-By-Fee support
 
-Alpha version, do not rely on it for now! 
+Alpha version, do not rely on it too much for now! 
+
+![blue wallet](https://raw.githubusercontent.com/Overtorment/BlueWallet/master/gif.gif  "Blue Wallet screenshots gif")
+
+
+
 
 ## RUN IT
 
@@ -26,7 +31,13 @@ npm start
 ## ALTERNATIVELY
 
 * Install Expo Client
-* Launch BlueWallet from https://github.com/Overtorment/BlueWallet (not secure!)
+* Launch BlueWallet from https://expo.io/@overtorment/bluewallet
+
+## MOTIVATION TO BUILD IT
+
+I was not satisfied with existing iOS Bitcoin apps, especially with BreadWallet (the one I mainly used) where development stalled and they could not even deliver such features as SegWit, RBF and custom fees (at the times where custom fees were especially needed).
+So I knew I could create one to use myself and let others use it.
+I had experience with awesome bitcoin-js lib (javascript), and since I dont own any Macs, don't plan to and not going to learn ObjC/Swift - ReactNative (where you also write in javascript) was an obvious choice.
 
 
 ## AUTHOR
