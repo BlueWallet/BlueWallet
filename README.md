@@ -147,3 +147,4 @@ Lightning support?
 * [ ] Keep PrivKey/WIF on paper, scan only on TX signing, not keping on device (watch-only address)
 * [ ] Decode TX screen
 * [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo
+* [ ] Fake password which unlocks fake wallets
