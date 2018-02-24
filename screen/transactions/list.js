@@ -52,6 +52,13 @@ export default class  TransactionsList extends Component {
     })
   }
 
+  txMemo (hash) {
+    if (BlueApp.tx_metadata[hash] &&  BlueApp.tx_metadata[hash]['memo']) {
+      return ' | ' + BlueApp.tx_metadata[hash]['memo'];
+    }
+    return '';
+  }
+
   refresh() {
     this.setState({
       isLoading: true,
@@ -112,8 +119,8 @@ export default class  TransactionsList extends Component {
                     <Icon color={(() => {return rowData.confirmations && (rowData.value < 0 && "#900" || "#080") || "#ebebeb"   })()}
                       name={(() => {return rowData.value < 0 && 'call-made' || 'call-received'})()} />
                   }
-                  title={rowData.value/100000000 + " BTC"}
-                  subtitle={rowData.received.replace(['T'], ' ').replace(['Z'], ' ').split('.')[0] + ' | conf: ' + rowData.confirmations}
+                  title={rowData.value/100000000 + " BTC" + this.txMemo(rowData.hash)}
+                  subtitle={rowData.received.replace(['T'], ' ').replace(['Z'], ' ').split('.')[0] + ' | conf: ' + rowData.confirmations + "\nYOLO"}
 
                   onPress={() =>
                   {
