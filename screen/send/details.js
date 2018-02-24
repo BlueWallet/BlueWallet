@@ -46,6 +46,7 @@ export default class SendDetails extends Component {
     console.log('getAddress() took', (endTime2-startTime2)/1000, 'sec')
 
     this.state = {
+      errorMessage: false,
       fromAddress: fromAddress,
       fromWallet: fromWallet,
       isLoading: true,
@@ -92,6 +93,35 @@ export default class SendDetails extends Component {
 
 
   createTransaction() {
+
+    if (!this.state.amount) {
+      this.setState({
+        errorMessage: 'Amount field is not valid'
+      })
+      console.log('validation error');
+      return;
+    }
+
+    if (!this.state.fee) {
+      this.setState({
+        errorMessage: 'Fee field is not valid'
+      })
+      console.log('validation error');
+      return;
+    }
+
+    if (!this.state.address) {
+      this.setState({
+        errorMessage: 'Address field is not valid'
+      })
+      console.log('validation error');
+      return;
+    }
+
+    this.setState({
+      errorMessage: ''
+    })
+
     this.props.navigation.navigate('CreateTransaction', {
       amount : this.state.amount,
       fee: this.state.fee,
@@ -156,6 +186,8 @@ export default class SendDetails extends Component {
 
 
         </BlueCard>
+
+        <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
 
         <View style={{flex: 1, flexDirection: 'row', paddingTop:20,}}>
           <View style={{flex: 0.33}}>
