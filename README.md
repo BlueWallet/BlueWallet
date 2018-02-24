@@ -76,7 +76,7 @@ Support for single private-key wallets:
     * ~~Choose Wallet~~
     * ~~Scan QR~~
         * ~~Sub screen edit balance, memo, receiver name ...~~
-            * Validation error in case of empty fields
+            * ~~Validation error in case of empty fields~~
         * ~~Broadcast TX~~
             * ~~save TX meta info to wallet storage (memo, txhex)~~
 * Settings
@@ -147,4 +147,4 @@ Lightning support?
 * [ ] Keep PrivKey/WIF on paper, scan only on TX signing, not keping on device (watch-only address)
 * [ ] Decode TX screen
 * [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo
-* [ ] Fake password which unlocks fake wallets
+* [ ] Fake password which unlocks fake wallets (aka plausible deniability)
