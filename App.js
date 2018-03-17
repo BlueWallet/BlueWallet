@@ -1,15 +1,16 @@
 /** @type {AppStorage} */
-let BlueApp = require('./BlueApp')
 import './shim.js'
+import React from 'react'
+import { Text, ScrollView, StyleSheet } from 'react-native'
+import { DrawerNavigator, SafeAreaView } from 'react-navigation'
+import MainBottomTabs from './MainBottomTabs'
+
+require('./BlueApp')
+
 if (!Error.captureStackTrace) { // captureStackTrace is only available when debugging
   Error.captureStackTrace = () => {}
 }
-import React from 'react'
-import { Text, ScrollView, StyleSheet } from 'react-native'
-import { DrawerNavigator } from 'react-navigation'
-import MainBottomTabs from './MainBottomTabs'
-// import SecondaryBottomTabs from './SecondaryBottomTabs';
-import { SafeAreaView } from 'react-navigation'
+
 const pkg = require('./package.json')
 
 // <DrawerItems {...props} />
