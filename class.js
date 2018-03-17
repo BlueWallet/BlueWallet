@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+/* global fetch */
 import { AsyncStorage } from 'react-native'
 import Frisbee from 'frisbee'
 
@@ -9,8 +9,6 @@ let signer = require('./models/signer')
 let BigNumber = require('bignumber.js')
 let isaac = require('isaac')
 // alternative https://github.com/pointbiz/bitaddress.org/blob/master/src/securerandom.js
-
-let assert = require('assert')
 
 class AbstractWallet {
   constructor () {
@@ -84,12 +82,12 @@ export class LegacyWallet extends AbstractWallet {
 
   generate () {
     function myRng (c) {
-      let buf = new Buffer(c)
+      let buf = Buffer.alloc(c)
       let totalhex = ''
       for (let i = 0; i < c; i++) {
-        let random_number = isaac.random()
-        random_number = Math.floor(random_number * 255)
-        let n = new BigNumber(random_number)
+        let randomNumber = isaac.random()
+        randomNumber = Math.floor(randomNumber * 255)
+        let n = new BigNumber(randomNumber)
         let hex = n.toString(16)
         if (hex.length === 1) {
           hex = '0' + hex
@@ -121,8 +119,9 @@ export class LegacyWallet extends AbstractWallet {
     } catch (err) {
       return false
     }
+    this._address = address
 
-    return this._address = address
+    return this._address
   }
 
   async fetchBalance () {
@@ -142,7 +141,7 @@ export class LegacyWallet extends AbstractWallet {
       }
       let json = await response.json()
       if (typeof json.final_balance === 'undefined') {
-        throw 'Could not fetch balance from API'
+        throw new Error('Could not fetch balance from API')
       }
       this.balance = json.final_balance / 100000000
     } catch (err) {
@@ -169,7 +168,7 @@ export class LegacyWallet extends AbstractWallet {
       }
       let json = await response.json()
       if (typeof json.final_balance === 'undefined') {
-        throw 'Could not fetch UTXO from API'
+        throw new Error('Could not fetch UTXO from API')
       }
       json.txrefs = json.txrefs || [] // case when source address is empty
       this.utxo = json.txrefs
@@ -202,7 +201,7 @@ export class LegacyWallet extends AbstractWallet {
       console.log(url)
       let json = await response.json()
       if (!json.txs) {
-        throw 'Could not fetch transactions from API'
+        throw new Error('Could not fetch transactions from API')
       }
 
       this.transactions = json.txs
@@ -294,8 +293,9 @@ export class SegwitBech32Wallet extends LegacyWallet {
     } catch (err) {
       return false
     }
+    this._address = address
 
-    return this._address = address
+    return this._address
   }
 }
 
@@ -321,8 +321,9 @@ export class SegwitP2SHWallet extends LegacyWallet {
     } catch (err) {
       return false
     }
+    this._address = address
 
-    return this._address = address
+    return this._address
   }
 
   createTx (utxos, amount, fee, address, memo, sequence) {
@@ -409,10 +410,8 @@ export class AppStorage {
 
   saveToDisk () {
     let walletsToSave = []
-    let c = 0
     for (let key of this.wallets) {
       walletsToSave.push(JSON.stringify(key))
-      c++
     }
 
     let data = {
