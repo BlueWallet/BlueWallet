@@ -29,7 +29,7 @@
     "ios": "react-native-scripts ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack",
     "test": "nodejs ./node_modules/.bin/mocha tests/* && node node_modules/jest/bin/jest.js",
-    "lint": "./node_modules/.bin/standard | ./node_modules/.bin/snazzy"
+    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js"
   },
   "jest": {
     "preset": "jest-expo"
