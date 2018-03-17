@@ -4,7 +4,6 @@ let assert = require('assert')
 
 describe('unit - signer', function () {
   describe('createTransaction()', function () {
-
     it('should return valid tx hex for segwit transactions', function (done) {
       let signer = require('../../models/signer')
       let utxos = [{ txid: '1e1a8cced5580eecd0ac15845fc3adfafbb0f5944a54950e4a16b8f6d1e9b715', vout: 1, address: '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi', account: '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi', scriptPubKey: 'a9146fbf1cee74734503297e46a0db3e3fbb06f2e9d387', amount: 0.001, confirmations: 108, spendable: false, solvable: false, safe: true }]

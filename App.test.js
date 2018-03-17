@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from './class'
-let assert = require('assert');
+let assert = require('assert')
 
 describe('unit - LegacyWallet', function () {
   it('serialize and unserialize work correctly', () => {

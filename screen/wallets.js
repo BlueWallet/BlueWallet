@@ -26,7 +26,7 @@ const WalletsNavigator = StackNavigator({
   },
   WalletExport: {
     screen: WalletExport
-  },
+  }
 }, {
   headerMode: 'none',
   mode: 'modal'
