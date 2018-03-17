@@ -2,7 +2,7 @@
 let BlueApp = require('./BlueApp')
 import './shim.js'
 if (!Error.captureStackTrace) { // captureStackTrace is only available when debugging
-  Error.captureStackTrace = () => {};
+  Error.captureStackTrace = () => {}
 }
 import React from 'react'
 import { Text, ScrollView, StyleSheet } from 'react-native'
@@ -70,7 +70,7 @@ const TabsInDrawer = DrawerNavigator({
   contentComponent: CustomDrawerContentComponent,
   drawerOpenRoute: 'DrawerOpen',
   drawerCloseRoute: 'DrawerClose',
-  drawerToggleRoute: 'DrawerToggle',
+  drawerToggleRoute: 'DrawerToggle'
 
 })
 

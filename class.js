@@ -7,7 +7,7 @@ let useBlockcypherTokens = false
 let bitcoin = require('bitcoinjs-lib')
 let signer = require('./models/signer')
 let BigNumber = require('bignumber.js')
-let isaac = require( 'isaac' );
+let isaac = require('isaac')
 // alternative https://github.com/pointbiz/bitaddress.org/blob/master/src/securerandom.js
 
 let assert = require('assert')
@@ -69,7 +69,7 @@ class AbstractWallet {
 
   getAddress () {}
 
-  //createTx () { throw Error('not implemented') }
+  // createTx () { throw Error('not implemented') }
 }
 
 /**
@@ -86,18 +86,18 @@ export class LegacyWallet extends AbstractWallet {
     function myRng (c) {
       let buf = new Buffer(c)
       let totalhex = ''
-      for (let i = 0; i<c; i++) {
+      for (let i = 0; i < c; i++) {
         let random_number = isaac.random()
-        random_number  = Math.floor(random_number * 255);
-        let n = new BigNumber( random_number )
+        random_number = Math.floor(random_number * 255)
+        let n = new BigNumber(random_number)
         let hex = n.toString(16)
         if (hex.length === 1) {
           hex = '0' + hex
         }
         totalhex += hex
       }
-      totalhex =  bitcoin.crypto.sha256('oh hai!' + totalhex).toString('hex')
-      totalhex =  bitcoin.crypto.sha256(totalhex).toString('hex')
+      totalhex = bitcoin.crypto.sha256('oh hai!' + totalhex).toString('hex')
+      totalhex = bitcoin.crypto.sha256(totalhex).toString('hex')
       buf.fill(totalhex, 0, 'hex')
       return buf
     }
@@ -127,7 +127,7 @@ export class LegacyWallet extends AbstractWallet {
 
   async fetchBalance () {
     let response
-    ;let token = ((array) => {
+    let token = ((array) => {
       for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]]
@@ -152,7 +152,7 @@ export class LegacyWallet extends AbstractWallet {
 
   async fetchUtxo () {
     let response
-    ;let token = ((array) => {
+    let token = ((array) => {
       for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]]
@@ -185,7 +185,7 @@ export class LegacyWallet extends AbstractWallet {
 
   async fetchTransactions () {
     let response
-    ;let token = ((array) => {
+    let token = ((array) => {
       for (let i = array.length - 1; i > 0; i--) {
         let j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]]
@@ -240,7 +240,6 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async broadcastTx (txhex) {
-
     const api = new Frisbee({
       baseURI: 'https://btczen.com',
       headers: {
@@ -253,9 +252,7 @@ export class LegacyWallet extends AbstractWallet {
     console.log('response', res.body)
     return res.body
 
-
-    return
-    /*const api = new Frisbee({
+    /* const api = new Frisbee({
       baseURI: 'https://api.blockcypher.com',
       headers: {
         'Accept': 'application/json',
@@ -272,7 +269,7 @@ export class LegacyWallet extends AbstractWallet {
     console.log('broadcast using token')
     let res = await api.post('/v1/btc/main/txs/push?token=' + token, {body: {'tx': txhex}})
     console.log('response', res.body)
-    return res.body*/
+    return res.body */
   }
 }
 
@@ -341,7 +338,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
       u.amount = u.amount.div(100000000)
       u.amount = u.amount.toString(10)
     }
-    console.log('creating tx ', amount, ' with fee ', fee, 'secret=',this.getSecret(), 'from address',this.getAddress())
+    console.log('creating tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress())
     let amountPlusFee = parseFloat((new BigNumber(amount)).add(fee).toString(10))
     // to compensate that module substracts fee from amount
     return signer.createSegwitTransaction(utxos, address, amountPlusFee, fee, this.getSecret(), this.getAddress(), sequence)
@@ -356,7 +353,7 @@ export class AppStorage {
     this.settings = {
       brandingColor: '#00aced',
       buttonBackground: '#00aced',
-      buttonDangedBackground: '#F40349',
+      buttonDangedBackground: '#F40349'
     }
   }
 
@@ -420,7 +417,7 @@ export class AppStorage {
 
     let data = {
       wallets: walletsToSave,
-      tx_metadata: this.tx_metadata,
+      tx_metadata: this.tx_metadata
     }
 
     return AsyncStorage.setItem('data', JSON.stringify(data))
