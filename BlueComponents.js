@@ -1,16 +1,11 @@
 /** @type {AppStorage} */
-let BlueApp = require('./BlueApp')
 import React, { Component } from 'react'
-import { Button } from 'react-native-elements'
 import { SafeAreaView } from 'react-navigation'
-import { FormLabel, FormInput, Divider, Icon, Card, Text, Header, List, ListItem, Avatar } from 'react-native-elements'
-import { ActivityIndicator, StyleSheet, ListView, View } from 'react-native'
+import { Button, FormLabel, FormInput, Card, Text, Header, List, ListItem } from 'react-native-elements'
+import { ActivityIndicator, ListView, View } from 'react-native'
+let BlueApp = require('./BlueApp')
 
 export class BlueButton extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <Button
@@ -26,10 +21,6 @@ export class BlueButton extends Component {
 }
 
 export class SafeBlueArea extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <SafeAreaView
@@ -41,10 +32,6 @@ export class SafeBlueArea extends Component {
 }
 
 export class BlueCard extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <Card
@@ -58,10 +45,6 @@ export class BlueCard extends Component {
 }
 
 export class BlueText extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <Text
@@ -73,10 +56,6 @@ export class BlueText extends Component {
 }
 
 export class BlueListItem extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <ListItem
@@ -90,10 +69,6 @@ export class BlueListItem extends Component {
 }
 
 export class BlueFormLabel extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <FormLabel
@@ -105,10 +80,6 @@ export class BlueFormLabel extends Component {
 }
 
 export class BlueFormInput extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <FormInput
@@ -120,10 +91,6 @@ export class BlueFormInput extends Component {
 }
 
 export class BlueHeader extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <Header
@@ -135,10 +102,6 @@ export class BlueHeader extends Component {
 }
 
 export class BlueSpacing extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <View
@@ -150,10 +113,6 @@ export class BlueSpacing extends Component {
 }
 
 export class BlueSpacing20 extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <View
@@ -165,10 +124,6 @@ export class BlueSpacing20 extends Component {
 }
 
 export class BlueListView extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <ListView
@@ -179,10 +134,6 @@ export class BlueListView extends Component {
 }
 
 export class BlueList extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <List
@@ -194,10 +145,6 @@ export class BlueList extends Component {
 }
 
 export class BlueView extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <View
@@ -209,10 +156,6 @@ export class BlueView extends Component {
 }
 
 export class BlueLoading extends Component {
-  constructor (props) {
-    super(props)
-  }
-
   render () {
     return (
       <SafeBlueArea >
