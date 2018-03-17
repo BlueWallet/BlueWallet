@@ -1,24 +1,16 @@
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, View, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Icon, Card, Header } from 'react-native-elements';
 import QRCode from 'react-native-qrcode';
-import { List, Button, ListItem } from 'react-native-elements';
 import {
   BlueLoading,
-  BlueSpacing20,
-  BlueList,
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueText,
-  BlueListItem,
-  BlueHeader,
-  BlueFormInput,
   BlueSpacing,
 } from '../../BlueComponents';
+import PropTypes from 'prop-types';
+let BlueApp = require('../../BlueApp');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
@@ -50,8 +42,6 @@ export default class ReceiveDetails extends Component {
   }
 
   render() {
-    const { navigate } = this.props.navigation;
-
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
@@ -89,3 +79,14 @@ export default class ReceiveDetails extends Component {
     );
   }
 }
+
+ReceiveDetails.propTypes = {
+  navigation: PropTypes.shape({
+    goBack: PropTypes.function,
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        address: PropTypes.string,
+      }),
+    }),
+  }),
+};

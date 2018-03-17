@@ -8,7 +8,6 @@ import { SafeAreaView, StackNavigator, TabNavigator } from 'react-navigation';
 import PropTypes from 'prop-types';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import SampleText from './SampleText';
 
 const MyNavScreen = ({ navigation, banner }) => (
   <ScrollView>
