@@ -1,23 +1,34 @@
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp')
+let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, TextInput,  View } from 'react-native';
+import { ActivityIndicator, TextInput, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView, } from 'react-navigation';
-import { Icon, Card, Header, } from 'react-native-elements'
-import { List, Button, ListItem } from 'react-native-elements'
-import { FormLabel, FormInput, Text, FormValidationMessage } from 'react-native-elements'
+import { SafeAreaView } from 'react-navigation';
+import { Icon, Card, Header } from 'react-native-elements';
+import { List, Button, ListItem } from 'react-native-elements';
 import {
-  BlueSpacing20, BlueList, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueListItem, BlueHeader,
-  BlueFormInput, BlueSpacing
-} from '../../BlueComponents'
-let EV = require('../../events')
+  FormLabel,
+  FormInput,
+  Text,
+  FormValidationMessage,
+} from 'react-native-elements';
+import {
+  BlueSpacing20,
+  BlueList,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueListItem,
+  BlueHeader,
+  BlueFormInput,
+  BlueSpacing,
+} from '../../BlueComponents';
+let EV = require('../../events');
 let BigNumber = require('bignumber.js');
-let bitcoinjs = require('bitcoinjs-lib')
+let bitcoinjs = require('bitcoinjs-lib');
 
 export default class RBF extends Component {
-
-
   static navigationOptions = {
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
@@ -26,34 +37,36 @@ export default class RBF extends Component {
         style={{ color: tintColor }}
       />
     ),
-  }
+  };
 
   constructor(props) {
     super(props);
-    let txid
-    if (props.navigation.state.params) txid = props.navigation.state.params.txid
+    let txid;
+    if (props.navigation.state.params)
+      txid = props.navigation.state.params.txid;
 
-
-    let sourceWallet
-    let sourceTx
+    let sourceWallet;
+    let sourceTx;
     for (let w of BlueApp.getWallets()) {
       for (let t of w.getTransactions()) {
         if (t.hash === txid) {
           // found our source wallet
-          sourceWallet = w
-          sourceTx = t
-          console.log(t)
+          sourceWallet = w;
+          sourceTx = t;
+          console.log(t);
         }
       }
     }
 
-    let destinationAddress
+    let destinationAddress;
     for (let o of sourceTx.outputs) {
-      if (o.addresses[0] === sourceWallet.getAddress()) { // change
+      if (o.addresses[0] === sourceWallet.getAddress()) {
+        // change
         // nop
-      } else { // DESTINATION address
-        destinationAddress = o.addresses[0]
-        console.log('dest = ', destinationAddress)
+      } else {
+        // DESTINATION address
+        destinationAddress = o.addresses[0];
+        console.log('dest = ', destinationAddress);
       }
     }
 
@@ -61,8 +74,8 @@ export default class RBF extends Component {
       this.state = {
         isLoading: false,
         nonReplaceable: true,
-      }
-      return ;
+      };
+      return;
     }
 
     this.state = {
@@ -70,21 +83,20 @@ export default class RBF extends Component {
       txid,
       sourceTx,
       sourceWallet,
-      newDestinationAddress : destinationAddress,
-      feeDelta : '',
-    }
+      newDestinationAddress: destinationAddress,
+      feeDelta: '',
+    };
   }
 
   async componentDidMount() {
-    let startTime = Date.now()
-    console.log('send/details - componentDidMount')
+    let startTime = Date.now();
+    console.log('send/details - componentDidMount');
     this.setState({
       isLoading: false,
-    })
-    let endTime = Date.now()
-    console.log('componentDidMount took', (endTime-startTime)/1000, 'sec')
+    });
+    let endTime = Date.now();
+    console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
   }
-
 
   createTransaction() {
     this.props.navigation.navigate('CreateRBF', {
@@ -93,15 +105,15 @@ export default class RBF extends Component {
       txid: this.state.txid,
       sourceTx: this.state.sourceTx,
       sourceWallet: this.state.sourceWallet,
-    })
+    });
   }
 
   render() {
-    const {navigate} = this.props.navigation;
+    const { navigate } = this.props.navigation;
 
     if (this.state.isLoading) {
       return (
-        <View style={{flex: 1, paddingTop: 20}}>
+        <View style={{ flex: 1, paddingTop: 20 }}>
           <ActivityIndicator />
         </View>
       );
@@ -109,19 +121,17 @@ export default class RBF extends Component {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
-          <BlueSpacing20/>
-          <BlueSpacing20/>
-          <BlueSpacing20/>
-          <BlueSpacing20/>
-          <BlueSpacing20/>
+        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+          <BlueSpacing20 />
 
           <BlueText h4>This transaction is not replaceable</BlueText>
 
           <BlueButton
-            onPress={() =>
-              this.props.navigation.goBack()
-            }
+            onPress={() => this.props.navigation.goBack()}
             title="Back"
           />
         </SafeBlueArea>
@@ -130,77 +140,68 @@ export default class RBF extends Component {
 
     if (!this.state.sourceWallet.getAddress) {
       return (
-        <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
-          <BlueText>System error: Source wallet not found (this should never happen)</BlueText>
+        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+          <BlueText>
+            System error: Source wallet not found (this should never happen)
+          </BlueText>
           <BlueButton
-            onPress={() =>
-              this.props.navigation.goBack()
-            }
+            onPress={() => this.props.navigation.goBack()}
             title="Back"
           />
         </SafeBlueArea>
       );
     }
 
-
-
-
     return (
-      <SafeBlueArea  style={{flex: 1, paddingTop: 20}}>
-        <BlueSpacing/>
-        <BlueCard title={"Replace By Fee"} style={{alignItems: 'center', flex: 1}}>
+      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <BlueSpacing />
+        <BlueCard
+          title={'Replace By Fee'}
+          style={{ alignItems: 'center', flex: 1 }}
+        >
+          <BlueText>
+            RBF allows you to increase fee on already sent but not confirmed
+            transaction, thus speeding up mining
+          </BlueText>
+          <BlueSpacing20 />
 
-          <BlueText>RBF allows you to increase fee on already sent but not confirmed transaction, thus speeding up mining</BlueText>
-          <BlueSpacing20/>
-
-          <BlueText>From wallet '{this.state.sourceWallet.getLabel()}' ({this.state.sourceWallet.getAddress()})</BlueText>
-          <BlueSpacing20/>
+          <BlueText>
+            From wallet '{this.state.sourceWallet.getLabel()}' ({this.state.sourceWallet.getAddress()})
+          </BlueText>
+          <BlueSpacing20 />
 
           <BlueFormInput
-                         onChangeText={(text) => this.setState({newDestinationAddress: text})}
-                         placeholder={"receiver address here"}
-                         value={this.state.newDestinationAddress}
+            onChangeText={text =>
+              this.setState({ newDestinationAddress: text })
+            }
+            placeholder={'receiver address here'}
+            value={this.state.newDestinationAddress}
           />
 
-          <BlueFormInput onChangeText={(text) => this.setState({feeDelta: text})} keyboardType={"numeric"}
-                         placeholder={"fee to add (in BTC)"}
-                         value={this.state.feeDelta + ''}
+          <BlueFormInput
+            onChangeText={text => this.setState({ feeDelta: text })}
+            keyboardType={'numeric'}
+            placeholder={'fee to add (in BTC)'}
+            value={this.state.feeDelta + ''}
           />
-
-
-
-
-
         </BlueCard>
 
-        <View style={{flex: 1, flexDirection: 'row', paddingTop:20,}}>
-          <View style={{flex: 0.33}}>
+        <View style={{ flex: 1, flexDirection: 'row', paddingTop: 20 }}>
+          <View style={{ flex: 0.33 }}>
             <BlueButton
-              onPress={() =>
-                this.props.navigation.goBack()
-              }
+              onPress={() => this.props.navigation.goBack()}
               title="Cancel"
             />
           </View>
-          <View style={{flex: 0.33}}>
-
-
-          </View>
-          <View style={{flex: 0.33}}>
+          <View style={{ flex: 0.33 }} />
+          <View style={{ flex: 0.33 }}>
             <BlueButton
-              onPress={() =>
-                this.createTransaction()
-              }
+              onPress={() => this.createTransaction()}
               title="Create"
             />
           </View>
-
         </View>
-
-
       </SafeBlueArea>
     );
   }
 }
-
-

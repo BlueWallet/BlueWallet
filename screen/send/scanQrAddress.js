@@ -1,38 +1,41 @@
-let BlueApp = require('../../BlueApp')
+let BlueApp = require('../../BlueApp');
 import React from 'react';
-import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
+import {
+  Text,
+  ActivityIndicator,
+  Button,
+  View,
+  TouchableOpacity,
+} from 'react-native';
 import { Camera, Permissions } from 'expo';
-import { AppStorage, LegacyWallet } from '../../class'
+import { AppStorage, LegacyWallet } from '../../class';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-let EV = require('../../events')
+let EV = require('../../events');
 
 export default class CameraExample extends React.Component {
-
-
   state = {
-    isLoading : false,
+    isLoading: false,
     hasCameraPermission: null,
     type: Camera.Constants.Type.back,
   };
 
-  async onBarCodeRead (ret) {
+  async onBarCodeRead(ret) {
     if (this.ignoreRead) return;
     this.ignoreRead = true;
-    let that = this
-    setTimeout(()=>{
+    let that = this;
+    setTimeout(() => {
       that.ignoreRead = false;
-    }, 2000)
+    }, 2000);
 
-    this.props.navigation.goBack()
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, ret.data)
-
+    this.props.navigation.goBack();
+    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, ret.data);
   } // end
 
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({
       hasCameraPermission: status === 'granted',
-      onCameraReady: function () {
+      onCameraReady: function() {
         alert('onCameraReady');
       },
       barCodeTypes: [Camera.Constants.BarCodeType.qr],
@@ -40,10 +43,9 @@ export default class CameraExample extends React.Component {
   }
 
   render() {
-
     if (this.state.isLoading) {
       return (
-        <View style={{flex: 1, paddingTop: 20}}>
+        <View style={{ flex: 1, paddingTop: 20 }}>
           <ActivityIndicator />
         </View>
       );
@@ -57,14 +59,18 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <View style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} type={this.state.type}
-            onBarCodeRead={this.onBarCodeRead.bind(this)}>
+          <Camera
+            style={{ flex: 1 }}
+            type={this.state.type}
+            onBarCodeRead={this.onBarCodeRead.bind(this)}
+          >
             <View
               style={{
                 flex: 1,
                 backgroundColor: 'transparent',
                 flexDirection: 'row',
-              }}>
+              }}
+            >
               <TouchableOpacity
                 style={{
                   flex: 0.2,
@@ -73,17 +79,17 @@ export default class CameraExample extends React.Component {
                 }}
                 onPress={() => {
                   this.setState({
-                    type: this.state.type === Camera.Constants.Type.back
-                      ? Camera.Constants.Type.front
-                      : Camera.Constants.Type.back,
+                    type:
+                      this.state.type === Camera.Constants.Type.back
+                        ? Camera.Constants.Type.front
+                        : Camera.Constants.Type.back,
                   });
-                }}>
+                }}
+              >
                 <Button
                   style={{ fontSize: 18, marginBottom: 10 }}
-                  title='Go back'
-                  onPress={() =>
-                    this.props.navigation.goBack()
-                  }
+                  title="Go back"
+                  onPress={() => this.props.navigation.goBack()}
                 />
               </TouchableOpacity>
             </View>

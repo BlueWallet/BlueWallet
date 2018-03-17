@@ -1,39 +1,39 @@
-import { TabNavigator } from 'react-navigation'
+import { TabNavigator } from 'react-navigation';
 
-import transactions from './screen/transactions'
-import wallets from './screen/wallets'
-import send from './screen/send'
-import settins from './screen/settings'
-import receive from './screen/receive'
+import transactions from './screen/transactions';
+import wallets from './screen/wallets';
+import send from './screen/send';
+import settins from './screen/settings';
+import receive from './screen/receive';
 
 /**
  *
  * @type {AppStorage}
  */
-let BlueApp = require('./BlueApp')
+let BlueApp = require('./BlueApp');
 
 const Tabs = TabNavigator(
   {
     Wallets: {
       screen: wallets,
-      path: 'wallets'
+      path: 'wallets',
     },
     Transactions: {
       screen: transactions,
-      path: 'trans'
+      path: 'trans',
     },
     Send: {
       screen: send,
-      path: 'cart'
+      path: 'cart',
     },
     Receive: {
       screen: receive,
-      path: 'receive'
+      path: 'receive',
     },
     Settings: {
       screen: settins,
-      path: 'settings'
-    }
+      path: 'settings',
+    },
   },
   {
     tabBarPosition: 'bottom',
@@ -42,9 +42,9 @@ const Tabs = TabNavigator(
       activeTintColor: 'white',
       activeBackgroundColor: '#33bdf1',
       inactiveBackgroundColor: BlueApp.settings.brandingColor,
-      inactiveTintColor: 'white'
-    }
-  }
-)
+      inactiveTintColor: 'white',
+    },
+  },
+);
 
-export default Tabs
+export default Tabs;
