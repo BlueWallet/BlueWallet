@@ -1,7 +1,6 @@
-/* global describe, it, jest */
+/* global describe, it */
 
-import React from 'react'
-import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from './class'
+import { LegacyWallet } from './class'
 let assert = require('assert')
 
 describe('unit - LegacyWallet', function () {
