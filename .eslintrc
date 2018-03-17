@@ -1,7 +1,16 @@
 {
   "parser": "babel-eslint",
   "plugins": [
-      "react", "standard"
+      "react", "prettier"
   ],
-  "extends": ["standard", "standard-react"]
+  "extends": ["standard", "standard-react", "prettier"],
+  "rules": {
+    'prettier/prettier': [
+      'warn',
+      {
+        singleQuote: true,
+        trailingComma: 'all',
+      },
+    ]
+  }
 }

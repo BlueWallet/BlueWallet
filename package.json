@@ -14,6 +14,7 @@
     "eslint-plugin-react": "^7.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest-expo": "^23.0.0",
+    "prettier-eslint-cli": "^4.7.1",
     "react-native-scripts": "1.8.1",
     "react-test-renderer": "16.0.0",
     "rn-nodeify": "^8.3.0",
@@ -29,7 +30,7 @@
     "ios": "react-native-scripts ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack",
     "test": "nodejs ./node_modules/.bin/mocha tests/* && node node_modules/jest/bin/jest.js",
-    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js"
+    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js --fix"
   },
   "jest": {
     "preset": "jest-expo"
@@ -39,11 +40,14 @@
     "bignumber.js": "^5.0.0",
     "bitcoinjs-lib": "^3.3.2",
     "buffer": "^4.9.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.0",
     "expo": "^23.0.6",
     "frisbee": "^1.6.4",
     "isaac": "0.0.5",
     "mocha": "^5.0.4",
     "node-libs-react-native": "^1.0.1",
+    "prettier": "^1.11.1",
     "process": "^0.11.10",
     "prop-types": "^15.6.1",
     "react": "16.0.0",

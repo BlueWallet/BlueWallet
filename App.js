@@ -1,63 +1,73 @@
 /** @type {AppStorage} */
-import './shim.js'
-import React from 'react'
-import PropTypes from 'prop-types'
-import { Text, ScrollView, StyleSheet } from 'react-native'
-import { DrawerNavigator, SafeAreaView } from 'react-navigation'
-import MainBottomTabs from './MainBottomTabs'
+import './shim.js';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Text, ScrollView, StyleSheet } from 'react-native';
+import { DrawerNavigator, SafeAreaView } from 'react-navigation';
+import MainBottomTabs from './MainBottomTabs';
 
-require('./BlueApp')
+require('./BlueApp');
 
-if (!Error.captureStackTrace) { // captureStackTrace is only available when debugging
-  Error.captureStackTrace = () => {}
+if (!Error.captureStackTrace) {
+  // captureStackTrace is only available when debugging
+  Error.captureStackTrace = () => {};
 }
 
-const pkg = require('./package.json')
+const pkg = require('./package.json');
 
 // <DrawerItems {...props} />
 
-const CustomDrawerContentComponent = (props) => (
+const CustomDrawerContentComponent = props => (
   <ScrollView>
-    <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
-
-      <Text onPress={() => props.navigation.navigate('AddWallet')} style={styles.heading}> {pkg.name} v{pkg.version}</Text>
+    <SafeAreaView
+      style={styles.container}
+      forceInset={{ top: 'always', horizontal: 'never' }}
+    >
+      <Text
+        onPress={() => props.navigation.navigate('AddWallet')}
+        style={styles.heading}
+      >
+        {' '}
+        {pkg.name} v{pkg.version}
+      </Text>
     </SafeAreaView>
   </ScrollView>
-)
+);
 
 CustomDrawerContentComponent.propTypes = {
   navigation: PropTypes.shape({
-    navigate: PropTypes.func
-  })
-}
+    navigate: PropTypes.func,
+  }),
+};
 
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    flex: 1
+    flex: 1,
   },
   heading: {
     textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
-    fontSize: 20
-  }
-})
+    fontSize: 20,
+  },
+});
 
 /* import scanQrWifLegacyAddress from './screen/wallets/scanQrWifLegacyAddress'
 import scanQrWifSegwitP2SHAddress from './screen/wallets/scanQrWifSegwitP2SHAddress' */
 
-const TabsInDrawer = DrawerNavigator({
-  MainBottomTabs: {
-    screen: MainBottomTabs,
-    navigationOptions: {
-      drawer: () => ({
-        label: 'Tabs'
-      })
-    }
-  }
+const TabsInDrawer = DrawerNavigator(
+  {
+    MainBottomTabs: {
+      screen: MainBottomTabs,
+      navigationOptions: {
+        drawer: () => ({
+          label: 'Tabs',
+        }),
+      },
+    },
 
-  /* SecondaryBottomTabs: {
+    /* SecondaryBottomTabs: {
     screen: SecondaryBottomTabs,
     path: 'chat/aaa',
     navigationOptions: {
@@ -73,13 +83,13 @@ const TabsInDrawer = DrawerNavigator({
       }),
     },
   }, */
+  },
+  {
+    contentComponent: CustomDrawerContentComponent,
+    drawerOpenRoute: 'DrawerOpen',
+    drawerCloseRoute: 'DrawerClose',
+    drawerToggleRoute: 'DrawerToggle',
+  },
+);
 
-}, {
-  contentComponent: CustomDrawerContentComponent,
-  drawerOpenRoute: 'DrawerOpen',
-  drawerCloseRoute: 'DrawerClose',
-  drawerToggleRoute: 'DrawerToggle'
-
-})
-
-export default TabsInDrawer
+export default TabsInDrawer;
