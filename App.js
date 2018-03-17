@@ -1,6 +1,7 @@
 /** @type {AppStorage} */
 import './shim.js'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { Text, ScrollView, StyleSheet } from 'react-native'
 import { DrawerNavigator, SafeAreaView } from 'react-navigation'
 import MainBottomTabs from './MainBottomTabs'
@@ -23,6 +24,12 @@ const CustomDrawerContentComponent = (props) => (
     </SafeAreaView>
   </ScrollView>
 )
+
+CustomDrawerContentComponent.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func
+  })
+}
 
 const styles = StyleSheet.create({
   container: {

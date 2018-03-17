@@ -45,6 +45,7 @@
     "mocha": "^5.0.4",
     "node-libs-react-native": "^1.0.1",
     "process": "^0.11.10",
+    "prop-types": "^15.6.1",
     "react": "16.0.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-23.0.0.tar.gz",
     "react-native-camera": "^0.12.0",
