@@ -470,11 +470,3 @@ export class AppStorage {
     return finalBalance
   }
 }
-
-// unit tests
-let a = new LegacyWallet()
-a.setLabel('my1')
-let key = JSON.stringify(a)
-
-let b = LegacyWallet.fromJson(key)
-assert(key === JSON.stringify(b))

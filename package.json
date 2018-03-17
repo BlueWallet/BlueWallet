@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "0.9.7",
+  "version": "1.0.1",
   "private": true,
   "devDependencies": {
     "jest-expo": "^23.0.0",
@@ -8,7 +8,7 @@
     "react-test-renderer": "16.0.0",
     "rn-nodeify": "^8.3.0",
     "snazzy": "^7.0.0",
-    "standard": "^10.0.3"
+    "standard": "^11.0.0"
   },
   "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "android": "react-native-scripts android",
     "ios": "react-native-scripts ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack",
-    "test": "node node_modules/jest/bin/jest.js --watch"
+    "test": "nodejs ./node_modules/.bin/mocha tests/* && node node_modules/jest/bin/jest.js"
   },
   "jest": {
     "preset": "jest-expo"
@@ -31,6 +31,7 @@
     "expo": "^23.0.6",
     "frisbee": "^1.6.4",
     "isaac": "0.0.5",
+    "mocha": "^5.0.4",
     "node-libs-react-native": "^1.0.1",
     "process": "^0.11.10",
     "react": "16.0.0",

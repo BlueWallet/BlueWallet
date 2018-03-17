@@ -67,9 +67,9 @@ export default class WalletsList extends Component {
       <SafeBlueArea>
         <BlueHeader
           leftComponent={<Icon name='menu' color="#fff"           onPress={() => this.props.navigation.navigate('DrawerToggle') }/>}
-          centerComponent={{ text: 'Blue Wallet alpha', style: { color: '#fff', fontSize: 25 }}}
+          centerComponent={{ text: 'Blue Wallet', style: { color: '#fff', fontSize: 25 }}}
         />
-        <BlueCard title='My Wallets' >
+        <BlueCard title='My Bitcoin Wallets' >
           <BlueText style={{marginBottom: 10}}>
             A wallet represents a pair of a secret (private key) and an address you can share to receive coins.
           </BlueText>
