@@ -34,13 +34,6 @@ const MyHomeScreen = ({ navigation }) => (
   <MyNavScreen banner='Home Screen' navigation={navigation} />
 )
 
-const MyProfileScreen = ({ navigation }) => (
-  <MyNavScreen
-    banner={`${navigation.state.params.name}s Profile`}
-    navigation={navigation}
-  />
-)
-
 const MyNotificationsSettingsScreen = ({ navigation }) => (
   <MyNavScreen banner='Notifications Screen' navigation={navigation} />
 )
@@ -99,13 +92,6 @@ const SecondaryBottomTabs = StackNavigator({
     screen: MyNotificationsSettingsScreen,
     navigationOptions: {
       title: 'Notifications'
-    }
-  },
-  Profile: {
-    screen: MyProfileScreen,
-    path: '/people/:name',
-    navigationOptions: ({ navigation }) => {
-      title: `${navigation.state.params.name}'s Profile!`
     }
   }
 })
