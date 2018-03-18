@@ -96,7 +96,7 @@ export default class CameraExample extends React.Component {
           <Camera
             style={{ flex: 1 }}
             type={this.state.type}
-            onBarCodeRead={(ret) => this.onBarCodeRead(ret)}
+            onBarCodeRead={ret => this.onBarCodeRead(ret)}
           >
             <View
               style={{
