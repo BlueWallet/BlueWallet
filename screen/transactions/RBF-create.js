@@ -1,33 +1,21 @@
 /** @type {AppStorage}  */
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, TextInput, View } from 'react-native';
+import { TextInput } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Icon, Card, Header } from 'react-native-elements';
-import { List, Button, ListItem } from 'react-native-elements';
-import {
-  FormLabel,
-  FormInput,
-  Text,
-  FormValidationMessage,
-} from 'react-native-elements';
+import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
   BlueSpacing20,
-  BlueList,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueListItem,
-  BlueHeader,
-  BlueFormInput,
   BlueSpacing,
 } from '../../BlueComponents';
-let EV = require('../../events');
+import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 let bitcoinjs = require('bitcoinjs-lib');
+let BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {
   static navigationOptions = {
@@ -87,10 +75,10 @@ export default class SendCreate extends Component {
       // lastSequence = 1
     }
 
-    let tx_metadata = BlueApp.tx_metadata[this.state.txid];
-    if (tx_metadata) {
-      if (tx_metadata.last_sequence) {
-        lastSequence = Math.max(lastSequence, tx_metadata.last_sequence);
+    let txMetadata = BlueApp.tx_metadata[this.state.txid];
+    if (txMetadata) {
+      if (txMetadata.last_sequence) {
+        lastSequence = Math.max(lastSequence, txMetadata.last_sequence);
       }
     }
 
@@ -140,7 +128,7 @@ export default class SendCreate extends Component {
           false,
           lastSequence,
         );
-        BlueApp.tx_metadata[this.state.txid] = tx_metadata || {};
+        BlueApp.tx_metadata[this.state.txid] = txMetadata || {};
         BlueApp.tx_metadata[this.state.txid]['last_sequence'] = lastSequence;
 
         // in case new TX get confirmed, we must save metadata under new txid
@@ -152,7 +140,7 @@ export default class SendCreate extends Component {
         //
         BlueApp.saveToDisk();
         console.log(
-          'BlueApp.tx_metadata[this.state.txid]',
+          'BlueApp.txMetadata[this.state.txid]',
           BlueApp.tx_metadata[this.state.txid],
         );
       } catch (err) {
@@ -199,8 +187,6 @@ export default class SendCreate extends Component {
   }
 
   render() {
-    const { navigate } = this.props.navigation;
-
     if (this.state.isError) {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
@@ -305,3 +291,20 @@ export default class SendCreate extends Component {
     );
   }
 }
+
+SendCreate.propTypes = {
+  navigation: PropTypes.shape({
+    goBack: PropTypes.function,
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        address: PropTypes.string,
+        feeDelta: PropTypes.string,
+        fromAddress: PropTypes.string,
+        newDestinationAddress: PropTypes.string,
+        txid: PropTypes.string,
+        sourceTx: PropTypes.string,
+        sourceWallet: PropTypes.object,
+      }),
+    }),
+  }),
+};

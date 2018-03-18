@@ -1,17 +1,8 @@
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import {
-  ActivityIndicator,
-  StyleSheet,
-  ListView,
-  Text,
-  View,
-} from 'react-native';
+import { ListView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   BlueLoading,
-  BlueSpacing20,
   BlueList,
   BlueButton,
   SafeBlueArea,
@@ -19,11 +10,12 @@ import {
   BlueText,
   BlueListItem,
   BlueHeader,
-  BlueFormInput,
-  BlueSpacing,
 } from '../../BlueComponents';
-import { Icon, Header, List, ListItem, Avatar } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
+import PropTypes from 'prop-types';
 let EV = require('../../events');
+/** @type {AppStorage} */
+let BlueApp = require('../../BlueApp');
 
 let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -137,3 +129,9 @@ export default class WalletsList extends Component {
     );
   }
 }
+
+WalletsList.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+  }),
+};

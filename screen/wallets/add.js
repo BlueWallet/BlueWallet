@@ -1,26 +1,17 @@
-let BlueApp = require('../../BlueApp');
-import {
-  AppStorage,
-  LegacyWallet,
-  SegwitBech32Wallet,
-  SegwitP2SHWallet,
-} from '../../class';
+import { SegwitP2SHWallet } from '../../class';
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Button } from 'react-native-elements';
-import { Icon, Card, Header } from 'react-native-elements';
 import {
   BlueSpacing,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueListItem,
-  BlueHeader,
 } from '../../BlueComponents';
+import PropTypes from 'prop-types';
 let EV = require('../../events');
+let BlueApp = require('../../BlueApp');
 
 /*
   <Button
@@ -57,8 +48,6 @@ export default class WalletsAdd extends Component {
   }
 
   render() {
-    const { navigate } = this.props.navigation;
-
     if (this.state.isLoading) {
       return (
         <View style={{ flex: 1, paddingTop: 20 }}>
@@ -118,3 +107,10 @@ export default class WalletsAdd extends Component {
     );
   }
 }
+
+WalletsAdd.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+};

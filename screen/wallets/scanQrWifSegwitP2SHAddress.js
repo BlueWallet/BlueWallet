@@ -1,4 +1,4 @@
-let BlueApp = require('../../BlueApp');
+/* global alert */
 import React from 'react';
 import {
   Text,
@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Camera, Permissions } from 'expo';
-import { AppStorage, LegacyWallet, SegwitP2SHWallet } from '../../class';
+import { SegwitP2SHWallet } from '../../class';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import PropTypes from 'prop-types';
+let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 
 export default class CameraExample extends React.Component {
@@ -31,9 +33,11 @@ export default class CameraExample extends React.Component {
   };
 
   async onBarCodeRead(ret) {
+    console.log('onBarCodeRead', ret)
     for (let w of BlueApp.wallets) {
       // lookig for duplicates
       if (w.getSecret() === ret.data) {
+        alert('Such wallet already exists')
         return; // duplicate, not adding
       }
     }
@@ -94,7 +98,7 @@ export default class CameraExample extends React.Component {
           <Camera
             style={{ flex: 1 }}
             type={this.state.type}
-            onBarCodeRead={this.onBarCodeRead.bind(this)}
+            onBarCodeRead={(ret) => this.onBarCodeRead(ret)}
           >
             <View
               style={{
@@ -131,3 +135,9 @@ export default class CameraExample extends React.Component {
     }
   }
 }
+
+CameraExample.propTypes = {
+  navigation: PropTypes.shape({
+    goBack: PropTypes.func,
+  }),
+};

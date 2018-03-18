@@ -1,21 +1,17 @@
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Icon, Card, Header } from 'react-native-elements';
-import { List, ListItem, Button } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import {
-  BlueList,
-  BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueText,
   BlueListItem,
   BlueHeader,
 } from '../../BlueComponents';
+import PropTypes from 'prop-types';
 let EV = require('../../events');
+/** @type {AppStorage} */
+let BlueApp = require('../../BlueApp');
 
 export default class SendList extends Component {
   static navigationOptions = {
@@ -107,3 +103,9 @@ export default class SendList extends Component {
     );
   }
 }
+
+SendList.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+  }),
+};
