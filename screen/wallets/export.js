@@ -1,18 +1,6 @@
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, TextInput, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Icon, Card, Header } from 'react-native-elements';
-import { List, Button, ListItem } from 'react-native-elements';
-import {
-  Divider,
-  FormLabel,
-  FormInput,
-  Text,
-  FormValidationMessage,
-} from 'react-native-elements';
 import QRCode from 'react-native-qrcode';
 import {
   BlueSpacing,
@@ -20,11 +8,10 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueListItem,
-  BlueHeader,
 } from '../../BlueComponents';
-let EV = require('../../events');
-let BigNumber = require('bignumber.js');
+import PropTypes from 'prop-types';
+/** @type {AppStorage} */
+let BlueApp = require('../../BlueApp');
 
 export default class WalletExport extends Component {
   static navigationOptions = {
@@ -63,8 +50,6 @@ export default class WalletExport extends Component {
   }
 
   render() {
-    const { navigate } = this.props.navigation;
-
     if (this.state.isLoading) {
       return (
         <View style={{ flex: 1, paddingTop: 20 }}>
@@ -110,3 +95,15 @@ export default class WalletExport extends Component {
     );
   }
 }
+
+WalletExport.propTypes = {
+  navigation: PropTypes.shape({
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        address: PropTypes.string,
+      }),
+    }),
+    navigate: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+};

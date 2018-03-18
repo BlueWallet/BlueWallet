@@ -1,24 +1,16 @@
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Icon, Card, Header } from 'react-native-elements';
-import { List, ListItem, Button } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import {
   BlueLoading,
-  BlueSpacing20,
-  BlueList,
-  BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueText,
   BlueListItem,
   BlueHeader,
-  BlueFormInput,
-  BlueSpacing,
 } from '../../BlueComponents';
+import PropTypes from 'prop-types';
+let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 
 export default class ReceiveList extends Component {
@@ -108,3 +100,9 @@ export default class ReceiveList extends Component {
     );
   }
 }
+
+ReceiveList.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+  }),
+};

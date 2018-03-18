@@ -12,7 +12,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const MyNavScreen = ({ navigation, banner }) => (
   <ScrollView>
     <SafeAreaView forceInset={{ horizontal: 'always' }}>
-      <SampleText>{banner}</SampleText>
       <Button
         onPress={() => navigation.navigate('Profile', { name: 'Jordan' })}
         title="Open profile screen"

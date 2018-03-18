@@ -1,32 +1,19 @@
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, TextInput, View } from 'react-native';
+import { TextInput } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Icon, Card, Header } from 'react-native-elements';
-import { List, Button, ListItem } from 'react-native-elements';
-import {
-  FormLabel,
-  FormInput,
-  Text,
-  FormValidationMessage,
-} from 'react-native-elements';
+import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
   BlueSpacing20,
-  BlueList,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueListItem,
-  BlueHeader,
-  BlueFormInput,
   BlueSpacing,
 } from '../../BlueComponents';
-let EV = require('../../events');
+import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
+let BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {
   static navigationOptions = {
@@ -139,8 +126,6 @@ export default class SendCreate extends Component {
   }
 
   render() {
-    const { navigate } = this.props.navigation;
-
     if (this.state.isError) {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
@@ -227,3 +212,18 @@ export default class SendCreate extends Component {
     );
   }
 }
+
+SendCreate.propTypes = {
+  navigation: PropTypes.shape({
+    goBack: PropTypes.function,
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        amount: PropTypes.string,
+        fee: PropTypes.string,
+        address: PropTypes.string,
+        memo: PropTypes.string,
+        fromAddress: PropTypes.string,
+      }),
+    }),
+  }),
+};

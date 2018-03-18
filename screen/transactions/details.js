@@ -1,24 +1,18 @@
-/** @type {AppStorage} */
-
-let BlueApp = require('../../BlueApp');
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { SafeAreaView } from 'react-navigation';
-import { Icon, Card, Header } from 'react-native-elements';
-import { List, Button, ListItem, Text } from 'react-native-elements';
 import {
-  BlueList,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueListItem,
-  BlueHeader,
   BlueSpacing,
   BlueLoading,
   BlueSpacing20,
 } from '../../BlueComponents';
+import PropTypes from 'prop-types';
+/** @type {AppStorage} */
+let BlueApp = require('../../BlueApp');
 
 export default class TransactionsDetails extends Component {
   static navigationOptions = {
@@ -66,8 +60,6 @@ export default class TransactionsDetails extends Component {
   }
 
   render() {
-    const { navigate } = this.props.navigation;
-
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
@@ -83,7 +75,6 @@ export default class TransactionsDetails extends Component {
           style={{ alignItems: 'center', flex: 1 }}
         >
           {(() => {
-            let memo;
             if (BlueApp.tx_metadata[this.state.tx.hash]) {
               if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
                 return (
@@ -142,3 +133,15 @@ export default class TransactionsDetails extends Component {
     );
   }
 }
+
+TransactionsDetails.propTypes = {
+  navigation: PropTypes.shape({
+    goBack: PropTypes.function,
+    navigate: PropTypes.func,
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        hash: PropTypes.string,
+      }),
+    }),
+  }),
+};
