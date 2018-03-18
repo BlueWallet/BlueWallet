@@ -1,19 +1,21 @@
-import React from 'react'
-import { StackNavigator } from 'react-navigation'
+import { StackNavigator } from 'react-navigation';
 
-import list from './receive/list'
-import details from './receive/details'
+import list from './receive/list';
+import details from './receive/details';
 
-const ReceiveNavigator = StackNavigator({
-  SendList: {
-    screen: list
+const ReceiveNavigator = StackNavigator(
+  {
+    SendList: {
+      screen: list,
+    },
+    ReceiveDetails: {
+      screen: details,
+    },
   },
-  ReceiveDetails: {
-    screen: details
-  }
-}, {
-  headerMode: 'none',
-  mode: 'modal'
-})
+  {
+    headerMode: 'none',
+    mode: 'modal',
+  },
+);
 
-export default ReceiveNavigator
+export default ReceiveNavigator;
