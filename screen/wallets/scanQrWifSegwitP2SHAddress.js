@@ -33,11 +33,11 @@ export default class CameraExample extends React.Component {
   };
 
   async onBarCodeRead(ret) {
-    console.log('onBarCodeRead', ret)
+    console.log('onBarCodeRead', ret);
     for (let w of BlueApp.wallets) {
       // lookig for duplicates
       if (w.getSecret() === ret.data) {
-        alert('Such wallet already exists')
+        alert('Such wallet already exists');
         return; // duplicate, not adding
       }
     }
@@ -98,7 +98,7 @@ export default class CameraExample extends React.Component {
           <Camera
             style={{ flex: 1 }}
             type={this.state.type}
-            onBarCodeRead={(ret) => this.onBarCodeRead(ret)}
+            onBarCodeRead={ret => this.onBarCodeRead(ret)}
           >
             <View
               style={{
