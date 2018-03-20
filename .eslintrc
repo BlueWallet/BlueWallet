@@ -9,8 +9,8 @@
       'warn',
       {
         singleQuote: true,
-        trailingComma: 'all',
-      },
+        trailingComma: 'all'
+      }
     ]
   }
 }

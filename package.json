@@ -30,7 +30,8 @@
     "ios": "react-native-scripts ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack",
     "test": "nodejs ./node_modules/.bin/mocha tests/* && node node_modules/jest/bin/jest.js && npm run lint",
-    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/  --fix"
+    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/  --fix",
+    "test-only": "./node_modules/.bin/mocha tests/**/*.js"
   },
   "jest": {
     "preset": "jest-expo"
@@ -38,6 +39,7 @@
   "dependencies": {
     "asyncstorage-down": "^3.1.1",
     "bignumber.js": "^5.0.0",
+    "bip21": "^2.0.1",
     "bitcoinjs-lib": "^3.3.2",
     "buffer": "^4.9.1",
     "eslint-config-prettier": "^2.9.0",

@@ -19,12 +19,11 @@ export default class CameraExample extends React.Component {
   };
 
   async onBarCodeRead(ret) {
-    if (this.ignoreRead) return;
-    this.ignoreRead = true;
-    let that = this;
+    if (this.ignoreRead) return
+    this.ignoreRead = true
     setTimeout(() => {
-      that.ignoreRead = false;
-    }, 2000);
+      this.ignoreRead = false
+    }, 2000)
 
     this.props.navigation.goBack();
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, ret.data);
