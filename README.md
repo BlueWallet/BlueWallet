@@ -103,7 +103,7 @@ Support for single private-key wallets:
         * Receive through changelly/shapeshift
 * Send    
     * Handle `bitcoin://` URI
-    * Scan QR with `bitcoin://` URI
+    * ~~Scan QR with `bitcoin://` URI~~
 * Transactions
     * ~~Sub screen to view transaction details (confs, fee, seen date, confirmed date, time to confirm)~~
         * ~~Do RBF on TX (with change-destination address)~~
