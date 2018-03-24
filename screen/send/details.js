@@ -12,12 +12,12 @@ import {
   BlueSpacing,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-const bip21 = require('bip21')
+const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
 
-const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/
+const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
   static navigationOptions = {
@@ -67,16 +67,16 @@ export default class SendDetails extends Component {
       if (btcAddressRx.test(data)) {
         this.setState({
           address: data,
-        })
+        });
       } else {
-        const { address, options } = bip21.decode(data)
+        const { address, options } = bip21.decode(data);
 
         if (btcAddressRx.test(address)) {
           this.setState({
             address,
             amount: options.amount,
-            memo: options.label
-          })
+            memo: options.label,
+          });
         }
       }
     });

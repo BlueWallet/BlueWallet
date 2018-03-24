@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Text, ScrollView, StyleSheet } from 'react-native';
 import { DrawerNavigator, SafeAreaView } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
+import Selftest from './screen/selftest';
 
 require('./BlueApp');
 
@@ -66,22 +67,10 @@ const TabsInDrawer = DrawerNavigator(
       },
     },
 
-    /* SecondaryBottomTabs: {
-    screen: SecondaryBottomTabs,
-    path: 'chat/aaa',
-    navigationOptions: {
-      drawer: () => ({
-        label: 'SecondaryBottomTabs',
-        icon: ({ tintColor }) => (
-          <MaterialIcons
-            name="filter-2"
-            size={24}
-            style={{ color: tintColor }}
-          />
-        ),
-      }),
+    Selftest: {
+      screen: Selftest,
+      navigationOptions: {},
     },
-  }, */
   },
   {
     contentComponent: CustomDrawerContentComponent,

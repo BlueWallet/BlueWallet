@@ -1,4 +1,5 @@
-import { AsyncStorage } from 'react-native'
+import { AsyncStorage } from 'react-native';
+import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from './';
 
 export class AppStorage {
   constructor() {

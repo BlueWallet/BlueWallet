@@ -7,8 +7,10 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
+  BlueButton,
   BlueHeader,
 } from '../BlueComponents';
+import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet } from '../class';
 let BlueApp = require('../BlueApp');
 let BigNumber = require('bignumber.js');
@@ -38,7 +40,7 @@ export default class Selftest extends Component {
 
     let uniqs = {};
     let w = new SegwitP2SHWallet();
-    for (let c = 0; c < 10000; c++) {
+    for (let c = 0; c < 1000; c++) {
       w.generate();
       if (uniqs[w.getSecret()]) {
         errorMessage += 'failed to generate unique private key; ';
@@ -161,6 +163,14 @@ export default class Selftest extends Component {
                 );
               }
             })()}
+
+            <BlueButton
+              icon={{ name: 'arrow-left', type: 'octicon' }}
+              title="Go Back"
+              onPress={() => {
+                this.props.navigation.goBack();
+              }}
+            />
           </ScrollView>
         </BlueCard>
       </SafeBlueArea>
@@ -168,4 +178,9 @@ export default class Selftest extends Component {
   }
 }
 
-Selftest.propTypes = {};
+Selftest.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+};

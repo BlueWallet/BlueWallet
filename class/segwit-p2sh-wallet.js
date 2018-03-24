@@ -1,7 +1,7 @@
-import { LegacyWallet } from './legacy-wallet'
-const bitcoin = require('bitcoinjs-lib')
-const signer = require('../models/signer')
-const BigNumber = require('bignumber.js')
+import { LegacyWallet } from './legacy-wallet';
+const bitcoin = require('bitcoinjs-lib');
+const signer = require('../models/signer');
+const BigNumber = require('bignumber.js');
 
 export class SegwitP2SHWallet extends LegacyWallet {
   constructor() {

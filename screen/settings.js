@@ -60,6 +60,7 @@ export default class Settings extends Component {
             style: { color: '#fff', fontSize: 25 },
           }}
         />
+
         <BlueCard>
           <ScrollView maxHeight={450}>
             <BlueText h1>About</BlueText>
@@ -97,6 +98,13 @@ export default class Settings extends Component {
             <BlueText h4>
               * Design by https://dribbble.com/chrometaphore
             </BlueText>
+
+            <BlueButton
+              onPress={() => {
+                this.props.navigation.navigate('Selftest');
+              }}
+              title="Run self test"
+            />
           </ScrollView>
         </BlueCard>
       </SafeBlueArea>

@@ -1,9 +1,10 @@
-import { AbstractWallet } from './abstract-wallet'
-import { useBlockcypherTokens } from './constants'
-import Frisbee from 'frisbee'
-const isaac = require('isaac')
-const BigNumber = require('bignumber.js')
-const bitcoin = require('bitcoinjs-lib')
+/* global fetch */
+import { AbstractWallet } from './abstract-wallet';
+import { useBlockcypherTokens } from './constants';
+import Frisbee from 'frisbee';
+const isaac = require('isaac');
+const BigNumber = require('bignumber.js');
+const bitcoin = require('bitcoinjs-lib');
 
 /**
  *  Has private key and address signle like "1ABCD....."
@@ -256,6 +257,5 @@ export class LegacyWallet extends AbstractWallet {
     let res = await api.get('/broadcast/' + txhex);
     console.log('response', res.body);
     return res.body;
-
   }
 }
