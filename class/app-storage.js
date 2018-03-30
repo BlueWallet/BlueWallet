@@ -13,6 +13,19 @@ export class AppStorage {
     };
   }
 
+  async storageIsEncrypted() {
+    let data;
+    try {
+      data = await AsyncStorage.getItem('data_encrypted');
+    } catch (error) {
+      return false;
+    }
+
+    if (data) {
+      return true;
+    }
+  }
+
   async loadFromDisk() {
     try {
       let data = await AsyncStorage.getItem('data');

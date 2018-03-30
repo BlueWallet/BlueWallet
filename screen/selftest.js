@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet } from '../class';
 let BlueApp = require('../BlueApp');
 let BigNumber = require('bignumber.js');
+let encryption = require('../encryption');
 
 export default class Selftest extends Component {
   static navigationOptions = {
@@ -122,6 +123,14 @@ export default class Selftest extends Component {
     }
 
     //
+
+    let crypted = encryption.encrypt('data', 'password');
+    let decrypted = encryption.decrypt(crypted, 'password');
+
+    if (decrypted !== 'data' && crypted && decrypted) {
+      errorMessage += 'encryption lib is not ok; ';
+      isOk = false;
+    }
 
     this.setState({
       isLoading: false,
