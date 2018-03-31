@@ -12,6 +12,12 @@ describe('unit - encryption', function () {
     assert.ok(decrypted);
     assert.equal(decrypted, 'data');
     assert.ok(crypted !== 'data');
+
+    let decryptedWithBadPassword
+    try {
+      decryptedWithBadPassword = c.decrypt(crypted, 'passwordBad');
+    } catch (e) {}
+    assert.ok(!decryptedWithBadPassword)
   })
 
 })

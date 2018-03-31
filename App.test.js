@@ -64,28 +64,93 @@ it('Selftest work', () => {
   assert.ok(okFound, 'OK not found. Got: ' + allTests.join('; '));
 });
 
-it('Appstorage works', async () => {
+it('Appstorage - loadFromDisk works', async () => {
+  AsyncStorage.storageCache = {}; // cleanup from other tests
   /** @type {AppStorage} */
   let Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   w.generate();
   Storage.wallets.push(w);
-  Storage.saveToDisk();
+  await Storage.saveToDisk();
+
+  // saved, now trying to load
 
   let Storage2 = new AppStorage();
   await Storage2.loadFromDisk();
+  assert.equal(Storage2.wallets.length, 1);
+  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
   let isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(!isEncrypted);
 
-  assert.equal(Storage2.wallets.length, 1);
-  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
-
-  // emulating encrypted storage
+  // emulating encrypted storage (and testing flag)
 
   AsyncStorage.storageCache.data = false;
-  AsyncStorage.storageCache.data_encrypted = 'encrypteddata';
+  AsyncStorage.storageCache.data_encrypted = '1'; // flag
   let Storage3 = new AppStorage();
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
+});
+
+it('Appstorage - encryptStorage & load encrypted storage works', async () => {
+  AsyncStorage.storageCache = {}; // cleanup from other tests
+
+  /** @type {AppStorage} */
+  let Storage = new AppStorage();
+  let w = new SegwitP2SHWallet();
+  w.setLabel('testlabel');
+  w.generate();
+  Storage.wallets.push(w);
+  await Storage.saveToDisk();
+  let isEncrypted = await Storage.storageIsEncrypted();
+  assert.ok(!isEncrypted);
+  await Storage.encryptStorage('password');
+  isEncrypted = await Storage.storageIsEncrypted();
+  assert.ok(isEncrypted);
+
+  // saved, now trying to load, using good password
+
+  let Storage2 = new AppStorage();
+  isEncrypted = await Storage2.storageIsEncrypted();
+  assert.ok(isEncrypted);
+  let loadResult = await Storage2.loadFromDisk('password');
+  assert.ok(loadResult);
+  assert.equal(Storage2.wallets.length, 1);
+  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
+
+  // now trying to load, using bad password
+
+  Storage2 = new AppStorage();
+  isEncrypted = await Storage2.storageIsEncrypted();
+  assert.ok(isEncrypted);
+  loadResult = await Storage2.loadFromDisk('passwordBAD');
+  assert.ok(!loadResult);
+  assert.equal(Storage2.wallets.length, 0);
+
+  // now, trying case with adding data after decrypt.
+  // saveToDisk should be handled correctly
+
+  Storage2 = new AppStorage();
+  isEncrypted = await Storage2.storageIsEncrypted();
+  assert.ok(isEncrypted);
+  loadResult = await Storage2.loadFromDisk('password');
+  assert.ok(loadResult);
+  assert.equal(Storage2.wallets.length, 1);
+  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
+  w = new SegwitP2SHWallet();
+  w.setLabel('testlabel2');
+  w.generate();
+  Storage2.wallets.push(w);
+  assert.equal(Storage2.wallets.length, 2);
+  assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
+  await Storage2.saveToDisk();
+  // saved to encrypted storage after load. next load should be successfull
+  Storage2 = new AppStorage();
+  isEncrypted = await Storage2.storageIsEncrypted();
+  assert.ok(isEncrypted);
+  loadResult = await Storage2.loadFromDisk('password');
+  assert.ok(loadResult);
+  assert.equal(Storage2.wallets.length, 2);
+  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
+  assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
 });
