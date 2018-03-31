@@ -1,4 +1,3 @@
-/* global alert */
 /**
  * @exports {AppStorage}
  */
@@ -9,11 +8,11 @@ let EV = require('./events');
 /** @type {AppStorage} */
 let BlueApp = new AppStorage();
 
-(async () => {
+async function startAndDecrypt(retry) {
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {
     password = await prompt(
-      'Enter password',
+      (retry && 'Bad pasword, try again') || 'Enter password',
       'Your storage is encrypted. Password is required to decrypt it',
     );
   }
@@ -26,8 +25,10 @@ let BlueApp = new AppStorage();
 
   if (!success && password) {
     // we had password and yet could not load/decrypt
-    alert('Could not decrypt. Bad password.');
+    await startAndDecrypt(true);
   }
-})();
+}
+
+startAndDecrypt();
 
 module.exports = BlueApp;

@@ -7,14 +7,6 @@ module.exports = function(title, text) {
       text,
       [
         {
-          text: 'Cancel',
-          onPress: () => {
-            console.log('Cancel Pressed');
-            reject(new Error('Cancel Pressed'));
-          },
-          style: 'cancel',
-        },
-        {
           text: 'OK',
           onPress: password => {
             console.log('OK Pressed, password: ' + password);

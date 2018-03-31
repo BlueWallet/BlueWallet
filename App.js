@@ -5,6 +5,7 @@ import { Text, ScrollView, StyleSheet } from 'react-native';
 import { DrawerNavigator, SafeAreaView } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import Selftest from './screen/selftest';
+import About from './screen/about';
 
 require('./BlueApp');
 
@@ -53,9 +54,6 @@ const styles = StyleSheet.create({
   },
 });
 
-/* import scanQrWifLegacyAddress from './screen/wallets/scanQrWifLegacyAddress'
-import scanQrWifSegwitP2SHAddress from './screen/wallets/scanQrWifSegwitP2SHAddress' */
-
 const TabsInDrawer = DrawerNavigator(
   {
     MainBottomTabs: {
@@ -66,9 +64,12 @@ const TabsInDrawer = DrawerNavigator(
         }),
       },
     },
-
     Selftest: {
       screen: Selftest,
+      navigationOptions: {},
+    },
+    About: {
+      screen: About,
       navigationOptions: {},
     },
   },

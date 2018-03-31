@@ -40,7 +40,6 @@ export default class WalletsList extends Component {
   }
 
   async componentDidMount() {
-    console.log('wallets/list - componentDidMount');
     this.refreshFunction();
   } // end of componendDidMount
 

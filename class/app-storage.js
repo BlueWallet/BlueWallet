@@ -78,8 +78,11 @@ export class AppStorage {
     try {
       let data = await AsyncStorage.getItem('data');
       if (password) {
-        this.cachedPassword = password;
         data = this.decryptData(data, password);
+        if (data) {
+          // password is good, cache it
+          this.cachedPassword = password;
+        }
       }
       if (data !== null) {
         data = JSON.parse(data);
@@ -167,9 +170,12 @@ export class AppStorage {
           newData.push(
             encryption.encrypt(JSON.stringify(data), this.cachedPassword),
           );
+          await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }
       data = newData;
+    } else {
+      await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
 
     return AsyncStorage.setItem('data', JSON.stringify(data));

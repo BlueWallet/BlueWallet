@@ -1,7 +1,8 @@
+/* global alert */
 import React, { Component } from 'react';
-import { ScrollView, Linking } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Icon } from 'react-native-elements';
+import { Icon, FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
   BlueSpacing20,
@@ -12,7 +13,9 @@ import {
   BlueHeader,
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
+/** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
+let prompt = require('../prompt');
 
 export default class Settings extends Component {
   static navigationOptions = {
@@ -36,6 +39,7 @@ export default class Settings extends Component {
   async componentDidMount() {
     this.setState({
       isLoading: false,
+      storageIsEncrypted: await BlueApp.storageIsEncrypted(),
     });
   }
 
@@ -63,47 +67,54 @@ export default class Settings extends Component {
 
         <BlueCard>
           <ScrollView maxHeight={450}>
-            <BlueText h1>About</BlueText>
             <BlueSpacing20 />
 
-            <BlueText h4>
-              Blue Wallet is free and opensource Bitcoin wallet
-            </BlueText>
-            <BlueText>
-              Warning: Alpha version, don't use to store large amouts!
-            </BlueText>
+            {(() => {
+              if (this.state.storageIsEncrypted) {
+                return (
+                  <View>
+                    <BlueText>Storage: encrypted</BlueText>
+                  </View>
+                );
+              } else {
+                return (
+                  <View>
+                    <FormValidationMessage>
+                      Storage: not encrypted
+                    </FormValidationMessage>
+                    <BlueButton
+                      icon={{ name: 'stop', type: 'octicon' }}
+                      onPress={async () => {
+                        this.setState({ isLoading: true });
+                        let p1 = await prompt(
+                          'Password',
+                          'Create the password you will use to decrypt the storage',
+                        );
+                        let p2 = await prompt(
+                          'Password',
+                          'Re-type the password',
+                        );
+                        if (p1 === p2) {
+                          await BlueApp.encryptStorage(p1);
+                          this.setState({
+                            isLoading: false,
+                            storageIsEncrypted: await BlueApp.storageIsEncrypted(),
+                          });
+                        } else {
+                          this.setState({ isLoading: false });
+                          alert('Passwords do not match. Please try again');
+                        }
+                      }}
+                      title="Encrypt storage"
+                    />
+                  </View>
+                );
+              }
+            })()}
+
             <BlueButton
-              icon={{ name: 'octoface', type: 'octicon' }}
-              onPress={() => {
-                Linking.openURL('https://github.com/Overtorment/BlueWallet');
-              }}
-              title="github.com/Overtorment/BlueWallet"
-            />
-
-            <BlueSpacing20 />
-            <BlueText h4>Licensed MIT</BlueText>
-            <BlueSpacing20 />
-
-            <BlueText h3>Built with awesome:</BlueText>
-            <BlueSpacing20 />
-            <BlueText h4>* React Native</BlueText>
-            <BlueText h4>* Bitcoinjs-lib</BlueText>
-            <BlueText h4>* blockcypher.com API</BlueText>
-            <BlueText h4>* Nodejs</BlueText>
-            <BlueText h4>* Expo</BlueText>
-            <BlueText h4>* react-native-elements</BlueText>
-            <BlueText h4>* rn-nodeify</BlueText>
-            <BlueText h4>* bignumber.js</BlueText>
-            <BlueText h4>* https://github.com/StefanoBalocco/isaac.js</BlueText>
-            <BlueText h4>
-              * Design by https://dribbble.com/chrometaphore
-            </BlueText>
-
-            <BlueButton
-              onPress={() => {
-                this.props.navigation.navigate('Selftest');
-              }}
-              title="Run self test"
+              onPress={() => this.props.navigation.navigate('About')}
+              title="About"
             />
           </ScrollView>
         </BlueCard>
