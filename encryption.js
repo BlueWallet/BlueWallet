@@ -7,5 +7,9 @@ module.exports.encrypt = function(data, password) {
 
 module.exports.decrypt = function(data, password) {
   let bytes = CryptoJS.AES.decrypt(data, password);
-  return bytes.toString(CryptoJS.enc.Utf8);
+  let str = false;
+  try {
+    str = bytes.toString(CryptoJS.enc.Utf8);
+  } catch (e) {}
+  return str;
 };

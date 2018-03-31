@@ -63,8 +63,32 @@ export class AppStorage {
     data = [];
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
+    this.cachedPassword = password;
     await AsyncStorage.setItem('data', data);
     await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+  }
+
+  /**
+   * Cleans up all current application data (wallets, tx metadata etc)
+   * Encrypts the bucket and saves it storage
+   *
+   * @returns {Promise.<boolean>} Success or failure
+   */
+  async createFakeStorage(fakePassword) {
+    this.wallets = [];
+    this.tx_metadata = {};
+
+    let data = {
+      wallets: [],
+      tx_metadata: {},
+    };
+
+    let buckets = await AsyncStorage.getItem('data');
+    buckets = JSON.parse(buckets);
+    buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
+    this.cachedPassword = fakePassword;
+
+    return AsyncStorage.setItem('data', JSON.stringify(buckets));
   }
 
   /**
@@ -182,14 +206,12 @@ export class AppStorage {
   }
 
   async fetchWalletBalances() {
-    // console.warn('app - fetchWalletBalances()')
     for (let wallet of this.wallets) {
       await wallet.fetchBalance();
     }
   }
 
   async fetchWalletTransactions() {
-    // console.warn('app - fetchWalletTransactions()')
     for (let wallet of this.wallets) {
       await wallet.fetchTransactions();
     }

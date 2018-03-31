@@ -74,6 +74,12 @@ export default class Settings extends Component {
                 return (
                   <View>
                     <BlueText>Storage: encrypted</BlueText>
+                    <BlueButton
+                      onPress={() =>
+                        this.props.navigation.navigate('PlausibleDeniability')
+                      }
+                      title="Plausible deniability..."
+                    />
                   </View>
                 );
               } else {
@@ -83,13 +89,17 @@ export default class Settings extends Component {
                       Storage: not encrypted
                     </FormValidationMessage>
                     <BlueButton
-                      icon={{ name: 'stop', type: 'octicon' }}
+                      icon={{ name: 'shield', type: 'octicon' }}
                       onPress={async () => {
                         this.setState({ isLoading: true });
                         let p1 = await prompt(
                           'Password',
                           'Create the password you will use to decrypt the storage',
                         );
+                        if (!p1) {
+                          this.setState({ isLoading: false });
+                          return;
+                        }
                         let p2 = await prompt(
                           'Password',
                           'Re-type the password',

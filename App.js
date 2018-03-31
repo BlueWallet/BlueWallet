@@ -6,6 +6,7 @@ import { DrawerNavigator, SafeAreaView } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import Selftest from './screen/selftest';
 import About from './screen/about';
+import PlausibleDeniability from './screen/plausibledeniability';
 
 require('./BlueApp');
 
@@ -70,6 +71,10 @@ const TabsInDrawer = DrawerNavigator(
     },
     About: {
       screen: About,
+      navigationOptions: {},
+    },
+    PlausibleDeniability: {
+      screen: PlausibleDeniability,
       navigationOptions: {},
     },
   },

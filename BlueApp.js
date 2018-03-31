@@ -11,10 +11,12 @@ let BlueApp = new AppStorage();
 async function startAndDecrypt(retry) {
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {
-    password = await prompt(
-      (retry && 'Bad pasword, try again') || 'Enter password',
-      'Your storage is encrypted. Password is required to decrypt it',
-    );
+    do {
+      password = await prompt(
+        (retry && 'Bad pasword, try again') || 'Enter password',
+        'Your storage is encrypted. Password is required to decrypt it',
+      );
+    } while (!password);
   }
   let success = await BlueApp.loadFromDisk(password);
   if (success) {
@@ -25,7 +27,7 @@ async function startAndDecrypt(retry) {
 
   if (!success && password) {
     // we had password and yet could not load/decrypt
-    await startAndDecrypt(true);
+    return startAndDecrypt(true);
   }
 }
 

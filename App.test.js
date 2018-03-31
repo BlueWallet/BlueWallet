@@ -106,6 +106,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.ok(!isEncrypted);
   await Storage.encryptStorage('password');
   isEncrypted = await Storage.storageIsEncrypted();
+  assert.equal(Storage.cachedPassword, 'password');
   assert.ok(isEncrypted);
 
   // saved, now trying to load, using good password
@@ -153,4 +154,30 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.equal(Storage2.wallets.length, 2);
   assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
   assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
+
+  // next, adding new `fake` storage which should be unlocked with `fake` password
+  let createFakeStorageResult = await Storage2.createFakeStorage(
+    'fakePassword',
+  );
+  assert.ok(createFakeStorageResult);
+  assert.equal(Storage2.wallets.length, 0);
+  assert.equal(Storage2.cachedPassword, 'fakePassword');
+  w = new SegwitP2SHWallet();
+  w.setLabel('fakewallet');
+  w.generate();
+  Storage2.wallets.push(w);
+  await Storage2.saveToDisk();
+  // now, will try to load & decrypt with real password and with fake password
+  // real:
+  let Storage3 = new AppStorage();
+  loadResult = await Storage3.loadFromDisk('password');
+  assert.ok(loadResult);
+  assert.equal(Storage3.wallets.length, 2);
+  assert.equal(Storage3.wallets[0].getLabel(), 'testlabel');
+  // fake:
+  Storage3 = new AppStorage();
+  loadResult = await Storage3.loadFromDisk('fakePassword');
+  assert.ok(loadResult);
+  assert.equal(Storage3.wallets.length, 1);
+  assert.equal(Storage3.wallets[0].getLabel(), 'fakewallet');
 });
