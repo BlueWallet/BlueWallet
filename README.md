@@ -32,7 +32,7 @@ npm start
 
 ## ALTERNATIVELY
 
-* Install Expo Client
+* Install Expo Client: https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8
 * Launch BlueWallet from https://expo.io/@overtorment/bluewallet
 
 ## MOTIVATION TO BUILD IT
@@ -89,7 +89,7 @@ Support for single private-key wallets:
 ### v2.0.0 beta
 
 * Legacy addresses
-* Encrypt all storage, PIN/Password/Fingerprint security
+* ~~Encrypt all storage, PIN/Password/Fingerprint security~~
 * Currency conversion
 * Localization (RU, UA)
 
@@ -102,7 +102,7 @@ Support for single private-key wallets:
     * Choose walet
         * Receive through changelly/shapeshift
 * Send    
-    * Handle `bitcoin://` URI
+    * ~~Handle `bitcoin://` URI~~
     * ~~Scan QR with `bitcoin://` URI~~
 * Transactions
     * ~~Sub screen to view transaction details (confs, fee, seen date, confirmed date, time to confirm)~~
@@ -149,4 +149,5 @@ Lightning support?
 * [ ] Keep PrivKey/WIF on paper, scan only on TX signing, not keping on device (watch-only address)
 * [ ] Decode TX screen
 * [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo
-* [ ] Fake password which unlocks fake wallets (aka plausible deniability)
+* [x] Fake password which unlocks fake wallets (aka plausible deniability)
+* [x] BIP38 (password-protected key)

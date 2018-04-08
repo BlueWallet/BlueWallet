@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "devDependencies": {
     "babel-eslint": "^8.2.2",
@@ -17,7 +17,7 @@
     "prettier-eslint-cli": "^4.7.1",
     "react-native-scripts": "1.8.1",
     "react-test-renderer": "16.0.0",
-    "rn-nodeify": "^8.3.0",
+    "rn-nodeify": "github:mvayngrib/rn-nodeify",
     "snazzy": "^7.0.0",
     "standard": "^11.0.1"
   },
@@ -41,6 +41,8 @@
     "asyncstorage-down": "^3.1.1",
     "bignumber.js": "^5.0.0",
     "bip21": "^2.0.1",
+    "bip38": "https://github.com/Overtorment/bip38",
+    "wif": "^2.0.1",
     "bitcoinjs-lib": "^3.3.2",
     "buffer": "^4.9.1",
     "crypto-js": "^3.1.9-1",

@@ -181,3 +181,22 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.equal(Storage3.wallets.length, 1);
   assert.equal(Storage3.wallets[0].getLabel(), 'fakewallet');
 });
+
+it('bip38 decodes', async () => {
+  const bip38 = require('bip38');
+  const wif = require('wif');
+
+  let encryptedKey =
+    '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
+  let decryptedKey = await bip38.decrypt(
+    encryptedKey,
+    'TestingOneTwoThree',
+    () => {},
+    { N: 1, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
+  );
+
+  assert.equal(
+    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
+    '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR',
+  );
+});
