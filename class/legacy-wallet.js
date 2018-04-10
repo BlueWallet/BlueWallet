@@ -101,6 +101,10 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async fetchUtxo() {
+    const api = new Frisbee({
+      baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/',
+    });
+
     let response;
     let token = (array => {
       for (let i = array.length - 1; i > 0; i--) {
@@ -116,33 +120,36 @@ export class LegacyWallet extends AbstractWallet {
       'e5926dbeb57145979153adc41305b183',
     ]);
     try {
-      // TODO: hande case when there's more than 2000 UTXOs (do pagination)
-      // TODO: (2000 is max UTXOs we can fetch in one call)
-      if (useBlockcypherTokens) {
-        response = await fetch(
-          'https://api.blockcypher.com/v1/btc/main/addrs/' +
-            this.getAddress() +
-            '?unspentOnly=true&limit=2000&token=' +
-            token,
+      let maxHeight = 0;
+      this.utxo = [];
+      let json;
+
+      do {
+        response = await api.get(
+          this.getAddress() +
+            '?limit=2000&after=' +
+            maxHeight +
+            ((useBlockcypherTokens && '&token=' + token) || ''),
         );
-      } else {
-        response = await fetch(
-          'https://api.blockcypher.com/v1/btc/main/addrs/' +
-            this.getAddress() +
-            '?unspentOnly=true&limit=2000',
-        );
-      }
-      let json = await response.json();
-      if (typeof json.final_balance === 'undefined') {
-        throw new Error('Could not fetch UTXO from API');
-      }
-      json.txrefs = json.txrefs || []; // case when source address is empty
-      this.utxo = json.txrefs;
+        json = response.body;
+        if (
+          typeof json === 'undefined' ||
+          typeof json.final_balance === 'undefined'
+        ) {
+          throw new Error('Could not fetch UTXO from API' + response.err);
+        }
+        json.txrefs = json.txrefs || []; // case when source address is empty (or maxheight too high, no txs)
+
+        for (let txref of json.txrefs) {
+          maxHeight = Math.max(maxHeight, txref.block_height) + 1;
+          if (typeof txref.spent !== 'undefined' && txref.spent === false) {
+            this.utxo.push(txref);
+          }
+        }
+      } while (json.txrefs.length);
 
       json.unconfirmed_txrefs = json.unconfirmed_txrefs || [];
       this.utxo = this.utxo.concat(json.unconfirmed_txrefs);
-
-      console.log('got utxo: ', this.utxo);
     } catch (err) {
       console.warn(err);
     }
