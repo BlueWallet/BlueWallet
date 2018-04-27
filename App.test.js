@@ -206,9 +206,4 @@ it('Wallet can fetch UTXO', async () => {
   w._address = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX';
   await w.fetchUtxo();
   assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
-
-  w._address = '3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2';
-  await w.fetchUtxo();
-  assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
-  assert.ok(w.utxo.length === 2);
 });
