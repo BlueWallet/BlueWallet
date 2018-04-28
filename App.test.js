@@ -1,4 +1,4 @@
-/* global describe, it, expect, jest */
+/* global describe, it, expect, jest, jasmine */
 import React from 'react';
 import { LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
 import renderer from 'react-test-renderer';
@@ -183,7 +183,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
 });
 
 it('bip38 decodes', async () => {
-  const bip38 = require('bip38');
+  const bip38 = require('./bip38');
   const wif = require('wif');
 
   let encryptedKey =
@@ -198,6 +198,23 @@ it('bip38 decodes', async () => {
   assert.equal(
     wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
     '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR',
+  );
+});
+
+it('bip38 decodes slow', async () => {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+  const bip38 = require('bip38');
+  const wif = require('wif');
+
+  let encryptedKey =
+    '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
+  let decryptedKey = await bip38.decrypt(encryptedKey, 'qwerty', status =>
+    process.stdout.write(parseInt(status.percent) + '%\r'),
+  );
+
+  assert.equal(
+    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
+    'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
   );
 });
 

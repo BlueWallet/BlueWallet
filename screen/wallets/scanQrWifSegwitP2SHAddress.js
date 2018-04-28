@@ -14,7 +14,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
-let bip38 = require('bip38');
+let bip38 = require('../../bip38');
 let wif = require('wif');
 let prompt = require('../../prompt');
 
@@ -46,6 +46,7 @@ export default class CameraExample extends React.Component {
     console.log('onBarCodeRead', ret);
     if (ret.data[0] === '6') {
       // password-encrypted, need to ask for password and decrypt
+      console.log('trying to decrypt...');
 
       this.setState({
         message: 'Decoding',
@@ -74,6 +75,7 @@ export default class CameraExample extends React.Component {
           decryptedKey.compressed,
         );
       } catch (e) {
+        console.log(e.message);
         this.setState({ message: false });
         return alert('Bad password');
       }

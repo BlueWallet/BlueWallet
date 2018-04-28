@@ -5,9 +5,13 @@
     "privacy": "public",
     "platforms": ["ios"],
     "ios": {
-      "buildNumber": "1.0.5",
+      "buildNumber": "11",
       "isRemoteJSEnabled":false,
-      "bundleIdentifier": "com.igorkorsakov.bluewallet"
+      "bundleIdentifier": "io.bluewallet.bluewallet",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Discover local stores nearby that accept Bitcoin",
+        "NSCameraUsageDescription": "Allow BlueWallet to scan QR codes"
+      }
     },
     "name":"Blue Wallet",
     "description":"Bitcoin wallet app. Alpha version (iOS only)",

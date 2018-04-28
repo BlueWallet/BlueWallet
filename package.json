@@ -41,7 +41,6 @@
     "asyncstorage-down": "^3.1.1",
     "bignumber.js": "^5.0.0",
     "bip21": "^2.0.1",
-    "bip38": "https://github.com/Overtorment/bip38",
     "wif": "^2.0.1",
     "bitcoinjs-lib": "^3.3.2",
     "buffer": "^4.9.1",

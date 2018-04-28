@@ -1,0 +1,87 @@
+{
+  "_from": "scryptsy@^2.0.0",
+  "_id": "scryptsy@2.0.0",
+  "_inBundle": false,
+  "_integrity": "sha1-Jiw28CMc+nZU4jY/o5TNLexm83g=",
+  "_location": "/scryptsy",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "scryptsy@^2.0.0",
+    "name": "scryptsy",
+    "escapedName": "scryptsy",
+    "rawSpec": "^2.0.0",
+    "saveSpec": null,
+    "fetchSpec": "^2.0.0"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/scryptsy/-/scryptsy-2.0.0.tgz",
+  "_shasum": "262c36f0231cfa7654e2363fa394cd2dec66f378",
+  "_spec": "scryptsy@^2.0.0",
+  "_where": "/home/burn/Documents/bip38",
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/cryptocoinjs/scryptsy/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {},
+  "deprecated": false,
+  "description": "Pure JavaScript implementation of the scrypt key deriviation function that is fully compatible with Node.js and the browser.",
+  "devDependencies": {
+    "coveralls": "^2.10.0",
+    "istanbul": "^0.3.5",
+    "mocha": "^2.2.0",
+    "mochify": "^2.1.0",
+    "standard": "^7.1.1"
+  },
+  "homepage": "https://github.com/cryptocoinjs/scryptsy#readme",
+  "keywords": [
+    "crytpo",
+    "cryptography",
+    "scrypt",
+    "kdf",
+    "litecoin",
+    "dogecoin",
+    "bitcoin",
+    "bip38"
+  ],
+  "license": "MIT",
+  "main": "lib/scrypt.js",
+  "name": "scryptsy",
+  "repository": {
+    "url": "git+ssh://git@github.com/cryptocoinjs/scryptsy.git",
+    "type": "git"
+  },
+  "scripts": {
+    "browser-test": "mochify --wd -R spec",
+    "coverage": "istanbul cover ./node_modules/.bin/_mocha -- --reporter list test/*.js",
+    "coveralls": "npm run-script coverage && node ./node_modules/.bin/coveralls < coverage/lcov.info",
+    "lint": "standard",
+    "test": "mocha --ui bdd",
+    "unit": "mocha"
+  },
+  "version": "2.0.0",
+  "react-native": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  },
+  "browser": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  }
+}
