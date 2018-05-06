@@ -11,9 +11,8 @@ export class AppStorage {
     this.tx_metadata = {};
     this.cachedPassword = false;
     this.settings = {
-      brandingColor: '#00aced',
-      buttonBackground: '#00aced',
-      buttonDangedBackground: '#F40349',
+      brandingColor: '#008dc2',
+      buttonBackground: '#008dc2',
     };
   }
 

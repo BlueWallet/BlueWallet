@@ -51,8 +51,8 @@ export class BlueCard extends Component {
       <Card
         {...this.props}
         titleStyle={{ color: 'white' }}
-        containerStyle={{ backgroundColor: BlueApp.settings.buttonBackground }}
-        wrapperStyle={{ backgroundColor: BlueApp.settings.buttonBackground }}
+        containerStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
+        wrapperStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
       />
     );
   }

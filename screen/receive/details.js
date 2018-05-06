@@ -71,7 +71,7 @@ export default class ReceiveDetails extends Component {
 
         <BlueButton
           icon={{ name: 'arrow-left', type: 'octicon' }}
-          backgroundColor={BlueApp.settings.buttonBackground}
+          backgroundColor={BlueApp.settings.brandingColor}
           onPress={() => this.props.navigation.goBack()}
           title="Go back"
         />
