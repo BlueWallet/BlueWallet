@@ -69,7 +69,11 @@ export class BlueListItem extends Component {
     return (
       <ListItem
         {...this.props}
-        containerStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
+        containerStyle={{
+          backgroundColor: BlueApp.settings.brandingColor,
+          borderBottomColor: 'white',
+          borderBottomWidth: 0.5,
+        }}
         titleStyle={{ color: 'white', fontSize: 18 }}
         subtitleStyle={{ color: 'white' }}
       />
@@ -151,7 +155,11 @@ export class BlueList extends Component {
     return (
       <List
         {...this.props}
-        containerStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
+        containerStyle={{
+          backgroundColor: BlueApp.settings.brandingColor,
+          borderTopColor: 'white',
+          borderTopWidth: 1,
+        }}
       />
     );
   }

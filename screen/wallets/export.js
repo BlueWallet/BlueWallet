@@ -75,15 +75,16 @@ export default class WalletExport extends Component {
           title={'Wallet Export'}
           style={{ alignItems: 'center', flex: 1 }}
         >
-          <BlueText>Address: {this.state.wallet.getAddress()}</BlueText>
-          <BlueText>WIF: {this.state.wallet.getSecret()}</BlueText>
-
+          <BlueText>{this.state.wallet.getAddress()}</BlueText>
           <QRCode
             value={this.state.wallet.getSecret()}
             size={312}
             bgColor={'white'}
             fgColor={BlueApp.settings.brandingColor}
           />
+          <BlueText>
+            {this.state.wallet.getSecret()} [Wallet Import Format]
+          </BlueText>
         </BlueCard>
 
         <BlueButton
