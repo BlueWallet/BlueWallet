@@ -69,13 +69,6 @@ export default class WalletsList extends Component {
     return (
       <SafeBlueArea>
         <BlueHeader
-          leftComponent={
-            <Icon
-              name="menu"
-              color="#fff"
-              onPress={() => this.props.navigation.navigate('DrawerToggle')}
-            />
-          }
           centerComponent={{
             text: 'Blue Wallet',
             style: { color: '#fff', fontSize: 25 },

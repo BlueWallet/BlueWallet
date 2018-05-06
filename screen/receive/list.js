@@ -66,13 +66,6 @@ export default class ReceiveList extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
           backgroundColor={BlueApp.settings.brandingColor}
-          leftComponent={
-            <Icon
-              name="menu"
-              color="#fff"
-              onPress={() => this.props.navigation.navigate('DrawerToggle')}
-            />
-          }
           centerComponent={{
             text: 'Choose a wallet to receive',
             style: { color: '#fff', fontSize: 25 },

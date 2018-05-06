@@ -16,6 +16,7 @@ if (!Error.captureStackTrace) {
 }
 
 const pkg = require('./package.json');
+const appjson = require('./app.json');
 
 // <DrawerItems {...props} />
 
@@ -30,7 +31,7 @@ const CustomDrawerContentComponent = props => (
         style={styles.heading}
       >
         {' '}
-        {pkg.name} v{pkg.version}
+        {pkg.name} v{pkg.version} (build {appjson.expo.ios.buildNumber})
       </Text>
     </SafeAreaView>
   </ScrollView>

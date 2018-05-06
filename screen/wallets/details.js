@@ -9,6 +9,7 @@ import {
   BlueCard,
   BlueText,
   BlueFormLabel,
+  BlueFormInputAddress,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -78,9 +79,9 @@ export default class WalletDetails extends Component {
           style={{ alignItems: 'center', flex: 1 }}
         >
           <BlueFormLabel>Address:</BlueFormLabel>
-          <BlueFormInput
+          <BlueFormInputAddress
             value={this.state.wallet.getAddress()}
-            editable={false}
+            editable
           />
 
           <BlueFormLabel>Type:</BlueFormLabel>

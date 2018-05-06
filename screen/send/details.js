@@ -10,6 +10,7 @@ import {
   BlueText,
   BlueFormInput,
   BlueSpacing,
+  BlueFormInputAddress,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const bip21 = require('bip21');
@@ -174,7 +175,7 @@ export default class SendDetails extends Component {
           title={'Create Transaction'}
           style={{ alignItems: 'center', flex: 1 }}
         >
-          <BlueFormInput
+          <BlueFormInputAddress
             style={{ width: 250 }}
             onChangeText={text => this.setState({ address: text })}
             placeholder={'receiver address here'}

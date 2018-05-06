@@ -69,13 +69,6 @@ export default class SendList extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
-          leftComponent={
-            <Icon
-              name="menu"
-              color="#fff"
-              onPress={() => this.props.navigation.navigate('DrawerToggle')}
-            />
-          }
           centerComponent={{
             text: 'Choose a wallet to send from',
             style: { color: '#fff', fontSize: 25 },
