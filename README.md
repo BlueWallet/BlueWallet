@@ -8,6 +8,7 @@ Built with React Native, Expo and BlockCypher API.
 * Build and run on your own using Expo Client
 * Private keys never leave your device
 * SegWit-first. Replace-By-Fee support
+* Encryption. Plausible deniability
 
 Alpha version, do not rely on it too much for now! 
 
@@ -16,7 +17,7 @@ Alpha version, do not rely on it too much for now!
 
 
 
-## RUN IT
+## BUILD & RUN IT
 
 * In your console:
 
@@ -28,12 +29,8 @@ npm start
 ``` 
 
 * Install Expo client: https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8
-* With Expo client, open the QR code shown in your console after `npm start`
-
-## ALTERNATIVELY
-
-* Install Expo Client: https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8
-* Launch BlueWallet from https://expo.io/@overtorment/bluewallet
+* Send the link shown in your console after `npm start` to your device
+* With Expo client, open the link
 
 ## MOTIVATION TO BUILD IT
 
@@ -134,6 +131,7 @@ Lightning support?
 * [ ] Verify other message signature
 * [ ] Tool: Cold wallet verifier (scans private keys and displays public keys realtime)
 * [x] Export (backup) secrets/private keys
+* [ ] Export (bip38 password-encrypted)
 * [ ] Cold wallet generator
 * [x] Export created signed tx, no broadcast 
 * [ ] Work through proxy? TOR?
@@ -148,6 +146,6 @@ Lightning support?
 * [ ] Push notifications for all associated addresses
 * [ ] Keep PrivKey/WIF on paper, scan only on TX signing, not keping on device (watch-only address)
 * [ ] Decode TX screen
-* [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo
+* [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo OR rpc2rest proxy
 * [x] Fake password which unlocks fake wallets (aka plausible deniability)
 * [x] BIP38 (password-protected key)
