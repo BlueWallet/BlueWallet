@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Icon } from 'react-native-elements';
 import {
   SafeBlueArea,
   BlueCard,

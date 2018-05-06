@@ -85,13 +85,25 @@ export class BlueFormLabel extends Component {
 
 export class BlueFormInput extends Component {
   render() {
-    return <FormInput {...this.props} inputStyle={{ color: 'white', }} containerStyle={{ borderBottomColor: 'white',  borderBottomWidth: 0.5,   }}   />;
+    return (
+      <FormInput
+        {...this.props}
+        inputStyle={{ color: 'white' }}
+        containerStyle={{ borderBottomColor: 'white', borderBottomWidth: 0.5 }}
+      />
+    );
   }
 }
 
 export class BlueFormInputAddress extends Component {
   render() {
-    return <FormInput {...this.props} inputStyle={{ color: 'white',  fontSize : 12, }} containerStyle={{ borderBottomColor: 'white',  borderBottomWidth: 0.5,   }}   />;
+    return (
+      <FormInput
+        {...this.props}
+        inputStyle={{ color: 'white', fontSize: 12 }}
+        containerStyle={{ borderBottomColor: 'white', borderBottomWidth: 0.5 }}
+      />
+    );
   }
 }
 

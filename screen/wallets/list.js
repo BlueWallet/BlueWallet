@@ -11,7 +11,6 @@ import {
   BlueListItem,
   BlueHeader,
 } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
