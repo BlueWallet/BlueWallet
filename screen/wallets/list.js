@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ListView } from 'react-native';
+import { ListView, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   BlueLoading,
@@ -15,6 +15,14 @@ import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -70,7 +78,7 @@ export default class WalletsList extends Component {
         <BlueHeader
           centerComponent={{
             text: 'Blue Wallet',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
         <BlueCard title="My Bitcoin Wallets">
@@ -82,7 +90,7 @@ export default class WalletsList extends Component {
           <BlueList>
             <ListView
               enableEmptySections
-              maxHeight={290}
+              maxHeight={(isIpad && 60) || height - 390}
               dataSource={this.state.dataSource}
               renderRow={rowData => {
                 return (

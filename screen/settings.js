@@ -61,7 +61,7 @@ export default class Settings extends Component {
           }
           centerComponent={{
             text: 'Settings',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
 

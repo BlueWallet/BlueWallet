@@ -60,7 +60,7 @@ export default class PlausibleDeniability extends Component {
           }
           centerComponent={{
             text: 'Plausible Deniability',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
 

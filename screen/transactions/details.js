@@ -123,12 +123,6 @@ export default class TransactionsDetails extends Component {
             );
           }
         })()}
-
-        <BlueButton
-          icon={{ name: 'arrow-left', type: 'octicon' }}
-          onPress={() => this.props.navigation.goBack()}
-          title="Go back"
-        />
       </SafeBlueArea>
     );
   }

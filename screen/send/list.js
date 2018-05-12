@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { Dimensions, ActivityIndicator, View, ListView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   SafeBlueArea,
@@ -11,6 +11,8 @@ import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+const { height } = Dimensions.get('window');
+let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class SendList extends Component {
   static navigationOptions = {
@@ -51,6 +53,7 @@ export default class SendList extends Component {
     this.setState({
       isLoading: false,
       list: list,
+      dataSource: ds.cloneWithRows(list),
     });
   }
 
@@ -69,27 +72,33 @@ export default class SendList extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
           centerComponent={{
-            text: 'Choose a wallet to send from',
-            style: { color: '#fff', fontSize: 25 },
+            text: 'Choose a wallet',
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
 
         <BlueCard containerStyle={{ padding: 0 }}>
-          {this.state.list.map((item, i) => (
-            <BlueListItem
-              onPress={() => {
-                navigate('SendDetails', { fromAddress: item.title });
-              }}
-              key={i}
-              title={item.title}
-              subtitle={item.subtitle}
-              leftIcon={{
-                name: 'bitcoin',
-                type: 'font-awesome',
-                color: 'white',
-              }}
-            />
-          ))}
+          <ListView
+            maxHeight={height - 200}
+            enableEmptySections
+            dataSource={this.state.dataSource}
+            renderRow={item => {
+              return (
+                <BlueListItem
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  onPress={() => {
+                    navigate('SendDetails', { fromAddress: item.title });
+                  }}
+                  leftIcon={{
+                    name: 'bitcoin',
+                    type: 'font-awesome',
+                    color: 'white',
+                  }}
+                />
+              );
+            }}
+          />
         </BlueCard>
       </SafeBlueArea>
     );

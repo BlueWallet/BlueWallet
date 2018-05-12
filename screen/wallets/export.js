@@ -4,7 +4,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import QRCode from 'react-native-qrcode';
 import {
   BlueSpacing,
-  BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
@@ -86,12 +85,6 @@ export default class WalletExport extends Component {
             {this.state.wallet.getSecret()} [Wallet Import Format]
           </BlueText>
         </BlueCard>
-
-        <BlueButton
-          icon={{ name: 'arrow-left', type: 'octicon' }}
-          onPress={() => this.props.navigation.goBack()}
-          title="Go back"
-        />
       </SafeBlueArea>
     );
   }

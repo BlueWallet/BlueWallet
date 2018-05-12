@@ -150,7 +150,7 @@ export default class Selftest extends Component {
           backgroundColor={BlueApp.settings.brandingColor}
           centerComponent={{
             text: 'Self test',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
         <BlueCard>

@@ -11,8 +11,16 @@ import {
   List,
   ListItem,
 } from 'react-native-elements';
-import { ActivityIndicator, ListView, View } from 'react-native';
+import { ActivityIndicator, ListView, View, Dimensions } from 'react-native';
 let BlueApp = require('./BlueApp');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 export class BlueButton extends Component {
   render() {
@@ -104,7 +112,7 @@ export class BlueFormInputAddress extends Component {
     return (
       <FormInput
         {...this.props}
-        inputStyle={{ color: 'white', fontSize: 12 }}
+        inputStyle={{ color: 'white', fontSize: (isIpad && 10) || 12 }}
         containerStyle={{ borderBottomColor: 'white', borderBottomWidth: 0.5 }}
       />
     );
@@ -128,6 +136,16 @@ export class BlueSpacing extends Component {
       <View
         {...this.props}
         style={{ height: 60, backgroundColor: BlueApp.settings.brandingColor }}
+      />
+    );
+  }
+}
+export class BlueSpacing40 extends Component {
+  render() {
+    return (
+      <View
+        {...this.props}
+        style={{ height: 50, backgroundColor: BlueApp.settings.brandingColor }}
       />
     );
   }

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueSpacing20,
+  BlueSpacing40,
   BlueButton,
   SafeBlueArea,
   BlueCard,
@@ -17,6 +18,14 @@ const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -170,7 +179,13 @@ export default class SendDetails extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <BlueSpacing />
+        {(() => {
+          if (isIpad) {
+            return <BlueSpacing40 />;
+          } else {
+            return <BlueSpacing />;
+          }
+        })()}
         <BlueCard
           title={'Create Transaction'}
           style={{ alignItems: 'center', flex: 1 }}
@@ -216,7 +231,7 @@ export default class SendDetails extends Component {
 
         <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
 
-        <View style={{ flex: 1, flexDirection: 'row', paddingTop: 20 }}>
+        <View style={{ flex: 1, flexDirection: 'row' }}>
           <View style={{ flex: 0.33 }}>
             <BlueButton
               onPress={() => this.props.navigation.goBack()}

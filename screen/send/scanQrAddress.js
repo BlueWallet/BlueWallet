@@ -8,10 +8,22 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Camera, Permissions } from 'expo';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 
 export default class CameraExample extends React.Component {
+  static navigationOptions = {
+    tabBarLabel: 'Send',
+    tabBarIcon: ({ tintColor, focused }) => (
+      <Ionicons
+        name={focused ? 'md-paper-plane' : 'md-paper-plane'}
+        size={26}
+        style={{ color: tintColor }}
+      />
+    ),
+  };
+
   state = {
     isLoading: false,
     hasCameraPermission: null,

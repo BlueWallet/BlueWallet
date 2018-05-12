@@ -1,16 +1,25 @@
 import React, { Component } from 'react';
-import { TextInput } from 'react-native';
+import { Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import QRCode from 'react-native-qrcode';
 import {
   BlueLoading,
-  BlueButton,
+  BlueSpacing40,
+  BlueFormInputAddress,
   SafeBlueArea,
   BlueCard,
   BlueSpacing,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BlueApp = require('../../BlueApp');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
@@ -47,34 +56,27 @@ export default class ReceiveDetails extends Component {
     }
 
     return (
-      <SafeBlueArea
-        forceInset={{ horizontal: 'always' }}
-        style={{ flex: 1, paddingTop: 20 }}
-      >
-        <BlueSpacing />
+      <SafeBlueArea style={{ flex: 1 }}>
+        {(() => {
+          if (isIpad) {
+            return <BlueSpacing40 />;
+          } else {
+            return <BlueSpacing />;
+          }
+        })()}
+
         <BlueCard
           title={'Share this address with payer'}
           style={{ alignItems: 'center', flex: 1 }}
         >
-          <TextInput
-            style={{ marginBottom: 20, color: 'white' }}
-            editable
-            value={this.state.address}
-          />
+          <BlueFormInputAddress editable value={this.state.address} />
           <QRCode
             value={this.state.address}
-            size={312}
+            size={(isIpad && 250) || 312}
             bgColor="white"
             fgColor={BlueApp.settings.brandingColor}
           />
         </BlueCard>
-
-        <BlueButton
-          icon={{ name: 'arrow-left', type: 'octicon' }}
-          backgroundColor={BlueApp.settings.brandingColor}
-          onPress={() => this.props.navigation.goBack()}
-          title="Go back"
-        />
       </SafeBlueArea>
     );
   }
