@@ -136,7 +136,7 @@ exports.createTransaction = function (utxos, toAddress, _amount, _fixedFee, WIF,
   let amount = toSatoshi(_amount)
   let fixedFee = toSatoshi(_fixedFee)
   let amountToOutput = toSatoshi(_amount - _fixedFee)
-  let pk = bitcoinjs.ECKey.fromWIF(WIF) // eslint-disable-line new-cap
+  let pk = bitcoinjs.ECPair.fromWIF(WIF) // eslint-disable-line new-cap
   let txb = new bitcoinjs.TransactionBuilder()
   let unspentAmount = 0
   for (const unspent of utxos) {

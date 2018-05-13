@@ -100,11 +100,9 @@ export default class CameraExample extends React.Component {
       return;
     }
 
-    const segwitBalance = await newWallet.fetchBalance()
-
-    let newLegacyWallet = new LegacyWallet()
-    newLegacyWallet.setSecret(ret.data)
-    const legacyBalance = await newLegacyWallet.fetchBalance()
+    let newLegacyWallet = new LegacyWallet();
+    newLegacyWallet.setSecret(ret.data);
+    const legacyBalance = await newLegacyWallet.fetchBalance();
 
     if (legacyBalance) {
       this.setState(
@@ -124,7 +122,7 @@ export default class CameraExample extends React.Component {
               newLegacyWallet.getAddress(),
           );
         },
-      )
+      );
     } else {
       this.setState(
         {
@@ -143,7 +141,7 @@ export default class CameraExample extends React.Component {
               newWallet.getAddress(),
           );
         },
-      )
+      );
     }
   } // end
 

@@ -5,7 +5,7 @@ import Frisbee from 'frisbee';
 const isaac = require('isaac');
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
-const signer = require('../models/signer')
+const signer = require('../models/signer');
 
 /**
  *  Has private key and address signle like "1ABCD....."
@@ -268,6 +268,13 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   createTx(utxos, amount, fee, toAddress, memo) {
-    return signer.createTransaction(utxos, toAddress, amount, fee, this.getSecret(), this.getAddress())
+    return signer.createTransaction(
+      utxos,
+      toAddress,
+      amount,
+      fee,
+      this.getSecret(),
+      this.getAddress(),
+    );
   }
 }
