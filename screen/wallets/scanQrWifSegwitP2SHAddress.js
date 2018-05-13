@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { Camera, Permissions } from 'expo';
-import { SegwitP2SHWallet } from '../../class';
+import { SegwitP2SHWallet, LegacyWallet } from '../../class';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 let BlueApp = require('../../BlueApp');
@@ -100,24 +100,51 @@ export default class CameraExample extends React.Component {
       return;
     }
 
-    this.setState(
-      {
-        isLoading: true,
-      },
-      async () => {
-        newWallet.setLabel('New SegWit');
-        BlueApp.wallets.push(newWallet);
-        await BlueApp.saveToDisk();
-        this.props.navigation.navigate('WalletsList');
-        EV(EV.enum.WALLETS_COUNT_CHANGED);
-        alert(
-          'Imported WIF ' +
-            ret.data +
-            ' with address ' +
-            newWallet.getAddress(),
-        );
-      },
-    );
+    const segwitBalance = await newWallet.fetchBalance()
+
+    let newLegacyWallet = new LegacyWallet()
+    newLegacyWallet.setSecret(ret.data)
+    const legacyBalance = await newLegacyWallet.fetchBalance()
+
+    if (legacyBalance) {
+      this.setState(
+        {
+          isLoading: true,
+        },
+        async () => {
+          newLegacyWallet.setLabel('New Wallet');
+          BlueApp.wallets.push(newLegacyWallet);
+          await BlueApp.saveToDisk();
+          this.props.navigation.navigate('WalletsList');
+          EV(EV.enum.WALLETS_COUNT_CHANGED);
+          alert(
+            'Imported WIF ' +
+              ret.data +
+              ' with address ' +
+              newLegacyWallet.getAddress(),
+          );
+        },
+      )
+    } else {
+      this.setState(
+        {
+          isLoading: true,
+        },
+        async () => {
+          newWallet.setLabel('New SegWit');
+          BlueApp.wallets.push(newWallet);
+          await BlueApp.saveToDisk();
+          this.props.navigation.navigate('WalletsList');
+          EV(EV.enum.WALLETS_COUNT_CHANGED);
+          alert(
+            'Imported WIF ' +
+              ret.data +
+              ' with address ' +
+              newWallet.getAddress(),
+          );
+        },
+      )
+    }
   } // end
 
   async componentWillMount() {
