@@ -6,8 +6,8 @@
  * https://github.com/Overtorment/Cashier-BTC
  *
  **/
-
 let bitcoinjs = require('bitcoinjs-lib')
+const toSatoshi = num => parseInt((num * 100000000).toFixed(0))
 
 exports.createSegwitTransaction = function (utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
   changeAddress = changeAddress || exports.WIF2segwitAddress(WIF)
@@ -130,4 +130,29 @@ exports.WIF2segwitAddress = function (WIF) {
   let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(bitcoinjs.crypto.hash160(pubKey))
   let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(bitcoinjs.crypto.hash160(witnessScript))
   return bitcoinjs.address.fromOutputScript(scriptPubKey)
+}
+
+exports.createTransaction = function (utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
+  let amount = toSatoshi(_amount)
+  let fixedFee = toSatoshi(_fixedFee)
+  let amountToOutput = toSatoshi(_amount - _fixedFee)
+  let pk = bitcoinjs.ECKey.fromWIF(WIF) // eslint-disable-line new-cap
+  let txb = new bitcoinjs.TransactionBuilder()
+  let unspentAmount = 0
+  for (const unspent of utxos) {
+    if (unspent.confirmations < 2) { // using only confirmed outputs
+      continue
+    }
+    txb.addInput(unspent.txid, unspent.vout)
+    unspentAmount += toSatoshi(unspent.amount)
+  }
+  txb.addOutput(toAddress, amountToOutput)
+
+  if (amountToOutput + fixedFee < unspentAmount) {
+    // sending less than we have, so the rest should go back
+    txb.addOutput(fromAddress, unspentAmount - amountToOutput - fixedFee)
+  }
+
+  txb.sign(0, pk)
+  return txb.build().toHex()
 }
