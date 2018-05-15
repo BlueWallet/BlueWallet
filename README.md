@@ -144,7 +144,7 @@ Lightning support?
 * [x] Export created signed tx, no broadcast 
 * [ ] Work through proxy? TOR?
 * [ ] Localizations (RU, UA, BY? Arab, JP, CH?)
-* [ ] Get unspents offline, create & sign TX offline
+* [ ] OFFLINE TX: get unspents offline, create & sign TX offline, export txhex
 * [ ] Sweep other private key
 * [ ] Rebroadcast TX (to some different endpoints?)
 * [ ] Batch transaction
@@ -157,3 +157,4 @@ Lightning support?
 * [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo OR rpc2rest proxy
 * [x] Fake password which unlocks fake wallets (aka plausible deniability)
 * [x] BIP38 (password-protected key)
+* [ ] Self-destruct if several password attempts
