@@ -18,7 +18,7 @@ let bip38 = require('../../bip38');
 let wif = require('wif');
 let prompt = require('../../prompt');
 
-export default class CameraExample extends React.Component {
+export default class ScanQrWifAddress extends React.Component {
   static navigationOptions = {
     tabBarLabel: 'Wallets',
     tabBarIcon: ({ tintColor, focused }) => (
@@ -102,46 +102,38 @@ export default class CameraExample extends React.Component {
 
     let newLegacyWallet = new LegacyWallet();
     newLegacyWallet.setSecret(ret.data);
+
+    this.setState({isLoading: true})
     const legacyBalance = await newLegacyWallet.fetchBalance();
 
     if (legacyBalance) {
-      this.setState(
-        {
-          isLoading: true,
-        },
-        async () => {
-          newLegacyWallet.setLabel('New Wallet');
-          BlueApp.wallets.push(newLegacyWallet);
-          await BlueApp.saveToDisk();
-          this.props.navigation.navigate('WalletsList');
-          EV(EV.enum.WALLETS_COUNT_CHANGED);
-          alert(
-            'Imported WIF ' +
-              ret.data +
-              ' with address ' +
-              newLegacyWallet.getAddress(),
-          );
-        },
-      );
+      async () => {
+        newLegacyWallet.setLabel('New Wallet');
+        BlueApp.wallets.push(newLegacyWallet);
+        await BlueApp.saveToDisk();
+        this.props.navigation.navigate('WalletsList');
+        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        alert(
+          'Imported WIF ' +
+            ret.data +
+            ' with address ' +
+            newLegacyWallet.getAddress(),
+        );
+      }
     } else {
-      this.setState(
-        {
-          isLoading: true,
-        },
-        async () => {
-          newWallet.setLabel('New SegWit');
-          BlueApp.wallets.push(newWallet);
-          await BlueApp.saveToDisk();
-          this.props.navigation.navigate('WalletsList');
-          EV(EV.enum.WALLETS_COUNT_CHANGED);
-          alert(
-            'Imported WIF ' +
-              ret.data +
-              ' with address ' +
-              newWallet.getAddress(),
-          );
-        },
-      );
+      async () => {
+        newWallet.setLabel('New SegWit');
+        BlueApp.wallets.push(newWallet);
+        await BlueApp.saveToDisk();
+        this.props.navigation.navigate('WalletsList');
+        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        alert(
+          'Imported WIF ' +
+            ret.data +
+            ' with address ' +
+            newWallet.getAddress(),
+        );
+      }
     }
   } // end
 
@@ -243,7 +235,7 @@ export default class CameraExample extends React.Component {
   }
 }
 
-CameraExample.propTypes = {
+ScanQrWifAddress.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
   }),
