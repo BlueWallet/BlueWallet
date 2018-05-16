@@ -103,11 +103,11 @@ export default class ScanQrWifAddress extends React.Component {
     let newLegacyWallet = new LegacyWallet();
     newLegacyWallet.setSecret(ret.data);
 
-    this.setState({isLoading: true})
+    this.setState({ isLoading: true });
     const legacyBalance = await newLegacyWallet.fetchBalance();
 
     if (legacyBalance) {
-      async () => {
+      (async () => {
         newLegacyWallet.setLabel('New Wallet');
         BlueApp.wallets.push(newLegacyWallet);
         await BlueApp.saveToDisk();
@@ -119,9 +119,9 @@ export default class ScanQrWifAddress extends React.Component {
             ' with address ' +
             newLegacyWallet.getAddress(),
         );
-      }
+      })();
     } else {
-      async () => {
+      (async () => {
         newWallet.setLabel('New SegWit');
         BlueApp.wallets.push(newWallet);
         await BlueApp.saveToDisk();
@@ -133,7 +133,7 @@ export default class ScanQrWifAddress extends React.Component {
             ' with address ' +
             newWallet.getAddress(),
         );
-      }
+      })();
     }
   } // end
 
