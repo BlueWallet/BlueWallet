@@ -8,7 +8,7 @@ import {
   BlueText,
   BlueSpacing,
   BlueLoading,
-  BlueSpacing20,
+  BlueSpacing20
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -22,7 +22,7 @@ export default class TransactionsDetails extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
@@ -48,14 +48,14 @@ export default class TransactionsDetails extends Component {
       isLoading: true,
       tx: foundTx,
       from,
-      to,
+      to
     };
   }
 
   async componentDidMount() {
     console.log('transactions/details - componentDidMount');
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
   }
 
@@ -115,7 +115,7 @@ export default class TransactionsDetails extends Component {
               <BlueButton
                 onPress={() =>
                   this.props.navigation.navigate('RBF', {
-                    txid: this.state.tx.hash,
+                    txid: this.state.tx.hash
                   })
                 }
                 title="Replace-By-Fee (RBF)"
@@ -140,8 +140,8 @@ TransactionsDetails.propTypes = {
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        hash: PropTypes.string,
-      }),
-    }),
-  }),
+        hash: PropTypes.string
+      })
+    })
+  })
 };

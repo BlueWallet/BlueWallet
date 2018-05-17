@@ -9,7 +9,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeader,
+  BlueHeader
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -24,19 +24,19 @@ export default class About extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
   }
 
@@ -58,7 +58,7 @@ export default class About extends Component {
           }
           centerComponent={{
             text: 'About',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: '#fff', fontSize: 25 }
           }}
         />
 
@@ -123,6 +123,6 @@ export default class About extends Component {
 About.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+    goBack: PropTypes.func
+  })
 };

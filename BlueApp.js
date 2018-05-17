@@ -14,7 +14,7 @@ async function startAndDecrypt(retry) {
     do {
       password = await prompt(
         (retry && 'Bad pasword, try again') || 'Enter password',
-        'Your storage is encrypted. Password is required to decrypt it',
+        'Your storage is encrypted. Password is required to decrypt it'
       );
     } while (!password);
   }

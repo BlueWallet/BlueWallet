@@ -8,7 +8,7 @@ import {
   BlueCard,
   BlueText,
   BlueFormInput,
-  BlueSpacing,
+  BlueSpacing
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -22,7 +22,7 @@ export default class RBF extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
@@ -59,7 +59,7 @@ export default class RBF extends Component {
     if (!destinationAddress) {
       this.state = {
         isLoading: false,
-        nonReplaceable: true,
+        nonReplaceable: true
       };
       return;
     }
@@ -70,7 +70,7 @@ export default class RBF extends Component {
       sourceTx,
       sourceWallet,
       newDestinationAddress: destinationAddress,
-      feeDelta: '',
+      feeDelta: ''
     };
   }
 
@@ -78,7 +78,7 @@ export default class RBF extends Component {
     let startTime = Date.now();
     console.log('send/details - componentDidMount');
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
     let endTime = Date.now();
     console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
@@ -90,7 +90,7 @@ export default class RBF extends Component {
       newDestinationAddress: this.state.newDestinationAddress,
       txid: this.state.txid,
       sourceTx: this.state.sourceTx,
-      sourceWallet: this.state.sourceWallet,
+      sourceWallet: this.state.sourceWallet
     });
   }
 
@@ -196,8 +196,8 @@ RBF.propTypes = {
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        txid: PropTypes.string,
-      }),
-    }),
-  }),
+        txid: PropTypes.string
+      })
+    })
+  })
 };

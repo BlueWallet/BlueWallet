@@ -16,7 +16,7 @@ exports.createSegwitTransaction = function(
   fixedFee,
   WIF,
   changeAddress,
-  sequence,
+  sequence
 ) {
   changeAddress = changeAddress || exports.WIF2segwitAddress(WIF);
   if (sequence === undefined) {
@@ -28,7 +28,7 @@ exports.createSegwitTransaction = function(
   let pubKey = keyPair.getPublicKeyBuffer();
   let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
   let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    pubKeyHash,
+    pubKeyHash
   );
 
   let txb = new bitcoinjs.TransactionBuilder();
@@ -47,7 +47,7 @@ exports.createSegwitTransaction = function(
     // sending less than we have, so the rest should go back
     txb.addOutput(
       changeAddress,
-      unspentAmount - amountToOutput - feeInSatoshis,
+      unspentAmount - amountToOutput - feeInSatoshis
     );
   }
 
@@ -57,7 +57,7 @@ exports.createSegwitTransaction = function(
       keyPair,
       redeemScript,
       null,
-      parseInt((utxos[c].amount * 100000000).toFixed(0)),
+      parseInt((utxos[c].amount * 100000000).toFixed(0))
     );
   }
 
@@ -70,7 +70,7 @@ exports.createRBFSegwitTransaction = function(
   addressReplaceMap,
   feeDelta,
   WIF,
-  utxodata,
+  utxodata
 ) {
   if (feeDelta < 0) {
     throw Error('replace-by-fee requires increased fee, not decreased');
@@ -92,7 +92,7 @@ exports.createRBFSegwitTransaction = function(
     txb.addInput(
       unspent.hash.reverse().toString('hex'),
       unspent.index,
-      highestSequence + 1,
+      highestSequence + 1
     );
   }
 
@@ -114,7 +114,7 @@ exports.createRBFSegwitTransaction = function(
   let pubKey = keyPair.getPublicKeyBuffer();
   let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
   let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    pubKeyHash,
+    pubKeyHash
   );
   for (let c = 0; c < tx.ins.length; c++) {
     let txid = tx.ins[c].hash.reverse().toString('hex');
@@ -132,16 +132,16 @@ exports.generateNewSegwitAddress = function() {
   let pubKey = keyPair.getPublicKeyBuffer();
 
   let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    bitcoinjs.crypto.hash160(pubKey),
+    bitcoinjs.crypto.hash160(pubKey)
   );
   let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(
-    bitcoinjs.crypto.hash160(witnessScript),
+    bitcoinjs.crypto.hash160(witnessScript)
   );
   let address = bitcoinjs.address.fromOutputScript(scriptPubKey);
 
   return {
     address: address,
-    WIF: keyPair.toWIF(),
+    WIF: keyPair.toWIF()
   };
 };
 
@@ -164,10 +164,10 @@ exports.WIF2segwitAddress = function(WIF) {
   let keyPair = bitcoinjs.ECPair.fromWIF(WIF);
   let pubKey = keyPair.getPublicKeyBuffer();
   let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    bitcoinjs.crypto.hash160(pubKey),
+    bitcoinjs.crypto.hash160(pubKey)
   );
   let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(
-    bitcoinjs.crypto.hash160(witnessScript),
+    bitcoinjs.crypto.hash160(witnessScript)
   );
   return bitcoinjs.address.fromOutputScript(scriptPubKey);
 };
@@ -178,7 +178,7 @@ exports.createTransaction = function(
   _amount,
   _fixedFee,
   WIF,
-  fromAddress,
+  fromAddress
 ) {
   let fixedFee = toSatoshi(_fixedFee);
   let amountToOutput = toSatoshi(_amount - _fixedFee);

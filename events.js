@@ -4,7 +4,7 @@ function EV(eventName, arg) {
       'Unregistered event',
       eventName,
       'registered events:',
-      EV.enum,
+      EV.enum
     );
   }
   EV.callbacks = EV.callbacks || {}; // static variable
@@ -28,7 +28,7 @@ EV.enum = {
   WALLETS_COUNT_CHANGED: 'WALLETS_COUNT_CHANGED',
   TRANSACTIONS_COUNT_CHANGED: 'TRANSACTIONS_COUNT_CHANGED',
   CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS:
-    'CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS',
+    'CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS'
 };
 
 module.exports = EV;

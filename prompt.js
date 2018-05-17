@@ -11,10 +11,10 @@ module.exports = function(title, text) {
           onPress: password => {
             console.log('OK Pressed, password: ' + password);
             resolve(password);
-          },
-        },
+          }
+        }
       ],
-      'secure-text',
+      'secure-text'
     );
   });
 };

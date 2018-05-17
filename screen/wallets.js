@@ -9,25 +9,25 @@ import scanQrWifSegwitP2SHAddress from './wallets/scanQrWifSegwitP2SHAddress';
 const WalletsNavigator = StackNavigator(
   {
     WalletsList: {
-      screen: WalletsList,
+      screen: WalletsList
     },
     AddWallet: {
-      screen: AddWallet,
+      screen: AddWallet
     },
     ScanQrWifSegwitP2SHAddress: {
-      screen: scanQrWifSegwitP2SHAddress,
+      screen: scanQrWifSegwitP2SHAddress
     },
     WalletDetails: {
-      screen: WalletDetails,
+      screen: WalletDetails
     },
     WalletExport: {
-      screen: WalletExport,
-    },
+      screen: WalletExport
+    }
   },
   {
     headerMode: 'none',
-    mode: 'modal',
-  },
+    mode: 'modal'
+  }
 );
 
 export default WalletsNavigator;

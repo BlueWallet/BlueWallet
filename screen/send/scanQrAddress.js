@@ -5,7 +5,7 @@ import {
   ActivityIndicator,
   Button,
   View,
-  TouchableOpacity,
+  TouchableOpacity
 } from 'react-native';
 import { Camera, Permissions } from 'expo';
 import PropTypes from 'prop-types';
@@ -15,7 +15,7 @@ export default class CameraExample extends React.Component {
   state = {
     isLoading: false,
     hasCameraPermission: null,
-    type: Camera.Constants.Type.back,
+    type: Camera.Constants.Type.back
   };
 
   async onBarCodeRead(ret) {
@@ -36,7 +36,7 @@ export default class CameraExample extends React.Component {
       onCameraReady: function() {
         alert('onCameraReady');
       },
-      barCodeTypes: [Camera.Constants.BarCodeType.qr],
+      barCodeTypes: [Camera.Constants.BarCodeType.qr]
     });
   }
 
@@ -66,21 +66,21 @@ export default class CameraExample extends React.Component {
               style={{
                 flex: 1,
                 backgroundColor: 'transparent',
-                flexDirection: 'row',
+                flexDirection: 'row'
               }}
             >
               <TouchableOpacity
                 style={{
                   flex: 0.2,
                   alignSelf: 'flex-end',
-                  alignItems: 'center',
+                  alignItems: 'center'
                 }}
                 onPress={() => {
                   this.setState({
                     type:
                       this.state.type === Camera.Constants.Type.back
                         ? Camera.Constants.Type.front
-                        : Camera.Constants.Type.back,
+                        : Camera.Constants.Type.back
                   });
                 }}
               >
@@ -100,6 +100,6 @@ export default class CameraExample extends React.Component {
 
 CameraExample.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-  }),
+    goBack: PropTypes.function
+  })
 };

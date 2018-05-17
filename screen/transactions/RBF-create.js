@@ -10,7 +10,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueSpacing,
+  BlueSpacing
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
@@ -25,7 +25,7 @@ export default class SendCreate extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
@@ -41,7 +41,7 @@ export default class SendCreate extends Component {
         props.navigation.state.params.newDestinationAddress,
       txid: props.navigation.state.params.txid,
       sourceTx: props.navigation.state.params.sourceTx,
-      fromWallet: props.navigation.state.params.sourceWallet,
+      fromWallet: props.navigation.state.params.sourceWallet
     };
   }
 
@@ -62,7 +62,7 @@ export default class SendCreate extends Component {
       utxo.push({
         tx_hash: input.prev_hash,
         tx_output_n: input.output_index,
-        value: input.output_value,
+        value: input.output_value
       });
     }
 
@@ -70,7 +70,7 @@ export default class SendCreate extends Component {
     if (lastSequence === bitcoinjs.Transaction.DEFAULT_SEQUENCE) {
       return this.setState({
         isLoading: false,
-        nonReplaceable: true,
+        nonReplaceable: true
       });
       // lastSequence = 1
     }
@@ -98,7 +98,7 @@ export default class SendCreate extends Component {
       }
     }
     let oldFee = new BigNumber(
-      totalInputAmountSatoshi - totalOutputAmountSatoshi,
+      totalInputAmountSatoshi - totalOutputAmountSatoshi
     );
     oldFee = parseFloat(oldFee.div(100000000).toString(10));
 
@@ -126,7 +126,7 @@ export default class SendCreate extends Component {
           newFee,
           this.state.newDestinationAddress,
           false,
-          lastSequence,
+          lastSequence
         );
         BlueApp.tx_metadata[this.state.txid] = txMetadata || {};
         BlueApp.tx_metadata[this.state.txid]['last_sequence'] = lastSequence;
@@ -141,13 +141,13 @@ export default class SendCreate extends Component {
         BlueApp.saveToDisk();
         console.log(
           'BlueApp.txMetadata[this.state.txid]',
-          BlueApp.tx_metadata[this.state.txid],
+          BlueApp.tx_metadata[this.state.txid]
         );
       } catch (err) {
         console.log(err);
         return this.setState({
           isError: true,
-          errorMessage: JSON.stringify(err.message),
+          errorMessage: JSON.stringify(err.message)
         });
       }
 
@@ -160,7 +160,7 @@ export default class SendCreate extends Component {
         tx,
         satoshiPerByte: satoshiPerByte,
         amount: transferAmount,
-        fee: newFee,
+        fee: newFee
       });
     }, 10);
   }
@@ -175,13 +175,13 @@ export default class SendCreate extends Component {
     if (result && result.error) {
       this.setState({
         broadcastErrorMessage: JSON.stringify(result.error),
-        broadcastSuccessMessage: '',
+        broadcastSuccessMessage: ''
       });
     } else {
       this.setState({ broadcastErrorMessage: '' });
       this.setState({
         broadcastSuccessMessage:
-          'Success! TXID: ' + JSON.stringify(result.result),
+          'Success! TXID: ' + JSON.stringify(result.result)
       });
     }
   }
@@ -250,7 +250,7 @@ export default class SendCreate extends Component {
               borderColor: '#ebebeb',
               borderWidth: 1,
               marginTop: 20,
-              color: '#ebebeb',
+              color: '#ebebeb'
             }}
             maxHeight={70}
             multiline
@@ -303,8 +303,8 @@ SendCreate.propTypes = {
         newDestinationAddress: PropTypes.string,
         txid: PropTypes.string,
         sourceTx: PropTypes.string,
-        sourceWallet: PropTypes.object,
-      }),
-    }),
-  }),
+        sourceWallet: PropTypes.object
+      })
+    })
+  })
 };

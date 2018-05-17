@@ -9,7 +9,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeader,
+  BlueHeader
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -26,19 +26,19 @@ export default class PlausibleDeniability extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
   }
 
@@ -60,7 +60,7 @@ export default class PlausibleDeniability extends Component {
           }
           centerComponent={{
             text: 'Plausible Deniability',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: '#fff', fontSize: 25 }
           }}
         />
 
@@ -89,11 +89,11 @@ export default class PlausibleDeniability extends Component {
               onPress={async () => {
                 let p1 = await prompt(
                   'Create a password',
-                  'Password for fake storage should not match password for your main storage',
+                  'Password for fake storage should not match password for your main storage'
                 );
                 if (p1 === BlueApp.cachedPassword) {
                   return alert(
-                    'Password for fake storage should not match password for your main storage',
+                    'Password for fake storage should not match password for your main storage'
                   );
                 }
 
@@ -131,6 +131,6 @@ export default class PlausibleDeniability extends Component {
 PlausibleDeniability.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+    goBack: PropTypes.func
+  })
 };

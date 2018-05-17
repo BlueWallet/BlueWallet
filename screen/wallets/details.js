@@ -9,7 +9,7 @@ import {
   BlueCard,
   BlueText,
   BlueFormLabel,
-  BlueFormInputAddress,
+  BlueFormInputAddress
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -24,7 +24,7 @@ export default class WalletDetails extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
@@ -45,20 +45,20 @@ export default class WalletDetails extends Component {
     this.state = {
       confirmDelete: false,
       isLoading: true,
-      wallet,
+      wallet
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
   }
 
   async setLabel(text) {
     this.state.wallet.label = text;
     this.setState({
-      labelChanged: true,
+      labelChanged: true
     }); /* also, a hack to make screen update new typed text */
   }
 
@@ -136,7 +136,7 @@ export default class WalletDetails extends Component {
                 <BlueButton
                   onPress={() =>
                     this.props.navigation.navigate('WalletExport', {
-                      address: this.state.wallet.getAddress(),
+                      address: this.state.wallet.getAddress()
                     })
                   }
                   title="Export / backup"
@@ -165,10 +165,10 @@ WalletDetails.propTypes = {
   navigation: PropTypes.shape({
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string,
-      }),
+        address: PropTypes.string
+      })
     }),
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+    goBack: PropTypes.func
+  })
 };

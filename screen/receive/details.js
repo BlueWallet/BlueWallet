@@ -7,7 +7,7 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueSpacing,
+  BlueSpacing
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BlueApp = require('../../BlueApp');
@@ -21,7 +21,7 @@ export default class ReceiveDetails extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
@@ -29,7 +29,7 @@ export default class ReceiveDetails extends Component {
     let address = props.navigation.state.params.address;
     this.state = {
       isLoading: true,
-      address: address,
+      address: address
     };
     console.log(JSON.stringify(address));
   }
@@ -37,7 +37,7 @@ export default class ReceiveDetails extends Component {
   async componentDidMount() {
     console.log('wallets/details - componentDidMount');
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
   }
 
@@ -85,8 +85,8 @@ ReceiveDetails.propTypes = {
     goBack: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string,
-      }),
-    }),
-  }),
+        address: PropTypes.string
+      })
+    })
+  })
 };

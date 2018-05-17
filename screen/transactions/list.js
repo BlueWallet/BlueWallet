@@ -8,7 +8,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueListItem,
+  BlueListItem
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -26,13 +26,13 @@ export default class TransactionsList extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     };
 
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshFunction.bind(this));
@@ -46,17 +46,17 @@ export default class TransactionsList extends Component {
   refreshFunction() {
     this.setState(
       {
-        isLoading: true,
+        isLoading: true
       },
       () => {
         setTimeout(() => {
           this.setState({
             isLoading: false,
             final_balance: BlueApp.getBalance(),
-            dataSource: ds.cloneWithRows(BlueApp.getTransactions()),
+            dataSource: ds.cloneWithRows(BlueApp.getTransactions())
           });
         }, 1);
-      },
+      }
     );
   }
 
@@ -70,7 +70,7 @@ export default class TransactionsList extends Component {
   refresh() {
     this.setState(
       {
-        isLoading: true,
+        isLoading: true
       },
       async function() {
         let that = this;
@@ -90,10 +90,10 @@ export default class TransactionsList extends Component {
           that.setState({
             isLoading: false,
             final_balance: BlueApp.getBalance(),
-            dataSource: ds.cloneWithRows(BlueApp.getTransactions()),
+            dataSource: ds.cloneWithRows(BlueApp.getTransactions())
           });
         }, 10);
-      },
+      }
     );
   }
 
@@ -110,7 +110,7 @@ export default class TransactionsList extends Component {
           backgroundColor={BlueApp.settings.brandingColor}
           centerComponent={{
             text: this.state.final_balance + ' BTC',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: '#fff', fontSize: 25 }
           }}
           rightComponent={
             <Icon name="refresh" color="#fff" onPress={() => this.refresh()} />
@@ -176,6 +176,6 @@ export default class TransactionsList extends Component {
 
 TransactionsList.propTypes = {
   navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-  }),
+    navigate: PropTypes.func
+  })
 };

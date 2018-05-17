@@ -16,24 +16,24 @@ const Tabs = TabNavigator(
   {
     Wallets: {
       screen: wallets,
-      path: 'wallets',
+      path: 'wallets'
     },
     Transactions: {
       screen: transactions,
-      path: 'trans',
+      path: 'trans'
     },
     Send: {
       screen: send,
-      path: 'cart',
+      path: 'cart'
     },
     Receive: {
       screen: receive,
-      path: 'receive',
+      path: 'receive'
     },
     Settings: {
       screen: settins,
-      path: 'settings',
-    },
+      path: 'settings'
+    }
   },
   {
     tabBarPosition: 'bottom',
@@ -42,9 +42,9 @@ const Tabs = TabNavigator(
       activeTintColor: 'white',
       activeBackgroundColor: '#33bdf1',
       inactiveBackgroundColor: BlueApp.settings.brandingColor,
-      inactiveTintColor: 'white',
-    },
-  },
+      inactiveTintColor: 'white'
+    }
+  }
 );
 
 export default Tabs;

@@ -7,7 +7,7 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueText,
+  BlueText
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -31,19 +31,19 @@ export default class WalletsAdd extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
   }
 
@@ -111,6 +111,6 @@ export default class WalletsAdd extends Component {
 WalletsAdd.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+    goBack: PropTypes.func
+  })
 };

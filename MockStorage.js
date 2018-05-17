@@ -34,7 +34,7 @@ export default class MockStorage {
 
   getAllKeys = jest.fn(key => {
     return new Promise((resolve, reject) =>
-      resolve(Object.keys(this.storageCache)),
+      resolve(Object.keys(this.storageCache))
     );
   });
 }
