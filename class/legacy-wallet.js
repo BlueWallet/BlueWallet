@@ -61,6 +61,12 @@ export class LegacyWallet extends AbstractWallet {
     return this._address;
   }
 
+  /**
+   * Fetches balance o the Wallet via API.
+   * Returns VOID. Get the balance from getter.
+   *
+   * @returns {Promise.<void>}
+   */
   async fetchBalance() {
     let response;
     let token = (array => {
