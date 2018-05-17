@@ -7,13 +7,14 @@
       "ios"
     ],
     "ios": {
-      "buildNumber": 14,
+      "buildNumber": "25",
+      "supportsTablet": false,
       "isRemoteJSEnabled": false,
       "bundleIdentifier": "io.bluewallet.bluewallet",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Discover local stores nearby that accept Bitcoin",
         "NSCameraUsageDescription": "Allow BlueWallet to scan QR codes",
-        "ITSAppUsesNonExemptEncryption": true
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "name": "Blue Wallet",

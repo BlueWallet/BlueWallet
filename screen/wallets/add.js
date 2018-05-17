@@ -95,14 +95,6 @@ export default class WalletsAdd extends Component {
             }}
           />
         </BlueCard>
-
-        <BlueButton
-          icon={{ name: 'arrow-left', type: 'octicon' }}
-          title="Go Back"
-          onPress={() => {
-            this.props.navigation.goBack();
-          }}
-        />
       </SafeBlueArea>
     );
   }

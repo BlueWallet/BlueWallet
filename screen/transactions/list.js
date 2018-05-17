@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ListView } from 'react-native';
+import { ListView, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Header, Icon } from 'react-native-elements';
 import {
@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+const { height } = Dimensions.get('window');
 
 let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
@@ -123,7 +124,7 @@ export default class TransactionsList extends Component {
 
           <BlueList>
             <ListView
-              style={{ height: 360 }}
+              maxHeight={height - 300}
               enableEmptySections
               dataSource={this.state.dataSource}
               renderRow={rowData => {

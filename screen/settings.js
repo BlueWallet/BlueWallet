@@ -10,7 +10,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeader
+  BlueHeader,
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -26,20 +26,20 @@ export default class Settings extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      isLoading: true,
     };
   }
 
   async componentDidMount() {
     this.setState({
       isLoading: false,
-      storageIsEncrypted: await BlueApp.storageIsEncrypted()
+      storageIsEncrypted: await BlueApp.storageIsEncrypted(),
     });
   }
 
@@ -61,7 +61,7 @@ export default class Settings extends Component {
           }
           centerComponent={{
             text: 'Settings',
-            style: { color: '#fff', fontSize: 25 }
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
 
@@ -94,7 +94,7 @@ export default class Settings extends Component {
                         this.setState({ isLoading: true });
                         let p1 = await prompt(
                           'Password',
-                          'Create the password you will use to decrypt the storage'
+                          'Create the password you will use to decrypt the storage',
                         );
                         if (!p1) {
                           this.setState({ isLoading: false });
@@ -102,13 +102,13 @@ export default class Settings extends Component {
                         }
                         let p2 = await prompt(
                           'Password',
-                          'Re-type the password'
+                          'Re-type the password',
                         );
                         if (p1 === p2) {
                           await BlueApp.encryptStorage(p1);
                           this.setState({
                             isLoading: false,
-                            storageIsEncrypted: await BlueApp.storageIsEncrypted()
+                            storageIsEncrypted: await BlueApp.storageIsEncrypted(),
                           });
                         } else {
                           this.setState({ isLoading: false });
@@ -135,6 +135,6 @@ export default class Settings extends Component {
 
 Settings.propTypes = {
   navigation: PropTypes.shape({
-    navigate: PropTypes.func
-  })
+    navigate: PropTypes.func,
+  }),
 };

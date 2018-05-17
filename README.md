@@ -5,14 +5,21 @@
 Thin Bitcoin Wallet.
 Built with React Native, Expo and BlockCypher API.
 
+[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v1.2.0**
+
+[bluewallet.io](http://bluewallet.io)
+
+
 * Build and run on your own using Expo Client
 * Private keys never leave your device
 * SegWit-first. Replace-By-Fee support
 * Encryption. Plausible deniability
 
-Alpha version, do not rely on it too much for now! 
+Beta version, do not use to store large amounts!
 
-![blue wallet](https://raw.githubusercontent.com/Overtorment/BlueWallet/master/gif.gif  "Blue Wallet screenshots gif")
+
+<img src="https://raw.githubusercontent.com/Overtorment/BlueWallet/master/gif.gif" width="325">
+
 
 
 
@@ -30,7 +37,7 @@ npm start
 
 * Install Expo client: https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8
 * Send the link shown in your console after `npm start` to your device
-* With Expo client, open the link
+* Open the link with Safari, Expo client should automatically handle `exp://` URI scheme
 
 ## MOTIVATION TO BUILD IT
 
@@ -41,7 +48,7 @@ I had experience with awesome bitcoin-js lib (javascript), and since I dont own 
 
 ## AUTHOR
 
-Igor Korsakov
+[Igor Korsakov](http://igorkorsakov.com/)
 
 ## LICENSE
 
@@ -54,7 +61,7 @@ MIT
 
 Support for single private-key wallets:
 
-* SegWith P2SH compatibility addresses
+* ~~SegWith P2SH compatibility addresses~~
 
 #### Screens:
  
@@ -99,7 +106,7 @@ Support for single private-key wallets:
     * Choose walet
         * Receive through changelly/shapeshift
 * Send    
-    * ~~Handle `bitcoin://` URI~~
+    * Handle `bitcoin://` URI
     * ~~Scan QR with `bitcoin://` URI~~
 * Transactions
     * ~~Sub screen to view transaction details (confs, fee, seen date, confirmed date, time to confirm)~~
@@ -111,6 +118,7 @@ Support for single private-key wallets:
 ### v3.0.0 beta
 
 Support HD (multi-private keys)
+Support bech32 addresses
 
 #### Screens
 
@@ -136,7 +144,7 @@ Lightning support?
 * [x] Export created signed tx, no broadcast 
 * [ ] Work through proxy? TOR?
 * [ ] Localizations (RU, UA, BY? Arab, JP, CH?)
-* [ ] Get unspents offline, create & sign TX offline
+* [ ] OFFLINE TX: get unspents offline, create & sign TX offline, export txhex
 * [ ] Sweep other private key
 * [ ] Rebroadcast TX (to some different endpoints?)
 * [ ] Batch transaction
@@ -149,3 +157,4 @@ Lightning support?
 * [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo OR rpc2rest proxy
 * [x] Fake password which unlocks fake wallets (aka plausible deniability)
 * [x] BIP38 (password-protected key)
+* [ ] Self-destruct if several password attempts

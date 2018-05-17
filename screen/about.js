@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, Linking } from 'react-native';
+import { ScrollView, Linking, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Icon } from 'react-native-elements';
 import {
@@ -9,11 +9,12 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeader
+  BlueHeader,
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
+const { height } = Dimensions.get('window');
 
 export default class About extends Component {
   static navigationOptions = {
@@ -24,19 +25,19 @@ export default class About extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      isLoading: true,
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false
+      isLoading: false,
     });
   }
 
@@ -58,21 +59,16 @@ export default class About extends Component {
           }
           centerComponent={{
             text: 'About',
-            style: { color: '#fff', fontSize: 25 }
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
 
         <BlueCard>
-          <ScrollView maxHeight={450}>
-            <BlueText h1>About</BlueText>
-            <BlueSpacing20 />
-
+          <ScrollView maxHeight={height - 150}>
             <BlueText h4>
               Blue Wallet is free and opensource Bitcoin wallet
             </BlueText>
-            <BlueText>
-              Warning: Alpha version, don't use to store large amouts!
-            </BlueText>
+
             <BlueButton
               icon={{ name: 'octoface', type: 'octicon' }}
               onPress={() => {
@@ -123,6 +119,6 @@ export default class About extends Component {
 About.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func
-  })
+    goBack: PropTypes.func,
+  }),
 };

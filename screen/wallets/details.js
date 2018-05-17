@@ -1,20 +1,29 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { Dimensions, ActivityIndicator, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   BlueSpacing,
+  BlueSpacing40,
   BlueFormInput,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
   BlueFormLabel,
-  BlueFormInputAddress
+  BlueFormInputAddress,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 export default class WalletDetails extends Component {
   static navigationOptions = {
@@ -24,7 +33,7 @@ export default class WalletDetails extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   constructor(props) {
@@ -45,35 +54,42 @@ export default class WalletDetails extends Component {
     this.state = {
       confirmDelete: false,
       isLoading: true,
-      wallet
+      wallet,
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false
+      isLoading: false,
     });
   }
 
   async setLabel(text) {
     this.state.wallet.label = text;
     this.setState({
-      labelChanged: true
+      labelChanged: true,
     }); /* also, a hack to make screen update new typed text */
   }
 
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{ flex: 1 }}>
           <ActivityIndicator />
         </View>
       );
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <BlueSpacing />
+      <SafeBlueArea style={{ flex: 1 }}>
+        {(() => {
+          if (isIpad) {
+            return <BlueSpacing40 />;
+          } else {
+            return <BlueSpacing />;
+          }
+        })()}
+
         <BlueCard
           title={'Wallet Details'}
           style={{ alignItems: 'center', flex: 1 }}
@@ -103,24 +119,30 @@ export default class WalletDetails extends Component {
           if (this.state.confirmDelete) {
             return (
               <View style={{ alignItems: 'center' }}>
-                <BlueText h4>Are you sure?</BlueText>
-                <BlueButton
-                  icon={{ name: 'stop', type: 'octicon' }}
-                  onPress={async () => {
-                    BlueApp.deleteWallet(this.state.wallet);
-                    await BlueApp.saveToDisk();
-                    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                    EV(EV.enum.WALLETS_COUNT_CHANGED);
-                    this.props.navigation.goBack();
-                  }}
-                  title="Yes, delete"
-                />
-                <BlueButton
-                  onPress={async () => {
-                    this.setState({ confirmDelete: false });
-                  }}
-                  title="No, cancel"
-                />
+                <BlueText>Are you sure?</BlueText>
+                <View style={{ flex: 0, flexDirection: 'row' }}>
+                  <View style={{ flex: 0.5 }}>
+                    <BlueButton
+                      icon={{ name: 'stop', type: 'octicon' }}
+                      onPress={async () => {
+                        BlueApp.deleteWallet(this.state.wallet);
+                        await BlueApp.saveToDisk();
+                        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                        EV(EV.enum.WALLETS_COUNT_CHANGED);
+                        this.props.navigation.goBack();
+                      }}
+                      title="Yes, delete"
+                    />
+                  </View>
+                  <View style={{ flex: 0.5 }}>
+                    <BlueButton
+                      onPress={async () => {
+                        this.setState({ confirmDelete: false });
+                      }}
+                      title="No, cancel"
+                    />
+                  </View>
+                </View>
               </View>
             );
           } else {
@@ -133,25 +155,23 @@ export default class WalletDetails extends Component {
                   }}
                   title="Delete this wallet"
                 />
-                <BlueButton
-                  onPress={() =>
-                    this.props.navigation.navigate('WalletExport', {
-                      address: this.state.wallet.getAddress()
-                    })
+
+                {(() => {
+                  if (isIpad) {
+                    return <View />;
+                  } else {
+                    return (
+                      <BlueButton
+                        onPress={() =>
+                          this.props.navigation.navigate('WalletExport', {
+                            address: this.state.wallet.getAddress(),
+                          })
+                        }
+                        title="Export / backup"
+                      />
+                    );
                   }
-                  title="Export / backup"
-                />
-                <BlueButton
-                  icon={{ name: 'arrow-left', type: 'octicon' }}
-                  onPress={async () => {
-                    if (this.state.labelChanged) {
-                      await BlueApp.saveToDisk();
-                      EV(EV.enum.WALLETS_COUNT_CHANGED); // TODO: some other event type?
-                    }
-                    this.props.navigation.goBack();
-                  }}
-                  title="Go back"
-                />
+                })()}
               </View>
             );
           }
@@ -165,10 +185,10 @@ WalletDetails.propTypes = {
   navigation: PropTypes.shape({
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string
-      })
+        address: PropTypes.string,
+      }),
     }),
     navigate: PropTypes.func,
-    goBack: PropTypes.func
-  })
+    goBack: PropTypes.func,
+  }),
 };
