@@ -8,7 +8,7 @@ import {
   BlueCard,
   BlueText,
   BlueButton,
-  BlueHeader,
+  BlueHeader
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet } from '../class';
@@ -25,13 +25,13 @@ export default class Selftest extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     };
   }
 
@@ -83,15 +83,15 @@ export default class Selftest extends Component {
         spent: false,
         confirmations: 9,
         confirmed: '2018-03-24T18:13:36Z',
-        double_spend: false,
-      },
+        double_spend: false
+      }
     ];
 
     let tx = l.createTx(
       utxo,
       0.001,
       0.0001,
-      '1QHf8Gp3wfmFiSdEX4FtrssCGR68diN1cj',
+      '1QHf8Gp3wfmFiSdEX4FtrssCGR68diN1cj'
     );
     let bitcoin = require('bitcoinjs-lib');
     let txDecoded = bitcoin.Transaction.fromHex(tx);
@@ -135,7 +135,7 @@ export default class Selftest extends Component {
     this.setState({
       isLoading: false,
       isOk,
-      errorMessage,
+      errorMessage
     });
   }
 
@@ -150,7 +150,7 @@ export default class Selftest extends Component {
           backgroundColor={BlueApp.settings.brandingColor}
           centerComponent={{
             text: 'Self test',
-            style: { color: '#fff', fontSize: 23 },
+            style: { color: '#fff', fontSize: 23 }
           }}
         />
         <BlueCard>
@@ -190,6 +190,6 @@ export default class Selftest extends Component {
 Selftest.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+    goBack: PropTypes.func
+  })
 };

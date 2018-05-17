@@ -21,7 +21,7 @@ export default class CameraExample extends React.Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   state = {

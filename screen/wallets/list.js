@@ -9,7 +9,7 @@ import {
   BlueCard,
   BlueText,
   BlueListItem,
-  BlueHeader,
+  BlueHeader
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -35,13 +35,13 @@ export default class WalletsList extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    ),
+    )
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
   }
@@ -53,16 +53,16 @@ export default class WalletsList extends Component {
   refreshFunction() {
     this.setState(
       {
-        isLoading: true,
+        isLoading: true
       },
       () => {
         setTimeout(() => {
           this.setState({
             isLoading: false,
-            dataSource: ds.cloneWithRows(BlueApp.getWallets()),
+            dataSource: ds.cloneWithRows(BlueApp.getWallets())
           });
         }, 1);
-      },
+      }
     );
   }
 
@@ -78,7 +78,7 @@ export default class WalletsList extends Component {
         <BlueHeader
           centerComponent={{
             text: 'Blue Wallet',
-            style: { color: '#fff', fontSize: 23 },
+            style: { color: '#fff', fontSize: 23 }
           }}
         />
         <BlueCard title="My Bitcoin Wallets">
@@ -97,13 +97,13 @@ export default class WalletsList extends Component {
                   <BlueListItem
                     onPress={() => {
                       navigate('WalletDetails', {
-                        address: rowData.getAddress(),
+                        address: rowData.getAddress()
                       });
                     }}
                     leftIcon={{
                       name: 'bitcoin',
                       type: 'font-awesome',
-                      color: '#fff',
+                      color: '#fff'
                     }}
                     title={
                       rowData.getLabel() + ' | ' + rowData.getBalance() + ' BTC'
@@ -131,6 +131,6 @@ export default class WalletsList extends Component {
 
 WalletsList.propTypes = {
   navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-  }),
+    navigate: PropTypes.func
+  })
 };
