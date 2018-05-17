@@ -74,7 +74,7 @@ export default class WalletsAdd extends Component {
             icon={{ name: 'qrcode', type: 'font-awesome' }}
             title="Scan"
             onPress={() => {
-              this.props.navigation.navigate('ScanQrWifSegwitP2SHAddress');
+              this.props.navigation.navigate('ScanQrWif');
             }}
           />
 

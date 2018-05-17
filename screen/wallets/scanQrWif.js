@@ -19,7 +19,7 @@ let bip38 = require('../../bip38');
 let wif = require('wif');
 let prompt = require('../../prompt');
 
-export default class ScanQrWifAddress extends React.Component {
+export default class ScanQrWif extends React.Component {
   static navigationOptions = {
     tabBarLabel: 'Wallets',
     tabBarIcon: ({ tintColor, focused }) => (
@@ -228,7 +228,7 @@ export default class ScanQrWifAddress extends React.Component {
   }
 }
 
-ScanQrWifAddress.propTypes = {
+ScanQrWif.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     navigate: PropTypes.func
