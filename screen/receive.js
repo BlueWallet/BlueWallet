@@ -6,16 +6,16 @@ import details from './receive/details';
 const ReceiveNavigator = StackNavigator(
   {
     SendList: {
-      screen: list
+      screen: list,
     },
     ReceiveDetails: {
-      screen: details
-    }
+      screen: details,
+    },
   },
   {
     headerMode: 'none',
-    mode: 'modal'
-  }
+    mode: 'modal',
+  },
 );
 
 export default ReceiveNavigator;

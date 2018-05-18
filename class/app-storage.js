@@ -12,7 +12,7 @@ export class AppStorage {
     this.cachedPassword = false;
     this.settings = {
       brandingColor: '#008dc2',
-      buttonBackground: '#008dc2'
+      buttonBackground: '#008dc2',
     };
   }
 
@@ -79,7 +79,7 @@ export class AppStorage {
 
     let data = {
       wallets: [],
-      tx_metadata: {}
+      tx_metadata: {},
     };
 
     let buckets = await AsyncStorage.getItem('data');
@@ -174,7 +174,7 @@ export class AppStorage {
 
     let data = {
       wallets: walletsToSave,
-      tx_metadata: this.tx_metadata
+      tx_metadata: this.tx_metadata,
     };
 
     if (this.cachedPassword) {
@@ -191,7 +191,7 @@ export class AppStorage {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
           newData.push(
-            encryption.encrypt(JSON.stringify(data), this.cachedPassword)
+            encryption.encrypt(JSON.stringify(data), this.cachedPassword),
           );
           await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }

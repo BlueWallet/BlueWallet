@@ -9,25 +9,25 @@ import scanQrWif from './wallets/scanQrWif';
 const WalletsNavigator = StackNavigator(
   {
     WalletsList: {
-      screen: WalletsList
+      screen: WalletsList,
     },
     AddWallet: {
-      screen: AddWallet
+      screen: AddWallet,
     },
     ScanQrWif: {
-      screen: scanQrWif
+      screen: scanQrWif,
     },
     WalletDetails: {
-      screen: WalletDetails
+      screen: WalletDetails,
     },
     WalletExport: {
-      screen: WalletExport
-    }
+      screen: WalletExport,
+    },
   },
   {
     headerMode: 'none',
-    mode: 'modal'
-  }
+    mode: 'modal',
+  },
 );
 
 export default WalletsNavigator;

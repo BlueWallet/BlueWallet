@@ -9,7 +9,7 @@ import {
   Text,
   Header,
   List,
-  ListItem
+  ListItem,
 } from 'react-native-elements';
 import { ActivityIndicator, ListView, View, Dimensions } from 'react-native';
 let BlueApp = require('./BlueApp');
@@ -31,7 +31,7 @@ export class BlueButton extends Component {
           marginTop: 20,
           borderRadius: 6,
           borderWidth: 0.7,
-          borderColor: '#ffffff'
+          borderColor: '#ffffff',
         }}
         borderRadius={10}
         backgroundColor={BlueApp.settings.buttonBackground}
@@ -80,7 +80,7 @@ export class BlueListItem extends Component {
         containerStyle={{
           backgroundColor: BlueApp.settings.brandingColor,
           borderBottomColor: 'white',
-          borderBottomWidth: 0.5
+          borderBottomWidth: 0.5,
         }}
         titleStyle={{ color: 'white', fontSize: 18 }}
         subtitleStyle={{ color: 'white' }}
@@ -176,7 +176,7 @@ export class BlueList extends Component {
         containerStyle={{
           backgroundColor: BlueApp.settings.brandingColor,
           borderTopColor: 'white',
-          borderTopWidth: 1
+          borderTopWidth: 1,
         }}
       />
     );

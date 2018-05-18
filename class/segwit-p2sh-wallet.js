@@ -20,10 +20,10 @@ export class SegwitP2SHWallet extends LegacyWallet {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
       let pubKey = keyPair.getPublicKeyBuffer();
       let witnessScript = bitcoin.script.witnessPubKeyHash.output.encode(
-        bitcoin.crypto.hash160(pubKey)
+        bitcoin.crypto.hash160(pubKey),
       );
       let scriptPubKey = bitcoin.script.scriptHash.output.encode(
-        bitcoin.crypto.hash160(witnessScript)
+        bitcoin.crypto.hash160(witnessScript),
       );
       address = bitcoin.address.fromOutputScript(scriptPubKey);
     } catch (err) {
@@ -55,7 +55,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
       'secret=',
       this.getSecret(),
       'from address',
-      this.getAddress()
+      this.getAddress(),
     );
     let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
     // to compensate that module substracts fee from amount
@@ -66,7 +66,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
       fee,
       this.getSecret(),
       this.getAddress(),
-      sequence
+      sequence,
     );
   }
 }

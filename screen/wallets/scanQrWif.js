@@ -5,7 +5,7 @@ import {
   ActivityIndicator,
   Button,
   View,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { Camera, Permissions } from 'expo';
@@ -28,13 +28,13 @@ export default class ScanQrWif extends React.Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   state = {
     isLoading: false,
     hasCameraPermission: null,
-    type: Camera.Constants.Type.back
+    type: Camera.Constants.Type.back,
   };
 
   async onBarCodeRead(ret) {
@@ -50,12 +50,12 @@ export default class ScanQrWif extends React.Component {
       console.log('trying to decrypt...');
 
       this.setState({
-        message: 'Decoding'
+        message: 'Decoding',
       });
       shold_stop_bip38 = undefined; // eslint-disable-line
       let password = await prompt(
         'Input password',
-        'This is BIP38 encrypted private key'
+        'This is BIP38 encrypted private key',
       );
       if (!password) {
         return;
@@ -63,17 +63,17 @@ export default class ScanQrWif extends React.Component {
       let that = this;
       try {
         let decryptedKey = await bip38.decrypt(ret.data, password, function(
-          status
+          status,
         ) {
           that.setState({
             message:
-              'Decoding... ' + status.percent.toString().substr(0, 4) + ' %'
+              'Decoding... ' + status.percent.toString().substr(0, 4) + ' %',
           });
         });
         ret.data = wif.encode(
           0x80,
           decryptedKey.privateKey,
-          decryptedKey.compressed
+          decryptedKey.compressed,
         );
       } catch (e) {
         console.log(e.message);
@@ -116,13 +116,13 @@ export default class ScanQrWif extends React.Component {
         'Imported WIF ' +
           ret.data +
           ' with address ' +
-          newLegacyWallet.getAddress()
+          newLegacyWallet.getAddress(),
       );
     } else {
       newWallet.setLabel('Imported SegWit');
       BlueApp.wallets.push(newWallet);
       alert(
-        'Imported WIF ' + ret.data + ' with address ' + newWallet.getAddress()
+        'Imported WIF ' + ret.data + ' with address ' + newWallet.getAddress(),
       );
     }
     await BlueApp.saveToDisk();
@@ -137,7 +137,7 @@ export default class ScanQrWif extends React.Component {
       onCameraReady: function() {
         alert('onCameraReady');
       },
-      barCodeTypes: [Camera.Constants.BarCodeType.qr]
+      barCodeTypes: [Camera.Constants.BarCodeType.qr],
     });
   }
 
@@ -167,7 +167,7 @@ export default class ScanQrWif extends React.Component {
                       flex: 1,
                       flexDirection: 'column',
                       justifyContent: 'center',
-                      alignItems: 'center'
+                      alignItems: 'center',
                     }}
                   >
                     <BlueText>{this.state.message}</BlueText>
@@ -193,21 +193,21 @@ export default class ScanQrWif extends React.Component {
                     style={{
                       flex: 1,
                       backgroundColor: 'transparent',
-                      flexDirection: 'row'
+                      flexDirection: 'row',
                     }}
                   >
                     <TouchableOpacity
                       style={{
                         flex: 0.2,
                         alignSelf: 'flex-end',
-                        alignItems: 'center'
+                        alignItems: 'center',
                       }}
                       onPress={() => {
                         this.setState({
                           type:
                             this.state.type === Camera.Constants.Type.back
                               ? Camera.Constants.Type.front
-                              : Camera.Constants.Type.back
+                              : Camera.Constants.Type.back,
                         });
                       }}
                     >
@@ -231,6 +231,6 @@ export default class ScanQrWif extends React.Component {
 ScanQrWif.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    navigate: PropTypes.func
-  })
+    navigate: PropTypes.func,
+  }),
 };

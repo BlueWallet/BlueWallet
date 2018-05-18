@@ -39,21 +39,21 @@ const CustomDrawerContentComponent = props => (
 
 CustomDrawerContentComponent.propTypes = {
   navigation: PropTypes.shape({
-    navigate: PropTypes.func
-  })
+    navigate: PropTypes.func,
+  }),
 };
 
 const styles = StyleSheet.create({
   container: {
     marginTop: 20,
-    flex: 1
+    flex: 1,
   },
   heading: {
     textAlign: 'center',
     color: 'black',
     fontWeight: 'bold',
-    fontSize: 20
-  }
+    fontSize: 20,
+  },
 });
 
 const TabsInDrawer = DrawerNavigator(
@@ -62,29 +62,29 @@ const TabsInDrawer = DrawerNavigator(
       screen: MainBottomTabs,
       navigationOptions: {
         drawer: () => ({
-          label: 'Tabs'
-        })
-      }
+          label: 'Tabs',
+        }),
+      },
     },
     Selftest: {
       screen: Selftest,
-      navigationOptions: {}
+      navigationOptions: {},
     },
     About: {
       screen: About,
-      navigationOptions: {}
+      navigationOptions: {},
     },
     PlausibleDeniability: {
       screen: PlausibleDeniability,
-      navigationOptions: {}
-    }
+      navigationOptions: {},
+    },
   },
   {
     contentComponent: CustomDrawerContentComponent,
     drawerOpenRoute: 'DrawerOpen',
     drawerCloseRoute: 'DrawerClose',
-    drawerToggleRoute: 'DrawerToggle'
-  }
+    drawerToggleRoute: 'DrawerToggle',
+  },
 );
 
 export default TabsInDrawer;

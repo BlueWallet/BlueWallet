@@ -18,7 +18,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
       let pubKey = keyPair.getPublicKeyBuffer();
       let scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(
-        bitcoin.crypto.hash160(pubKey)
+        bitcoin.crypto.hash160(pubKey),
       );
       address = bitcoin.address.fromOutputScript(scriptPubKey);
     } catch (err) {

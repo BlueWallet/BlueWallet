@@ -8,22 +8,22 @@ import createrbf from './transactions/RBF-create';
 const TransactionsNavigator = StackNavigator(
   {
     TransactionsList: {
-      screen: list
+      screen: list,
     },
     TransactionDetails: {
-      screen: details
+      screen: details,
     },
     RBF: {
-      screen: rbf
+      screen: rbf,
     },
     CreateRBF: {
-      screen: createrbf
-    }
+      screen: createrbf,
+    },
   },
   {
     headerMode: 'none',
-    mode: 'modal'
-  }
+    mode: 'modal',
+  },
 );
 
 export default TransactionsNavigator;

@@ -6,7 +6,7 @@ import {
   BlueSpacing,
   SafeBlueArea,
   BlueCard,
-  BlueText
+  BlueText,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -20,7 +20,7 @@ export default class WalletExport extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   constructor(props) {
@@ -38,13 +38,13 @@ export default class WalletExport extends Component {
 
     this.state = {
       isLoading: true,
-      wallet
+      wallet,
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false
+      isLoading: false,
     });
   }
 
@@ -94,10 +94,10 @@ WalletExport.propTypes = {
   navigation: PropTypes.shape({
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string
-      })
+        address: PropTypes.string,
+      }),
     }),
     navigate: PropTypes.func,
-    goBack: PropTypes.func
-  })
+    goBack: PropTypes.func,
+  }),
 };

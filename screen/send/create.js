@@ -9,7 +9,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueSpacing
+  BlueSpacing,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
@@ -23,7 +23,7 @@ export default class SendCreate extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   constructor(props) {
@@ -36,7 +36,7 @@ export default class SendCreate extends Component {
       address: props.navigation.state.params.address,
       memo: props.navigation.state.params.memo,
       fromAddress: props.navigation.state.params.fromAddress,
-      broadcastErrorMessage: ''
+      broadcastErrorMessage: '',
     };
 
     let fromWallet = false;
@@ -67,7 +67,7 @@ export default class SendCreate extends Component {
         this.state.amount,
         this.state.fee,
         this.state.address,
-        this.state.memo
+        this.state.memo,
       );
       let endTime = Date.now();
       console.log('create tx ', (endTime - startTime) / 1000, 'sec');
@@ -81,7 +81,7 @@ export default class SendCreate extends Component {
       BlueApp.tx_metadata = BlueApp.tx_metadata || {};
       BlueApp.tx_metadata[txid] = {
         txhex: tx,
-        memo: this.state.memo
+        memo: this.state.memo,
       };
       BlueApp.saveToDisk();
 
@@ -93,7 +93,7 @@ export default class SendCreate extends Component {
       console.log(err);
       return this.setState({
         isError: true,
-        errorMessage: JSON.stringify(err.message)
+        errorMessage: JSON.stringify(err.message),
       });
     }
 
@@ -101,7 +101,7 @@ export default class SendCreate extends Component {
       isLoading: false,
       size: Math.round(tx.length / 2),
       tx,
-      satoshiPerByte
+      satoshiPerByte,
     });
   }
 
@@ -114,13 +114,13 @@ export default class SendCreate extends Component {
     if (result && result.error) {
       this.setState({
         broadcastErrorMessage: JSON.stringify(result.error),
-        broadcastSuccessMessage: ''
+        broadcastSuccessMessage: '',
       });
     } else {
       this.setState({ broadcastErrorMessage: '' });
       this.setState({
         broadcastSuccessMessage:
-          'Success! TXID: ' + JSON.stringify(result.result)
+          'Success! TXID: ' + JSON.stringify(result.result),
       });
     }
   }
@@ -170,7 +170,7 @@ export default class SendCreate extends Component {
               borderColor: '#ebebeb',
               borderWidth: 1,
               marginTop: 20,
-              color: '#ebebeb'
+              color: '#ebebeb',
             }}
             maxHeight={70}
             multiline
@@ -222,8 +222,8 @@ SendCreate.propTypes = {
         fee: PropTypes.string,
         address: PropTypes.string,
         memo: PropTypes.string,
-        fromAddress: PropTypes.string
-      })
-    })
-  })
+        fromAddress: PropTypes.string,
+      }),
+    }),
+  }),
 };

@@ -5,7 +5,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueListItem,
-  BlueHeader
+  BlueHeader,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -23,13 +23,13 @@ export default class SendList extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      isLoading: true,
     };
     this.walletsCount = 0;
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => {
@@ -45,7 +45,7 @@ export default class SendList extends Component {
     for (let w of BlueApp.getWallets()) {
       list.push({
         title: w.getAddress(),
-        subtitle: w.getLabel()
+        subtitle: w.getLabel(),
       });
       this.walletsCount++;
     }
@@ -53,7 +53,7 @@ export default class SendList extends Component {
     this.setState({
       isLoading: false,
       list: list,
-      dataSource: ds.cloneWithRows(list)
+      dataSource: ds.cloneWithRows(list),
     });
   }
 
@@ -73,7 +73,7 @@ export default class SendList extends Component {
         <BlueHeader
           centerComponent={{
             text: 'Choose a wallet',
-            style: { color: '#fff', fontSize: 23 }
+            style: { color: '#fff', fontSize: 23 },
           }}
         />
 
@@ -93,7 +93,7 @@ export default class SendList extends Component {
                   leftIcon={{
                     name: 'bitcoin',
                     type: 'font-awesome',
-                    color: 'white'
+                    color: 'white',
                   }}
                 />
               );
@@ -107,6 +107,6 @@ export default class SendList extends Component {
 
 SendList.propTypes = {
   navigation: PropTypes.shape({
-    navigate: PropTypes.func
-  })
+    navigate: PropTypes.func,
+  }),
 };

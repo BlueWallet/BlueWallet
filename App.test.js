@@ -157,7 +157,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
   let createFakeStorageResult = await Storage2.createFakeStorage(
-    'fakePassword'
+    'fakePassword',
   );
   assert.ok(createFakeStorageResult);
   assert.equal(Storage2.wallets.length, 0);
@@ -192,12 +192,12 @@ it('bip38 decodes', async () => {
     encryptedKey,
     'TestingOneTwoThree',
     () => {},
-    { N: 1, r: 8, p: 8 } // using non-default parameters to speed it up (not-bip38 compliant)
+    { N: 1, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
   );
 
   assert.equal(
     wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR'
+    '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR',
   );
 });
 
@@ -209,12 +209,12 @@ it('bip38 decodes slow', async () => {
   let encryptedKey =
     '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let decryptedKey = await bip38.decrypt(encryptedKey, 'qwerty', status =>
-    process.stdout.write(parseInt(status.percent) + '%\r')
+    process.stdout.write(parseInt(status.percent) + '%\r'),
   );
 
   assert.equal(
     wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc'
+    'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
   );
 });
 

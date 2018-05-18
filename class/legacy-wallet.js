@@ -80,7 +80,7 @@ export class LegacyWallet extends AbstractWallet {
       'a133eb7ccacd4accb80cb1225de4b155',
       '7c2b1628d27b4bd3bf8eaee7149c577f',
       'f1e5a02b9ec84ec4bc8db2349022e5f5',
-      'e5926dbeb57145979153adc41305b183'
+      'e5926dbeb57145979153adc41305b183',
     ]);
     try {
       if (useBlockcypherTokens) {
@@ -88,13 +88,13 @@ export class LegacyWallet extends AbstractWallet {
           'https://api.blockcypher.com/v1/btc/main/addrs/' +
             this.getAddress() +
             '/balance?token=' +
-            token
+            token,
         );
       } else {
         response = await fetch(
           'https://api.blockcypher.com/v1/btc/main/addrs/' +
             this.getAddress() +
-            '/balance'
+            '/balance',
         );
       }
       let json = await response.json();
@@ -109,7 +109,7 @@ export class LegacyWallet extends AbstractWallet {
 
   async fetchUtxo() {
     const api = new Frisbee({
-      baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/'
+      baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/',
     });
 
     let response;
@@ -124,7 +124,7 @@ export class LegacyWallet extends AbstractWallet {
       'a133eb7ccacd4accb80cb1225de4b155',
       '7c2b1628d27b4bd3bf8eaee7149c577f',
       'f1e5a02b9ec84ec4bc8db2349022e5f5',
-      'e5926dbeb57145979153adc41305b183'
+      'e5926dbeb57145979153adc41305b183',
     ]);
     try {
       let maxHeight = 0;
@@ -136,7 +136,7 @@ export class LegacyWallet extends AbstractWallet {
           this.getAddress() +
             '?limit=2000&after=' +
             maxHeight +
-            ((useBlockcypherTokens && '&token=' + token) || '')
+            ((useBlockcypherTokens && '&token=' + token) || ''),
         );
         json = response.body;
         if (
@@ -175,7 +175,7 @@ export class LegacyWallet extends AbstractWallet {
       'a133eb7ccacd4accb80cb1225de4b155',
       '7c2b1628d27b4bd3bf8eaee7149c577f',
       'f1e5a02b9ec84ec4bc8db2349022e5f5',
-      'e5926dbeb57145979153adc41305b183'
+      'e5926dbeb57145979153adc41305b183',
     ]);
     try {
       let url;
@@ -185,14 +185,14 @@ export class LegacyWallet extends AbstractWallet {
             'https://api.blockcypher.com/v1/btc/main/addrs/' +
             this.getAddress() +
             '/full?token=' +
-            token)
+            token),
         );
       } else {
         response = await fetch(
           (url =
             'https://api.blockcypher.com/v1/btc/main/addrs/' +
             this.getAddress() +
-            '/full')
+            '/full'),
         );
       }
       console.log(url);
@@ -264,8 +264,8 @@ export class LegacyWallet extends AbstractWallet {
       baseURI: 'https://btczen.com',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     let res = await api.get('/broadcast/' + txhex);
@@ -280,7 +280,7 @@ export class LegacyWallet extends AbstractWallet {
       amount,
       fee,
       this.getSecret(),
-      this.getAddress()
+      this.getAddress(),
     );
   }
 }

@@ -11,7 +11,7 @@ import {
   BlueText,
   BlueFormInput,
   BlueSpacing,
-  BlueFormInputAddress
+  BlueFormInputAddress,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const bip21 = require('bip21');
@@ -37,7 +37,7 @@ export default class SendDetails extends Component {
         size={26}
         style={{ color: tintColor }}
       />
-    )
+    ),
   };
 
   constructor(props) {
@@ -68,7 +68,7 @@ export default class SendDetails extends Component {
       isLoading: true,
       address: address,
       amount: '',
-      fee: ''
+      fee: '',
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
@@ -76,7 +76,7 @@ export default class SendDetails extends Component {
 
       if (btcAddressRx.test(data)) {
         this.setState({
-          address: data
+          address: data,
         });
       } else {
         const { address, options } = bip21.decode(data);
@@ -85,7 +85,7 @@ export default class SendDetails extends Component {
           this.setState({
             address,
             amount: options.amount,
-            memo: options.label
+            memo: options.label,
           });
         }
       }
@@ -98,7 +98,7 @@ export default class SendDetails extends Component {
     let startTime = Date.now();
     console.log('send/details - componentDidMount');
     this.setState({
-      isLoading: false
+      isLoading: false,
     });
     let endTime = Date.now();
     console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
@@ -123,7 +123,7 @@ export default class SendDetails extends Component {
   createTransaction() {
     if (!this.state.amount) {
       this.setState({
-        errorMessage: 'Amount field is not valid'
+        errorMessage: 'Amount field is not valid',
       });
       console.log('validation error');
       return;
@@ -131,7 +131,7 @@ export default class SendDetails extends Component {
 
     if (!this.state.fee) {
       this.setState({
-        errorMessage: 'Fee field is not valid'
+        errorMessage: 'Fee field is not valid',
       });
       console.log('validation error');
       return;
@@ -139,14 +139,14 @@ export default class SendDetails extends Component {
 
     if (!this.state.address) {
       this.setState({
-        errorMessage: 'Address field is not valid'
+        errorMessage: 'Address field is not valid',
       });
       console.log('validation error');
       return;
     }
 
     this.setState({
-      errorMessage: ''
+      errorMessage: '',
     });
 
     this.props.navigation.navigate('CreateTransaction', {
@@ -154,7 +154,7 @@ export default class SendDetails extends Component {
       fee: this.state.fee,
       address: this.state.address,
       memo: this.state.memo,
-      fromAddress: this.state.fromAddress
+      fromAddress: this.state.fromAddress,
     });
   }
 
@@ -223,7 +223,7 @@ export default class SendDetails extends Component {
             {this.recalculateAvailableBalance(
               this.state.fromWallet.getBalance(),
               this.state.amount,
-              this.state.fee
+              this.state.fee,
             )}{' '}
             BTC
           </BlueText>
@@ -265,8 +265,8 @@ SendDetails.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
-        fromAddress: PropTypes.string
-      })
-    })
-  })
+        fromAddress: PropTypes.string,
+      }),
+    }),
+  }),
 };
