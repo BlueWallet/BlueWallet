@@ -200,6 +200,9 @@ exports.createTransaction = function(
     txb.addOutput(fromAddress, unspentAmount - amountToOutput - fixedFee);
   }
 
-  txb.sign(0, pk);
+  for (let c = 0; c < utxos.length; c++) {
+    txb.sign(c, pk);
+  }
+
   return txb.build().toHex();
 };
