@@ -90,7 +90,6 @@ export default class Selftest extends Component {
       isOk = false;
     }
 
-
     // now, several utxos
     // utxos as received from blockcypher
     utxos = [

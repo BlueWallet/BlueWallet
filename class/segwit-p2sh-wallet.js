@@ -43,10 +43,11 @@ export class SegwitP2SHWallet extends LegacyWallet {
    * @param fee
    * @param address
    * @param memo
-   * @param sequence
+   * @param sequence By default zero. Increased with each transaction replace.
    * @return string Signed txhex ready for broadcast
    */
   createTx(utxos, amount, fee, address, memo, sequence) {
+    // TODO: memo is not used here, get rid of it
     if (sequence === undefined) {
       sequence = 0;
     }
