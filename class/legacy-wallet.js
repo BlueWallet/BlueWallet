@@ -273,11 +273,42 @@ export class LegacyWallet extends AbstractWallet {
     return res.body;
   }
 
+  /**
+   * Takes UTXOs (as presented by blockcypher api), transforms them into
+   * format expected by signer module, creates tx and returns signed string txhex.
+   *
+   * @param utxos Unspent outputs, expects blockcypher format
+   * @param amount
+   * @param fee
+   * @param toAddress
+   * @param memo
+   * @return string Signed txhex ready for broadcast
+   */
   createTx(utxos, amount, fee, toAddress, memo) {
+    // transforming UTXOs fields to how module expects it
+    for (let u of utxos) {
+      u.confirmations = 6; // hack to make module accept 0 confirmations
+      u.txid = u.tx_hash;
+      u.vout = u.tx_output_n;
+      u.amount = new BigNumber(u.value);
+      u.amount = u.amount.div(100000000);
+      u.amount = u.amount.toString(10);
+    }
+    console.log(
+      'creating legacy tx ',
+      amount,
+      ' with fee ',
+      fee,
+      'secret=',
+      this.getSecret(),
+      'from address',
+      this.getAddress(),
+    );
+    let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
     return signer.createTransaction(
       utxos,
       toAddress,
-      amount,
+      amountPlusFee,
       fee,
       this.getSecret(),
       this.getAddress(),

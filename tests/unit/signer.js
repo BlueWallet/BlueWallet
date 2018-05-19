@@ -110,7 +110,7 @@ describe('unit - signer', function () {
     })
   })
 
-  describe('#createTransaction()', () => {
+  describe('createTransaction()', () => {
     const signer = require('../../models/signer')
     it('should return valid TX hex for legacy transactions', () => {
       let utxos = [{
