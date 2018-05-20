@@ -56,7 +56,8 @@ export default class RBF extends Component {
       }
     }
 
-    if (!destinationAddress) {
+    if (!destinationAddress || sourceWallet.type === 'legacy') {
+      // for now I'm too lazy to add RBF support for legacy addresses
       this.state = {
         isLoading: false,
         nonReplaceable: true,
@@ -76,7 +77,7 @@ export default class RBF extends Component {
 
   async componentDidMount() {
     let startTime = Date.now();
-    console.log('send/details - componentDidMount');
+    console.log('transactions/RBF - componentDidMount');
     this.setState({
       isLoading: false,
     });

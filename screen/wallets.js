@@ -4,8 +4,7 @@ import WalletsList from './wallets/list';
 import AddWallet from './wallets/add';
 import WalletDetails from './wallets/details';
 import WalletExport from './wallets/export';
-import scanQrWifLegacyAddress from './wallets/scanQrWifLegacyAddress';
-import scanQrWifSegwitP2SHAddress from './wallets/scanQrWifSegwitP2SHAddress';
+import scanQrWif from './wallets/scanQrWif';
 
 const WalletsNavigator = StackNavigator(
   {
@@ -15,11 +14,8 @@ const WalletsNavigator = StackNavigator(
     AddWallet: {
       screen: AddWallet,
     },
-    ScanQrWifLegacyAddress: {
-      screen: scanQrWifLegacyAddress,
-    },
-    ScanQrWifSegwitP2SHAddress: {
-      screen: scanQrWifSegwitP2SHAddress,
+    ScanQrWif: {
+      screen: scanQrWif,
     },
     WalletDetails: {
       screen: WalletDetails,

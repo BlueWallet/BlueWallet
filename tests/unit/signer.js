@@ -3,7 +3,7 @@
 let assert = require('assert')
 
 describe('unit - signer', function () {
-  describe('createTransaction()', function () {
+  describe('createSegwitTransaction()', function () {
     it('should return valid tx hex for segwit transactions', function (done) {
       let signer = require('../../models/signer')
       let utxos = [{ txid: '1e1a8cced5580eecd0ac15845fc3adfafbb0f5944a54950e4a16b8f6d1e9b715', vout: 1, address: '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi', account: '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi', scriptPubKey: 'a9146fbf1cee74734503297e46a0db3e3fbb06f2e9d387', amount: 0.001, confirmations: 108, spendable: false, solvable: false, safe: true }]
@@ -107,6 +107,30 @@ describe('unit - signer', function () {
       })
       assert.equal(url, 'bitcoin:1DzJepHCRD2C9vpFjk11eXJi97juEZ3ftv?amount=0.004&message=wheres%20the%20money%20lebowski')
       done()
+    })
+  })
+
+  describe('createTransaction()', () => {
+    const signer = require('../../models/signer')
+    it('should return valid TX hex for legacy transactions', () => {
+      let utxos = [{
+        txid: '2f445cf016fa2772db7d473bff97515355b4e6148e1c980ce351d47cf54c517f',
+        vout: 1,
+        address: '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi',
+        account: '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi',
+        scriptPubKey: 'a9146fbf1cee74734503297e46a0db3e3fbb06f2e9d387',
+        amount: 0.01,
+        confirmations: 108,
+        spendable: false,
+        solvable: false,
+        safe: true }]
+      let toAddr = '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB'
+      let amount = 0.001
+      let fee = 0.0001
+      let WIF = 'KzbTHhzzZyVhkTYpuReMBkE7zUvvDEZtavq1DJV85MtBZyHK1TTF'
+      let fromAddr = '179JSjDc9Dh9pWWq9qv35sZsXQAV6VdE1E'
+      let txHex = signer.createTransaction(utxos, toAddr, amount, fee, WIF, fromAddr)
+      assert.equal(txHex, '01000000017f514cf57cd451e30c981c8e14e6b455535197ff3b477ddb7227fa16f05c442f010000006b483045022100c5d6b024db144aa1f0cb6d6212c326c9753f4144fd69947c1f38657944b92022022039214118b745afe6e031f96f3e98e705979f2b9f9cbbc6a91e11c89c811a3292012103f5438d524ad1cc288963466d6ef1a27d83183f7e9b7fe30879ecdae887692a31ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88aca0bb0d00000000001976a9144362a4c0dbf5102238164d1ec97f3b518bb651cd88ac00000000')
     })
   })
 })

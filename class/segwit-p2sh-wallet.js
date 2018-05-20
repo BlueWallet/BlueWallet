@@ -34,7 +34,20 @@ export class SegwitP2SHWallet extends LegacyWallet {
     return this._address;
   }
 
+  /**
+   * Takes UTXOs (as presented by blockcypher api), transforms them into
+   * format expected by signer module, creates tx and returns signed string txhex.
+   *
+   * @param utxos Unspent outputs, expects blockcypher format
+   * @param amount
+   * @param fee
+   * @param address
+   * @param memo
+   * @param sequence By default zero. Increased with each transaction replace.
+   * @return string Signed txhex ready for broadcast
+   */
   createTx(utxos, amount, fee, address, memo, sequence) {
+    // TODO: memo is not used here, get rid of it
     if (sequence === undefined) {
       sequence = 0;
     }

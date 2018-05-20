@@ -9,16 +9,17 @@ import {
 } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { Camera, Permissions } from 'expo';
-import { SegwitP2SHWallet } from '../../class';
+import { SegwitP2SHWallet, LegacyWallet } from '../../class';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
+/** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let bip38 = require('../../bip38');
 let wif = require('wif');
 let prompt = require('../../prompt');
 
-export default class CameraExample extends React.Component {
+export default class ScanQrWif extends React.Component {
   static navigationOptions = {
     tabBarLabel: 'Wallets',
     tabBarIcon: ({ tintColor, focused }) => (
@@ -93,31 +94,40 @@ export default class CameraExample extends React.Component {
 
     let newWallet = new SegwitP2SHWallet();
     newWallet.setSecret(ret.data);
+    let newLegacyWallet = new LegacyWallet();
+    newLegacyWallet.setSecret(ret.data);
 
-    if (newWallet.getAddress() === false) {
-      // bad WIF
+    if (
+      newWallet.getAddress() === false ||
+      newLegacyWallet.getAddress() === false
+    ) {
       alert('Bad WIF');
       return;
     }
 
-    this.setState(
-      {
-        isLoading: true,
-      },
-      async () => {
-        newWallet.setLabel('New SegWit');
-        BlueApp.wallets.push(newWallet);
-        await BlueApp.saveToDisk();
-        this.props.navigation.navigate('WalletsList');
-        EV(EV.enum.WALLETS_COUNT_CHANGED);
-        alert(
-          'Imported WIF ' +
-            ret.data +
-            ' with address ' +
-            newWallet.getAddress(),
-        );
-      },
-    );
+    this.setState({ isLoading: true });
+    await newLegacyWallet.fetchBalance();
+    console.log('newLegacyWallet == ', newLegacyWallet.getBalance());
+
+    if (newLegacyWallet.getBalance()) {
+      newLegacyWallet.setLabel('Imported Legacy');
+      BlueApp.wallets.push(newLegacyWallet);
+      alert(
+        'Imported WIF ' +
+          ret.data +
+          ' with address ' +
+          newLegacyWallet.getAddress(),
+      );
+    } else {
+      newWallet.setLabel('Imported SegWit');
+      BlueApp.wallets.push(newWallet);
+      alert(
+        'Imported WIF ' + ret.data + ' with address ' + newWallet.getAddress(),
+      );
+    }
+    await BlueApp.saveToDisk();
+    this.props.navigation.navigate('WalletsList');
+    setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
   } // end
 
   async componentWillMount() {
@@ -218,8 +228,9 @@ export default class CameraExample extends React.Component {
   }
 }
 
-CameraExample.propTypes = {
+ScanQrWif.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
+    navigate: PropTypes.func,
   }),
 };
