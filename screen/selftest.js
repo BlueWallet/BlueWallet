@@ -134,7 +134,6 @@ export default class Selftest extends Component {
     fee = 0.0001;
     try {
       txHex = l.createTx(utxos, amount, fee, toAddr);
-      console.log(txHex);
     } catch (e) {
       errorMessage += e.message + '; ';
       isOk = false;
