@@ -92,7 +92,7 @@ Support for single private-key wallets:
 
 ### v2.0.0 beta
 
-* Legacy addresses
+* ~~Legacy addresses~~
 * ~~Encrypt all storage, PIN/Password/Fingerprint security~~
 * Currency conversion
 * Localization (RU, UA)
@@ -158,3 +158,4 @@ Lightning support?
 * [x] Fake password which unlocks fake wallets (aka plausible deniability)
 * [x] BIP38 (password-protected key)
 * [ ] Self-destruct if several password attempts
+* [ ] Generate keys with desired text in address (3MyAddRess......)
