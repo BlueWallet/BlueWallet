@@ -5,7 +5,7 @@
 Thin Bitcoin Wallet.
 Built with React Native, Expo and BlockCypher API.
 
-[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v1.2.0**
+[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v1.3.0**
 
 [bluewallet.io](http://bluewallet.io)
 
