@@ -111,10 +111,10 @@ export default class TransactionsList extends Component {
           backgroundColor={BlueApp.settings.brandingColor}
           centerComponent={{
             text: this.state.final_balance + ' BTC',
-            style: { color: '#fff', fontSize: 25 },
+            style: { color: BlueApp.settings.foregroundColor, fontSize: 25 },
           }}
           rightComponent={
-            <Icon name="refresh" color="#fff" onPress={() => this.refresh()} />
+            <Icon name="refresh" color={BlueApp.settings.foregroundColor} onPress={() => this.refresh()} />
           }
         />
         <BlueCard title="My Transactions">

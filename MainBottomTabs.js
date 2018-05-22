@@ -39,10 +39,10 @@ const Tabs = TabNavigator(
     tabBarPosition: 'bottom',
     animationEnabled: true,
     tabBarOptions: {
-      activeTintColor: 'white',
+      activeTintColor: BlueApp.settings.foregroundColor,
       activeBackgroundColor: '#33bdf1',
       inactiveBackgroundColor: BlueApp.settings.brandingColor,
-      inactiveTintColor: 'white',
+      inactiveTintColor: BlueApp.settings.foregroundColor,
     },
   },
 );

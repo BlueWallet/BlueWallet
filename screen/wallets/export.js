@@ -78,7 +78,7 @@ export default class WalletExport extends Component {
           <QRCode
             value={this.state.wallet.getSecret()}
             size={312}
-            bgColor={'white'}
+            bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
           <BlueText>

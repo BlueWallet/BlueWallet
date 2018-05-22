@@ -12,6 +12,7 @@ export class AppStorage {
     this.cachedPassword = false;
     this.settings = {
       brandingColor: '#008dc2',
+      foregroundColor: '#ffffff',
       buttonBackground: '#008dc2',
     };
   }

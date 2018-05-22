@@ -73,7 +73,7 @@ export default class ReceiveDetails extends Component {
           <QRCode
             value={this.state.address}
             size={(isIpad && 250) || 312}
-            bgColor="white"
+            bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
         </BlueCard>

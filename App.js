@@ -27,7 +27,7 @@ const CustomDrawerContentComponent = props => (
       forceInset={{ top: 'always', horizontal: 'never' }}
     >
       <Text
-        onPress={() => props.navigation.navigate('AddWallet')}
+        onPress={() => props.navigation.navigate('About')}
         style={styles.heading}
       >
         {' '}

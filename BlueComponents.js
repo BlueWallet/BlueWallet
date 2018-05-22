@@ -12,6 +12,7 @@ import {
   ListItem,
 } from 'react-native-elements';
 import { ActivityIndicator, ListView, View, Dimensions } from 'react-native';
+/** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
@@ -31,7 +32,7 @@ export class BlueButton extends Component {
           marginTop: 20,
           borderRadius: 6,
           borderWidth: 0.7,
-          borderColor: '#ffffff',
+          borderColor: BlueApp.settings.foregroundColor,
         }}
         borderRadius={10}
         backgroundColor={BlueApp.settings.buttonBackground}
@@ -58,7 +59,7 @@ export class BlueCard extends Component {
     return (
       <Card
         {...this.props}
-        titleStyle={{ color: 'white' }}
+        titleStyle={{ color: BlueApp.settings.foregroundColor }}
         containerStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
         wrapperStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
       />
@@ -68,7 +69,7 @@ export class BlueCard extends Component {
 
 export class BlueText extends Component {
   render() {
-    return <Text {...this.props} style={{ color: 'white' }} />;
+    return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor }} />;
   }
 }
 
@@ -79,11 +80,11 @@ export class BlueListItem extends Component {
         {...this.props}
         containerStyle={{
           backgroundColor: BlueApp.settings.brandingColor,
-          borderBottomColor: 'white',
+          borderBottomColor: BlueApp.settings.foregroundColor,
           borderBottomWidth: 0.5,
         }}
-        titleStyle={{ color: 'white', fontSize: 18 }}
-        subtitleStyle={{ color: 'white' }}
+        titleStyle={{ color: BlueApp.settings.foregroundColor, fontSize: 18 }}
+        subtitleStyle={{ color: BlueApp.settings.foregroundColor }}
       />
     );
   }
@@ -91,7 +92,7 @@ export class BlueListItem extends Component {
 
 export class BlueFormLabel extends Component {
   render() {
-    return <FormLabel {...this.props} labelStyle={{ color: 'white' }} />;
+    return <FormLabel {...this.props} labelStyle={{ color: BlueApp.settings.foregroundColor }} />;
   }
 }
 
@@ -100,8 +101,8 @@ export class BlueFormInput extends Component {
     return (
       <FormInput
         {...this.props}
-        inputStyle={{ color: 'white' }}
-        containerStyle={{ borderBottomColor: 'white', borderBottomWidth: 0.5 }}
+        inputStyle={{ color: BlueApp.settings.foregroundColor }}
+        containerStyle={{ borderBottomColor: BlueApp.settings.foregroundColor, borderBottomWidth: 0.5 }}
       />
     );
   }
@@ -112,8 +113,8 @@ export class BlueFormInputAddress extends Component {
     return (
       <FormInput
         {...this.props}
-        inputStyle={{ color: 'white', fontSize: (isIpad && 10) || 12 }}
-        containerStyle={{ borderBottomColor: 'white', borderBottomWidth: 0.5 }}
+        inputStyle={{ color: BlueApp.settings.foregroundColor, fontSize: (isIpad && 10) || 12 }}
+        containerStyle={{ borderBottomColor: BlueApp.settings.foregroundColor, borderBottomWidth: 0.5 }}
       />
     );
   }
@@ -175,7 +176,7 @@ export class BlueList extends Component {
         {...this.props}
         containerStyle={{
           backgroundColor: BlueApp.settings.brandingColor,
-          borderTopColor: 'white',
+          borderTopColor: BlueApp.settings.foregroundColor,
           borderTopWidth: 1,
         }}
       />

@@ -55,13 +55,13 @@ export default class Settings extends Component {
           leftComponent={
             <Icon
               name="menu"
-              color="#fff"
+              color={BlueApp.settings.foregroundColor}
               onPress={() => this.props.navigation.navigate('DrawerToggle')}
             />
           }
           centerComponent={{
             text: 'Settings',
-            style: { color: '#fff', fontSize: 23 },
+            style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
 

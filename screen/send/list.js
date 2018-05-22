@@ -73,7 +73,7 @@ export default class SendList extends Component {
         <BlueHeader
           centerComponent={{
             text: 'Choose a wallet',
-            style: { color: '#fff', fontSize: 23 },
+            style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
 
@@ -93,7 +93,7 @@ export default class SendList extends Component {
                   leftIcon={{
                     name: 'bitcoin',
                     type: 'font-awesome',
-                    color: 'white',
+                    color: BlueApp.settings.foregroundColor,
                   }}
                 />
               );

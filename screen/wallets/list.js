@@ -78,7 +78,7 @@ export default class WalletsList extends Component {
         <BlueHeader
           centerComponent={{
             text: 'Blue Wallet',
-            style: { color: '#fff', fontSize: 23 },
+            style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
         <BlueCard title="My Bitcoin Wallets">
@@ -103,7 +103,7 @@ export default class WalletsList extends Component {
                     leftIcon={{
                       name: 'bitcoin',
                       type: 'font-awesome',
-                      color: '#fff',
+                      color: BlueApp.settings.foregroundColor,
                     }}
                     title={
                       rowData.getLabel() + ' | ' + rowData.getBalance() + ' BTC'
