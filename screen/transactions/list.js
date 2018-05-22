@@ -114,7 +114,11 @@ export default class TransactionsList extends Component {
             style: { color: BlueApp.settings.foregroundColor, fontSize: 25 },
           }}
           rightComponent={
-            <Icon name="refresh" color={BlueApp.settings.foregroundColor} onPress={() => this.refresh()} />
+            <Icon
+              name="refresh"
+              color={BlueApp.settings.foregroundColor}
+              onPress={() => this.refresh()}
+            />
           }
         />
         <BlueCard title="My Transactions">

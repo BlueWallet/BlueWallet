@@ -69,7 +69,12 @@ export class BlueCard extends Component {
 
 export class BlueText extends Component {
   render() {
-    return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor }} />;
+    return (
+      <Text
+        {...this.props}
+        style={{ color: BlueApp.settings.foregroundColor }}
+      />
+    );
   }
 }
 
@@ -92,7 +97,12 @@ export class BlueListItem extends Component {
 
 export class BlueFormLabel extends Component {
   render() {
-    return <FormLabel {...this.props} labelStyle={{ color: BlueApp.settings.foregroundColor }} />;
+    return (
+      <FormLabel
+        {...this.props}
+        labelStyle={{ color: BlueApp.settings.foregroundColor }}
+      />
+    );
   }
 }
 
@@ -102,7 +112,10 @@ export class BlueFormInput extends Component {
       <FormInput
         {...this.props}
         inputStyle={{ color: BlueApp.settings.foregroundColor }}
-        containerStyle={{ borderBottomColor: BlueApp.settings.foregroundColor, borderBottomWidth: 0.5 }}
+        containerStyle={{
+          borderBottomColor: BlueApp.settings.foregroundColor,
+          borderBottomWidth: 0.5,
+        }}
       />
     );
   }
@@ -113,8 +126,14 @@ export class BlueFormInputAddress extends Component {
     return (
       <FormInput
         {...this.props}
-        inputStyle={{ color: BlueApp.settings.foregroundColor, fontSize: (isIpad && 10) || 12 }}
-        containerStyle={{ borderBottomColor: BlueApp.settings.foregroundColor, borderBottomWidth: 0.5 }}
+        inputStyle={{
+          color: BlueApp.settings.foregroundColor,
+          fontSize: (isIpad && 10) || 12,
+        }}
+        containerStyle={{
+          borderBottomColor: BlueApp.settings.foregroundColor,
+          borderBottomWidth: 0.5,
+        }}
       />
     );
   }
