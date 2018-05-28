@@ -12,6 +12,7 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 let isIpad;
@@ -23,7 +24,6 @@ if (aspectRatio > 1.6) {
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Receive',
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-cash' : 'ios-cash-outline'}
@@ -44,7 +44,7 @@ export default class ReceiveDetails extends Component {
   }
 
   async componentDidMount() {
-    console.log('wallets/details - componentDidMount');
+    console.log('receive/details - componentDidMount');
     this.setState({
       isLoading: false,
     });
@@ -66,7 +66,7 @@ export default class ReceiveDetails extends Component {
         })()}
 
         <BlueCard
-          title={'Share this address with payer'}
+          title={loc.receive.details.title}
           style={{ alignItems: 'center', flex: 1 }}
         >
           <BlueFormInputAddress editable value={this.state.address} />

@@ -12,19 +12,10 @@ import {
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 let BlueApp = require('../../BlueApp');
-
-/*
-  <Button
-backgroundColor={BlueApp.settings.buttonBackground}
-large icon={{name: 'qrcode', type: 'font-awesome'}} title='Scan QR WIF as Legacy Address (P2PKH)'
-onPress={() => {
-  this.props.navigation.navigate('ScanQrWifLegacyAddress')
-}}
-/> */
+let loc = require('../../loc');
 
 export default class WalletsAdd extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Wallets',
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
@@ -62,17 +53,13 @@ export default class WalletsAdd extends Component {
         style={{ flex: 1, paddingTop: 40 }}
       >
         <BlueSpacing />
-        <BlueCard title="Add Wallet">
-          <BlueText>
-            You can either scan backup paper wallet (in WIF - Wallet Import
-            Format), or create a new wallet. Segwit wallets supported by
-            default.
-          </BlueText>
+        <BlueCard title={loc.wallets.add.title}>
+          <BlueText>{loc.wallets.add.description}</BlueText>
 
           <BlueButton
             large
             icon={{ name: 'qrcode', type: 'font-awesome' }}
-            title="Scan"
+            title={loc.wallets.add.scan}
             onPress={() => {
               this.props.navigation.navigate('ScanQrWif');
             }}
@@ -81,12 +68,12 @@ export default class WalletsAdd extends Component {
           <BlueButton
             large
             icon={{ name: 'bitcoin', type: 'font-awesome' }}
-            title="Create"
+            title={loc.wallets.add.create}
             onPress={() => {
               this.props.navigation.goBack();
               setTimeout(async () => {
                 let w = new SegwitP2SHWallet();
-                w.setLabel('New SegWit');
+                w.setLabel(loc.wallets.add.label_new_segwit);
                 w.generate();
                 BlueApp.wallets.push(w);
                 await BlueApp.saveToDisk();

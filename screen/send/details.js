@@ -18,6 +18,7 @@ const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 let isIpad;
@@ -121,9 +122,9 @@ export default class SendDetails extends Component {
   }
 
   createTransaction() {
-    if (!this.state.amount) {
+    if (!this.state.amount || this.state.amount === '0') {
       this.setState({
-        errorMessage: 'Amount field is not valid',
+        errorMessage: loc.send.details.amount_fiels_is_not_valid,
       });
       console.log('validation error');
       return;
@@ -131,7 +132,7 @@ export default class SendDetails extends Component {
 
     if (!this.state.fee) {
       this.setState({
-        errorMessage: 'Fee field is not valid',
+        errorMessage: loc.send.details.fee_fiels_is_not_valid,
       });
       console.log('validation error');
       return;
@@ -139,7 +140,7 @@ export default class SendDetails extends Component {
 
     if (!this.state.address) {
       this.setState({
-        errorMessage: 'Address field is not valid',
+        errorMessage: loc.send.details.address_fiels_is_not_valid,
       });
       console.log('validation error');
       return;
@@ -187,39 +188,39 @@ export default class SendDetails extends Component {
           }
         })()}
         <BlueCard
-          title={'Create Transaction'}
+          title={loc.send.details.title}
           style={{ alignItems: 'center', flex: 1 }}
         >
           <BlueFormInputAddress
             style={{ width: 250 }}
             onChangeText={text => this.setState({ address: text })}
-            placeholder={'receiver address here'}
+            placeholder={loc.send.details.receiver_placeholder}
             value={this.state.address}
           />
 
           <BlueFormInput
             onChangeText={text => this.setState({ amount: text })}
             keyboardType={'numeric'}
-            placeholder={'amount to send (in BTC)'}
+            placeholder={loc.send.details.amount_placeholder}
             value={this.state.amount + ''}
           />
 
           <BlueFormInput
             onChangeText={text => this.setState({ fee: text })}
             keyboardType={'numeric'}
-            placeholder={'plus transaction fee (in BTC)'}
+            placeholder={loc.send.details.fee_placeholder}
             value={this.state.fee + ''}
           />
 
           <BlueFormInput
             onChangeText={text => this.setState({ memo: text })}
-            placeholder={'memo to self'}
+            placeholder={loc.send.details.memo_placeholder}
             value={this.state.memo}
           />
 
           <BlueSpacing20 />
           <BlueText>
-            Remaining balance:{' '}
+            {loc.send.details.remaining_balance}:{' '}
             {this.recalculateAvailableBalance(
               this.state.fromWallet.getBalance(),
               this.state.amount,
@@ -235,21 +236,21 @@ export default class SendDetails extends Component {
           <View style={{ flex: 0.33 }}>
             <BlueButton
               onPress={() => this.props.navigation.goBack()}
-              title="Cancel"
+              title={loc.send.details.cancel}
             />
           </View>
           <View style={{ flex: 0.33 }}>
             <BlueButton
               icon={{ name: 'qrcode', type: 'font-awesome' }}
               style={{}}
-              title="scan"
+              title={loc.send.details.scan}
               onPress={() => this.props.navigation.navigate('ScanQrAddress')}
             />
           </View>
           <View style={{ flex: 0.33 }}>
             <BlueButton
               onPress={() => this.createTransaction()}
-              title="Create"
+              title={loc.send.details.create}
             />
           </View>
         </View>

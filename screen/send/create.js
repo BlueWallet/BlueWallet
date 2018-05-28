@@ -14,6 +14,7 @@ import {
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 
 export default class SendCreate extends Component {
   static navigationOptions = {
@@ -131,19 +132,17 @@ export default class SendCreate extends Component {
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
           <BlueSpacing />
           <BlueCard
-            title={'Create Transaction'}
+            title={loc.send.create.title}
             style={{ alignItems: 'center', flex: 1 }}
           >
-            <BlueText>
-              Error creating transaction. Invalid address or send amount?
-            </BlueText>
+            <BlueText>{loc.send.create.error}</BlueText>
             <FormValidationMessage>
               {this.state.errorMessage}
             </FormValidationMessage>
           </BlueCard>
           <BlueButton
             onPress={() => this.props.navigation.goBack()}
-            title="Go back"
+            title={loc.send.create.go_back}
           />
         </SafeBlueArea>
       );
@@ -157,13 +156,10 @@ export default class SendCreate extends Component {
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
         <BlueCard
-          title={'Create Transaction'}
+          title={loc.send.create.title}
           style={{ alignItems: 'center', flex: 1 }}
         >
-          <BlueText>
-            This is transaction hex, signed and ready to be broadcast to the
-            network. Continue?
-          </BlueText>
+          <BlueText>{loc.send.create.this_is_hex}</BlueText>
 
           <TextInput
             style={{
@@ -181,25 +177,36 @@ export default class SendCreate extends Component {
           <BlueSpacing20 />
 
           <BlueText style={{ paddingTop: 20 }}>
-            To: {this.state.address}
+            {loc.send.create.to}: {this.state.address}
           </BlueText>
-          <BlueText>Amount: {this.state.amount} BTC</BlueText>
-          <BlueText>Fee: {this.state.fee} BTC</BlueText>
-          <BlueText>TX size: {this.state.size} Bytes</BlueText>
-          <BlueText>satoshiPerByte: {this.state.satoshiPerByte} Sat/B</BlueText>
-          <BlueText>Memo: {this.state.memo}</BlueText>
+          <BlueText>
+            {loc.send.create.amount}: {this.state.amount} BTC
+          </BlueText>
+          <BlueText>
+            {loc.send.create.fee}: {this.state.fee} BTC
+          </BlueText>
+          <BlueText>
+            {loc.send.create.tx_size}: {this.state.size} Bytes
+          </BlueText>
+          <BlueText>
+            {loc.send.create.satoshi_per_byte}: {this.state.satoshiPerByte}{' '}
+            Sat/B
+          </BlueText>
+          <BlueText>
+            {loc.send.create.memo}: {this.state.memo}
+          </BlueText>
         </BlueCard>
 
         <BlueButton
           icon={{ name: 'megaphone', type: 'octicon' }}
           onPress={() => this.broadcast()}
-          title="Broadcast"
+          title={loc.send.create.broadcast}
         />
 
         <BlueButton
           icon={{ name: 'arrow-left', type: 'octicon' }}
           onPress={() => this.props.navigation.goBack()}
-          title="Go back"
+          title={loc.send.create.go_back}
         />
 
         <FormValidationMessage>

@@ -18,10 +18,10 @@ let EV = require('../../events');
 let bip38 = require('../../bip38');
 let wif = require('wif');
 let prompt = require('../../prompt');
+let loc = require('../../loc');
 
 export default class ScanQrWif extends React.Component {
   static navigationOptions = {
-    tabBarLabel: 'Wallets',
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
@@ -50,12 +50,12 @@ export default class ScanQrWif extends React.Component {
       console.log('trying to decrypt...');
 
       this.setState({
-        message: 'Decoding',
+        message: loc.wallets.scanQrWif.decoding,
       });
       shold_stop_bip38 = undefined; // eslint-disable-line
       let password = await prompt(
-        'Input password',
-        'This is BIP38 encrypted private key',
+        loc.wallets.scanQrWif.input_password,
+        loc.wallets.scanQrWif.password_explain,
       );
       if (!password) {
         return;
@@ -67,7 +67,10 @@ export default class ScanQrWif extends React.Component {
         ) {
           that.setState({
             message:
-              'Decoding... ' + status.percent.toString().substr(0, 4) + ' %',
+              loc.wallets.scanQrWif.decoding +
+              '... ' +
+              status.percent.toString().substr(0, 4) +
+              ' %',
           });
         });
         ret.data = wif.encode(
@@ -78,7 +81,7 @@ export default class ScanQrWif extends React.Component {
       } catch (e) {
         console.log(e.message);
         this.setState({ message: false });
-        return alert('Bad password');
+        return alert(loc.wallets.scanQrWif.bad_password);
       }
 
       this.setState({ message: false });
@@ -87,7 +90,7 @@ export default class ScanQrWif extends React.Component {
     for (let w of BlueApp.wallets) {
       // lookig for duplicates
       if (w.getSecret() === ret.data) {
-        alert('Such wallet already exists');
+        alert(loc.wallets.scanQrWif.wallet_already_exists);
         return; // duplicate, not adding
       }
     }
@@ -101,7 +104,7 @@ export default class ScanQrWif extends React.Component {
       newWallet.getAddress() === false ||
       newLegacyWallet.getAddress() === false
     ) {
-      alert('Bad WIF');
+      alert(loc.wallets.scanQrWif.bad_wif);
       return;
     }
 
@@ -110,19 +113,22 @@ export default class ScanQrWif extends React.Component {
     console.log('newLegacyWallet == ', newLegacyWallet.getBalance());
 
     if (newLegacyWallet.getBalance()) {
-      newLegacyWallet.setLabel('Imported Legacy');
+      newLegacyWallet.setLabel(loc.wallets.scanQrWif.imported_legacy);
       BlueApp.wallets.push(newLegacyWallet);
       alert(
-        'Imported WIF ' +
+        loc.wallets.scanQrWif.imported_wif +
           ret.data +
-          ' with address ' +
+          loc.wallets.scanQrWif.with_address +
           newLegacyWallet.getAddress(),
       );
     } else {
-      newWallet.setLabel('Imported SegWit');
+      newWallet.setLabel(loc.wallets.scanQrWif.imported_segwit);
       BlueApp.wallets.push(newWallet);
       alert(
-        'Imported WIF ' + ret.data + ' with address ' + newWallet.getAddress(),
+        loc.wallets.scanQrWif.imported_wif +
+          ret.data +
+          loc.wallets.scanQrWif.with_address +
+          newWallet.getAddress(),
       );
     }
     await BlueApp.saveToDisk();
@@ -177,7 +183,7 @@ export default class ScanQrWif extends React.Component {
                         this.setState({ message: false });
                         shold_stop_bip38 = true; // eslint-disable-line
                       }}
-                      title="Cancel"
+                      title={loc.wallets.scanQrWif.cancel}
                     />
                   </View>
                 </SafeBlueArea>
@@ -213,7 +219,7 @@ export default class ScanQrWif extends React.Component {
                     >
                       <Button
                         style={{ fontSize: 18, marginBottom: 10 }}
-                        title="Go back"
+                        title={loc.wallets.scanQrWif.go_back}
                         onPress={() => this.props.navigation.goBack()}
                       />
                     </TouchableOpacity>

@@ -30,7 +30,7 @@
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack",
     "test": "npm run unit && npm run jest && npm run lint",
     "jest": "node node_modules/jest/bin/jest.js",
-    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ --fix",
+    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ --fix",
     "unit": "./node_modules/.bin/mocha tests/**/*.js"
   },
   "jest": {
@@ -40,7 +40,6 @@
     "asyncstorage-down": "^3.1.1",
     "bignumber.js": "^5.0.0",
     "bip21": "^2.0.1",
-    "wif": "^2.0.1",
     "bitcoinjs-lib": "^3.3.2",
     "buffer": "^4.9.1",
     "crypto-js": "^3.1.9-1",
@@ -55,6 +54,7 @@
     "process": "^0.11.10",
     "prop-types": "^15.6.1",
     "react": "16.0.0",
+    "react-localization": "^1.0.10",
     "react-native": "https://github.com/expo/react-native/archive/sdk-23.0.0.tar.gz",
     "react-native-camera": "^0.12.0",
     "react-native-elements": "^0.18.5",
@@ -64,7 +64,8 @@
     "readable-stream": "^1.1.14",
     "request-promise-native": "^1.0.5",
     "secure-random": "^1.1.1",
-    "stream-browserify": "^1.0.0"
+    "stream-browserify": "^1.0.0",
+    "wif": "^2.0.1"
   },
   "react-native": {
     "path": "path-browserify",

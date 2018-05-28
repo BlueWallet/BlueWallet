@@ -8,6 +8,7 @@ import Selftest from './screen/selftest';
 import About from './screen/about';
 import PlausibleDeniability from './screen/plausibledeniability';
 
+/** @type {AppStorage} */
 require('./BlueApp');
 
 if (!Error.captureStackTrace) {

@@ -16,10 +16,11 @@ import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
 let prompt = require('../prompt');
+let loc = require('../loc');
 
 export default class Settings extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Settings',
+    tabBarLabel: loc.settings.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-settings' : 'ios-settings-outline'}
@@ -60,7 +61,7 @@ export default class Settings extends Component {
             />
           }
           centerComponent={{
-            text: 'Settings',
+            text: loc.settings.header,
             style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
@@ -78,7 +79,7 @@ export default class Settings extends Component {
                       onPress={() =>
                         this.props.navigation.navigate('PlausibleDeniability')
                       }
-                      title="Plausible deniability..."
+                      title={loc.settings.plausible_deniability}
                     />
                   </View>
                 );
@@ -86,23 +87,23 @@ export default class Settings extends Component {
                 return (
                   <View>
                     <FormValidationMessage>
-                      Storage: not encrypted
+                      {loc.settings.storage_not_encrypted}
                     </FormValidationMessage>
                     <BlueButton
                       icon={{ name: 'shield', type: 'octicon' }}
                       onPress={async () => {
                         this.setState({ isLoading: true });
                         let p1 = await prompt(
-                          'Password',
-                          'Create the password you will use to decrypt the storage',
+                          loc.settings.password,
+                          loc.settings.password_explain,
                         );
                         if (!p1) {
                           this.setState({ isLoading: false });
                           return;
                         }
                         let p2 = await prompt(
-                          'Password',
-                          'Re-type the password',
+                          loc.settings.password,
+                          loc.settings.retype_password,
                         );
                         if (p1 === p2) {
                           await BlueApp.encryptStorage(p1);
@@ -112,10 +113,10 @@ export default class Settings extends Component {
                           });
                         } else {
                           this.setState({ isLoading: false });
-                          alert('Passwords do not match. Please try again');
+                          alert(loc.settings.passwords_do_not_match);
                         }
                       }}
-                      title="Encrypt storage"
+                      title={loc.settings.encrypt_storage}
                     />
                   </View>
                 );
@@ -124,7 +125,7 @@ export default class Settings extends Component {
 
             <BlueButton
               onPress={() => this.props.navigation.navigate('About')}
-              title="About"
+              title={loc.settings.about}
             />
           </ScrollView>
         </BlueCard>

@@ -11,6 +11,7 @@ import {
   BlueListItem,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+let loc = require('../../loc');
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -20,7 +21,7 @@ let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class TransactionsList extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Transactions',
+    tabBarLabel: loc.transactions.list.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-list-box' : 'ios-list-box-outline'}
@@ -121,9 +122,9 @@ export default class TransactionsList extends Component {
             />
           }
         />
-        <BlueCard title="My Transactions">
+        <BlueCard title={loc.transactions.list.title}>
           <BlueText style={{ marginBottom: 10 }}>
-            A list of ingoing or outgoing transactions of your wallets
+            {loc.transactions.list.description}
           </BlueText>
 
           <BlueList>
@@ -161,7 +162,9 @@ export default class TransactionsList extends Component {
                         .replace(['T'], ' ')
                         .replace(['Z'], ' ')
                         .split('.')[0] +
-                      ' | conf: ' +
+                      ' | ' +
+                      loc.transactions.list.conf +
+                      ': ' +
                       rowData.confirmations +
                       '\nYOLO'
                     }

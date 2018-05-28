@@ -11,12 +11,13 @@ import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 const { height } = Dimensions.get('window');
 let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class SendList extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Send',
+    tabBarLabel: loc.send.list.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'md-paper-plane' : 'md-paper-plane'}
@@ -72,7 +73,7 @@ export default class SendList extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
           centerComponent={{
-            text: 'Choose a wallet',
+            text: loc.send.list.header,
             style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
