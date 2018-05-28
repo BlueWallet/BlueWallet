@@ -11,6 +11,7 @@ import {
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 
 export default class WalletExport extends Component {
   static navigationOptions = {
@@ -71,7 +72,7 @@ export default class WalletExport extends Component {
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
         <BlueCard
-          title={'Wallet Export'}
+          title={loc.wallets.export.title}
           style={{ alignItems: 'center', flex: 1 }}
         >
           <BlueText>{this.state.wallet.getAddress()}</BlueText>

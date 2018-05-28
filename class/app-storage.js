@@ -4,6 +4,7 @@ let encryption = require('../encryption');
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
+  static LANG = 'lang';
 
   constructor() {
     /** {Array.<AbstractWallet>} */

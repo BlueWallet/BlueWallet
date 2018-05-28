@@ -6,10 +6,7 @@ import send from './screen/send';
 import settins from './screen/settings';
 import receive from './screen/receive';
 
-/**
- *
- * @type {AppStorage}
- */
+/** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
 
 const Tabs = TabNavigator(
@@ -39,6 +36,7 @@ const Tabs = TabNavigator(
     tabBarPosition: 'bottom',
     animationEnabled: true,
     tabBarOptions: {
+      showLabel: false,
       activeTintColor: BlueApp.settings.foregroundColor,
       activeBackgroundColor: '#33bdf1',
       inactiveBackgroundColor: BlueApp.settings.brandingColor,

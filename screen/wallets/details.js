@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 let isIpad;
@@ -91,22 +92,22 @@ export default class WalletDetails extends Component {
         })()}
 
         <BlueCard
-          title={'Wallet Details'}
+          title={loc.wallets.details.title}
           style={{ alignItems: 'center', flex: 1 }}
         >
-          <BlueFormLabel>Address:</BlueFormLabel>
+          <BlueFormLabel>{loc.wallets.details.address}:</BlueFormLabel>
           <BlueFormInputAddress
             value={this.state.wallet.getAddress()}
             editable
           />
 
-          <BlueFormLabel>Type:</BlueFormLabel>
+          <BlueFormLabel>{loc.wallets.details.type}:</BlueFormLabel>
           <BlueFormInput
             value={this.state.wallet.getTypeReadable()}
             editable={false}
           />
 
-          <BlueFormLabel>Label:</BlueFormLabel>
+          <BlueFormLabel>{loc.wallets.details.label}:</BlueFormLabel>
           <BlueFormInput
             value={this.state.wallet.getLabel()}
             onChangeText={text => {
@@ -119,7 +120,7 @@ export default class WalletDetails extends Component {
           if (this.state.confirmDelete) {
             return (
               <View style={{ alignItems: 'center' }}>
-                <BlueText>Are you sure?</BlueText>
+                <BlueText>{loc.wallets.details.are_you_sure}</BlueText>
                 <View style={{ flex: 0, flexDirection: 'row' }}>
                   <View style={{ flex: 0.5 }}>
                     <BlueButton
@@ -131,7 +132,7 @@ export default class WalletDetails extends Component {
                         EV(EV.enum.WALLETS_COUNT_CHANGED);
                         this.props.navigation.goBack();
                       }}
-                      title="Yes, delete"
+                      title={loc.wallets.details.yes_delete}
                     />
                   </View>
                   <View style={{ flex: 0.5 }}>
@@ -139,7 +140,7 @@ export default class WalletDetails extends Component {
                       onPress={async () => {
                         this.setState({ confirmDelete: false });
                       }}
-                      title="No, cancel"
+                      title={loc.wallets.details.no_cancel}
                     />
                   </View>
                 </View>
@@ -153,7 +154,7 @@ export default class WalletDetails extends Component {
                   onPress={async () => {
                     this.setState({ confirmDelete: true });
                   }}
-                  title="Delete this wallet"
+                  title={loc.wallets.details.delete_this_wallet}
                 />
 
                 {(() => {
@@ -167,7 +168,7 @@ export default class WalletDetails extends Component {
                             address: this.state.wallet.getAddress(),
                           })
                         }
-                        title="Export / backup"
+                        title={loc.wallets.details.export_backup}
                       />
                     );
                   }

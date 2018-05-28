@@ -15,6 +15,7 @@ import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 let isIpad;
@@ -28,7 +29,7 @@ let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class WalletsList extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Wallets',
+    tabBarLabel: loc.wallets.list.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
@@ -77,14 +78,13 @@ export default class WalletsList extends Component {
       <SafeBlueArea>
         <BlueHeader
           centerComponent={{
-            text: 'Blue Wallet',
+            text: loc.wallets.list.app_name,
             style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
-        <BlueCard title="My Bitcoin Wallets">
+        <BlueCard title={loc.wallets.list.title}>
           <BlueText style={{ marginBottom: 10 }}>
-            A wallet represents a pair of a secret (private key) and an address
-            you can share to receive coins.
+            {loc.wallets.list.header}
           </BlueText>
 
           <BlueList>
@@ -122,7 +122,7 @@ export default class WalletsList extends Component {
           onPress={() => {
             navigate('AddWallet');
           }}
-          title="Add Wallet"
+          title={loc.wallets.list.add}
         />
       </SafeBlueArea>
     );

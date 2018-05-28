@@ -1,4 +1,3 @@
-/** @type {AppStorage} */
 import React, { Component } from 'react';
 import { ListView, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,14 +9,16 @@ import {
   BlueHeader,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+/** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
+let loc = require('../../loc');
 const { height } = Dimensions.get('window');
 let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class ReceiveList extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Receive',
+    tabBarLabel: loc.receive.list.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-cash' : 'ios-cash-outline'}
@@ -69,7 +70,7 @@ export default class ReceiveList extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
           centerComponent={{
-            text: 'Choose a wallet',
+            text: loc.receive.list.header,
             style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
