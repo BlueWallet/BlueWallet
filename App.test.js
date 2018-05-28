@@ -11,6 +11,20 @@ let assert = require('assert');
 jest.mock('react-native-qrcode', () => 'Video');
 const AsyncStorage = new MockStorage();
 jest.setMock('AsyncStorage', AsyncStorage);
+jest.mock('Picker', () => {
+  // eslint-disable-next-line import/no-unresolved
+  const React = require('React');
+  const PropTypes = require('prop-types');
+  return class MockPicker extends React.Component {
+    static Item = props => React.createElement('Item', props, props.children);
+    static propTypes = { children: PropTypes.any };
+    static defaultProps = { children: '' };
+
+    render() {
+      return React.createElement('Picker', this.props, this.props.children);
+    }
+  };
+});
 
 describe('unit - LegacyWallet', function() {
   it('serialize and unserialize work correctly', () => {

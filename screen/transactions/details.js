@@ -13,6 +13,7 @@ import {
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 
 export default class TransactionsDetails extends Component {
   static navigationOptions = {
@@ -71,7 +72,7 @@ export default class TransactionsDetails extends Component {
       >
         <BlueSpacing />
         <BlueCard
-          title={'Transaction details'}
+          title={loc.transactions.details.title}
           style={{ alignItems: 'center', flex: 1 }}
         >
           {(() => {
@@ -89,12 +90,12 @@ export default class TransactionsDetails extends Component {
             }
           })()}
 
-          <BlueText h4>From:</BlueText>
+          <BlueText h4>{loc.transactions.details.from}:</BlueText>
           <BlueText style={{ marginBottom: 10 }}>
             {this.state.from.join(', ')}
           </BlueText>
 
-          <BlueText h4>To:</BlueText>
+          <BlueText h4>{loc.transactions.details.to}:</BlueText>
           <BlueText style={{ marginBottom: 10 }}>
             {this.state.to.join(', ')}
           </BlueText>

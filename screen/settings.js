@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, View, Picker } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Icon, FormValidationMessage } from 'react-native-elements';
 import {
@@ -34,6 +34,7 @@ export default class Settings extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      language: loc.getLanguage(),
     };
   }
 
@@ -69,7 +70,6 @@ export default class Settings extends Component {
         <BlueCard>
           <ScrollView maxHeight={450}>
             <BlueSpacing20 />
-
             {(() => {
               if (this.state.storageIsEncrypted) {
                 return (
@@ -128,6 +128,28 @@ export default class Settings extends Component {
               title={loc.settings.about}
             />
           </ScrollView>
+
+          <Picker
+            selectedValue={this.state.language}
+            style={{ height: 150 }}
+            onValueChange={(itemValue, itemIndex) => {
+              console.log('setLanguage', itemValue);
+              loc.setLanguage(itemValue);
+              loc.saveLanguage(itemValue);
+              return this.setState({ language: itemValue });
+            }}
+          >
+            <Picker.Item
+              color={BlueApp.settings.foregroundColor}
+              label="English"
+              value="en"
+            />
+            <Picker.Item
+              color={BlueApp.settings.foregroundColor}
+              label="Русский"
+              value="ru"
+            />
+          </Picker>
         </BlueCard>
       </SafeBlueArea>
     );
