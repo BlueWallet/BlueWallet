@@ -74,7 +74,7 @@ export default class Settings extends Component {
               if (this.state.storageIsEncrypted) {
                 return (
                   <View>
-                    <BlueText>Storage: encrypted</BlueText>
+                    <BlueText>{loc.settings.storage_encrypted}</BlueText>
                     <BlueButton
                       onPress={() =>
                         this.props.navigation.navigate('PlausibleDeniability')

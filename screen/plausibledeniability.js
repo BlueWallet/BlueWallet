@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Icon } from 'react-native-elements';
 import {
   BlueLoading,
   BlueButton,
@@ -16,10 +15,11 @@ import PropTypes from 'prop-types';
 let BlueApp = require('../BlueApp');
 let prompt = require('../prompt');
 let EV = require('../events');
+let loc = require('../loc');
 
 export default class PlausibleDeniability extends Component {
   static navigationOptions = {
-    tabBarLabel: 'Plausible Deniability',
+    tabBarLabel: loc.plausibledeniability.title,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-settings' : 'ios-settings-outline'}
@@ -51,49 +51,31 @@ export default class PlausibleDeniability extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
           backgroundColor={BlueApp.settings.brandingColor}
-          leftComponent={
-            <Icon
-              name="menu"
-              color={BlueApp.settings.foregroundColor}
-              onPress={() => this.props.navigation.navigate('DrawerToggle')}
-            />
-          }
           centerComponent={{
-            text: 'Plausible Deniability',
+            text: loc.plausibledeniability.title,
             style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
           }}
         />
 
         <BlueCard>
           <ScrollView maxHeight={450}>
-            <BlueText>
-              Under certain circumstances, you might be forced to disclose a
-              password. To keep your coins safe, BlueWallet can create another
-              encrypted storage, with a different password. Under the pressure,
-              you can disclose this password to a 3rd party. If entered in
-              BlueWallet, it will unlock new 'fake' storage. This will seem
-              legit to a 3rd party, but will secretly keep your main storage
-              with coins safe.
-            </BlueText>
+            <BlueText>{loc.plausibledeniability.help}</BlueText>
 
             <BlueText />
 
-            <BlueText>
-              New storage will be fully functional, and you can store some
-              minimum amounts there so it looks more believable.
-            </BlueText>
+            <BlueText>{loc.plausibledeniability.help2}</BlueText>
 
             <BlueButton
               icon={{ name: 'shield', type: 'octicon' }}
-              title="Create fake encrypted storage"
+              title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
                 let p1 = await prompt(
-                  'Create a password',
-                  'Password for fake storage should not match password for your main storage',
+                  loc.plausibledeniability.create_password,
+                  loc.plausibledeniability.create_password_explanation,
                 );
                 if (p1 === BlueApp.cachedPassword) {
                   return alert(
-                    'Password for fake storage should not match password for your main storage',
+                    loc.plausibledeniability.password_should_not_match,
                   );
                 }
 
@@ -101,22 +83,22 @@ export default class PlausibleDeniability extends Component {
                   return;
                 }
 
-                let p2 = await prompt('Retype password');
+                let p2 = await prompt(loc.plausibledeniability.retype_password);
                 if (p1 !== p2) {
-                  return alert('Passwords do not match, try again');
+                  return alert(loc.plausibledeniability.passwords_do_not_match);
                 }
 
                 await BlueApp.createFakeStorage(p1);
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                alert('Success');
+                alert(loc.plausibledeniability.success);
                 this.props.navigation.navigate('Wallets');
               }}
             />
 
             <BlueButton
               icon={{ name: 'arrow-left', type: 'octicon' }}
-              title="Go Back"
+              title={loc.plausibledeniability.go_back}
               onPress={() => {
                 this.props.navigation.goBack();
               }}

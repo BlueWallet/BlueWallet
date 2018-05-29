@@ -4,6 +4,7 @@
 import { AppStorage } from './class';
 let prompt = require('./prompt');
 let EV = require('./events');
+let loc = require('./loc');
 
 /** @type {AppStorage} */
 let BlueApp = new AppStorage();
@@ -13,8 +14,8 @@ async function startAndDecrypt(retry) {
   if (await BlueApp.storageIsEncrypted()) {
     do {
       password = await prompt(
-        (retry && 'Bad pasword, try again') || 'Enter password',
-        'Your storage is encrypted. Password is required to decrypt it',
+        (retry && loc._.bad_password) || loc._.enter_password,
+        loc._.storage_is_encrypted,
       );
     } while (!password);
   }

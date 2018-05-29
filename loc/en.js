@@ -1,4 +1,10 @@
 module.exports = {
+  _: {
+    storage_is_encrypted:
+      'Your storage is encrypted. Password is required to decrypt it',
+    enter_password: 'Enter password',
+    bad_password: 'Bad pasword, try again',
+  },
   wallets: {
     list: {
       tabBarLabel: 'Wallets',
@@ -62,7 +68,7 @@ module.exports = {
   send: {
     list: {
       tabBarLabel: 'Send',
-      header: 'Choose a wallet',
+      header: 'Send',
     },
     details: {
       title: 'Create Transaction',
@@ -96,7 +102,7 @@ module.exports = {
   receive: {
     list: {
       tabBarLabel: 'Receive',
-      header: 'Choose a wallet',
+      header: 'Receive',
     },
     details: {
       title: 'Share this address with payer',
@@ -107,11 +113,36 @@ module.exports = {
     header: 'Settings',
     plausible_deniability: 'Plausible deniability...',
     storage_not_encrypted: 'Storage: not encrypted',
+    storage_encrypted: 'Storage: encrypted',
     password: 'Password',
     password_explain: 'Create the password you will use to decrypt the storage',
     retype_password: 'Re-type password',
     passwords_do_not_match: 'Passwords do not match',
     encrypt_storage: 'Encrypt storage',
     about: 'About',
+  },
+  plausibledeniability: {
+    title: 'Plausible Deniability',
+    help:
+      'Under certain circumstances, you might be forced to disclose a ' +
+      'password. To keep your coins safe, BlueWallet can create another ' +
+      'encrypted storage, with a different password. Under the pressure, ' +
+      'you can disclose this password to a 3rd party. If entered in ' +
+      "BlueWallet, it will unlock new 'fake' storage. This will seem " +
+      'legit to a 3rd party, but will secretly keep your main storage ' +
+      'with coins safe.',
+    help2:
+      'New storage will be fully functional, and you can store some ' +
+      'minimum amounts there so it looks more believable.',
+    create_fake_storage: 'Create fake encrypted storage',
+    go_back: 'Go Back',
+    create_password: 'Create a password',
+    create_password_explanation:
+      'Password for fake storage should not match password for your main storage',
+    password_should_not_match:
+      'Password for fake storage should not match password for your main storage',
+    retype_password: 'Retype password',
+    passwords_do_not_match: 'Passwords do not match, try again',
+    success: 'Success',
   },
 };
