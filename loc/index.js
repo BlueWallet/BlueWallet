@@ -30,6 +30,8 @@ let strings;
 strings = new LocalizedStrings({
   en: require('./en.js'),
   ru: require('./ru.js'),
+  pt_pt: require('./pt_PT.js'),
+  pt_br: require('./pt_BR.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
