@@ -20,8 +20,8 @@ let strings;
       locale = locale.split('-');
       locale = locale[0];
       console.log('current locale:', locale);
-      if (locale === 'en' || locale === 'ru') {
-        strings.setLanguage('ru');
+      if (locale === 'en' || locale === 'ru' || locale === 'es') {
+        strings.setLanguage(locale);
       }
     }
   }
@@ -30,8 +30,8 @@ let strings;
 strings = new LocalizedStrings({
   en: require('./en.js'),
   ru: require('./ru.js'),
-  pt_pt: require('./pt_PT.js'),
-  pt_br: require('./pt_BR.js'),
+  pt: require('./pt_BR.js'),
+  es: require('./es.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
