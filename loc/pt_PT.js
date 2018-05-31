@@ -56,7 +56,8 @@ module.exports = {
     list: {
       tabBarLabel: 'Transacções',
       title: 'Minhas Transacções',
-      description: 'Uma lista de transações feitas ou recebidas nas suas wallets',
+      description:
+        'Uma lista de transações feitas ou recebidas nas suas wallets',
       conf: 'conf',
     },
     details: {
@@ -128,7 +129,7 @@ module.exports = {
       'password. Para manter as suas moedas seguras, A BlueWallet pode criar outro ' +
       'armazenamento encriptado, com uma password diferente. Sobre pressão, ' +
       'pode revelar esta password a um terceiro. Se inserida na ' +
-      "BlueWallet, esta vai abrir um armazenamento "falso". Que vai parecer " +
+      'BlueWallet, esta vai abrir um armazenamento "falso". Que vai parecer ' +
       'legítimo a um terceiro, mas que secretamente vai manter o seu armazenamento principal ' +
       'com as moedas em segurança.',
     help2:

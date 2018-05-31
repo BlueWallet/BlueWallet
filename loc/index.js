@@ -20,8 +20,15 @@ let strings;
       locale = locale.split('-');
       locale = locale[0];
       console.log('current locale:', locale);
-      if (locale === 'en' || locale === 'ru' || locale === 'es') {
+      if (
+        locale === 'en' ||
+        locale === 'ru' ||
+        locale === 'es' ||
+        locale === 'pt'
+      ) {
         strings.setLanguage(locale);
+      } else {
+        strings.setLanguage('en');
       }
     }
   }
