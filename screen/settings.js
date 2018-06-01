@@ -149,6 +149,16 @@ export default class Settings extends Component {
               label="Русский"
               value="ru"
             />
+            <Picker.Item
+              color={BlueApp.settings.foregroundColor}
+              label="Spanish"
+              value="es"
+            />
+            <Picker.Item
+              color={BlueApp.settings.foregroundColor}
+              label="Portuguese"
+              value="pt"
+            />
           </Picker>
         </BlueCard>
       </SafeBlueArea>
