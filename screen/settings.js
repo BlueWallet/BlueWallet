@@ -150,6 +150,11 @@ export default class Settings extends Component {
             />
             <Picker.Item
               color={BlueApp.settings.foregroundColor}
+              label="Українська"
+              value="ua"
+            />
+            <Picker.Item
+              color={BlueApp.settings.foregroundColor}
               label="Spanish"
               value="es"
             />

@@ -23,6 +23,7 @@ let strings;
       if (
         locale === 'en' ||
         locale === 'ru' ||
+        locale === 'ua' ||
         locale === 'es' ||
         locale === 'pt'
       ) {
@@ -39,6 +40,7 @@ strings = new LocalizedStrings({
   ru: require('./ru.js'),
   pt: require('./pt_BR.js'),
   es: require('./es.js'),
+  ua: require('./ua.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
