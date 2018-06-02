@@ -131,7 +131,6 @@ export default class Settings extends Component {
 
           <Picker
             selectedValue={this.state.language}
-            style={{ height: 150 }}
             onValueChange={(itemValue, itemIndex) => {
               console.log('setLanguage', itemValue);
               loc.setLanguage(itemValue);
