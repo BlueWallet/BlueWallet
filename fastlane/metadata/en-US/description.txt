@@ -1,0 +1,44 @@
+Free opensource Bitcoin wallet for iOS
+
+* Private keys never leave your device
+* Full encryption
+* Fake decryption password (plausible deniability)
+* Segwit ready
+* Replace-by-Fee (RBF)
+
+
+Features
+=======
+
+Open Source
+------------
+Since this app is MIT licensed, you can build it and run it on your own! Made with ReactNative
+
+Be in control
+-------------
+Private keys never leave your device
+
+Full encryption
+--------------
+On top of iOS multi-layer encryption, Blue Wallet encrypts everything with additional user password. And yes, biometric security is not reliable
+
+Plausible deniability
+-------------------
+Fake password which decrypts fake wallets. For special cases when you are forced to disclose your access
+
+
+Flexible fees
+------------
+Starting from 1 Satoshi
+
+Replace-By-Fee (RBF)
+----------------------
+Speed-up your transactions by increasing the fee (BIP125). You can also change destination address for non-confirmed tx
+
+SegWit
+--------
+SegWit supported (in P2SH-compatibility mode)
+
+Export TXHEX
+--------------
+Get transaction's TXHEX without broadcasting it and broadcast with a relay of your choice
