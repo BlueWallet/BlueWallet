@@ -199,14 +199,18 @@ export default class SendDetails extends Component {
           />
 
           <BlueFormInput
-            onChangeText={text => this.setState({ amount: text })}
+            onChangeText={text =>
+              this.setState({ amount: text.replace(',', '.') })
+            }
             keyboardType={'numeric'}
             placeholder={loc.send.details.amount_placeholder}
             value={this.state.amount + ''}
           />
 
           <BlueFormInput
-            onChangeText={text => this.setState({ fee: text })}
+            onChangeText={text =>
+              this.setState({ fee: text.replace(',', '.') })
+            }
             keyboardType={'numeric'}
             placeholder={loc.send.details.fee_placeholder}
             value={this.state.fee + ''}
