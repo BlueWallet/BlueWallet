@@ -5,9 +5,11 @@
 Thin Bitcoin Wallet.
 Built with React Native, Expo and BlockCypher API.
 
-[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v1.3.0**
+[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v1.4.0**
 
-[bluewallet.io](http://bluewallet.io)
+Website: [bluewallet.io](http://bluewallet.io)
+
+Discussion thread: https://bitcointalk.org/index.php?topic=2893813
 
 
 * Build and run on your own using Expo Client
@@ -38,6 +40,13 @@ npm start
 * Install Expo client: https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8
 * Send the link shown in your console after `npm start` to your device
 * Open the link with Safari, Expo client should automatically handle `exp://` URI scheme
+
+## TESTS
+
+```bash
+npm run test
+```
+
 
 ## MOTIVATION TO BUILD IT
 
@@ -95,7 +104,7 @@ Support for single private-key wallets:
 * ~~Legacy addresses~~
 * ~~Encrypt all storage, PIN/Password/Fingerprint security~~
 * Currency conversion
-* Localization (RU, UA)
+* ~~Localization (RU, UA)~~
 
 #### Screens:
 
@@ -143,7 +152,7 @@ Lightning support?
 * [ ] Cold wallet generator
 * [x] Export created signed tx, no broadcast 
 * [ ] Work through proxy? TOR?
-* [ ] Localizations (RU, UA, BY? Arab, JP, CH?)
+* [x] Localizations (RU, UA, BY? Arab, JP, CH?)
 * [ ] OFFLINE TX: get unspents offline, create & sign TX offline, export txhex
 * [ ] Sweep other private key
 * [ ] Rebroadcast TX (to some different endpoints?)
