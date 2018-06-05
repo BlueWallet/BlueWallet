@@ -1,52 +1,51 @@
-Free opensource Bitcoin wallet for iOS
+Opensource Bitcoin wallet para iOS gratuita
 
-* Private keys never leave your device
-* Full encryption
-* Fake decryption password (plausible deniability)
-* Segwit ready
-* Replace-by-Fee (RBF)
+* Chaves privadas nunca saiem do celular
+* Encriptação completa
+* Senha falsa (negação plausível)
+* Suporte para Segwit
+* Substituição de Fee (RBF)
 
 
-Features
+Funcionalidade
 =======
 
 
 Open Source
 ------------
-Since this app is MIT licensed, you can build it and run it on your own! Made with ReactNative
+Este aplicativo tem licença MIT, pode construir e lança-lo você mesmo! Feito em ReactNative
 
 
-Be in control
+Esteja em control
 -------------
-Private keys never leave your device
+As chaves privadas nunca saiem do celular
 
 
-Full encryption
+Encriptação completa
 --------------
-On top of iOS multi-layer encryption, BlueWallet encrypts everything with additional user password. And yes, biometric security is not reliable
+Construida em cima da multi-camada encritação do iOS , A BlueWallet encripta tudo com uma adicional senha the utilizador. Sim, não se pode confiar em segurança biometrica
 
 
-Plausible deniability
+Negação plausível
 -------------------
-Fake password which decrypts fake wallets. For special cases when you are forced to disclose your access, you
-can disclose fake password, keeping your real coins hidden
+Senha falsa que decripta wallets falsas. Para casos especias onde possa ser obrigado a revelar a sua senha, pode revelar a senha falsa, mantenha as suas moedas protegidas
 
 
-Flexible fees
+Fees flexíveis
 -------------
-Starting from 1 Satoshi. Don't overpay for transactions
+A começar de 1 Satoshi. Não page a mais por transacões
 
 
-Replace-By-Fee (RBF)
+Substituição de Fee (RBF)
 ----------------------
-Speed-up your transactions by increasing the fee (BIP125). You can also change destination address for non-confirmed tx
+Acelere as suas transações aumentendo o fee (BIP125). Pode também alterar o endereço de destinatario em transações não confirmadas
 
 
 SegWit
 --------
-SegWit supported (in P2SH-compatibility mode). Helps reduce the fees even more
+SegWit suportado (em P2SH-compatibility mode). Ajuda a diminuir os fees ainda mais
 
 
-Export TXHEX
+Exportar TXHEX
 --------------
-Get transaction TXHEX without broadcasting it and broadcast with a relay of your choice
+Tenh transações TXHEX sem anunciar e anuncie quando escolher
