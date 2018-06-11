@@ -212,7 +212,7 @@ export default class SendCreate extends Component {
         <FormValidationMessage>
           {this.state.broadcastErrorMessage}
         </FormValidationMessage>
-        <Text style={{ padding: 20, color: '#090' }}>
+        <Text style={{ padding: 0, color: '#0f0' }}>
           {this.state.broadcastSuccessMessage}
         </Text>
       </SafeBlueArea>

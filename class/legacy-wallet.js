@@ -260,6 +260,23 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async broadcastTx(txhex) {
+    let chainso = await this._broadcastTxChainso(txhex);
+    if (chainso && chainso.status) {
+      if (chainso.status === 'fail') {
+        return this._broadcastTxBlockcypher(txhex); // fallback
+      } else {
+        // success
+        return {
+          result: chainso.data.txid,
+        };
+      }
+    } else {
+      // another fallback
+      return this._broadcastTxBlockcypher(txhex);
+    }
+  }
+
+  async _broadcastTxBtczen(txhex) {
     const api = new Frisbee({
       baseURI: 'https://btczen.com',
       headers: {
@@ -269,6 +286,36 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     let res = await api.get('/broadcast/' + txhex);
+    console.log('response', res.body);
+    return res.body;
+  }
+
+  async _broadcastTxChainso(txhex) {
+    const api = new Frisbee({
+      baseURI: 'https://chain.so',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    let res = await api.post('/api/v2/send_tx/BTC', {
+      body: { tx_hex: txhex },
+    });
+    console.log('response', res.body);
+    return res.body;
+  }
+
+  async _broadcastTxBlockcypher(txhex) {
+    const api = new Frisbee({
+      baseURI: 'https://api.blockcypher.com',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    let res = await api.post('/v1/btc/main/txs/push', { body: { tx: txhex } });
     console.log('response', res.body);
     return res.body;
   }
