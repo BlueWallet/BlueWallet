@@ -1,1 +1,1 @@
-bitcoin, segwit, rbf, substituição fee, blockchain, btc, negação plausível, cryptomoeda, crypto, carteira, wallet
+bitcoin,segwit,substituição fee,blockchain,btc,negação plausível,cryptomoeda,crypto,carteira
