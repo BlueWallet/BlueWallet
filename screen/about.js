@@ -66,19 +66,43 @@ export default class About extends Component {
         <BlueCard>
           <ScrollView maxHeight={height - 150}>
             <BlueText h4>
-              Blue Wallet is free and opensource Bitcoin wallet
+              BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.
             </BlueText>
 
             <BlueButton
-              icon={{ name: 'octoface', type: 'octicon' }}
+              icon={{ name: 'mark-github', type: 'octicon' }}
               onPress={() => {
                 Linking.openURL('https://github.com/Overtorment/BlueWallet');
               }}
               title="github.com/Overtorment/BlueWallet"
             />
 
-            <BlueSpacing20 />
-            <BlueText h4>Licensed MIT</BlueText>
+            <BlueButton
+              icon={{ name: 'twitter', type: 'font-awesome' }}
+              onPress={() => {
+                Linking.openURL('https://twitter.com/bluewalletio');
+              }}
+              title="Follow us on Twitter"
+            />
+
+            <BlueButton
+              icon={{ name: 'thumbsup', type: 'octicon' }}
+              onPress={() => {
+                Linking.openURL(
+                  'https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8',
+                );
+              }}
+              title="Leave us a review on Appstore"
+            />
+
+            <BlueButton
+              icon={{ name: 'arrow-left', type: 'octicon' }}
+              title="Go Back"
+              onPress={() => {
+                this.props.navigation.goBack();
+              }}
+            />
+
             <BlueSpacing20 />
 
             <BlueText h3>Built with awesome:</BlueText>
@@ -101,13 +125,6 @@ export default class About extends Component {
                 this.props.navigation.navigate('Selftest');
               }}
               title="Run self test"
-            />
-            <BlueButton
-              icon={{ name: 'arrow-left', type: 'octicon' }}
-              title="Go Back"
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}
             />
           </ScrollView>
         </BlueCard>
