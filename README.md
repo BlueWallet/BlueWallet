@@ -168,3 +168,4 @@ Lightning support?
 * [x] BIP38 (password-protected key)
 * [ ] Self-destruct if several password attempts
 * [ ] Generate keys with desired text in address (3MyAddRess......)
+* [ ] Generate private key with dice or coin flip as a source of entropy
