@@ -1,1 +1,2 @@
-
+* FIX: fallback pushtx endpoints
+* FIX: pt-br metadata description translated
