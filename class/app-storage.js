@@ -15,6 +15,7 @@ export class AppStorage {
       brandingColor: '#008dc2',
       foregroundColor: '#ffffff',
       buttonBackground: '#008dc2',
+      buttonTextColor: '#ffffff',
     };
   }
 

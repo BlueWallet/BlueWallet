@@ -70,7 +70,7 @@ export default class About extends Component {
             </BlueText>
 
             <BlueButton
-              icon={{ name: 'mark-github', type: 'octicon' }}
+              icon={{ name: 'mark-github', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
               onPress={() => {
                 Linking.openURL('https://github.com/Overtorment/BlueWallet');
               }}
@@ -78,7 +78,7 @@ export default class About extends Component {
             />
 
             <BlueButton
-              icon={{ name: 'twitter', type: 'font-awesome' }}
+              icon={{ name: 'twitter', type: 'font-awesome', color: BlueApp.settings.buttonTextColor }}
               onPress={() => {
                 Linking.openURL('https://twitter.com/bluewalletio');
               }}
@@ -86,7 +86,7 @@ export default class About extends Component {
             />
 
             <BlueButton
-              icon={{ name: 'thumbsup', type: 'octicon' }}
+              icon={{ name: 'thumbsup', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
               onPress={() => {
                 Linking.openURL(
                   'https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8',
@@ -96,7 +96,7 @@ export default class About extends Component {
             />
 
             <BlueButton
-              icon={{ name: 'arrow-left', type: 'octicon' }}
+              icon={{ name: 'arrow-left', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
               title="Go Back"
               onPress={() => {
                 this.props.navigation.goBack();

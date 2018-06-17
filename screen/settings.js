@@ -90,7 +90,7 @@ export default class Settings extends Component {
                       {loc.settings.storage_not_encrypted}
                     </FormValidationMessage>
                     <BlueButton
-                      icon={{ name: 'shield', type: 'octicon' }}
+                      icon={{ name: 'shield', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
                       onPress={async () => {
                         this.setState({ isLoading: true });
                         let p1 = await prompt(

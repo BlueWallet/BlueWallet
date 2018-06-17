@@ -124,7 +124,7 @@ export default class WalletDetails extends Component {
                 <View style={{ flex: 0, flexDirection: 'row' }}>
                   <View style={{ flex: 0.5 }}>
                     <BlueButton
-                      icon={{ name: 'stop', type: 'octicon' }}
+                      icon={{ name: 'stop', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
                       onPress={async () => {
                         BlueApp.deleteWallet(this.state.wallet);
                         await BlueApp.saveToDisk();
@@ -150,7 +150,7 @@ export default class WalletDetails extends Component {
             return (
               <View>
                 <BlueButton
-                  icon={{ name: 'stop', type: 'octicon' }}
+                  icon={{ name: 'stop', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
                   onPress={async () => {
                     this.setState({ confirmDelete: true });
                   }}

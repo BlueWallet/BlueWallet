@@ -245,7 +245,7 @@ export default class SendDetails extends Component {
           </View>
           <View style={{ flex: 0.33 }}>
             <BlueButton
-              icon={{ name: 'qrcode', type: 'font-awesome' }}
+              icon={{ name: 'qrcode', type: 'font-awesome', color: BlueApp.settings.buttonTextColor }}
               style={{}}
               title={loc.send.details.scan}
               onPress={() => this.props.navigation.navigate('ScanQrAddress')}

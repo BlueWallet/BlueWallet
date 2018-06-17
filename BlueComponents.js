@@ -36,6 +36,7 @@ export class BlueButton extends Component {
         }}
         borderRadius={10}
         backgroundColor={BlueApp.settings.buttonBackground}
+        color={BlueApp.settings.buttonTextColor}
       />
     );
   }

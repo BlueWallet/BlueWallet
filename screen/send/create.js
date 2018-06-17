@@ -198,13 +198,13 @@ export default class SendCreate extends Component {
         </BlueCard>
 
         <BlueButton
-          icon={{ name: 'megaphone', type: 'octicon' }}
+          icon={{ name: 'megaphone', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
           onPress={() => this.broadcast()}
           title={loc.send.create.broadcast}
         />
 
         <BlueButton
-          icon={{ name: 'arrow-left', type: 'octicon' }}
+          icon={{ name: 'arrow-left', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
           onPress={() => this.props.navigation.goBack()}
           title={loc.send.create.go_back}
         />

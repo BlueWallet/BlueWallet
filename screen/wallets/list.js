@@ -118,7 +118,7 @@ export default class WalletsList extends Component {
         </BlueCard>
 
         <BlueButton
-          icon={{ name: 'plus-small', type: 'octicon' }}
+          icon={{ name: 'plus-small', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
           onPress={() => {
             navigate('AddWallet');
           }}
