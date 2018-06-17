@@ -206,12 +206,26 @@ export class AppStorage {
     return AsyncStorage.setItem('data', JSON.stringify(data));
   }
 
+  /**
+   * For each wallet, fetches balance from remote endpoint.
+   * Use getter for a specific wallet to get actual balance.
+   * Returns void.
+   *
+   * @return {Promise.<void>}
+   */
   async fetchWalletBalances() {
     for (let wallet of this.wallets) {
       await wallet.fetchBalance();
     }
   }
 
+  /**
+   * Fetches from remote endpoint all transactions for each wallet.
+   * Returns void.
+   * To access transactions - get them from each respective wallet.
+   *
+   * @return {Promise.<void>}
+   */
   async fetchWalletTransactions() {
     for (let wallet of this.wallets) {
       await wallet.fetchTransactions();
@@ -226,6 +240,11 @@ export class AppStorage {
     return this.wallets;
   }
 
+  /**
+   * Getter for all transactions in all wallets
+   *
+   * @return {Array}
+   */
   getTransactions() {
     let txs = [];
     for (let wallet of this.wallets) {
@@ -240,6 +259,11 @@ export class AppStorage {
 
   listUnconfirmed() {}
 
+  /**
+   * Getter for a sum of all balances of all wallets
+   *
+   * @return {number}
+   */
   getBalance() {
     let finalBalance = 0;
     for (let wal of this.wallets) {

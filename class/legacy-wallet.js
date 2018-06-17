@@ -62,8 +62,8 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   /**
-   * Fetches balance o the Wallet via API.
-   * Returns VOID. Get the balance from getter.
+   * Fetches balance of the Wallet via API.
+   * Returns VOID. Get the actual balance via getter.
    *
    * @returns {Promise.<void>}
    */
@@ -107,6 +107,11 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
+  /**
+   * Fetches UTXO from API. Returns VOID.
+   *
+   * @return {Promise.<void>}
+   */
   async fetchUtxo() {
     const api = new Frisbee({
       baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/',
@@ -162,6 +167,12 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
+  /**
+   * Fetches transactions via API. Returns VOID.
+   * Use getter to get the actual list.
+   *
+   * @return {Promise.<void>}
+   */
   async fetchTransactions() {
     let response;
     let token = (array => {
