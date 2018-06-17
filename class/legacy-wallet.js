@@ -69,26 +69,13 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchBalance() {
     let response;
-    let token = (array => {
-      for (let i = array.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array[0];
-    })([
-      '0326b7107b4149559d18ce80612ef812',
-      'a133eb7ccacd4accb80cb1225de4b155',
-      '7c2b1628d27b4bd3bf8eaee7149c577f',
-      'f1e5a02b9ec84ec4bc8db2349022e5f5',
-      'e5926dbeb57145979153adc41305b183',
-    ]);
     try {
       if (useBlockcypherTokens) {
         response = await fetch(
           'https://api.blockcypher.com/v1/btc/main/addrs/' +
             this.getAddress() +
             '/balance?token=' +
-            token,
+            this.getRandomBlockcypherToken(),
         );
       } else {
         response = await fetch(
@@ -118,19 +105,6 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     let response;
-    let token = (array => {
-      for (let i = array.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array[0];
-    })([
-      '0326b7107b4149559d18ce80612ef812',
-      'a133eb7ccacd4accb80cb1225de4b155',
-      '7c2b1628d27b4bd3bf8eaee7149c577f',
-      'f1e5a02b9ec84ec4bc8db2349022e5f5',
-      'e5926dbeb57145979153adc41305b183',
-    ]);
     try {
       let maxHeight = 0;
       this.utxo = [];
@@ -141,7 +115,7 @@ export class LegacyWallet extends AbstractWallet {
           this.getAddress() +
             '?limit=2000&after=' +
             maxHeight +
-            ((useBlockcypherTokens && '&token=' + token) || ''),
+            ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
         );
         json = response.body;
         if (
@@ -175,19 +149,6 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchTransactions() {
     let response;
-    let token = (array => {
-      for (let i = array.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array[0];
-    })([
-      '0326b7107b4149559d18ce80612ef812',
-      'a133eb7ccacd4accb80cb1225de4b155',
-      '7c2b1628d27b4bd3bf8eaee7149c577f',
-      'f1e5a02b9ec84ec4bc8db2349022e5f5',
-      'e5926dbeb57145979153adc41305b183',
-    ]);
     try {
       let url;
       if (useBlockcypherTokens) {
@@ -196,7 +157,7 @@ export class LegacyWallet extends AbstractWallet {
             'https://api.blockcypher.com/v1/btc/main/addrs/' +
             this.getAddress() +
             '/full?token=' +
-            token),
+            this.getRandomBlockcypherToken()),
         );
       } else {
         response = await fetch(
@@ -371,5 +332,21 @@ export class LegacyWallet extends AbstractWallet {
       this.getSecret(),
       this.getAddress(),
     );
+  }
+
+  getRandomBlockcypherToken() {
+    return (array => {
+      for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array[0];
+    })([
+      '0326b7107b4149559d18ce80612ef812',
+      'a133eb7ccacd4accb80cb1225de4b155',
+      '7c2b1628d27b4bd3bf8eaee7149c577f',
+      'f1e5a02b9ec84ec4bc8db2349022e5f5',
+      'e5926dbeb57145979153adc41305b183',
+    ]);
   }
 }
