@@ -28,4 +28,16 @@ export class SegwitBech32Wallet extends LegacyWallet {
 
     return this._address;
   }
+
+  static witnessToAddress(witness) {
+    const pubKey = Buffer.from(witness, 'hex');
+    const pubKeyHash = bitcoin.crypto.hash160(pubKey);
+    const scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(
+      pubKeyHash,
+    );
+    return bitcoin.address.fromOutputScript(
+      scriptPubKey,
+      bitcoin.networks.bitcoin,
+    );
+  }
 }

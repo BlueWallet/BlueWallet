@@ -115,7 +115,9 @@ export class LegacyWallet extends AbstractWallet {
           this.getAddress() +
             '?limit=2000&after=' +
             maxHeight +
-            ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
+            ((useBlockcypherTokens &&
+              '&token=' + this.getRandomBlockcypherToken()) ||
+              ''),
         );
         json = response.body;
         if (
@@ -190,6 +192,18 @@ export class LegacyWallet extends AbstractWallet {
         // how much came out
         value = 0;
         for (let inp of tx.inputs) {
+          if (!inp.addresses) {
+            console.log('inp.addresses empty');
+            console.log('got witness', inp.witness); // TODO
+
+            inp.addresses = [];
+            if (inp.witness && inp.witness[1]) {
+              let address = SegwitBech32Wallet.witnessToAddress(inp.witness[1]);
+              inp.addresses.push(address);
+            } else {
+              inp.addresses.push('???');
+            }
+          }
           if (inp.addresses.indexOf(this.getAddress()) !== -1) {
             // found our address in outs of this TX
             value -= inp.output_value;

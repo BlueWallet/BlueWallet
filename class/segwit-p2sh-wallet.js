@@ -13,6 +13,22 @@ export class SegwitP2SHWallet extends LegacyWallet {
     return 'SegWit (P2SH)';
   }
 
+  static witnessToAddress(witness) {
+    const pubKey = Buffer.from(witness, 'hex');
+    const pubKeyHash = bitcoin.crypto.hash160(pubKey);
+    const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(
+      pubKeyHash,
+    );
+    const redeemScriptHash = bitcoin.crypto.hash160(redeemScript);
+    const scriptPubkey = bitcoin.script.scriptHash.output.encode(
+      redeemScriptHash,
+    );
+    return bitcoin.address.fromOutputScript(
+      scriptPubkey,
+      bitcoin.networks.bitcoin,
+    );
+  }
+
   getAddress() {
     if (this._address) return this._address;
     let address;
