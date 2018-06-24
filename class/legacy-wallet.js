@@ -1,5 +1,6 @@
 /* global fetch */
 import { AbstractWallet } from './abstract-wallet';
+import { SegwitBech32Wallet } from './';
 import { useBlockcypherTokens } from './constants';
 import Frisbee from 'frisbee';
 const isaac = require('isaac');
