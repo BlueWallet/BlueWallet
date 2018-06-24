@@ -2,6 +2,7 @@
  * @exports {AppStorage}
  */
 import { AppStorage } from './class';
+import { Amplitude } from 'expo';
 let prompt = require('./prompt');
 let EV = require('./events');
 let loc = require('./loc');
@@ -32,6 +33,7 @@ async function startAndDecrypt(retry) {
   }
 }
 
+Amplitude.initialize('8b7cf19e8eea3cdcf16340f5fbf16330');
 startAndDecrypt();
 
 module.exports = BlueApp;
