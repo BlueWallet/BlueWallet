@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "1.4.2",
+  "version": "2.0.0",
   "devDependencies": {
     "babel-eslint": "^8.2.2",
     "eslint": "^4.19.0",
@@ -40,6 +40,7 @@
     "asyncstorage-down": "^3.1.1",
     "bignumber.js": "^5.0.0",
     "bip21": "^2.0.1",
+    "bip39": "^2.5.0",
     "bitcoinjs-lib": "^3.3.2",
     "buffer": "^4.9.1",
     "crypto-js": "^3.1.9-1",
@@ -60,6 +61,7 @@
     "react-native-elements": "^0.18.5",
     "react-native-level-fs": "^3.0.0",
     "react-native-qrcode": "^0.2.6",
+    "react-native-snap-carousel": "^3.7.2",
     "react-navigation": "^1.0.0-beta.23",
     "readable-stream": "^1.1.14",
     "request-promise-native": "^1.0.5",

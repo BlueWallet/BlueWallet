@@ -43,6 +43,10 @@ export class AbstractWallet {
     return this;
   }
 
+  getLatestTransactionTime() {
+    return 0;
+  }
+
   static fromJson(obj) {
     let obj2 = JSON.parse(obj);
     let temp = new this();

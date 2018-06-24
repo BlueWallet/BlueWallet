@@ -219,6 +219,33 @@ export default class Selftest extends Component {
       isOk = false;
     }
 
+    //
+
+    let bip39 = require('bip39');
+    let mnemonic =
+      'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
+    let seed = bip39.mnemonicToSeed(mnemonic);
+    let root = bitcoin.HDNode.fromSeedBuffer(seed);
+
+    let path = "m/49'/0'/0'/0/0";
+    let child = root.derivePath(path);
+
+    let keyhash = bitcoin.crypto.hash160(child.getPublicKeyBuffer());
+    let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
+    let addressBytes = bitcoin.crypto.hash160(scriptSig);
+    let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
+    let address = bitcoin.address.fromOutputScript(
+      outputScript,
+      bitcoin.networks.bitcoin,
+    );
+
+    if (address !== '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK') {
+      errorMessage += 'bip49 is not ok; ';
+      isOk = false;
+    }
+
+    //
+
     this.setState({
       isLoading: false,
       isOk,

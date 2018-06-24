@@ -9,11 +9,14 @@ module.exports = {
     list: {
       tabBarLabel: 'Wallets',
       app_name: 'Blue Wallet',
-      title: 'My Bitcoin Wallets',
+      title: 'wallets',
       header:
         'A wallet represents a pair of a secret (private key) and an address' +
         'you can share to receive coins.',
       add: 'Add Wallet',
+      create_a_wallet: 'Create a wallet',
+      create_a_wallet1: "It's free and you can create",
+      create_a_wallet2: 'as many as you like',
     },
     add: {
       title: 'Add Wallet',
@@ -55,7 +58,7 @@ module.exports = {
   transactions: {
     list: {
       tabBarLabel: 'Transactions',
-      title: 'My Transactions',
+      title: 'transactions',
       description: 'A list of ingoing or outgoing transactions of your wallets',
       conf: 'conf',
     },
@@ -102,7 +105,7 @@ module.exports = {
   receive: {
     list: {
       tabBarLabel: 'Receive',
-      header: 'Receive',
+      header: 'receive',
     },
     details: {
       title: 'Share this address with payer',

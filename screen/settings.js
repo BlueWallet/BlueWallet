@@ -1,11 +1,10 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView, View, Picker } from 'react-native';
+import { ScrollView, TouchableOpacity, Text, View, Picker } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Icon, FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
-  BlueSpacing20,
   BlueButton,
   SafeBlueArea,
   BlueCard,
@@ -21,6 +20,7 @@ let loc = require('../loc');
 export default class Settings extends Component {
   static navigationOptions = {
     tabBarLabel: loc.settings.tabBarLabel,
+    tabBarVisible: false,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-settings' : 'ios-settings-outline'}
@@ -53,23 +53,31 @@ export default class Settings extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
-          backgroundColor={BlueApp.settings.brandingColor}
           leftComponent={
-            <Icon
-              name="menu"
-              color={BlueApp.settings.foregroundColor}
-              onPress={() => this.props.navigation.navigate('DrawerToggle')}
-            />
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 34,
+                color: BlueApp.settings.foregroundColor,
+              }}
+            >
+              {loc.settings.header}
+            </Text>
           }
-          centerComponent={{
-            text: loc.settings.header,
-            style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
-          }}
+          rightComponent={
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+              <Icon
+                name="times"
+                size={16}
+                type="font-awesome"
+                color={BlueApp.settings.foregroundColor}
+              />
+            </TouchableOpacity>
+          }
         />
 
         <BlueCard>
           <ScrollView maxHeight={450}>
-            <BlueSpacing20 />
             {(() => {
               if (this.state.storageIsEncrypted) {
                 return (
@@ -90,7 +98,11 @@ export default class Settings extends Component {
                       {loc.settings.storage_not_encrypted}
                     </FormValidationMessage>
                     <BlueButton
-                      icon={{ name: 'shield', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
+                      icon={{
+                        name: 'shield',
+                        type: 'octicon',
+                        color: BlueApp.settings.buttonTextColor,
+                      }}
                       onPress={async () => {
                         this.setState({ isLoading: true });
                         let p1 = await prompt(
@@ -173,5 +185,6 @@ export default class Settings extends Component {
 Settings.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
+    goBack: PropTypes.func,
   }),
 };

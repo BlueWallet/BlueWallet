@@ -12,14 +12,15 @@ export class AppStorage {
     this.tx_metadata = {};
     this.cachedPassword = false;
     this.settings = {
-      brandingColor: '#008dc2',
-      foregroundColor: '#ffffff',
-      buttonBackground: '#008dc2',
-      buttonTextColor: '#ffffff',
+      brandingColor: '#ffffff',
+      foregroundColor: '#0c2550',
+      buttonBackground: '#ffffff',
+      buttonTextColor: '#0c2550',
     };
   }
 
   async storageIsEncrypted() {
+    // await AsyncStorage.clear();
     let data;
     try {
       data = await AsyncStorage.getItem(AppStorage.FLAG_ENCRYPTED);
@@ -224,12 +225,24 @@ export class AppStorage {
    * Fetches from remote endpoint all transactions for each wallet.
    * Returns void.
    * To access transactions - get them from each respective wallet.
+   * If index is present then fetch only from this specific wallet
    *
+   * @param index {Integer} Index of the wallet in this.wallets array,
+   *                        blank to fetch from all wallets
    * @return {Promise.<void>}
    */
-  async fetchWalletTransactions() {
-    for (let wallet of this.wallets) {
-      await wallet.fetchTransactions();
+  async fetchWalletTransactions(index) {
+    if (index || index === 0) {
+      let c = 0;
+      for (let wallet of this.wallets) {
+        if (c++ === index) {
+          await wallet.fetchTransactions();
+        }
+      }
+    } else {
+      for (let wallet of this.wallets) {
+        await wallet.fetchTransactions();
+      }
     }
   }
 
@@ -242,11 +255,24 @@ export class AppStorage {
   }
 
   /**
-   * Getter for all transactions in all wallets
+   * Getter for all transactions in all wallets.
+   * But if index is provided - only for wallet with corresponding index
    *
+   * @param index {Integer} Wallet index in this.wallets. Empty for all wallets.
    * @return {Array}
    */
-  getTransactions() {
+  getTransactions(index) {
+    if (index || index === 0) {
+      let txs = [];
+      let c = 0;
+      for (let wallet of this.wallets) {
+        if (c++ === index) {
+          txs = txs.concat(wallet.transactions);
+        }
+      }
+      return txs;
+    }
+
     let txs = [];
     for (let wallet of this.wallets) {
       txs = txs.concat(wallet.transactions);

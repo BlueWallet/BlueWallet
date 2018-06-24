@@ -1,18 +1,20 @@
 import React, { Component } from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, Text, TouchableOpacity } from 'react-native';
+import { Icon } from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import QRCode from 'react-native-qrcode';
 import {
   BlueLoading,
-  BlueSpacing40,
+  BlueHeader,
   BlueFormInputAddress,
   SafeBlueArea,
   BlueCard,
-  BlueSpacing,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+/** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+let EV = require('../../events');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 let isIpad;
@@ -24,6 +26,7 @@ if (aspectRatio > 1.6) {
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
+    tabBarVisible: false,
     tabBarIcon: ({ tintColor, focused }) => (
       <Ionicons
         name={focused ? 'ios-cash' : 'ios-cash-outline'}
@@ -41,6 +44,15 @@ export default class ReceiveDetails extends Component {
       address: address,
     };
     console.log(JSON.stringify(address));
+
+    EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.refreshFunction.bind(this));
+  }
+
+  refreshFunction(newAddress) {
+    console.log('newAddress =', newAddress);
+    this.setState({
+      address: newAddress,
+    });
   }
 
   async componentDidMount() {
@@ -51,31 +63,45 @@ export default class ReceiveDetails extends Component {
   }
 
   render() {
+    console.log('render() receive/details, address=', this.state.address);
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          } else {
-            return <BlueSpacing />;
+        <BlueHeader
+          leftComponent={
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 34,
+                color: BlueApp.settings.foregroundColor,
+              }}
+            >
+              {loc.receive.list.header}
+            </Text>
           }
-        })()}
+          rightComponent={
+            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
+              <Icon
+                name="times"
+                size={16}
+                type="font-awesome"
+                color={BlueApp.settings.foregroundColor}
+              />
+            </TouchableOpacity>
+          }
+        />
 
-        <BlueCard
-          title={loc.receive.details.title}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
-          <BlueFormInputAddress editable value={this.state.address} />
+        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <QRCode
             value={this.state.address}
             size={(isIpad && 250) || 312}
             bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
+          <BlueFormInputAddress editable value={this.state.address} />
         </BlueCard>
       </SafeBlueArea>
     );

@@ -2,7 +2,6 @@
 import React from 'react';
 import { LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
 import renderer from 'react-test-renderer';
-import App from './App';
 import Settings from './screen/settings';
 import Selftest from './screen/selftest';
 import { BlueHeader } from './BlueComponents';
@@ -37,11 +36,6 @@ describe('unit - LegacyWallet', function() {
 
     assert.equal(key, JSON.stringify(b));
   });
-});
-
-it('App does not crash', () => {
-  const rendered = renderer.create(<App />).toJSON();
-  expect(rendered).toBeTruthy();
 });
 
 it('BlueHeader works', () => {

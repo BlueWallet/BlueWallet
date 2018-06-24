@@ -58,7 +58,11 @@ export default class WalletsAdd extends Component {
 
           <BlueButton
             large
-            icon={{ name: 'qrcode', type: 'font-awesome', color: BlueApp.settings.buttonTextColor }}
+            icon={{
+              name: 'qrcode',
+              type: 'font-awesome',
+              color: BlueApp.settings.buttonTextColor,
+            }}
             title={loc.wallets.add.scan}
             onPress={() => {
               this.props.navigation.navigate('ScanQrWif');
@@ -67,7 +71,11 @@ export default class WalletsAdd extends Component {
 
           <BlueButton
             large
-            icon={{ name: 'bitcoin', type: 'font-awesome', color: BlueApp.settings.buttonTextColor }}
+            icon={{
+              name: 'bitcoin',
+              type: 'font-awesome',
+              color: BlueApp.settings.buttonTextColor,
+            }}
             title={loc.wallets.add.create}
             onPress={() => {
               this.props.navigation.goBack();

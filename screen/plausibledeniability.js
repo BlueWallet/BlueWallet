@@ -66,7 +66,11 @@ export default class PlausibleDeniability extends Component {
             <BlueText>{loc.plausibledeniability.help2}</BlueText>
 
             <BlueButton
-              icon={{ name: 'shield', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
+              icon={{
+                name: 'shield',
+                type: 'octicon',
+                color: BlueApp.settings.buttonTextColor,
+              }}
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
                 let p1 = await prompt(
@@ -97,7 +101,11 @@ export default class PlausibleDeniability extends Component {
             />
 
             <BlueButton
-              icon={{ name: 'arrow-left', type: 'octicon', color: BlueApp.settings.buttonTextColor }}
+              icon={{
+                name: 'arrow-left',
+                type: 'octicon',
+                color: BlueApp.settings.buttonTextColor,
+              }}
               title={loc.plausibledeniability.go_back}
               onPress={() => {
                 this.props.navigation.goBack();

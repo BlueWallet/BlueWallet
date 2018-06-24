@@ -349,6 +349,13 @@ export class LegacyWallet extends AbstractWallet {
     );
   }
 
+  getLatestTransactionTime() {
+    for (let tx of this.transactions) {
+      return tx.received;
+    }
+    return 0;
+  }
+
   getRandomBlockcypherToken() {
     return (array => {
       for (let i = array.length - 1; i > 0; i--) {

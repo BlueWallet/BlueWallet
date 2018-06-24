@@ -1,7 +1,10 @@
 /** @type {AppStorage} */
 import React, { Component } from 'react';
 import { SafeAreaView } from 'react-navigation';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo';
 import {
+  Icon,
   Button,
   FormLabel,
   FormInput,
@@ -11,7 +14,16 @@ import {
   List,
   ListItem,
 } from 'react-native-elements';
-import { ActivityIndicator, ListView, View, Dimensions } from 'react-native';
+import {
+  TouchableOpacity,
+  ActivityIndicator,
+  View,
+  StyleSheet,
+  Dimensions,
+  Image,
+} from 'react-native';
+import Carousel from 'react-native-snap-carousel';
+let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
@@ -61,8 +73,15 @@ export class BlueCard extends Component {
       <Card
         {...this.props}
         titleStyle={{ color: BlueApp.settings.foregroundColor }}
-        containerStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
-        wrapperStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
+        containerStyle={{
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+        }}
+        dividerStyle={{
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
+        }}
+        wrapperStyle={{ backgroundColor: 'transparent' }}
       />
     );
   }
@@ -85,12 +104,16 @@ export class BlueListItem extends Component {
       <ListItem
         {...this.props}
         containerStyle={{
-          backgroundColor: BlueApp.settings.brandingColor,
-          borderBottomColor: BlueApp.settings.foregroundColor,
-          borderBottomWidth: 0.5,
+          backgroundColor: 'transparent',
+          borderBottomColor: 'transparent',
+          borderBottomWidth: 0,
         }}
-        titleStyle={{ color: BlueApp.settings.foregroundColor, fontSize: 18 }}
-        subtitleStyle={{ color: BlueApp.settings.foregroundColor }}
+        titleStyle={{
+          color: BlueApp.settings.foregroundColor,
+          fontSize: 16,
+          fontWeight: '500',
+        }}
+        subtitleStyle={{ color: '#9aa0aa' }}
       />
     );
   }
@@ -145,7 +168,12 @@ export class BlueHeader extends Component {
     return (
       <Header
         {...this.props}
-        backgroundColor={BlueApp.settings.brandingColor}
+        backgroundColor="transparent"
+        outerContainerStyles={{
+          borderBottomColor: 'transparent',
+          borderBottomWidth: 0,
+        }}
+        statusBarProps={{ barStyle: 'light-content' }}
       />
     );
   }
@@ -174,18 +202,7 @@ export class BlueSpacing40 extends Component {
 
 export class BlueSpacing20 extends Component {
   render() {
-    return (
-      <View
-        {...this.props}
-        style={{ height: 20, backgroundColor: BlueApp.settings.brandingColor }}
-      />
-    );
-  }
-}
-
-export class BlueListView extends Component {
-  render() {
-    return <ListView {...this.props} />;
+    return <View {...this.props} style={{ height: 20, opacity: 0 }} />;
   }
 }
 
@@ -196,20 +213,9 @@ export class BlueList extends Component {
         {...this.props}
         containerStyle={{
           backgroundColor: BlueApp.settings.brandingColor,
-          borderTopColor: BlueApp.settings.foregroundColor,
-          borderTopWidth: 1,
+          borderTopColor: 'transparent',
+          borderTopWidth: 0,
         }}
-      />
-    );
-  }
-}
-
-export class BlueView extends Component {
-  render() {
-    return (
-      <View
-        {...this.props}
-        containerStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
       />
     );
   }
@@ -223,6 +229,500 @@ export class BlueLoading extends Component {
           <ActivityIndicator />
         </View>
       </SafeBlueArea>
+    );
+  }
+}
+
+const stylesBlueIcon = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerRefresh: {
+    flex: 1,
+    position: 'absolute',
+    right: 10,
+  },
+  box1: {
+    position: 'relative',
+    top: 15,
+  },
+  boxIncomming: {
+    position: 'relative',
+  },
+  ball: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#ccddf9',
+  },
+  ballIncomming: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#d2f8d6',
+    transform: [{ rotate: '-45deg' }],
+  },
+  ballReceive: {
+    width: 30,
+    height: 30,
+    borderBottomLeftRadius: 15,
+    backgroundColor: '#d2f8d6',
+    transform: [{ rotate: '-45deg' }],
+  },
+  ballOutgoing: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f8d2d2',
+    transform: [{ rotate: '225deg' }],
+  },
+  ballTransparrent: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'transparent',
+  },
+  ballDimmed: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'gray',
+  },
+});
+export class BluePlusIcon extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.box1}>
+          <View style={stylesBlueIcon.ball}>
+            <Ionicons
+              {...this.props}
+              name={'ios-add'}
+              size={26}
+              style={{
+                color: BlueApp.settings.foregroundColor,
+                backgroundColor: 'transparent',
+                left: 8,
+                top: 1,
+              }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class BlueRefreshIcon extends Component {
+  render() {
+    return (
+      <TouchableOpacity {...this.props} style={stylesBlueIcon.containerRefresh}>
+        <View style={stylesBlueIcon.box1}>
+          <View style={stylesBlueIcon.ball}>
+            <Ionicons
+              {...this.props}
+              name={'ios-refresh'}
+              size={26}
+              style={{
+                color: BlueApp.settings.foregroundColor,
+                backgroundColor: 'transparent',
+                left: 8,
+                top: 2,
+              }}
+            />
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class BlueTransactionIncommingIcon extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.boxIncomming}>
+          <View style={stylesBlueIcon.ballIncomming}>
+            <Icon
+              {...this.props}
+              name="arrow-down"
+              size={16}
+              type="font-awesome"
+              color="#37c0a1"
+              iconStyle={{ left: 0, top: 8 }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class BlueTransactionPendingIcon extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.box}>
+          <View style={stylesBlueIcon.ball}>
+            <Icon
+              {...this.props}
+              name="ellipsis-h"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.foregroundColor}
+              iconStyle={{ left: 0, top: 6 }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class BlueTransactionOutgoingIcon extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.boxIncomming}>
+          <View style={stylesBlueIcon.ballOutgoing}>
+            <Icon
+              {...this.props}
+              name="arrow-down"
+              size={16}
+              type="font-awesome"
+              color="#d0021b"
+              iconStyle={{ left: 0, top: 8 }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class BlueReceiveButtonIcon extends Component {
+  render() {
+    return (
+      <TouchableOpacity {...this.props}>
+        <View
+          {...this.props}
+          style={{ flex: 1, position: 'absolute', bottom: 30, left: 80 }}
+        >
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              width: 100,
+              height: 40,
+              position: 'relative',
+              backgroundColor: '#ccddf9',
+              borderBottomLeftRadius: 15,
+              borderTopLeftRadius: 15,
+            }}
+          >
+            <View
+              style={{
+                width: 30,
+                height: 30,
+                borderBottomLeftRadius: 15,
+                backgroundColor: 'transparent',
+                transform: [{ rotate: '-45deg' }],
+              }}
+            >
+              <Icon
+                {...this.props}
+                name="arrow-down"
+                size={16}
+                type="font-awesome"
+                color="#2f5fb3"
+                iconStyle={{ left: 0, top: 15 }}
+              />
+            </View>
+            <Text
+              style={{
+                color: BlueApp.settings.foregroundColor,
+                fontSize: 16,
+                fontWeight: '500',
+                left: 5,
+                top: 12,
+                backgroundColor: 'transparent',
+                position: 'relative',
+              }}
+            >
+              {loc.receive.list.header}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class BlueSendButtonIcon extends Component {
+  render() {
+    return (
+      <TouchableOpacity {...this.props}>
+        <View
+          {...this.props}
+          style={{ flex: 1, position: 'absolute', bottom: 30, right: 85 }}
+        >
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              width: 110,
+              height: 40,
+              position: 'relative',
+              backgroundColor: '#ccddf9',
+              borderBottomRightRadius: 15,
+              borderTopRightRadius: 15,
+            }}
+          >
+            <View
+              style={{
+                width: 30,
+                height: 30,
+                left: 5,
+                borderBottomLeftRadius: 15,
+                backgroundColor: 'transparent',
+                transform: [{ rotate: '225deg' }],
+              }}
+            >
+              <Icon
+                {...this.props}
+                name="arrow-down"
+                size={16}
+                type="font-awesome"
+                color="#2f5fb3"
+                iconStyle={{ left: 0, top: 0 }}
+              />
+            </View>
+            <Text
+              style={{
+                color: BlueApp.settings.foregroundColor,
+                fontSize: 16,
+                fontWeight: '500',
+                left: 5,
+                top: 12,
+                backgroundColor: 'transparent',
+                position: 'relative',
+              }}
+            >
+              {loc.send.list.header}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class BluePlusIconDimmed extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.box1}>
+          <View style={stylesBlueIcon.ballDimmed}>
+            <Ionicons
+              {...this.props}
+              name={'ios-add'}
+              size={26}
+              style={{
+                color: 'white',
+                backgroundColor: 'transparent',
+                left: 8,
+                top: 1,
+              }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class NewWalletPannel extends Component {
+  constructor(props) {
+    super(props);
+    // WalletsCarousel.handleClick = props.handleClick // because cant access `this` from _renderItem
+    // eslint-disable-next-line
+    this.handleClick = props.onPress;
+  }
+
+  render() {
+    return (
+      <TouchableOpacity
+        {...this.props}
+        activeOpacity={1}
+        style={{ paddingRight: 10, left: -20, paddingTop: 20 }}
+        onPress={() => {
+          if (this.handleClick) {
+            this.handleClick();
+          }
+        }}
+      >
+        <LinearGradient
+          colors={['#eef0f4', '#eef0f4']}
+          style={{
+            padding: 15,
+            borderRadius: 10,
+            height: 145,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <BluePlusIconDimmed />
+          <Text
+            style={{
+              backgroundColor: 'transparent',
+              fontWeight: 'bold',
+              fontSize: 20,
+              color: '#9aa0aa',
+            }}
+          >
+            {loc.wallets.list.create_a_wallet}
+          </Text>
+          <Text style={{ backgroundColor: 'transparent' }} />
+          <Text
+            style={{
+              backgroundColor: 'transparent',
+              fontSize: 13,
+              color: '#9aa0aa',
+            }}
+          >
+            {loc.wallets.list.create_a_wallet1}
+          </Text>
+          <Text
+            style={{
+              backgroundColor: 'transparent',
+              fontSize: 13,
+              color: '#9aa0aa',
+            }}
+          >
+            {loc.wallets.list.create_a_wallet2}
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  }
+}
+
+let sliderWidth = width * 1;
+let itemWidth = width * 0.82;
+let sliderHeight = 175;
+
+export class WalletsCarousel extends Component {
+  constructor(props) {
+    super(props);
+    // eslint-disable-next-line
+    WalletsCarousel.handleClick = props.handleClick; // because cant access `this` from _renderItem
+    // eslint-disable-next-line
+    this.onSnapToItem = props.onSnapToItem;
+  }
+
+  _renderItem({ item, index }) {
+    if (!item) {
+      return (
+        <NewWalletPannel
+          onPress={() => {
+            if (WalletsCarousel.handleClick) {
+              WalletsCarousel.handleClick(index);
+            }
+          }}
+        />
+      );
+    }
+    return (
+      <TouchableOpacity
+        activeOpacity={1}
+        style={{ paddingRight: 10, left: -20, paddingTop: 20 }}
+        onPress={() => {
+          if (WalletsCarousel.handleClick) {
+            WalletsCarousel.handleClick(index);
+          }
+        }}
+      >
+        <LinearGradient
+          colors={['#65ceef', '#68bbe1']}
+          style={{ padding: 15, borderRadius: 10 }}
+        >
+          <Image
+            source={require('./img/btc-shape.png')}
+            style={{
+              width: 99,
+              height: 94,
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+            }}
+          />
+
+          <Text style={{ backgroundColor: 'transparent' }} />
+          <Text
+            style={{
+              backgroundColor: 'transparent',
+              fontSize: 19,
+              color: '#fff',
+            }}
+          >
+            {item.getLabel()}
+          </Text>
+          <Text
+            style={{
+              backgroundColor: 'transparent',
+              fontWeight: 'bold',
+              fontSize: 36,
+              color: '#fff',
+            }}
+          >
+            {item.getBalance()} BTC
+          </Text>
+          <Text style={{ backgroundColor: 'transparent' }} />
+          <Text
+            style={{
+              backgroundColor: 'transparent',
+              fontSize: 13,
+              color: '#fff',
+            }}
+          >
+            latest transaction
+          </Text>
+          <Text
+            style={{
+              backgroundColor: 'transparent',
+              fontWeight: 'bold',
+              fontSize: 16,
+              color: '#fff',
+            }}
+          >
+            {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    );
+  }
+
+  render() {
+    return (
+      <View style={{ height: sliderHeight }}>
+        <Carousel
+          {...this.props}
+          ref={c => {
+            WalletsCarousel.carousel = c;
+          }}
+          renderItem={this._renderItem}
+          sliderWidth={sliderWidth}
+          itemWidth={itemWidth}
+          inactiveSlideScale={1}
+          inactiveSlideOpacity={0.7}
+          onSnapToItem={index => {
+            if (this.onSnapToItem) {
+              this.onSnapToItem(index);
+            }
+            console.log('snapped to card #', index);
+          }}
+        />
+      </View>
     );
   }
 }
