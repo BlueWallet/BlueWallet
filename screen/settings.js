@@ -1,15 +1,14 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView, TouchableOpacity, Text, View, Picker } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Icon, FormValidationMessage } from 'react-native-elements';
+import { ScrollView, View, Picker } from 'react-native';
+import { FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeader,
+  BlueHeaderDefaultSub,
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -19,15 +18,7 @@ let loc = require('../loc');
 
 export default class Settings extends Component {
   static navigationOptions = {
-    tabBarLabel: loc.settings.tabBarLabel,
     tabBarVisible: false,
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-settings' : 'ios-settings-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
   };
 
   constructor(props) {
@@ -52,28 +43,9 @@ export default class Settings extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeader
-          leftComponent={
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 34,
-                color: BlueApp.settings.foregroundColor,
-              }}
-            >
-              {loc.settings.header}
-            </Text>
-          }
-          rightComponent={
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <Icon
-                name="times"
-                size={16}
-                type="font-awesome"
-                color={BlueApp.settings.foregroundColor}
-              />
-            </TouchableOpacity>
-          }
+        <BlueHeaderDefaultSub
+          leftText={loc.settings.header}
+          onClose={() => this.props.navigation.goBack()}
         />
 
         <BlueCard>

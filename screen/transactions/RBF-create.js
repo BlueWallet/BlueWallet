@@ -1,7 +1,6 @@
 /** @type {AppStorage}  */
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
@@ -19,13 +18,7 @@ let BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-list-box' : 'ios-list-box-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {

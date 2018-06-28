@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   BlueSpacing20,
   BlueButton,
@@ -16,13 +15,7 @@ let BlueApp = require('../../BlueApp');
 
 export default class RBF extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-list-box' : 'ios-list-box-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, View, Dimensions } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueSpacing20,
@@ -32,13 +31,7 @@ const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'md-paper-plane' : 'md-paper-plane'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {
@@ -239,7 +232,7 @@ export default class SendDetails extends Component {
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <View style={{ flex: 0.33 }}>
             <BlueButton
-              onPress={() => this.props.navigation.goBack()}
+              onPress={() => this.props.navigation.navigate('WalletsList')}
               title={loc.send.details.cancel}
             />
           </View>

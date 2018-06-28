@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Dimensions, ActivityIndicator, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import {
   BlueSpacing,
   BlueSpacing40,
@@ -11,6 +10,7 @@ import {
   BlueText,
   BlueFormLabel,
   BlueFormInputAddress,
+  BlueHeaderDefaultSub,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -28,13 +28,7 @@ if (aspectRatio > 1.6) {
 
 export default class WalletDetails extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {
@@ -56,6 +50,7 @@ export default class WalletDetails extends Component {
       confirmDelete: false,
       isLoading: true,
       wallet,
+      address,
     };
   }
 
@@ -66,7 +61,14 @@ export default class WalletDetails extends Component {
   }
 
   async setLabel(text) {
-    this.state.wallet.label = text;
+    this.state.wallet.setLabel(text);
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+    }
+    this.timeout = setTimeout(() => {
+      BlueApp.saveToDisk();
+    }, 3000);
+
     this.setState({
       labelChanged: true,
     }); /* also, a hack to make screen update new typed text */
@@ -91,10 +93,12 @@ export default class WalletDetails extends Component {
           }
         })()}
 
-        <BlueCard
-          title={loc.wallets.details.title}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
+        <BlueHeaderDefaultSub
+          leftText={loc.wallets.details.title}
+          onClose={() => this.props.navigation.goBack()}
+        />
+
+        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueFormLabel>{loc.wallets.details.address}:</BlueFormLabel>
           <BlueFormInputAddress
             value={this.state.wallet.getAddress()}

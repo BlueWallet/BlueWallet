@@ -10,7 +10,6 @@ import {
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { Camera, Permissions } from 'expo';
 import { SegwitP2SHWallet, LegacyWallet } from '../../class';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -22,13 +21,7 @@ let loc = require('../../loc');
 
 export default class ScanQrWif extends React.Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   state = {

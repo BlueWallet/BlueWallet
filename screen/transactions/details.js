@@ -1,29 +1,32 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { View, Dimensions } from 'react-native';
 import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueSpacing,
+  BlueHeaderDefaultSub,
   BlueLoading,
   BlueSpacing20,
+  BlueSpacing,
+  BlueSpacing40,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 export default class TransactionsDetails extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-list-box' : 'ios-list-box-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {
@@ -66,15 +69,20 @@ export default class TransactionsDetails extends Component {
     }
 
     return (
-      <SafeBlueArea
-        forceInset={{ horizontal: 'always' }}
-        style={{ flex: 1, paddingTop: 20 }}
-      >
-        <BlueSpacing />
-        <BlueCard
-          title={loc.transactions.details.title}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        {(() => {
+          if (isIpad) {
+            return <BlueSpacing40 />;
+          } else {
+            return <BlueSpacing />;
+          }
+        })()}
+        <BlueHeaderDefaultSub
+          leftText={loc.transactions.details.title}
+          onClose={() => this.props.navigation.goBack()}
+        />
+
+        <BlueCard>
           {(() => {
             if (BlueApp.tx_metadata[this.state.tx.hash]) {
               if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {

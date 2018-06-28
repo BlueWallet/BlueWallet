@@ -1,17 +1,8 @@
 import React, { Component } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Dimensions,
-  Text,
-  ListView,
-} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Icon } from 'react-native-elements';
+import { View, Dimensions, Text, ListView } from 'react-native';
 import {
   BlueLoading,
   SafeBlueArea,
-  BlueHeader,
   WalletsCarousel,
   BlueTransactionIncommingIcon,
   BlueTransactionOutgoingIcon,
@@ -21,6 +12,7 @@ import {
   BlueRefreshIcon,
   BlueList,
   BlueListItem,
+  BlueHeaderDefaultMain,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -33,15 +25,7 @@ let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class WalletsList extends Component {
   static navigationOptions = {
-    tabBarLabel: loc.wallets.list.tabBarLabel,
     tabBarVisible: false,
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
   };
 
   constructor(props) {
@@ -68,6 +52,7 @@ export default class WalletsList extends Component {
           let noErr = true;
           try {
             await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
           } catch (err) {
             noErr = false;
             console.warn(err);
@@ -127,7 +112,7 @@ export default class WalletsList extends Component {
 
   txMemo(hash) {
     if (BlueApp.tx_metadata[hash] && BlueApp.tx_metadata[hash]['memo']) {
-      return ' | ' + BlueApp.tx_metadata[hash]['memo'];
+      return BlueApp.tx_metadata[hash]['memo'];
     }
     return '';
   }
@@ -174,28 +159,9 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea>
-        <BlueHeader
-          leftComponent={
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 34,
-                color: BlueApp.settings.foregroundColor,
-              }}
-            >
-              {loc.wallets.list.title}
-            </Text>
-          }
-          rightComponent={
-            <TouchableOpacity onPress={() => navigate('Settings')}>
-              <Icon
-                name="ellipsis-h"
-                size={16}
-                type="font-awesome"
-                color={BlueApp.settings.foregroundColor}
-              />
-            </TouchableOpacity>
-          }
+        <BlueHeaderDefaultMain
+          leftText={loc.wallets.list.title}
+          onClose={() => navigate('Settings')}
         />
 
         <WalletsCarousel
@@ -265,12 +231,12 @@ export default class WalletsList extends Component {
                             rowData.received,
                           )}
                           subtitle={
-                            this.txMemo(rowData.hash) +
                             (rowData.confirmations < 200
                               ? loc.transactions.list.conf +
                                 ': ' +
-                                rowData.confirmations
-                              : '')
+                                rowData.confirmations +
+                                ' '
+                              : '') + this.txMemo(rowData.hash)
                           }
                           onPress={() => {
                             navigate('TransactionDetails', {

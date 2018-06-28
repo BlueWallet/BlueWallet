@@ -173,7 +173,105 @@ export class BlueHeader extends Component {
           borderBottomColor: 'transparent',
           borderBottomWidth: 0,
         }}
-        statusBarProps={{ barStyle: 'light-content' }}
+        statusBarProps={{ barStyle: 'default' }}
+      />
+    );
+  }
+}
+
+export class BlueHeaderDefaultSub extends Component {
+  render() {
+    return (
+      <Header
+        {...this.props}
+        backgroundColor="transparent"
+        outerContainerStyles={{
+          borderBottomColor: 'transparent',
+          borderBottomWidth: 0,
+        }}
+        statusBarProps={{ barStyle: 'default' }}
+        leftComponent={
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 34,
+              color: BlueApp.settings.foregroundColor,
+            }}
+          >
+            {
+              // eslint-disable-next-line
+              this.props.leftText
+            }
+          </Text>
+        }
+        rightComponent={
+          <TouchableOpacity
+            onPress={() => {
+              // eslint-disable-next-line
+              if (this.props.onClose) this.props.onClose();
+            }}
+          >
+            <View style={stylesBlueIcon.box}>
+              <View style={stylesBlueIcon.ballTransparrent}>
+                <Icon
+                  name="times"
+                  size={16}
+                  type="font-awesome"
+                  color={BlueApp.settings.foregroundColor}
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+        }
+      />
+    );
+  }
+}
+
+export class BlueHeaderDefaultMain extends Component {
+  render() {
+    return (
+      <Header
+        {...this.props}
+        backgroundColor="transparent"
+        outerContainerStyles={{
+          borderBottomColor: 'transparent',
+          borderBottomWidth: 0,
+        }}
+        statusBarProps={{ barStyle: 'default' }}
+        leftComponent={
+          <Text
+            style={{
+              fontWeight: 'bold',
+              fontSize: 34,
+              color: BlueApp.settings.foregroundColor,
+            }}
+          >
+            {
+              // eslint-disable-next-line
+              this.props.leftText
+            }
+          </Text>
+        }
+        rightComponent={
+          <TouchableOpacity
+            onPress={() => {
+              // eslint-disable-next-line
+              if (this.props.onClose) this.props.onClose();
+            }}
+          >
+            <View style={stylesBlueIcon.box}>
+              <View style={stylesBlueIcon.ballTransparrent}>
+                <Icon
+                  name="kebab-horizontal"
+                  size={22}
+                  type="octicon"
+                  color={BlueApp.settings.foregroundColor}
+                />
+              </View>
+            </View>
+          </TouchableOpacity>
+        }
       />
     );
   }
@@ -245,6 +343,9 @@ const stylesBlueIcon = StyleSheet.create({
   box1: {
     position: 'relative',
     top: 15,
+  },
+  box: {
+    position: 'relative',
   },
   boxIncomming: {
     position: 'relative',
@@ -318,11 +419,11 @@ export class BlueRefreshIcon extends Component {
     return (
       <TouchableOpacity {...this.props} style={stylesBlueIcon.containerRefresh}>
         <View style={stylesBlueIcon.box1}>
-          <View style={stylesBlueIcon.ball}>
+          <View style={stylesBlueIcon.ballTransparrent}>
             <Ionicons
               {...this.props}
               name={'ios-refresh'}
-              size={26}
+              size={30}
               style={{
                 color: BlueApp.settings.foregroundColor,
                 backgroundColor: 'transparent',

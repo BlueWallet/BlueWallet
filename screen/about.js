@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { ScrollView, Linking, Dimensions } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Icon } from 'react-native-elements';
 import {
   BlueLoading,
   BlueSpacing20,
@@ -9,7 +7,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeader,
+  BlueHeaderDefaultSub,
 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -18,14 +16,7 @@ const { height } = Dimensions.get('window');
 
 export default class About extends Component {
   static navigationOptions = {
-    tabBarLabel: 'About',
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-settings' : 'ios-settings-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {
@@ -48,19 +39,9 @@ export default class About extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeader
-          backgroundColor={BlueApp.settings.brandingColor}
-          leftComponent={
-            <Icon
-              name="menu"
-              color={BlueApp.settings.foregroundColor}
-              onPress={() => this.props.navigation.navigate('DrawerToggle')}
-            />
-          }
-          centerComponent={{
-            text: 'About',
-            style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
-          }}
+        <BlueHeaderDefaultSub
+          leftText={'about'}
+          onClose={() => this.props.navigation.goBack()}
         />
 
         <BlueCard>

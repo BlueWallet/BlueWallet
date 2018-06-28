@@ -168,7 +168,7 @@ export class AppStorage {
    * If cached password is saved - finds the correct bucket
    * to save to, encrypts and then saves.
    *
-   * @returns Result of AsyncStorage save
+   * @returns {Promise} Result of AsyncStorage save
    */
   async saveToDisk() {
     let walletsToSave = [];
@@ -212,12 +212,22 @@ export class AppStorage {
    * For each wallet, fetches balance from remote endpoint.
    * Use getter for a specific wallet to get actual balance.
    * Returns void.
+   * If index is present then fetch only from this specific wallet
    *
    * @return {Promise.<void>}
    */
-  async fetchWalletBalances() {
-    for (let wallet of this.wallets) {
-      await wallet.fetchBalance();
+  async fetchWalletBalances(index) {
+    if (index || index === 0) {
+      let c = 0;
+      for (let wallet of this.wallets) {
+        if (c++ === index) {
+          await wallet.fetchBalance();
+        }
+      }
+    } else {
+      for (let wallet of this.wallets) {
+        await wallet.fetchBalance();
+      }
     }
   }
 
@@ -225,7 +235,7 @@ export class AppStorage {
    * Fetches from remote endpoint all transactions for each wallet.
    * Returns void.
    * To access transactions - get them from each respective wallet.
-   * If index is present then fetch only from this specific wallet
+   * If index is present then fetch only from this specific wallet.
    *
    * @param index {Integer} Index of the wallet in this.wallets array,
    *                        blank to fetch from all wallets

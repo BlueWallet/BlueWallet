@@ -5,7 +5,6 @@ import wallets from './screen/wallets';
 import send from './screen/send';
 import settins from './screen/settings';
 import receive from './screen/receive';
-import details from './screen/receive/details';
 
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -34,10 +33,6 @@ const Tabs = TabNavigator(
     },
 
     //
-
-    ReceiveDetails: {
-      screen: details,
-    },
   },
   {
     tabBarPosition: 'bottom',

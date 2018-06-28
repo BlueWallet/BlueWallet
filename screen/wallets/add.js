@@ -1,28 +1,31 @@
 import { SegwitP2SHWallet } from '../../class';
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ActivityIndicator, Dimensions, View } from 'react-native';
 import {
   BlueSpacing,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
+  BlueHeaderDefaultSub,
+  BlueSpacing40,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 export default class WalletsAdd extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {
@@ -52,8 +55,19 @@ export default class WalletsAdd extends Component {
         forceInset={{ horizontal: 'always' }}
         style={{ flex: 1, paddingTop: 40 }}
       >
-        <BlueSpacing />
-        <BlueCard title={loc.wallets.add.title}>
+        {(() => {
+          if (isIpad) {
+            return <BlueSpacing40 />;
+          } else {
+            return <BlueSpacing />;
+          }
+        })()}
+        <BlueHeaderDefaultSub
+          leftText={loc.wallets.add.title}
+          onClose={() => this.props.navigation.goBack()}
+        />
+
+        <BlueCard>
           <BlueText>{loc.wallets.add.description}</BlueText>
 
           <BlueButton

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
@@ -18,13 +17,7 @@ let loc = require('../../loc');
 
 export default class SendCreate extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'md-paper-plane' : 'md-paper-plane'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {

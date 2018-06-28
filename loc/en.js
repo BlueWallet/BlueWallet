@@ -19,7 +19,7 @@ module.exports = {
       create_a_wallet2: 'as many as you like',
     },
     add: {
-      title: 'Add Wallet',
+      title: 'add wallet',
       description:
         'You can either scan backup paper wallet (in WIF - Wallet Import Format), or create a new wallet. Segwit wallets supported by default.',
       scan: 'Scan',
@@ -27,7 +27,7 @@ module.exports = {
       label_new_segwit: 'New SegWit',
     },
     details: {
-      title: 'Wallet Details',
+      title: 'wallet details',
       address: 'Address',
       type: 'Type',
       label: 'Label',
@@ -63,7 +63,7 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'Transaction details',
+      title: 'transaction details',
       from: 'From',
       to: 'To',
     },
@@ -113,7 +113,7 @@ module.exports = {
   },
   settings: {
     tabBarLabel: 'Settings',
-    header: 'Settings',
+    header: 'settings',
     plausible_deniability: 'Plausible deniability...',
     storage_not_encrypted: 'Storage: not encrypted',
     storage_encrypted: 'Storage: encrypted',

@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Dimensions, Text, TouchableOpacity } from 'react-native';
-import { Icon } from 'react-native-elements';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Dimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode';
 import {
   BlueLoading,
-  BlueHeader,
   BlueFormInputAddress,
   SafeBlueArea,
   BlueCard,
+  BlueHeaderDefaultSub,
+  BlueSpacing,
+  BlueSpacing40,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -27,13 +27,6 @@ if (aspectRatio > 1.6) {
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
     tabBarVisible: false,
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-cash' : 'ios-cash-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
   };
 
   constructor(props) {
@@ -70,37 +63,39 @@ export default class ReceiveDetails extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <BlueHeader
-          leftComponent={
-            <Text
-              style={{
-                fontWeight: 'bold',
-                fontSize: 34,
-                color: BlueApp.settings.foregroundColor,
-              }}
-            >
-              {loc.receive.list.header}
-            </Text>
+        {(() => {
+          if (isIpad) {
+            return <BlueSpacing40 />;
+          } else {
+            return <BlueSpacing />;
           }
-          rightComponent={
-            <TouchableOpacity onPress={() => this.props.navigation.goBack()}>
-              <Icon
-                name="times"
-                size={16}
-                type="font-awesome"
-                color={BlueApp.settings.foregroundColor}
-              />
-            </TouchableOpacity>
-          }
+        })()}
+        <BlueHeaderDefaultSub
+          leftText={loc.receive.list.header}
+          onClose={() => this.props.navigation.goBack()}
         />
 
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+        <View
+          style={{
+            left: (width - ((isIpad && 250) || 312)) / 2,
+          }}
+        >
           <QRCode
             value={this.state.address}
             size={(isIpad && 250) || 312}
             bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
+        </View>
+
+        <BlueCard
+          containerStyle={{
+            alignItems: 'center',
+            flex: 1,
+            borderColor: 'red',
+            borderWidth: 7,
+          }}
+        >
           <BlueFormInputAddress editable value={this.state.address} />
         </BlueCard>
       </SafeBlueArea>
