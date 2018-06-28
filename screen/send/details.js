@@ -232,7 +232,7 @@ export default class SendDetails extends Component {
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <View style={{ flex: 0.33 }}>
             <BlueButton
-              onPress={() => this.props.navigation.navigate('WalletsList')}
+              onPress={() => this.props.navigation.goBack()}
               title={loc.send.details.cancel}
             />
           </View>

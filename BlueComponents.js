@@ -287,6 +287,7 @@ export class BlueSpacing extends Component {
     );
   }
 }
+
 export class BlueSpacing40 extends Component {
   render() {
     return (
@@ -295,6 +296,22 @@ export class BlueSpacing40 extends Component {
         style={{ height: 50, backgroundColor: BlueApp.settings.brandingColor }}
       />
     );
+  }
+}
+
+export class BlueSpacingVariable extends Component {
+  render() {
+    if (isIpad) {
+      return <BlueSpacing40 {...this.props} />;
+    } else {
+      return <BlueSpacing {...this.props} />;
+    }
+  }
+}
+
+export class is {
+  static ipad() {
+    return isIpad;
   }
 }
 
@@ -501,14 +518,16 @@ export class BlueTransactionOutgoingIcon extends Component {
   }
 }
 
+//
+
 export class BlueReceiveButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props}>
-        <View
-          {...this.props}
-          style={{ flex: 1, position: 'absolute', bottom: 30, left: 80 }}
-        >
+      <TouchableOpacity
+        {...this.props}
+        style={{ flex: 1, position: 'absolute', bottom: 30, left: 80 }}
+      >
+        <View>
           <View
             style={{
               flex: 1,
@@ -542,7 +561,7 @@ export class BlueReceiveButtonIcon extends Component {
             <Text
               style={{
                 color: BlueApp.settings.foregroundColor,
-                fontSize: 16,
+                fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 left: 5,
                 top: 12,
@@ -562,11 +581,11 @@ export class BlueReceiveButtonIcon extends Component {
 export class BlueSendButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props}>
-        <View
-          {...this.props}
-          style={{ flex: 1, position: 'absolute', bottom: 30, right: 85 }}
-        >
+      <TouchableOpacity
+        {...this.props}
+        style={{ flex: 1, position: 'absolute', bottom: 30, right: 85 }}
+      >
+        <View>
           <View
             style={{
               flex: 1,
@@ -601,7 +620,7 @@ export class BlueSendButtonIcon extends Component {
             <Text
               style={{
                 color: BlueApp.settings.foregroundColor,
-                fontSize: 16,
+                fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 left: 5,
                 top: 12,
@@ -654,7 +673,6 @@ export class NewWalletPannel extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        activeOpacity={1}
         style={{ paddingRight: 10, left: -20, paddingTop: 20 }}
         onPress={() => {
           if (this.handleClick) {
@@ -745,7 +763,7 @@ export class WalletsCarousel extends Component {
       >
         <LinearGradient
           colors={['#65ceef', '#68bbe1']}
-          style={{ padding: 15, borderRadius: 10 }}
+          style={{ padding: 15, borderRadius: 10, height: 145 }}
         >
           <Image
             source={require('./img/btc-shape.png')}

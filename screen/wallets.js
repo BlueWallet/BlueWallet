@@ -12,6 +12,10 @@ import createrbf from './transactions/RBF-create';
 
 import receiveDetails from './receive/details';
 
+import sendDetails from './send/details';
+import sendScanQrAddress from './send/scanQrAddress';
+import sendCreate from './send/create';
+
 const WalletsNavigator = StackNavigator(
   {
     WalletsList: {
@@ -46,6 +50,18 @@ const WalletsNavigator = StackNavigator(
 
     ReceiveDetails: {
       screen: receiveDetails,
+    },
+
+    //
+
+    SendDetails: {
+      screen: sendDetails,
+    },
+    ScanQrAddress: {
+      screen: sendScanQrAddress,
+    },
+    CreateTransaction: {
+      screen: sendCreate,
     },
   },
   {

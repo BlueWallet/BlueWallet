@@ -88,18 +88,6 @@ export default class About extends Component {
               title="Leave us a review on Appstore"
             />
 
-            <BlueButton
-              icon={{
-                name: 'arrow-left',
-                type: 'octicon',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              title="Go Back"
-              onPress={() => {
-                this.props.navigation.goBack();
-              }}
-            />
-
             <BlueSpacing20 />
 
             <BlueText h3>Built with awesome:</BlueText>
@@ -113,9 +101,6 @@ export default class About extends Component {
             <BlueText h4>* rn-nodeify</BlueText>
             <BlueText h4>* bignumber.js</BlueText>
             <BlueText h4>* https://github.com/StefanoBalocco/isaac.js</BlueText>
-            <BlueText h4>
-              * Design by https://dribbble.com/chrometaphore
-            </BlueText>
 
             <BlueButton
               onPress={() => {

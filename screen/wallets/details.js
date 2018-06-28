@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import {
-  BlueSpacing,
-  BlueSpacing40,
+  BlueSpacingVariable,
+  is,
   BlueFormInput,
   BlueButton,
   SafeBlueArea,
@@ -17,14 +17,6 @@ let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { height, width } = Dimensions.get('window');
-const aspectRatio = height / width;
-let isIpad;
-if (aspectRatio > 1.6) {
-  isIpad = false;
-} else {
-  isIpad = true;
-}
 
 export default class WalletDetails extends Component {
   static navigationOptions = {
@@ -85,13 +77,7 @@ export default class WalletDetails extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          } else {
-            return <BlueSpacing />;
-          }
-        })()}
+        <BlueSpacingVariable />
 
         <BlueHeaderDefaultSub
           leftText={loc.wallets.details.title}
@@ -170,7 +156,7 @@ export default class WalletDetails extends Component {
                 />
 
                 {(() => {
-                  if (isIpad) {
+                  if (is.ipad()) {
                     return <View />;
                   } else {
                     return (

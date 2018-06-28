@@ -180,7 +180,7 @@ export default class WalletsList extends Component {
           } else {
             return (
               <View style={{ flex: 1 }}>
-                <View style={{ flex: 1, flexDirection: 'row' }}>
+                <View style={{ flex: 1, flexDirection: 'row', height: 50 }}>
                   <Text
                     style={{
                       paddingLeft: 15,
@@ -195,78 +195,79 @@ export default class WalletsList extends Component {
                   <BlueRefreshIcon onPress={() => this.refreshTransactions()} />
                 </View>
 
-                <BlueList>
-                  <ListView
-                    maxHeight={height - 330 + 10}
-                    width={width - 5}
-                    left={5}
-                    top={-10}
-                    enableEmptySections
-                    dataSource={this.state.dataSource}
-                    renderRow={rowData => {
-                      return (
-                        <BlueListItem
-                          avatar={(() => {
-                            if (!rowData.confirmations) {
-                              return (
-                                <View style={{ width: 25 }}>
-                                  <BlueTransactionPendingIcon />
-                                </View>
-                              );
-                            } else if (rowData.value < 0) {
-                              return (
-                                <View style={{ width: 25 }}>
-                                  <BlueTransactionOutgoingIcon />
-                                </View>
-                              );
-                            } else {
-                              return (
-                                <View style={{ width: 25 }}>
-                                  <BlueTransactionIncommingIcon />
-                                </View>
-                              );
+                <View style={{ top: 30, position: 'absolute' }}>
+                  <BlueList>
+                    <ListView
+                      maxHeight={height - 330 + 10}
+                      width={width - 5}
+                      left={5}
+                      enableEmptySections
+                      dataSource={this.state.dataSource}
+                      renderRow={rowData => {
+                        return (
+                          <BlueListItem
+                            avatar={(() => {
+                              if (!rowData.confirmations) {
+                                return (
+                                  <View style={{ width: 25 }}>
+                                    <BlueTransactionPendingIcon />
+                                  </View>
+                                );
+                              } else if (rowData.value < 0) {
+                                return (
+                                  <View style={{ width: 25 }}>
+                                    <BlueTransactionOutgoingIcon />
+                                  </View>
+                                );
+                              } else {
+                                return (
+                                  <View style={{ width: 25 }}>
+                                    <BlueTransactionIncommingIcon />
+                                  </View>
+                                );
+                              }
+                            })()}
+                            title={loc.transactionTimeToReadable(
+                              rowData.received,
+                            )}
+                            subtitle={
+                              (rowData.confirmations < 200
+                                ? loc.transactions.list.conf +
+                                  ': ' +
+                                  rowData.confirmations +
+                                  ' '
+                                : '') + this.txMemo(rowData.hash)
                             }
-                          })()}
-                          title={loc.transactionTimeToReadable(
-                            rowData.received,
-                          )}
-                          subtitle={
-                            (rowData.confirmations < 200
-                              ? loc.transactions.list.conf +
-                                ': ' +
-                                rowData.confirmations +
-                                ' '
-                              : '') + this.txMemo(rowData.hash)
-                          }
-                          onPress={() => {
-                            navigate('TransactionDetails', {
-                              hash: rowData.hash,
-                            });
-                          }}
-                          badge={{
-                            value: 3,
-                            textStyle: { color: 'orange' },
-                            containerStyle: { marginTop: 0 },
-                          }}
-                          chevron={false}
-                          chevronColor="transparent"
-                          rightTitle={rowData.value / 100000000 + ''}
-                          rightTitleStyle={{
-                            position: 'relative',
-                            right: -30,
-                            top: -7,
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color:
-                              rowData.value / 100000000 < 0
-                                ? BlueApp.settings.foregroundColor
-                                : '#37c0a1',
-                          }}
-                        />
-                      );
-                    }}
-                  />
-                </BlueList>
+                            onPress={() => {
+                              navigate('TransactionDetails', {
+                                hash: rowData.hash,
+                              });
+                            }}
+                            badge={{
+                              value: 3,
+                              textStyle: { color: 'orange' },
+                              containerStyle: { marginTop: 0 },
+                            }}
+                            chevron={false}
+                            chevronColor="transparent"
+                            rightTitle={rowData.value / 100000000 + ''}
+                            rightTitleStyle={{
+                              position: 'relative',
+                              right: -30,
+                              top: -7,
+                              fontWeight: '600',
+                              fontSize: 16,
+                              color:
+                                rowData.value / 100000000 < 0
+                                  ? BlueApp.settings.foregroundColor
+                                  : '#37c0a1',
+                            }}
+                          />
+                        );
+                      }}
+                    />
+                  </BlueList>
+                </View>
               </View>
             );
           }

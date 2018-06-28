@@ -38,7 +38,7 @@ module.exports = {
       export_backup: 'Export / backup',
     },
     export: {
-      title: 'Wallet Export',
+      title: 'wallet export',
     },
     scanQrWif: {
       go_back: 'Go Back',

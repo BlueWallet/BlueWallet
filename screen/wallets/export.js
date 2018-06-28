@@ -1,27 +1,30 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Dimensions, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode';
 import {
   BlueSpacing,
+  BlueSpacing40,
   SafeBlueArea,
   BlueCard,
   BlueText,
+  BlueHeaderDefaultSub,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+const { height, width } = Dimensions.get('window');
+const aspectRatio = height / width;
+let isIpad;
+if (aspectRatio > 1.6) {
+  isIpad = false;
+} else {
+  isIpad = true;
+}
 
 export default class WalletExport extends Component {
   static navigationOptions = {
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-briefcase' : 'ios-briefcase-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
-    ),
+    tabBarVisible: false,
   };
 
   constructor(props) {
@@ -70,11 +73,19 @@ export default class WalletExport extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <BlueSpacing />
-        <BlueCard
-          title={loc.wallets.export.title}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
+        {(() => {
+          if (isIpad) {
+            return <BlueSpacing40 />;
+          } else {
+            return <BlueSpacing />;
+          }
+        })()}
+        <BlueHeaderDefaultSub
+          leftText={loc.wallets.export.title}
+          onClose={() => this.props.navigation.goBack()}
+        />
+
+        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>{this.state.wallet.getAddress()}</BlueText>
           <QRCode
             value={this.state.wallet.getSecret()}
