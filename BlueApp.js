@@ -34,6 +34,7 @@ async function startAndDecrypt(retry) {
 }
 
 Amplitude.initialize('8b7cf19e8eea3cdcf16340f5fbf16330');
+Amplitude.logEvent('INIT');
 startAndDecrypt();
 
 module.exports = BlueApp;

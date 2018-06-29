@@ -1,2 +1,6 @@
-* FIX: fallback pushtx endpoints
-* FIX: pt-br metadata description translated
+* redesign
+* New icon
+* analytics
+* refactoring
+* OPS: preparing HD wallets
+* FIX: better input address parsing
