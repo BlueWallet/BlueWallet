@@ -525,7 +525,12 @@ export class BlueReceiveButtonIcon extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        style={{ flex: 1, position: 'absolute', bottom: 30, left: 80 }}
+        style={{
+          flex: 1,
+          position: 'absolute',
+          bottom: 30,
+          left: (isIpad && 30) || 80,
+        }}
       >
         <View>
           <View
@@ -583,7 +588,12 @@ export class BlueSendButtonIcon extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        style={{ flex: 1, position: 'absolute', bottom: 30, right: 85 }}
+        style={{
+          flex: 1,
+          position: 'absolute',
+          bottom: 30,
+          right: (isIpad && 30) || 85,
+        }}
       >
         <View>
           <View
