@@ -4,6 +4,10 @@ module.exports = {
       'Ваше хранилище зашифровано. Введите пароль для расшифровки',
     enter_password: 'Введите пароль',
     bad_password: 'Неверный пароль, попробуйте еще раз',
+    months_ago: 'месяцев назад',
+    days_ago: 'дней назад',
+    hours_ago: 'часов назад',
+    never: 'никогда',
   },
   wallets: {
     list: {
@@ -16,6 +20,9 @@ module.exports = {
       create_a_wallet: 'Создать кошелек',
       create_a_wallet1: 'Это бесплатно и вы можете создать',
       create_a_wallet2: 'неограниченное количество',
+      latest_transaction: 'последняя транзакция',
+      empty_txs1: 'Список транзакций пока пуст',
+      empty_txs2: ' ',
     },
     add: {
       title: 'Добавить Кошелек',

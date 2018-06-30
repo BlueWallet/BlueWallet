@@ -72,6 +72,7 @@ export default class WalletsList extends Component {
         isTransactionsLoading: false,
         showReceiveButton: true,
         showSendButton: true,
+        showRereshButton: true,
         final_balance: BlueApp.getBalance(),
         dataSource: ds.cloneWithRows(
           BlueApp.getTransactions(this.lastSnappedTo || 0),
@@ -137,6 +138,7 @@ export default class WalletsList extends Component {
       isLoading: false,
       showReceiveButton: false,
       showSendButton: false,
+      showRereshButton: false,
       final_balance: BlueApp.getBalance(),
       dataSource: ds.cloneWithRows(BlueApp.getTransactions(index)),
     });
@@ -144,7 +146,12 @@ export default class WalletsList extends Component {
     if (index < BlueApp.getWallets().length) {
       // do not show for last card
       setTimeout(
-        () => this.setState({ showReceiveButton: true, showSendButton: true }),
+        () =>
+          this.setState({
+            showReceiveButton: true,
+            showSendButton: true,
+            showRereshButton: true,
+          }),
         50,
       ); // just to animate it, no real function
     }
@@ -192,7 +199,47 @@ export default class WalletsList extends Component {
                   >
                     {loc.transactions.list.title}
                   </Text>
-                  <BlueRefreshIcon onPress={() => this.refreshTransactions()} />
+                  {(() => {
+                    if (this.state.showRereshButton) {
+                      return (
+                        <BlueRefreshIcon
+                          onPress={() => this.refreshTransactions()}
+                        />
+                      );
+                    }
+                  })()}
+                </View>
+
+                <View style={{ top: 120, position: 'absolute', width: width }}>
+                  {(() => {
+                    if (
+                      BlueApp.getTransactions(this.lastSnappedTo || 0)
+                        .length === 0
+                    ) {
+                      return (
+                        <View>
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              color: '#9aa0aa',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {loc.wallets.list.empty_txs1}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              color: '#9aa0aa',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {loc.wallets.list.empty_txs2}
+                          </Text>
+                        </View>
+                      );
+                    }
+                  })()}
                 </View>
 
                 <View style={{ top: 30, position: 'absolute' }}>

@@ -529,7 +529,7 @@ export class BlueReceiveButtonIcon extends Component {
           flex: 1,
           position: 'absolute',
           bottom: 30,
-          left: (isIpad && 30) || 80,
+          left: (isIpad && 40) || 80,
         }}
       >
         <View>
@@ -592,7 +592,7 @@ export class BlueSendButtonIcon extends Component {
           flex: 1,
           position: 'absolute',
           bottom: 30,
-          right: (isIpad && 30) || 85,
+          right: (isIpad && 40) || 85,
         }}
       >
         <View>
@@ -814,7 +814,7 @@ export class WalletsCarousel extends Component {
               color: '#fff',
             }}
           >
-            latest transaction
+            {loc.wallets.list.latest_transaction}
           </Text>
           <Text
             style={{

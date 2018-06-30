@@ -47,19 +47,19 @@ strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
 
 strings.transactionTimeToReadable = function(time) {
   if (time === 0) {
-    return 'never';
+    return strings._.never;
   }
 
   let ago = (Date.now() - Date.parse(time)) / 1000; // seconds
   if (ago / (3600 * 24) >= 30) {
     ago = Math.round(ago / (3600 * 24 * 30));
-    return ago + ' months ago';
+    return ago + ' ' + strings._.months_ago;
   } else if (ago / (3600 * 24) >= 1) {
     ago = Math.round(ago / (3600 * 24));
-    return ago + ' days ago';
+    return ago + ' ' + strings._.days_ago;
   } else {
     ago = Math.round(ago / 3600);
-    return ago + ' hours ago';
+    return ago + ' ' + strings._.hours_ago;
   }
 };
 

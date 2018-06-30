@@ -4,6 +4,10 @@ module.exports = {
       'Your storage is encrypted. Password is required to decrypt it',
     enter_password: 'Enter password',
     bad_password: 'Bad pasword, try again',
+    months_ago: 'months ago',
+    days_ago: 'days ago',
+    hours_ago: 'hours ago',
+    never: 'never',
   },
   wallets: {
     list: {
@@ -17,6 +21,9 @@ module.exports = {
       create_a_wallet: 'Create a wallet',
       create_a_wallet1: "It's free and you can create",
       create_a_wallet2: 'as many as you like',
+      latest_transaction: 'latest transaction',
+      empty_txs1: 'Your transactions will appear here,',
+      empty_txs2: 'none at the moment',
     },
     add: {
       title: 'add wallet',
