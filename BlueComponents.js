@@ -39,16 +39,18 @@ export class BlueButton extends Component {
   render() {
     return (
       <Button
+        activeOpacity={0.1}
+        delayPressIn={0}
         {...this.props}
         style={{
           marginTop: 20,
           borderRadius: 6,
           borderWidth: 0.7,
-          borderColor: BlueApp.settings.foregroundColor,
+          borderColor: 'transparent',
         }}
         borderRadius={10}
-        backgroundColor={BlueApp.settings.buttonBackground}
-        color={BlueApp.settings.buttonTextColor}
+        backgroundColor="#ccddf9"
+        color="#0c2550"
       />
     );
   }
@@ -565,7 +567,7 @@ export class BlueReceiveButtonIcon extends Component {
             </View>
             <Text
               style={{
-                color: BlueApp.settings.foregroundColor,
+                color: '#2f5fb3',
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 left: 5,
@@ -629,7 +631,7 @@ export class BlueSendButtonIcon extends Component {
             </View>
             <Text
               style={{
-                color: BlueApp.settings.foregroundColor,
+                color: '#2f5fb3',
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 left: 5,
