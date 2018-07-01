@@ -24,7 +24,7 @@ export class LegacyWallet extends AbstractWallet {
       let totalhex = '';
       for (let i = 0; i < c; i++) {
         let randomNumber = isaac.random();
-        randomNumber = Math.floor(randomNumber * 255);
+        randomNumber = Math.floor(randomNumber * 256);
         let n = new BigNumber(randomNumber);
         let hex = n.toString(16);
         if (hex.length === 1) {
@@ -41,7 +41,7 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   getTypeReadable() {
-    return 'P2 PKH';
+    return 'P2PKH';
   }
 
   /**

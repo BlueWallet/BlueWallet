@@ -7,7 +7,7 @@ import {
 } from './class';
 let assert = require('assert');
 
-it.only('can convert witness to address', () => {
+it('can convert witness to address', () => {
   let address = SegwitP2SHWallet.witnessToAddress(
     '035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8',
   );
@@ -62,27 +62,27 @@ it('HD breadwallet works', async function() {
   hdBread.setSecret(
     'high relief amount witness try remember adult destroy puppy fox giant peace',
   );
-  console.log(
-    'bread 0/0 = ',
+
+  assert.equal(hdBread.validateMnemonic(), true);
+  assert.equal(
     hdBread._getExternalAddressByIndex(0),
-    'bread 1/0 = ',
-    hdBread._getInternalAddressByIndex(0),
-    'valid = ',
-    hdBread.validateMnemonic(),
+    '1ARGkNMdsBE36fJhddSwf8PqBXG3s4d2KU',
   );
-  console.log(hdBread.getXpub());
+  assert.equal(
+    hdBread._getInternalAddressByIndex(0),
+    '1JLvA5D7RpWgChb4A5sFcLNrfxYbyZdw3V',
+  );
+
+  assert.equal(
+    hdBread.getXpub(),
+    'xpub68nLLEi3KERQY7jyznC9PQSpSjmekrEmN8324YRCXayMXaavbdEJsK4gEcX2bNf9vGzT4xRks9utZ7ot1CTHLtdyCn9udvv1NWvtY7HXroh',
+  );
   await hdBread.fetchBalance();
-  console.log(hdBread.balance);
+  assert.equal(hdBread.balance, 0);
 
   await hdBread.fetchTransactions();
-  console.log('tx count  = ', hdBread.transactions.length);
+  assert.equal(hdBread.transactions.length, 175);
 
-  console.log(
-    hdBread.next_free_address_index,
-    hdBread.next_free_change_address_index,
-  );
-
-  // let bitcoin = require('bitcoinjs-lib');
-  // let node = bitcoin.HDNode.fromBase58( hdBread.getXpub() );
-  // console.log( "normal address", node.derive(0).derive(0).getAddress());
+  assert.equal(hdBread.next_free_address_index, 10);
+  assert.equal(hdBread.next_free_change_address_index, 118);
 });

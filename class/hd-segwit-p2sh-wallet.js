@@ -115,12 +115,10 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
     let addressBytes = bitcoin.crypto.hash160(scriptSig);
     let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-    let address = bitcoin.address.fromOutputScript(
+    return bitcoin.address.fromOutputScript(
       outputScript,
       bitcoin.networks.bitcoin,
     );
-
-    return address;
   }
 
   async fetchBalance() {
@@ -128,7 +126,6 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
 
     let response = await api.get('/balance?active=' + this.getXpub());
 
-    // console.log(response);
     if (response && response.body) {
       for (let xpub of Object.keys(response.body)) {
         this.balance = response.body[xpub].final_balance / 100000000;
@@ -144,7 +141,6 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     let offset = 0;
 
     while (1) {
-      console.log('fetching ', offset);
       let response = await api.get(
         '/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset,
       );
@@ -155,7 +151,6 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
         }
 
         // processing TXs and adding to internal memory
-        console.log('response.body.txs = ', response.body.txs.length);
         if (response.body.txs) {
           for (let tx of response.body.txs) {
             let value = 0;
