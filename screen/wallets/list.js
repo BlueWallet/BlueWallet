@@ -13,6 +13,7 @@ import {
   BlueList,
   BlueListItem,
   BlueHeaderDefaultMain,
+  is,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -210,7 +211,13 @@ export default class WalletsList extends Component {
                   })()}
                 </View>
 
-                <View style={{ top: 120, position: 'absolute', width: width }}>
+                <View
+                  style={{
+                    top: is.ipad() ? 60 : 120,
+                    position: 'absolute',
+                    width: width,
+                  }}
+                >
                   {(() => {
                     if (
                       BlueApp.getTransactions(this.lastSnappedTo || 0)
