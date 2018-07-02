@@ -41,6 +41,9 @@ export default class WalletsList extends Component {
     this.refreshFunction();
   } // end of componendDidMount
 
+  /**
+   * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet
+   */
   refreshTransactions() {
     this.setState(
       {
@@ -66,6 +69,9 @@ export default class WalletsList extends Component {
     );
   }
 
+  /**
+   * Redraws the screen
+   */
   refreshFunction() {
     setTimeout(() => {
       this.setState({
@@ -80,36 +86,6 @@ export default class WalletsList extends Component {
         ),
       });
     }, 1);
-
-    /* this.setState(
-      {
-        isLoading: true,
-      },
-      () => {
-        setTimeout(() => {
-          this.setState({
-            isLoading: false,
-            final_balance: BlueApp.getBalance(),
-            dataSource: ds.cloneWithRows(BlueApp.getTransactions()),
-          });
-        }, 1);
-      },
-    ); */
-
-    // this.forceUpdate();
-
-    /* this.setState(
-      {
-        isLoading: true,
-      },
-      () => {
-        setTimeout(() => {
-          this.setState({
-            isLoading: false,
-          });
-        }, 1);
-      },
-    ); */
   }
 
   txMemo(hash) {
@@ -141,6 +117,7 @@ export default class WalletsList extends Component {
       showSendButton: false,
       showRereshButton: false,
       final_balance: BlueApp.getBalance(),
+      // TODO: погуглить че это за ебала ds.cloneWithRows, можно ли быстрее сделать прогрузку транзакций на экран
       dataSource: ds.cloneWithRows(BlueApp.getTransactions(index)),
     });
 
