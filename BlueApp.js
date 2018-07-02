@@ -26,6 +26,31 @@ async function startAndDecrypt(retry) {
     console.log('loaded from disk');
     EV(EV.enum.WALLETS_COUNT_CHANGED);
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+    // now, lets try to fetch balance and txs for first wallet if it is time for it
+    let hadToRefresh = false;
+    let noErr = true;
+    try {
+      let wallets = BlueApp.getWallets();
+      if (wallets && wallets[0] && wallets[0].timeToRefresh()) {
+        console.log('time to refresh wallet #0');
+        let oldBalance = wallets[0].getBalance();
+        await wallets[0].fetchBalance();
+        if (oldBalance !== wallets.getBalance()) {
+          // balance changed, thus txs too
+          await wallets[0].fetchTransactions();
+          hadToRefresh = true;
+          EV(EV.enum.WALLETS_COUNT_CHANGED);
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+        }
+      } //  end of timeToRefresh
+    } catch (Err) {
+      noErr = false;
+      console.warn(Err);
+    }
+
+    if (hadToRefresh && noErr) {
+      await BlueApp.saveToDisk(); // caching
+    }
   }
 
   if (!success && password) {

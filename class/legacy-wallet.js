@@ -20,6 +20,12 @@ export class LegacyWallet extends AbstractWallet {
     this._lastBalanceFetch = 0;
   }
 
+  timeToRefresh() {
+    if (+new Date() - this._lastBalanceFetch >= 60 * 1000) {
+      return true;
+    }
+  }
+
   generate() {
     function myRng(c) {
       let buf = Buffer.alloc(c);

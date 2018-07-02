@@ -133,6 +133,42 @@ export default class WalletsList extends Component {
         50,
       ); // just to animate it, no real function
     }
+
+    // now, lets try to fetch balance and txs for this wallet in case it has changed
+    this.lazyRefreshWallet(index);
+  }
+
+  /**
+   * Decides whether wallet with such index shoud be refreshed,
+   * refreshes if yes and redraws the screen
+   * @param index {Integer} Index of the wallet.
+   * @return {Promise.<void>}
+   */
+  async lazyRefreshWallet(index) {
+    /** @type {Array.<AbstractWallet>} wallets */
+    let wallets = BlueApp.getWallets();
+    let oldBalance = wallets[index].getBalance();
+    let noErr = true;
+
+    try {
+      if (wallets && wallets[index] && wallets[index].timeToRefresh()) {
+        console.log('snapped to, and now its time to refresh wallet #', index);
+        await wallets[index].fetchBalance();
+        if (oldBalance !== wallets[index].getBalance()) {
+          // balance changed, thus txs too
+          await wallets[index].fetchTransactions();
+          this.refreshFunction();
+        }
+      }
+    } catch (Err) {
+      noErr = false;
+      console.warn(Err);
+    }
+
+    if (noErr && oldBalance !== wallets[index].getBalance()) {
+      // so we DID refresh
+      await BlueApp.saveToDisk(); // caching
+    }
   }
 
   render() {
