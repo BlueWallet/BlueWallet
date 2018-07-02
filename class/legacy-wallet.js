@@ -74,6 +74,8 @@ export class LegacyWallet extends AbstractWallet {
    * Fetches balance of the Wallet via API.
    * Returns VOID. Get the actual balance via getter.
    *
+   * TODO: rewrite on Frisbee
+   *
    * @returns {Promise.<void>}
    */
   async fetchBalance() {
