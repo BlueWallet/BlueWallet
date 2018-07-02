@@ -16,6 +16,8 @@ export class LegacyWallet extends AbstractWallet {
   constructor() {
     super();
     this.type = 'legacy';
+    this._lastTxFetch = 0;
+    this._lastBalanceFetch = 0;
   }
 
   generate() {
@@ -41,7 +43,7 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   getTypeReadable() {
-    return 'P2PKH';
+    return 'Legacy (P2PKH)';
   }
 
   /**
@@ -90,6 +92,7 @@ export class LegacyWallet extends AbstractWallet {
         throw new Error('Could not fetch balance from API');
       }
       this.balance = json.final_balance / 100000000;
+      this._lastBalanceFetch = +new Date();
     } catch (err) {
       console.warn(err);
     }
@@ -177,6 +180,7 @@ export class LegacyWallet extends AbstractWallet {
       }
 
       this.transactions = json.txs;
+      this._lastTxFetch = +new Date();
       // now, calculating value per each transaction...
       for (let tx of this.transactions) {
         // how much came in...

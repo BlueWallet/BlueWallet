@@ -145,6 +145,8 @@ export class AppStorage {
   }
 
   /**
+   * Lookup wallet in list by it's secret and
+   * remove it from `this.wallets`
    *
    * @param wallet {AbstractWallet}
    */
@@ -289,12 +291,6 @@ export class AppStorage {
     }
     return txs;
   }
-
-  saveWallets() {}
-
-  listTXs() {}
-
-  listUnconfirmed() {}
 
   /**
    * Getter for a sum of all balances of all wallets
