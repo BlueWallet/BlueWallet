@@ -155,9 +155,12 @@ export default class WalletsList extends Component {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await wallets[index].fetchBalance();
         if (oldBalance !== wallets[index].getBalance()) {
+          console.log('balance changed, thus txs too')
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
           this.refreshFunction();
+        } else {
+          console.log('balance not changed')
         }
       }
     } catch (Err) {
