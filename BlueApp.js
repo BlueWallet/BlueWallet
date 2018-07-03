@@ -35,7 +35,7 @@ async function startAndDecrypt(retry) {
         console.log('time to refresh wallet #0');
         let oldBalance = wallets[0].getBalance();
         await wallets[0].fetchBalance();
-        if (oldBalance !== wallets.getBalance()) {
+        if (oldBalance !== wallets[0].getBalance()) {
           // balance changed, thus txs too
           await wallets[0].fetchTransactions();
           hadToRefresh = true;
