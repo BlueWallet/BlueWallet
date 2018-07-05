@@ -260,6 +260,7 @@ export class LegacyWallet extends AbstractWallet {
   async broadcastTx(txhex) {
     let chainso = await this._broadcastTxChainso(txhex);
     console.log('chainso = ', chainso);
+
     if ((chainso && chainso.status && chainso.status === 'fail') || !chainso) {
       console.log('fallback to blockcypher');
       let blockcypher = await this._broadcastTxBlockcypher(txhex); // fallback
@@ -267,8 +268,7 @@ export class LegacyWallet extends AbstractWallet {
 
       if (Object.keys(blockcypher).length === 0 || blockcypher.error) {
         // error
-        console.log('blockcypher error');
-
+        console.log('blockcypher error, fallback to smartbit');
         let smartbit = await this._broadcastTxSmartbit(txhex);
         console.log('smartbit = ', smartbit);
         return smartbit;
