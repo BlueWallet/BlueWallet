@@ -35,12 +35,17 @@ async function startAndDecrypt(retry) {
         console.log('time to refresh wallet #0');
         let oldBalance = wallets[0].getBalance();
         await wallets[0].fetchBalance();
-        if (oldBalance !== wallets[0].getBalance()) {
+        if (
+          oldBalance !== wallets[0].getBalance() ||
+          wallets[0].getUnconfirmedBalance() !== 0
+        ) {
           // balance changed, thus txs too
           await wallets[0].fetchTransactions();
           hadToRefresh = true;
           EV(EV.enum.WALLETS_COUNT_CHANGED);
           EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+        } else {
+          console.log('balance not changed');
         }
       } //  end of timeToRefresh
     } catch (Err) {
@@ -62,10 +67,9 @@ async function startAndDecrypt(retry) {
 Amplitude.initialize('8b7cf19e8eea3cdcf16340f5fbf16330');
 Amplitude.logEvent('INIT');
 const analytics = new Analytics('UA-121673546-1');
-analytics
-  .hit(new PageHit('INIT'))
-  .then(() => console.log('success'))
-  .catch(e => console.log(e.message));
+analytics.hit(new PageHit('INIT'));
+// .then(() => console.log('success'));
+// .catch(e => console.log(e.message));
 
 startAndDecrypt();
 

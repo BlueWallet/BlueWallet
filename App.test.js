@@ -231,19 +231,22 @@ it('bip38 decodes slow', async () => {
 });
 
 it('Wallet can fetch UTXO', async () => {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let w = new SegwitP2SHWallet();
   w._address = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX';
   await w.fetchUtxo();
   assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
 });
 
-it.skip('Wallet can fetch balance', async () => {
+it('Wallet can fetch balance', async () => {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let w = new LegacyWallet();
   w._address = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'; // hack internals
   assert.ok(w.getBalance() === 0);
+  assert.ok(w.getUnconfirmedBalance() === 0);
   assert.ok(w._lastBalanceFetch === 0);
   await w.fetchBalance();
-  console.log(w.getBalance());
   assert.ok(w.getBalance() > 0);
+  assert.ok(w.getUnconfirmedBalance() === 0);
   assert.ok(w._lastBalanceFetch > 0);
 });

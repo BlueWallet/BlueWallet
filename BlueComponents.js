@@ -531,7 +531,7 @@ export class BlueReceiveButtonIcon extends Component {
           flex: 1,
           position: 'absolute',
           bottom: 30,
-          right: width/2 + 5,
+          right: width / 2 + 5,
         }}
       >
         <View>
@@ -594,7 +594,7 @@ export class BlueSendButtonIcon extends Component {
           flex: 1,
           position: 'absolute',
           bottom: 30,
-          left: width/2 + 5,
+          left: width / 2 + 5,
         }}
       >
         <View>

@@ -4,6 +4,7 @@ export class AbstractWallet {
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
+    this.unconfirmed_balance = 0;
     this.transactions = [];
     this._address = false; // cache
     this.utxo = [];
@@ -27,6 +28,16 @@ export class AbstractWallet {
 
   getBalance() {
     return this.balance;
+  }
+
+  /**
+   * Returns delta of unconfirmed balance. For example, if theres no
+   * unconfirmed balance its 0
+   *
+   * @return {number}
+   */
+  getUnconfirmedBalance() {
+    return this.unconfirmed_balance;
   }
 
   setLabel(newLabel) {

@@ -147,6 +147,9 @@ export default class WalletsList extends Component {
   async lazyRefreshWallet(index) {
     /** @type {Array.<AbstractWallet>} wallets */
     let wallets = BlueApp.getWallets();
+    if (!wallets[index]) {
+      return;
+    }
     let oldBalance = wallets[index].getBalance();
     let noErr = true;
 
@@ -154,13 +157,16 @@ export default class WalletsList extends Component {
       if (wallets && wallets[index] && wallets[index].timeToRefresh()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await wallets[index].fetchBalance();
-        if (oldBalance !== wallets[index].getBalance()) {
-          console.log('balance changed, thus txs too')
+        if (
+          oldBalance !== wallets[index].getBalance() ||
+          wallets[index].getUnconfirmedBalance() !== 0
+        ) {
+          console.log('balance changed, thus txs too');
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
           this.refreshFunction();
         } else {
-          console.log('balance not changed')
+          console.log('balance not changed');
         }
       }
     } catch (Err) {

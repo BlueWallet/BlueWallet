@@ -74,32 +74,31 @@ export class LegacyWallet extends AbstractWallet {
    * Fetches balance of the Wallet via API.
    * Returns VOID. Get the actual balance via getter.
    *
-   * TODO: rewrite on Frisbee
-   *
    * @returns {Promise.<void>}
    */
   async fetchBalance() {
-    let response;
     try {
-      if (useBlockcypherTokens) {
-        response = await fetch(
-          'https://api.blockcypher.com/v1/btc/main/addrs/' +
-            this.getAddress() +
-            '/balance?token=' +
-            this.getRandomBlockcypherToken(),
-        );
-      } else {
-        response = await fetch(
-          'https://api.blockcypher.com/v1/btc/main/addrs/' +
-            this.getAddress() +
-            '/balance',
-        );
+      const api = new Frisbee({
+        baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/',
+      });
+
+      let response = await api.get(
+        this.getAddress() +
+          '/balance' +
+          ((useBlockcypherTokens &&
+            '&token=' + this.getRandomBlockcypherToken()) ||
+            ''),
+      );
+      let json = response.body;
+      if (
+        typeof json === 'undefined' ||
+        typeof json.final_balance === 'undefined'
+      ) {
+        throw new Error('Could not fetch UTXO from API' + response.err);
       }
-      let json = await response.json();
-      if (typeof json.final_balance === 'undefined') {
-        throw new Error('Could not fetch balance from API');
-      }
+
       this.balance = json.final_balance / 100000000;
+      this.unconfirmed_balance = json.unconfirmed_balance / 100000000;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
       console.warn(err);
@@ -260,18 +259,31 @@ export class LegacyWallet extends AbstractWallet {
 
   async broadcastTx(txhex) {
     let chainso = await this._broadcastTxChainso(txhex);
-    if (chainso && chainso.status) {
-      if (chainso.status === 'fail') {
-        return this._broadcastTxBlockcypher(txhex); // fallback
-      } else {
-        // success
-        return {
-          result: chainso.data.txid,
-        };
+    console.log('chainso = ', chainso);
+    if ((chainso && chainso.status && chainso.status === 'fail') || !chainso) {
+      console.log('fallback to blockcypher');
+      let blockcypher = await this._broadcastTxBlockcypher(txhex); // fallback
+      console.log('blockcypher = ', blockcypher);
+
+      if (Object.keys(blockcypher).length === 0 || blockcypher.error) {
+        // error
+        console.log('blockcypher error');
+
+        let smartbit = await this._broadcastTxSmartbit(txhex);
+        console.log('smartbit = ', smartbit);
+        return smartbit;
+
+        // let btczen =  await this._broadcastTxBtczen(txhex);
+        // console.log(btczen);
+        // return btczen;
       }
+      return blockcypher;
     } else {
-      // another fallback
-      return this._broadcastTxBlockcypher(txhex);
+      console.log('success');
+      // success
+      return {
+        result: chainso.data.txid,
+      };
     }
   }
 
@@ -285,7 +297,7 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     let res = await api.get('/broadcast/' + txhex);
-    console.log('response', res.body);
+    console.log('response btczen', res.body);
     return res.body;
   }
 
@@ -301,7 +313,21 @@ export class LegacyWallet extends AbstractWallet {
     let res = await api.post('/api/v2/send_tx/BTC', {
       body: { tx_hex: txhex },
     });
-    console.log('response', res.body);
+    return res.body;
+  }
+
+  async _broadcastTxSmartbit(txhex) {
+    const api = new Frisbee({
+      baseURI: 'https://api.smartbit.com.au',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    let res = await api.post('/v1/blockchain/pushtx', {
+      body: { hex: txhex },
+    });
     return res.body;
   }
 
@@ -315,7 +341,7 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     let res = await api.post('/v1/btc/main/txs/push', { body: { tx: txhex } });
-    console.log('response', res.body);
+    // console.log('blockcypher response', res);
     return res.body;
   }
 

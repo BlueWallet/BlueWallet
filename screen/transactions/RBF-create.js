@@ -174,7 +174,7 @@ export default class SendCreate extends Component {
       this.setState({ broadcastErrorMessage: '' });
       this.setState({
         broadcastSuccessMessage:
-          'Success! TXID: ' + JSON.stringify(result.result),
+          'Success! TXID: ' + JSON.stringify(result.result || result.txid),
       });
     }
   }
@@ -295,7 +295,7 @@ SendCreate.propTypes = {
         fromAddress: PropTypes.string,
         newDestinationAddress: PropTypes.string,
         txid: PropTypes.string,
-        sourceTx: PropTypes.string,
+        sourceTx: PropTypes.object,
         sourceWallet: PropTypes.object,
       }),
     }),
