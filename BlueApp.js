@@ -6,6 +6,7 @@ import { Amplitude } from 'expo';
 import { Analytics, PageHit } from 'expo-analytics';
 let prompt = require('./prompt');
 let EV = require('./events');
+let currency = require('./currency');
 let loc = require('./loc');
 
 /** @type {AppStorage} */
@@ -72,5 +73,6 @@ analytics.hit(new PageHit('INIT'));
 // .catch(e => console.log(e.message));
 
 startAndDecrypt();
+currency.startUpdater();
 
 module.exports = BlueApp;
