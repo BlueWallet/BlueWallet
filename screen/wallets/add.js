@@ -12,6 +12,8 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
+let A = require('../../analytics');
+/** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
@@ -100,6 +102,7 @@ export default class WalletsAdd extends Component {
                 BlueApp.wallets.push(w);
                 await BlueApp.saveToDisk();
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
+                A(A.ENUM.CREATED_WALLET);
               }, 1);
             }}
           />

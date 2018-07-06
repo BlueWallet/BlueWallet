@@ -16,6 +16,7 @@ let A = function(event) {
 A.ENUM = {
   INIT: 'INIT',
   GOT_NONZERO_BALANCE: 'GOT_NONZERO_BALANCE',
+  CREATED_WALLET: 'CREATED_WALLET',
 };
 
 module.exports = A;
