@@ -115,6 +115,8 @@ export default class ScanQrWif extends React.Component {
           newLegacyWallet.getAddress(),
       );
     } else {
+      await newWallet.fetchBalance();
+      await newWallet.fetchTransactions();
       newWallet.setLabel(loc.wallets.scanQrWif.imported_segwit);
       BlueApp.wallets.push(newWallet);
       alert(
@@ -125,7 +127,7 @@ export default class ScanQrWif extends React.Component {
       );
     }
     await BlueApp.saveToDisk();
-    this.props.navigation.navigate('WalletsList');
+    this.props.navigation.popToTop();
     setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
   } // end
 
@@ -230,6 +232,7 @@ export default class ScanQrWif extends React.Component {
 ScanQrWif.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
+    popToTop: PropTypes.func,
     navigate: PropTypes.func,
   }),
 };
