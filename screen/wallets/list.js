@@ -82,10 +82,9 @@ export default class WalletsList extends Component {
       this.setState({
         isLoading: false,
         isTransactionsLoading: false,
-        showReceiveButton: true,
-        showSendButton: true,
-        showRereshButton: true,
-        final_balance: BlueApp.getBalance(),
+        showReceiveButton: (BlueApp.getWallets().length > 0 && true) || false,
+        showSendButton: (BlueApp.getWallets().length > 0 && true) || false,
+        showRereshButton: (BlueApp.getWallets().length > 0 && true) || false,
         dataSource: ds.cloneWithRows(
           BlueApp.getTransactions(this.lastSnappedTo || 0),
         ),
@@ -121,7 +120,6 @@ export default class WalletsList extends Component {
       showReceiveButton: false,
       showSendButton: false,
       showRereshButton: false,
-      final_balance: BlueApp.getBalance(),
       // TODO: погуглить че это за ебала ds.cloneWithRows, можно ли быстрее сделать прогрузку транзакций на экран
       dataSource: ds.cloneWithRows(BlueApp.getTransactions(index)),
     });
