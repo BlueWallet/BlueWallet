@@ -250,3 +250,16 @@ it('Wallet can fetch balance', async () => {
   assert.ok(w.getUnconfirmedBalance() === 0);
   assert.ok(w._lastBalanceFetch > 0);
 });
+
+describe('currency', () => {
+  it.only('fetches exchange rate and saves to AsyncStorage', async () => {
+    AsyncStorage.storageCache = {}; // cleanup from other tests
+    let currency = require('./currency');
+    await currency.startUpdater(true);
+    let cur = AsyncStorage.storageCache[AppStorage.CURRENCY];
+    cur = JSON.parse(cur);
+    assert.ok(Number.isInteger(cur[currency.STRUCT.LAST_UPDATED]));
+    assert.ok(cur[currency.STRUCT.LAST_UPDATED] > 0);
+    assert.ok(cur[currency.STRUCT.BTC_USD] > 0);
+  });
+});
