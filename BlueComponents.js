@@ -806,7 +806,7 @@ export class WalletsCarousel extends Component {
               color: '#fff',
             }}
           >
-            {item.getBalance()} BTC
+            {loc.formatBalance(item.getBalance())}
           </Text>
           <Text style={{ backgroundColor: 'transparent' }} />
           <Text

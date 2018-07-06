@@ -63,4 +63,11 @@ strings.transactionTimeToReadable = function(time) {
   }
 };
 
+strings.formatBalance = function(balance) {
+  if (balance < 0.1 && balance !== 0) {
+    return balance * 1000 + ' mBTC';
+  }
+  return balance + ' BTC';
+};
+
 module.exports = strings;
