@@ -97,8 +97,11 @@ export class LegacyWallet extends AbstractWallet {
         throw new Error('Could not fetch UTXO from API' + response.err);
       }
 
-      this.balance = json.final_balance / 100000000;
-      this.unconfirmed_balance = json.unconfirmed_balance / 100000000;
+      this.balance = new BigNumber(json.final_balance);
+      this.balance = this.balance.div(100000000).toString() * 1;
+      this.unconfirmed_balance = new BigNumber(json.unconfirmed_balance);
+      this.unconfirmed_balance =
+        this.unconfirmed_balance.div(100000000).toString() * 1;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
       console.warn(err);

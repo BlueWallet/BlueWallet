@@ -2,6 +2,7 @@ import LocalizedStrings from 'react-localization';
 import { AsyncStorage } from 'react-native';
 import { Util } from 'expo';
 import { AppStorage } from '../class';
+let BigNumber = require('bignumber.js');
 let strings;
 
 // first-time loading sequence
@@ -65,7 +66,8 @@ strings.transactionTimeToReadable = function(time) {
 
 strings.formatBalance = function(balance) {
   if (balance < 0.1 && balance !== 0) {
-    return balance * 1000 + ' mBTC';
+    let b = new BigNumber(balance);
+    return b.mul(1000).toString() + ' mBTC';
   }
   return balance + ' BTC';
 };
