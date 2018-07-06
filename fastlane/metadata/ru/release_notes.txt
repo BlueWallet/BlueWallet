@@ -1,6 +1,9 @@
-* redesign
-* New icon
-* analytics
-* refactoring
-* OPS: preparing HD wallets
-* FIX: better input address parsing
+* FIX: ints representation via BigNumber
+* FIX: scan qr when adding wallet
+* FIX: better balance string formatting
+* OPS: prepare for currency conversion
+* FIX: rbf broadcast FIX: wallet list send/receive btns REF
+* ADD: wallets autorefresh
+* FIX: iPad compatibility
+* REF: improved buttons
+* REF: wallets list improvements
