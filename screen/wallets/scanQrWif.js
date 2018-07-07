@@ -1,12 +1,6 @@
 /* global alert */
 import React from 'react';
-import {
-  Text,
-  ActivityIndicator,
-  Button,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { Camera, Permissions } from 'expo';
 import { SegwitP2SHWallet, LegacyWallet } from '../../class';
@@ -46,31 +40,18 @@ export default class ScanQrWif extends React.Component {
         message: loc.wallets.scanQrWif.decoding,
       });
       shold_stop_bip38 = undefined; // eslint-disable-line
-      let password = await prompt(
-        loc.wallets.scanQrWif.input_password,
-        loc.wallets.scanQrWif.password_explain,
-      );
+      let password = await prompt(loc.wallets.scanQrWif.input_password, loc.wallets.scanQrWif.password_explain);
       if (!password) {
         return;
       }
       let that = this;
       try {
-        let decryptedKey = await bip38.decrypt(ret.data, password, function(
-          status,
-        ) {
+        let decryptedKey = await bip38.decrypt(ret.data, password, function(status) {
           that.setState({
-            message:
-              loc.wallets.scanQrWif.decoding +
-              '... ' +
-              status.percent.toString().substr(0, 4) +
-              ' %',
+            message: loc.wallets.scanQrWif.decoding + '... ' + status.percent.toString().substr(0, 4) + ' %',
           });
         });
-        ret.data = wif.encode(
-          0x80,
-          decryptedKey.privateKey,
-          decryptedKey.compressed,
-        );
+        ret.data = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
       } catch (e) {
         console.log(e.message);
         this.setState({ message: false });
@@ -93,10 +74,7 @@ export default class ScanQrWif extends React.Component {
     let newLegacyWallet = new LegacyWallet();
     newLegacyWallet.setSecret(ret.data);
 
-    if (
-      newWallet.getAddress() === false ||
-      newLegacyWallet.getAddress() === false
-    ) {
+    if (newWallet.getAddress() === false || newLegacyWallet.getAddress() === false) {
       alert(loc.wallets.scanQrWif.bad_wif);
       return;
     }
@@ -120,10 +98,7 @@ export default class ScanQrWif extends React.Component {
       newWallet.setLabel(loc.wallets.scanQrWif.imported_segwit);
       BlueApp.wallets.push(newWallet);
       alert(
-        loc.wallets.scanQrWif.imported_wif +
-          ret.data +
-          loc.wallets.scanQrWif.with_address +
-          newWallet.getAddress(),
+        loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newWallet.getAddress(),
       );
     }
     await BlueApp.saveToDisk();
@@ -185,11 +160,7 @@ export default class ScanQrWif extends React.Component {
               );
             } else {
               return (
-                <Camera
-                  style={{ flex: 1 }}
-                  type={this.state.type}
-                  onBarCodeRead={ret => this.onBarCodeRead(ret)}
-                >
+                <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeRead(ret)}>
                   <View
                     style={{
                       flex: 1,

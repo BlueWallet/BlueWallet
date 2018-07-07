@@ -164,9 +164,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
-  let createFakeStorageResult = await Storage2.createFakeStorage(
-    'fakePassword',
-  );
+  let createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
   assert.ok(createFakeStorageResult);
   assert.equal(Storage2.wallets.length, 0);
   assert.equal(Storage2.cachedPassword, 'fakePassword');
@@ -194,8 +192,7 @@ it('bip38 decodes', async () => {
   const bip38 = require('./bip38');
   const wif = require('wif');
 
-  let encryptedKey =
-    '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
+  let encryptedKey = '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
   let decryptedKey = await bip38.decrypt(
     encryptedKey,
     'TestingOneTwoThree',
@@ -218,8 +215,7 @@ it('bip38 decodes slow', async () => {
   const bip38 = require('bip38');
   const wif = require('wif');
 
-  let encryptedKey =
-    '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
+  let encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let decryptedKey = await bip38.decrypt(encryptedKey, 'qwerty', status =>
     process.stdout.write(parseInt(status.percent) + '%\r'),
   );

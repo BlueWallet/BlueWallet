@@ -1,21 +1,12 @@
 /* global it, jasmine */
-import {
-  SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  HDLegacyBreadwalletWallet,
-} from './class';
+import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet } from './class';
 let assert = require('assert');
 
 it('can convert witness to address', () => {
-  let address = SegwitP2SHWallet.witnessToAddress(
-    '035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8',
-  );
+  let address = SegwitP2SHWallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
   assert.equal(address, '34ZVGb3gT8xMLT6fpqC6dNVqJtJmvdjbD7');
 
-  address = SegwitBech32Wallet.witnessToAddress(
-    '035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8',
-  );
+  address = SegwitBech32Wallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
   assert.equal(address, 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
 });
 
@@ -35,10 +26,7 @@ it('can create a BIP49', function() {
   let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
   let addressBytes = bitcoin.crypto.hash160(scriptSig);
   let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-  let address = bitcoin.address.fromOutputScript(
-    outputScript,
-    bitcoin.networks.bitcoin,
-  );
+  let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
 
   assert.equal(address, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
 
@@ -59,19 +47,11 @@ it('can create a BIP49', function() {
 it('HD breadwallet works', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   let hdBread = new HDLegacyBreadwalletWallet();
-  hdBread.setSecret(
-    'high relief amount witness try remember adult destroy puppy fox giant peace',
-  );
+  hdBread.setSecret('high relief amount witness try remember adult destroy puppy fox giant peace');
 
   assert.equal(hdBread.validateMnemonic(), true);
-  assert.equal(
-    hdBread._getExternalAddressByIndex(0),
-    '1ARGkNMdsBE36fJhddSwf8PqBXG3s4d2KU',
-  );
-  assert.equal(
-    hdBread._getInternalAddressByIndex(0),
-    '1JLvA5D7RpWgChb4A5sFcLNrfxYbyZdw3V',
-  );
+  assert.equal(hdBread._getExternalAddressByIndex(0), '1ARGkNMdsBE36fJhddSwf8PqBXG3s4d2KU');
+  assert.equal(hdBread._getInternalAddressByIndex(0), '1JLvA5D7RpWgChb4A5sFcLNrfxYbyZdw3V');
 
   assert.equal(
     hdBread.getXpub(),

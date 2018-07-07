@@ -1,13 +1,7 @@
 import React, { Component } from 'react';
 import { ListView, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  BlueLoading,
-  SafeBlueArea,
-  BlueCard,
-  BlueListItem,
-  BlueHeader,
-} from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueCard, BlueListItem, BlueHeader } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -20,11 +14,7 @@ export default class ReceiveList extends Component {
   static navigationOptions = {
     tabBarLabel: loc.receive.list.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-cash' : 'ios-cash-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
+      <Ionicons name={focused ? 'ios-cash' : 'ios-cash-outline'} size={26} style={{ color: tintColor }} />
     ),
   };
 

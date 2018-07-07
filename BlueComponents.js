@@ -3,25 +3,8 @@ import React, { Component } from 'react';
 import { SafeAreaView } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo';
-import {
-  Icon,
-  Button,
-  FormLabel,
-  FormInput,
-  Card,
-  Text,
-  Header,
-  List,
-  ListItem,
-} from 'react-native-elements';
-import {
-  TouchableOpacity,
-  ActivityIndicator,
-  View,
-  StyleSheet,
-  Dimensions,
-  Image,
-} from 'react-native';
+import { Icon, Button, FormLabel, FormInput, Card, Text, Header, List, ListItem } from 'react-native-elements';
+import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 let loc = require('./loc/');
 /** @type {AppStorage} */
@@ -91,12 +74,7 @@ export class BlueCard extends Component {
 
 export class BlueText extends Component {
   render() {
-    return (
-      <Text
-        {...this.props}
-        style={{ color: BlueApp.settings.foregroundColor }}
-      />
-    );
+    return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor }} />;
   }
 }
 
@@ -123,12 +101,7 @@ export class BlueListItem extends Component {
 
 export class BlueFormLabel extends Component {
   render() {
-    return (
-      <FormLabel
-        {...this.props}
-        labelStyle={{ color: BlueApp.settings.foregroundColor }}
-      />
-    );
+    return <FormLabel {...this.props} labelStyle={{ color: BlueApp.settings.foregroundColor }} />;
   }
 }
 
@@ -215,12 +188,7 @@ export class BlueHeaderDefaultSub extends Component {
           >
             <View style={stylesBlueIcon.box}>
               <View style={stylesBlueIcon.ballTransparrent}>
-                <Icon
-                  name="times"
-                  size={16}
-                  type="font-awesome"
-                  color={BlueApp.settings.foregroundColor}
-                />
+                <Icon name="times" size={16} type="font-awesome" color={BlueApp.settings.foregroundColor} />
               </View>
             </View>
           </TouchableOpacity>
@@ -264,12 +232,7 @@ export class BlueHeaderDefaultMain extends Component {
           >
             <View style={stylesBlueIcon.box}>
               <View style={stylesBlueIcon.ballTransparrent}>
-                <Icon
-                  name="kebab-horizontal"
-                  size={22}
-                  type="octicon"
-                  color={BlueApp.settings.foregroundColor}
-                />
+                <Icon name="kebab-horizontal" size={22} type="octicon" color={BlueApp.settings.foregroundColor} />
               </View>
             </View>
           </TouchableOpacity>
@@ -281,23 +244,13 @@ export class BlueHeaderDefaultMain extends Component {
 
 export class BlueSpacing extends Component {
   render() {
-    return (
-      <View
-        {...this.props}
-        style={{ height: 60, backgroundColor: BlueApp.settings.brandingColor }}
-      />
-    );
+    return <View {...this.props} style={{ height: 60, backgroundColor: BlueApp.settings.brandingColor }} />;
   }
 }
 
 export class BlueSpacing40 extends Component {
   render() {
-    return (
-      <View
-        {...this.props}
-        style={{ height: 50, backgroundColor: BlueApp.settings.brandingColor }}
-      />
-    );
+    return <View {...this.props} style={{ height: 50, backgroundColor: BlueApp.settings.brandingColor }} />;
   }
 }
 
@@ -773,10 +726,7 @@ export class WalletsCarousel extends Component {
           }
         }}
       >
-        <LinearGradient
-          colors={['#65ceef', '#68bbe1']}
-          style={{ padding: 15, borderRadius: 10, height: 145 }}
-        >
+        <LinearGradient colors={['#65ceef', '#68bbe1']} style={{ padding: 15, borderRadius: 10, height: 145 }}>
           <Image
             source={require('./img/btc-shape.png')}
             style={{

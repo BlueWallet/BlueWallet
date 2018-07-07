@@ -79,23 +79,14 @@ export default class WalletDetails extends Component {
       <SafeBlueArea style={{ flex: 1 }}>
         <BlueSpacingVariable />
 
-        <BlueHeaderDefaultSub
-          leftText={loc.wallets.details.title}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.wallets.details.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueFormLabel>{loc.wallets.details.address}:</BlueFormLabel>
-          <BlueFormInputAddress
-            value={this.state.wallet.getAddress()}
-            editable
-          />
+          <BlueFormInputAddress value={this.state.wallet.getAddress()} editable />
 
           <BlueFormLabel>{loc.wallets.details.type}:</BlueFormLabel>
-          <BlueFormInput
-            value={this.state.wallet.getTypeReadable()}
-            editable={false}
-          />
+          <BlueFormInput value={this.state.wallet.getTypeReadable()} editable={false} />
 
           <BlueFormLabel>{loc.wallets.details.label}:</BlueFormLabel>
           <BlueFormInput

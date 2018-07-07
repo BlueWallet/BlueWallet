@@ -39,16 +39,11 @@ export default class About extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub
-          leftText={'about'}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={'about'} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           <ScrollView maxHeight={height - 150}>
-            <BlueText h4>
-              BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.
-            </BlueText>
+            <BlueText h4>BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.</BlueText>
 
             <BlueButton
               icon={{

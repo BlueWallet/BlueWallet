@@ -21,8 +21,7 @@ export default class RBF extends Component {
   constructor(props) {
     super(props);
     let txid;
-    if (props.navigation.state.params)
-      txid = props.navigation.state.params.txid;
+    if (props.navigation.state.params) txid = props.navigation.state.params.txid;
 
     let sourceWallet;
     let sourceTx;
@@ -108,10 +107,7 @@ export default class RBF extends Component {
 
           <BlueText h4>This transaction is not replaceable</BlueText>
 
-          <BlueButton
-            onPress={() => this.props.navigation.goBack()}
-            title="Back"
-          />
+          <BlueButton onPress={() => this.props.navigation.goBack()} title="Back" />
         </SafeBlueArea>
       );
     }
@@ -119,13 +115,8 @@ export default class RBF extends Component {
     if (!this.state.sourceWallet.getAddress) {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <BlueText>
-            System error: Source wallet not found (this should never happen)
-          </BlueText>
-          <BlueButton
-            onPress={() => this.props.navigation.goBack()}
-            title="Back"
-          />
+          <BlueText>System error: Source wallet not found (this should never happen)</BlueText>
+          <BlueButton onPress={() => this.props.navigation.goBack()} title="Back" />
         </SafeBlueArea>
       );
     }
@@ -133,13 +124,9 @@ export default class RBF extends Component {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
-        <BlueCard
-          title={'Replace By Fee'}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
+        <BlueCard title={'Replace By Fee'} style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>
-            RBF allows you to increase fee on already sent but not confirmed
-            transaction, thus speeding up mining
+            RBF allows you to increase fee on already sent but not confirmed transaction, thus speeding up mining
           </BlueText>
           <BlueSpacing20 />
 
@@ -149,9 +136,7 @@ export default class RBF extends Component {
           <BlueSpacing20 />
 
           <BlueFormInput
-            onChangeText={text =>
-              this.setState({ newDestinationAddress: text })
-            }
+            onChangeText={text => this.setState({ newDestinationAddress: text })}
             placeholder={'receiver address here'}
             value={this.state.newDestinationAddress}
           />
@@ -166,17 +151,11 @@ export default class RBF extends Component {
 
         <View style={{ flex: 1, flexDirection: 'row', paddingTop: 20 }}>
           <View style={{ flex: 0.33 }}>
-            <BlueButton
-              onPress={() => this.props.navigation.goBack()}
-              title="Cancel"
-            />
+            <BlueButton onPress={() => this.props.navigation.goBack()} title="Cancel" />
           </View>
           <View style={{ flex: 0.33 }} />
           <View style={{ flex: 0.33 }}>
-            <BlueButton
-              onPress={() => this.createTransaction()}
-              title="Create"
-            />
+            <BlueButton onPress={() => this.createTransaction()} title="Create" />
           </View>
         </View>
       </SafeBlueArea>

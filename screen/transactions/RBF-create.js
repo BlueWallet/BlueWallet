@@ -30,8 +30,7 @@ export default class SendCreate extends Component {
     this.state = {
       isLoading: true,
       feeDelta: props.navigation.state.params.feeDelta,
-      newDestinationAddress:
-        props.navigation.state.params.newDestinationAddress,
+      newDestinationAddress: props.navigation.state.params.newDestinationAddress,
       txid: props.navigation.state.params.txid,
       sourceTx: props.navigation.state.params.sourceTx,
       fromWallet: props.navigation.state.params.sourceWallet,
@@ -90,9 +89,7 @@ export default class SendCreate extends Component {
         transferAmount = transferAmount.div(100000000).toString(10);
       }
     }
-    let oldFee = new BigNumber(
-      totalInputAmountSatoshi - totalOutputAmountSatoshi,
-    );
+    let oldFee = new BigNumber(totalInputAmountSatoshi - totalOutputAmountSatoshi);
     oldFee = parseFloat(oldFee.div(100000000).toString(10));
 
     console.log('changeAddress = ', changeAddress);
@@ -132,10 +129,7 @@ export default class SendCreate extends Component {
         BlueApp.tx_metadata[txid]['txhex'] = tx;
         //
         BlueApp.saveToDisk();
-        console.log(
-          'BlueApp.txMetadata[this.state.txid]',
-          BlueApp.tx_metadata[this.state.txid],
-        );
+        console.log('BlueApp.txMetadata[this.state.txid]', BlueApp.tx_metadata[this.state.txid]);
       } catch (err) {
         console.log(err);
         return this.setState({
@@ -173,8 +167,7 @@ export default class SendCreate extends Component {
     } else {
       this.setState({ broadcastErrorMessage: '' });
       this.setState({
-        broadcastSuccessMessage:
-          'Success! TXID: ' + JSON.stringify(result.result || result.txid),
+        broadcastSuccessMessage: 'Success! TXID: ' + JSON.stringify(result.result || result.txid),
       });
     }
   }
@@ -184,21 +177,11 @@ export default class SendCreate extends Component {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
           <BlueSpacing />
-          <BlueCard
-            title={'Replace Transaction'}
-            style={{ alignItems: 'center', flex: 1 }}
-          >
-            <BlueText>
-              Error creating transaction. Invalid address or send amount?
-            </BlueText>
-            <FormValidationMessage>
-              {this.state.errorMessage}
-            </FormValidationMessage>
+          <BlueCard title={'Replace Transaction'} style={{ alignItems: 'center', flex: 1 }}>
+            <BlueText>Error creating transaction. Invalid address or send amount?</BlueText>
+            <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
           </BlueCard>
-          <BlueButton
-            onPress={() => this.props.navigation.goBack()}
-            title="Go back"
-          />
+          <BlueButton onPress={() => this.props.navigation.goBack()} title="Go back" />
         </SafeBlueArea>
       );
     }
@@ -218,10 +201,7 @@ export default class SendCreate extends Component {
 
           <BlueText h4>This transaction is not replaceable</BlueText>
 
-          <BlueButton
-            onPress={() => this.props.navigation.goBack()}
-            title="Back"
-          />
+          <BlueButton onPress={() => this.props.navigation.goBack()} title="Back" />
         </SafeBlueArea>
       );
     }
@@ -229,14 +209,8 @@ export default class SendCreate extends Component {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
-        <BlueCard
-          title={'Replace Transaction'}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
-          <BlueText>
-            This is transaction hex, signed and ready to be broadcast to the
-            network. Continue?
-          </BlueText>
+        <BlueCard title={'Replace Transaction'} style={{ alignItems: 'center', flex: 1 }}>
+          <BlueText>This is transaction hex, signed and ready to be broadcast to the network. Continue?</BlueText>
 
           <TextInput
             style={{
@@ -253,20 +227,14 @@ export default class SendCreate extends Component {
 
           <BlueSpacing20 />
 
-          <BlueText style={{ paddingTop: 20 }}>
-            To: {this.state.newDestinationAddress}
-          </BlueText>
+          <BlueText style={{ paddingTop: 20 }}>To: {this.state.newDestinationAddress}</BlueText>
           <BlueText>Amount: {this.state.amount} BTC</BlueText>
           <BlueText>Fee: {this.state.fee} BTC</BlueText>
           <BlueText>TX size: {this.state.size} Bytes</BlueText>
           <BlueText>satoshiPerByte: {this.state.satoshiPerByte} Sat/B</BlueText>
         </BlueCard>
 
-        <BlueButton
-          icon={{ name: 'megaphone', type: 'octicon' }}
-          onPress={() => this.broadcast()}
-          title="Broadcast"
-        />
+        <BlueButton icon={{ name: 'megaphone', type: 'octicon' }} onPress={() => this.broadcast()} title="Broadcast" />
 
         <BlueButton
           icon={{ name: 'arrow-left', type: 'octicon' }}
@@ -274,12 +242,8 @@ export default class SendCreate extends Component {
           title="Go back"
         />
 
-        <FormValidationMessage>
-          {this.state.broadcastErrorMessage}
-        </FormValidationMessage>
-        <Text style={{ padding: 20, color: '#080' }}>
-          {this.state.broadcastSuccessMessage}
-        </Text>
+        <FormValidationMessage>{this.state.broadcastErrorMessage}</FormValidationMessage>
+        <Text style={{ padding: 20, color: '#080' }}>{this.state.broadcastSuccessMessage}</Text>
       </SafeBlueArea>
     );
   }

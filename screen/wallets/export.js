@@ -80,10 +80,7 @@ export default class WalletExport extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub
-          leftText={loc.wallets.export.title}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.wallets.export.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>{this.state.wallet.getAddress()}</BlueText>
@@ -93,9 +90,7 @@ export default class WalletExport extends Component {
             bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
-          <BlueText>
-            {this.state.wallet.getSecret()} [Wallet Import Format]
-          </BlueText>
+          <BlueText>{this.state.wallet.getSecret()} [Wallet Import Format]</BlueText>
         </BlueCard>
       </SafeBlueArea>
     );

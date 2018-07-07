@@ -1,12 +1,6 @@
 /* global alert */
 import React from 'react';
-import {
-  Text,
-  ActivityIndicator,
-  Button,
-  View,
-  TouchableOpacity,
-} from 'react-native';
+import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { Camera, Permissions } from 'expo';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -61,11 +55,7 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <View style={{ flex: 1 }}>
-          <Camera
-            style={{ flex: 1 }}
-            type={this.state.type}
-            onBarCodeRead={ret => this.onBarCodeRead(ret)}
-          >
+          <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeRead(ret)}>
             <View
               style={{
                 flex: 1,

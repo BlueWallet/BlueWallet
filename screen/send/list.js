@@ -1,12 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, ActivityIndicator, View, ListView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  SafeBlueArea,
-  BlueCard,
-  BlueListItem,
-  BlueHeader,
-} from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueListItem, BlueHeader } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 /** @type {AppStorage} */
@@ -19,11 +14,7 @@ export default class SendList extends Component {
   static navigationOptions = {
     tabBarLabel: loc.send.list.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'md-paper-plane' : 'md-paper-plane'}
-        size={26}
-        style={{ color: tintColor }}
-      />
+      <Ionicons name={focused ? 'md-paper-plane' : 'md-paper-plane'} size={26} style={{ color: tintColor }} />
     ),
   };
 

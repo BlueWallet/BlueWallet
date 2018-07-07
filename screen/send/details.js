@@ -38,11 +38,9 @@ export default class SendDetails extends Component {
     super(props);
     let startTime = Date.now();
     let address;
-    if (props.navigation.state.params)
-      address = props.navigation.state.params.address;
+    if (props.navigation.state.params) address = props.navigation.state.params.address;
     let fromAddress;
-    if (props.navigation.state.params)
-      fromAddress = props.navigation.state.params.fromAddress;
+    if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
     let fromWallet = {};
 
     let startTime2 = Date.now();
@@ -164,9 +162,7 @@ export default class SendDetails extends Component {
     if (!this.state.fromWallet.getAddress) {
       return (
         <View style={{ flex: 1, paddingTop: 20 }}>
-          <Text>
-            System error: Source wallet not found (this should never happen)
-          </Text>
+          <Text>System error: Source wallet not found (this should never happen)</Text>
         </View>
       );
     }
@@ -180,10 +176,7 @@ export default class SendDetails extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueCard
-          title={loc.send.details.title}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
+        <BlueCard title={loc.send.details.title} style={{ alignItems: 'center', flex: 1 }}>
           <BlueFormInputAddress
             style={{ width: 250 }}
             onChangeText={text => this.setState({ address: text })}
@@ -192,18 +185,14 @@ export default class SendDetails extends Component {
           />
 
           <BlueFormInput
-            onChangeText={text =>
-              this.setState({ amount: text.replace(',', '.') })
-            }
+            onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
             keyboardType={'numeric'}
             placeholder={loc.send.details.amount_placeholder}
             value={this.state.amount + ''}
           />
 
           <BlueFormInput
-            onChangeText={text =>
-              this.setState({ fee: text.replace(',', '.') })
-            }
+            onChangeText={text => this.setState({ fee: text.replace(',', '.') })}
             keyboardType={'numeric'}
             placeholder={loc.send.details.fee_placeholder}
             value={this.state.fee + ''}
@@ -218,11 +207,7 @@ export default class SendDetails extends Component {
           <BlueSpacing20 />
           <BlueText>
             {loc.send.details.remaining_balance}:{' '}
-            {this.recalculateAvailableBalance(
-              this.state.fromWallet.getBalance(),
-              this.state.amount,
-              this.state.fee,
-            )}{' '}
+            {this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, this.state.fee)}{' '}
             BTC
           </BlueText>
         </BlueCard>
@@ -231,10 +216,7 @@ export default class SendDetails extends Component {
 
         <View style={{ flex: 1, flexDirection: 'row' }}>
           <View style={{ flex: 0.33 }}>
-            <BlueButton
-              onPress={() => this.props.navigation.goBack()}
-              title={loc.send.details.cancel}
-            />
+            <BlueButton onPress={() => this.props.navigation.goBack()} title={loc.send.details.cancel} />
           </View>
           <View style={{ flex: 0.33 }}>
             <BlueButton
@@ -249,10 +231,7 @@ export default class SendDetails extends Component {
             />
           </View>
           <View style={{ flex: 0.33 }}>
-            <BlueButton
-              onPress={() => this.createTransaction()}
-              title={loc.send.details.create}
-            />
+            <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
           </View>
         </View>
       </SafeBlueArea>

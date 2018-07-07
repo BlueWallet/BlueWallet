@@ -39,9 +39,7 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     let c;
     for (c = -1; c < 5; c++) {
       let Segwit = new SegwitP2SHWallet();
-      Segwit.setSecret(
-        this._getExternalWIFByIndex(this.next_free_address_index + c),
-      );
+      Segwit.setSecret(this._getExternalWIFByIndex(this.next_free_address_index + c));
       await Segwit.fetchTransactions();
       if (Segwit.transactions.length === 0) {
         // found free address
@@ -53,9 +51,7 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
 
     if (!freeAddress) {
       // could not find in cycle above, give up
-      freeAddress = this._getExternalAddressByIndex(
-        this.next_free_address_index + c,
-      ); // we didnt check this one, maybe its free
+      freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
       this.next_free_address_index += c + 1; // now points to the one _after_
     }
 
@@ -94,10 +90,7 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
     let addressBytes = bitcoin.crypto.hash160(scriptSig);
     let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-    let address = bitcoin.address.fromOutputScript(
-      outputScript,
-      bitcoin.networks.bitcoin,
-    );
+    let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
 
     return address;
   }
@@ -115,10 +108,7 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
     let addressBytes = bitcoin.crypto.hash160(scriptSig);
     let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-    return bitcoin.address.fromOutputScript(
-      outputScript,
-      bitcoin.networks.bitcoin,
-    );
+    return bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
   }
 
   async fetchBalance() {
@@ -141,9 +131,7 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     let offset = 0;
 
     while (1) {
-      let response = await api.get(
-        '/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset,
-      );
+      let response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
 
       if (response && response.body) {
         if (response.body.txs && response.body.txs.length === 0) {
@@ -173,10 +161,7 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
                 }
                 if (path[path.length - 2] === '0') {
                   // main (aka external) address
-                  this.next_free_address_index = Math.max(
-                    path[path.length - 1] * 1 + 1,
-                    this.next_free_address_index,
-                  );
+                  this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
                   // setting to point to last maximum known main address + 1
                 }
                 // done with cache
@@ -201,10 +186,7 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
                 }
                 if (path[path.length - 2] === '0') {
                   // main (aka external) address
-                  this.next_free_address_index = Math.max(
-                    path[path.length - 1] * 1 + 1,
-                    this.next_free_address_index,
-                  );
+                  this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
                   // setting to point to last maximum known main address + 1
                 }
                 // done with cache

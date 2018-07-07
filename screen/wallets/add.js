@@ -53,10 +53,7 @@ export default class WalletsAdd extends Component {
     }
 
     return (
-      <SafeBlueArea
-        forceInset={{ horizontal: 'always' }}
-        style={{ flex: 1, paddingTop: 40 }}
-      >
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         {(() => {
           if (isIpad) {
             return <BlueSpacing40 />;
@@ -64,10 +61,7 @@ export default class WalletsAdd extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub
-          leftText={loc.wallets.add.title}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.wallets.add.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           <BlueText>{loc.wallets.add.description}</BlueText>

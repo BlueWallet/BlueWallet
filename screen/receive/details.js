@@ -70,10 +70,7 @@ export default class ReceiveDetails extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub
-          leftText={loc.receive.list.header}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.receive.list.header} onClose={() => this.props.navigation.goBack()} />
 
         <View
           style={{

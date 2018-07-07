@@ -23,14 +23,8 @@ const appjson = require('./app.json');
 
 const CustomDrawerContentComponent = props => (
   <ScrollView>
-    <SafeAreaView
-      style={styles.container}
-      forceInset={{ top: 'always', horizontal: 'never' }}
-    >
-      <Text
-        onPress={() => props.navigation.navigate('About')}
-        style={styles.heading}
-      >
+    <SafeAreaView style={styles.container} forceInset={{ top: 'always', horizontal: 'never' }}>
+      <Text onPress={() => props.navigation.navigate('About')} style={styles.heading}>
         {' '}
         {pkg.name} v{pkg.version} (build {appjson.expo.ios.buildNumber})
       </Text>

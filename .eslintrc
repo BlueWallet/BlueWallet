@@ -9,6 +9,7 @@
       'warn',
       {
         singleQuote: true,
+        printWidth: 120,
         trailingComma: 'all'
       }
     ]

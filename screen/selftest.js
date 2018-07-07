@@ -20,11 +20,7 @@ export default class Selftest extends Component {
   static navigationOptions = {
     tabBarLabel: 'Self test',
     tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-settings' : 'ios-settings-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
+      <Ionicons name={focused ? 'ios-settings' : 'ios-settings-outline'} size={26} style={{ color: tintColor }} />
     ),
   };
 
@@ -65,8 +61,7 @@ export default class Selftest extends Component {
     // utxos as received from blockcypher
     let utxos = [
       {
-        tx_hash:
-          '2f445cf016fa2772db7d473bff97515355b4e6148e1c980ce351d47cf54c517f',
+        tx_hash: '2f445cf016fa2772db7d473bff97515355b4e6148e1c980ce351d47cf54c517f',
         block_height: 523186,
         tx_input_n: -1,
         tx_output_n: 1,
@@ -101,12 +96,10 @@ export default class Selftest extends Component {
         double_spend: false,
         ref_balance: 300000,
         spent: false,
-        tx_hash:
-          'dc3605040a03724bc584ed43bc22a559f5d32a1b0708ca05b20b9018fdd523ef',
+        tx_hash: 'dc3605040a03724bc584ed43bc22a559f5d32a1b0708ca05b20b9018fdd523ef',
         tx_input_n: -1,
         tx_output_n: 0,
-        txid:
-          'dc3605040a03724bc584ed43bc22a559f5d32a1b0708ca05b20b9018fdd523ef',
+        txid: 'dc3605040a03724bc584ed43bc22a559f5d32a1b0708ca05b20b9018fdd523ef',
         value: 200000,
         vout: 0,
       },
@@ -118,12 +111,10 @@ export default class Selftest extends Component {
         double_spend: false,
         ref_balance: 100000,
         spent: false,
-        tx_hash:
-          'c473c104febfe6621804976d1082a1468c1198d0339e35f30a8ba1515d9eb017',
+        tx_hash: 'c473c104febfe6621804976d1082a1468c1198d0339e35f30a8ba1515d9eb017',
         tx_input_n: -1,
         tx_output_n: 0,
-        txid:
-          'c473c104febfe6621804976d1082a1468c1198d0339e35f30a8ba1515d9eb017',
+        txid: 'c473c104febfe6621804976d1082a1468c1198d0339e35f30a8ba1515d9eb017',
         value: 100000,
         vout: 0,
       },
@@ -160,8 +151,7 @@ export default class Selftest extends Component {
     // utxos as received from blockcypher
     let utxo = [
       {
-        tx_hash:
-          '0f5eea78fb19e72b55bd119252ff29fc16c503d0e956a9c1b5b2ab0e95e0c323',
+        tx_hash: '0f5eea78fb19e72b55bd119252ff29fc16c503d0e956a9c1b5b2ab0e95e0c323',
         block_height: 514991,
         tx_input_n: -1,
         tx_output_n: 2,
@@ -174,20 +164,12 @@ export default class Selftest extends Component {
       },
     ];
 
-    let tx = l.createTx(
-      utxo,
-      0.001,
-      0.0001,
-      '1QHf8Gp3wfmFiSdEX4FtrssCGR68diN1cj',
-    );
+    let tx = l.createTx(utxo, 0.001, 0.0001, '1QHf8Gp3wfmFiSdEX4FtrssCGR68diN1cj');
     let bitcoin = require('bitcoinjs-lib');
     let txDecoded = bitcoin.Transaction.fromHex(tx);
     let txid = txDecoded.getId();
 
-    if (
-      txid !==
-      '110f51d28d585e922adbf701cba802e549b8fe3a53fa5d62426ab42549c9b6de'
-    ) {
+    if (txid !== '110f51d28d585e922adbf701cba802e549b8fe3a53fa5d62426ab42549c9b6de') {
       errorMessage += 'created txid doesnt match; ';
       isOk = false;
     }
@@ -234,10 +216,7 @@ export default class Selftest extends Component {
     let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
     let addressBytes = bitcoin.crypto.hash160(scriptSig);
     let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-    let address = bitcoin.address.fromOutputScript(
-      outputScript,
-      bitcoin.networks.bitcoin,
-    );
+    let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
 
     if (address !== '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK') {
       errorMessage += 'bip49 is not ok; ';
