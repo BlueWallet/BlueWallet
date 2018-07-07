@@ -79,11 +79,20 @@ export default class WalletsList extends Component {
     }
 
     setTimeout(() => {
+      let showSend = false;
+      let showReceive = false;
+      let wallets = BlueApp.getWallets();
+      let wallet = wallets[this.lastSnappedTo || 0];
+      if (wallet) {
+        showSend = wallet.allowSend();
+        showReceive = wallet.allowReceive();
+      }
+
       this.setState({
         isLoading: false,
         isTransactionsLoading: false,
-        showReceiveButton: (BlueApp.getWallets().length > 0 && true) || false,
-        showSendButton: (BlueApp.getWallets().length > 0 && true) || false,
+        showReceiveButton: showReceive,
+        showSendButton: showSend,
         showRereshButton: (BlueApp.getWallets().length > 0 && true) || false,
         dataSource: ds.cloneWithRows(
           BlueApp.getTransactions(this.lastSnappedTo || 0),
@@ -126,11 +135,21 @@ export default class WalletsList extends Component {
 
     if (index < BlueApp.getWallets().length) {
       // do not show for last card
+
+      let showSend = false;
+      let showReceive = false;
+      let wallets = BlueApp.getWallets();
+      let wallet = wallets[this.lastSnappedTo || 0];
+      if (wallet) {
+        showSend = wallet.allowSend();
+        showReceive = wallet.allowReceive();
+      }
+
       setTimeout(
         () =>
           this.setState({
-            showReceiveButton: true,
-            showSendButton: true,
+            showReceiveButton: showReceive,
+            showSendButton: showSend,
             showRereshButton: true,
           }),
         50,
@@ -375,7 +394,7 @@ export default class WalletsList extends Component {
         })()}
 
         {(() => {
-          if (this.state.showReceiveButton) {
+          if (this.state.showSendButton) {
             return (
               <BlueSendButtonIcon
                 onPress={() => {

@@ -30,6 +30,14 @@ export class AbstractWallet {
     return this.balance;
   }
 
+  allowReceive() {
+    return true;
+  }
+
+  allowSend() {
+    return this.getBalance() > 0;
+  }
+
   /**
    * Returns delta of unconfirmed balance. For example, if theres no
    * unconfirmed balance its 0
