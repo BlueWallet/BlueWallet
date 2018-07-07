@@ -19,7 +19,7 @@ it('bip38 decodes', async () => {
 it('bip38 decodes slow', async () => {
   if (process.env.USER === 'burn' || process.env.USER === 'igor') {
     // run only on circleCI
-    // return;
+    return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
   const bip38 = require('bip38');
