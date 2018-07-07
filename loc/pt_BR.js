@@ -9,9 +9,7 @@ module.exports = {
       tabBarLabel: 'Wallets',
       app_name: 'Blue Wallet',
       title: 'Minhas Bitcoin Wallets',
-      header:
-        'Uma wallet representa um par entre um segredo (chave privada) e um endereço' +
-        'que pode partilhar para receber Bitcoin.',
+      header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
       add: 'Adicionar Wallet',
     },
     add: {
@@ -129,8 +127,7 @@ module.exports = {
       'BlueWallet, esta vai abrir um armazenamento "falso". Que vai parecer ' +
       'legítimo a um terceiro, mas que secretamente vai manter o seu armazenamento principal ' +
       'com as moedas em segurança.',
-    help2:
-      'Este novo armazenamento é completamente funcional, e pode guardar ' + 'um valor minímo para parecer mais real.',
+    help2: 'Este novo armazenamento é completamente funcional, e pode guardar ' + 'um valor minímo para parecer mais real.',
     create_fake_storage: 'Criar armazenamento encriptado FALSO',
     go_back: 'Voltar',
     create_password: 'Criar password',

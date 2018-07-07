@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
 import { ScrollView, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  BlueLoading,
-  BlueSpacing20,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueButton,
-  BlueHeader,
-} from '../BlueComponents';
+import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueButton, BlueHeader } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet } from '../class';
 let BlueApp = require('../BlueApp');

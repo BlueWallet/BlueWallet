@@ -71,18 +71,11 @@ export default class CameraExample extends React.Component {
                 }}
                 onPress={() => {
                   this.setState({
-                    type:
-                      this.state.type === Camera.Constants.Type.back
-                        ? Camera.Constants.Type.front
-                        : Camera.Constants.Type.back,
+                    type: this.state.type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back,
                   });
                 }}
               >
-                <Button
-                  style={{ fontSize: 18, marginBottom: 10 }}
-                  title="Go back"
-                  onPress={() => this.props.navigation.goBack()}
-                />
+                <Button style={{ fontSize: 18, marginBottom: 10 }} title="Go back" onPress={() => this.props.navigation.goBack()} />
               </TouchableOpacity>
             </View>
           </Camera>

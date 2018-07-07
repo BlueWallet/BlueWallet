@@ -207,8 +207,7 @@ export default class SendDetails extends Component {
           <BlueSpacing20 />
           <BlueText>
             {loc.send.details.remaining_balance}:{' '}
-            {this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, this.state.fee)}{' '}
-            BTC
+            {this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, this.state.fee)} BTC
           </BlueText>
         </BlueCard>
 

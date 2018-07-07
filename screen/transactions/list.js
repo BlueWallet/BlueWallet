@@ -103,9 +103,7 @@ export default class TransactionsList extends Component {
             text: this.state.final_balance + ' BTC',
             style: { color: BlueApp.settings.foregroundColor, fontSize: 25 },
           }}
-          rightComponent={
-            <Icon name="refresh" color={BlueApp.settings.foregroundColor} onPress={() => this.refresh()} />
-          }
+          rightComponent={<Icon name="refresh" color={BlueApp.settings.foregroundColor} onPress={() => this.refresh()} />}
         />
         <BlueCard title={loc.transactions.list.title}>
           <BlueText style={{ marginBottom: 10 }}>{loc.transactions.list.description}</BlueText>

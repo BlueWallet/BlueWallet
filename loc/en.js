@@ -137,9 +137,7 @@ module.exports = {
       "BlueWallet, it will unlock new 'fake' storage. This will seem " +
       'legit to a 3rd party, but will secretly keep your main storage ' +
       'with coins safe.',
-    help2:
-      'New storage will be fully functional, and you can store some ' +
-      'minimum amounts there so it looks more believable.',
+    help2: 'New storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
     create_fake_storage: 'Create fake encrypted storage',
     go_back: 'Go Back',
     create_password: 'Create a password',

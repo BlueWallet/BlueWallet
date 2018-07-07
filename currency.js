@@ -37,7 +37,7 @@ async function updateExchangeRate() {
   console.log('updated currency exchange:', lang);
 }
 
-async function startUpdater(doNotSetInterval) {
+async function startUpdater() {
   lang = await AsyncStorage.getItem(AppStorage.CURRENCY);
   try {
     lang = JSON.parse(lang);
@@ -52,9 +52,7 @@ async function startUpdater(doNotSetInterval) {
   lang[STRUCT.LAST_UPDATED] = lang[STRUCT.LAST_UPDATED] || 0;
   lang[STRUCT.BTC_USD] = lang[STRUCT.BTC_USD] || 6500;
 
-  if (!doNotSetInterval) {
-    setInterval(() => updateExchangeRate(), 2 * 60 * 100);
-  }
+  setInterval(() => updateExchangeRate(), 2 * 60 * 100);
   return updateExchangeRate();
 }
 

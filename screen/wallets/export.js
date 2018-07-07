@@ -1,14 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode';
-import {
-  BlueSpacing,
-  BlueSpacing40,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-} from '../../BlueComponents';
+import { BlueSpacing, BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');

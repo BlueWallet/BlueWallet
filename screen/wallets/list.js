@@ -293,9 +293,8 @@ export default class WalletsList extends Component {
                             })()}
                             title={loc.transactionTimeToReadable(rowData.received)}
                             subtitle={
-                              (rowData.confirmations < 200
-                                ? loc.transactions.list.conf + ': ' + rowData.confirmations + ' '
-                                : '') + this.txMemo(rowData.hash)
+                              (rowData.confirmations < 200 ? loc.transactions.list.conf + ': ' + rowData.confirmations + ' ' : '') +
+                              this.txMemo(rowData.hash)
                             }
                             onPress={() => {
                               navigate('TransactionDetails', {

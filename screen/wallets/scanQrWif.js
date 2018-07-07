@@ -86,20 +86,13 @@ export default class ScanQrWif extends React.Component {
     if (newLegacyWallet.getBalance()) {
       newLegacyWallet.setLabel(loc.wallets.scanQrWif.imported_legacy);
       BlueApp.wallets.push(newLegacyWallet);
-      alert(
-        loc.wallets.scanQrWif.imported_wif +
-          ret.data +
-          loc.wallets.scanQrWif.with_address +
-          newLegacyWallet.getAddress(),
-      );
+      alert(loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newLegacyWallet.getAddress());
     } else {
       await newWallet.fetchBalance();
       await newWallet.fetchTransactions();
       newWallet.setLabel(loc.wallets.scanQrWif.imported_segwit);
       BlueApp.wallets.push(newWallet);
-      alert(
-        loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newWallet.getAddress(),
-      );
+      alert(loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newWallet.getAddress());
     }
     await BlueApp.saveToDisk();
     this.props.navigation.popToTop();
@@ -176,10 +169,7 @@ export default class ScanQrWif extends React.Component {
                       }}
                       onPress={() => {
                         this.setState({
-                          type:
-                            this.state.type === Camera.Constants.Type.back
-                              ? Camera.Constants.Type.front
-                              : Camera.Constants.Type.back,
+                          type: this.state.type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back,
                         });
                       }}
                     >

@@ -4,9 +4,7 @@ module.exports = {
       tabBarLabel: 'Monederos',
       app_name: 'Blue Wallet',
       title: 'Mi Monederos de Bitcoin',
-      header:
-        'Un Monedero esta representado con secreto (clave privada) y una dirección' +
-        'que puedes compartir para recibir monedas.',
+      header: 'Un Monedero esta representado con secreto (clave privada) y una dirección' + 'que puedes compartir para recibir monedas.',
       add: 'Añadir Monedero',
     },
     add: {
@@ -82,8 +80,7 @@ module.exports = {
       title: 'Crear una Transaccion',
       error: 'Error al crear una transacción. ¿Dirección o cantidad estan invalidas?',
       go_back: 'Regresar',
-      this_is_hex:
-        'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',
+      this_is_hex: 'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',
       to: 'A',
       amount: 'Cantidad',
       fee: 'Tasa',

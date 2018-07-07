@@ -77,10 +77,7 @@ export default class TransactionsDetails extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub
-          leftText={loc.transactions.details.title}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.transactions.details.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           {(() => {

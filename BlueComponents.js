@@ -416,14 +416,7 @@ export class BlueTransactionIncommingIcon extends Component {
       <View {...this.props} style={stylesBlueIcon.container}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
-            <Icon
-              {...this.props}
-              name="arrow-down"
-              size={16}
-              type="font-awesome"
-              color="#37c0a1"
-              iconStyle={{ left: 0, top: 8 }}
-            />
+            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 8 }} />
           </View>
         </View>
       </View>
@@ -458,14 +451,7 @@ export class BlueTransactionOutgoingIcon extends Component {
       <View {...this.props} style={stylesBlueIcon.container}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballOutgoing}>
-            <Icon
-              {...this.props}
-              name="arrow-down"
-              size={16}
-              type="font-awesome"
-              color="#d0021b"
-              iconStyle={{ left: 0, top: 8 }}
-            />
+            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 8 }} />
           </View>
         </View>
       </View>
@@ -509,14 +495,7 @@ export class BlueReceiveButtonIcon extends Component {
                 transform: [{ rotate: '-45deg' }],
               }}
             >
-              <Icon
-                {...this.props}
-                name="arrow-down"
-                size={16}
-                type="font-awesome"
-                color="#2f5fb3"
-                iconStyle={{ left: 0, top: 15 }}
-              />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 0, top: 15 }} />
             </View>
             <Text
               style={{
@@ -573,14 +552,7 @@ export class BlueSendButtonIcon extends Component {
                 transform: [{ rotate: '225deg' }],
               }}
             >
-              <Icon
-                {...this.props}
-                name="arrow-down"
-                size={16}
-                type="font-awesome"
-                color="#2f5fb3"
-                iconStyle={{ left: 0, top: 0 }}
-              />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 0, top: 0 }} />
             </View>
             <Text
               style={{

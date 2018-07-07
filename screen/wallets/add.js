@@ -1,15 +1,7 @@
 import { SegwitP2SHWallet } from '../../class';
 import React, { Component } from 'react';
 import { ActivityIndicator, Dimensions, View } from 'react-native';
-import {
-  BlueSpacing,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-  BlueSpacing40,
-} from '../../BlueComponents';
+import { BlueSpacing, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 let A = require('../../analytics');

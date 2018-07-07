@@ -1,14 +1,6 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import {
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueFormInput,
-  BlueSpacing,
-} from '../../BlueComponents';
+import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueFormInput, BlueSpacing } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -125,9 +117,7 @@ export default class RBF extends Component {
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
         <BlueCard title={'Replace By Fee'} style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText>
-            RBF allows you to increase fee on already sent but not confirmed transaction, thus speeding up mining
-          </BlueText>
+          <BlueText>RBF allows you to increase fee on already sent but not confirmed transaction, thus speeding up mining</BlueText>
           <BlueSpacing20 />
 
           <BlueText>

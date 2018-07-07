@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
-import {
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueSpacing,
-} from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');

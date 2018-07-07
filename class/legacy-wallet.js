@@ -156,11 +156,7 @@ export class LegacyWallet extends AbstractWallet {
       let url;
       if (useBlockcypherTokens) {
         response = await fetch(
-          (url =
-            'https://api.blockcypher.com/v1/btc/main/addrs/' +
-            this.getAddress() +
-            '/full?token=' +
-            this.getRandomBlockcypherToken()),
+          (url = 'https://api.blockcypher.com/v1/btc/main/addrs/' + this.getAddress() + '/full?token=' + this.getRandomBlockcypherToken()),
         );
       } else {
         response = await fetch((url = 'https://api.blockcypher.com/v1/btc/main/addrs/' + this.getAddress() + '/full'));
@@ -351,16 +347,7 @@ export class LegacyWallet extends AbstractWallet {
       u.amount = u.amount.div(100000000);
       u.amount = u.amount.toString(10);
     }
-    console.log(
-      'creating legacy tx ',
-      amount,
-      ' with fee ',
-      fee,
-      'secret=',
-      this.getSecret(),
-      'from address',
-      this.getAddress(),
-    );
+    console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
     let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
     return signer.createTransaction(utxos, toAddress, amountPlusFee, fee, this.getSecret(), this.getAddress());
   }

@@ -2,15 +2,7 @@
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
-import {
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueSpacing,
-} from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 let bitcoinjs = require('bitcoinjs-lib');
@@ -110,14 +102,7 @@ export default class SendCreate extends Component {
       // more responsive
       let tx;
       try {
-        tx = this.state.fromWallet.createTx(
-          utxo,
-          transferAmount,
-          newFee,
-          this.state.newDestinationAddress,
-          false,
-          lastSequence,
-        );
+        tx = this.state.fromWallet.createTx(utxo, transferAmount, newFee, this.state.newDestinationAddress, false, lastSequence);
         BlueApp.tx_metadata[this.state.txid] = txMetadata || {};
         BlueApp.tx_metadata[this.state.txid]['last_sequence'] = lastSequence;
 
@@ -236,11 +221,7 @@ export default class SendCreate extends Component {
 
         <BlueButton icon={{ name: 'megaphone', type: 'octicon' }} onPress={() => this.broadcast()} title="Broadcast" />
 
-        <BlueButton
-          icon={{ name: 'arrow-left', type: 'octicon' }}
-          onPress={() => this.props.navigation.goBack()}
-          title="Go back"
-        />
+        <BlueButton icon={{ name: 'arrow-left', type: 'octicon' }} onPress={() => this.props.navigation.goBack()} title="Go back" />
 
         <FormValidationMessage>{this.state.broadcastErrorMessage}</FormValidationMessage>
         <Text style={{ padding: 20, color: '#080' }}>{this.state.broadcastSuccessMessage}</Text>

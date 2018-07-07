@@ -62,10 +62,7 @@ export default class PlausibleDeniability extends Component {
               }}
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
-                let p1 = await prompt(
-                  loc.plausibledeniability.create_password,
-                  loc.plausibledeniability.create_password_explanation,
-                );
+                let p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
                 if (p1 === BlueApp.cachedPassword) {
                   return alert(loc.plausibledeniability.password_should_not_match);
                 }
