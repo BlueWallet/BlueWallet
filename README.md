@@ -1,6 +1,7 @@
 # BlueWallet - Bitcoin Wallet
 
 [![CircleCI](https://circleci.com/gh/Overtorment/BlueWallet.svg?style=svg)](https://circleci.com/gh/Overtorment/BlueWallet)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 Thin Bitcoin Wallet.
 Built with React Native, Expo and BlockCypher API.
