@@ -4,9 +4,7 @@ module.exports = {
       tabBarLabel: 'Monederos',
       app_name: 'Blue Wallet',
       title: 'Mi Monederos de Bitcoin',
-      header:
-        'Un Monedero esta representado con secreto (clave privada) y una dirección' +
-        'que puedes compartir para recibir monedas.',
+      header: 'Un Monedero esta representado con secreto (clave privada) y una dirección' + 'que puedes compartir para recibir monedas.',
       add: 'Añadir Monedero',
     },
     add: {
@@ -50,8 +48,7 @@ module.exports = {
     list: {
       tabBarLabel: 'Transacciónes',
       title: 'Mi Transacciónes',
-      description:
-        'Una lista de las transacciones entrantes o salientes de sus monederos',
+      description: 'Una lista de las transacciones entrantes o salientes de sus monederos',
       conf: 'conf',
     },
     details: {
@@ -81,11 +78,9 @@ module.exports = {
     },
     create: {
       title: 'Crear una Transaccion',
-      error:
-        'Error al crear una transacción. ¿Dirección o cantidad estan invalidas?',
+      error: 'Error al crear una transacción. ¿Dirección o cantidad estan invalidas?',
       go_back: 'Regresar',
-      this_is_hex:
-        'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',
+      this_is_hex: 'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',
       to: 'A',
       amount: 'Cantidad',
       fee: 'Tasa',
@@ -110,8 +105,7 @@ module.exports = {
     plausible_deniability: 'Negación plausible...',
     storage_not_encrypted: 'Almacenamiento: no esta encriptado',
     password: 'Contraseña',
-    password_explain:
-      'Crea la contraseña que usarás para descifrar el almacenamiento',
+    password_explain: 'Crea la contraseña que usarás para descifrar el almacenamiento',
     retype_password: 'Ingresa la contraseña de nuevo',
     passwords_do_not_match: 'Contraseñas deben ser iguales',
     encrypt_storage: 'Cifrar almacenamiento',

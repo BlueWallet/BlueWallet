@@ -10,6 +10,7 @@ let assert = require('assert');
 jest.mock('react-native-qrcode', () => 'Video');
 const AsyncStorage = new MockStorage();
 jest.setMock('AsyncStorage', AsyncStorage);
+jest.useFakeTimers();
 jest.mock('Picker', () => {
   // eslint-disable-next-line import/no-unresolved
   const React = require('React');
@@ -164,9 +165,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
-  let createFakeStorageResult = await Storage2.createFakeStorage(
-    'fakePassword',
-  );
+  let createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
   assert.ok(createFakeStorageResult);
   assert.equal(Storage2.wallets.length, 0);
   assert.equal(Storage2.cachedPassword, 'fakePassword');
@@ -190,46 +189,6 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.equal(Storage3.wallets[0].getLabel(), 'fakewallet');
 });
 
-it('bip38 decodes', async () => {
-  const bip38 = require('./bip38');
-  const wif = require('wif');
-
-  let encryptedKey =
-    '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
-  let decryptedKey = await bip38.decrypt(
-    encryptedKey,
-    'TestingOneTwoThree',
-    () => {},
-    { N: 1, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
-  );
-
-  assert.equal(
-    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR',
-  );
-});
-
-it('bip38 decodes slow', async () => {
-  if (process.env.USER === 'burn') {
-    // run only on circleCI
-    return;
-  }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-  const bip38 = require('bip38');
-  const wif = require('wif');
-
-  let encryptedKey =
-    '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
-  let decryptedKey = await bip38.decrypt(encryptedKey, 'qwerty', status =>
-    process.stdout.write(parseInt(status.percent) + '%\r'),
-  );
-
-  assert.equal(
-    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
-  );
-});
-
 it('Wallet can fetch UTXO', async () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let w = new SegwitP2SHWallet();
@@ -251,11 +210,20 @@ it('Wallet can fetch balance', async () => {
   assert.ok(w._lastBalanceFetch > 0);
 });
 
+it.skip('Wallet can fetch TXs', async () => {
+  let w = new LegacyWallet();
+  w._address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
+  await w.fetchTransactions();
+  console.log('txs num:', w.getTransactions().length);
+  assert.equal(w.getTransactions().length, 2);
+});
+
 describe('currency', () => {
-  it.only('fetches exchange rate and saves to AsyncStorage', async () => {
+  it('fetches exchange rate and saves to AsyncStorage', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
     AsyncStorage.storageCache = {}; // cleanup from other tests
     let currency = require('./currency');
-    await currency.startUpdater(true);
+    await currency.startUpdater();
     let cur = AsyncStorage.storageCache[AppStorage.CURRENCY];
     cur = JSON.parse(cur);
     assert.ok(Number.isInteger(cur[currency.STRUCT.LAST_UPDATED]));

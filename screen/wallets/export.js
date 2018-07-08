@@ -1,14 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode';
-import {
-  BlueSpacing,
-  BlueSpacing40,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-} from '../../BlueComponents';
+import { BlueSpacing, BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -80,10 +73,7 @@ export default class WalletExport extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub
-          leftText={loc.wallets.export.title}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.wallets.export.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>{this.state.wallet.getAddress()}</BlueText>
@@ -93,9 +83,7 @@ export default class WalletExport extends Component {
             bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
-          <BlueText>
-            {this.state.wallet.getSecret()} [Wallet Import Format]
-          </BlueText>
+          <BlueText>{this.state.wallet.getSecret()} [Wallet Import Format]</BlueText>
         </BlueCard>
       </SafeBlueArea>
     );

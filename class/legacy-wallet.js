@@ -83,25 +83,17 @@ export class LegacyWallet extends AbstractWallet {
       });
 
       let response = await api.get(
-        this.getAddress() +
-          '/balance' +
-          ((useBlockcypherTokens &&
-            '&token=' + this.getRandomBlockcypherToken()) ||
-            ''),
+        this.getAddress() + '/balance' + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
       );
       let json = response.body;
-      if (
-        typeof json === 'undefined' ||
-        typeof json.final_balance === 'undefined'
-      ) {
+      if (typeof json === 'undefined' || typeof json.final_balance === 'undefined') {
         throw new Error('Could not fetch UTXO from API' + response.err);
       }
 
       this.balance = new BigNumber(json.final_balance);
       this.balance = this.balance.div(100000000).toString() * 1;
       this.unconfirmed_balance = new BigNumber(json.unconfirmed_balance);
-      this.unconfirmed_balance =
-        this.unconfirmed_balance.div(100000000).toString() * 1;
+      this.unconfirmed_balance = this.unconfirmed_balance.div(100000000).toString() * 1;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
       console.warn(err);
@@ -129,15 +121,10 @@ export class LegacyWallet extends AbstractWallet {
           this.getAddress() +
             '?limit=2000&after=' +
             maxHeight +
-            ((useBlockcypherTokens &&
-              '&token=' + this.getRandomBlockcypherToken()) ||
-              ''),
+            ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
         );
         json = response.body;
-        if (
-          typeof json === 'undefined' ||
-          typeof json.final_balance === 'undefined'
-        ) {
+        if (typeof json === 'undefined' || typeof json.final_balance === 'undefined') {
           throw new Error('Could not fetch UTXO from API' + response.err);
         }
         json.txrefs = json.txrefs || []; // case when source address is empty (or maxheight too high, no txs)
@@ -169,19 +156,10 @@ export class LegacyWallet extends AbstractWallet {
       let url;
       if (useBlockcypherTokens) {
         response = await fetch(
-          (url =
-            'https://api.blockcypher.com/v1/btc/main/addrs/' +
-            this.getAddress() +
-            '/full?token=' +
-            this.getRandomBlockcypherToken()),
+          (url = 'https://api.blockcypher.com/v1/btc/main/addrs/' + this.getAddress() + '/full?token=' + this.getRandomBlockcypherToken()),
         );
       } else {
-        response = await fetch(
-          (url =
-            'https://api.blockcypher.com/v1/btc/main/addrs/' +
-            this.getAddress() +
-            '/full'),
-        );
+        response = await fetch((url = 'https://api.blockcypher.com/v1/btc/main/addrs/' + this.getAddress() + '/full'));
       }
       console.log(url);
       let json = await response.json();
@@ -369,25 +347,9 @@ export class LegacyWallet extends AbstractWallet {
       u.amount = u.amount.div(100000000);
       u.amount = u.amount.toString(10);
     }
-    console.log(
-      'creating legacy tx ',
-      amount,
-      ' with fee ',
-      fee,
-      'secret=',
-      this.getSecret(),
-      'from address',
-      this.getAddress(),
-    );
+    console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
     let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
-    return signer.createTransaction(
-      utxos,
-      toAddress,
-      amountPlusFee,
-      fee,
-      this.getSecret(),
-      this.getAddress(),
-    );
+    return signer.createTransaction(utxos, toAddress, amountPlusFee, fee, this.getSecret(), this.getAddress());
   }
 
   getLatestTransactionTime() {

@@ -1,14 +1,6 @@
 import React, { Component } from 'react';
 import { ScrollView, Linking, Dimensions } from 'react-native';
-import {
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-} from '../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
@@ -39,16 +31,11 @@ export default class About extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub
-          leftText={'about'}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={'about'} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           <ScrollView maxHeight={height - 150}>
-            <BlueText h4>
-              BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.
-            </BlueText>
+            <BlueText h4>BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.</BlueText>
 
             <BlueButton
               icon={{
@@ -81,9 +68,7 @@ export default class About extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL(
-                  'https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8',
-                );
+                Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
               }}
               title="Leave us a review on Appstore"
             />

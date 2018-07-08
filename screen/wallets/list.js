@@ -94,9 +94,7 @@ export default class WalletsList extends Component {
         showReceiveButton: showReceive,
         showSendButton: showSend,
         showRereshButton: (BlueApp.getWallets().length > 0 && true) || false,
-        dataSource: ds.cloneWithRows(
-          BlueApp.getTransactions(this.lastSnappedTo || 0),
-        ),
+        dataSource: ds.cloneWithRows(BlueApp.getTransactions(this.lastSnappedTo || 0)),
       });
     }, 1);
   }
@@ -179,10 +177,7 @@ export default class WalletsList extends Component {
       if (wallets && wallets[index] && wallets[index].timeToRefresh()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await wallets[index].fetchBalance();
-        if (
-          oldBalance !== wallets[index].getBalance() ||
-          wallets[index].getUnconfirmedBalance() !== 0
-        ) {
+        if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
           console.log('balance changed, thus txs too');
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
@@ -211,10 +206,7 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea>
-        <BlueHeaderDefaultMain
-          leftText={loc.wallets.list.title}
-          onClose={() => navigate('Settings')}
-        />
+        <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onClose={() => navigate('Settings')} />
 
         <WalletsCarousel
           data={BlueApp.getWallets().concat(false)}
@@ -246,11 +238,7 @@ export default class WalletsList extends Component {
                   </Text>
                   {(() => {
                     if (this.state.showRereshButton) {
-                      return (
-                        <BlueRefreshIcon
-                          onPress={() => this.refreshTransactions()}
-                        />
-                      );
+                      return <BlueRefreshIcon onPress={() => this.refreshTransactions()} />;
                     }
                   })()}
                 </View>
@@ -263,10 +251,7 @@ export default class WalletsList extends Component {
                   }}
                 >
                   {(() => {
-                    if (
-                      BlueApp.getTransactions(this.lastSnappedTo || 0)
-                        .length === 0
-                    ) {
+                    if (BlueApp.getTransactions(this.lastSnappedTo || 0).length === 0) {
                       return (
                         <View>
                           <Text
@@ -325,16 +310,10 @@ export default class WalletsList extends Component {
                                 );
                               }
                             })()}
-                            title={loc.transactionTimeToReadable(
-                              rowData.received,
-                            )}
+                            title={loc.transactionTimeToReadable(rowData.received)}
                             subtitle={
-                              (rowData.confirmations < 200
-                                ? loc.transactions.list.conf +
-                                  ': ' +
-                                  rowData.confirmations +
-                                  ' '
-                                : '') + this.txMemo(rowData.hash)
+                              (rowData.confirmations < 200 ? loc.transactions.list.conf + ': ' + rowData.confirmations + ' ' : '') +
+                              this.txMemo(rowData.hash)
                             }
                             onPress={() => {
                               navigate('TransactionDetails', {
@@ -355,10 +334,7 @@ export default class WalletsList extends Component {
                               top: -7,
                               fontWeight: '600',
                               fontSize: 16,
-                              color:
-                                rowData.value / 100000000 < 0
-                                  ? BlueApp.settings.foregroundColor
-                                  : '#37c0a1',
+                              color: rowData.value / 100000000 < 0 ? BlueApp.settings.foregroundColor : '#37c0a1',
                             }}
                           />
                         );

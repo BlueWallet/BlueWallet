@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
-import {
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueSpacing,
-} from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
@@ -56,13 +48,7 @@ export default class SendCreate extends Component {
       utxo = this.state.fromWallet.utxo;
       let startTime = Date.now();
 
-      tx = this.state.fromWallet.createTx(
-        utxo,
-        this.state.amount,
-        this.state.fee,
-        this.state.address,
-        this.state.memo,
-      );
+      tx = this.state.fromWallet.createTx(utxo, this.state.amount, this.state.fee, this.state.address, this.state.memo);
       let endTime = Date.now();
       console.log('create tx ', (endTime - startTime) / 1000, 'sec');
 
@@ -113,8 +99,7 @@ export default class SendCreate extends Component {
     } else {
       this.setState({ broadcastErrorMessage: '' });
       this.setState({
-        broadcastSuccessMessage:
-          'Success! TXID: ' + JSON.stringify(result.result),
+        broadcastSuccessMessage: 'Success! TXID: ' + JSON.stringify(result.result),
       });
     }
   }
@@ -124,19 +109,11 @@ export default class SendCreate extends Component {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
           <BlueSpacing />
-          <BlueCard
-            title={loc.send.create.title}
-            style={{ alignItems: 'center', flex: 1 }}
-          >
+          <BlueCard title={loc.send.create.title} style={{ alignItems: 'center', flex: 1 }}>
             <BlueText>{loc.send.create.error}</BlueText>
-            <FormValidationMessage>
-              {this.state.errorMessage}
-            </FormValidationMessage>
+            <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
           </BlueCard>
-          <BlueButton
-            onPress={() => this.props.navigation.goBack()}
-            title={loc.send.create.go_back}
-          />
+          <BlueButton onPress={() => this.props.navigation.goBack()} title={loc.send.create.go_back} />
         </SafeBlueArea>
       );
     }
@@ -148,10 +125,7 @@ export default class SendCreate extends Component {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
-        <BlueCard
-          title={loc.send.create.title}
-          style={{ alignItems: 'center', flex: 1 }}
-        >
+        <BlueCard title={loc.send.create.title} style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>{loc.send.create.this_is_hex}</BlueText>
 
           <TextInput
@@ -182,8 +156,7 @@ export default class SendCreate extends Component {
             {loc.send.create.tx_size}: {this.state.size} Bytes
           </BlueText>
           <BlueText>
-            {loc.send.create.satoshi_per_byte}: {this.state.satoshiPerByte}{' '}
-            Sat/B
+            {loc.send.create.satoshi_per_byte}: {this.state.satoshiPerByte} Sat/B
           </BlueText>
           <BlueText>
             {loc.send.create.memo}: {this.state.memo}
@@ -210,12 +183,8 @@ export default class SendCreate extends Component {
           title={loc.send.create.go_back}
         />
 
-        <FormValidationMessage>
-          {this.state.broadcastErrorMessage}
-        </FormValidationMessage>
-        <Text style={{ padding: 0, color: '#0f0' }}>
-          {this.state.broadcastSuccessMessage}
-        </Text>
+        <FormValidationMessage>{this.state.broadcastErrorMessage}</FormValidationMessage>
+        <Text style={{ padding: 0, color: '#0f0' }}>{this.state.broadcastSuccessMessage}</Text>
       </SafeBlueArea>
     );
   }

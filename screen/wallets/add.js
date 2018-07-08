@@ -1,15 +1,7 @@
 import { SegwitP2SHWallet } from '../../class';
 import React, { Component } from 'react';
 import { ActivityIndicator, Dimensions, View } from 'react-native';
-import {
-  BlueSpacing,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-  BlueSpacing40,
-} from '../../BlueComponents';
+import { BlueSpacing, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -53,10 +45,7 @@ export default class WalletsAdd extends Component {
     }
 
     return (
-      <SafeBlueArea
-        forceInset={{ horizontal: 'always' }}
-        style={{ flex: 1, paddingTop: 40 }}
-      >
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         {(() => {
           if (isIpad) {
             return <BlueSpacing40 />;
@@ -64,10 +53,7 @@ export default class WalletsAdd extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub
-          leftText={loc.wallets.add.title}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.wallets.add.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           <BlueText>{loc.wallets.add.description}</BlueText>

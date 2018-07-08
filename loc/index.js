@@ -21,13 +21,7 @@ let strings;
       locale = locale.split('-');
       locale = locale[0];
       console.log('current locale:', locale);
-      if (
-        locale === 'en' ||
-        locale === 'ru' ||
-        locale === 'ua' ||
-        locale === 'es' ||
-        locale === 'pt'
-      ) {
+      if (locale === 'en' || locale === 'ru' || locale === 'ua' || locale === 'es' || locale === 'pt') {
         strings.setLanguage(locale);
       } else {
         strings.setLanguage('en');

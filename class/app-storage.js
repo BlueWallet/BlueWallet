@@ -197,9 +197,7 @@ export class AppStorage {
         } else {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
-          newData.push(
-            encryption.encrypt(JSON.stringify(data), this.cachedPassword),
-          );
+          newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
           await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }

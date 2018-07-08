@@ -15,10 +15,7 @@ async function startAndDecrypt(retry) {
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {
     do {
-      password = await prompt(
-        (retry && loc._.bad_password) || loc._.enter_password,
-        loc._.storage_is_encrypted,
-      );
+      password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted);
     } while (!password);
   }
   let success = await BlueApp.loadFromDisk(password);
@@ -35,10 +32,7 @@ async function startAndDecrypt(retry) {
         console.log('time to refresh wallet #0');
         let oldBalance = wallets[0].getBalance();
         await wallets[0].fetchBalance();
-        if (
-          oldBalance !== wallets[0].getBalance() ||
-          wallets[0].getUnconfirmedBalance() !== 0
-        ) {
+        if (oldBalance !== wallets[0].getBalance() || wallets[0].getUnconfirmedBalance() !== 0) {
           // balance changed, thus txs too
           await wallets[0].fetchTransactions();
           hadToRefresh = true;

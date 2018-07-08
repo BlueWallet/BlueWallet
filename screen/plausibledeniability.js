@@ -2,14 +2,7 @@
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {
-  BlueLoading,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeader,
-} from '../BlueComponents';
+import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeader } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
@@ -21,11 +14,7 @@ export default class PlausibleDeniability extends Component {
   static navigationOptions = {
     tabBarLabel: loc.plausibledeniability.title,
     tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-settings' : 'ios-settings-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
+      <Ionicons name={focused ? 'ios-settings' : 'ios-settings-outline'} size={26} style={{ color: tintColor }} />
     ),
   };
 
@@ -73,14 +62,9 @@ export default class PlausibleDeniability extends Component {
               }}
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
-                let p1 = await prompt(
-                  loc.plausibledeniability.create_password,
-                  loc.plausibledeniability.create_password_explanation,
-                );
+                let p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
                 if (p1 === BlueApp.cachedPassword) {
-                  return alert(
-                    loc.plausibledeniability.password_should_not_match,
-                  );
+                  return alert(loc.plausibledeniability.password_should_not_match);
                 }
 
                 if (!p1) {

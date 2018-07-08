@@ -16,17 +16,10 @@ export class SegwitP2SHWallet extends LegacyWallet {
   static witnessToAddress(witness) {
     const pubKey = Buffer.from(witness, 'hex');
     const pubKeyHash = bitcoin.crypto.hash160(pubKey);
-    const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(
-      pubKeyHash,
-    );
+    const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash);
     const redeemScriptHash = bitcoin.crypto.hash160(redeemScript);
-    const scriptPubkey = bitcoin.script.scriptHash.output.encode(
-      redeemScriptHash,
-    );
-    return bitcoin.address.fromOutputScript(
-      scriptPubkey,
-      bitcoin.networks.bitcoin,
-    );
+    const scriptPubkey = bitcoin.script.scriptHash.output.encode(redeemScriptHash);
+    return bitcoin.address.fromOutputScript(scriptPubkey, bitcoin.networks.bitcoin);
   }
 
   getAddress() {
@@ -35,12 +28,8 @@ export class SegwitP2SHWallet extends LegacyWallet {
     try {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
       let pubKey = keyPair.getPublicKeyBuffer();
-      let witnessScript = bitcoin.script.witnessPubKeyHash.output.encode(
-        bitcoin.crypto.hash160(pubKey),
-      );
-      let scriptPubKey = bitcoin.script.scriptHash.output.encode(
-        bitcoin.crypto.hash160(witnessScript),
-      );
+      let witnessScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey));
+      let scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(witnessScript));
       address = bitcoin.address.fromOutputScript(scriptPubKey);
     } catch (err) {
       return false;
@@ -76,26 +65,9 @@ export class SegwitP2SHWallet extends LegacyWallet {
       u.amount = u.amount.div(100000000);
       u.amount = u.amount.toString(10);
     }
-    console.log(
-      'creating tx ',
-      amount,
-      ' with fee ',
-      fee,
-      'secret=',
-      this.getSecret(),
-      'from address',
-      this.getAddress(),
-    );
+    console.log('creating tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
     let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
     // to compensate that module substracts fee from amount
-    return signer.createSegwitTransaction(
-      utxos,
-      address,
-      amountPlusFee,
-      fee,
-      this.getSecret(),
-      this.getAddress(),
-      sequence,
-    );
+    return signer.createSegwitTransaction(utxos, address, amountPlusFee, fee, this.getSecret(), this.getAddress(), sequence);
   }
 }

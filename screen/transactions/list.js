@@ -2,14 +2,7 @@ import React, { Component } from 'react';
 import { ListView, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Header, Icon } from 'react-native-elements';
-import {
-  BlueLoading,
-  BlueList,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueListItem,
-} from '../../BlueComponents';
+import { BlueLoading, BlueList, SafeBlueArea, BlueCard, BlueText, BlueListItem } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let EV = require('../../events');
@@ -23,11 +16,7 @@ export default class TransactionsList extends Component {
   static navigationOptions = {
     tabBarLabel: loc.transactions.list.tabBarLabel,
     tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons
-        name={focused ? 'ios-list-box' : 'ios-list-box-outline'}
-        size={26}
-        style={{ color: tintColor }}
-      />
+      <Ionicons name={focused ? 'ios-list-box' : 'ios-list-box-outline'} size={26} style={{ color: tintColor }} />
     ),
   };
 
@@ -114,18 +103,10 @@ export default class TransactionsList extends Component {
             text: this.state.final_balance + ' BTC',
             style: { color: BlueApp.settings.foregroundColor, fontSize: 25 },
           }}
-          rightComponent={
-            <Icon
-              name="refresh"
-              color={BlueApp.settings.foregroundColor}
-              onPress={() => this.refresh()}
-            />
-          }
+          rightComponent={<Icon name="refresh" color={BlueApp.settings.foregroundColor} onPress={() => this.refresh()} />}
         />
         <BlueCard title={loc.transactions.list.title}>
-          <BlueText style={{ marginBottom: 10 }}>
-            {loc.transactions.list.description}
-          </BlueText>
+          <BlueText style={{ marginBottom: 10 }}>{loc.transactions.list.description}</BlueText>
 
           <BlueList>
             <ListView
@@ -138,25 +119,14 @@ export default class TransactionsList extends Component {
                     avatar={
                       <Icon
                         color={(() => {
-                          return (
-                            (rowData.confirmations &&
-                              ((rowData.value < 0 && '#900') || '#080')) ||
-                            '#ebebeb'
-                          );
+                          return (rowData.confirmations && ((rowData.value < 0 && '#900') || '#080')) || '#ebebeb';
                         })()}
                         name={(() => {
-                          return (
-                            (rowData.value < 0 && 'call-made') ||
-                            'call-received'
-                          );
+                          return (rowData.value < 0 && 'call-made') || 'call-received';
                         })()}
                       />
                     }
-                    title={
-                      rowData.value / 100000000 +
-                      ' BTC' +
-                      this.txMemo(rowData.hash)
-                    }
+                    title={rowData.value / 100000000 + ' BTC' + this.txMemo(rowData.hash)}
                     subtitle={
                       rowData.received
                         .replace(['T'], ' ')

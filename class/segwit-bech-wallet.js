@@ -17,9 +17,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
     try {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
       let pubKey = keyPair.getPublicKeyBuffer();
-      let scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(
-        bitcoin.crypto.hash160(pubKey),
-      );
+      let scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey));
       address = bitcoin.address.fromOutputScript(scriptPubKey);
     } catch (err) {
       return false;
@@ -32,12 +30,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
   static witnessToAddress(witness) {
     const pubKey = Buffer.from(witness, 'hex');
     const pubKeyHash = bitcoin.crypto.hash160(pubKey);
-    const scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(
-      pubKeyHash,
-    );
-    return bitcoin.address.fromOutputScript(
-      scriptPubKey,
-      bitcoin.networks.bitcoin,
-    );
+    const scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash);
+    return bitcoin.address.fromOutputScript(scriptPubKey, bitcoin.networks.bitcoin);
   }
 }

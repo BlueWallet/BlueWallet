@@ -2,14 +2,7 @@
 import React, { Component } from 'react';
 import { ScrollView, View, Picker } from 'react-native';
 import { FormValidationMessage } from 'react-native-elements';
-import {
-  BlueLoading,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-} from '../BlueComponents';
+import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
@@ -43,10 +36,7 @@ export default class Settings extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub
-          leftText={loc.settings.header}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.settings.header} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           <ScrollView maxHeight={450}>
@@ -56,9 +46,7 @@ export default class Settings extends Component {
                   <View>
                     <BlueText>{loc.settings.storage_encrypted}</BlueText>
                     <BlueButton
-                      onPress={() =>
-                        this.props.navigation.navigate('PlausibleDeniability')
-                      }
+                      onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
                       title={loc.settings.plausible_deniability}
                     />
                   </View>
@@ -66,9 +54,7 @@ export default class Settings extends Component {
               } else {
                 return (
                   <View>
-                    <FormValidationMessage>
-                      {loc.settings.storage_not_encrypted}
-                    </FormValidationMessage>
+                    <FormValidationMessage>{loc.settings.storage_not_encrypted}</FormValidationMessage>
                     <BlueButton
                       icon={{
                         name: 'shield',
@@ -77,18 +63,12 @@ export default class Settings extends Component {
                       }}
                       onPress={async () => {
                         this.setState({ isLoading: true });
-                        let p1 = await prompt(
-                          loc.settings.password,
-                          loc.settings.password_explain,
-                        );
+                        let p1 = await prompt(loc.settings.password, loc.settings.password_explain);
                         if (!p1) {
                           this.setState({ isLoading: false });
                           return;
                         }
-                        let p2 = await prompt(
-                          loc.settings.password,
-                          loc.settings.retype_password,
-                        );
+                        let p2 = await prompt(loc.settings.password, loc.settings.retype_password);
                         if (p1 === p2) {
                           await BlueApp.encryptStorage(p1);
                           this.setState({
@@ -107,10 +87,7 @@ export default class Settings extends Component {
               }
             })()}
 
-            <BlueButton
-              onPress={() => this.props.navigation.navigate('About')}
-              title={loc.settings.about}
-            />
+            <BlueButton onPress={() => this.props.navigation.navigate('About')} title={loc.settings.about} />
           </ScrollView>
 
           <Picker
@@ -122,31 +99,11 @@ export default class Settings extends Component {
               return this.setState({ language: itemValue });
             }}
           >
-            <Picker.Item
-              color={BlueApp.settings.foregroundColor}
-              label="English"
-              value="en"
-            />
-            <Picker.Item
-              color={BlueApp.settings.foregroundColor}
-              label="Русский"
-              value="ru"
-            />
-            <Picker.Item
-              color={BlueApp.settings.foregroundColor}
-              label="Українська"
-              value="ua"
-            />
-            <Picker.Item
-              color={BlueApp.settings.foregroundColor}
-              label="Spanish"
-              value="es"
-            />
-            <Picker.Item
-              color={BlueApp.settings.foregroundColor}
-              label="Portuguese"
-              value="pt"
-            />
+            <Picker.Item color={BlueApp.settings.foregroundColor} label="English" value="en" />
+            <Picker.Item color={BlueApp.settings.foregroundColor} label="Русский" value="ru" />
+            <Picker.Item color={BlueApp.settings.foregroundColor} label="Українська" value="ua" />
+            <Picker.Item color={BlueApp.settings.foregroundColor} label="Spanish" value="es" />
+            <Picker.Item color={BlueApp.settings.foregroundColor} label="Portuguese" value="pt" />
           </Picker>
         </BlueCard>
       </SafeBlueArea>

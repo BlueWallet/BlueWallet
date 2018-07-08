@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'O armazenamento está encriptado. Uma password é necessaria para desencriptar',
+    storage_is_encrypted: 'O armazenamento está encriptado. Uma password é necessaria para desencriptar',
     enter_password: 'Inserir password',
     bad_password: 'pasword errada, tentar novamente',
   },
@@ -10,9 +9,7 @@ module.exports = {
       tabBarLabel: 'Wallets',
       app_name: 'Blue Wallet',
       title: 'Minhas Bitcoin Wallets',
-      header:
-        'Uma wallet representa um par entre um segredo (chave privada) e um endereço' +
-        'que pode partilhar para receber Bitcoin.',
+      header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
       add: 'Adicionar Wallet',
     },
     add: {
@@ -56,8 +53,7 @@ module.exports = {
     list: {
       tabBarLabel: 'Transações',
       title: 'Minhas Transações',
-      description:
-        'Uma lista de transações feitas ou recebidas nas suas wallets',
+      description: 'Uma lista de transações feitas ou recebidas nas suas wallets',
       conf: 'conf',
     },
     details: {
@@ -89,8 +85,7 @@ module.exports = {
       title: 'Criar Transacção',
       error: 'Erro ao criar transação. Endereço inválido ou quantia?',
       go_back: 'Voltar',
-      this_is_hex:
-        'Este é o hex da transação, assinado e pronto para ser difundido para a network. Continuar?',
+      this_is_hex: 'Este é o hex da transação, assinado e pronto para ser difundido para a network. Continuar?',
       to: 'Para',
       amount: 'Quantia',
       fee: 'Taxa',
@@ -132,16 +127,12 @@ module.exports = {
       'BlueWallet, esta vai abrir um armazenamento "falso". Que vai parecer ' +
       'legítimo a um terceiro, mas que secretamente vai manter o seu armazenamento principal ' +
       'com as moedas em segurança.',
-    help2:
-      'Este novo armazenamento é completamente funcional, e pode guardar ' +
-      'um valor minímo para parecer mais real.',
+    help2: 'Este novo armazenamento é completamente funcional, e pode guardar ' + 'um valor minímo para parecer mais real.',
     create_fake_storage: 'Criar armazenamento encriptado FALSO',
     go_back: 'Voltar',
     create_password: 'Criar password',
-    create_password_explanation:
-      'Password para armazenamento FALSO não deve coincidir com o principal',
-    password_should_not_match:
-      'Password para armazenamento FALSO não deve coincidir com o principal',
+    create_password_explanation: 'Password para armazenamento FALSO não deve coincidir com o principal',
+    password_should_not_match: 'Password para armazenamento FALSO não deve coincidir com o principal',
     retype_password: 'Inserir password novamente',
     passwords_do_not_match: 'Passwords não coincidem, tente novamente',
     success: 'Sucesso',

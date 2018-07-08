@@ -77,10 +77,7 @@ export default class TransactionsDetails extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub
-          leftText={loc.transactions.details.title}
-          onClose={() => this.props.navigation.goBack()}
-        />
+        <BlueHeaderDefaultSub leftText={loc.transactions.details.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           {(() => {
@@ -88,9 +85,7 @@ export default class TransactionsDetails extends Component {
               if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
                 return (
                   <View>
-                    <BlueText h4>
-                      {BlueApp.tx_metadata[this.state.tx.hash]['memo']}
-                    </BlueText>
+                    <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</BlueText>
                     <BlueSpacing20 />
                   </View>
                 );
@@ -99,14 +94,10 @@ export default class TransactionsDetails extends Component {
           })()}
 
           <BlueText h4>{loc.transactions.details.from}:</BlueText>
-          <BlueText style={{ marginBottom: 10 }}>
-            {this.state.from.join(', ')}
-          </BlueText>
+          <BlueText style={{ marginBottom: 10 }}>{this.state.from.join(', ')}</BlueText>
 
           <BlueText h4>{loc.transactions.details.to}:</BlueText>
-          <BlueText style={{ marginBottom: 10 }}>
-            {this.state.to.join(', ')}
-          </BlueText>
+          <BlueText style={{ marginBottom: 10 }}>{this.state.to.join(', ')}</BlueText>
 
           <BlueText>Txid: {this.state.tx.hash}</BlueText>
           <BlueText>received: {this.state.tx.received}</BlueText>

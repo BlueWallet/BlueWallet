@@ -9,15 +9,7 @@
 let bitcoinjs = require('bitcoinjs-lib');
 const toSatoshi = num => parseInt((num * 100000000).toFixed(0));
 
-exports.createSegwitTransaction = function(
-  utxos,
-  toAddress,
-  amount,
-  fixedFee,
-  WIF,
-  changeAddress,
-  sequence,
-) {
+exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
   changeAddress = changeAddress || exports.WIF2segwitAddress(WIF);
   if (sequence === undefined) {
     sequence = bitcoinjs.Transaction.DEFAULT_SEQUENCE;
@@ -27,9 +19,7 @@ exports.createSegwitTransaction = function(
   let keyPair = bitcoinjs.ECPair.fromWIF(WIF);
   let pubKey = keyPair.getPublicKeyBuffer();
   let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
-  let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    pubKeyHash,
-  );
+  let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(pubKeyHash);
 
   let txb = new bitcoinjs.TransactionBuilder();
   let unspentAmount = 0;
@@ -45,33 +35,18 @@ exports.createSegwitTransaction = function(
   txb.addOutput(toAddress, amountToOutput);
   if (amountToOutput + feeInSatoshis < unspentAmount) {
     // sending less than we have, so the rest should go back
-    txb.addOutput(
-      changeAddress,
-      unspentAmount - amountToOutput - feeInSatoshis,
-    );
+    txb.addOutput(changeAddress, unspentAmount - amountToOutput - feeInSatoshis);
   }
 
   for (let c = 0; c < utxos.length; c++) {
-    txb.sign(
-      c,
-      keyPair,
-      redeemScript,
-      null,
-      parseInt((utxos[c].amount * 100000000).toFixed(0)),
-    );
+    txb.sign(c, keyPair, redeemScript, null, parseInt((utxos[c].amount * 100000000).toFixed(0)));
   }
 
   let tx = txb.build();
   return tx.toHex();
 };
 
-exports.createRBFSegwitTransaction = function(
-  txhex,
-  addressReplaceMap,
-  feeDelta,
-  WIF,
-  utxodata,
-) {
+exports.createRBFSegwitTransaction = function(txhex, addressReplaceMap, feeDelta, WIF, utxodata) {
   if (feeDelta < 0) {
     throw Error('replace-by-fee requires increased fee, not decreased');
   }
@@ -89,11 +64,7 @@ exports.createRBFSegwitTransaction = function(
   // creating TX
   let txb = new bitcoinjs.TransactionBuilder();
   for (let unspent of tx.ins) {
-    txb.addInput(
-      unspent.hash.reverse().toString('hex'),
-      unspent.index,
-      highestSequence + 1,
-    );
+    txb.addInput(unspent.hash.reverse().toString('hex'), unspent.index, highestSequence + 1);
   }
 
   for (let o of tx.outs) {
@@ -113,9 +84,7 @@ exports.createRBFSegwitTransaction = function(
   let keyPair = bitcoinjs.ECPair.fromWIF(WIF);
   let pubKey = keyPair.getPublicKeyBuffer();
   let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
-  let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    pubKeyHash,
-  );
+  let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(pubKeyHash);
   for (let c = 0; c < tx.ins.length; c++) {
     let txid = tx.ins[c].hash.reverse().toString('hex');
     let index = tx.ins[c].index;
@@ -131,12 +100,8 @@ exports.generateNewSegwitAddress = function() {
   let keyPair = bitcoinjs.ECPair.makeRandom();
   let pubKey = keyPair.getPublicKeyBuffer();
 
-  let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    bitcoinjs.crypto.hash160(pubKey),
-  );
-  let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(
-    bitcoinjs.crypto.hash160(witnessScript),
-  );
+  let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(bitcoinjs.crypto.hash160(pubKey));
+  let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(bitcoinjs.crypto.hash160(witnessScript));
   let address = bitcoinjs.address.fromOutputScript(scriptPubKey);
 
   return {
@@ -163,23 +128,12 @@ exports.URI = function(paymentInfo) {
 exports.WIF2segwitAddress = function(WIF) {
   let keyPair = bitcoinjs.ECPair.fromWIF(WIF);
   let pubKey = keyPair.getPublicKeyBuffer();
-  let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(
-    bitcoinjs.crypto.hash160(pubKey),
-  );
-  let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(
-    bitcoinjs.crypto.hash160(witnessScript),
-  );
+  let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(bitcoinjs.crypto.hash160(pubKey));
+  let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(bitcoinjs.crypto.hash160(witnessScript));
   return bitcoinjs.address.fromOutputScript(scriptPubKey);
 };
 
-exports.createTransaction = function(
-  utxos,
-  toAddress,
-  _amount,
-  _fixedFee,
-  WIF,
-  fromAddress,
-) {
+exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
   let fixedFee = toSatoshi(_fixedFee);
   let amountToOutput = toSatoshi(_amount - _fixedFee);
   let pk = bitcoinjs.ECPair.fromWIF(WIF); // eslint-disable-line new-cap
