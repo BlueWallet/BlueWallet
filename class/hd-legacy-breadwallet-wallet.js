@@ -61,7 +61,7 @@ export class HDLegacyBreadwalletWallet extends HDSegwitP2SHWallet {
     let mnemonic = this.secret;
     let seed = bip39.mnemonicToSeed(mnemonic);
     let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = "m/0'/1/" + index;
+    let path = "m/0'/0/" + index;
     let child = root.derivePath(path);
     return child.keyPair.toWIF();
   }
