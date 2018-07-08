@@ -88,7 +88,7 @@ export class HDLegacyP2PKHWallet extends HDSegwitP2SHWallet {
       if (Legacy.transactions.length === 0) {
         // found free address
         freeAddress = Legacy.getAddress();
-        this.next_free_address_index += c + 1; // now points to the one _after_
+        this.next_free_address_index += c; // now points to _this one_
         break;
       }
     }

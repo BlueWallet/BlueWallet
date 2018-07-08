@@ -4,6 +4,7 @@ import Frisbee from 'frisbee';
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
+const b58 = require('bs58check');
 
 /**
  * HD Wallet (BIP39).
@@ -44,13 +45,15 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     let freeAddress = '';
     let c;
     for (c = -1; c < 5; c++) {
+      if (this.next_free_address_index + c < 0) continue;
       let Segwit = new SegwitP2SHWallet();
       Segwit.setSecret(this._getExternalWIFByIndex(this.next_free_address_index + c));
       await Segwit.fetchTransactions();
       if (Segwit.transactions.length === 0) {
         // found free address
         freeAddress = Segwit.getAddress();
-        this.next_free_address_index += c + 1; // now points to the one _after_
+        console.log('found free ', freeAddress, ' with index', this.next_free_address_index + c);
+        this.next_free_address_index += c; // now points to _this one_
         break;
       }
     }
@@ -115,14 +118,27 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     return bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
   }
 
+  /**
+   * Returning ypub actually, not xpub. Keeping same method name
+   * for compatibility.
+   *
+   * @return {String} ypub
+   */
   getXpub() {
+    // first, getting xpub
     let mnemonic = this.secret;
     let seed = bip39.mnemonicToSeed(mnemonic);
     let root = bitcoin.HDNode.fromSeedBuffer(seed);
 
     let path = "m/49'/0'/0'";
     let child = root.derivePath(path).neutered();
-    return child.toBase58();
+    let xpub = child.toBase58();
+
+    // bitcoinjs does not support ypub yet, so we just convert it from xpub
+    let data = b58.decode(xpub);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('049d7cb2', 'hex'), data]);
+    return b58.encode(data);
   }
 
   async fetchBalance() {
