@@ -75,7 +75,7 @@ module.exports = {
   send: {
     list: {
       tabBarLabel: 'Send',
-      header: 'Send',
+      header: 'send',
     },
     details: {
       title: 'Create Transaction',

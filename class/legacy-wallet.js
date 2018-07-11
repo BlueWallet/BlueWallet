@@ -23,6 +23,12 @@ export class LegacyWallet extends AbstractWallet {
     if (+new Date() - this._lastBalanceFetch >= 60 * 1000) {
       return true;
     }
+
+    for (let tx of this.transactions) {
+      if (tx.confirmations < 7) {
+        return true;
+      }
+    }
   }
 
   generate() {
@@ -369,5 +375,14 @@ export class LegacyWallet extends AbstractWallet {
       'f1e5a02b9ec84ec4bc8db2349022e5f5',
       'e5926dbeb57145979153adc41305b183',
     ]);
+  }
+
+  isAddressValid(address) {
+    try {
+      bitcoin.address.toOutputScript(address);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
