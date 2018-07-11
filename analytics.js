@@ -7,10 +7,9 @@ const analytics = new Analytics('UA-121673546-1');
 let A = function(event) {
   console.log('posting analytics event', event);
   Amplitude.logEvent(event);
-  analytics
-    .hit(new PageHit(event))
-    .then(() => console.log('success'))
-    .catch(e => console.log(e.message));
+  analytics.hit(new PageHit(event));
+  // .then(() => console.log('success'))
+  // .catch(e => console.log(e.message));
 };
 
 A.ENUM = {

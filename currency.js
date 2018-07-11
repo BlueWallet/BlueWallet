@@ -34,7 +34,6 @@ async function updateExchangeRate() {
   lang[STRUCT.LAST_UPDATED] = +new Date();
   lang[STRUCT.BTC_USD] = json.last * 1;
   await AsyncStorage.setItem(AppStorage.CURRENCY, JSON.stringify(lang));
-  console.log('updated currency exchange:', lang);
 }
 
 async function startUpdater() {
@@ -43,9 +42,6 @@ async function startUpdater() {
     lang = JSON.parse(lang);
   } catch (Err) {
     lang = {};
-  }
-  if (lang) {
-    console.log('lang is true');
   }
   lang = lang || {};
 
