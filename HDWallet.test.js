@@ -56,10 +56,9 @@ it('can create a Segwit HD (BIP49)', async function() {
     hd.getXpub(),
   );
 
-  // TODO: rewrite fetchTransactions on Frisbee and uncomment:
   // checking that internal pointer and async address getter return the same address
-  // let freeAddress = await hd.getAddressAsync();
-  // assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
+  let freeAddress = await hd.getAddressAsync();
+  assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
 });
 
 it('can create a Legacy HD (BIP44)', async function() {
@@ -98,10 +97,9 @@ it('can create a Legacy HD (BIP44)', async function() {
   assert.equal(hd.next_free_address_index, 1);
   assert.equal(hd.next_free_change_address_index, 1);
 
-  // TODO: rewrite fetchTransactions on Frisbee and uncomment:
   // checking that internal pointer and async address getter return the same address
-  // let freeAddress = await hd.getAddressAsync();
-  // assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
+  let freeAddress = await hd.getAddressAsync();
+  assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
 });
 
 it('HD breadwallet works', async function() {

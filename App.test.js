@@ -210,12 +210,61 @@ it('Wallet can fetch balance', async () => {
   assert.ok(w._lastBalanceFetch > 0);
 });
 
-it.skip('Wallet can fetch TXs', async () => {
+it('Wallet can fetch TXs', async () => {
   let w = new LegacyWallet();
   w._address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
   await w.fetchTransactions();
   console.log('txs num:', w.getTransactions().length);
   assert.equal(w.getTransactions().length, 2);
+
+  let tx0 = w.getTransactions()[0];
+  let txExpected = {
+    block_hash: '0000000000000000000d05c54a592db8532f134e12b4c3ae0821ce582fad3566',
+    block_height: 530933,
+    block_index: 1587,
+    hash: '4924f3a29acdee007ebcf6084d2c9e1752c4eb7f26f7d1a06ef808780bf5fe6d',
+    addresses: ['12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG', '3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'],
+    total: 800,
+    fees: 200,
+    size: 190,
+    preference: 'low',
+    relayed_by: '18.197.135.148:8333',
+    confirmed: '2018-07-07T20:05:30Z',
+    received: '2018-07-07T20:02:01.637Z',
+    ver: 1,
+    double_spend: false,
+    vin_sz: 1,
+    vout_sz: 1,
+    confirmations: 593,
+    confidence: 1,
+    inputs: [
+      {
+        prev_hash: 'd0432027a86119c63a0be8fa453275c2333b59067f1e559389cd3e0e377c8b96',
+        output_index: 1,
+        script:
+          '483045022100e443784abe25b6d39e01c95900834bf4eeaa82505ac0eb84c08e11c287d467de02203327c2b1136f4976f755ed7631b427d66db2278414e7faf1268eedf44c034e0c012103c69b905f7242b3688122f06951339a1ee00da652f6ecc6527ea6632146cace62',
+        output_value: 1000,
+        sequence: 4294967295,
+        addresses: ['12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'],
+        script_type: 'pay-to-pubkey-hash',
+        age: 530926,
+      },
+    ],
+    outputs: [
+      {
+        value: 800,
+        script: 'a914688eb9af71aab8ca221f4e6171a45fc46ea8743b87',
+        spent_by: '009c6219deeac341833642193e4a3b72e511105a61b48e375c5025b1bcbd6fb5',
+        addresses: ['3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'],
+        script_type: 'pay-to-script-hash',
+      },
+    ],
+    value: -1000,
+  };
+
+  delete tx0.confirmations;
+  delete txExpected.confirmations;
+  assert.deepEqual(tx0, txExpected);
 });
 
 describe('currency', () => {
