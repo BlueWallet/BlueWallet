@@ -1,4 +1,3 @@
-/* global fetch */
 import { AbstractWallet } from './abstract-wallet';
 import { SegwitBech32Wallet } from './';
 import { useBlockcypherTokens } from './constants';
@@ -151,20 +150,17 @@ export class LegacyWallet extends AbstractWallet {
    * @return {Promise.<void>}
    */
   async fetchTransactions() {
-    let response;
     try {
-      let url;
-      if (useBlockcypherTokens) {
-        response = await fetch(
-          (url = 'https://api.blockcypher.com/v1/btc/main/addrs/' + this.getAddress() + '/full?token=' + this.getRandomBlockcypherToken()),
-        );
-      } else {
-        response = await fetch((url = 'https://api.blockcypher.com/v1/btc/main/addrs/' + this.getAddress() + '/full'));
-      }
-      console.log(url);
-      let json = await response.json();
-      if (!json.txs) {
-        throw new Error('Could not fetch transactions from API');
+      const api = new Frisbee({
+        baseURI: 'https://api.blockcypher.com/',
+      });
+
+      let response = await api.get(
+        'v1/btc/main/addrs/' + this.getAddress() + '/full' + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
+      );
+      let json = response.body;
+      if (typeof json === 'undefined' || !json.txs) {
+        throw new Error('Could not fetch transactions from API:' + response.err);
       }
 
       this.transactions = json.txs;
