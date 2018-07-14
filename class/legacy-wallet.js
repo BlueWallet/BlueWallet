@@ -92,7 +92,7 @@ export class LegacyWallet extends AbstractWallet {
       );
       let json = response.body;
       if (typeof json === 'undefined' || typeof json.final_balance === 'undefined') {
-        throw new Error('Could not fetch UTXO from API' + response.err);
+        throw new Error('Could not fetch balance from API: ' + response.err + ' ' + JSON.stringify(response.body));
       }
 
       this.balance = new BigNumber(json.final_balance);

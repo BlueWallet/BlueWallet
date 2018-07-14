@@ -1,5 +1,5 @@
 import { AsyncStorage } from 'react-native';
-import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from './';
+import { WatchOnlyWallet, LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from './';
 let encryption = require('../encryption');
 
 export class AppStorage {
@@ -126,6 +126,9 @@ export class AppStorage {
               break;
             case 'segwitP2SH':
               unserializedWallet = SegwitP2SHWallet.fromJson(key);
+              break;
+            case 'watchOnly':
+              unserializedWallet = WatchOnlyWallet.fromJson(key);
               break;
             case 'legacy':
             default:
