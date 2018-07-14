@@ -172,9 +172,10 @@ export default class WalletsList extends Component {
     }
     let oldBalance = wallets[index].getBalance();
     let noErr = true;
+    let didRefresh = false;
 
     try {
-      if (wallets && wallets[index] && wallets[index].timeToRefresh()) {
+      if (wallets && wallets[index] && wallets[index].timeToRefreshBalance()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await wallets[index].fetchBalance();
         if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
@@ -182,6 +183,12 @@ export default class WalletsList extends Component {
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
           this.refreshFunction();
+          didRefresh = true;
+        } else if (wallets[index].timeToRefreshTransaction()) {
+          console.log('got TXs with low confirmations, refreshing');
+          await wallets[index].fetchTransactions();
+          this.refreshFunction();
+          didRefresh = true;
         } else {
           console.log('balance not changed');
         }
@@ -191,8 +198,7 @@ export default class WalletsList extends Component {
       console.warn(Err);
     }
 
-    if (noErr && oldBalance !== wallets[index].getBalance()) {
-      // so we DID refresh
+    if (noErr && didRefresh) {
       await BlueApp.saveToDisk(); // caching
     }
   }

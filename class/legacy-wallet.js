@@ -19,16 +19,32 @@ export class LegacyWallet extends AbstractWallet {
     this._lastBalanceFetch = 0;
   }
 
-  timeToRefresh() {
+  /**
+   * Simple function which says that we havent tried to fetch balance
+   * for a long time
+   *
+   * @return {boolean}
+   */
+  timeToRefreshBalance() {
     if (+new Date() - this._lastBalanceFetch >= 5 * 60 * 1000) {
       return true;
     }
+    return false;
+  }
 
+  /**
+   * Simple function which says if we hve some low-confirmed transactions
+   * and we better fetch them
+   *
+   * @return {boolean}
+   */
+  timeToRefreshTransaction() {
     for (let tx of this.transactions) {
       if (tx.confirmations < 7) {
         return true;
       }
     }
+    return false;
   }
 
   generate() {

@@ -28,7 +28,7 @@ async function startAndDecrypt(retry) {
     let noErr = true;
     try {
       let wallets = BlueApp.getWallets();
-      if (wallets && wallets[0] && wallets[0].timeToRefresh()) {
+      if (wallets && wallets[0] && wallets[0].timeToRefreshBalance()) {
         console.log('time to refresh wallet #0');
         let oldBalance = wallets[0].getBalance();
         await wallets[0].fetchBalance();
