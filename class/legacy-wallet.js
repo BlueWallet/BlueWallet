@@ -20,7 +20,7 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   timeToRefresh() {
-    if (+new Date() - this._lastBalanceFetch >= 60 * 1000) {
+    if (+new Date() - this._lastBalanceFetch >= 5 * 60 * 1000) {
       return true;
     }
 
@@ -88,7 +88,7 @@ export class LegacyWallet extends AbstractWallet {
       });
 
       let response = await api.get(
-        this.getAddress() + '/balance' + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
+        this.getAddress() + '/balance' + ((useBlockcypherTokens && '?token=' + this.getRandomBlockcypherToken()) || ''),
       );
       let json = response.body;
       if (typeof json === 'undefined' || typeof json.final_balance === 'undefined') {
@@ -162,7 +162,7 @@ export class LegacyWallet extends AbstractWallet {
       });
 
       let response = await api.get(
-        'v1/btc/main/addrs/' + this.getAddress() + '/full' + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
+        'v1/btc/main/addrs/' + this.getAddress() + '/full' + ((useBlockcypherTokens && '?token=' + this.getRandomBlockcypherToken()) || ''),
       );
       let json = response.body;
       if (typeof json === 'undefined' || !json.txs) {
