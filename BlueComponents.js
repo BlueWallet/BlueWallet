@@ -20,6 +20,9 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
+    // eslint-disable-next-line
+    this.props.buttonStyle = this.props.buttonStyle || {};
+
     return (
       <Button
         activeOpacity={0.1}
@@ -27,17 +30,117 @@ export class BlueButton extends Component {
         {...this.props}
         style={{
           marginTop: 20,
-          borderRadius: 6,
           borderWidth: 0.7,
           borderColor: 'transparent',
+          borderLeftColor: 'transparent',
         }}
-        borderRadius={10}
-        backgroundColor="#ccddf9"
+        buttonStyle={Object.assign(
+          {
+            backgroundColor: '#ccddf9',
+            height: 45,
+            borderWidth: 0,
+            borderRadius: 25,
+          },
+          this.props.buttonStyle,
+        )}
         color="#0c2550"
       />
     );
   }
-  /* icon={{name: 'home', type: 'octicon'}} */
+}
+
+export class BitcoinButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          // eslint-disable-next-line
+          if (this.props.onPress) this.props.onPress();
+        }}
+      >
+        <View
+          style={{
+            // eslint-disable-next-line
+            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderWidth: 0.5,
+            borderRadius: 5,
+            backgroundColor: '#f5f5f5',
+            // eslint-disable-next-line
+            width: this.props.style.width,
+            // eslint-disable-next-line
+            height: this.props.style.height,
+          }}
+        >
+          <View style={{ paddingTop: 30 }}>
+            <Icon name="btc" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
+            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
+              Bitcoin
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class LightningButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          // eslint-disable-next-line
+          if (this.props.onPress) this.props.onPress();
+        }}
+      >
+        <View
+          style={{
+            // eslint-disable-next-line
+            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderWidth: 0.5,
+            borderRadius: 5,
+            backgroundColor: '#f5f5f5',
+            // eslint-disable-next-line
+            width: this.props.style.width,
+            // eslint-disable-next-line
+            height: this.props.style.height,
+          }}
+        >
+          <View style={{ paddingTop: 30 }}>
+            <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
+            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
+              Lightning
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class BlueButtonLink extends Component {
+  render() {
+    // eslint-disable-next-line
+    this.props.buttonStyle = this.props.buttonStyle || {};
+
+    return (
+      <Button
+        activeOpacity={0.1}
+        delayPressIn={0}
+        {...this.props}
+        style={{
+          marginTop: 20,
+          borderWidth: 0.7,
+          borderColor: 'transparent',
+        }}
+        buttonStyle={{
+          height: 25,
+          width: width / 2,
+        }}
+        backgroundColor="transparent"
+        color="#0c2550"
+      />
+    );
+  }
 }
 
 export class SafeBlueArea extends Component {
@@ -61,6 +164,8 @@ export class BlueCard extends Component {
         containerStyle={{
           backgroundColor: 'transparent',
           borderColor: 'transparent',
+          paddingTop: 0,
+          marginTop: 0,
         }}
         dividerStyle={{
           backgroundColor: 'transparent',
@@ -75,6 +180,11 @@ export class BlueCard extends Component {
 export class BlueText extends Component {
   render() {
     return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor }} />;
+  }
+}
+export class BlueTextCentered extends Component {
+  render() {
+    return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center' }} />;
   }
 }
 
@@ -101,7 +211,7 @@ export class BlueListItem extends Component {
 
 export class BlueFormLabel extends Component {
   render() {
-    return <FormLabel {...this.props} labelStyle={{ color: BlueApp.settings.foregroundColor }} />;
+    return <FormLabel {...this.props} labelStyle={{ color: BlueApp.settings.foregroundColor, fontWeight: '400' }} />;
   }
 }
 
@@ -110,10 +220,14 @@ export class BlueFormInput extends Component {
     return (
       <FormInput
         {...this.props}
-        inputStyle={{ color: BlueApp.settings.foregroundColor }}
+        inputStyle={{ color: '#81868e' }}
         containerStyle={{
-          borderBottomColor: BlueApp.settings.foregroundColor,
+          marginTop: 5,
+          borderColor: '#d2d2d2',
+          borderBottomColor: '#d2d2d2',
+          borderWidth: 0.5,
           borderBottomWidth: 0.5,
+          backgroundColor: '#f5f5f5',
         }}
       />
     );

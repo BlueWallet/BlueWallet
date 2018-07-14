@@ -1,21 +1,27 @@
+/* global alert */
 import { SegwitP2SHWallet } from '../../class';
 import React, { Component } from 'react';
 import { ActivityIndicator, Dimensions, View } from 'react-native';
-import { BlueSpacing, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub, BlueSpacing40 } from '../../BlueComponents';
+import {
+  BlueTextCentered,
+  LightningButton,
+  BitcoinButton,
+  BlueButtonLink,
+  BlueFormLabel,
+  BlueFormInput,
+  BlueSpacingVariable,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueHeaderDefaultSub,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { height, width } = Dimensions.get('window');
-const aspectRatio = height / width;
-let isIpad;
-if (aspectRatio > 1.6) {
-  isIpad = false;
-} else {
-  isIpad = true;
-}
+const { width } = Dimensions.get('window');
 
 export default class WalletsAdd extends Component {
   static navigationOptions = {
@@ -32,7 +38,15 @@ export default class WalletsAdd extends Component {
   async componentDidMount() {
     this.setState({
       isLoading: false,
+      activeBitcoin: true,
+      label: '',
     });
+  }
+
+  setLabel(text) {
+    this.setState({
+      label: text,
+    }); /* also, a hack to make screen update new typed text */
   }
 
   render() {
@@ -46,52 +60,94 @@ export default class WalletsAdd extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          } else {
-            return <BlueSpacing />;
-          }
-        })()}
+        <BlueSpacingVariable />
         <BlueHeaderDefaultSub leftText={loc.wallets.add.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
-          <BlueText>{loc.wallets.add.description}</BlueText>
-
-          <BlueButton
-            large
-            icon={{
-              name: 'qrcode',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            title={loc.wallets.add.scan}
-            onPress={() => {
-              this.props.navigation.navigate('ScanQrWif');
+          <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
+          <BlueFormInput
+            value={this.state.label}
+            placeholder={loc.wallets.add.label_new_segwit}
+            onChangeText={text => {
+              this.setLabel(text);
             }}
           />
 
-          <BlueButton
-            large
-            icon={{
-              name: 'bitcoin',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
+          <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
+
+          <View style={{ flexDirection: 'row', paddingTop: 10, paddingLeft: 20, width: width - 80, borderColor: 'red', borderWidth: 0 }}>
+            <View style={{ width: (width - 60) / 3, height: (width - 60) / 3, backgroundColor: 'transparent' }}>
+              <BitcoinButton
+                active={this.state.activeBitcoin}
+                onPress={() => {
+                  this.setState({
+                    activeBitcoin: true,
+                    activeLightning: false,
+                  });
+                }}
+                style={{
+                  width: (width - 60) / 3,
+                  height: (width - 60) / 3,
+                }}
+                title={loc.wallets.add.create}
+              />
+            </View>
+            <View style={{ top: 40, width: (width - 185) / 3, height: 50, borderColor: 'red', borderWidth: 0 }}>
+              <BlueTextCentered style={{ textAlign: 'center' }}>{loc.wallets.add.or}</BlueTextCentered>
+            </View>
+            <View style={{ width: (width - 60) / 3, height: (width - 60) / 3, position: 'absolute', top: 10, right: 0 }}>
+              <LightningButton
+                active={this.state.activeLightning}
+                onPress={() => {
+                  this.setState({
+                    activeBitcoin: false,
+                    activeLightning: true,
+                  });
+                }}
+                style={{
+                  width: (width - 60) / 3,
+                  height: (width - 60) / 3,
+                }}
+                title={loc.wallets.add.create}
+              />
+            </View>
+          </View>
+
+          <View
+            style={{
+              alignItems: 'center',
             }}
-            title={loc.wallets.add.create}
-            onPress={() => {
-              this.props.navigation.goBack();
-              setTimeout(async () => {
-                let w = new SegwitP2SHWallet();
-                w.setLabel(loc.wallets.add.label_new_segwit);
-                w.generate();
-                BlueApp.wallets.push(w);
-                await BlueApp.saveToDisk();
-                EV(EV.enum.WALLETS_COUNT_CHANGED);
-                A(A.ENUM.CREATED_WALLET);
-              }, 1);
-            }}
-          />
+          >
+            <BlueButton
+              title={loc.wallets.add.create}
+              buttonStyle={{
+                width: width / 1.5,
+              }}
+              onPress={() => {
+                if (this.state.activeLightning) {
+                  return alert('Coming soon');
+                }
+
+                this.props.navigation.goBack();
+                setTimeout(async () => {
+                  let w = new SegwitP2SHWallet();
+                  w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
+                  w.generate();
+                  BlueApp.wallets.push(w);
+                  await BlueApp.saveToDisk();
+                  EV(EV.enum.WALLETS_COUNT_CHANGED);
+                  A(A.ENUM.CREATED_WALLET);
+                }, 1);
+              }}
+            />
+
+            <BlueButtonLink
+              title={loc.wallets.add.import_wallet}
+              onPress={() => {
+                this.props.navigation.navigate('ScanQrWif');
+              }}
+            />
+          </View>
         </BlueCard>
       </SafeBlueArea>
     );

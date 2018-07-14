@@ -29,6 +29,10 @@ module.exports = {
       scan: 'Scan',
       create: 'Create',
       label_new_segwit: 'New SegWit',
+      wallet_name: 'wallet name',
+      wallet_type: 'wallet type',
+      or: 'or',
+      import_wallet: 'Import wallet',
     },
     details: {
       title: 'wallet details',
