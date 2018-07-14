@@ -6,7 +6,7 @@
 Thin Bitcoin Wallet.
 Built with React Native, Expo and BlockCypher API.
 
-[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v1.4.0**
+[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v2.1.0**
 
 Website: [bluewallet.io](http://bluewallet.io)
 
@@ -21,7 +21,7 @@ Discussion thread: https://bitcointalk.org/index.php?topic=2893813
 Beta version, do not use to store large amounts!
 
 
-<img src="https://raw.githubusercontent.com/Overtorment/BlueWallet/master/gif.gif" width="325">
+<img src="https://bluewallet.io/img/bluewallet-big.png" width="460">
 
 
 
