@@ -5,6 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Card, Text, Header, List, ListItem } from 'react-native-elements';
 import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image } from 'react-native';
+import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 let loc = require('./loc/');
 /** @type {AppStorage} */
@@ -802,6 +803,20 @@ export class WalletsCarousel extends Component {
         />
       );
     }
+
+    let gradient1 = '#65ceef';
+    let gradient2 = '#68bbe1';
+
+    if (new WatchOnlyWallet().type === item.type) {
+      gradient1 = '#7d7d7d';
+      gradient2 = '#4a4a4a';
+    }
+
+    if (new LegacyWallet().type === item.type) {
+      gradient1 = '#40fad1';
+      gradient2 = '#15be98';
+    }
+
     return (
       <TouchableOpacity
         activeOpacity={1}
@@ -812,7 +827,7 @@ export class WalletsCarousel extends Component {
           }
         }}
       >
-        <LinearGradient colors={['#65ceef', '#68bbe1']} style={{ padding: 15, borderRadius: 10, height: 145 }}>
+        <LinearGradient colors={[gradient1, gradient2]} style={{ padding: 15, borderRadius: 10, height: 145 }}>
           <Image
             source={require('./img/btc-shape.png')}
             style={{

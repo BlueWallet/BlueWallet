@@ -3,7 +3,7 @@ import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { Camera, Permissions } from 'expo';
-import { SegwitP2SHWallet, LegacyWallet } from '../../class';
+import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -69,6 +69,22 @@ export default class ScanQrWif extends React.Component {
       }
     }
 
+    // is it just address..?
+    let watchOnly = new WatchOnlyWallet();
+    if (watchOnly.isAddressValid(ret.data)) {
+      watchOnly.setSecret(ret.data);
+      watchOnly.setLabel(loc.wallets.scanQrWif.imported_watchonly);
+      BlueApp.wallets.push(watchOnly);
+      alert(loc.wallets.scanQrWif.imported_watchonly + loc.wallets.scanQrWif.with_address + watchOnly.getAddress());
+      await watchOnly.fetchBalance();
+      await watchOnly.fetchTransactions();
+      await BlueApp.saveToDisk();
+      this.props.navigation.popToTop();
+      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+      return;
+    }
+    // nope
+
     let newWallet = new SegwitP2SHWallet();
     newWallet.setSecret(ret.data);
     let newLegacyWallet = new LegacyWallet();
@@ -87,6 +103,7 @@ export default class ScanQrWif extends React.Component {
       newLegacyWallet.setLabel(loc.wallets.scanQrWif.imported_legacy);
       BlueApp.wallets.push(newLegacyWallet);
       alert(loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newLegacyWallet.getAddress());
+      await newLegacyWallet.fetchTransactions();
     } else {
       await newWallet.fetchBalance();
       await newWallet.fetchTransactions();

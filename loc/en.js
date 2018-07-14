@@ -61,6 +61,7 @@ module.exports = {
       with_address: ' with address ',
       imported_segwit: 'Imported SegWit',
       imported_legacy: 'Imported Legacy',
+      imported_watchonly: 'Imported Watch-only',
     },
   },
   transactions: {

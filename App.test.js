@@ -1,6 +1,6 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
-import { LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
+import { WatchOnlyWallet, LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
 import renderer from 'react-test-renderer';
 import Settings from './screen/settings';
 import Selftest from './screen/selftest';
@@ -36,6 +36,15 @@ describe('unit - LegacyWallet', function() {
     assert(key === JSON.stringify(b));
 
     assert.equal(key, JSON.stringify(b));
+  });
+
+  it('can validate addresses', () => {
+    let w = new LegacyWallet();
+    assert.ok(w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
+    assert.ok(!w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2j'));
+    assert.ok(w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'));
+    assert.ok(!w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUo'));
+    assert.ok(!w.isAddressValid('12345'));
   });
 });
 
@@ -214,7 +223,6 @@ it('Wallet can fetch TXs', async () => {
   let w = new LegacyWallet();
   w._address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
   await w.fetchTransactions();
-  console.log('txs num:', w.getTransactions().length);
   assert.equal(w.getTransactions().length, 2);
 
   let tx0 = w.getTransactions()[0];
@@ -278,5 +286,21 @@ describe('currency', () => {
     assert.ok(Number.isInteger(cur[currency.STRUCT.LAST_UPDATED]));
     assert.ok(cur[currency.STRUCT.LAST_UPDATED] > 0);
     assert.ok(cur[currency.STRUCT.BTC_USD] > 0);
+  });
+});
+
+describe('Watch only wallet', () => {
+  it('can fetch balance', async () => {
+    let w = new WatchOnlyWallet();
+    w.setSecret('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
+    await w.fetchBalance();
+    assert.ok(w.getBalance() > 16);
+  });
+
+  it('can fetch tx', async () => {
+    let w = new WatchOnlyWallet();
+    w.setSecret('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
+    await w.fetchTransactions();
+    assert.equal(w.getTransactions().length, 2);
   });
 });
