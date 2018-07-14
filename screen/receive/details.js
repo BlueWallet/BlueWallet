@@ -72,6 +72,17 @@ export default class ReceiveDetails extends Component {
         })()}
         <BlueHeaderDefaultSub leftText={loc.receive.list.header} onClose={() => this.props.navigation.goBack()} />
 
+        <BlueCard
+          containerStyle={{
+            alignItems: 'center',
+            flex: 1,
+            borderColor: 'red',
+            borderWidth: 7,
+          }}
+        >
+          <BlueFormInputAddress editable value={this.state.address} />
+        </BlueCard>
+
         <View
           style={{
             left: (width - ((isIpad && 250) || 312)) / 2,
@@ -84,17 +95,6 @@ export default class ReceiveDetails extends Component {
             fgColor={BlueApp.settings.brandingColor}
           />
         </View>
-
-        <BlueCard
-          containerStyle={{
-            alignItems: 'center',
-            flex: 1,
-            borderColor: 'red',
-            borderWidth: 7,
-          }}
-        >
-          <BlueFormInputAddress editable value={this.state.address} />
-        </BlueCard>
       </SafeBlueArea>
     );
   }
