@@ -1,0 +1,12 @@
+--- a/node_modules/bitcoinjs-lib/src/transaction.js    	2018-07-18 00:17:03.540824839 +0100
++++ b/node_modules/bitcoinjs-lib/src/transaction.js	2018-07-18 00:24:55.840803782 +0100
+@@ -408,7 +408,8 @@
+ 
+ Transaction.prototype.getId = function () {
+   // transaction hash's are displayed in reverse order
+-  return this.getHash().reverse().toString('hex')
++  var bufferReverse = require('buffer-reverse')
++  return bufferReverse(this.getHash()).toString('hex')
+ }
+ 
+ Transaction.prototype.toBuffer = function (buffer, initialOffset) {

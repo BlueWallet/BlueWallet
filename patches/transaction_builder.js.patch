@@ -1,0 +1,12 @@
+--- a/node_modules/bitcoinjs-lib/src/transaction_builder.js    	2018-07-18 00:09:22.924845375 +0100
++++ b/node_modules/bitcoinjs-lib/src/transaction_builder.js	2018-07-18 00:14:20.996832086 +0100
+@@ -536,7 +536,8 @@
+   // is it a hex string?
+   if (typeof txHash === 'string') {
+     // transaction hashs's are displayed in reverse order, un-reverse it
+-    txHash = Buffer.from(txHash, 'hex').reverse()
++    var bufferReverse = require('buffer-reverse')
++    txHash = bufferReverse(new Buffer(txHash, 'hex'))
+ 
+   // is it a Transaction object?
+   } else if (txHash instanceof Transaction) {
