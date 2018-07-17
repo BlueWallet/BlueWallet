@@ -1,10 +1,20 @@
 import React, { Component } from 'react';
+import { Constants } from 'expo';
 import { ScrollView, Linking, Dimensions } from 'react-native';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../BlueComponents';
+import {
+  BlueTextCentered,
+  BlueLoading,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueHeaderDefaultSub,
+} from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
-const { height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default class About extends Component {
   static navigationOptions = {
@@ -34,7 +44,7 @@ export default class About extends Component {
         <BlueHeaderDefaultSub leftText={'about'} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
-          <ScrollView maxHeight={height - 150}>
+          <ScrollView maxHeight={height - 100}>
             <BlueText h4>BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.</BlueText>
 
             <BlueButton
@@ -93,6 +103,13 @@ export default class About extends Component {
               }}
               title="Run self test"
             />
+            <BlueTextCentered />
+            <BlueTextCentered>
+              w, h = {width}, {height}
+            </BlueTextCentered>
+            <BlueTextCentered>
+              {Constants.platform.ios.model} ({Constants.platform.ios.platform})
+            </BlueTextCentered>
           </ScrollView>
         </BlueCard>
       </SafeBlueArea>

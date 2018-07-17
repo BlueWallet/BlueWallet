@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { SafeAreaView } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { LinearGradient } from 'expo';
+import { LinearGradient, Constants } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Card, Text, Header, List, ListItem } from 'react-native-elements';
 import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image } from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
@@ -221,7 +221,7 @@ export class BlueFormInput extends Component {
     return (
       <FormInput
         {...this.props}
-        inputStyle={{ color: '#81868e' }}
+        inputStyle={{ color: BlueApp.settings.foregroundColor }}
         containerStyle={{
           marginTop: 5,
           borderColor: '#d2d2d2',
@@ -242,11 +242,15 @@ export class BlueFormInputAddress extends Component {
         {...this.props}
         inputStyle={{
           color: BlueApp.settings.foregroundColor,
-          fontSize: (isIpad && 10) || 12,
+          fontSize: (isIpad && 10) || ((is.iphone8() && 12) || 14),
         }}
         containerStyle={{
-          borderBottomColor: BlueApp.settings.foregroundColor,
+          marginTop: 5,
+          borderColor: '#d2d2d2',
+          borderBottomColor: '#d2d2d2',
+          borderWidth: 0.5,
           borderBottomWidth: 0.5,
+          backgroundColor: '#f5f5f5',
         }}
       />
     );
@@ -382,6 +386,10 @@ export class BlueSpacingVariable extends Component {
 export class is {
   static ipad() {
     return isIpad;
+  }
+
+  static iphone8() {
+    return Constants.platform.ios.platform === 'iPhone10,4';
   }
 }
 
