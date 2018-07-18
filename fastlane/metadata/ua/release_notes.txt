@@ -1,9 +1,11 @@
-* FIX: ints representation via BigNumber
-* FIX: scan qr when adding wallet
-* FIX: better balance string formatting
-* OPS: prepare for currency conversion
-* FIX: rbf broadcast FIX: wallet list send/receive btns REF
-* ADD: wallets autorefresh
-* FIX: iPad compatibility
-* REF: improved buttons
-* REF: wallets list improvements
+* FIX: better iPad support
+* FIX: better iphone8 support
+* WIP: lightning
+* FIX: better transaction list refresh
+* ADD: Watch-only addresses
+* FIX: api limits
+* FIX: receive screen - cant copypaste address because of keyboard
+* REF: Reworked AddWallet screen
+* FIX: cosmetic changes
+* FIX: ypub for BIP49 HD (segwit)
+* REF: send/receive btns
