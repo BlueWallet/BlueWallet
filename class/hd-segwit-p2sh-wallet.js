@@ -1,4 +1,4 @@
-import { LegacyWallet } from './legacy-wallet';
+import { AbstractHDWallet } from './abstract-hd-wallet';
 import { SegwitP2SHWallet } from './segwit-p2sh-wallet';
 import Frisbee from 'frisbee';
 const bitcoin = require('bitcoinjs-lib');
@@ -11,26 +11,38 @@ const b58 = require('bs58check');
  * In particular, BIP49 (P2SH Segwit)
  * @see https://github.com/bitcoin/bips/blob/master/bip-0049.mediawiki
  */
-export class HDSegwitP2SHWallet extends LegacyWallet {
+export class HDSegwitP2SHWallet extends AbstractHDWallet {
   constructor() {
     super();
     this.type = 'HDsegwitP2SH';
-    this.next_free_address_index = 0;
-    this.next_free_change_address_index = 0;
-    this.internal_addresses_cache = {}; // index => address
-    this.external_addresses_cache = {}; // index => address
-  }
-
-  allowSend() {
-    return false; // TODO send from HD
-  }
-
-  validateMnemonic() {
-    return bip39.validateMnemonic(this.secret);
+    this.usedAddresses = [];
   }
 
   getTypeReadable() {
     return 'HD SegWit (BIP49 P2SH)';
+  }
+
+  async fetchBalance() {
+    try {
+      const api = new Frisbee({ baseURI: 'https://www.blockonomics.co' });
+      let response = await api.post('/api/balance', { body: JSON.stringify({ addr: this.getXpub() }) });
+      // console.log(response);
+
+      if (response && response.body && response.body.response) {
+        this.balance = 0;
+        this.unconfirmed_balance = 0;
+        this.usedAddresses = [];
+        for (let addr of response.body.response) {
+          this.balance += addr.confirmed;
+          this.unconfirmed_balance += addr.unconfirmed;
+          this.usedAddresses.push(addr.addr);
+        }
+        this.balance = new BigNumber(this.balance).div(100000000).toString() * 1;
+        this.unconfirmed_balance = new BigNumber(this.unconfirmed_balance).div(100000000).toString() * 1;
+      }
+    } catch (err) {
+      console.warn(err);
+    }
   }
 
   /**
@@ -141,35 +153,20 @@ export class HDSegwitP2SHWallet extends LegacyWallet {
     return b58.encode(data);
   }
 
-  async fetchBalance() {
-    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-
-    let response = await api.get('/balance?active=' + this.getXpub());
-
-    if (response && response.body) {
-      for (let xpub of Object.keys(response.body)) {
-        this.balance = response.body[xpub].final_balance / 100000000;
-      }
-    } else {
-      throw new Error('Could not fetch balance from API');
-    }
-  }
-
-  /**
-   * Async function to fetch all transactions. Use getter to get actual txs.
-   * Also, sets internals:
-   *  `this.internal_addresses_cache`
-   *  `this.external_addresses_cache`
-   *
-   * @returns {Promise<void>}
-   */
   async fetchTransactions() {
+    if (this.usedAddresses.length === 0) {
+      // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
+      await this.fetchBalance();
+    }
+
+    let addresses = this.usedAddresses.join('|');
+
     const api = new Frisbee({ baseURI: 'https://blockchain.info' });
     this.transactions = [];
     let offset = 0;
 
     while (1) {
-      let response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
+      let response = await api.get('/multiaddr?active=' + addresses + '&n=100&offset=' + offset);
 
       if (response && response.body) {
         if (response.body.txs && response.body.txs.length === 0) {

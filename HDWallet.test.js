@@ -18,6 +18,7 @@ it('can convert witness to address', () => {
 });
 
 it('can create a Segwit HD (BIP49)', async function() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
   let bip39 = require('bip39');
   let bitcoin = require('bitcoinjs-lib');
   let mnemonic =
@@ -50,6 +51,12 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.equal('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei', hd._getInternalAddressByIndex(0));
   assert.equal(true, hd.validateMnemonic());
 
+  await hd.fetchBalance();
+  assert.equal(hd.getBalance(), 0);
+
+  await hd.fetchTransactions();
+  assert.equal(hd.transactions.length, 2);
+
   assert.equal(child.keyPair.toWIF(), hd._getExternalWIFByIndex(0));
   assert.equal(
     'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp',
@@ -59,6 +66,30 @@ it('can create a Segwit HD (BIP49)', async function() {
   // checking that internal pointer and async address getter return the same address
   let freeAddress = await hd.getAddressAsync();
   assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
+});
+
+it('can work with malformed mnemonic', () => {
+  let mnemonic =
+    'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
+  let hd = new HDSegwitP2SHWallet();
+  hd.setSecret(mnemonic);
+  let seed1 = hd.getMnemonicToSeedHex();
+  assert.ok(hd.validateMnemonic());
+
+  mnemonic = 'hell';
+  hd = new HDSegwitP2SHWallet();
+  hd.setSecret(mnemonic);
+  assert.ok(!hd.validateMnemonic());
+
+  // now, malformed mnemonic
+
+  mnemonic =
+    '    honey  risk   juice    trip     orient      galaxy win !situate ;; shoot   ;;;   anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode ';
+  hd = new HDSegwitP2SHWallet();
+  hd.setSecret(mnemonic);
+  let seed2 = hd.getMnemonicToSeedHex();
+  assert.equal(seed1, seed2);
+  assert.ok(hd.validateMnemonic());
 });
 
 it('can create a Legacy HD (BIP44)', async function() {
@@ -123,4 +154,8 @@ it('HD breadwallet works', async function() {
 
   assert.equal(hdBread.next_free_address_index, 10);
   assert.equal(hdBread.next_free_change_address_index, 118);
+
+  // checking that internal pointer and async address getter return the same address
+  let freeAddress = await hdBread.getAddressAsync();
+  assert.equal(hdBread._getExternalAddressByIndex(hdBread.next_free_address_index), freeAddress);
 });

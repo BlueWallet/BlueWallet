@@ -58,7 +58,7 @@ export class AbstractWallet {
   }
 
   setSecret(newSecret) {
-    this.secret = newSecret;
+    this.secret = newSecret.trim();
     return this;
   }
 

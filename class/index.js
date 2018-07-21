@@ -9,3 +9,4 @@ export * from './hd-legacy-breadwallet-wallet';
 export * from './hd-legacy-p2pkh-wallet';
 export * from './watch-only-wallet';
 export * from './lightning-custodian-wallet';
+export * from './abstract-hd-wallet';

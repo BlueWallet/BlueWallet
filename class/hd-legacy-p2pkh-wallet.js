@@ -1,4 +1,5 @@
-import { LegacyWallet, HDSegwitP2SHWallet } from './';
+import { LegacyWallet } from './';
+import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 
@@ -7,7 +8,7 @@ const bip39 = require('bip39');
  * In particular, BIP44 (P2PKH legacy addressess)
  * @see https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
-export class HDLegacyP2PKHWallet extends HDSegwitP2SHWallet {
+export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   constructor() {
     super();
     this.type = 'HDlegacyP2PKH';

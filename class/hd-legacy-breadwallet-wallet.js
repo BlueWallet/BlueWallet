@@ -1,4 +1,5 @@
-import { HDSegwitP2SHWallet } from './';
+import { LegacyWallet } from './';
+import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 
@@ -6,7 +7,7 @@ const bip39 = require('bip39');
  * HD Wallet (BIP39).
  * In particular, Breadwallet-compatible (Legacy addresses)
  */
-export class HDLegacyBreadwalletWallet extends HDSegwitP2SHWallet {
+export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
   constructor() {
     super();
     this.type = 'HDLegacyBreadwallet';
@@ -76,7 +77,31 @@ export class HDLegacyBreadwalletWallet extends HDSegwitP2SHWallet {
     return child.keyPair.toWIF();
   }
 
-  getAddressAsync() {
-    // TODO
+  /**
+   * @inheritDoc
+   */
+  async getAddressAsync() {
+    // looking for free external address
+    let freeAddress = '';
+    let c;
+    for (c = -1; c < 5; c++) {
+      let Legacy = new LegacyWallet();
+      Legacy.setSecret(this._getExternalWIFByIndex(this.next_free_address_index + c));
+      await Legacy.fetchTransactions();
+      if (Legacy.transactions.length === 0) {
+        // found free address
+        freeAddress = Legacy.getAddress();
+        this.next_free_address_index += c; // now points to _this one_
+        break;
+      }
+    }
+
+    if (!freeAddress) {
+      // could not find in cycle above, give up
+      freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
+      this.next_free_address_index += c + 1; // now points to the one _after_
+    }
+
+    return freeAddress;
   }
 }
