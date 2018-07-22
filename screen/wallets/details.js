@@ -27,12 +27,13 @@ export default class WalletDetails extends Component {
     super(props);
 
     let address = props.navigation.state.params.address;
+    let secret = props.navigation.state.params.secret;
 
     /**  @type {AbstractWallet}   */
     let wallet;
 
     for (let w of BlueApp.getWallets()) {
-      if (w.getAddress() === address) {
+      if ((address && w.getAddress() === address) || w.getSecret() === secret) {
         // found our wallet
         wallet = w;
       }
@@ -82,8 +83,16 @@ export default class WalletDetails extends Component {
         <BlueHeaderDefaultSub leftText={loc.wallets.details.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <BlueFormLabel>{loc.wallets.details.address}:</BlueFormLabel>
-          <BlueFormInputAddress value={this.state.wallet.getAddress()} editable />
+          {(() => {
+            if (this.state.wallet.getAddress()) {
+              return (
+                <View>
+                  <BlueFormLabel>{loc.wallets.details.address}:</BlueFormLabel>
+                  <BlueFormInputAddress value={this.state.wallet.getAddress()} editable />
+                </View>
+              );
+            }
+          })()}
 
           <BlueFormLabel>{loc.wallets.details.type}:</BlueFormLabel>
           <BlueFormInput value={this.state.wallet.getTypeReadable()} editable={false} />
@@ -155,6 +164,7 @@ export default class WalletDetails extends Component {
                         onPress={() =>
                           this.props.navigation.navigate('WalletExport', {
                             address: this.state.wallet.getAddress(),
+                            secret: this.state.wallet.getSecret(),
                           })
                         }
                         title={loc.wallets.details.export_backup}
@@ -176,6 +186,7 @@ WalletDetails.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
+        secret: PropTypes.string,
       }),
     }),
     navigate: PropTypes.func,

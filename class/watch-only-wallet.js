@@ -1,4 +1,5 @@
 import { LegacyWallet } from './legacy-wallet';
+const bitcoin = require('bitcoinjs-lib');
 
 export class WatchOnlyWallet extends LegacyWallet {
   constructor() {
@@ -20,5 +21,14 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   createTx(utxos, amount, fee, toAddress, memo) {
     throw new Error('Not supported');
+  }
+
+  valid() {
+    try {
+      bitcoin.address.toOutputScript(this.getAddress());
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }

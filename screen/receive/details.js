@@ -7,22 +7,15 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueHeaderDefaultSub,
-  BlueSpacing,
-  BlueSpacing40,
+  BlueSpacingVariable,
+  is,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-let EV = require('../../events');
-const { height, width } = Dimensions.get('window');
-const aspectRatio = height / width;
-let isIpad;
-if (aspectRatio > 1.6) {
-  isIpad = false;
-} else {
-  isIpad = true;
-}
+// let EV = require('../../events');
+const { width } = Dimensions.get('window');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
@@ -32,44 +25,63 @@ export default class ReceiveDetails extends Component {
   constructor(props) {
     super(props);
     let address = props.navigation.state.params.address;
+    let secret = props.navigation.state.params.secret;
+
     this.state = {
       isLoading: true,
       address: address,
+      secret: secret,
     };
-    console.log(JSON.stringify(address));
 
-    EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.refreshFunction.bind(this));
+    // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.refreshFunction.bind(this));
   }
 
-  refreshFunction(newAddress) {
+  /*  refreshFunction(newAddress) {
     console.log('newAddress =', newAddress);
     this.setState({
       address: newAddress,
     });
-  }
+  } */
 
   async componentDidMount() {
     console.log('receive/details - componentDidMount');
-    this.setState({
-      isLoading: false,
-    });
+
+    /**  @type {AbstractWallet}   */
+    let wallet;
+    let address = this.state.address;
+    for (let w of BlueApp.getWallets()) {
+      if ((address && w.getAddress() === this.state.address) || w.getSecret() === this.state.secret) {
+        // found our wallet
+        wallet = w;
+      }
+    }
+
+    if (wallet && wallet.getAddressAsync) {
+      setTimeout(async () => {
+        address = await wallet.getAddressAsync();
+        BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+        this.setState({
+          address: address,
+          isLoading: false,
+        });
+      }, 1);
+    } else {
+      this.setState({
+        isLoading: false,
+        address,
+      });
+    }
   }
 
   render() {
-    console.log('render() receive/details, address=', this.state.address);
+    console.log('render() receive/details, address,secret=', this.state.address, ',', this.state.secret);
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          } else {
-            return <BlueSpacing />;
-          }
-        })()}
+        <BlueSpacingVariable />
         <BlueHeaderDefaultSub leftText={loc.receive.list.header} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard
@@ -85,12 +97,12 @@ export default class ReceiveDetails extends Component {
 
         <View
           style={{
-            left: (width - ((isIpad && 250) || 312)) / 2,
+            left: (width - ((is.ipad() && 250) || 312)) / 2,
           }}
         >
           <QRCode
             value={this.state.address}
-            size={(isIpad && 250) || 312}
+            size={(is.ipad() && 250) || 312}
             bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
@@ -106,6 +118,7 @@ ReceiveDetails.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
+        secret: PropTypes.string,
       }),
     }),
   }),

@@ -2,6 +2,7 @@ import { StackNavigator } from 'react-navigation';
 
 import WalletsList from './wallets/list';
 import AddWallet from './wallets/add';
+import ImportWallet from './wallets/import';
 import WalletDetails from './wallets/details';
 import WalletExport from './wallets/export';
 import scanQrWif from './wallets/scanQrWif';
@@ -23,6 +24,9 @@ const WalletsNavigator = StackNavigator(
     },
     AddWallet: {
       screen: AddWallet,
+    },
+    ImportWallet: {
+      screen: ImportWallet,
     },
     ScanQrWif: {
       screen: scanQrWif,

@@ -1,0 +1,254 @@
+/* global alert */
+import {
+  SegwitP2SHWallet,
+  LegacyWallet,
+  WatchOnlyWallet,
+  HDLegacyBreadwalletWallet,
+  HDSegwitP2SHWallet,
+  HDLegacyP2PKHWallet,
+} from '../../class';
+import React, { Component } from 'react';
+import { KeyboardAvoidingView, ActivityIndicator, Dimensions, View } from 'react-native';
+import {
+  BlueFormMultiInput,
+  BlueButtonLink,
+  BlueFormLabel,
+  BlueSpacingVariable,
+  BlueButton,
+  SafeBlueArea,
+  BlueHeaderDefaultSub,
+} from '../../BlueComponents';
+import PropTypes from 'prop-types';
+let EV = require('../../events');
+let A = require('../../analytics');
+/** @type {AppStorage} */
+let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
+const { width } = Dimensions.get('window');
+
+export default class WalletsImport extends Component {
+  static navigationOptions = {
+    tabBarVisible: false,
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+    };
+  }
+
+  async componentDidMount() {
+    this.setState({
+      isLoading: false,
+      label: '',
+    });
+  }
+
+  async _saveWallet(w) {
+    alert('Success');
+    // await w.fetchTransactions();
+    w.setLabel(loc.wallets.add.imported + ' ' + w.getTypeReadable());
+    BlueApp.wallets.push(w);
+    await BlueApp.saveToDisk();
+    EV(EV.enum.WALLETS_COUNT_CHANGED);
+    A(A.ENUM.CREATED_WALLET);
+    setTimeout(() => {
+      this.props.navigation.popToTop();
+    }, 500);
+  }
+
+  async importMnemonic(text) {
+    try {
+      let segwitWallet = new SegwitP2SHWallet();
+      segwitWallet.setSecret(text);
+      if (segwitWallet.getAddress()) {
+        // ok its a valid WIF
+
+        let legacyWallet = new LegacyWallet();
+        legacyWallet.setSecret(text);
+
+        await legacyWallet.fetchBalance();
+        if (legacyWallet.getBalance() > 0) {
+          // yep, its legacy we're importing
+          await legacyWallet.fetchTransactions();
+          return this._saveWallet(legacyWallet);
+        } else {
+          // by default, we import wif as Segwit P2SH
+          await segwitWallet.fetchBalance();
+          await segwitWallet.fetchTransactions();
+          return this._saveWallet(segwitWallet);
+        }
+      }
+
+      // if we're here - nope, its not a valid WIF
+
+      let hd1 = new HDLegacyBreadwalletWallet();
+      hd1.setSecret(text);
+      if (hd1.validateMnemonic()) {
+        await hd1.fetchBalance();
+        if (hd1.getBalance() > 0) {
+          await hd1.fetchTransactions();
+          return this._saveWallet(hd1);
+        }
+      }
+
+      let hd2 = new HDSegwitP2SHWallet();
+      hd2.setSecret(text);
+      if (hd2.validateMnemonic()) {
+        await hd2.fetchBalance();
+        if (hd2.getBalance() > 0) {
+          await hd2.fetchTransactions();
+          return this._saveWallet(hd2);
+        }
+      }
+
+      let hd3 = new HDLegacyP2PKHWallet();
+      hd3.setSecret(text);
+      if (hd3.validateMnemonic()) {
+        await hd3.fetchBalance();
+        if (hd3.getBalance() > 0) {
+          await hd3.fetchTransactions();
+          return this._saveWallet(hd3);
+        }
+      }
+
+      // no balances? how about transactions count?
+
+      if (hd1.validateMnemonic()) {
+        await hd1.fetchTransactions();
+        if (hd1.getTransactions().length !== 0) {
+          return this._saveWallet(hd1);
+        }
+      }
+      if (hd2.validateMnemonic()) {
+        await hd2.fetchTransactions();
+        if (hd2.getTransactions().length !== 0) {
+          return this._saveWallet(hd2);
+        }
+      }
+      if (hd3.validateMnemonic()) {
+        await hd3.fetchTransactions();
+        if (hd3.getTransactions().length !== 0) {
+          return this._saveWallet(hd3);
+        }
+      }
+
+      // is it even valid? if yes we will import as:
+      if (hd2.validateMnemonic()) {
+        return this._saveWallet(hd2);
+      }
+
+      // not valid? maybe its a watch-only address?
+
+      let watchOnly = new WatchOnlyWallet();
+      watchOnly.setSecret(text);
+      if (watchOnly.valid()) {
+        await watchOnly.fetchTransactions();
+        await watchOnly.fetchBalance();
+        return this._saveWallet(watchOnly);
+      }
+
+      // nope?
+
+      // TODO: try a raw private key
+    } catch (Err) {
+      console.warn(Err);
+    }
+
+    alert('Error');
+
+    // TODO:
+    // 1. check if its HDSegwitP2SHWallet (BIP49)
+    // 2. check if its HDLegacyP2PKHWallet (BIP44)
+    // 3. check if its HDLegacyBreadwalletWallet (no BIP, just "m/0")
+    // 4. check if its Segwit WIF (P2SH)
+    // 5. check if its Legacy WIF
+    // 6. check if its address (watch-only wallet)
+    // 7. check if its private key (segwit address P2SH)
+    // 7. check if its private key (legacy address)
+
+    // this.props.navigation.goBack();
+
+    /* let w = new SegwitP2SHWallet();
+    w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
+    w.generate();
+    BlueApp.wallets.push(w);
+    BlueApp.saveToDisk();
+    EV(EV.enum.WALLETS_COUNT_CHANGED);
+    A(A.ENUM.CREATED_WALLET); */
+  }
+
+  setLabel(text) {
+    this.setState({
+      label: text,
+    }); /* also, a hack to make screen update new typed text */
+  }
+
+  render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+
+    return (
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
+        <KeyboardAvoidingView behavior="position" enabled>
+          <BlueSpacingVariable />
+          <BlueHeaderDefaultSub leftText={'Import'} onClose={() => this.props.navigation.goBack()} />
+
+          <BlueFormLabel>
+            Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do it's best to guess the correct format and
+            import your wallet
+          </BlueFormLabel>
+          <BlueFormMultiInput
+            value={this.state.label}
+            placeholder={''}
+            onChangeText={text => {
+              this.setLabel(text);
+            }}
+          />
+
+          <View
+            style={{
+              alignItems: 'center',
+            }}
+          >
+            <BlueButton
+              title={'Import'}
+              buttonStyle={{
+                width: width / 1.5,
+              }}
+              onPress={async () => {
+                if (!this.state.label) {
+                  return;
+                }
+                this.setState({ isLoading: true });
+                await this.importMnemonic(this.state.label.trim());
+                this.setState({ isLoading: false });
+              }}
+            />
+
+            <BlueButtonLink
+              title={'or scan QR code instead?'}
+              onPress={() => {
+                this.props.navigation.navigate('ScanQrWif');
+              }}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </SafeBlueArea>
+    );
+  }
+}
+
+WalletsImport.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+    popToTop: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+};

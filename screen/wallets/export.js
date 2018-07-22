@@ -24,10 +24,11 @@ export default class WalletExport extends Component {
     super(props);
 
     let address = props.navigation.state.params.address;
+    let secret = props.navigation.state.params.secret;
     let wallet;
 
     for (let w of BlueApp.getWallets()) {
-      if (w.getAddress() === address) {
+      if ((address && w.getAddress() === address) || w.getSecret() === secret) {
         // found our wallet
         wallet = w;
       }
@@ -76,7 +77,15 @@ export default class WalletExport extends Component {
         <BlueHeaderDefaultSub leftText={loc.wallets.export.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText>{this.state.wallet.getAddress()}</BlueText>
+          {(() => {
+            if (this.state.wallet.getAddress()) {
+              return (
+                <View>
+                  <BlueText>{this.state.wallet.getAddress()}</BlueText>
+                </View>
+              );
+            }
+          })()}
           <QRCode
             value={this.state.wallet.getSecret()}
             size={312}
@@ -95,6 +104,7 @@ WalletExport.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
+        secret: PropTypes.string,
       }),
     }),
     navigate: PropTypes.func,

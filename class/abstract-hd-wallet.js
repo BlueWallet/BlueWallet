@@ -1,7 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
+import { WatchOnlyWallet } from './watch-only-wallet';
 const bip39 = require('bip39');
-const BigNumber = require('bignumber.js');
 
 export class AbstractHDWallet extends LegacyWallet {
   constructor() {
@@ -11,14 +11,63 @@ export class AbstractHDWallet extends LegacyWallet {
     this.next_free_change_address_index = 0;
     this.internal_addresses_cache = {}; // index => address
     this.external_addresses_cache = {}; // index => address
+    this._xpub = ''; // cache
   }
 
   allowSend() {
     return false; // TODO send from HD
   }
 
+  getTransactions() {
+    // need to reformat txs, as we are expected to return them in blockcypher format,
+    // but they are from blockchain.info actually (for all hd wallets)
+
+    let txs = [];
+    for (let tx of this.transactions) {
+      txs.push(AbstractHDWallet.convertTx(tx));
+    }
+
+    return txs;
+  }
+
+  static convertTx(tx) {
+    // console.log('converting', tx);
+    var clone = Object.assign({}, tx);
+    clone.received = new Date(clone.time * 1000).toISOString();
+    clone.confirmations = (clone.block_height && 7) || 0;
+    clone.outputs = clone.out;
+    for (let o of clone.outputs) {
+      o.addresses = [o.addr];
+    }
+    for (let i of clone.inputs) {
+      if (i.prev_out && i.prev_out.addr) {
+        i.addresses = [i.prev_out.addr];
+      }
+    }
+
+    if (!clone.value) {
+      let value = 0;
+      for (let inp of clone.inputs) {
+        if (inp.prev_out && inp.prev_out.xpub) {
+          // our owned
+          value -= inp.prev_out.value;
+        }
+      }
+
+      for (let out of clone.out) {
+        if (out.xpub) {
+          // to us
+          value += out.value;
+        }
+      }
+      clone.value = value;
+    }
+
+    return clone;
+  }
+
   setSecret(newSecret) {
-    this.secret = newSecret.trim();
+    this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     return this;
   }
@@ -32,7 +81,7 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   getTypeReadable() {
-    return 'HD SegWit (BIP49 P2SH)';
+    throw new Error('Not implemented');
   }
 
   /**
@@ -43,7 +92,40 @@ export class AbstractHDWallet extends LegacyWallet {
    * @return {Promise.<string>}
    */
   async getAddressAsync() {
-    throw new Error('Not implemented');
+    // looking for free external address
+    let freeAddress = '';
+    let c;
+    for (c = -1; c < 5; c++) {
+      if (this.next_free_address_index + c < 0) continue;
+      let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
+      let WatchWallet = new WatchOnlyWallet();
+      WatchWallet.setSecret(address);
+      await WatchWallet.fetchTransactions();
+      if (WatchWallet.transactions.length === 0) {
+        // found free address
+        freeAddress = WatchWallet.getAddress();
+        this.next_free_address_index += c; // now points to _this one_
+        break;
+      }
+    }
+
+    if (!freeAddress) {
+      // could not find in cycle above, give up
+      freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
+      this.next_free_address_index += c + 1; // now points to the one _after_
+    }
+
+    return freeAddress;
+  }
+
+  /**
+   * Should not be used in HD wallets
+   *
+   * @deprecated
+   * @return {string}
+   */
+  getAddress() {
+    return '';
   }
 
   _getExternalWIFByIndex(index) {
@@ -66,17 +148,25 @@ export class AbstractHDWallet extends LegacyWallet {
     throw new Error('Not implemented');
   }
 
+  /**
+   * @inheritDoc
+   */
   async fetchBalance() {
-    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+    try {
+      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
 
-    let response = await api.get('/balance?active=' + this.getXpub());
+      let response = await api.get('/balance?active=' + this.getXpub());
 
-    if (response && response.body) {
-      for (let xpub of Object.keys(response.body)) {
-        this.balance = response.body[xpub].final_balance / 100000000;
+      if (response && response.body) {
+        for (let xpub of Object.keys(response.body)) {
+          this.balance = response.body[xpub].final_balance / 100000000;
+        }
+        this._lastBalanceFetch = +new Date();
+      } else {
+        throw new Error('Could not fetch balance from API: ' + response.err);
       }
-    } else {
-      throw new Error('Could not fetch balance from API');
+    } catch (err) {
+      console.warn(err);
     }
   }
 
@@ -89,79 +179,88 @@ export class AbstractHDWallet extends LegacyWallet {
    * @returns {Promise<void>}
    */
   async fetchTransactions() {
-    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-    this.transactions = [];
-    let offset = 0;
+    try {
+      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+      this.transactions = [];
+      let offset = 0;
 
-    while (1) {
-      let response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
+      while (1) {
+        let response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
 
-      if (response && response.body) {
-        if (response.body.txs && response.body.txs.length === 0) {
-          break;
-        }
+        if (response && response.body) {
+          if (response.body.txs && response.body.txs.length === 0) {
+            break;
+          }
 
-        // processing TXs and adding to internal memory
-        if (response.body.txs) {
-          for (let tx of response.body.txs) {
-            let value = 0;
+          // processing TXs and adding to internal memory
+          if (response.body.txs) {
+            for (let tx of response.body.txs) {
+              let value = 0;
 
-            for (let input of tx.inputs) {
-              // ----- INPUTS
-              if (input.prev_out.xpub) {
-                // sent FROM US
-                value -= input.prev_out.value;
+              for (let input of tx.inputs) {
+                // ----- INPUTS
+                if (input.prev_out.xpub) {
+                  // sent FROM US
+                  value -= input.prev_out.value;
 
-                // setting internal caches to help ourselves in future...
-                let path = input.prev_out.xpub.path.split('/');
-                if (path[path.length - 2] === '1') {
-                  // change address
-                  this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                  // setting to point to last maximum known change address + 1
+                  // setting internal caches to help ourselves in future...
+                  let path = input.prev_out.xpub.path.split('/');
+                  if (path[path.length - 2] === '1') {
+                    // change address
+                    this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
+                    // setting to point to last maximum known change address + 1
+                  }
+                  if (path[path.length - 2] === '0') {
+                    // main (aka external) address
+                    this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
+                    // setting to point to last maximum known main address + 1
+                  }
+                  // done with cache
                 }
-                if (path[path.length - 2] === '0') {
-                  // main (aka external) address
-                  this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                  // setting to point to last maximum known main address + 1
-                }
-                // done with cache
               }
+
+              for (let output of tx.out) {
+                // ----- OUTPUTS
+                if (output.xpub) {
+                  // sent TO US (change)
+                  value += output.value;
+
+                  // setting internal caches to help ourselves in future...
+                  let path = output.xpub.path.split('/');
+                  if (path[path.length - 2] === '1') {
+                    // change address
+                    this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
+                    // setting to point to last maximum known change address + 1
+                  }
+                  if (path[path.length - 2] === '0') {
+                    // main (aka external) address
+                    this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
+                    // setting to point to last maximum known main address + 1
+                  }
+                  // done with cache
+                }
+              }
+
+              tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
+
+              this.transactions.push(tx);
             }
 
-            for (let output of tx.out) {
-              // ----- OUTPUTS
-              if (output.xpub) {
-                // sent TO US (change)
-                value += output.value;
-
-                // setting internal caches to help ourselves in future...
-                let path = output.xpub.path.split('/');
-                if (path[path.length - 2] === '1') {
-                  // change address
-                  this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                  // setting to point to last maximum known change address + 1
-                }
-                if (path[path.length - 2] === '0') {
-                  // main (aka external) address
-                  this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                  // setting to point to last maximum known main address + 1
-                }
-                // done with cache
-              }
+            if (response.body.txs.length < 100) {
+              // this fetch yilded less than page size, thus requesting next batch makes no sense
+              break;
             }
-
-            tx.value = new BigNumber(value).div(100000000).toString() * 1;
-
-            this.transactions.push(tx);
+          } else {
+            break; // error ?
           }
         } else {
-          break; // error ?
+          throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
         }
-      } else {
-        throw new Error('Could not fetch transactions from API'); // breaks here
-      }
 
-      offset += 100;
+        offset += 100;
+      }
+    } catch (err) {
+      console.warn(err);
     }
   }
 }

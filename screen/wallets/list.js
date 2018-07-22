@@ -16,6 +16,7 @@ import {
   is,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -56,8 +57,11 @@ export default class WalletsList extends Component {
           // more responsive
           let noErr = true;
           try {
-            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
             await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
+            let start = +new Date();
+            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
+            let end = +new Date();
+            console.log('tx took', (end - start) / 1000, 'sec');
           } catch (err) {
             noErr = false;
             console.warn(err);
@@ -111,7 +115,8 @@ export default class WalletsList extends Component {
     let wallet = BlueApp.wallets[index];
     if (wallet) {
       this.props.navigation.navigate('WalletDetails', {
-        address: wallet.getAddress(),
+        address: wallet.getAddress(), // either one of them will work
+        secret: wallet.getSecret(),
       });
     } else {
       // if its out of index - this must be last card with incentive to create wallet
@@ -333,7 +338,7 @@ export default class WalletsList extends Component {
                             }}
                             chevron={false}
                             chevronColor="transparent"
-                            rightTitle={rowData.value / 100000000 + ''}
+                            rightTitle={new BigNumber(rowData.value).div(100000000).toString()}
                             rightTitleStyle={{
                               position: 'relative',
                               right: -30,
@@ -358,17 +363,22 @@ export default class WalletsList extends Component {
             return (
               <BlueReceiveButtonIcon
                 onPress={() => {
+                  let start = +new Date();
                   let walletIndex = this.lastSnappedTo || 0;
                   console.log('receiving on #', walletIndex);
 
                   let c = 0;
                   for (let w of BlueApp.getWallets()) {
                     if (c++ === walletIndex) {
-                      console.log('found receiving address ', w.getAddress());
-                      navigate('ReceiveDetails', { address: w.getAddress() });
-                      EV(EV.enum.RECEIVE_ADDRESS_CHANGED, w.getAddress());
+                      console.log('found receiving address, secret=', w.getAddress(), ',', w.getSecret());
+                      navigate('ReceiveDetails', { address: w.getAddress(), secret: w.getSecret() });
+                      if (w.getAddress()) {
+                        // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, w.getAddress());
+                      }
                     }
                   }
+                  let end = +new Date();
+                  console.log('took', (end - start) / 1000, 'sec');
                 }}
               />
             );

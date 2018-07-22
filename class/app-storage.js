@@ -1,5 +1,13 @@
 import { AsyncStorage } from 'react-native';
-import { WatchOnlyWallet, LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from './';
+import {
+  HDLegacyBreadwalletWallet,
+  HDSegwitP2SHWallet,
+  HDLegacyP2PKHWallet,
+  WatchOnlyWallet,
+  LegacyWallet,
+  SegwitP2SHWallet,
+  SegwitBech32Wallet,
+} from './';
 let encryption = require('../encryption');
 
 export class AppStorage {
@@ -129,6 +137,15 @@ export class AppStorage {
               break;
             case 'watchOnly':
               unserializedWallet = WatchOnlyWallet.fromJson(key);
+              break;
+            case new HDLegacyP2PKHWallet().type:
+              unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
+              break;
+            case new HDSegwitP2SHWallet().type:
+              unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
+              break;
+            case new HDLegacyBreadwalletWallet().type:
+              unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
               break;
             case 'legacy':
             default:
@@ -281,7 +298,7 @@ export class AppStorage {
       let c = 0;
       for (let wallet of this.wallets) {
         if (c++ === index) {
-          txs = txs.concat(wallet.transactions);
+          txs = txs.concat(wallet.getTransactions());
         }
       }
       return txs;
@@ -289,7 +306,7 @@ export class AppStorage {
 
     let txs = [];
     for (let wallet of this.wallets) {
-      txs = txs.concat(wallet.transactions);
+      txs = txs.concat(wallet.getTransactions());
     }
     return txs;
   }

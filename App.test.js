@@ -303,4 +303,14 @@ describe('Watch only wallet', () => {
     await w.fetchTransactions();
     assert.equal(w.getTransactions().length, 2);
   });
+
+  it('can validate address', async () => {
+    let w = new WatchOnlyWallet();
+    w.setSecret('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
+    assert.ok(w.valid());
+    w.setSecret('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2');
+    assert.ok(w.valid());
+    w.setSecret('not valid');
+    assert.ok(!w.valid());
+  });
 });

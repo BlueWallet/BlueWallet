@@ -33,6 +33,7 @@ module.exports = {
       wallet_type: 'wallet type',
       or: 'or',
       import_wallet: 'Import wallet',
+      imported: 'Imported',
     },
     details: {
       title: 'wallet details',

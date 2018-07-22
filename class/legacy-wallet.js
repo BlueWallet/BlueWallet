@@ -220,40 +220,12 @@ export class LegacyWallet extends AbstractWallet {
             value -= inp.output_value;
           }
         }
-        console.log('came out', value);
         tx.value += value;
         // end
       }
     } catch (err) {
       console.warn(err);
     }
-  }
-
-  getShortAddress() {
-    let a = this.getAddress().split('');
-    return (
-      a[0] +
-      a[1] +
-      a[2] +
-      a[3] +
-      a[4] +
-      a[5] +
-      a[6] +
-      a[7] +
-      a[8] +
-      a[9] +
-      a[10] +
-      a[11] +
-      a[12] +
-      a[13] +
-      '...' +
-      a[a.length - 6] +
-      a[a.length - 5] +
-      a[a.length - 4] +
-      a[a.length - 3] +
-      a[a.length - 2] +
-      a[a.length - 1]
-    );
   }
 
   async broadcastTx(txhex) {
@@ -365,13 +337,13 @@ export class LegacyWallet extends AbstractWallet {
       u.amount = u.amount.div(100000000);
       u.amount = u.amount.toString(10);
     }
-    console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
+    // console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
     let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
     return signer.createTransaction(utxos, toAddress, amountPlusFee, fee, this.getSecret(), this.getAddress());
   }
 
   getLatestTransactionTime() {
-    for (let tx of this.transactions) {
+    for (let tx of this.getTransactions()) {
       return tx.received;
     }
     return 0;

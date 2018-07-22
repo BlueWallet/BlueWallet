@@ -1,5 +1,4 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
-import { SegwitP2SHWallet } from './segwit-p2sh-wallet';
 import Frisbee from 'frisbee';
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
@@ -39,44 +38,13 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
         }
         this.balance = new BigNumber(this.balance).div(100000000).toString() * 1;
         this.unconfirmed_balance = new BigNumber(this.unconfirmed_balance).div(100000000).toString() * 1;
+        this._lastBalanceFetch = +new Date();
+      } else {
+        throw new Error('Could not fetch balance from API: ' + response.err);
       }
     } catch (err) {
       console.warn(err);
     }
-  }
-
-  /**
-   * Derives from hierarchy, returns next free address
-   * (the one that has no transactions). Looks for several,
-   * gives up if none found, and returns the used one
-   *
-   * @return {Promise.<string>}
-   */
-  async getAddressAsync() {
-    // looking for free external address
-    let freeAddress = '';
-    let c;
-    for (c = -1; c < 5; c++) {
-      if (this.next_free_address_index + c < 0) continue;
-      let Segwit = new SegwitP2SHWallet();
-      Segwit.setSecret(this._getExternalWIFByIndex(this.next_free_address_index + c));
-      await Segwit.fetchTransactions();
-      if (Segwit.transactions.length === 0) {
-        // found free address
-        freeAddress = Segwit.getAddress();
-        console.log('found free ', freeAddress, ' with index', this.next_free_address_index + c);
-        this.next_free_address_index += c; // now points to _this one_
-        break;
-      }
-    }
-
-    if (!freeAddress) {
-      // could not find in cycle above, give up
-      freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
-      this.next_free_address_index += c + 1; // now points to the one _after_
-    }
-
-    return freeAddress;
   }
 
   _getExternalWIFByIndex(index) {
@@ -101,6 +69,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
 
   _getExternalAddressByIndex(index) {
     index = index * 1; // cast to int
+    if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
     let mnemonic = this.secret;
     let seed = bip39.mnemonicToSeed(mnemonic);
     let root = bitcoin.HDNode.fromSeedBuffer(seed);
@@ -111,11 +80,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
     let addressBytes = bitcoin.crypto.hash160(scriptSig);
     let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-    return bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
+    return (this.external_addresses_cache[index] = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin));
   }
 
   _getInternalAddressByIndex(index) {
     index = index * 1; // cast to int
+    if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
     let mnemonic = this.secret;
     let seed = bip39.mnemonicToSeed(mnemonic);
     let root = bitcoin.HDNode.fromSeedBuffer(seed);
@@ -127,7 +97,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
     let addressBytes = bitcoin.crypto.hash160(scriptSig);
     let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-    return bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
+    return (this.internal_addresses_cache[index] = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin));
   }
 
   /**
@@ -137,6 +107,9 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
    * @return {String} ypub
    */
   getXpub() {
+    if (this._xpub) {
+      return this._xpub; // cache hit
+    }
     // first, getting xpub
     let mnemonic = this.secret;
     let seed = bip39.mnemonicToSeed(mnemonic);
@@ -150,90 +123,86 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     let data = b58.decode(xpub);
     data = data.slice(4);
     data = Buffer.concat([Buffer.from('049d7cb2', 'hex'), data]);
-    return b58.encode(data);
+    this._xpub = b58.encode(data);
+    return this._xpub;
   }
 
+  /**
+   * @inheritDoc
+   */
   async fetchTransactions() {
-    if (this.usedAddresses.length === 0) {
-      // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
-      await this.fetchBalance();
-    }
-
-    let addresses = this.usedAddresses.join('|');
-
-    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-    this.transactions = [];
-    let offset = 0;
-
-    while (1) {
-      let response = await api.get('/multiaddr?active=' + addresses + '&n=100&offset=' + offset);
-
-      if (response && response.body) {
-        if (response.body.txs && response.body.txs.length === 0) {
-          break;
-        }
-
-        // processing TXs and adding to internal memory
-        if (response.body.txs) {
-          for (let tx of response.body.txs) {
-            let value = 0;
-
-            for (let input of tx.inputs) {
-              // ----- INPUTS
-              if (input.prev_out.xpub) {
-                // sent FROM US
-                value -= input.prev_out.value;
-
-                // setting internal caches to help ourselves in future...
-                let path = input.prev_out.xpub.path.split('/');
-                if (path[path.length - 2] === '1') {
-                  // change address
-                  this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                  // setting to point to last maximum known change address + 1
-                }
-                if (path[path.length - 2] === '0') {
-                  // main (aka external) address
-                  this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                  // setting to point to last maximum known main address + 1
-                }
-                // done with cache
-              }
-            }
-
-            for (let output of tx.out) {
-              // ----- OUTPUTS
-              if (output.xpub) {
-                // sent TO US (change)
-                value += output.value;
-
-                // setting internal caches to help ourselves in future...
-                let path = output.xpub.path.split('/');
-                if (path[path.length - 2] === '1') {
-                  // change address
-                  this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                  // setting to point to last maximum known change address + 1
-                }
-                if (path[path.length - 2] === '0') {
-                  // main (aka external) address
-                  this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                  // setting to point to last maximum known main address + 1
-                }
-                // done with cache
-              }
-            }
-
-            tx.value = new BigNumber(value).div(100000000).toString() * 1;
-
-            this.transactions.push(tx);
-          }
-        } else {
-          break; // error ?
-        }
-      } else {
-        throw new Error('Could not fetch transactions from API'); // breaks here
+    try {
+      if (this.usedAddresses.length === 0) {
+        // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
+        await this.fetchBalance();
       }
 
-      offset += 100;
+      let addresses = this.usedAddresses.join('|');
+
+      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+      this.transactions = [];
+      let offset = 0;
+
+      while (1) {
+        let response = await api.get('/multiaddr?active=' + addresses + '&n=100&offset=' + offset);
+
+        if (response && response.body) {
+          if (response.body.txs && response.body.txs.length === 0) {
+            break;
+          }
+
+          // processing TXs and adding to internal memory
+          if (response.body.txs) {
+            for (let tx of response.body.txs) {
+              let value = 0;
+
+              for (let input of tx.inputs) {
+                // ----- INPUTS
+
+                if (input.prev_out && input.prev_out.addr && this.weOwnAddress(input.prev_out.addr)) {
+                  // this is outgoing from us
+                  value -= input.prev_out.value;
+                }
+              }
+
+              for (let output of tx.out) {
+                // ----- OUTPUTS
+
+                if (output.addr && this.weOwnAddress(output.addr)) {
+                  // this is incoming to us
+                  value += output.value;
+                }
+              }
+
+              tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
+
+              this.transactions.push(tx);
+            }
+
+            if (response.body.txs.length < 100) {
+              // this fetch yilded less than page size, thus requesting next batch makes no sense
+              break;
+            }
+          } else {
+            break; // error ?
+          }
+        } else {
+          throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
+        }
+
+        offset += 100;
+      }
+    } catch (err) {
+      console.warn(err);
     }
+  }
+
+  weOwnAddress(addr) {
+    let hashmap = {};
+    for (let a of this.usedAddresses) {
+      hashmap[a] = 1;
+    }
+
+    return hashmap[addr] === 1;
   }
 }

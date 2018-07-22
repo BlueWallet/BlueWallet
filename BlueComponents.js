@@ -7,6 +7,9 @@ import { Icon, Button, FormLabel, FormInput, Card, Text, Header, List, ListItem 
 import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image } from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
+import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
+import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
+import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -135,7 +138,7 @@ export class BlueButtonLink extends Component {
         }}
         buttonStyle={{
           height: 25,
-          width: width / 2,
+          width: width / 1.5,
         }}
         backgroundColor="transparent"
         color="#0c2550"
@@ -221,7 +224,33 @@ export class BlueFormInput extends Component {
     return (
       <FormInput
         {...this.props}
-        inputStyle={{ color: BlueApp.settings.foregroundColor }}
+        inputStyle={{ color: BlueApp.settings.foregroundColor, maxWidth: width - 105 }}
+        containerStyle={{
+          marginTop: 5,
+          borderColor: '#d2d2d2',
+          borderBottomColor: '#d2d2d2',
+          borderWidth: 0.5,
+          borderBottomWidth: 0.5,
+          backgroundColor: '#f5f5f5',
+        }}
+      />
+    );
+  }
+}
+
+export class BlueFormMultiInput extends Component {
+  render() {
+    return (
+      <FormInput
+        {...this.props}
+        multiline
+        numberOfLines={4}
+        inputStyle={{
+          width: width - 40,
+          color: BlueApp.settings.foregroundColor,
+          height: 120,
+          fontSize: (isIpad && 10) || ((is.iphone8() && 12) || 14),
+        }}
         containerStyle={{
           marginTop: 5,
           borderColor: '#d2d2d2',
@@ -823,6 +852,21 @@ export class WalletsCarousel extends Component {
     if (new LegacyWallet().type === item.type) {
       gradient1 = '#40fad1';
       gradient2 = '#15be98';
+    }
+
+    if (new HDLegacyP2PKHWallet().type === item.type) {
+      gradient1 = '#e36dfa';
+      gradient2 = '#bd10e0';
+    }
+
+    if (new HDLegacyBreadwalletWallet().type === item.type) {
+      gradient1 = '#fe6381';
+      gradient2 = '#f99c42';
+    }
+
+    if (new HDSegwitP2SHWallet().type === item.type) {
+      gradient1 = '#c65afb';
+      gradient2 = '#9053fe';
     }
 
     return (
