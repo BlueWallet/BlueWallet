@@ -177,51 +177,102 @@ export class LegacyWallet extends AbstractWallet {
         baseURI: 'https://api.blockcypher.com/',
       });
 
-      let response = await api.get(
-        'v1/btc/main/addrs/' + this.getAddress() + '/full' + ((useBlockcypherTokens && '?token=' + this.getRandomBlockcypherToken()) || ''),
-      );
-      let json = response.body;
-      if (typeof json === 'undefined' || !json.txs) {
-        throw new Error('Could not fetch transactions from API:' + response.err);
+      let after = 0;
+      let before = 100500100;
+
+      for (let oldTx of this.getTransactions()) {
+        if (oldTx.block_height && oldTx.confirmations < 7) {
+          after = Math.max(after, oldTx.block_height);
+        }
       }
 
-      this.transactions = json.txs;
-      this._lastTxFetch = +new Date();
-      // now, calculating value per each transaction...
-      for (let tx of this.transactions) {
-        // how much came in...
-        let value = 0;
-        for (let out of tx.outputs) {
-          if (out.addresses.indexOf(this.getAddress()) !== -1) {
-            // found our address in outs of this TX
-            value += out.value;
-          }
+      while (1) {
+        let response = await api.get(
+          'v1/btc/main/addrs/' +
+            this.getAddress() +
+            '/full?after=' +
+            after +
+            '&before=' +
+            before +
+            '&limit=50' +
+            ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
+        );
+        let json = response.body;
+        if (typeof json === 'undefined' || !json.txs) {
+          throw new Error('Could not fetch transactions from API:' + response.err);
         }
-        tx.value = value;
-        // end
 
-        // how much came out
-        value = 0;
-        for (let inp of tx.inputs) {
-          if (!inp.addresses) {
-            console.log('inp.addresses empty');
-            console.log('got witness', inp.witness); // TODO
+        let alreadyFetchedTransactions = this.transactions;
+        this.transactions = json.txs;
+        this._lastTxFetch = +new Date();
 
-            inp.addresses = [];
-            if (inp.witness && inp.witness[1]) {
-              let address = SegwitBech32Wallet.witnessToAddress(inp.witness[1]);
-              inp.addresses.push(address);
-            } else {
-              inp.addresses.push('???');
+        // now, calculating value per each transaction...
+        for (let tx of this.transactions) {
+          if (tx.block_height) {
+            before = Math.min(before, tx.block_height); // so next time we fetch older TXs
+          }
+          // how much came in...
+          let value = 0;
+          for (let out of tx.outputs) {
+            if (out.addresses.indexOf(this.getAddress()) !== -1) {
+              // found our address in outs of this TX
+              value += out.value;
             }
           }
-          if (inp.addresses.indexOf(this.getAddress()) !== -1) {
-            // found our address in outs of this TX
-            value -= inp.output_value;
+          tx.value = value;
+          // end
+
+          // how much came out
+          value = 0;
+          for (let inp of tx.inputs) {
+            if (!inp.addresses) {
+              // console.log('inp.addresses empty');
+              // console.log('got witness', inp.witness); // TODO
+
+              inp.addresses = [];
+              if (inp.witness && inp.witness[1]) {
+                let address = SegwitBech32Wallet.witnessToAddress(inp.witness[1]);
+                inp.addresses.push(address);
+              } else {
+                inp.addresses.push('???');
+              }
+            }
+            if (inp.addresses.indexOf(this.getAddress()) !== -1) {
+              // found our address in outs of this TX
+              value -= inp.output_value;
+            }
+          }
+          tx.value += value;
+          // end
+        }
+
+        this.transactions = alreadyFetchedTransactions.concat(this.transactions);
+
+        let txsUnconf = [];
+        let txs = [];
+        let hashPresent = {};
+        // now, rearranging TXs. unconfirmed go first:
+        for (let tx of this.transactions.reverse()) {
+          if (hashPresent[tx.hash]) continue;
+          hashPresent[tx.hash] = 1;
+          if (tx.block_height && tx.block_height === -1) {
+            // unconfirmed
+            txsUnconf.push(tx);
+          } else {
+            txs.push(tx);
           }
         }
-        tx.value += value;
-        // end
+        this.transactions = txsUnconf.reverse().concat(txs.reverse());
+        // all reverses needed so freshly fetched TXs replace same old TXs
+
+        this.transactions = this.transactions.sort((a, b) => {
+          return a.received < b.received;
+        });
+
+        if (json.txs.length < 50) {
+          // final batch, so it has les than max txs
+          break;
+        }
       }
     } catch (err) {
       console.warn(err);

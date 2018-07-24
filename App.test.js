@@ -298,8 +298,19 @@ describe('Watch only wallet', () => {
   });
 
   it('can fetch tx', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let w = new WatchOnlyWallet();
-    w.setSecret('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
+
+    w.setSecret('167zK5iZrs1U6piDqubD3FjRqUTM2CZnb8');
+    await w.fetchTransactions();
+    assert.equal(w.getTransactions().length, 233);
+
+    w = new WatchOnlyWallet();
+    w.setSecret('1BiJW1jyUaxcJp2JWwbPLPzB1toPNWTFJV');
+    await w.fetchTransactions();
+    assert.equal(w.getTransactions().length, 2);
+
+    // fetch again and make sure no duplicates
     await w.fetchTransactions();
     assert.equal(w.getTransactions().length, 2);
   });
