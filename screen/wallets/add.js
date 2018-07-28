@@ -125,7 +125,7 @@ export default class WalletsAdd extends Component {
               }}
               onPress={() => {
                 if (this.state.activeLightning) {
-                  return alert('Coming soon');
+                  return alert(loc.wallets.add.coming_soon);
                 }
 
                 this.props.navigation.goBack();

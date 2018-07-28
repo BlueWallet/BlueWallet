@@ -34,6 +34,9 @@ module.exports = {
       or: 'or',
       import_wallet: 'Import wallet',
       imported: 'Imported',
+      coming_soon: 'Coming soon',
+      lightning: 'Lightning',
+      bitcoin: 'Bitcoin',
     },
     details: {
       title: 'wallet details',
@@ -48,6 +51,16 @@ module.exports = {
     },
     export: {
       title: 'wallet export',
+    },
+    import: {
+      title: 'import',
+      explanation:
+        "Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do it's best to guess the correct format and import your wallet",
+      imported: 'Imported',
+      error: 'Failed to import. Is it event valid?',
+      success: 'Success',
+      do_import: 'Import',
+      scan_qr: 'or scan QR code instead?',
     },
     scanQrWif: {
       go_back: 'Go Back',

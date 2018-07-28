@@ -8,11 +8,12 @@ import {
   HDLegacyP2PKHWallet,
 } from '../../class';
 import React, { Component } from 'react';
-import { KeyboardAvoidingView, ActivityIndicator, Dimensions, View } from 'react-native';
+import { KeyboardAvoidingView, Dimensions, View } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
   BlueFormLabel,
+  BlueLoading,
   BlueSpacingVariable,
   BlueButton,
   SafeBlueArea,
@@ -46,9 +47,8 @@ export default class WalletsImport extends Component {
   }
 
   async _saveWallet(w) {
-    alert('Success');
-    // await w.fetchTransactions();
-    w.setLabel(loc.wallets.add.imported + ' ' + w.getTypeReadable());
+    alert(loc.wallets.import.success);
+    w.setLabel(loc.wallets.import.imported + ' ' + w.getTypeReadable());
     BlueApp.wallets.push(w);
     await BlueApp.saveToDisk();
     EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -156,27 +156,17 @@ export default class WalletsImport extends Component {
       console.warn(Err);
     }
 
-    alert('Error');
+    alert(loc.wallets.import.error);
 
-    // TODO:
+    // Plan:
     // 1. check if its HDSegwitP2SHWallet (BIP49)
     // 2. check if its HDLegacyP2PKHWallet (BIP44)
     // 3. check if its HDLegacyBreadwalletWallet (no BIP, just "m/0")
     // 4. check if its Segwit WIF (P2SH)
     // 5. check if its Legacy WIF
     // 6. check if its address (watch-only wallet)
-    // 7. check if its private key (segwit address P2SH)
-    // 7. check if its private key (legacy address)
-
-    // this.props.navigation.goBack();
-
-    /* let w = new SegwitP2SHWallet();
-    w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
-    w.generate();
-    BlueApp.wallets.push(w);
-    BlueApp.saveToDisk();
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
-    A(A.ENUM.CREATED_WALLET); */
+    // 7. check if its private key (segwit address P2SH) TODO
+    // 7. check if its private key (legacy address) TODO
   }
 
   setLabel(text) {
@@ -189,7 +179,7 @@ export default class WalletsImport extends Component {
     if (this.state.isLoading) {
       return (
         <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
+          <BlueLoading />
         </View>
       );
     }
@@ -198,12 +188,9 @@ export default class WalletsImport extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         <KeyboardAvoidingView behavior="position" enabled>
           <BlueSpacingVariable />
-          <BlueHeaderDefaultSub leftText={'Import'} onClose={() => this.props.navigation.goBack()} />
+          <BlueHeaderDefaultSub leftText={loc.wallets.import.title} onClose={() => this.props.navigation.goBack()} />
 
-          <BlueFormLabel>
-            Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do it's best to guess the correct format and
-            import your wallet
-          </BlueFormLabel>
+          <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
           <BlueFormMultiInput
             value={this.state.label}
             placeholder={''}
@@ -218,7 +205,7 @@ export default class WalletsImport extends Component {
             }}
           >
             <BlueButton
-              title={'Import'}
+              title={loc.wallets.import.do_import}
               buttonStyle={{
                 width: width / 1.5,
               }}
@@ -227,13 +214,15 @@ export default class WalletsImport extends Component {
                   return;
                 }
                 this.setState({ isLoading: true });
-                await this.importMnemonic(this.state.label.trim());
-                this.setState({ isLoading: false });
+                setTimeout(async () => {
+                  await this.importMnemonic(this.state.label.trim());
+                  this.setState({ isLoading: false });
+                }, 1);
               }}
             />
 
             <BlueButtonLink
-              title={'or scan QR code instead?'}
+              title={loc.wallets.import.scan_qr}
               onPress={() => {
                 this.props.navigation.navigate('ScanQrWif');
               }}

@@ -78,7 +78,7 @@ export class BitcoinButton extends Component {
           <View style={{ paddingTop: 30 }}>
             <Icon name="btc" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
             <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              Bitcoin
+              {loc.wallets.add.bitcoin}
             </Text>
           </View>
         </View>
@@ -112,7 +112,7 @@ export class LightningButton extends Component {
           <View style={{ paddingTop: 30 }}>
             <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
             <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              Lightning
+              {loc.wallets.add.lightning}
             </Text>
           </View>
         </View>
