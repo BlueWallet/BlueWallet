@@ -3,7 +3,7 @@ import { ScrollView, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueButton, BlueHeader } from '../BlueComponents';
 import PropTypes from 'prop-types';
-import { SegwitP2SHWallet, LegacyWallet } from '../class';
+import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet } from '../class';
 let BlueApp = require('../BlueApp');
 let BigNumber = require('bignumber.js');
 let encryption = require('../encryption');
@@ -214,6 +214,28 @@ export default class Selftest extends Component {
       if (address !== '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK') {
         errorMessage += 'bip49 is not ok; ';
         isOk = false;
+      }
+
+      //
+
+      let hd = new HDSegwitP2SHWallet();
+      let hashmap = {};
+      for (let c = 0; c < 1000; c++) {
+        hd.generate();
+        let secret = hd.getSecret();
+        if (hashmap[secret]) {
+          throw new Error('Duplicate secret generated!');
+        }
+        hashmap[secret] = 1;
+        if (secret.split(' ').length !== 12 && secret.split(' ').length !== 24) {
+          throw new Error('mnemonic phrase not ok');
+        }
+      }
+
+      let hd2 = new HDSegwitP2SHWallet();
+      hd2.setSecret(hd.getSecret());
+      if (!hd2.validateMnemonic()) {
+        throw new Error('mnemonic phrase validation not ok');
       }
 
       //

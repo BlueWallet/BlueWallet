@@ -8,6 +8,8 @@ export class AbstractWallet {
     this.transactions = [];
     this._address = false; // cache
     this.utxo = [];
+    this._lastTxFetch = 0;
+    this._lastBalanceFetch = 0;
   }
 
   getTransactions() {

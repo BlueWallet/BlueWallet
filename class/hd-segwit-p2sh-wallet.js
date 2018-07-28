@@ -1,5 +1,6 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
+const isaac = require('isaac');
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
@@ -19,6 +20,24 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
 
   getTypeReadable() {
     return 'HD SegWit (BIP49 P2SH)';
+  }
+
+  generate() {
+    let c = 32;
+    let totalhex = '';
+    for (let i = 0; i < c; i++) {
+      let randomNumber = isaac.random();
+      randomNumber = Math.floor(randomNumber * 256);
+      let n = new BigNumber(randomNumber);
+      let hex = n.toString(16);
+      if (hex.length === 1) {
+        hex = '0' + hex;
+      }
+      totalhex += hex;
+    }
+    totalhex = bitcoin.crypto.sha256('hello there' + totalhex).toString('hex');
+    totalhex = bitcoin.crypto.sha256(totalhex).toString('hex');
+    this.secret = bip39.entropyToMnemonic(totalhex);
   }
 
   async fetchBalance() {
@@ -150,6 +169,8 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
           if (response.body.txs && response.body.txs.length === 0) {
             break;
           }
+
+          this._lastTxFetch = +new Date();
 
           // processing TXs and adding to internal memory
           if (response.body.txs) {

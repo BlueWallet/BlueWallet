@@ -14,6 +14,10 @@ export class AbstractHDWallet extends LegacyWallet {
     this._xpub = ''; // cache
   }
 
+  generate() {
+    throw new Error('Not implemented');
+  }
+
   allowSend() {
     return false; // TODO send from HD
   }
@@ -72,6 +76,9 @@ export class AbstractHDWallet extends LegacyWallet {
     return this;
   }
 
+  /**
+   * @return {Boolean} is mnemonic in `this.secret` valid
+   */
   validateMnemonic() {
     return bip39.validateMnemonic(this.secret);
   }
@@ -191,6 +198,8 @@ export class AbstractHDWallet extends LegacyWallet {
           if (response.body.txs && response.body.txs.length === 0) {
             break;
           }
+
+          this._lastTxFetch = +new Date();
 
           // processing TXs and adding to internal memory
           if (response.body.txs) {

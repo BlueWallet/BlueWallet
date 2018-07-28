@@ -15,8 +15,6 @@ export class LegacyWallet extends AbstractWallet {
   constructor() {
     super();
     this.type = 'legacy';
-    this._lastTxFetch = 0;
-    this._lastBalanceFetch = 0;
   }
 
   /**

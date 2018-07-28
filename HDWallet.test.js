@@ -1,12 +1,5 @@
 /* global it, jasmine */
-import {
-  SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  HDLegacyBreadwalletWallet,
-  HDLegacyP2PKHWallet,
-  LegacyWallet,
-} from './class';
+import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from './class';
 let assert = require('assert');
 
 it('can convert witness to address', () => {
@@ -19,34 +12,11 @@ it('can convert witness to address', () => {
 
 it('can create a Segwit HD (BIP49)', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-  let bip39 = require('bip39');
-  let bitcoin = require('bitcoinjs-lib');
   let mnemonic =
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
-  assert.ok(bip39.validateMnemonic(mnemonic));
-  let seed = bip39.mnemonicToSeed(mnemonic);
-  let root = bitcoin.HDNode.fromSeedBuffer(seed);
-
-  let path = "m/49'/0'/0'/0/0";
-  let child = root.derivePath(path);
-
-  let keyhash = bitcoin.crypto.hash160(child.getPublicKeyBuffer());
-  let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
-  let addressBytes = bitcoin.crypto.hash160(scriptSig);
-  let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-  let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
-
-  assert.equal(address, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
-
-  // checking that WIF from HD corresponds to derived segwit address
-  let Segwit = new SegwitP2SHWallet();
-  Segwit.setSecret(child.keyPair.toWIF());
-  assert.equal(address, Segwit.getAddress());
-
-  // testing our class
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(mnemonic);
-  assert.equal(address, hd._getExternalAddressByIndex(0));
+  assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
   assert.equal('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
   assert.equal('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei', hd._getInternalAddressByIndex(0));
   assert.equal(true, hd.validateMnemonic());
@@ -54,10 +24,12 @@ it('can create a Segwit HD (BIP49)', async function() {
   await hd.fetchBalance();
   assert.equal(hd.getBalance(), 0);
 
+  assert.ok(hd._lastTxFetch === 0);
   await hd.fetchTransactions();
+  assert.ok(hd._lastTxFetch > 0);
   assert.equal(hd.transactions.length, 2);
 
-  assert.equal(child.keyPair.toWIF(), hd._getExternalWIFByIndex(0));
+  assert.equal('L4MqtwJm6hkbACLG4ho5DF8GhcXdLEbbvpJnbzA9abfD6RDpbr2m', hd._getExternalWIFByIndex(0));
   assert.equal(
     'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp',
     hd.getXpub(),
@@ -66,6 +38,24 @@ it('can create a Segwit HD (BIP49)', async function() {
   // checking that internal pointer and async address getter return the same address
   let freeAddress = await hd.getAddressAsync();
   assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
+});
+
+it('can generate Segwit HD (BIP49)', async () => {
+  let hd = new HDSegwitP2SHWallet();
+  let hashmap = {};
+  for (let c = 0; c < 1000; c++) {
+    hd.generate();
+    let secret = hd.getSecret();
+    if (hashmap[secret]) {
+      throw new Error('Duplicate secret generated!');
+    }
+    hashmap[secret] = 1;
+    assert.ok(secret.split(' ').length === 12 || secret.split(' ').length === 24);
+  }
+
+  let hd2 = new HDSegwitP2SHWallet();
+  hd2.setSecret(hd.getSecret());
+  assert.ok(hd2.validateMnemonic());
 });
 
 it('can work with malformed mnemonic', () => {
@@ -94,21 +84,7 @@ it('can work with malformed mnemonic', () => {
 
 it('can create a Legacy HD (BIP44)', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-  let bip39 = require('bip39');
-  let bitcoin = require('bitcoinjs-lib');
   let mnemonic = 'high relief amount witness try remember adult destroy puppy fox giant peace';
-  assert.ok(bip39.validateMnemonic(mnemonic));
-  let seed = bip39.mnemonicToSeed(mnemonic);
-  let root = bitcoin.HDNode.fromSeedBuffer(seed);
-
-  let path = "m/44'/0'/0'/0/0";
-  let child = root.derivePath(path);
-
-  let w = new LegacyWallet();
-  w.setSecret(child.keyPair.toWIF());
-  assert.equal('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG', w.getAddress());
-
-  // testing our class
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(mnemonic);
   assert.equal(hd.validateMnemonic(), true);
@@ -123,7 +99,9 @@ it('can create a Legacy HD (BIP44)', async function() {
   assert.equal(hd._getInternalWIFByIndex(0), 'Kx3QkrfemEEV49Mj5oWfb4bsWymboPdstta7eN3kAzop9apxYEFP');
   await hd.fetchBalance();
   assert.equal(hd.balance, 0);
+  assert.ok(hd._lastTxFetch === 0);
   await hd.fetchTransactions();
+  assert.ok(hd._lastTxFetch > 0);
   assert.equal(hd.transactions.length, 4);
   assert.equal(hd.next_free_address_index, 1);
   assert.equal(hd.next_free_change_address_index, 1);
@@ -153,7 +131,9 @@ it('HD breadwallet works', async function() {
   await hdBread.fetchBalance();
   assert.equal(hdBread.balance, 0);
 
+  assert.ok(hdBread._lastTxFetch === 0);
   await hdBread.fetchTransactions();
+  assert.ok(hdBread._lastTxFetch > 0);
   assert.equal(hdBread.transactions.length, 175);
 
   assert.equal(hdBread.next_free_address_index, 10);
