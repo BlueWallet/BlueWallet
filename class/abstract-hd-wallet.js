@@ -126,7 +126,6 @@ export class AbstractHDWallet extends LegacyWallet {
     return freeAddress;
   }
 
-
   /**
    * Derives from hierarchy, returns next free CHANGE address
    * (the one that has no transactions). Looks for several,

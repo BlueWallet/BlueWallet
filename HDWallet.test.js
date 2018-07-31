@@ -42,6 +42,15 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.equal(hd._getInternalAddressByIndex(hd.next_free_change_address_index), freeChangeAddress);
 });
 
+it('Segwit HD (BIP49) can generate addressess only via ypub', async function() {
+  let ypub = 'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp';
+  let hd = new HDSegwitP2SHWallet();
+  hd._xpub = ypub;
+  assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
+  assert.equal('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
+  assert.equal('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei', hd._getInternalAddressByIndex(0));
+});
+
 it('can generate Segwit HD (BIP49)', async () => {
   let hd = new HDSegwitP2SHWallet();
   let hashmap = {};
@@ -115,6 +124,14 @@ it('can create a Legacy HD (BIP44)', async function() {
   // checking that internal pointer and async address getter return the same address
   let freeAddress = await hd.getAddressAsync();
   assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
+});
+
+it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
+  let xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+  let hd = new HDLegacyP2PKHWallet();
+  hd._xpub = xpub;
+  assert.equal(hd._getExternalAddressByIndex(0), '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
+  assert.equal(hd._getInternalAddressByIndex(0), '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX');
 });
 
 it('HD breadwallet works', async function() {
