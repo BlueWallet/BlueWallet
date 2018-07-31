@@ -255,7 +255,12 @@ export class LegacyWallet extends AbstractWallet {
           hashPresent[tx.hash] = 1;
           if (tx.block_height && tx.block_height === -1) {
             // unconfirmed
-            txsUnconf.push(tx);
+            console.log(tx);
+            if ((+new Date(tx.received)) < ((+new Date()) - 3600*24*1000)) {
+              // nop, too old unconfirmed tx - skipping it
+            } else {
+              txsUnconf.push(tx);
+            }
           } else {
             txs.push(tx);
           }

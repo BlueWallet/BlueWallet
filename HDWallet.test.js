@@ -38,6 +38,8 @@ it('can create a Segwit HD (BIP49)', async function() {
   // checking that internal pointer and async address getter return the same address
   let freeAddress = await hd.getAddressAsync();
   assert.equal(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
+  let freeChangeAddress = await hd.getChangeAddressAsync();
+  assert.equal(hd._getInternalAddressByIndex(hd.next_free_change_address_index), freeChangeAddress);
 });
 
 it('can generate Segwit HD (BIP49)', async () => {

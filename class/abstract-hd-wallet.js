@@ -102,9 +102,10 @@ export class AbstractHDWallet extends LegacyWallet {
     // looking for free external address
     let freeAddress = '';
     let c;
-    for (c = -1; c < 5; c++) {
+    for (c = 0; c < 5; c++) {
       if (this.next_free_address_index + c < 0) continue;
       let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
+      this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
       let WatchWallet = new WatchOnlyWallet();
       WatchWallet.setSecret(address);
       await WatchWallet.fetchTransactions();
@@ -112,6 +113,42 @@ export class AbstractHDWallet extends LegacyWallet {
         // found free address
         freeAddress = WatchWallet.getAddress();
         this.next_free_address_index += c; // now points to _this one_
+        break;
+      }
+    }
+
+    if (!freeAddress) {
+      // could not find in cycle above, give up
+      freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
+      this.next_free_address_index += c + 1; // now points to the one _after_
+    }
+
+    return freeAddress;
+  }
+
+
+  /**
+   * Derives from hierarchy, returns next free CHANGE address
+   * (the one that has no transactions). Looks for several,
+   * gives up if none found, and returns the used one
+   *
+   * @return {Promise.<string>}
+   */
+  async getChangeAddressAsync() {
+    // looking for free internal address
+    let freeAddress = '';
+    let c;
+    for (c = 0; c < 5; c++) {
+      if (this.next_free_change_address_index + c < 0) continue;
+      let address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
+      this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
+      let WatchWallet = new WatchOnlyWallet();
+      WatchWallet.setSecret(address);
+      await WatchWallet.fetchTransactions();
+      if (WatchWallet.transactions.length === 0) {
+        // found free address
+        freeAddress = WatchWallet.getAddress();
+        this.next_free_change_address_index += c; // now points to _this one_
         break;
       }
     }

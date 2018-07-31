@@ -157,6 +157,8 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       }
 
       let addresses = this.usedAddresses.join('|');
+      addresses += '|' + this._getExternalAddressByIndex(this.next_free_address_index)
+      addresses += '|' + this._getInternalAddressByIndex(this.next_free_change_address_index)
 
       const api = new Frisbee({ baseURI: 'https://blockchain.info' });
       this.transactions = [];
