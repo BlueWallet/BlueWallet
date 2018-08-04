@@ -69,6 +69,21 @@ it('can generate Segwit HD (BIP49)', async () => {
   assert.ok(hd2.validateMnemonic());
 });
 
+it('Segwit HD (BIP49) can fetch UTXO', async function() {
+  let hd = new HDSegwitP2SHWallet();
+  hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
+  await hd.fetchUtxo();
+  assert.equal(hd.utxo.length, 8);
+  assert.ok(hd.utxo[0].confirmations);
+  assert.ok(hd.utxo[0].txid);
+  assert.ok(hd.utxo[0].vout);
+  assert.ok(hd.utxo[0].amount);
+  assert.ok(
+    hd.utxo[0].address &&
+      (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' || hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
+  );
+});
+
 it('can work with malformed mnemonic', () => {
   let mnemonic =
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';

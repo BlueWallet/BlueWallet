@@ -268,6 +268,54 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     }
   }
 
+  /**
+   * @inheritDoc
+   */
+  async fetchUtxo() {
+    const api = new Frisbee({
+      baseURI: 'https://blockchain.info',
+    });
+
+    // unspent?active=$address
+
+    if (this.usedAddresses.length === 0) {
+      // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
+      await this.fetchBalance();
+    }
+
+    let addresses = this.usedAddresses.join('|');
+    addresses += '|' + this._getExternalAddressByIndex(this.next_free_address_index);
+    addresses += '|' + this._getInternalAddressByIndex(this.next_free_change_address_index);
+
+    let utxos = [];
+
+    let response;
+    try {
+      response = await api.get('/unspent?active=' + addresses + '&limit=1000');
+      // this endpoint does not support offset of some kind o_O
+      // so doing only one call
+      let json = response.body;
+      if (typeof json === 'undefined' || typeof json.unspent_outputs === 'undefined') {
+        throw new Error('Could not fetch UTXO from API' + response.err);
+      }
+
+      for (let unspent of json.unspent_outputs) {
+        // a lil transform for signer module
+        unspent.txid = unspent.tx_hash;
+        unspent.vout = unspent.tx_output_n;
+        unspent.amount = unspent.value;
+
+        let chunksIn = bitcoin.script.decompile(Buffer.from(unspent.script, 'hex'));
+        unspent.address = bitcoin.address.fromOutputScript(chunksIn);
+        utxos.push(unspent);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+
+    this.utxo = utxos;
+  }
+
   weOwnAddress(addr) {
     let hashmap = {};
     for (let a of this.usedAddresses) {
