@@ -27,7 +27,7 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.ok(hd._lastTxFetch === 0);
   await hd.fetchTransactions();
   assert.ok(hd._lastTxFetch > 0);
-  assert.equal(hd.transactions.length, 2);
+  assert.equal(hd.transactions.length, 4);
 
   assert.equal('L4MqtwJm6hkbACLG4ho5DF8GhcXdLEbbvpJnbzA9abfD6RDpbr2m', hd._getExternalWIFByIndex(0));
   assert.equal(
