@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
+/** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
@@ -41,10 +42,17 @@ export default class SendDetails extends Component {
     if (props.navigation.state.params) address = props.navigation.state.params.address;
     let fromAddress;
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
+    let fromSecret;
+    if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = {};
 
     let startTime2 = Date.now();
     for (let w of BlueApp.getWallets()) {
+      if (w.getSecret() === fromSecret) {
+        fromWallet = w;
+        break;
+      }
+
       if (w.getAddress() === fromAddress) {
         fromWallet = w;
       }
@@ -57,6 +65,7 @@ export default class SendDetails extends Component {
       errorMessage: false,
       fromAddress: fromAddress,
       fromWallet: fromWallet,
+      fromSecret: fromSecret,
       isLoading: true,
       address: address,
       amount: '',
@@ -147,6 +156,7 @@ export default class SendDetails extends Component {
       address: this.state.address,
       memo: this.state.memo,
       fromAddress: this.state.fromAddress,
+      fromSecret: this.state.fromSecret,
     });
   }
 
@@ -246,6 +256,7 @@ SendDetails.propTypes = {
       params: PropTypes.shape({
         address: PropTypes.string,
         fromAddress: PropTypes.string,
+        fromSecret: PropTypes.string,
       }),
     }),
   }),

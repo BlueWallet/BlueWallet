@@ -5,6 +5,7 @@ const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
 const b58 = require('bs58check');
+const signer = require('../models/signer');
 
 /**
  * HD Wallet (BIP39).
@@ -15,11 +16,14 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   constructor() {
     super();
     this.type = 'HDsegwitP2SH';
-    this.usedAddresses = [];
   }
 
   getTypeReadable() {
     return 'HD SegWit (BIP49 P2SH)';
+  }
+
+  allowSend() {
+    return true;
   }
 
   generate() {
@@ -100,7 +104,9 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
       let addressBytes = bitcoin.crypto.hash160(scriptSig);
       let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-      return (this.external_addresses_cache[index] = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin));
+      let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
+      this._address_to_wif_cache[address] = child.keyPair.toWIF();
+      return (this.external_addresses_cache[index] = address);
     } else {
       let b58 = require('bs58check');
       // eslint-disable-next-line
@@ -141,7 +147,9 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
       let addressBytes = bitcoin.crypto.hash160(scriptSig);
       let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-      return (this.internal_addresses_cache[index] = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin));
+      let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
+      this._address_to_wif_cache[address] = child.keyPair.toWIF();
+      return (this.internal_addresses_cache[index] = address);
     } else {
       let b58 = require('bs58check');
       // eslint-disable-next-line
@@ -276,8 +284,6 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       baseURI: 'https://blockchain.info',
     });
 
-    // unspent?active=$address
-
     if (this.usedAddresses.length === 0) {
       // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
       await this.fetchBalance();
@@ -296,7 +302,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       // so doing only one call
       let json = response.body;
       if (typeof json === 'undefined' || typeof json.unspent_outputs === 'undefined') {
-        throw new Error('Could not fetch UTXO from API' + response.err);
+        throw new Error('Could not fetch UTXO from API ' + response.err);
       }
 
       for (let unspent of json.unspent_outputs) {
@@ -323,5 +329,20 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     }
 
     return hashmap[addr] === 1;
+  }
+
+  createTx(utxos, amount, fee, address, memo) {
+    for (let utxo of utxos) {
+      utxo.wif = this._getWifForAddress(utxo.address);
+    }
+
+    let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
+    return signer.createHDSegwitTransaction(
+      utxos,
+      address,
+      amountPlusFee,
+      fee,
+      this._getInternalAddressByIndex(this.next_free_change_address_index),
+    );
   }
 }

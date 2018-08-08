@@ -9,6 +9,57 @@
 let bitcoinjs = require('bitcoinjs-lib');
 const toSatoshi = num => parseInt((num * 100000000).toFixed(0));
 
+exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
+  let feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
+  let amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get
+  let txb = new bitcoinjs.TransactionBuilder();
+  let unspentAmountSatoshi = 0;
+  let ourOutputs = {};
+  let outputNum = 0;
+  for (const unspent of utxos) {
+    if (unspent.confirmations < 2) {
+      // using only confirmed outputs
+      continue;
+    }
+    txb.addInput(unspent.txid, unspent.vout);
+    ourOutputs[outputNum] = ourOutputs[outputNum] || {};
+    let keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif);
+    let pubKey = keyPair.getPublicKeyBuffer();
+    let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
+    let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(pubKeyHash);
+    ourOutputs[outputNum].keyPair = keyPair;
+    ourOutputs[outputNum].redeemScript = redeemScript;
+    ourOutputs[outputNum].amount = unspent.amount;
+    unspentAmountSatoshi += unspent.amount;
+    if (unspentAmountSatoshi >= amountToOutputSatoshi + feeInSatoshis) {
+      // found enough inputs su satisfy payee and pay fees
+      break;
+    }
+    outputNum++;
+  }
+
+  if (unspentAmountSatoshi < amountToOutputSatoshi + feeInSatoshis) {
+    throw new Error('Not enough confirmed inputs');
+  }
+
+  // adding outputs
+
+  txb.addOutput(toAddress, amountToOutputSatoshi);
+  if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
+    // sending less than we have, so the rest should go back
+    txb.addOutput(changeAddress, unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis);
+  }
+
+  // now, signing every input with a corresponding key
+
+  for (let c = 0; c <= outputNum; c++) {
+    txb.sign(c, ourOutputs[c].keyPair, ourOutputs[c].redeemScript, null, ourOutputs[c].amount);
+  }
+
+  let tx = txb.build();
+  return tx.toHex();
+};
+
 exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, WIF, changeAddress, sequence) {
   changeAddress = changeAddress || exports.WIF2segwitAddress(WIF);
   if (sequence === undefined) {

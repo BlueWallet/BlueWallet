@@ -395,7 +395,7 @@ export default class WalletsList extends Component {
                   let c = 0;
                   for (let w of BlueApp.getWallets()) {
                     if (c++ === walletIndex) {
-                      navigate('SendDetails', { fromAddress: w.getAddress() });
+                      navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
                     }
                   }
                 }}

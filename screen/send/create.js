@@ -4,6 +4,7 @@ import { Text, FormValidationMessage } from 'react-native-elements';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
+/** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
@@ -22,12 +23,18 @@ export default class SendCreate extends Component {
       address: props.navigation.state.params.address,
       memo: props.navigation.state.params.memo,
       fromAddress: props.navigation.state.params.fromAddress,
+      fromSecret: props.navigation.state.params.fromSecret,
       broadcastErrorMessage: '',
     };
 
     let fromWallet = false;
     for (let w of BlueApp.getWallets()) {
-      if (w.getAddress() === this.state.fromAddress) {
+      if (w.getSecret() === this.state.fromSecret) {
+        fromWallet = w;
+        break;
+      }
+
+      if (w.getAddress() && w.getAddress() === this.state.fromAddress) {
         fromWallet = w;
         break;
       }
@@ -45,6 +52,13 @@ export default class SendCreate extends Component {
 
     try {
       await this.state.fromWallet.fetchUtxo();
+      if (this.state.fromWallet.getChangeAddressAsync) {
+        await this.state.fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
+      }
+      if (this.state.fromWallet.getAddressAsync) {
+        await this.state.fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
+      }
+
       utxo = this.state.fromWallet.utxo;
       let startTime = Date.now();
 
@@ -200,6 +214,7 @@ SendCreate.propTypes = {
         address: PropTypes.string,
         memo: PropTypes.string,
         fromAddress: PropTypes.string,
+        fromSecret: PropTypes.string,
       }),
     }),
   }),

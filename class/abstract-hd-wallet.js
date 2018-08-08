@@ -12,6 +12,8 @@ export class AbstractHDWallet extends LegacyWallet {
     this.internal_addresses_cache = {}; // index => address
     this.external_addresses_cache = {}; // index => address
     this._xpub = ''; // cache
+    this.usedAddresses = [];
+    this._address_to_wif_cache = {};
   }
 
   generate() {
@@ -19,7 +21,7 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   allowSend() {
-    return false; // TODO send from HD
+    return false;
   }
 
   getTransactions() {
@@ -102,7 +104,7 @@ export class AbstractHDWallet extends LegacyWallet {
     // looking for free external address
     let freeAddress = '';
     let c;
-    for (c = 0; c < 5; c++) {
+    for (c = 0; c < Math.max(5, this.usedAddresses.length); c++) {
       if (this.next_free_address_index + c < 0) continue;
       let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
       this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
@@ -137,7 +139,7 @@ export class AbstractHDWallet extends LegacyWallet {
     // looking for free internal address
     let freeAddress = '';
     let c;
-    for (c = 0; c < 5; c++) {
+    for (c = 0; c < Math.max(5, this.usedAddresses.length); c++) {
       if (this.next_free_change_address_index + c < 0) continue;
       let address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
       this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
@@ -307,5 +309,50 @@ export class AbstractHDWallet extends LegacyWallet {
     } catch (err) {
       console.warn(err);
     }
+  }
+
+  /**
+   * Given that `address` is in our HD hierarchy, try to find
+   * corresponding WIF
+   *
+   * @param address {String} In our HD hierarchy
+   * @return {String} WIF if found
+   */
+  _getWifForAddress(address) {
+    if (this._address_to_wif_cache[address]) return this._address_to_wif_cache[address]; // cache hit
+
+    // fast approach, first lets iterate over all addressess we have in cache
+    for (let index of Object.keys(this.internal_addresses_cache)) {
+      if (this._getInternalAddressByIndex(index) === address) {
+        return (this._address_to_wif_cache[address] = this._getInternalWIFByIndex(index));
+      }
+    }
+
+    for (let index of Object.keys(this.external_addresses_cache)) {
+      if (this._getExternalAddressByIndex(index) === address) {
+        return (this._address_to_wif_cache[address] = this._getExternalWIFByIndex(index));
+      }
+    }
+
+    // no luck - lets iterate over all addressess we have up to first unused address index
+    for (let c = 0; c <= this.next_free_change_address_index; c++) {
+      let possibleAddress = this._getInternalAddressByIndex(c);
+      if (possibleAddress === address) {
+        return (this._address_to_wif_cache[address] = this._getInternalWIFByIndex(c));
+      }
+    }
+
+    for (let c = 0; c <= this.next_free_address_index; c++) {
+      let possibleAddress = this._getExternalAddressByIndex(c);
+      if (possibleAddress === address) {
+        return (this._address_to_wif_cache[address] = this._getExternalWIFByIndex(c));
+      }
+    }
+
+    throw new Error('Could not find WIF for ' + address);
+  }
+
+  createTx() {
+    throw new Error('Not implemented');
   }
 }
