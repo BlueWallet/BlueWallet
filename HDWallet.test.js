@@ -69,6 +69,57 @@ it('can generate Segwit HD (BIP49)', async () => {
   assert.ok(hd2.validateMnemonic());
 });
 
+it('HD (BIP49)can create TX', async () => {
+  if (!process.env.HD_MNEMONIC) {
+    console.log('process.env.HD_MNEMONIC not set, skipped');
+    return;
+  }
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd.setSecret(process.env.HD_MNEMONIC);
+  assert.ok(hd.validateMnemonic());
+
+  await hd.fetchUtxo();
+  await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
+  await hd.getAddressAsync(); // to refresh internal pointer to next free address
+  let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  assert.equal(
+    txhex,
+    '01000000000102ee7a13faf14dd004c6fa403c3073fbb6e0d7389ffa45e879fd96b5e21fd8989d00000000171600142f18e8406c9d210f30c901b24e5feeae78784eb7ffffffff22cde2709a2774a008fd0513e94edde4fdc71195ce0fd408e524df10f386fb67000000001716001468dde644410cc789d91a7f36b823f38369755a1cffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87dc0500000000000017a914850f4dbc255654de2c12c6f6d79cf9cb756cad038702473044022025e2a280e77691804ef3aa8039dceb5b7e454fb97edd2088f32858e86115bb030220553c21f7c9026a833ad9582a119cd6b24227fc45ed84fd18115ae71e5a8975f5012102edd141c5a27a726dda66be10a38b0fd3ccbb40e7c380034aaa43a1656d5f4dd60247304402207c9b7b0b7767e7bb37388fbfb865402ca58d2d7b88a7110244fc5d7881ae3cce022037874f10db854df4bfdc9ef2b02a9e2919a238eac6aad82bd82e528585084e3b0121030db3c49461a5e539e97bab62ab2b8f88151d1c2376493cf73ef1d02ef60637fd00000000',
+  );
+
+  let bitcoin = require('bitcoinjs-lib');
+  txhex = hd.createTx(hd.utxo, 0.000005, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  var tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 1);
+  assert.equal(tx.outs.length, 2);
+  assert.equal(tx.outs[0].value, 500);
+  assert.equal(tx.outs[1].value, 400);
+  let chunksIn = bitcoin.script.decompile(tx.outs[0].script);
+  let toAddress = bitcoin.address.fromOutputScript(chunksIn);
+  chunksIn = bitcoin.script.decompile(tx.outs[1].script);
+  let changeAddress = bitcoin.address.fromOutputScript(chunksIn);
+  assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+  assert.equal(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
+
+  //
+
+  txhex = hd.createTx(hd.utxo, 0.000015, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 2);
+  assert.equal(tx.outs.length, 2);
+
+  //
+
+  txhex = hd.createTx(hd.utxo, 0.00025, 0.00001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 7);
+  assert.equal(tx.outs.length, 1);
+  chunksIn = bitcoin.script.decompile(tx.outs[0].script);
+  toAddress = bitcoin.address.fromOutputScript(chunksIn);
+  assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+});
+
 it('Segwit HD (BIP49) can fetch UTXO', async function() {
   let hd = new HDSegwitP2SHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
@@ -168,7 +219,7 @@ it('HD breadwallet works', async function() {
   assert.ok(hdBread._lastTxFetch === 0);
   await hdBread.fetchTransactions();
   assert.ok(hdBread._lastTxFetch > 0);
-  assert.equal(hdBread.transactions.length, 175);
+  assert.equal(hdBread.transactions.length, 177);
 
   assert.equal(hdBread.next_free_address_index, 10);
   assert.equal(hdBread.next_free_change_address_index, 118);

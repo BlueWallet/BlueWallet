@@ -331,7 +331,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return hashmap[addr] === 1;
   }
 
-  createTx(utxos, amount, fee, address, memo) {
+  createTx(utxos, amount, fee, address) {
     for (let utxo of utxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
