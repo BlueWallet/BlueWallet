@@ -13,7 +13,7 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
   }
 
   getTypeReadable() {
-    return 'HD Legacy Breadwallet-compatible (P2PKH)';
+    return 'HD Legacy Breadwallet (P2PKH)';
   }
 
   /**

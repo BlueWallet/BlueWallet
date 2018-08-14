@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { ActivityIndicator, Dimensions, View } from 'react-native';
 import {
   BlueTextCentered,
+  BlueText,
   LightningButton,
   BitcoinButton,
   BlueButtonLink,
@@ -15,7 +16,10 @@ import {
   BlueCard,
   BlueHeaderDefaultSub,
 } from '../../BlueComponents';
+import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
+
 import PropTypes from 'prop-types';
+import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -47,6 +51,13 @@ export default class WalletsAdd extends Component {
     this.setState({
       label: text,
     }); /* also, a hack to make screen update new typed text */
+  }
+
+  onSelect(index, value) {
+    this.setState({
+      selectedIndex: index,
+      selectedValue: value,
+    });
   }
 
   render() {
@@ -113,6 +124,31 @@ export default class WalletsAdd extends Component {
             </View>
           </View>
 
+          <View>
+            {(() => {
+              if (this.state.activeBitcoin) {
+                return (
+                  <View
+                    style={{
+                      width: 200,
+                      height: 100,
+                      left: 10,
+                    }}
+                  >
+                    <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
+                      <RadioButton value={new HDSegwitP2SHWallet().type}>
+                        <BlueText>{new HDSegwitP2SHWallet().getTypeReadable()}</BlueText>
+                      </RadioButton>
+                      <RadioButton value={new SegwitP2SHWallet().type}>
+                        <BlueText>{new SegwitP2SHWallet().getTypeReadable()}</BlueText>
+                      </RadioButton>
+                    </RadioGroup>
+                  </View>
+                );
+              }
+            })()}
+          </View>
+
           <View
             style={{
               alignItems: 'center',
@@ -130,8 +166,16 @@ export default class WalletsAdd extends Component {
 
                 this.props.navigation.goBack();
                 setTimeout(async () => {
-                  let w = new SegwitP2SHWallet();
-                  w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
+                  let w;
+                  if (this.state.selectedIndex === 1) {
+                    // index 1 radio - segwit single address
+                    w = new SegwitP2SHWallet();
+                    w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
+                  } else {
+                    // zero index radio - HD segwit
+                    w = new HDSegwitP2SHWallet();
+                    w.setLabel((this.state.label || loc.wallets.add.label_new_segwit) + ' HD');
+                  }
                   w.generate();
                   BlueApp.wallets.push(w);
                   await BlueApp.saveToDisk();
