@@ -49,3 +49,8 @@ SegWit suportado (em P2SH-compatibility mode). Ajuda a diminuir os fees ainda ma
 Exportar TXHEX
 --------------
 Tenh transações TXHEX sem anunciar e anuncie quando escolher
+
+
+Watch-only (Sentinel) wallets
+-----------------------------
+You can watch status of your offline wallets. No private keys on your device!

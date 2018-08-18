@@ -50,3 +50,8 @@ SegWit supported (in P2SH-compatibility mode). Helps reduce the fees even more
 Export TXHEX
 --------------
 Get transaction TXHEX without broadcasting it and broadcast with a relay of your choice
+
+
+Watch-only (Sentinel) wallets
+-----------------------------
+You can watch status of your offline wallets. No private keys on your device!

@@ -49,3 +49,8 @@ SegWit
 експорт TXHEX
 --------------
 Отримайте дані транзакції не випускаючи транзакцію в мережу (якщо хочете транслювати транакцію самостійно)
+
+
+Watch-only (Sentinel) wallets
+-----------------------------
+You can watch status of your offline wallets. No private keys on your device!
