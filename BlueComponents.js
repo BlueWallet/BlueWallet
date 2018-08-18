@@ -270,6 +270,7 @@ export class BlueFormInputAddress extends Component {
       <FormInput
         {...this.props}
         inputStyle={{
+          maxWidth: width - 110,
           color: BlueApp.settings.foregroundColor,
           fontSize: (isIpad && 10) || ((is.iphone8() && 12) || 14),
         }}

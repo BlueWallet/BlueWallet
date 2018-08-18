@@ -97,7 +97,7 @@ module.exports = {
       header: 'send',
     },
     details: {
-      title: 'Create Transaction',
+      title: 'create transaction',
       amount_fiels_is_not_valid: 'Amount field is not valid',
       fee_fiels_is_not_valid: 'Fee field is not valid',
       address_fiels_is_not_valid: 'Address field is not valid',
@@ -111,7 +111,7 @@ module.exports = {
       remaining_balance: 'Remaining balance',
     },
     create: {
-      title: 'Create Transaction',
+      title: 'create transaction',
       error: 'Error creating transaction. Invalid address or send amount?',
       go_back: 'Go Back',
       this_is_hex: 'This is transaction hex, signed and ready to be broadcast to the network. Continue?',
@@ -122,6 +122,7 @@ module.exports = {
       satoshi_per_byte: 'satoshiPerByte',
       memo: 'Memo',
       broadcast: 'Broadcast',
+      not_enough_fee: 'Not enough fee. Increase the fee',
     },
   },
   receive: {

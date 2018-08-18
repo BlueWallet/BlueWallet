@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing } from '../../BlueComponents';
+import {
+  BlueSpacingVariable,
+  BlueHeaderDefaultSub,
+  BlueLoading,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
@@ -84,7 +93,7 @@ export default class SendCreate extends Component {
       satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
       satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
       if (satoshiPerByte < 1) {
-        throw new Error('Not enough fee. Increase the fee');
+        throw new Error(loc.send.create.not_enough_fee);
       }
     } catch (err) {
       console.log(err);
@@ -125,8 +134,10 @@ export default class SendCreate extends Component {
     if (this.state.isError) {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <BlueSpacing />
-          <BlueCard title={loc.send.create.title} style={{ alignItems: 'center', flex: 1 }}>
+          <BlueSpacingVariable />
+          <BlueHeaderDefaultSub leftText={loc.send.create.title} onClose={() => this.props.navigation.goBack()} />
+
+          <BlueCard style={{ alignItems: 'center', flex: 1 }}>
             <BlueText>{loc.send.create.error}</BlueText>
             <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
           </BlueCard>
@@ -141,8 +152,10 @@ export default class SendCreate extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <BlueSpacing />
-        <BlueCard title={loc.send.create.title} style={{ alignItems: 'center', flex: 1 }}>
+        <BlueSpacingVariable />
+        <BlueHeaderDefaultSub leftText={loc.send.create.title} onClose={() => this.props.navigation.goBack()} />
+
+        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>{loc.send.create.this_is_hex}</BlueText>
 
           <TextInput

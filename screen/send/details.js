@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View, Dimensions } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueSpacing20,
-  BlueSpacing40,
+  BlueSpacingVariable,
+  BlueHeaderDefaultSub,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
   BlueFormInput,
-  BlueSpacing,
   BlueFormInputAddress,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -19,14 +19,6 @@ let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { height, width } = Dimensions.get('window');
-const aspectRatio = height / width;
-let isIpad;
-if (aspectRatio > 1.6) {
-  isIpad = false;
-} else {
-  isIpad = true;
-}
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -187,16 +179,11 @@ export default class SendDetails extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          } else {
-            return <BlueSpacing />;
-          }
-        })()}
-        <BlueCard title={loc.send.details.title} style={{ alignItems: 'center', flex: 1 }}>
+        <BlueSpacingVariable />
+        <BlueHeaderDefaultSub leftText={loc.send.details.title} onClose={() => this.props.navigation.goBack()} />
+
+        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueFormInputAddress
-            style={{ width: 250 }}
             onChangeText={text => this.setState({ address: text })}
             placeholder={loc.send.details.receiver_placeholder}
             value={this.state.address}
