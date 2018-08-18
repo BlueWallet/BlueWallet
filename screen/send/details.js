@@ -117,7 +117,7 @@ export default class SendDetails extends Component {
     } catch (err) {
       return balance;
     }
-    console.log(typeof availableBalance, availableBalance);
+
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
@@ -141,6 +141,14 @@ export default class SendDetails extends Component {
     if (!this.state.address) {
       this.setState({
         errorMessage: loc.send.details.address_fiels_is_not_valid,
+      });
+      console.log('validation error');
+      return;
+    }
+
+    if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, this.state.fee) < 0) {
+      this.setState({
+        errorMessage: loc.send.details.amount_fiels_is_not_valid,
       });
       console.log('validation error');
       return;

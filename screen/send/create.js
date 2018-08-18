@@ -82,7 +82,10 @@ export default class SendCreate extends Component {
       let feeSatoshi = new BigNumber(this.state.fee);
       feeSatoshi = feeSatoshi.mul(100000000);
       satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
-      satoshiPerByte = Math.round(satoshiPerByte.toString(10));
+      satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
+      if (satoshiPerByte < 1) {
+        throw new Error('Not enough fee. Increase the fee');
+      }
     } catch (err) {
       console.log(err);
       return this.setState({
