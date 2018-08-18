@@ -1,1 +1,9 @@
+Features
+=======
 
+* Open Source
+* Full encryption
+* Plausible deniability
+* Flexible fees
+* Replace-By-Fee (RBF)
+* SegWit

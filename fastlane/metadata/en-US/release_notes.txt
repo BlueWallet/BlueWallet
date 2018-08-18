@@ -1,11 +1,3 @@
-* FIX: better iPad support
-* FIX: better iphone8 support
-* WIP: lightning
-* FIX: better transaction list refresh
-* ADD: Watch-only addresses
-* FIX: api limits
-* FIX: receive screen - cant copypaste address because of keyboard
-* REF: Reworked AddWallet screen
-* FIX: cosmetic changes
-* FIX: ypub for BIP49 HD (segwit)
-* REF: send/receive btns
+* FIX: Wont broadcast tx with too small fee
+* ADD: HD wallet
+* FIX: transactions list update limit
