@@ -10,6 +10,7 @@ import Carousel from 'react-native-snap-carousel';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
+import { LightningCustodianWallet } from './class/lightning-custodian-wallet';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -870,6 +871,11 @@ export class WalletsCarousel extends Component {
       gradient2 = '#9053fe';
     }
 
+    if (new LightningCustodianWallet().type === item.type) {
+      gradient1 = '#f1be07';
+      gradient2 = '#f79056';
+    }
+
     return (
       <TouchableOpacity
         activeOpacity={1}
@@ -882,7 +888,7 @@ export class WalletsCarousel extends Component {
       >
         <LinearGradient colors={[gradient1, gradient2]} style={{ padding: 15, borderRadius: 10, height: 145 }}>
           <Image
-            source={require('./img/btc-shape.png')}
+            source={(new LightningCustodianWallet().type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
             style={{
               width: 99,
               height: 94,

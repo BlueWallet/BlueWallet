@@ -13,6 +13,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     });
   }
 
+  getTypeReadable() {
+    return 'Lightning (custodian)';
+  }
+
   async createAccount() {}
 
   async authorize() {}
@@ -33,11 +37,19 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async sendCoins() {}
 
-  async getTransactions() {}
+  getTransactions() {
+    return [];
+  }
+
+  async fetchTransactions() {
+    return [];
+  }
 
   async getTransaction() {}
 
-  async getBalance() {}
+  getBalance() {
+    return 0;
+  }
 
   async getInfo() {}
 }

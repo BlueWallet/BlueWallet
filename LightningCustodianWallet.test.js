@@ -8,5 +8,5 @@ it('can generate auth secret', () => {
   l1.generate();
   l2.generate();
 
-  assert.ok(l1.getSecret() !== l2.getSecret(), 'generated credentials should be the same');
+  assert.ok(l1.getSecret() !== l2.getSecret(), 'generated credentials should not be the same');
 });
