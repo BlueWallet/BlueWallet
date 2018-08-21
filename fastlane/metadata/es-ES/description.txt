@@ -5,6 +5,7 @@ Free opensource Bitcoin wallet for iOS
 * Fake decryption password (plausible deniability)
 * Segwit ready
 * Replace-by-Fee (RBF)
+* Watch-only (Sentinel) wallets
 
 
 Features
