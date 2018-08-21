@@ -22,10 +22,6 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return 'HD SegWit (BIP49 P2SH)';
   }
 
-  allowSend() {
-    return true;
-  }
-
   generate() {
     let c = 32;
     let totalhex = '';
