@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Dimensions, Text, ListView } from 'react-native';
 import {
+  ManageFundsBigButton,
   BlueLoading,
   SafeBlueArea,
   WalletsCarousel,
@@ -16,6 +17,7 @@ import {
   is,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -85,11 +87,15 @@ export default class WalletsList extends Component {
     setTimeout(() => {
       let showSend = false;
       let showReceive = false;
+      let showManageFundsBig = false;
       let wallets = BlueApp.getWallets();
       let wallet = wallets[this.lastSnappedTo || 0];
       if (wallet) {
         showSend = wallet.allowSend();
         showReceive = wallet.allowReceive();
+      }
+      if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
+        showManageFundsBig = true;
       }
 
       this.setState({
@@ -97,6 +103,7 @@ export default class WalletsList extends Component {
         isTransactionsLoading: false,
         showReceiveButton: showReceive,
         showSendButton: showSend,
+        showManageFundsBigButton: showManageFundsBig,
         showRereshButton: (BlueApp.getWallets().length > 0 && true) || false,
         dataSource: ds.cloneWithRows(BlueApp.getTransactions(this.lastSnappedTo || 0)),
       });
@@ -130,6 +137,7 @@ export default class WalletsList extends Component {
     this.setState({
       isLoading: false,
       showReceiveButton: false,
+      showManageFundsBig: false,
       showSendButton: false,
       showRereshButton: false,
       // TODO: погуглить че это за ебала ds.cloneWithRows, можно ли быстрее сделать прогрузку транзакций на экран
@@ -141,17 +149,23 @@ export default class WalletsList extends Component {
 
       let showSend = false;
       let showReceive = false;
+      let showManageFundsBig = false;
       let wallets = BlueApp.getWallets();
       let wallet = wallets[this.lastSnappedTo || 0];
       if (wallet) {
         showSend = wallet.allowSend();
         showReceive = wallet.allowReceive();
       }
+      if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
+        showManageFundsBig = true;
+      }
+      console.log({ showManageFundsBig });
 
       setTimeout(
         () =>
           this.setState({
             showReceiveButton: showReceive,
+            showManageFundsBigButton: showManageFundsBig,
             showSendButton: showSend,
             showRereshButton: true,
           }),
@@ -396,6 +410,27 @@ export default class WalletsList extends Component {
                   for (let w of BlueApp.getWallets()) {
                     if (c++ === walletIndex) {
                       navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                    }
+                  }
+                }}
+              />
+            );
+          }
+        })()}
+
+        {(() => {
+          if (this.state.showManageFundsBigButton) {
+            return (
+              <ManageFundsBigButton
+                onPress={() => {
+                  let walletIndex = this.lastSnappedTo || 0;
+
+                  let c = 0;
+                  for (let w of BlueApp.getWallets()) {
+                    if (c++ === walletIndex) {
+                      console.log('navigating to secret ', w.getSecret());
+                      navigate('ManageFunds', { secret: w.getSecret() });
+                      // navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
                     }
                   }
                 }}

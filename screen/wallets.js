@@ -17,6 +17,8 @@ import sendDetails from './send/details';
 import sendScanQrAddress from './send/scanQrAddress';
 import sendCreate from './send/create';
 
+import ManageFunds from './lnd/manageFunds';
+
 const WalletsNavigator = StackNavigator(
   {
     WalletsList: {
@@ -66,6 +68,12 @@ const WalletsNavigator = StackNavigator(
     },
     CreateTransaction: {
       screen: sendCreate,
+    },
+
+    //
+
+    ManageFunds: {
+      screen: ManageFunds,
     },
   },
   {

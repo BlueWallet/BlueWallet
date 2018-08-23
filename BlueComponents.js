@@ -728,6 +728,66 @@ export class BlueSendButtonIcon extends Component {
   }
 }
 
+export class ManageFundsBigButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity
+        {...this.props}
+        style={{
+          flex: 1,
+          position: 'absolute',
+          bottom: 30,
+          left: (width - 190) / 2,
+        }}
+      >
+        <View>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              width: 190,
+              height: 40,
+              position: 'relative',
+              backgroundColor: '#ccddf9',
+              borderBottomRightRadius: 15,
+              borderBottomLeftRadius: 15,
+              borderTopRightRadius: 15,
+              borderTopLeftRadius: 15,
+            }}
+          >
+            <View
+              style={{
+                width: 30,
+                height: 30,
+                left: 20,
+                top: 5,
+                borderBottomLeftRadius: 15,
+                backgroundColor: 'transparent',
+                transform: [{ rotate: '90deg' }],
+              }}
+            >
+              <Icon {...this.props} name="link" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 0, top: 0 }} />
+            </View>
+            <Text
+              style={{
+                color: '#2f5fb3',
+                fontSize: (isIpad && 10) || 16,
+                fontWeight: '500',
+                left: 25,
+                top: 12,
+                backgroundColor: 'transparent',
+                position: 'relative',
+              }}
+            >
+              manage funds
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
 export class BluePlusIconDimmed extends Component {
   render() {
     return (
