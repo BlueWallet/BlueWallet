@@ -1,19 +1,23 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
-let BigNumber = require('bignumber.js')
+let BigNumber = require('bignumber.js');
 
 export class LightningCustodianWallet extends LegacyWallet {
   constructor() {
     super();
     this.init();
     this.type = 'lightningCustodianWallet';
-    this.refresh_token = ''
+    this.refresh_token = '';
     this.access_token = '';
     this._refresh_token_created_ts = 0;
     this._access_token_created_ts = 0;
     this.refill_addressess = [];
     this.pending_transactions_raw = [];
     this.info_raw = false;
+  }
+
+  getAddress() {
+    return '';
   }
 
   static fromJson(param) {
@@ -29,11 +33,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   accessTokenExpired() {
-    return (+new Date() - this._access_token_created_ts)/1000 >= 3600 * 2; // 2h
+    return (+new Date() - this._access_token_created_ts) / 1000 >= 3600 * 2; // 2h
   }
 
   refreshTokenExpired() {
-    return (+new Date() - this._refresh_token_created_ts)/1000 >= 3600 * 24 * 7; // 7d
+    return (+new Date() - this._refresh_token_created_ts) / 1000 >= 3600 * 24 * 7; // 7d
   }
 
   generate() {
@@ -46,8 +50,8 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async createAccount() {
     let response = await this._api.post('/create', {
-      body: { "partnerid": "bluewallet", "test" : true },
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json" },
+      body: { partnerid: 'bluewallet', test: true },
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
     });
     let json = response.body;
     if (typeof json === 'undefined') {
@@ -64,14 +68,16 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     this.secret = 'blitzhub://' + json.login + ':' + json.password;
 
-    console.log(response.body)
+    console.log(response.body);
   }
 
   async payInvoice(invoice) {
     let response = await this._api.post('/payinvoice', {
-      body: { "invoice" : invoice },
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json",
-        'Authorization': 'Bearer' + ' ' + this.access_token,
+      body: { invoice: invoice },
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
     let json = response.body;
@@ -83,7 +89,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    console.log(response.body)
+    console.log(response.body);
 
     this.last_paid_invoice_result = json;
 
@@ -99,8 +105,8 @@ export class LightningCustodianWallet extends LegacyWallet {
     let password = this.secret.replace('blitzhub://', '').split(':')[1];
     console.log('auth uses login:pass', login, password);
     let response = await this._api.post('/auth?type=auth', {
-      body: { 'login': login, 'password': password },
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json" },
+      body: { login: login, password: password },
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
     });
 
     let json = response.body;
@@ -141,15 +147,15 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       if (!refreshed_ok) {
         // something went wrong, lets try to login regularly
-        return await this.authorize()
+        return await this.authorize();
       }
     }
   }
 
   async refreshAcessToken() {
     let response = await this._api.post('/auth?type=refresh_token', {
-      body: { 'refresh_token' : this.refresh_token },
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json" },
+      body: { refresh_token: this.refresh_token },
+      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
     });
 
     let json = response.body;
@@ -177,8 +183,10 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async fetchBtcAddress() {
     let response = await this._api.get('/getbtc', {
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json",
-        'Authorization': 'Bearer' + ' ' + this.access_token,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
 
@@ -211,15 +219,24 @@ export class LightningCustodianWallet extends LegacyWallet {
   async sendCoins() {}
 
   getTransactions() {
-    let tx = []
-    tx = tx.concat(this.transactions_raw, this.pending_transactions_raw)
-    return tx;
+    let txs = [];
+    txs = txs.concat(this.transactions_raw || [], this.pending_transactions_raw || []);
+    // transforming to how wallets/list screen expects it
+    console.log('txs', txs);
+    for (let tx of txs) {
+      tx.value = tx.amount * 100000000;
+      tx.received = new Date(tx.time * 1000).toString();
+      tx.memo = 'Refill';
+    }
+    return txs;
   }
 
   async fetchPendingTransactions() {
     let response = await this._api.get('/getpending', {
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json",
-        'Authorization': 'Bearer' + ' ' + this.access_token,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
 
@@ -232,7 +249,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    this.pending_transactions_raw = json
+    this.pending_transactions_raw = json;
 
     console.log(json);
   }
@@ -246,8 +263,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     queryRes += '&offset=' + offset;
 
     let response = await this._api.get('/gettxs' + queryRes, {
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json",
-        'Authorization': 'Bearer' + ' ' + this.access_token,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
 
@@ -264,15 +283,17 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getBalance() {
-    return (new BigNumber(this.balance)).div(100000000).toString(10);
+    return new BigNumber(this.balance).div(100000000).toString(10);
   }
 
   async fetchBalance() {
     await this.checkLogin();
 
     let response = await this._api.get('/balance', {
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json",
-        'Authorization': 'Bearer' + ' ' + this.access_token,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
 
@@ -289,18 +310,19 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    this.balance_raw = json
+    this.balance_raw = json;
     this.balance = json.BTC.AvailableBalance;
     this._lastBalanceFetch = +new Date();
 
     console.log(json);
   }
 
-
   async fetchInfo() {
     let response = await this._api.get('/getinfo', {
-      headers: { 'Access-Control-Allow-Origin': '*', "Content-Type": "application/json",
-        'Authorization': 'Bearer' + ' ' + this.access_token,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
 
@@ -317,19 +339,16 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    this.info_raw = json
+    this.info_raw = json;
 
     console.log(json);
   }
 
-
   allowReceive() {
+    return false;
     return this.allowSend();
   }
 }
-
-
-
 
 /*
 

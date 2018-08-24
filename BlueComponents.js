@@ -599,6 +599,27 @@ export class BlueTransactionPendingIcon extends Component {
   }
 }
 
+export class BlueTransactionOnchainIcon extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.boxIncomming}>
+          <View style={stylesBlueIcon.ballIncomming}>
+            <Icon
+              {...this.props}
+              name="link"
+              size={16}
+              type="font-awesome"
+              color="#37c0a1"
+              iconStyle={{ left: 1, top: 7, transform: [{ rotate: '-45deg' }] }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
 export class BlueTransactionOutgoingIcon extends Component {
   render() {
     return (

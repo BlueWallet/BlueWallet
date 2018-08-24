@@ -2,10 +2,7 @@
 import { LightningCustodianWallet } from './class';
 let assert = require('assert');
 
-
-
 describe('LightningCustodianWallet', () => {
-
   let l1 = new LightningCustodianWallet();
 
   it('can create, auth and getbtc', async () => {
@@ -35,16 +32,16 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can refresh token', async () => {
-    let old_refresh_token = l1.refresh_token
-    let old_access_token = l1.access_token
+    let old_refresh_token = l1.refresh_token;
+    let old_access_token = l1.access_token;
     await l1.refreshAcessToken();
-    assert.ok(old_refresh_token !== l1.refresh_token)
-    assert.ok(old_access_token !== l1.access_token)
+    assert.ok(old_refresh_token !== l1.refresh_token);
+    assert.ok(old_access_token !== l1.access_token);
     assert.ok(l1.access_token);
     assert.ok(l1.refresh_token);
-  })
+  });
 
-  it('can use existing login/pass', async() => {
+  it('can use existing login/pass', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let l2 = new LightningCustodianWallet();
     l2.setSecret('blitzhub://fenjeflw:ToPgV#Lzz{d6hmV?');
@@ -57,24 +54,22 @@ describe('LightningCustodianWallet', () => {
     console.log('transactions_raw =', l2.transactions_raw);
 
     await l2.fetchBalance();
-    console.log('balance', l2.getBalance())
+    console.log('balance', l2.getBalance());
 
-    let invoice = 'lnbc1u1pdha2z6pp5fpg6uqp3dn7ffwn6u2ggv4r9t8nndrrf2awnu0km7qhs384xh7yqdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2rtks3v6nr3llcaufqg3yng25d68wddwjwfj25042juecd9dn937p3arsjt2mp985wgz9cwnu4s3uf38lpla8uydcuym42jrjy7nydysqs593lp';
+    let invoice =
+      'lnbc1u1pdha2z6pp5fpg6uqp3dn7ffwn6u2ggv4r9t8nndrrf2awnu0km7qhs384xh7yqdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2rtks3v6nr3llcaufqg3yng25d68wddwjwfj25042juecd9dn937p3arsjt2mp985wgz9cwnu4s3uf38lpla8uydcuym42jrjy7nydysqs593lp';
 
     // await l2.payInvoice(invoice);
     // console.log('paid invoice');
 
     // await l2.fetchTransactions();
     // console.log('transactions_raw =', l2.transactions_raw);
-  })
+  });
 
-
-  it.only('can use existing login/pass 2', async() => {
+  it.only('can use existing login/pass 2', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let l2 = new LightningCustodianWallet();
     l2.setSecret('blitzhub://fenjeflw:ToPgV#Lzz{d6hmV?');
     await l2.fetchBalance();
-  })
-
-})
-
+  });
+});

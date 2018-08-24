@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { View, Dimensions, Text, ListView } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Text, ListView } from 'react-native';
 import {
+  BlueText,
+  BlueTransactionOnchainIcon,
   ManageFundsBigButton,
   BlueLoading,
   SafeBlueArea,
@@ -16,6 +18,7 @@ import {
   BlueHeaderDefaultMain,
   is,
 } from '../../BlueComponents';
+import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 const BigNumber = require('bignumber.js');
@@ -85,17 +88,28 @@ export default class WalletsList extends Component {
     }
 
     setTimeout(() => {
+      console.log('refreshFunction()');
       let showSend = false;
       let showReceive = false;
       let showManageFundsBig = false;
+      let showManageFundsSmallButton = false;
       let wallets = BlueApp.getWallets();
       let wallet = wallets[this.lastSnappedTo || 0];
       if (wallet) {
         showSend = wallet.allowSend();
         showReceive = wallet.allowReceive();
       }
+      let showRereshButton = (BlueApp.getWallets().length > 0 && true) || false;
+
       if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
         showManageFundsBig = true;
+        showManageFundsSmallButton = false;
+        showRereshButton = false;
+      }
+
+      if (wallet && wallet.type === new LightningCustodianWallet().type && wallet.getBalance() > 0) {
+        showRereshButton = false;
+        showManageFundsSmallButton = true;
       }
 
       this.setState({
@@ -104,7 +118,8 @@ export default class WalletsList extends Component {
         showReceiveButton: showReceive,
         showSendButton: showSend,
         showManageFundsBigButton: showManageFundsBig,
-        showRereshButton: (BlueApp.getWallets().length > 0 && true) || false,
+        showManageFundsSmallButton,
+        showRereshButton,
         dataSource: ds.cloneWithRows(BlueApp.getTransactions(this.lastSnappedTo || 0)),
       });
     }, 1);
@@ -137,7 +152,7 @@ export default class WalletsList extends Component {
     this.setState({
       isLoading: false,
       showReceiveButton: false,
-      showManageFundsBig: false,
+      showManageFundsBigButton: false,
       showSendButton: false,
       showRereshButton: false,
       // TODO: погуглить че это за ебала ds.cloneWithRows, можно ли быстрее сделать прогрузку транзакций на экран
@@ -156,9 +171,21 @@ export default class WalletsList extends Component {
         showSend = wallet.allowSend();
         showReceive = wallet.allowReceive();
       }
+      console.log({ showSend });
+      let showRereshButton = true;
+      let showManageFundsSmallButton = true;
       if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
         showManageFundsBig = true;
+        showRereshButton = false;
+        showManageFundsSmallButton = false;
       }
+
+      if (wallet && wallet.type === new LightningCustodianWallet().type) {
+        showRereshButton = false;
+      } else {
+        showManageFundsSmallButton = false;
+      }
+
       console.log({ showManageFundsBig });
 
       setTimeout(
@@ -166,8 +193,9 @@ export default class WalletsList extends Component {
           this.setState({
             showReceiveButton: showReceive,
             showManageFundsBigButton: showManageFundsBig,
+            showManageFundsSmallButton,
             showSendButton: showSend,
-            showRereshButton: true,
+            showRereshButton,
           }),
         50,
       ); // just to animate it, no real function
@@ -244,6 +272,38 @@ export default class WalletsList extends Component {
         />
 
         {(() => {
+          if (this.state.showManageFundsSmallButton) {
+            return (
+              <TouchableOpacity
+                style={{ alignSelf: 'flex-end', right: 10, flexDirection: 'row' }}
+                onPress={() => {
+                  let walletIndex = this.lastSnappedTo || 0;
+
+                  let c = 0;
+                  for (let w of BlueApp.getWallets()) {
+                    if (c++ === walletIndex) {
+                      console.log('navigating to secret ', w.getSecret());
+                      navigate('ManageFunds', { secret: w.getSecret() });
+                      // navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                    }
+                  }
+                }}
+              >
+                <BlueText>Manage funds</BlueText>
+                <Icon
+                  style={{ position: 'relative' }}
+                  name="link"
+                  type="font-awesome"
+                  size={14}
+                  color={BlueApp.settings.foregroundColor}
+                  iconStyle={{ left: 5, transform: [{ rotate: '90deg' }] }}
+                />
+              </TouchableOpacity>
+            );
+          }
+        })()}
+
+        {(() => {
           if (this.state.isTransactionsLoading) {
             return <BlueLoading />;
           } else {
@@ -315,6 +375,14 @@ export default class WalletsList extends Component {
                         return (
                           <BlueListItem
                             avatar={(() => {
+                              if (rowData.category && rowData.category === 'receive') {
+                                // is it lightning onchain tx?
+                                return (
+                                  <View style={{ width: 25 }}>
+                                    <BlueTransactionOnchainIcon />
+                                  </View>
+                                );
+                              }
                               if (!rowData.confirmations) {
                                 return (
                                   <View style={{ width: 25 }}>
@@ -338,7 +406,8 @@ export default class WalletsList extends Component {
                             title={loc.transactionTimeToReadable(rowData.received)}
                             subtitle={
                               (rowData.confirmations < 7 ? loc.transactions.list.conf + ': ' + rowData.confirmations + ' ' : '') +
-                              this.txMemo(rowData.hash)
+                              this.txMemo(rowData.hash) +
+                              (rowData.memo || '')
                             }
                             onPress={() => {
                               navigate('TransactionDetails', {

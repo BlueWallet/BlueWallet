@@ -168,9 +168,9 @@ export default class WalletsAdd extends Component {
                   if (this.state.activeLightning) {
                     // lightning was selected
                     for (let t of BlueApp.getWallets()) {
-                      if (t.type === (new LightningCustodianWallet()).type) {
+                      if (t.type === new LightningCustodianWallet().type) {
                         // already exist
-                        return alert('Only 1 Ligthning wallet allowed for now')
+                        return alert('Only 1 Ligthning wallet allowed for now');
                       }
                     }
 
