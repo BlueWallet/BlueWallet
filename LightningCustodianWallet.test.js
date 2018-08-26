@@ -35,11 +35,11 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can refresh token', async () => {
-    let old_refresh_token = l1.refresh_token;
-    let old_access_token = l1.access_token;
+    let oldRefreshToken = l1.refresh_token;
+    let oldAccessToken = l1.access_token;
     await l1.refreshAcessToken();
-    assert.ok(old_refresh_token !== l1.refresh_token);
-    assert.ok(old_access_token !== l1.access_token);
+    assert.ok(oldRefreshToken !== l1.refresh_token);
+    assert.ok(oldAccessToken !== l1.access_token);
     assert.ok(l1.access_token);
     assert.ok(l1.refresh_token);
   });

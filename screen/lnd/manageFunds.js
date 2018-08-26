@@ -1,18 +1,8 @@
+/* global alert */
 import React, { Component } from 'react';
-import { Constants } from 'expo';
-import { ScrollView, TouchableOpacity, TouchableHighlight, Linking, View, Dimensions } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
-import {
-  BlueSpacingVariable,
-  BlueTextCentered,
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-} from '../../BlueComponents';
+import { BlueSpacingVariable, BlueLoading, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -148,3 +138,15 @@ export default class ManageFunds extends Component {
     );
   }
 }
+
+ManageFunds.propTypes = {
+  navigation: PropTypes.shape({
+    goBack: PropTypes.function,
+    navigate: PropTypes.function,
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        fromSecret: PropTypes.string,
+      }),
+    }),
+  }),
+};

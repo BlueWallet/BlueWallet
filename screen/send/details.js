@@ -257,6 +257,7 @@ SendDetails.propTypes = {
         address: PropTypes.string,
         fromAddress: PropTypes.string,
         fromSecret: PropTypes.string,
+        memo: PropTypes.string,
       }),
     }),
   }),

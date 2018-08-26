@@ -190,6 +190,7 @@ export class BlueText extends Component {
           {
             color: BlueApp.settings.foregroundColor,
           },
+          // eslint-disable-next-line
           this.props.style,
         )}
       />

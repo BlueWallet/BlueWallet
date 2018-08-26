@@ -170,21 +170,21 @@ export class LightningCustodianWallet extends LegacyWallet {
   async checkLogin() {
     if (this.accessTokenExpired() && this.refreshTokenExpired()) {
       // all tokens expired, only option is to login with login and password
-      return await this.authorize();
+      return this.authorize();
     }
 
     if (this.accessTokenExpired()) {
       // only access token expired, so only refreshing it
-      let refreshed_ok = true;
+      let refreshedOk = true;
       try {
         await this.refreshAcessToken();
       } catch (Err) {
-        refreshed_ok = false;
+        refreshedOk = false;
       }
 
-      if (!refreshed_ok) {
+      if (!refreshedOk) {
         // something went wrong, lets try to login regularly
-        return await this.authorize();
+        return this.authorize();
       }
     }
   }
@@ -419,7 +419,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   allowReceive() {
     return false;
-    return this.allowSend();
   }
 }
 
