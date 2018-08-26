@@ -397,10 +397,12 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   getLatestTransactionTime() {
+    let max = 0;
     for (let tx of this.getTransactions()) {
-      return tx.received;
+      max = Math.max(new Date(tx.received) * 1, max);
     }
-    return 0;
+
+    return new Date(max).toString();
   }
 
   getRandomBlockcypherToken() {

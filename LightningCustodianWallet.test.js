@@ -1,4 +1,5 @@
 /* global it, describe, jasmine */
+import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from './class';
 let assert = require('assert');
 
@@ -16,6 +17,7 @@ describe('LightningCustodianWallet', () => {
       await l1.fetchBtcAddress();
       await l1.fetchBalance();
       await l1.fetchInfo();
+      await l1.fetchTransactions();
       await l1.fetchPendingTransactions();
     } catch (Err) {
       console.warn(Err.message);
@@ -29,6 +31,7 @@ describe('LightningCustodianWallet', () => {
     assert.ok(l1.balance === 0);
     assert.ok(l1.info_raw);
     assert.ok(l1.pending_transactions_raw.length === 0);
+    assert.ok(l1.transactions_raw.length === 0);
   });
 
   it('can refresh token', async () => {
@@ -42,34 +45,98 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can use existing login/pass', async () => {
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let l2 = new LightningCustodianWallet();
-    l2.setSecret('blitzhub://fenjeflw:ToPgV#Lzz{d6hmV?');
+    l2.setSecret(process.env.BLITZHUB);
     await l2.authorize();
-    await l2.fetchBtcAddress();
-    console.log(l2.refill_addressess);
     await l2.fetchPendingTransactions();
-    console.log(l2.pending_transactions_raw);
     await l2.fetchTransactions();
-    console.log('transactions_raw =', l2.transactions_raw);
-
+    assert.ok(l2.pending_transactions_raw.length === 0);
+    assert.ok(l2.transactions_raw.length > 0);
     await l2.fetchBalance();
-    console.log('balance', l2.getBalance());
-
-    let invoice =
-      'lnbc1u1pdha2z6pp5fpg6uqp3dn7ffwn6u2ggv4r9t8nndrrf2awnu0km7qhs384xh7yqdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2rtks3v6nr3llcaufqg3yng25d68wddwjwfj25042juecd9dn937p3arsjt2mp985wgz9cwnu4s3uf38lpla8uydcuym42jrjy7nydysqs593lp';
-
-    // await l2.payInvoice(invoice);
-    // console.log('paid invoice');
-
-    // await l2.fetchTransactions();
-    // console.log('transactions_raw =', l2.transactions_raw);
+    assert.ok(l2.getBalance() > 0);
   });
 
-  it.only('can use existing login/pass 2', async () => {
+  it('can decode & check invoice', async () => {
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let l2 = new LightningCustodianWallet();
-    l2.setSecret('blitzhub://fenjeflw:ToPgV#Lzz{d6hmV?');
-    await l2.fetchBalance();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+
+    let invoice =
+      'lnbc1u1pdcqpt3pp5ltuevvq2g69kdrzcegrs9gfqjer45rwjc0w736qjl92yvwtxhn6qdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2zrkghzl535xjav52ns0rpskcn20takzdr2e02wn4xqretlgdemg596acq5qtfqhjk4jpr7jk8qfuuka2k0lfwjsk9mchwhxcgxzj3tsp09gfpy';
+    let decoded = await l2.decodeInvoice(invoice);
+
+    assert.ok(decoded.payment_hash);
+    assert.ok(decoded.description);
+    assert.ok(decoded.num_satoshis);
+
+    await l2.checkRouteInvoice(invoice);
+
+    // checking that bad invoice cant be decoded
+    invoice = 'gsom';
+    let error = false;
+    try {
+      await l2.decodeInvoice(invoice);
+    } catch (Err) {
+      error = true;
+    }
+    assert.ok(error);
+  });
+
+  it('can pay invoice', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
+    if (!process.env.STRIKE) {
+      console.error('process.env.STRIKE not set, skipped');
+      return;
+    }
+
+    const api = new Frisbee({
+      baseURI: 'https://api.strike.acinq.co',
+    });
+
+    api.auth(process.env.STRIKE + ':');
+
+    const res = await api.post('/api/v1/charges', {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'amount=1&currency=btc&description=acceptance+test',
+    });
+
+    if (!res.body || !res.body.payment_request) {
+      throw new Error('Strike problem: ' + JSON.stringify(res));
+    }
+
+    let invoice = res.body.payment_request;
+
+    let l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+
+    let decoded = await l2.decodeInvoice(invoice);
+    assert.ok(decoded.payment_hash);
+    assert.ok(decoded.description);
+
+    await l2.checkRouteInvoice(invoice);
+
+    let start = +new Date();
+    await l2.payInvoice(invoice);
+    let end = +new Date();
+    if ((end - start) / 1000 > 9) {
+      console.warn('payInvoice took', (end - start) / 1000, 'sec');
+    }
   });
 });

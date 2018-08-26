@@ -153,6 +153,7 @@ export default class WalletsList extends Component {
       isLoading: false,
       showReceiveButton: false,
       showManageFundsBigButton: false,
+      showManageFundsSmallButton: false,
       showSendButton: false,
       showRereshButton: false,
       // TODO: погуглить че это за ебала ds.cloneWithRows, можно ли быстрее сделать прогрузку транзакций на экран
@@ -205,6 +206,15 @@ export default class WalletsList extends Component {
     this.lazyRefreshWallet(index);
   }
 
+  isLightning() {
+    let w = BlueApp.getWallets()[this.lastSnappedTo || 0];
+    if (w && w.type === new LightningCustodianWallet().type) {
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * Decides whether wallet with such index shoud be refreshed,
    * refreshes if yes and redraws the screen
@@ -232,8 +242,11 @@ export default class WalletsList extends Component {
           this.refreshFunction();
           didRefresh = true;
         } else if (wallets[index].timeToRefreshTransaction()) {
-          console.log('got TXs with low confirmations, refreshing');
+          console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
           await wallets[index].fetchTransactions();
+          if (wallets[index].fetchPendingTransactions) {
+            await wallets[index].fetchPendingTransactions();
+          }
           this.refreshFunction();
           didRefresh = true;
         } else {
@@ -283,13 +296,12 @@ export default class WalletsList extends Component {
                   for (let w of BlueApp.getWallets()) {
                     if (c++ === walletIndex) {
                       console.log('navigating to secret ', w.getSecret());
-                      navigate('ManageFunds', { secret: w.getSecret() });
-                      // navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                      navigate('ManageFunds', { fromSecret: w.getSecret() });
                     }
                   }
                 }}
               >
-                <BlueText>Manage funds</BlueText>
+                <BlueText style={{ fontWeight: '600', fontSize: 16 }}>Manage funds</BlueText>
                 <Icon
                   style={{ position: 'relative' }}
                   name="link"
@@ -346,7 +358,9 @@ export default class WalletsList extends Component {
                               textAlign: 'center',
                             }}
                           >
-                            {loc.wallets.list.empty_txs1}
+                            {(this.isLightning() &&
+                              'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
+                              loc.wallets.list.empty_txs1}
                           </Text>
                           <Text
                             style={{
@@ -355,7 +369,8 @@ export default class WalletsList extends Component {
                               textAlign: 'center',
                             }}
                           >
-                            {loc.wallets.list.empty_txs2}
+                            {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
+                              loc.wallets.list.empty_txs2}
                           </Text>
                         </View>
                       );
@@ -377,11 +392,19 @@ export default class WalletsList extends Component {
                             avatar={(() => {
                               if (rowData.category && rowData.category === 'receive') {
                                 // is it lightning onchain tx?
-                                return (
-                                  <View style={{ width: 25 }}>
-                                    <BlueTransactionOnchainIcon />
-                                  </View>
-                                );
+                                if (rowData.confirmations < 3) {
+                                  return (
+                                    <View style={{ width: 25 }}>
+                                      <BlueTransactionPendingIcon />
+                                    </View>
+                                  );
+                                } else {
+                                  return (
+                                    <View style={{ width: 25 }}>
+                                      <BlueTransactionOnchainIcon />
+                                    </View>
+                                  );
+                                }
                               }
                               if (!rowData.confirmations) {
                                 return (
@@ -410,9 +433,11 @@ export default class WalletsList extends Component {
                               (rowData.memo || '')
                             }
                             onPress={() => {
-                              navigate('TransactionDetails', {
-                                hash: rowData.hash,
-                              });
+                              if (rowData.hash) {
+                                navigate('TransactionDetails', {
+                                  hash: rowData.hash,
+                                });
+                              }
                             }}
                             badge={{
                               value: 3,
@@ -478,7 +503,11 @@ export default class WalletsList extends Component {
                   let c = 0;
                   for (let w of BlueApp.getWallets()) {
                     if (c++ === walletIndex) {
-                      navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                      if (w.type === new LightningCustodianWallet().type) {
+                        navigate('ScanLndInvoice', { fromSecret: w.getSecret() });
+                      } else {
+                        navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                      }
                     }
                   }
                 }}
@@ -498,8 +527,7 @@ export default class WalletsList extends Component {
                   for (let w of BlueApp.getWallets()) {
                     if (c++ === walletIndex) {
                       console.log('navigating to secret ', w.getSecret());
-                      navigate('ManageFunds', { secret: w.getSecret() });
-                      // navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                      navigate('ManageFunds', { fromSecret: w.getSecret() });
                     }
                   }
                 }}

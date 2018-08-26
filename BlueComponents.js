@@ -37,7 +37,6 @@ export class BlueButton extends Component {
           marginTop: 20,
           borderWidth: 0.7,
           borderColor: 'transparent',
-          borderLeftColor: 'transparent',
         }}
         buttonStyle={Object.assign(
           {
@@ -184,7 +183,17 @@ export class BlueCard extends Component {
 
 export class BlueText extends Component {
   render() {
-    return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor }} />;
+    return (
+      <Text
+        {...this.props}
+        style={Object.assign(
+          {
+            color: BlueApp.settings.foregroundColor,
+          },
+          this.props.style,
+        )}
+      />
+    );
   }
 }
 export class BlueTextCentered extends Component {
@@ -611,7 +620,7 @@ export class BlueTransactionOnchainIcon extends Component {
               size={16}
               type="font-awesome"
               color="#37c0a1"
-              iconStyle={{ left: 1, top: 7, transform: [{ rotate: '-45deg' }] }}
+              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '-45deg' }] }}
             />
           </View>
         </View>
