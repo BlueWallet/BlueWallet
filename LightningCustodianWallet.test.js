@@ -7,21 +7,20 @@ describe('LightningCustodianWallet', () => {
   let l1 = new LightningCustodianWallet();
 
   it('can create, auth and getbtc', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
     l1.balance = 'FAKE';
-    try {
-      await l1.createAccount();
-      await l1.authorize();
-      await l1.fetchBtcAddress();
-      await l1.fetchBalance();
-      await l1.fetchInfo();
-      await l1.fetchTransactions();
-      await l1.fetchPendingTransactions();
-    } catch (Err) {
-      console.warn(Err.message);
-    }
+
+    await l1.createAccount();
+    await l1.authorize();
+    await l1.fetchBtcAddress();
+    await l1.fetchBalance();
+    await l1.fetchInfo();
+    await l1.fetchTransactions();
+    await l1.fetchPendingTransactions();
+
 
     assert.ok(l1.access_token);
     assert.ok(l1.refresh_token);
@@ -32,9 +31,11 @@ describe('LightningCustodianWallet', () => {
     assert.ok(l1.info_raw);
     assert.ok(l1.pending_transactions_raw.length === 0);
     assert.ok(l1.transactions_raw.length === 0);
+    assert.ok(l1.transactions_raw.length === l1.getTransactions().length);
   });
 
   it('can refresh token', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     let oldRefreshToken = l1.refresh_token;
     let oldAccessToken = l1.access_token;
     await l1.refreshAcessToken();
@@ -45,11 +46,11 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can use existing login/pass', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     await l2.authorize();
@@ -57,6 +58,7 @@ describe('LightningCustodianWallet', () => {
     await l2.fetchTransactions();
     assert.ok(l2.pending_transactions_raw.length === 0);
     assert.ok(l2.transactions_raw.length > 0);
+    assert.ok(l2.transactions_raw.length === l2.getTransactions().length);
     await l2.fetchBalance();
     assert.ok(l2.getBalance() > 0);
   });

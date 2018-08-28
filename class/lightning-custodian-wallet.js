@@ -305,7 +305,11 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    this.transactions_raw = json;
+    if (typeof json.btc_txs === 'undefined' || typeof json.paid_invoices === 'undefined' || typeof json.sended_coins === 'undefined') {
+      throw new Error('API unexpected response: ' + JSON.stringify(response.body));
+    }
+
+    this.transactions_raw = [].concat(json.btc_txs || [], json.paid_invoices || [], json.sended_coins || [])
 
     console.log(json);
   }
