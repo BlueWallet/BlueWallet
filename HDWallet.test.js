@@ -124,7 +124,7 @@ it('Segwit HD (BIP49) can fetch UTXO', async function() {
   let hd = new HDSegwitP2SHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
-  assert.equal(hd.utxo.length, 8);
+  assert.equal(hd.utxo.length, 9);
   assert.ok(hd.utxo[0].confirmations);
   assert.ok(hd.utxo[0].txid);
   assert.ok(hd.utxo[0].vout);
