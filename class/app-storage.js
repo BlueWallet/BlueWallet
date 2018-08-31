@@ -8,6 +8,7 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
 } from './';
+import { LightningCustodianWallet } from './lightning-custodian-wallet';
 let encryption = require('../encryption');
 
 export class AppStorage {
@@ -146,6 +147,9 @@ export class AppStorage {
               break;
             case new HDLegacyBreadwalletWallet().type:
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
+              break;
+            case new LightningCustodianWallet().type:
+              unserializedWallet = LightningCustodianWallet.fromJson(key);
               break;
             case 'legacy':
             default:

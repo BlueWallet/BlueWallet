@@ -1,6 +1,7 @@
 import Frisbee from 'frisbee';
 import { AsyncStorage } from 'react-native';
 import { AppStorage } from './class';
+let BigNumber = require('bignumber.js');
 
 let lang = {};
 // let btcusd = 6500; // default
@@ -52,6 +53,27 @@ async function startUpdater() {
   return updateExchangeRate();
 }
 
+function satoshiToLocalCurrency(satoshi) {
+  if (!lang[STRUCT.BTC_USD]) return satoshi;
+
+  let b = new BigNumber(satoshi);
+  b = b
+    .div(100000000)
+    .mul(lang[STRUCT.BTC_USD])
+    .toString(10);
+  b = parseFloat(b).toFixed(2);
+
+  return '$' + b;
+}
+
+function satoshiToBTC(satoshi) {
+  let b = new BigNumber(satoshi);
+  b = b.div(100000000);
+  return b.toString(10) + ' BTC';
+}
+
 module.exports.updateExchangeRate = updateExchangeRate;
 module.exports.startUpdater = startUpdater;
 module.exports.STRUCT = STRUCT;
+module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
+module.exports.satoshiToBTC = satoshiToBTC;

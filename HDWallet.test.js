@@ -69,9 +69,9 @@ it('can generate Segwit HD (BIP49)', async () => {
   assert.ok(hd2.validateMnemonic());
 });
 
-it('HD (BIP49)can create TX', async () => {
+it('HD (BIP49) can create TX', async () => {
   if (!process.env.HD_MNEMONIC) {
-    console.log('process.env.HD_MNEMONIC not set, skipped');
+    console.warn('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
@@ -85,7 +85,7 @@ it('HD (BIP49)can create TX', async () => {
   let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
   assert.equal(
     txhex,
-    '01000000000102ee7a13faf14dd004c6fa403c3073fbb6e0d7389ffa45e879fd96b5e21fd8989d00000000171600142f18e8406c9d210f30c901b24e5feeae78784eb7ffffffff22cde2709a2774a008fd0513e94edde4fdc71195ce0fd408e524df10f386fb67000000001716001468dde644410cc789d91a7f36b823f38369755a1cffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87dc0500000000000017a914850f4dbc255654de2c12c6f6d79cf9cb756cad038702473044022025e2a280e77691804ef3aa8039dceb5b7e454fb97edd2088f32858e86115bb030220553c21f7c9026a833ad9582a119cd6b24227fc45ed84fd18115ae71e5a8975f5012102edd141c5a27a726dda66be10a38b0fd3ccbb40e7c380034aaa43a1656d5f4dd60247304402207c9b7b0b7767e7bb37388fbfb865402ca58d2d7b88a7110244fc5d7881ae3cce022037874f10db854df4bfdc9ef2b02a9e2919a238eac6aad82bd82e528585084e3b0121030db3c49461a5e539e97bab62ab2b8f88151d1c2376493cf73ef1d02ef60637fd00000000',
+    '010000000001029d98d81fe2b596fd79e845fa9f38d7e0b6fb73303c40fac604d04df1fa137aee00000000171600142f18e8406c9d210f30c901b24e5feeae78784eb7ffffffff67fb86f310df24e508d40fce9511c7fde4dd4ee91305fd08a074279a70e2cd22000000001716001468dde644410cc789d91a7f36b823f38369755a1cffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87dc0500000000000017a914850f4dbc255654de2c12c6f6d79cf9cb756cad038702483045022100dc8390a9fd34c31259fa47f9fc182f20d991110ecfd5b58af1cf542fe8de257a022004c2d110da7b8c4127675beccc63b46fd65c706951f090fd381fa3b21d3c5c08012102edd141c5a27a726dda66be10a38b0fd3ccbb40e7c380034aaa43a1656d5f4dd60247304402207c0aef8313d55e72474247daad955979f62e56d1cbac5f2d14b8b022c6ce112602205d9aa3804f04624b12ab8a5ab0214b529c531c2f71c27c6f18aba6502a6ea0a80121030db3c49461a5e539e97bab62ab2b8f88151d1c2376493cf73ef1d02ef60637fd00000000',
   );
 
   let bitcoin = require('bitcoinjs-lib');
@@ -124,7 +124,7 @@ it('Segwit HD (BIP49) can fetch UTXO', async function() {
   let hd = new HDSegwitP2SHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
-  assert.equal(hd.utxo.length, 8);
+  assert.equal(hd.utxo.length, 9);
   assert.ok(hd.utxo[0].confirmations);
   assert.ok(hd.utxo[0].txid);
   assert.ok(hd.utxo[0].vout);

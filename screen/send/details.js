@@ -29,9 +29,12 @@ export default class SendDetails extends Component {
 
   constructor(props) {
     super(props);
+    console.log('props.navigation.state.params=', props.navigation.state.params);
     let startTime = Date.now();
     let address;
     if (props.navigation.state.params) address = props.navigation.state.params.address;
+    let memo = false;
+    if (props.navigation.state.params) memo = props.navigation.state.params.memo;
     let fromAddress;
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
     let fromSecret;
@@ -52,6 +55,7 @@ export default class SendDetails extends Component {
 
     let endTime2 = Date.now();
     console.log('getAddress() took', (endTime2 - startTime2) / 1000, 'sec');
+    console.log({ memo });
 
     this.state = {
       errorMessage: false,
@@ -61,6 +65,7 @@ export default class SendDetails extends Component {
       isLoading: true,
       address: address,
       amount: '',
+      memo,
       fee: '',
     };
 
@@ -252,6 +257,7 @@ SendDetails.propTypes = {
         address: PropTypes.string,
         fromAddress: PropTypes.string,
         fromSecret: PropTypes.string,
+        memo: PropTypes.string,
       }),
     }),
   }),
