@@ -63,6 +63,7 @@
     "react-native-elements": "^0.18.5",
     "react-native-flexi-radio-button": "^0.2.2",
     "react-native-level-fs": "^3.0.0",
+    "react-native-material-dropdown": "^0.11.1",
     "react-native-qrcode": "^0.2.6",
     "react-native-snap-carousel": "^3.7.2",
     "react-navigation": "^1.0.0-beta.23",

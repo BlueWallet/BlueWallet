@@ -22,6 +22,10 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return 'HD SegWit (BIP49 P2SH)';
   }
 
+  allowSend() {
+    return this.getBalance() > 0;
+  }
+
   generate() {
     let c = 32;
     let totalhex = '';
@@ -303,7 +307,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
 
       for (let unspent of json.unspent_outputs) {
         // a lil transform for signer module
-        unspent.txid = unspent.tx_hash;
+        unspent.txid = unspent.tx_hash_big_endian;
         unspent.vout = unspent.tx_output_n;
         unspent.amount = unspent.value;
 

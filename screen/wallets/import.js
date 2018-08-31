@@ -20,6 +20,7 @@ import {
   BlueHeaderDefaultSub,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -60,6 +61,26 @@ export default class WalletsImport extends Component {
 
   async importMnemonic(text) {
     try {
+      // is it lightning custodian?
+      if (text.indexOf('blitzhub://') !== -1) {
+        // yep its lnd
+        for (let t of BlueApp.getWallets()) {
+          if (t.type === new LightningCustodianWallet().type) {
+            // already exist
+            return alert('Only 1 Ligthning wallet allowed for now');
+          }
+        }
+
+        let lnd = new LightningCustodianWallet();
+        lnd.setSecret(text);
+        await lnd.authorize();
+        await lnd.fetchTransactions();
+        await lnd.fetchBalance();
+        return this._saveWallet(lnd);
+      }
+
+      // trying other wallet types
+
       let segwitWallet = new SegwitP2SHWallet();
       segwitWallet.setSecret(text);
       if (segwitWallet.getAddress()) {

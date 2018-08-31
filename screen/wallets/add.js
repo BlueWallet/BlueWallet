@@ -20,6 +20,7 @@ import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -160,14 +161,28 @@ export default class WalletsAdd extends Component {
                 width: width / 1.5,
               }}
               onPress={() => {
-                if (this.state.activeLightning) {
-                  return alert(loc.wallets.add.coming_soon);
-                }
-
                 this.props.navigation.goBack();
                 setTimeout(async () => {
                   let w;
-                  if (this.state.selectedIndex === 1) {
+
+                  if (this.state.activeLightning) {
+                    // lightning was selected
+
+                    return alert('Coming soon');
+                    // eslint-disable-next-line
+                    for (let t of BlueApp.getWallets()) {
+                      if (t.type === new LightningCustodianWallet().type) {
+                        // already exist
+                        return alert('Only 1 Ligthning wallet allowed for now');
+                      }
+                    }
+
+                    w = new LightningCustodianWallet();
+                    w.setLabel(this.state.label || w.getTypeReadable());
+                    await w.createAccount();
+                    await w.authorize();
+                  } else if (this.state.selectedIndex === 1) {
+                    // btc was selected
                     // index 1 radio - segwit single address
                     w = new SegwitP2SHWallet();
                     w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
