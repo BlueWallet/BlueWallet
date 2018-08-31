@@ -21,7 +21,6 @@ describe('LightningCustodianWallet', () => {
     await l1.fetchTransactions();
     await l1.fetchPendingTransactions();
 
-
     assert.ok(l1.access_token);
     assert.ok(l1.refresh_token);
     assert.ok(l1._refresh_token_created_ts > 0);
