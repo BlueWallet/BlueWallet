@@ -32,8 +32,9 @@ async function startAndDecrypt(retry) {
         console.log('time to refresh wallet #0');
         let oldBalance = wallets[0].getBalance();
         await wallets[0].fetchBalance();
-        if (oldBalance !== wallets[0].getBalance() || wallets[0].getUnconfirmedBalance() !== 0) {
+        if (oldBalance !== wallets[0].getBalance() || wallets[0].getUnconfirmedBalance() !== 0 || wallets[0].timeToRefreshTransaction()) {
           // balance changed, thus txs too
+          // or wallet thinks its time to reload TX list
           await wallets[0].fetchTransactions();
           hadToRefresh = true;
           EV(EV.enum.WALLETS_COUNT_CHANGED);
