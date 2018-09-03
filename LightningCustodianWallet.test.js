@@ -13,7 +13,7 @@ describe('LightningCustodianWallet', () => {
     assert.ok(l1._access_token_created_ts === 0);
     l1.balance = 'FAKE';
 
-    await l1.createAccount();
+    await l1.createAccount(true);
     await l1.authorize();
     await l1.fetchBtcAddress();
     await l1.fetchBalance();
@@ -130,6 +130,46 @@ describe('LightningCustodianWallet', () => {
     let decoded = await l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
+
+    await l2.checkRouteInvoice(invoice);
+
+    let start = +new Date();
+    await l2.payInvoice(invoice);
+    let end = +new Date();
+    if ((end - start) / 1000 > 9) {
+      console.warn('payInvoice took', (end - start) / 1000, 'sec');
+    }
+
+    // now, trying to pay duplicate invoice
+    start = +new Date();
+    let caughtError = false;
+    try {
+      await l2.payInvoice(invoice);
+    } catch (Err) {
+      caughtError = true;
+    }
+    assert.ok(caughtError);
+    end = +new Date();
+    if ((end - start) / 1000 > 9) {
+      console.warn('duplicate payInvoice took', (end - start) / 1000, 'sec');
+    }
+  });
+
+  it.skip('can create invoice', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
+
+    let l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+
+    let invoices = await l2.getUserInvoices();
+    let invoice = await l2.addInvoice(1, 'memo');
+    let invoices2 = await l2.getUserInvoices();
+    assert.equal(invoices2.length, invoices.length + 1);
 
     await l2.checkRouteInvoice(invoice);
 

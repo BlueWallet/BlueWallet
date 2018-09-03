@@ -55,12 +55,12 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getTypeReadable() {
-    return 'Lightning (custodian)';
+    return 'Lightning';
   }
 
-  async createAccount() {
+  async createAccount(isTest) {
     let response = await this._api.post('/create', {
-      body: { partnerid: 'bluewallet', test: true },
+      body: { partnerid: 'bluewallet', accounttype: (isTest && 'test') || 'common' },
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
     });
     let json = response.body;
@@ -108,6 +108,52 @@ export class LightningCustodianWallet extends LegacyWallet {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Returns list of LND invoices created by user
+   *
+   * @return {Promise.<Array>}
+   */
+  async getUserInvoices() {
+    let response = await this._api.get('/getuserinvoices', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+    let json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
+    }
+
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    return json;
+  }
+
+  async addInvoice(amt, memo) {
+    let response = await this._api.post('/addinvoice', {
+      body: { amt: 1, memo: 'test' },
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+    let json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
+    }
+
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    console.log(response.body);
   }
 
   async checkRouteInvoice(invoice) {

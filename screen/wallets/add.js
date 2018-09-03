@@ -181,6 +181,7 @@ export default class WalletsAdd extends Component {
                     w.setLabel(this.state.label || w.getTypeReadable());
                     await w.createAccount();
                     await w.authorize();
+                    A(A.ENUM.CREATED_LIGHTNING_WALLET);
                   } else if (this.state.selectedIndex === 1) {
                     // btc was selected
                     // index 1 radio - segwit single address
