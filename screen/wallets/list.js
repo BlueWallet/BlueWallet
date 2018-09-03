@@ -446,7 +446,7 @@ export default class WalletsList extends Component {
                             }}
                             chevron={false}
                             chevronColor="transparent"
-                            rightTitle={new BigNumber(rowData.value).div(100000000).toString()}
+                            rightTitle={new BigNumber((rowData.value && rowData.value) || 0).div(100000000).toString()}
                             rightTitleStyle={{
                               position: 'relative',
                               right: -30,

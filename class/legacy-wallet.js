@@ -212,7 +212,7 @@ export class LegacyWallet extends AbstractWallet {
           // how much came in...
           let value = 0;
           for (let out of tx.outputs) {
-            if (out.addresses.indexOf(this.getAddress()) !== -1) {
+            if (out && out.addresses && out.addresses.indexOf(this.getAddress()) !== -1) {
               // found our address in outs of this TX
               value += out.value;
             }
@@ -235,7 +235,7 @@ export class LegacyWallet extends AbstractWallet {
                 inp.addresses.push('???');
               }
             }
-            if (inp.addresses.indexOf(this.getAddress()) !== -1) {
+            if (inp && inp.addresses && inp.addresses.indexOf(this.getAddress()) !== -1) {
               // found our address in outs of this TX
               value -= inp.output_value;
             }
