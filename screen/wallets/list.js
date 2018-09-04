@@ -10,6 +10,7 @@ import {
   BlueTransactionIncommingIcon,
   BlueTransactionOutgoingIcon,
   BlueTransactionPendingIcon,
+  BlueTransactionOffchainIcon,
   BlueSendButtonIcon,
   BlueReceiveButtonIcon,
   BlueRefreshIcon,
@@ -406,6 +407,15 @@ export default class WalletsList extends Component {
                                   );
                                 }
                               }
+                              if (rowData.preimage) {
+                                // is it lightning offchain payment?
+                                return (
+                                  <View style={{ width: 25 }}>
+                                    <BlueTransactionOffchainIcon />
+                                  </View>
+                                );
+                              }
+
                               if (!rowData.confirmations) {
                                 return (
                                   <View style={{ width: 25 }}>

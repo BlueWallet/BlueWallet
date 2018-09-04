@@ -630,6 +630,48 @@ export class BlueTransactionOnchainIcon extends Component {
   }
 }
 
+export class BlueTransactionOffchainIcon extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.boxIncomming}>
+          <View style={stylesBlueIcon.ballOutgoing}>
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color="#d0021b"
+              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '135deg' }] }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class BlueTransactionOffchainIncomingIcon extends Component {
+  render() {
+    return (
+      <View {...this.props} style={stylesBlueIcon.container}>
+        <View style={stylesBlueIcon.boxIncomming}>
+          <View style={stylesBlueIcon.ballIncomming}>
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color="#37c0a1"
+              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '45deg' }] }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
 export class BlueTransactionOutgoingIcon extends Component {
   render() {
     return (

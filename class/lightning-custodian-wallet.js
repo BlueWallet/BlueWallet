@@ -299,6 +299,13 @@ export class LightningCustodianWallet extends LegacyWallet {
       tx.value = tx.amount * 100000000;
       tx.received = new Date(tx.time * 1000).toString();
       tx.memo = 'Refill';
+
+      if (typeof tx.totalamt !== 'undefined' && typeof tx.totalfees !== 'undefined') {
+        // lnd tx outgoing
+        tx.value = (tx.totalamt * 1 + tx.totalfees * 1) * -1;
+        tx.memo = 'Lightning payment'; // TODO once api is ready
+        tx.received = new Date().toString(); // TODO once api is ready
+      }
     }
     return txs;
   }
