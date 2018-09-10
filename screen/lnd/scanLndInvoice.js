@@ -59,7 +59,7 @@ export default class ScanLndInvoice extends React.Component {
       return this.props.navigation.goBack();
     }
 
-    ret.data = ret.data.replace('LIGHTNING:', '');
+    ret.data = ret.data.replace('LIGHTNING:', '').replace('lightning:', '');
     console.log(ret.data);
 
     /**

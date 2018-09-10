@@ -1,13 +1,13 @@
 {
   "expo": {
     "sdkVersion": "23.0.0",
-    "version": "2.4.2",
+    "version": "2.4.3",
     "privacy": "public",
     "platforms": [
       "ios"
     ],
     "ios": {
-      "buildNumber": "64",
+      "buildNumber": "65",
       "supportsTablet": true,
       "isRemoteJSEnabled": false,
       "bundleIdentifier": "io.bluewallet.bluewallet",
