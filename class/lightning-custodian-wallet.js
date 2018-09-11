@@ -296,13 +296,13 @@ export class LightningCustodianWallet extends LegacyWallet {
     txs = txs.concat(this.pending_transactions_raw, this.transactions_raw.slice().reverse()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
-      tx.value = tx.amount * 100000000;
+      tx.value = parseInt(tx.amount * 100000000);
       tx.received = new Date(tx.time * 1000).toString();
       tx.memo = 'Refill';
 
       if (typeof tx.totalamt !== 'undefined' && typeof tx.totalfees !== 'undefined') {
         // lnd tx outgoing
-        tx.value = (tx.totalamt * 1 + tx.totalfees * 1) * -1;
+        tx.value = parseInt((tx.totalamt * 1 + tx.totalfees * 1) * -1);
         tx.memo = 'Lightning payment'; // TODO once api is ready
         tx.received = new Date().toString(); // TODO once api is ready
       }
