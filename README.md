@@ -1,12 +1,13 @@
 # BlueWallet - Bitcoin Wallet
 
+[![GitHub tag](https://img.shields.io/github/package-json/v/Overtorment/BlueWallet.svg)](https://github.com/Overtorment/BlueWallet)
 [![CircleCI](https://circleci.com/gh/Overtorment/BlueWallet.svg?style=svg)](https://circleci.com/gh/Overtorment/BlueWallet)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 Thin Bitcoin Wallet.
 Built with React Native, Expo and BlockCypher API.
 
-[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8) **v2.4.0**
+[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8)
 
 Website: [bluewallet.io](http://bluewallet.io)
 
