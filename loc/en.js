@@ -87,8 +87,8 @@ module.exports = {
     },
     details: {
       title: 'transaction details',
-      from: 'From',
-      to: 'To',
+      from: 'Inputs',
+      to: 'Outputs',
     },
   },
   send: {

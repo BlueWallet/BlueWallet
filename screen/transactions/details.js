@@ -24,6 +24,28 @@ if (aspectRatio > 1.6) {
   isIpad = true;
 }
 
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
+function arrDiff(a1, a2) {
+  let ret = [];
+  for (let v of a2) {
+    if (a1.indexOf(v) === -1) {
+      ret.push(v);
+    }
+  }
+  return ret;
+}
+
+function formatTime(time) {
+  if (typeof time === 'string') {
+    time = time.replace('T', ' ').replace('Z', '');
+    time = time.split('.')[0];
+  }
+  return time;
+}
+
 export default class TransactionsDetails extends Component {
   static navigationOptions = {
     tabBarVisible: false,
@@ -93,18 +115,31 @@ export default class TransactionsDetails extends Component {
             }
           })()}
 
-          <BlueText h4>{loc.transactions.details.from}:</BlueText>
-          <BlueText style={{ marginBottom: 10 }}>{this.state.from.join(', ')}</BlueText>
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>{loc.transactions.details.from}</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
 
-          <BlueText h4>{loc.transactions.details.to}:</BlueText>
-          <BlueText style={{ marginBottom: 10 }}>{this.state.to.join(', ')}</BlueText>
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>{loc.transactions.details.to}</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>
+            {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
+          </BlueText>
 
-          <BlueText>Txid: {this.state.tx.hash}</BlueText>
-          <BlueText>received: {this.state.tx.received}</BlueText>
-          <BlueText>confirmed: {this.state.tx.confirmed}</BlueText>
-          <BlueText>confirmations: {this.state.tx.confirmations}</BlueText>
-          <BlueText>inputs: {this.state.tx.inputs.length}</BlueText>
-          <BlueText>outputs: {this.state.tx.outputs.length}</BlueText>
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>received</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{formatTime(this.state.tx.received)}</BlueText>
+
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>confirmed</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{formatTime(this.state.tx.confirmed)}</BlueText>
+
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>confirmations</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.confirmations}</BlueText>
+
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>inputs</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
+
+          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>outputs</BlueText>
+          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
 
           <BlueText style={{ marginBottom: 10 }} />
         </BlueCard>
