@@ -3,3 +3,5 @@
 * FIX: transactions list update limit
 * FIX: transactions update on app start
 * FIX: blank screen in the app in case of unexpected TX data
+* FIX: 'Export / Details' button for iPad
+* REF: improved tx details screen
