@@ -92,7 +92,7 @@ export default class WalletExport extends Component {
             bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
-          <BlueText>{this.state.wallet.getSecret()} [Wallet Import Format]</BlueText>
+          <BlueText>{this.state.wallet.getSecret()}</BlueText>
         </BlueCard>
       </SafeBlueArea>
     );

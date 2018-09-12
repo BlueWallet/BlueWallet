@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import {
   BlueSpacingVariable,
-  is,
   BlueFormInput,
   BlueButton,
   SafeBlueArea,
@@ -155,23 +154,15 @@ export default class WalletDetails extends Component {
                   title={loc.wallets.details.delete_this_wallet}
                 />
 
-                {(() => {
-                  if (is.ipad()) {
-                    return <View />;
-                  } else {
-                    return (
-                      <BlueButton
-                        onPress={() =>
-                          this.props.navigation.navigate('WalletExport', {
-                            address: this.state.wallet.getAddress(),
-                            secret: this.state.wallet.getSecret(),
-                          })
-                        }
-                        title={loc.wallets.details.export_backup}
-                      />
-                    );
+                <BlueButton
+                  onPress={() =>
+                    this.props.navigation.navigate('WalletExport', {
+                      address: this.state.wallet.getAddress(),
+                      secret: this.state.wallet.getSecret(),
+                    })
                   }
-                })()}
+                  title={loc.wallets.details.export_backup}
+                />
               </View>
             );
           }
