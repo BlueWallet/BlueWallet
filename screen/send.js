@@ -1,8 +1,8 @@
-import { StackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import list from './send/list';
 
-const SendNavigator = StackNavigator(
+const SendNavigator = createStackNavigator(
   {
     SendList: {
       screen: list,
