@@ -1,6 +1,5 @@
 import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
-import { Util } from 'expo';
 import { AppStorage } from '../class';
 let BigNumber = require('bignumber.js');
 let strings;
@@ -14,7 +13,6 @@ let strings;
     return;
   }
 
-  // TODO: rewrite this when Expo version is upped
   if (Localization.getCurrentLocaleAsync) {
     let locale = await Localization.getCurrentLocaleAsync();
     if (locale) {
