@@ -1,7 +1,7 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
 import { WatchOnlyWallet, LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
-import renderer from 'react-test-renderer';
+import TestRenderer from 'react-test-renderer';
 import Settings from './screen/settings';
 import Selftest from './screen/selftest';
 import { BlueHeader } from './BlueComponents';
@@ -49,17 +49,17 @@ describe('unit - LegacyWallet', function() {
 });
 
 it('BlueHeader works', () => {
-  const rendered = renderer.create(<BlueHeader />).toJSON();
+  const rendered = TestRenderer.create(<BlueHeader />).toJSON();
   expect(rendered).toBeTruthy();
 });
 
 it('Settings work', () => {
-  const rendered = renderer.create(<Settings />).toJSON();
+  const rendered = TestRenderer.create(<Settings />).toJSON();
   expect(rendered).toBeTruthy();
 });
 
 it('Selftest work', () => {
-  const component = renderer.create(<Selftest />);
+  const component = TestRenderer.create(<Selftest />);
   const root = component.root;
   const rendered = component.toJSON();
   expect(rendered).toBeTruthy();
