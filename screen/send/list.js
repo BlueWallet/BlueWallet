@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View, ListView } from 'react-native';
+import { ActivityIndicator, View, FlatList, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SafeBlueArea, BlueCard, BlueListItem, BlueHeader } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -7,8 +7,6 @@ let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { height } = Dimensions.get('window');
-let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class SendList extends Component {
   static navigationOptions = {
@@ -45,7 +43,7 @@ export default class SendList extends Component {
     this.setState({
       isLoading: false,
       list: list,
-      dataSource: ds.cloneWithRows(list),
+      dataSource: list,
     });
   }
 
@@ -54,14 +52,16 @@ export default class SendList extends Component {
 
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
+        <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+          <View style={{ flex: 1, paddingTop: 20 }}>
+            <ActivityIndicator />
+          </View>
+        </SafeBlueArea>
       );
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }}>
         <BlueHeader
           centerComponent={{
             text: loc.send.list.header,
@@ -70,11 +70,11 @@ export default class SendList extends Component {
         />
 
         <BlueCard containerStyle={{ padding: 0 }}>
-          <ListView
-            maxHeight={height - 200}
-            enableEmptySections
-            dataSource={this.state.dataSource}
-            renderRow={item => {
+          <FlatList
+            data={this.state.dataSource}
+            extraData={this.state.dataSource}
+            style={Styles.flatList}
+            renderItem={item => {
               return (
                 <BlueListItem
                   title={item.title}
@@ -96,6 +96,12 @@ export default class SendList extends Component {
     );
   }
 }
+
+const Styles = StyleSheet.create({
+  flatList: {
+    flex: 1,
+  },
+});
 
 SendList.propTypes = {
   navigation: PropTypes.shape({

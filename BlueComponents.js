@@ -170,12 +170,16 @@ export class BlueCard extends Component {
           borderColor: 'transparent',
           paddingTop: 0,
           marginTop: 0,
+          flex: 1,
         }}
         dividerStyle={{
           backgroundColor: 'transparent',
           borderColor: 'transparent',
         }}
-        wrapperStyle={{ backgroundColor: 'transparent' }}
+        wrapperStyle={{ 
+          backgroundColor: 'transparent',
+          flex: 1,
+        }}
       />
     );
   }
