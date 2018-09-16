@@ -2,7 +2,7 @@ import './shim.js';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, ScrollView, StyleSheet } from 'react-native';
-import { DrawerNavigator, SafeAreaView } from 'react-navigation';
+import { createDrawerNavigator, SafeAreaView } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import Selftest from './screen/selftest';
 import About from './screen/about';
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const TabsInDrawer = DrawerNavigator(
+const TabsInDrawer = createDrawerNavigator(
   {
     MainBottomTabs: {
       screen: MainBottomTabs,

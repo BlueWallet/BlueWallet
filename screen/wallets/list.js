@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Dimensions, Text, ListView } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Text, FlatList } from 'react-native';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -28,9 +28,7 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { height, width } = Dimensions.get('window');
-
-let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
+const { width } = Dimensions.get('window');
 
 export default class WalletsList extends Component {
   static navigationOptions = {
@@ -121,7 +119,7 @@ export default class WalletsList extends Component {
         showManageFundsBigButton: showManageFundsBig,
         showManageFundsSmallButton,
         showRereshButton,
-        dataSource: ds.cloneWithRows(BlueApp.getTransactions(this.lastSnappedTo || 0)),
+        dataSource: BlueApp.getTransactions(this.lastSnappedTo || 0),
       });
     }, 1);
   }
@@ -158,7 +156,7 @@ export default class WalletsList extends Component {
       showSendButton: false,
       showRereshButton: false,
       // TODO: погуглить че это за ебала ds.cloneWithRows, можно ли быстрее сделать прогрузку транзакций на экран
-      dataSource: ds.cloneWithRows(BlueApp.getTransactions(index)),
+      dataSource: BlueApp.getTransactions(index),
     });
 
     if (index < BlueApp.getWallets().length) {
@@ -381,13 +379,10 @@ export default class WalletsList extends Component {
 
                 <View style={{ top: 30, position: 'absolute' }}>
                   <BlueList>
-                    <ListView
-                      maxHeight={height - 330 + 10}
-                      width={width - 5}
-                      left={5}
-                      enableEmptySections
-                      dataSource={this.state.dataSource}
-                      renderRow={rowData => {
+                    <FlatList
+                      data={this.state.dataSource}
+                      extraData={this.state.dataSource}
+                      renderItem={rowData => {
                         return (
                           <BlueListItem
                             avatar={(() => {

@@ -1,6 +1,5 @@
-import LocalizedStrings from 'react-localization';
+import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
-import { Util } from 'expo';
 import { AppStorage } from '../class';
 let BigNumber = require('bignumber.js');
 let strings;
@@ -14,9 +13,8 @@ let strings;
     return;
   }
 
-  // TODO: rewrite this when Expo version is upped
-  if (Util.getCurrentLocaleAsync) {
-    let locale = await Util.getCurrentLocaleAsync();
+  if (Localization.getCurrentLocaleAsync) {
+    let locale = await Localization.getCurrentLocaleAsync();
     if (locale) {
       locale = locale.split('-');
       locale = locale[0];
@@ -30,7 +28,7 @@ let strings;
   }
 })();
 
-strings = new LocalizedStrings({
+strings = new Localization({
   en: require('./en.js'),
   ru: require('./ru.js'),
   pt: require('./pt_BR.js'),
