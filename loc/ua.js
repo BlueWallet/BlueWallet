@@ -3,6 +3,10 @@ module.exports = {
     storage_is_encrypted: 'Ваше сховище зашифроване. Введіть пароль для розшифровки',
     enter_password: 'Введіть пароль',
     bad_password: 'Невірний пароль, спробуйте ще раз',
+    months_ago: 'months ago',
+    days_ago: 'days ago',
+    hours_ago: 'hours ago',
+    never: 'never',
   },
   wallets: {
     list: {
@@ -11,6 +15,12 @@ module.exports = {
       title: 'Мої Біткоїн Гаманці',
       header: 'Гаманець це секретний (приватний) ключ, і відповідна йому адреса на яку можна отримувати біткоїни',
       add: 'Додати Гаманець',
+      create_a_wallet: 'Create a wallet',
+      create_a_wallet1: "It's free and you can create",
+      create_a_wallet2: 'as many as you like',
+      latest_transaction: 'latest transaction',
+      empty_txs1: 'Your transactions will appear here,',
+      empty_txs2: 'none at the moment',
     },
     add: {
       title: 'Додати Гаманець',
@@ -19,6 +29,14 @@ module.exports = {
       scan: 'Відсканувати',
       create: 'Створити',
       label_new_segwit: 'Новий SegWit',
+      wallet_name: 'wallet name',
+      wallet_type: 'wallet type',
+      or: 'or',
+      import_wallet: 'Import wallet',
+      imported: 'Imported',
+      coming_soon: 'Coming soon',
+      lightning: 'Lightning',
+      bitcoin: 'Bitcoin',
     },
     details: {
       title: 'Інформація про Гаманець',
@@ -34,6 +52,16 @@ module.exports = {
     export: {
       title: 'Експорт Гаманця',
     },
+    import: {
+      title: 'import',
+      explanation:
+        "Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do it's best to guess the correct format and import your wallet",
+      imported: 'Imported',
+      error: 'Failed to import. Is it event valid?',
+      success: 'Success',
+      do_import: 'Import',
+      scan_qr: 'or scan QR code instead?',
+    },
     scanQrWif: {
       go_back: 'Назад',
       cancel: 'Відміна',
@@ -47,6 +75,7 @@ module.exports = {
       with_address: ' з адресою ',
       imported_segwit: 'Імпортований SegWit',
       imported_legacy: 'Імпортований Legacy',
+      imported_watchonly: 'Imported Watch-only',
     },
   },
   transactions: {
@@ -93,6 +122,7 @@ module.exports = {
       satoshi_per_byte: 'Сатоші на байт',
       memo: 'Примітка',
       broadcast: 'Відправити',
+      not_enough_fee: 'Not enough fee. Increase the fee',
     },
   },
   receive: {

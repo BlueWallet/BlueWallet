@@ -29,6 +29,14 @@ module.exports = {
       scan: 'Отсканировать',
       create: 'Создать',
       label_new_segwit: 'Новый SegWit',
+      wallet_name: 'wallet name',
+      wallet_type: 'wallet type',
+      or: 'or',
+      import_wallet: 'Import wallet',
+      imported: 'Imported',
+      coming_soon: 'Coming soon',
+      lightning: 'Lightning',
+      bitcoin: 'Bitcoin',
     },
     details: {
       title: 'Информация о Кошельке',
@@ -44,6 +52,16 @@ module.exports = {
     export: {
       title: 'Экспорт Кошелька',
     },
+    import: {
+      title: 'import',
+      explanation:
+        "Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do it's best to guess the correct format and import your wallet",
+      imported: 'Imported',
+      error: 'Failed to import. Is it event valid?',
+      success: 'Success',
+      do_import: 'Import',
+      scan_qr: 'or scan QR code instead?',
+    },
     scanQrWif: {
       go_back: 'Назад',
       cancel: 'Отмена',
@@ -57,6 +75,7 @@ module.exports = {
       with_address: ' с адресом ',
       imported_segwit: 'Импортированый SegWit',
       imported_legacy: 'Импортированый Legacy',
+      imported_watchonly: 'Imported Watch-only',
     },
   },
   transactions: {
@@ -103,6 +122,7 @@ module.exports = {
       satoshi_per_byte: 'Сатоши на байт',
       memo: 'Примечание',
       broadcast: 'Отправить',
+      not_enough_fee: 'Not enough fee. Increase the fee',
     },
   },
   receive: {

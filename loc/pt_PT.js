@@ -3,6 +3,10 @@ module.exports = {
     storage_is_encrypted: 'O armazenamento está encriptado. Uma password é necessaria para desencriptar',
     enter_password: 'Inserir password',
     bad_password: 'pasword errada, tente novamente',
+    months_ago: 'months ago',
+    days_ago: 'days ago',
+    hours_ago: 'hours ago',
+    never: 'never',
   },
   wallets: {
     list: {
@@ -11,6 +15,12 @@ module.exports = {
       title: 'Minhas Bitcoin Wallets',
       header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
       add: 'Adicionar Wallet',
+      create_a_wallet: 'Create a wallet',
+      create_a_wallet1: "It's free and you can create",
+      create_a_wallet2: 'as many as you like',
+      latest_transaction: 'latest transaction',
+      empty_txs1: 'Your transactions will appear here,',
+      empty_txs2: 'none at the moment',
     },
     add: {
       title: 'Adicionar Wallet',
@@ -19,6 +29,14 @@ module.exports = {
       scan: 'Scan',
       create: 'Criar',
       label_new_segwit: 'Novo SegWit',
+      wallet_name: 'wallet name',
+      wallet_type: 'wallet type',
+      or: 'or',
+      import_wallet: 'Import wallet',
+      imported: 'Imported',
+      coming_soon: 'Coming soon',
+      lightning: 'Lightning',
+      bitcoin: 'Bitcoin',
     },
     details: {
       title: 'Detalhes da Wallet',
@@ -34,6 +52,16 @@ module.exports = {
     export: {
       title: 'Exportar Wallet',
     },
+    import: {
+      title: 'import',
+      explanation:
+        "Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do it's best to guess the correct format and import your wallet",
+      imported: 'Imported',
+      error: 'Failed to import. Is it event valid?',
+      success: 'Success',
+      do_import: 'Import',
+      scan_qr: 'or scan QR code instead?',
+    },
     scanQrWif: {
       go_back: 'Voltar',
       cancel: 'Cancelar',
@@ -47,6 +75,7 @@ module.exports = {
       with_address: ' com endereço ',
       imported_segwit: 'SegWit transferido',
       imported_legacy: 'Legacy transferido',
+      imported_watchonly: 'Imported Watch-only',
     },
   },
   transactions: {
@@ -93,6 +122,7 @@ module.exports = {
       satoshi_per_byte: 'satoshiPerByte',
       memo: 'Nota pessoal',
       broadcast: 'Difundir',
+      not_enough_fee: 'Not enough fee. Increase the fee',
     },
   },
   receive: {
