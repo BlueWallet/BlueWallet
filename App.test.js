@@ -25,6 +25,20 @@ jest.mock('Picker', () => {
     }
   };
 });
+jest.mock('ScrollView', () => {
+  const RealComponent = require.requireActual('ScrollView');
+  const React = require('React');
+  class ScrollView extends React.Component {
+    scrollTo() {
+    }
+
+    render() {
+      return React.createElement('ScrollView', this.props, this.props.children);
+    }
+  }
+  ScrollView.propTypes = RealComponent.propTypes;
+  return ScrollView;
+});
 
 describe('unit - LegacyWallet', function() {
   it('serialize and unserialize work correctly', () => {
