@@ -1,8 +1,8 @@
-import { createStackNavigator } from 'react-navigation';
+import { StackNavigator } from 'react-navigation';
 
 import list from './receive/list';
 
-const ReceiveNavigator = createStackNavigator(
+const ReceiveNavigator = StackNavigator(
   {
     SendList: {
       screen: list,

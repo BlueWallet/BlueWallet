@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FlatList } from 'react-native';
+import { ListView, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Header, Icon } from 'react-native-elements';
 import { BlueLoading, BlueList, SafeBlueArea, BlueCard, BlueText, BlueListItem } from '../../BlueComponents';
@@ -8,6 +8,9 @@ let loc = require('../../loc');
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+const { height } = Dimensions.get('window');
+
+let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class TransactionsList extends Component {
   static navigationOptions = {
@@ -41,7 +44,7 @@ export default class TransactionsList extends Component {
           this.setState({
             isLoading: false,
             final_balance: BlueApp.getBalance(),
-            dataSource: BlueApp.getTransactions(),
+            dataSource: ds.cloneWithRows(BlueApp.getTransactions()),
           });
         }, 1);
       },
@@ -78,7 +81,7 @@ export default class TransactionsList extends Component {
           that.setState({
             isLoading: false,
             final_balance: BlueApp.getBalance(),
-            dataSource: BlueApp.getTransactions(),
+            dataSource: ds.cloneWithRows(BlueApp.getTransactions()),
           });
         }, 10);
       },
@@ -106,10 +109,11 @@ export default class TransactionsList extends Component {
           <BlueText style={{ marginBottom: 10 }}>{loc.transactions.list.description}</BlueText>
 
           <BlueList>
-            <FlatList
-              data={this.state.dataSource}
-              extraData={this.state.dataSource}
-              renderItem={rowData => {
+            <ListView
+              maxHeight={height - 300}
+              enableEmptySections
+              dataSource={this.state.dataSource}
+              renderRow={rowData => {
                 return (
                   <BlueListItem
                     avatar={

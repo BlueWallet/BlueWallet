@@ -1,15 +1,15 @@
-import { createBottomTabNavigator } from 'react-navigation';
+import { TabNavigator } from 'react-navigation';
 
 import transactions from './screen/transactions';
 import wallets from './screen/wallets';
 import send from './screen/send';
-import settings from './screen/settings';
+import settins from './screen/settings';
 import receive from './screen/receive';
 
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
 
-const Tabs = createBottomTabNavigator(
+const Tabs = TabNavigator(
   {
     Wallets: {
       screen: wallets,
@@ -28,7 +28,7 @@ const Tabs = createBottomTabNavigator(
       path: 'receive',
     },
     Settings: {
-      screen: settings,
+      screen: settins,
       path: 'settings',
     },
 

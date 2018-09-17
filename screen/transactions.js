@@ -1,8 +1,8 @@
-import { createStackNavigator } from 'react-navigation';
+import { StackNavigator } from 'react-navigation';
 
 import list from './transactions/list';
 
-const TransactionsNavigator = createStackNavigator(
+const TransactionsNavigator = StackNavigator(
   {
     TransactionsList: {
       screen: list,

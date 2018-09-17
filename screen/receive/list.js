@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FlatList, Text, StyleSheet } from 'react-native';
+import { ListView, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { BlueLoading, SafeBlueArea, BlueCard, BlueListItem, BlueHeader } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -7,6 +7,8 @@ import PropTypes from 'prop-types';
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let loc = require('../../loc');
+const { height } = Dimensions.get('window');
+let ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
 export default class ReceiveList extends Component {
   static navigationOptions = {
@@ -43,7 +45,7 @@ export default class ReceiveList extends Component {
     this.setState({
       isLoading: false,
       list: list,
-      dataSource: list,
+      dataSource: ds.cloneWithRows(list),
     });
   }
 
@@ -55,7 +57,7 @@ export default class ReceiveList extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeader
           centerComponent={{
             text: loc.receive.list.header,
@@ -64,10 +66,11 @@ export default class ReceiveList extends Component {
         />
 
         <BlueCard containerStyle={{ padding: 0 }}>
-          <FlatList
-            data={this.state.dataSource}
-            style={Styles.flatList}
-            renderItem={item => {
+          <ListView
+            maxHeight={height - 200}
+            enableEmptySections
+            dataSource={this.state.dataSource}
+            renderRow={item => {
               return (
                 <BlueListItem
                   title={item.title}
@@ -89,12 +92,6 @@ export default class ReceiveList extends Component {
     );
   }
 }
-
-const Styles = StyleSheet.create({
-  flatList: {
-    flex: 1,
-  },
-});
 
 ReceiveList.propTypes = {
   navigation: PropTypes.shape({

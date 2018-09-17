@@ -1,4 +1,4 @@
-import { createStackNavigator } from 'react-navigation';
+import { StackNavigator } from 'react-navigation';
 
 import WalletsList from './wallets/list';
 import AddWallet from './wallets/add';
@@ -20,7 +20,7 @@ import sendCreate from './send/create';
 import ManageFunds from './lnd/manageFunds';
 import ScanLndInvoice from './lnd/scanLndInvoice';
 
-const WalletsNavigator = createStackNavigator(
+const WalletsNavigator = StackNavigator(
   {
     WalletsList: {
       screen: WalletsList,

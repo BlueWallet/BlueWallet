@@ -1,7 +1,7 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
 import { WatchOnlyWallet, LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
-import TestRenderer from 'react-test-renderer';
+import renderer from 'react-test-renderer';
 import Settings from './screen/settings';
 import Selftest from './screen/selftest';
 import { BlueHeader } from './BlueComponents';
@@ -24,20 +24,6 @@ jest.mock('Picker', () => {
       return React.createElement('Picker', this.props, this.props.children);
     }
   };
-});
-jest.mock('ScrollView', () => {
-  const RealComponent = require.requireActual('ScrollView');
-  const React = require('React');
-  class ScrollView extends React.Component {
-    scrollTo() {
-    }
-
-    render() {
-      return React.createElement('ScrollView', this.props, this.props.children);
-    }
-  }
-  ScrollView.propTypes = RealComponent.propTypes;
-  return ScrollView;
 });
 
 describe('unit - LegacyWallet', function() {
@@ -63,17 +49,17 @@ describe('unit - LegacyWallet', function() {
 });
 
 it('BlueHeader works', () => {
-  const rendered = TestRenderer.create(<BlueHeader />).toJSON();
+  const rendered = renderer.create(<BlueHeader />).toJSON();
   expect(rendered).toBeTruthy();
 });
 
 it('Settings work', () => {
-  const rendered = TestRenderer.create(<Settings />).toJSON();
+  const rendered = renderer.create(<Settings />).toJSON();
   expect(rendered).toBeTruthy();
 });
 
 it('Selftest work', () => {
-  const component = TestRenderer.create(<Selftest />);
+  const component = renderer.create(<Selftest />);
   const root = component.root;
   const rendered = component.toJSON();
   expect(rendered).toBeTruthy();
