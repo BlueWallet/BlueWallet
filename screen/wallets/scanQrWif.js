@@ -24,14 +24,14 @@ export default class ScanQrWif extends React.Component {
     type: Camera.Constants.Type.back,
   };
 
-  async onBarCodeRead(ret) {
+  async onBarCodeScanned(ret) {
     if (+new Date() - this.lastTimeIveBeenHere < 3000) {
       this.lastTimeIveBeenHere = +new Date();
       return;
     }
     this.lastTimeIveBeenHere = +new Date();
 
-    console.log('onBarCodeRead', ret);
+    console.log('onBarCodeScanned', ret);
     if (ret.data[0] === '6') {
       // password-encrypted, need to ask for password and decrypt
       console.log('trying to decrypt...');
@@ -170,7 +170,7 @@ export default class ScanQrWif extends React.Component {
               );
             } else {
               return (
-                <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeRead(ret)}>
+                <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
                   <View
                     style={{
                       flex: 1,
