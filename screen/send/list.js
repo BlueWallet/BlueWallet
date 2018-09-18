@@ -47,6 +47,8 @@ export default class SendList extends Component {
     });
   }
 
+  _keyExtractor = (item, index) => item.hash;
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -72,6 +74,7 @@ export default class SendList extends Component {
         <BlueCard containerStyle={{ padding: 0 }}>
           <FlatList
             data={this.state.dataSource}
+            keyExtractor={this._keyExtractor}
             extraData={this.state.dataSource}
             style={Styles.flatList}
             renderItem={item => {

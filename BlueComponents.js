@@ -453,6 +453,7 @@ export class BlueList extends Component {
           backgroundColor: BlueApp.settings.brandingColor,
           borderTopColor: 'transparent',
           borderTopWidth: 0,
+          flex: 1
         }}
       />
     );
@@ -581,7 +582,7 @@ export class BlueRefreshIcon extends Component {
 export class BlueTransactionIncommingIcon extends Component {
   render() {
     return (
-      <View {...this.props} style={stylesBlueIcon.container}>
+      <View {...this.props} >
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
             <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 8 }} />
@@ -595,7 +596,7 @@ export class BlueTransactionIncommingIcon extends Component {
 export class BlueTransactionPendingIcon extends Component {
   render() {
     return (
-      <View {...this.props} style={stylesBlueIcon.container}>
+      <View {...this.props} >
         <View style={stylesBlueIcon.box}>
           <View style={stylesBlueIcon.ball}>
             <Icon
@@ -616,7 +617,7 @@ export class BlueTransactionPendingIcon extends Component {
 export class BlueTransactionOnchainIcon extends Component {
   render() {
     return (
-      <View {...this.props} style={stylesBlueIcon.container}>
+      <View {...this.props} >
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
             <Icon
@@ -637,7 +638,7 @@ export class BlueTransactionOnchainIcon extends Component {
 export class BlueTransactionOffchainIcon extends Component {
   render() {
     return (
-      <View {...this.props} style={stylesBlueIcon.container}>
+      <View {...this.props} >
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballOutgoing}>
             <Icon
@@ -658,7 +659,7 @@ export class BlueTransactionOffchainIcon extends Component {
 export class BlueTransactionOffchainIncomingIcon extends Component {
   render() {
     return (
-      <View {...this.props} style={stylesBlueIcon.container}>
+      <View {...this.props} >
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
             <Icon
@@ -679,7 +680,7 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
 export class BlueTransactionOutgoingIcon extends Component {
   render() {
     return (
-      <View {...this.props} style={stylesBlueIcon.container}>
+      <View {...this.props} >
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballOutgoing}>
             <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 8 }} />

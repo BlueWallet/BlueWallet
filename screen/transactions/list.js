@@ -74,7 +74,6 @@ export default class TransactionsList extends Component {
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
           EV(EV.enum.WALLETS_COUNT_CHANGED); // TODO: some other event type?
-
           that.setState({
             isLoading: false,
             final_balance: BlueApp.getBalance(),
@@ -85,13 +84,16 @@ export default class TransactionsList extends Component {
     );
   }
 
+  _keyExtractor = (item, index) => item.hash;
+
   render() {
+    console.warn(this.state.dataSource)
     const { navigate } = this.props.navigation;
 
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
-
+    
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <Header
@@ -109,6 +111,7 @@ export default class TransactionsList extends Component {
             <FlatList
               data={this.state.dataSource}
               extraData={this.state.dataSource}
+              keyExtractor={this._keyExtractor}
               renderItem={rowData => {
                 return (
                   <BlueListItem

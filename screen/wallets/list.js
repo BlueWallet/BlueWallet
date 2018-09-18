@@ -262,6 +262,8 @@ export default class WalletsList extends Component {
     }
   }
 
+  _keyExtractor = (item) => item.hash;
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -320,7 +322,7 @@ export default class WalletsList extends Component {
           } else {
             return (
               <View style={{ flex: 1 }}>
-                <View style={{ flex: 1, flexDirection: 'row', height: 50 }}>
+                <View style={{ flexDirection: 'row', height: 50 }}>
                   <Text
                     style={{
                       paddingLeft: 15,
@@ -377,11 +379,12 @@ export default class WalletsList extends Component {
                   })()}
                 </View>
 
-                <View style={{ top: 30, position: 'absolute' }}>
+                <View style={{ flex: 1 }}>
                   <BlueList>
                     <FlatList
                       data={this.state.dataSource}
                       extraData={this.state.dataSource}
+                      keyExtractor={this._keyExtractor}
                       renderItem={rowData => {
                         return (
                           <BlueListItem
