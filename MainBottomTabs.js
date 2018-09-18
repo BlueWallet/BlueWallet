@@ -1,4 +1,4 @@
-import { createBottomTabNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import transactions from './screen/transactions';
 import wallets from './screen/wallets';
@@ -9,43 +9,33 @@ import receive from './screen/receive';
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
 
-const Tabs = createBottomTabNavigator(
-  {
-    Wallets: {
-      screen: wallets,
-      path: 'wallets',
-    },
-    Transactions: {
-      screen: transactions,
-      path: 'trans',
-    },
-    Send: {
-      screen: send,
-      path: 'cart',
-    },
-    Receive: {
-      screen: receive,
-      path: 'receive',
-    },
-    Settings: {
-      screen: settings,
-      path: 'settings',
-    },
-
-    //
-  },
-  {
-    tabBarPosition: 'bottom',
-    animationEnabled: true,
-    tabBarVisible: false,
-    tabBarOptions: {
-      showLabel: false,
-      activeTintColor: BlueApp.settings.foregroundColor,
-      activeBackgroundColor: '#33bdf1',
-      inactiveBackgroundColor: BlueApp.settings.brandingColor,
-      inactiveTintColor: BlueApp.settings.foregroundColor,
+const Tabs = createStackNavigator({
+  Wallets: {
+    screen: wallets,
+    path: 'wallets',
+    navigationOptions: {
+      title: 'Wallets',
     },
   },
-);
+  Transactions: {
+    screen: transactions,
+    path: 'trans',
+  },
+  Send: {
+    screen: send,
+    path: 'cart',
+  },
+  Receive: {
+    screen: receive,
+    path: 'receive',
+  },
+  Settings: {
+    screen: settings,
+    path: 'settings',
+  },
+}, 
+{ 
+  headerMode: 'none' 
+});
 
 export default Tabs;

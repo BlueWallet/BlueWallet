@@ -1,11 +1,18 @@
 import { AlertIOS } from 'react-native';
 
-module.exports = function(title, text) {
-  return new Promise(function(resolve, reject) {
+module.exports = (title, text) => {
+  return new Promise((resolve, reject) => {
     AlertIOS.prompt(
       title,
       text,
       [
+        {
+          text: 'Cancel',
+          onPress: () => {
+            reject(Error('Cancel Pressed'));
+          },
+          style: 'cancel',
+        },
         {
           text: 'OK',
           onPress: password => {

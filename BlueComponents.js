@@ -137,7 +137,7 @@ export class BlueButtonLink extends Component {
           borderColor: 'transparent',
         }}
         buttonStyle={{
-          height: 25,
+          height: 45,
           width: width / 1.5,
         }}
         backgroundColor="transparent"
