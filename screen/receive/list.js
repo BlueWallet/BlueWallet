@@ -47,6 +47,8 @@ export default class ReceiveList extends Component {
     });
   }
 
+  _keyExtractor = (item, index) => item.hash;
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -67,6 +69,7 @@ export default class ReceiveList extends Component {
           <FlatList
             data={this.state.dataSource}
             style={Styles.flatList}
+            keyExtractor={this._keyExtractor}
             renderItem={item => {
               return (
                 <BlueListItem
