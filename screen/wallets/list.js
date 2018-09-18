@@ -389,9 +389,9 @@ export default class WalletsList extends Component {
                         return (
                           <BlueListItem
                             avatar={(() => {
-                              if (rowData.category && rowData.category === 'receive') {
+                              if (rowData.item.category && rowData.item.category === 'receive') {
                                 // is it lightning onchain tx?
-                                if (rowData.confirmations < 3) {
+                                if (rowData.item.confirmations < 3) {
                                   return (
                                     <View style={{ width: 25 }}>
                                       <BlueTransactionPendingIcon />
@@ -405,7 +405,7 @@ export default class WalletsList extends Component {
                                   );
                                 }
                               }
-                              if (rowData.preimage) {
+                              if (rowData.item.preimage) {
                                 // is it lightning offchain payment?
                                 return (
                                   <View style={{ width: 25 }}>
@@ -414,13 +414,13 @@ export default class WalletsList extends Component {
                                 );
                               }
 
-                              if (!rowData.confirmations) {
+                              if (!rowData.item.confirmations) {
                                 return (
                                   <View style={{ width: 25 }}>
                                     <BlueTransactionPendingIcon />
                                   </View>
                                 );
-                              } else if (rowData.value < 0) {
+                              } else if (rowData.item.value < 0) {
                                 return (
                                   <View style={{ width: 25 }}>
                                     <BlueTransactionOutgoingIcon />
@@ -434,16 +434,16 @@ export default class WalletsList extends Component {
                                 );
                               }
                             })()}
-                            title={loc.transactionTimeToReadable(rowData.received)}
+                            title={loc.transactionTimeToReadable(rowData.item.received)}
                             subtitle={
-                              (rowData.confirmations < 7 ? loc.transactions.list.conf + ': ' + rowData.confirmations + ' ' : '') +
-                              this.txMemo(rowData.hash) +
-                              (rowData.memo || '')
+                              (rowData.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + rowData.item.confirmations + ' ' : '') +
+                              this.txMemo(rowData.item.hash) +
+                              (rowData.item.memo || '')
                             }
                             onPress={() => {
-                              if (rowData.hash) {
+                              if (rowData.item.hash) {
                                 navigate('TransactionDetails', {
-                                  hash: rowData.hash,
+                                  hash: rowData.item.hash,
                                 });
                               }
                             }}
@@ -454,14 +454,14 @@ export default class WalletsList extends Component {
                             }}
                             chevron={false}
                             chevronColor="transparent"
-                            rightTitle={new BigNumber((rowData.value && rowData.value) || 0).div(100000000).toString()}
+                            rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).div(100000000).toString()}
                             rightTitleStyle={{
                               position: 'relative',
                               right: -30,
                               top: -7,
                               fontWeight: '600',
                               fontSize: 16,
-                              color: rowData.value / 100000000 < 0 ? BlueApp.settings.foregroundColor : '#37c0a1',
+                              color: rowData.item.value / 100000000 < 0 ? BlueApp.settings.foregroundColor : '#37c0a1',
                             }}
                           />
                         );
