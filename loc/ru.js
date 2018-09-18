@@ -10,9 +10,9 @@ module.exports = {
   },
   wallets: {
     list: {
-      tabBarLabel: 'Кошельки',
+      tabBarLabel: 'кошельки',
       app_name: 'BlueWallet',
-      title: 'Мои Кошельки',
+      title: 'кошельки',
       header: 'Кошелек это секретный (приватный) ключ, и соответствующий ему адрес на который можно получать биткоины',
       add: 'Добавить Кошелек',
       create_a_wallet: 'Создать кошелек',
@@ -23,12 +23,20 @@ module.exports = {
       empty_txs2: ' ',
     },
     add: {
-      title: 'Добавить Кошелек',
+      title: 'добавить кошелек',
       description:
         'Вы можете отсканировать QR код (в формате WIF - Wallet Import Format), или создать новый кошелек. Segwit поддерживается по умолчанию.',
       scan: 'Отсканировать',
       create: 'Создать',
       label_new_segwit: 'Новый SegWit',
+      wallet_name: 'имя кошелька',
+      wallet_type: 'тип кошелька',
+      or: 'or',
+      import_wallet: 'Импортировать кошелек',
+      imported: 'Импортирован',
+      coming_soon: 'Пока недоступно',
+      lightning: 'Lightning',
+      bitcoin: 'Bitcoin',
     },
     details: {
       title: 'Информация о Кошельке',
@@ -44,6 +52,15 @@ module.exports = {
     export: {
       title: 'Экспорт Кошелька',
     },
+    import: {
+      title: 'import',
+      explanation: 'Напишите тут вашу мнемонику, приватный ключ, WIF, что угодно, BlueWallet постарается угадать верный формат',
+      imported: 'Импортирован',
+      error: 'Не удалось импортировать',
+      success: 'Успех',
+      do_import: 'Импортировать',
+      scan_qr: 'или отсканировать QR код?',
+    },
     scanQrWif: {
       go_back: 'Назад',
       cancel: 'Отмена',
@@ -57,6 +74,7 @@ module.exports = {
       with_address: ' с адресом ',
       imported_segwit: 'Импортированый SegWit',
       imported_legacy: 'Импортированый Legacy',
+      imported_watchonly: 'Импортированый Watch-only',
     },
   },
   transactions: {
@@ -103,6 +121,7 @@ module.exports = {
       satoshi_per_byte: 'Сатоши на байт',
       memo: 'Примечание',
       broadcast: 'Отправить',
+      not_enough_fee: 'Слишком маленькая комиссия. Увеличьте комиссию',
     },
   },
   receive: {

@@ -1,4 +1,13 @@
 module.exports = {
+  _: {
+    storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
+    enter_password: 'Enter password',
+    bad_password: 'Bad pasword, try again',
+    months_ago: 'months ago',
+    days_ago: 'days ago',
+    hours_ago: 'hours ago',
+    never: 'never',
+  },
   wallets: {
     list: {
       tabBarLabel: 'Monederos',
@@ -6,6 +15,12 @@ module.exports = {
       title: 'Mi Monederos de Bitcoin',
       header: 'Un Monedero esta representado con secreto (clave privada) y una dirección' + 'que puedes compartir para recibir monedas.',
       add: 'Añadir Monedero',
+      create_a_wallet: 'Create a wallet',
+      create_a_wallet1: "It's free and you can create",
+      create_a_wallet2: 'as many as you like',
+      latest_transaction: 'latest transaction',
+      empty_txs1: 'Your transactions will appear here,',
+      empty_txs2: 'none at the moment',
     },
     add: {
       title: 'Añadir Monedero',
@@ -14,6 +29,14 @@ module.exports = {
       scan: 'Escaniar',
       create: 'Crear',
       label_new_segwit: 'Nuevo SegWit',
+      wallet_name: 'wallet name',
+      wallet_type: 'wallet type',
+      or: 'or',
+      import_wallet: 'Import wallet',
+      imported: 'Imported',
+      coming_soon: 'Coming soon',
+      lightning: 'Lightning',
+      bitcoin: 'Bitcoin',
     },
     details: {
       title: 'Detalles del Monedero',
@@ -29,6 +52,16 @@ module.exports = {
     export: {
       title: 'Exportacion de Monedero',
     },
+    import: {
+      title: 'import',
+      explanation:
+        "Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do it's best to guess the correct format and import your wallet",
+      imported: 'Imported',
+      error: 'Failed to import. Is it event valid?',
+      success: 'Success',
+      do_import: 'Import',
+      scan_qr: 'or scan QR code instead?',
+    },
     scanQrWif: {
       go_back: 'Regresar',
       cancel: 'Cancelar',
@@ -42,6 +75,7 @@ module.exports = {
       with_address: ' con  dirección ',
       imported_segwit: 'Importado SegWit',
       imported_legacy: 'Importado Legado',
+      imported_watchonly: 'Imported Watch-only',
     },
   },
   transactions: {
@@ -88,6 +122,7 @@ module.exports = {
       satoshi_per_byte: 'satoshiPorByte',
       memo: 'Comentario',
       broadcast: 'Transmitir',
+      not_enough_fee: 'Not enough fee. Increase the fee',
     },
   },
   receive: {
@@ -104,11 +139,32 @@ module.exports = {
     header: 'Ajustes',
     plausible_deniability: 'Negación plausible...',
     storage_not_encrypted: 'Almacenamiento: no esta encriptado',
+    storage_encrypted: 'Storage: encrypted',
     password: 'Contraseña',
     password_explain: 'Crea la contraseña que usarás para descifrar el almacenamiento',
     retype_password: 'Ingresa la contraseña de nuevo',
     passwords_do_not_match: 'Contraseñas deben ser iguales',
     encrypt_storage: 'Cifrar almacenamiento',
     about: 'Sobre nosotros',
+  },
+  plausibledeniability: {
+    title: 'Plausible Deniability',
+    help:
+      'Under certain circumstances, you might be forced to disclose a ' +
+      'password. To keep your coins safe, BlueWallet can create another ' +
+      'encrypted storage, with a different password. Under the pressure, ' +
+      'you can disclose this password to a 3rd party. If entered in ' +
+      "BlueWallet, it will unlock new 'fake' storage. This will seem " +
+      'legit to a 3rd party, but will secretly keep your main storage ' +
+      'with coins safe.',
+    help2: 'New storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
+    create_fake_storage: 'Create fake encrypted storage',
+    go_back: 'Go Back',
+    create_password: 'Create a password',
+    create_password_explanation: 'Password for fake storage should not match password for your main storage',
+    password_should_not_match: 'Password for fake storage should not match password for your main storage',
+    retype_password: 'Retype password',
+    passwords_do_not_match: 'Passwords do not match, try again',
+    success: 'Success',
   },
 };
