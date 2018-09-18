@@ -16,7 +16,7 @@ export default class CameraExample extends React.Component {
     type: Camera.Constants.Type.back,
   };
 
-  async onBarCodeRead(ret) {
+  async onBarCodeScanned(ret) {
     if (this.ignoreRead) return;
     this.ignoreRead = true;
     setTimeout(() => {
@@ -28,7 +28,6 @@ export default class CameraExample extends React.Component {
   } // end
 
   async componentWillMount() {
-    console.warn('here')
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({
       hasCameraPermission: status === 'granted',
@@ -56,7 +55,7 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <View style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeRead(ret)}>
+          <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
             <View
               style={{
                 flex: 1,
