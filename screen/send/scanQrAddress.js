@@ -1,7 +1,7 @@
 /* global alert */
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
-import { Camera, Permissions } from 'expo';
+import { Camera, Permissions, BarCodeScanner } from 'expo';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 
@@ -28,13 +28,14 @@ export default class CameraExample extends React.Component {
   } // end
 
   async componentWillMount() {
+    console.warn('here')
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
     this.setState({
       hasCameraPermission: status === 'granted',
       onCameraReady: function() {
         alert('onCameraReady');
       },
-      barCodeTypes: [Camera.Constants.BarCodeType.qr],
+      barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
     });
   }
 

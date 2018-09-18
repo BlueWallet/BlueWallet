@@ -2,7 +2,7 @@
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import { Camera, Permissions } from 'expo';
+import { Camera, Permissions, BarCodeScanner } from 'expo';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -123,7 +123,7 @@ export default class ScanQrWif extends React.Component {
       onCameraReady: function() {
         alert('onCameraReady');
       },
-      barCodeTypes: [Camera.Constants.BarCodeType.qr],
+      barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
     });
   }
 

@@ -63,12 +63,18 @@ export default class Settings extends Component {
                       }}
                       onPress={async () => {
                         this.setState({ isLoading: true });
-                        let p1 = await prompt(loc.settings.password, loc.settings.password_explain);
+                        let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
+                          this.setState({ isLoading: false });
+                          this.props.navigation.goBack();
+                        });
                         if (!p1) {
                           this.setState({ isLoading: false });
                           return;
                         }
-                        let p2 = await prompt(loc.settings.password, loc.settings.retype_password);
+                        let p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+                          this.setState({ isLoading: false });
+                          this.props.navigation.goBack();
+                        });
                         if (p1 === p2) {
                           await BlueApp.encryptStorage(p1);
                           this.setState({
