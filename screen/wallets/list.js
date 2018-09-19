@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Dimensions, Text, FlatList } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Text, FlatList, StyleSheet } from 'react-native';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -31,8 +31,17 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class WalletsList extends Component {
+
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return (
+        <BlueHeaderDefaultMain 
+          leftText={loc.wallets.list.title}
+          onNewWalletPress={() => navigation.navigate('AddWallet')}
+          onClose={() => navigation.navigate('Settings')}
+        />
+      );
+    },
   };
 
   constructor(props) {
@@ -273,8 +282,6 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea>
-        <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onClose={() => navigate('Settings')} />
-
         <WalletsCarousel
           data={BlueApp.getWallets().concat(false)}
           handleClick={index => {

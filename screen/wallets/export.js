@@ -16,8 +16,11 @@ if (aspectRatio > 1.6) {
 }
 
 export default class WalletExport extends Component {
+
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.wallets.export.title} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -74,8 +77,6 @@ export default class WalletExport extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub leftText={loc.wallets.export.title} onClose={() => this.props.navigation.goBack()} />
-
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           {(() => {
             if (this.state.wallet.getAddress()) {

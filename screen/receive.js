@@ -9,7 +9,6 @@ const ReceiveNavigator = createStackNavigator(
     },
   },
   {
-    headerMode: 'none',
     mode: 'modal',
   },
 );

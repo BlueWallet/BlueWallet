@@ -81,7 +81,6 @@ const WalletsNavigator = createStackNavigator(
     },
   },
   {
-    headerMode: 'none',
     mode: 'modal',
   },
 );

@@ -30,7 +30,9 @@ const { width } = Dimensions.get('window');
 
 export default class WalletsAdd extends Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.wallets.add.title} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -73,8 +75,6 @@ export default class WalletsAdd extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         <BlueSpacingVariable />
-        <BlueHeaderDefaultSub leftText={loc.wallets.add.title} onClose={() => this.props.navigation.goBack()} />
-
         <BlueCard>
           <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
           <BlueFormInput

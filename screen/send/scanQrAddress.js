@@ -7,7 +7,7 @@ let EV = require('../../events');
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: null,
   };
 
   state = {

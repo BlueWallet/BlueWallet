@@ -1,10 +1,9 @@
 /** @type {AppStorage} */
 import React, { Component } from 'react';
-import { SafeAreaView } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient, Constants } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Card, Text, Header, List, ListItem } from 'react-native-elements';
-import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView } from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
@@ -321,43 +320,45 @@ export class BlueHeader extends Component {
 export class BlueHeaderDefaultSub extends Component {
   render() {
     return (
-      <Header
-        {...this.props}
-        backgroundColor="transparent"
-        outerContainerStyles={{
-          borderBottomColor: 'transparent',
-          borderBottomWidth: 0,
-        }}
-        statusBarProps={{ barStyle: 'default' }}
-        leftComponent={
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 34,
-              color: BlueApp.settings.foregroundColor,
-            }}
-          >
-            {
-              // eslint-disable-next-line
-              this.props.leftText
-            }
-          </Text>
-        }
-        rightComponent={
-          <TouchableOpacity
-            onPress={() => {
-              // eslint-disable-next-line
-              if (this.props.onClose) this.props.onClose();
-            }}
-          >
-            <View style={stylesBlueIcon.box}>
-              <View style={stylesBlueIcon.ballTransparrent}>
-                <Icon name="times" size={16} type="font-awesome" color={BlueApp.settings.foregroundColor} />
+      <SafeAreaView style={{ backgroundColor: "#FFFFFF" }}>
+        <Header
+          {...this.props}
+          backgroundColor="#FFFFFF"
+          outerContainerStyles={{
+            borderBottomColor: 'transparent',
+            borderBottomWidth: 0,
+          }}
+          statusBarProps={{ barStyle: 'default' }}
+          leftComponent={
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 34,
+                color: BlueApp.settings.foregroundColor,
+              }}
+            >
+              {
+                // eslint-disable-next-line
+                this.props.leftText
+              }
+            </Text>
+          }
+          rightComponent={
+            <TouchableOpacity
+              onPress={() => {
+                // eslint-disable-next-line
+                if (this.props.onClose) this.props.onClose();
+              }}
+            >
+              <View style={stylesBlueIcon.box}>
+                <View style={stylesBlueIcon.ballTransparrent}>
+                  <Icon name="times" size={16} type="font-awesome" color={BlueApp.settings.foregroundColor} />
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
-        }
-      />
+            </TouchableOpacity>
+          }
+        />
+      </SafeAreaView>
     );
   }
 }
@@ -365,29 +366,8 @@ export class BlueHeaderDefaultSub extends Component {
 export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
-      <Header
-        {...this.props}
-        backgroundColor="transparent"
-        outerContainerStyles={{
-          borderBottomColor: 'transparent',
-          borderBottomWidth: 0,
-        }}
-        statusBarProps={{ barStyle: 'default' }}
-        leftComponent={
-          <Text
-            style={{
-              fontWeight: 'bold',
-              fontSize: 34,
-              color: BlueApp.settings.foregroundColor,
-            }}
-          >
-            {
-              // eslint-disable-next-line
-              this.props.leftText
-            }
-          </Text>
-        }
-        rightComponent={
+      <SafeAreaView style={{ backgroundColor: "#FFFFFF" }}>
+        <View style={{ height: 120 }}>
           <TouchableOpacity
             onPress={() => {
               // eslint-disable-next-line
@@ -400,8 +380,42 @@ export class BlueHeaderDefaultMain extends Component {
               </View>
             </View>
           </TouchableOpacity>
-        }
-      />
+          <Header
+            {...this.props}
+            backgroundColor="#FFFFFF"
+            outerContainerStyles={{
+              borderBottomColor: 'transparent',
+              borderBottomWidth: 0,
+            }}
+            statusBarProps={{ barStyle: 'default' }}
+            leftComponent={
+              <Text
+                style={{
+                  fontWeight: 'bold',
+                  fontSize: 34,
+                  color: BlueApp.settings.foregroundColor,
+                }}
+              >
+                {
+                  // eslint-disable-next-line
+                  this.props.leftText
+                }
+              </Text>
+            }
+            rightComponent={
+              <TouchableOpacity
+                onPress={this.props.onNewWalletPress}
+                style={{
+                  height: 48,
+                  alignSelf: 'flex-end',
+                }}
+              >
+                <BluePlusIcon />
+              </TouchableOpacity>
+            }
+          />
+        </View>
+      </SafeAreaView>
     );
   }
 }
@@ -486,7 +500,9 @@ const stylesBlueIcon = StyleSheet.create({
     top: 15,
   },
   box: {
-    position: 'relative',
+    alignSelf: 'flex-end',
+    paddingHorizontal: 14,
+    paddingTop: 8,
   },
   boxIncomming: {
     position: 'relative',

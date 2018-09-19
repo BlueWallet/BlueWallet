@@ -23,9 +23,6 @@ let loc = require('../../loc');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
-  static navigationOptions = {
-    tabBarVisible: false,
-  };
 
   constructor(props) {
     super(props);

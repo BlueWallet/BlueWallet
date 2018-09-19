@@ -15,7 +15,7 @@ let loc = require('../../loc');
 
 export default class ScanQrWif extends React.Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: null,
   };
 
   state = {

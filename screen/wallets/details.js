@@ -19,7 +19,9 @@ let loc = require('../../loc');
 
 export default class WalletDetails extends Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.wallets.details.title} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -78,9 +80,6 @@ export default class WalletDetails extends Component {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <BlueSpacingVariable />
-
-        <BlueHeaderDefaultSub leftText={loc.wallets.details.title} onClose={() => this.props.navigation.goBack()} />
-
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           {(() => {
             if (this.state.wallet.getAddress()) {
