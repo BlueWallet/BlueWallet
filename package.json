@@ -22,7 +22,7 @@
   },
   "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
-    "prepare": "git apply -R --ignore-whitespace patches/metro-bundler+0.9.2.patch; git apply patches/transaction_builder.js.patch; git apply ./patches/transaction.js.patch",
+    "prepare": "./patches/fix_mangle.sh; git apply patches/transaction_builder.js.patch; git apply ./patches/transaction.js.patch",
     "start": "react-native-scripts start",
     "eject": "react-native-scripts eject",
     "android": "react-native-scripts android",
