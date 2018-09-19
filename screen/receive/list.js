@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FlatList, Text, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { BlueLoading, SafeBlueArea, BlueCard, BlueListItem, BlueHeader } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -9,12 +9,6 @@ let EV = require('../../events');
 let loc = require('../../loc');
 
 export default class ReceiveList extends Component {
-  static navigationOptions = {
-    tabBarLabel: loc.receive.list.tabBarLabel,
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons name={focused ? 'ios-cash' : 'ios-cash-outline'} size={26} style={{ color: tintColor }} />
-    ),
-  };
 
   constructor(props) {
     super(props);

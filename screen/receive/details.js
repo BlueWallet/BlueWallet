@@ -18,8 +18,11 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class ReceiveDetails extends Component {
+
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.receive.list.header} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -82,8 +85,6 @@ export default class ReceiveDetails extends Component {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <BlueSpacingVariable />
-        <BlueHeaderDefaultSub leftText={loc.receive.list.header} onClose={() => this.props.navigation.goBack()} />
-
         <BlueCard
           containerStyle={{
             alignItems: 'center',

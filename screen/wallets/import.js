@@ -30,7 +30,9 @@ const { width } = Dimensions.get('window');
 
 export default class WalletsImport extends Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.wallets.import.title} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -209,8 +211,6 @@ export default class WalletsImport extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         <KeyboardAvoidingView behavior="position" enabled>
           <BlueSpacingVariable />
-          <BlueHeaderDefaultSub leftText={loc.wallets.import.title} onClose={() => this.props.navigation.goBack()} />
-
           <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
           <BlueFormMultiInput
             value={this.state.label}

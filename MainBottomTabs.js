@@ -14,9 +14,6 @@ const Tabs = createStackNavigator(
     Wallets: {
       screen: wallets,
       path: 'wallets',
-      navigationOptions: {
-        title: 'Wallets',
-      },
     },
     Transactions: {
       screen: transactions,
@@ -36,6 +33,7 @@ const Tabs = createStackNavigator(
     },
   },
   {
+    mode: 'modal',
     headerMode: 'none',
   },
 );
