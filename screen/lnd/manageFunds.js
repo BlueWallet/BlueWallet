@@ -13,7 +13,9 @@ let data = [];
 
 export default class ManageFunds extends Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={'manage funds'} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -65,7 +67,6 @@ export default class ManageFunds extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueSpacingVariable />
-        <BlueHeaderDefaultSub leftText={'manage funds'} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           {(() => {

@@ -19,7 +19,9 @@ let loc = require('../../loc');
 
 export default class SendCreate extends Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.send.create.title} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -153,7 +155,6 @@ export default class SendCreate extends Component {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacingVariable />
-        <BlueHeaderDefaultSub leftText={loc.send.create.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>{loc.send.create.this_is_hex}</BlueText>

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import {
-  BlueSpacingVariable,
   BlueFormInput,
   BlueButton,
   SafeBlueArea,
@@ -79,7 +78,6 @@ export default class WalletDetails extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <BlueSpacingVariable />
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           {(() => {
             if (this.state.wallet.getAddress()) {
