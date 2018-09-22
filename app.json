@@ -1,7 +1,7 @@
 {
   "expo": {
     "sdkVersion": "30.0.0",
-    "version": "2.4.3",
+    "version": "2.5.0",
     "privacy": "public",
     "platforms": [
       "ios"
