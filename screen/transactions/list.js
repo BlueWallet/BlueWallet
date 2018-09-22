@@ -87,13 +87,13 @@ export default class TransactionsList extends Component {
   _keyExtractor = (item, index) => item.hash;
 
   render() {
-    console.warn(this.state.dataSource)
+    console.warn(this.state.dataSource);
     const { navigate } = this.props.navigation;
 
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
-    
+
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <Header

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { BlueLoading, SafeBlueArea, BlueCard, BlueListItem, BlueHeader } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -9,7 +8,6 @@ let EV = require('../../events');
 let loc = require('../../loc');
 
 export default class ReceiveList extends Component {
-
   constructor(props) {
     super(props);
     this.state = {

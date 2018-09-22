@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient, Constants } from 'expo';
-import { Icon, Button, FormLabel, FormInput, Card, Text, Header, List, ListItem } from 'react-native-elements';
+import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
 import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView } from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
@@ -160,27 +160,7 @@ export class SafeBlueArea extends Component {
 
 export class BlueCard extends Component {
   render() {
-    return (
-      <Card
-        {...this.props}
-        titleStyle={{ color: BlueApp.settings.foregroundColor }}
-        containerStyle={{
-          backgroundColor: 'transparent',
-          borderColor: 'transparent',
-          paddingTop: 0,
-          marginTop: 0,
-          flex: 1,
-        }}
-        dividerStyle={{
-          backgroundColor: 'transparent',
-          borderColor: 'transparent',
-        }}
-        wrapperStyle={{ 
-          backgroundColor: 'transparent',
-          flex: 1,
-        }}
-      />
-    );
+    return <View {...this.props} style={{ padding: 20 }} />;
   }
 }
 
@@ -320,7 +300,7 @@ export class BlueHeader extends Component {
 export class BlueHeaderDefaultSub extends Component {
   render() {
     return (
-      <SafeAreaView style={{ backgroundColor: "#FFFFFF" }}>
+      <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
         <Header
           {...this.props}
           backgroundColor="#FFFFFF"
@@ -366,7 +346,7 @@ export class BlueHeaderDefaultSub extends Component {
 export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
-      <SafeAreaView style={{ backgroundColor: "#FFFFFF" }}>
+      <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
         <View style={{ height: 120 }}>
           <TouchableOpacity
             onPress={() => {
@@ -467,7 +447,7 @@ export class BlueList extends Component {
           backgroundColor: BlueApp.settings.brandingColor,
           borderTopColor: 'transparent',
           borderTopWidth: 0,
-          flex: 1
+          flex: 1,
         }}
       />
     );
@@ -598,7 +578,7 @@ export class BlueRefreshIcon extends Component {
 export class BlueTransactionIncommingIcon extends Component {
   render() {
     return (
-      <View {...this.props} >
+      <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
             <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 8 }} />
@@ -612,7 +592,7 @@ export class BlueTransactionIncommingIcon extends Component {
 export class BlueTransactionPendingIcon extends Component {
   render() {
     return (
-      <View {...this.props} >
+      <View {...this.props}>
         <View style={stylesBlueIcon.box}>
           <View style={stylesBlueIcon.ball}>
             <Icon
@@ -633,7 +613,7 @@ export class BlueTransactionPendingIcon extends Component {
 export class BlueTransactionOnchainIcon extends Component {
   render() {
     return (
-      <View {...this.props} >
+      <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
             <Icon
@@ -654,7 +634,7 @@ export class BlueTransactionOnchainIcon extends Component {
 export class BlueTransactionOffchainIcon extends Component {
   render() {
     return (
-      <View {...this.props} >
+      <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballOutgoing}>
             <Icon
@@ -675,7 +655,7 @@ export class BlueTransactionOffchainIcon extends Component {
 export class BlueTransactionOffchainIncomingIcon extends Component {
   render() {
     return (
-      <View {...this.props} >
+      <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
             <Icon
@@ -696,7 +676,7 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
 export class BlueTransactionOutgoingIcon extends Component {
   render() {
     return (
-      <View {...this.props} >
+      <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballOutgoing}>
             <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 8 }} />

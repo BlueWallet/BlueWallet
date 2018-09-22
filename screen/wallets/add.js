@@ -10,7 +10,6 @@ import {
   BlueButtonLink,
   BlueFormLabel,
   BlueFormInput,
-  BlueSpacingVariable,
   BlueButton,
   SafeBlueArea,
   BlueCard,
@@ -74,7 +73,6 @@ export default class WalletsAdd extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-        <BlueSpacingVariable />
         <BlueCard>
           <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
           <BlueFormInput

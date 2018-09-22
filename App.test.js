@@ -29,8 +29,7 @@ jest.mock('ScrollView', () => {
   const RealComponent = require.requireActual('ScrollView');
   const React = require('React');
   class ScrollView extends React.Component {
-    scrollTo() {
-    }
+    scrollTo() {}
 
     render() {
       return React.createElement('ScrollView', this.props, this.props.children);
