@@ -349,9 +349,7 @@ export default class WalletsList extends Component {
 
                 <View
                   style={{
-                    top: is.ipad() ? 60 : 120,
-                    position: 'absolute',
-                    width: width,
+                    top: 20,
                   }}
                 >
                   {(() => {
