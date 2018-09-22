@@ -167,4 +167,11 @@ module.exports = {
     passwords_do_not_match: 'Passwords não coincidem, tente novamente',
     success: 'Sucesso',
   },
+  lnd: {
+    title: 'manage funds',
+    choose_source_wallet: 'Choose a source wallet',
+    refill_lnd_balance: 'Refill Lightning wallet balance',
+    refill: 'Refill',
+    withdraw: 'Withdraw',
+  },
 };

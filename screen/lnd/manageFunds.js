@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 
 let data = [];
 
@@ -65,7 +66,7 @@ export default class ManageFunds extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueSpacingVariable />
-        <BlueHeaderDefaultSub leftText={'manage funds'} onClose={() => this.props.navigation.goBack()} />
+        <BlueHeaderDefaultSub leftText={loc.lnd.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           {(() => {
@@ -73,7 +74,7 @@ export default class ManageFunds extends Component {
               return (
                 <View>
                   <Dropdown
-                    label="Choose a source wallet"
+                    label={loc.lnd.choose_source_wallet}
                     data={data}
                     onChangeText={async value => {
                       /** @type {LightningCustodianWallet} */
@@ -96,7 +97,7 @@ export default class ManageFunds extends Component {
                         setTimeout(() => {
                           console.log({ toAddress });
                           this.props.navigation.navigate('SendDetails', {
-                            memo: 'Refill Lightning wallet balance',
+                            memo: loc.lnd.refill_lnd_balance,
                             fromSecret: wallet.getSecret(),
                             address: toAddress,
                           });
@@ -117,7 +118,7 @@ export default class ManageFunds extends Component {
                     onPress={a => {
                       this.setState({ isRefill: true });
                     }}
-                    title={'Refill'}
+                    title={loc.lnd.refill}
                   />
                   <ListItem
                     titleStyle={{ color: BlueApp.settings.foregroundColor }}
@@ -125,7 +126,7 @@ export default class ManageFunds extends Component {
                     onPress={a => {
                       alert('Coming soon');
                     }}
-                    title={'Withdraw'}
+                    title={loc.lnd.withdraw}
                   />
                 </View>
               );

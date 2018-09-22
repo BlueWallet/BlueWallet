@@ -169,4 +169,11 @@ module.exports = {
     passwords_do_not_match: 'Паролі не збігаються, спробуйте ще раз',
     success: 'Операція успішна',
   },
+  lnd: {
+    title: 'manage funds',
+    choose_source_wallet: 'Choose a source wallet',
+    refill_lnd_balance: 'Refill Lightning wallet balance',
+    refill: 'Refill',
+    withdraw: 'Withdraw',
+  },
 };
