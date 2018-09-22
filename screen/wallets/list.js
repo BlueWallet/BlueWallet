@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Dimensions, Text, FlatList } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList } from 'react-native';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -17,7 +17,6 @@ import {
   BlueList,
   BlueListItem,
   BlueHeaderDefaultMain,
-  is,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
@@ -28,7 +27,6 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { width } = Dimensions.get('window');
 
 export default class WalletsList extends Component {
   static navigationOptions = {
