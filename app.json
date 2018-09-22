@@ -7,7 +7,7 @@
       "ios"
     ],
     "ios": {
-      "buildNumber": "69",
+      "buildNumber": "70",
       "supportsTablet": true,
       "isRemoteJSEnabled": false,
       "bundleIdentifier": "io.bluewallet.bluewallet",
