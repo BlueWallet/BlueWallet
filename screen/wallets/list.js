@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Dimensions, Text, FlatList, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Dimensions, Text, FlatList } from 'react-native';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -31,11 +31,10 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class WalletsList extends Component {
-
   static navigationOptions = {
     header: ({ navigation }) => {
       return (
-        <BlueHeaderDefaultMain 
+        <BlueHeaderDefaultMain
           leftText={loc.wallets.list.title}
           onNewWalletPress={() => navigation.navigate('AddWallet')}
           onClose={() => navigation.navigate('Settings')}
@@ -271,7 +270,7 @@ export default class WalletsList extends Component {
     }
   }
 
-  _keyExtractor = (item) => item.hash;
+  _keyExtractor = item => item.hash;
 
   render() {
     const { navigate } = this.props.navigation;
@@ -396,9 +395,9 @@ export default class WalletsList extends Component {
                         return (
                           <BlueListItem
                             avatar={(() => {
-                              if (rowData.item.category && rowData.item.category === 'receive') {
+                              if (rowData.item.type && rowData.item.type === 'bitcoind_tx') {
                                 // is it lightning onchain tx?
-                                if (rowData.item.confirmations < 3) {
+                                /* if (rowData.item.confirmations < 3) {
                                   return (
                                     <View style={{ width: 25 }}>
                                       <BlueTransactionPendingIcon />
@@ -410,9 +409,14 @@ export default class WalletsList extends Component {
                                       <BlueTransactionOnchainIcon />
                                     </View>
                                   );
-                                }
+                                } */
+                                return (
+                                  <View style={{ width: 25 }}>
+                                    <BlueTransactionOnchainIcon />
+                                  </View>
+                                );
                               }
-                              if (rowData.item.preimage) {
+                              if (rowData.item.type === 'paid_invoices') {
                                 // is it lightning offchain payment?
                                 return (
                                   <View style={{ width: 25 }}>

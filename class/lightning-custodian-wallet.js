@@ -137,7 +137,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async addInvoice(amt, memo) {
     let response = await this._api.post('/addinvoice', {
-      body: { amt: 1, memo: 'test' },
+      body: { amt: amt + '', memo: encodeURIComponent(memo) },
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -153,7 +153,13 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
+    if (!json.r_hash || !json.pay_req) {
+      throw new Error('API unexpected response: ' + JSON.stringify(response.body));
+    }
+
     console.log(response.body);
+
+    return json.pay_req;
   }
 
   async checkRouteInvoice(invoice) {
@@ -292,21 +298,28 @@ export class LightningCustodianWallet extends LegacyWallet {
   getTransactions() {
     let txs = [];
     this.pending_transactions_raw = this.pending_transactions_raw || [];
+    console.log('this.pending_transactions_raw', this.pending_transactions_raw);
     this.transactions_raw = this.transactions_raw || [];
+    console.log('this.transactions_raw', this.transactions_raw);
     txs = txs.concat(this.pending_transactions_raw, this.transactions_raw.slice().reverse()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
       tx.value = parseInt(tx.amount * 100000000);
       tx.received = new Date(tx.time * 1000).toString();
-      tx.memo = 'Refill';
+      tx.memo = 'On-chain transaction';
 
-      if (typeof tx.totalamt !== 'undefined' && typeof tx.totalfees !== 'undefined') {
+      if (typeof tx.amt !== 'undefined' && typeof tx.fee !== 'undefined') {
         // lnd tx outgoing
-        tx.value = parseInt((tx.totalamt * 1 + tx.totalfees * 1) * -1);
-        tx.memo = 'Lightning payment'; // TODO once api is ready
-        tx.received = new Date().toString(); // TODO once api is ready
+        tx.value = parseInt((tx.amt * 1 + tx.fee * 1) * -1);
       }
+
+      if (tx.type === 'paid_invoices') {
+        tx.memo = 'Lightning payment'; // TODO once api is ready
+      }
+
+      tx.received = new Date(tx.timestamp * 1000).toString(); // TODO once api is ready
     }
+    console.log('getTx', txs);
     return txs;
   }
 
@@ -330,7 +343,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     this.pending_transactions_raw = json;
 
-    console.log(json);
+    console.log('fetchPendingTransactions()', json);
   }
 
   async fetchTransactions() {
@@ -358,20 +371,20 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    if (typeof json.btc_txs === 'undefined' || typeof json.paid_invoices === 'undefined' || typeof json.sended_coins === 'undefined') {
+    if (!Array.isArray(json)) {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    this.transactions_raw = [].concat(json.btc_txs || [], json.paid_invoices || [], json.sended_coins || []);
+    this.transactions_raw = json;
 
-    console.log(json);
+    console.log('fetchTransactions()', json);
   }
 
   getBalance() {
     return new BigNumber(this.balance).div(100000000).toString(10);
   }
 
-  async fetchBalance() {
+  async fetchBalance(noRetry) {
     await this.checkLogin();
 
     let response = await this._api.get('/balance', {
@@ -388,6 +401,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     if (json && json.error) {
+      if (json.code * 1 === 1 && !noRetry) {
+        await this.authorize();
+        return this.fetchBalance(true);
+      }
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 

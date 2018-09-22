@@ -61,9 +61,16 @@ describe.skip('LightningCustodianWallet', () => {
     await l2.authorize();
     await l2.fetchPendingTransactions();
     await l2.fetchTransactions();
+
     assert.ok(l2.pending_transactions_raw.length === 0);
     assert.ok(l2.transactions_raw.length > 0);
     assert.ok(l2.transactions_raw.length === l2.getTransactions().length);
+    for (let tx of l2.getTransactions()) {
+      assert.ok(typeof tx.fee !== 'undefined');
+      assert.ok(tx.value);
+      assert.ok(!isNaN(tx.value));
+      assert.ok(tx.type === 'bitcoind_tx' || tx.type === 'paid_invoices');
+    }
     await l2.fetchBalance();
     assert.ok(l2.getBalance() > 0);
   });
@@ -161,7 +168,7 @@ describe.skip('LightningCustodianWallet', () => {
     }
   });
 
-  it.skip('can create invoice', async () => {
+  it('can create invoice', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
@@ -173,7 +180,7 @@ describe.skip('LightningCustodianWallet', () => {
     await l2.authorize();
 
     let invoices = await l2.getUserInvoices();
-    let invoice = await l2.addInvoice(1, 'memo');
+    let invoice = await l2.addInvoice(1, 'test memo');
     let invoices2 = await l2.getUserInvoices();
     assert.equal(invoices2.length, invoices.length + 1);
 
