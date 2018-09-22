@@ -48,7 +48,9 @@ function formatTime(time) {
 
 export default class TransactionsDetails extends Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.transactions.details.title} onClose={() => navigation.goBack(null)} />;
+    },
   };
 
   constructor(props) {
@@ -99,7 +101,6 @@ export default class TransactionsDetails extends Component {
             return <BlueSpacing />;
           }
         })()}
-        <BlueHeaderDefaultSub leftText={loc.transactions.details.title} onClose={() => this.props.navigation.goBack()} />
 
         <BlueCard>
           {(() => {

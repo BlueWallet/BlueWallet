@@ -6,9 +6,6 @@ import send from './screen/send';
 import settings from './screen/settings';
 import receive from './screen/receive';
 
-/** @type {AppStorage} */
-let BlueApp = require('./BlueApp');
-
 const Tabs = createStackNavigator(
   {
     Wallets: {

@@ -16,7 +16,6 @@ if (aspectRatio > 1.6) {
 }
 
 export default class WalletExport extends Component {
-
   static navigationOptions = {
     header: ({ navigation }) => {
       return <BlueHeaderDefaultSub leftText={loc.wallets.export.title} onClose={() => navigation.goBack(null)} />;

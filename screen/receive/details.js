@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode';
-import {
-  BlueLoading,
-  BlueFormInputAddress,
-  SafeBlueArea,
-  BlueCard,
-  BlueHeaderDefaultSub,
-  BlueSpacingVariable,
-  is,
-} from '../../BlueComponents';
+import { BlueLoading, BlueFormInputAddress, SafeBlueArea, BlueCard, BlueHeaderDefaultSub, is } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -18,7 +10,6 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class ReceiveDetails extends Component {
-
   static navigationOptions = {
     header: ({ navigation }) => {
       return <BlueHeaderDefaultSub leftText={loc.receive.list.header} onClose={() => navigation.goBack(null)} />;
@@ -84,7 +75,6 @@ export default class ReceiveDetails extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <BlueSpacingVariable />
         <BlueCard
           containerStyle={{
             alignItems: 'center',

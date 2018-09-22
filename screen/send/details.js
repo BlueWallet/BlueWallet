@@ -3,11 +3,9 @@ import { ActivityIndicator, View } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
 import {
   BlueSpacing20,
-  BlueSpacingVariable,
   BlueHeaderDefaultSub,
   BlueButton,
   SafeBlueArea,
-  BlueCard,
   BlueText,
   BlueFormInput,
   BlueFormInputAddress,
@@ -23,6 +21,11 @@ let loc = require('../../loc');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
+  static navigationOptions = {
+    header: ({ navigation }) => {
+      return <BlueHeaderDefaultSub leftText={loc.send.details.title} onClose={() => navigation.goBack(null)} />;
+    },
+  };
 
   constructor(props) {
     super(props);
@@ -180,11 +183,8 @@ export default class SendDetails extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <BlueSpacingVariable />
-        <BlueHeaderDefaultSub leftText={loc.send.details.title} onClose={() => this.props.navigation.goBack()} />
-
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+      <SafeBlueArea style={{ flex: 1 }}>
+        <View>
           <BlueFormInputAddress
             onChangeText={text => this.setState({ address: text })}
             placeholder={loc.send.details.receiver_placeholder}
@@ -212,11 +212,11 @@ export default class SendDetails extends Component {
           />
 
           <BlueSpacing20 />
-          <BlueText>
+          <BlueText style={{ paddingLeft: 20 }}>
             {loc.send.details.remaining_balance}:{' '}
             {this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, this.state.fee)} BTC
           </BlueText>
-        </BlueCard>
+        </View>
 
         <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
 
