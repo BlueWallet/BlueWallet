@@ -9,7 +9,6 @@
     "ios": {
       "buildNumber": "70",
       "supportsTablet": true,
-      "isRemoteJSEnabled": false,
       "bundleIdentifier": "io.bluewallet.bluewallet",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Discover local stores nearby that accept Bitcoin",
@@ -33,6 +32,12 @@
     },
     "android": {
       "package": "io.bluewallet.bluewallet"
-    }
+    },
+    "updates": {
+      "enabled": false
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ]
   }
 }
