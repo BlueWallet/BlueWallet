@@ -170,7 +170,7 @@ export default class ScanQrWif extends React.Component {
               );
             } else {
               return (
-                <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
+                <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
                   <View
                     style={{
                       flex: 1,

@@ -55,7 +55,7 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <View style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
+          <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
             <View
               style={{
                 flex: 1,
