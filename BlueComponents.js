@@ -593,7 +593,7 @@ export class BlueTransactionPendingIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.box}>
+        <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ball}>
             <Icon
               {...this.props}
