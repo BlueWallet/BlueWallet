@@ -136,9 +136,6 @@ export default class SendCreate extends Component {
     if (this.state.isError) {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <BlueSpacingVariable />
-          <BlueHeaderDefaultSub leftText={loc.send.create.title} onClose={() => this.props.navigation.goBack()} />
-
           <BlueCard style={{ alignItems: 'center', flex: 1 }}>
             <BlueText>{loc.send.create.error}</BlueText>
             <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
