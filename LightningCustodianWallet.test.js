@@ -69,7 +69,7 @@ describe.skip('LightningCustodianWallet', () => {
       assert.ok(typeof tx.fee !== 'undefined');
       assert.ok(tx.value);
       assert.ok(!isNaN(tx.value));
-      assert.ok(tx.type === 'bitcoind_tx' || tx.type === 'paid_invoices');
+      assert.ok(tx.type === 'bitcoind_tx' || tx.type === 'paid_invoice', 'unexpected tx type ' + tx.type);
     }
     await l2.fetchBalance();
     assert.ok(l2.getBalance() > 0);
@@ -168,29 +168,59 @@ describe.skip('LightningCustodianWallet', () => {
     }
   });
 
-  it('can create invoice', async () => {
+  it('can create invoice and pay other blitzhub invoice', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
     }
 
-    let l2 = new LightningCustodianWallet();
-    l2.setSecret(process.env.BLITZHUB);
-    await l2.authorize();
+    let lOld = new LightningCustodianWallet();
+    lOld.setSecret(process.env.BLITZHUB);
+    await lOld.authorize();
 
-    let invoices = await l2.getUserInvoices();
-    let invoice = await l2.addInvoice(1, 'test memo');
-    let invoices2 = await l2.getUserInvoices();
+    // creating LND wallet
+    let lNew = new LightningCustodianWallet();
+    await lNew.createAccount(true);
+    await lNew.authorize();
+    await lNew.fetchBalance();
+    assert.equal(lNew.balance, 0);
+
+    let invoices = await lNew.getUserInvoices();
+    let invoice = await lNew.addInvoice(1, 'test memo');
+    let invoices2 = await lNew.getUserInvoices();
     assert.equal(invoices2.length, invoices.length + 1);
+    assert.ok(invoices2[0].ispaid === false);
+    assert.ok(invoices2[0].description);
+    assert.ok(invoices2[0].payment_request);
+    assert.equal(invoices2[0].amt, 1);
 
-    await l2.checkRouteInvoice(invoice);
+    await lOld.fetchBalance();
+    let oldBalance = lOld.balance;
+
+    await lOld.checkRouteInvoice(invoice);
 
     let start = +new Date();
-    await l2.payInvoice(invoice);
+    await lOld.payInvoice(invoice);
     let end = +new Date();
     if ((end - start) / 1000 > 9) {
       console.warn('payInvoice took', (end - start) / 1000, 'sec');
     }
+
+    invoices2 = await lNew.getUserInvoices();
+    assert.ok(invoices2[0].ispaid);
+
+    await lOld.fetchBalance();
+    await lNew.fetchBalance();
+    assert.equal(oldBalance - lOld.balance, 100);
+    assert.equal(lNew.balance, 100);
+
+    // now, paying back that amount
+    invoice = await lOld.addInvoice(1, 'test memo');
+    await lNew.payInvoice(invoice);
+    await lOld.fetchBalance();
+    await lNew.fetchBalance();
+    assert.equal(oldBalance - lOld.balance, 0);
+    assert.equal(lNew.balance, 0);
   });
 });

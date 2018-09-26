@@ -102,12 +102,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     console.log(response.body);
 
     this.last_paid_invoice_result = json;
-
-    if (json.payment_preimage) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   /**
@@ -334,7 +328,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     let json = response.body;
     if (typeof json === 'undefined') {
-      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response));
     }
 
     if (json && json.error) {
