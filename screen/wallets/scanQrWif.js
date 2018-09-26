@@ -2,7 +2,7 @@
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import { Camera, Permissions, BarCodeScanner } from 'expo';
+import { Permissions, BarCodeScanner } from 'expo';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -21,7 +21,8 @@ export default class ScanQrWif extends React.Component {
   state = {
     isLoading: false,
     hasCameraPermission: null,
-    type: Camera.Constants.Type.back,
+    type: BarCodeScanner.Constants.Type.back,
+    barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
   };
 
   async onBarCodeScanned(ret) {
@@ -170,7 +171,12 @@ export default class ScanQrWif extends React.Component {
               );
             } else {
               return (
-                <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
+                <BarCodeScanner
+                  style={{ flex: 1 }}
+                  barCodeTypes={this.state.barCodeTypes}
+                  type={this.state.type}
+                  onBarCodeScanned={ret => this.onBarCodeScanned(ret)}
+                >
                   <View
                     style={{
                       flex: 1,
@@ -186,7 +192,9 @@ export default class ScanQrWif extends React.Component {
                       }}
                       onPress={() => {
                         this.setState({
-                          type: this.state.type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back,
+                          type: this.state.type === BarCodeScanner.Constants.Type.back
+                              ? BarCodeScanner.Constants.Type.front
+                              : BarCodeScanner.Constants.Type.back,
                         });
                       }}
                     >
@@ -197,7 +205,7 @@ export default class ScanQrWif extends React.Component {
                       />
                     </TouchableOpacity>
                   </View>
-                </Camera>
+                </BarCodeScanner>
               );
             }
           })()}

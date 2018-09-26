@@ -1,7 +1,7 @@
 /* global alert */
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
-import { Camera, Permissions, BarCodeScanner } from 'expo';
+import { Permissions, BarCodeScanner } from 'expo';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
 
@@ -13,7 +13,8 @@ export default class CameraExample extends React.Component {
   state = {
     isLoading: false,
     hasCameraPermission: null,
-    type: Camera.Constants.Type.back,
+    type: BarCodeScanner.Constants.Type.back,
+    barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
   };
 
   async onBarCodeScanned(ret) {
@@ -55,7 +56,12 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <View style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} type={this.state.type} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
+          <BarCodeScanner
+            style={{ flex: 1 }}
+            barCodeTypes={this.state.barCodeTypes}
+            type={this.state.type}
+            onBarCodeScanned={ret => this.onBarCodeScanned(ret)}
+          >
             <View
               style={{
                 flex: 1,
@@ -71,14 +77,16 @@ export default class CameraExample extends React.Component {
                 }}
                 onPress={() => {
                   this.setState({
-                    type: this.state.type === Camera.Constants.Type.back ? Camera.Constants.Type.front : Camera.Constants.Type.back,
+                    type: this.state.type === BarCodeScanner.Constants.Type.back
+                        ? BarCodeScanner.Constants.Type.front
+                        : BarCodeScanner.Constants.Type.back,
                   });
                 }}
               >
                 <Button style={{ fontSize: 18, marginBottom: 10 }} title="Go back" onPress={() => this.props.navigation.goBack()} />
               </TouchableOpacity>
             </View>
-          </Camera>
+          </BarCodeScanner>
         </View>
       );
     }
