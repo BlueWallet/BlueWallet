@@ -22,6 +22,7 @@ export default class ScanQrWif extends React.Component {
     isLoading: false,
     hasCameraPermission: null,
     type: BarCodeScanner.Constants.Type.back,
+    barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
   };
 
   async onBarCodeScanned(ret) {
