@@ -19,7 +19,9 @@ const { width } = Dimensions.get('window');
 
 export default class ScanLndInvoice extends React.Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    header: ({ navigation }) => {
+      return <View />;
+    },
   };
 
   state = {
@@ -48,7 +50,7 @@ export default class ScanLndInvoice extends React.Component {
     };
   }
 
-  async onBarCodeRead(ret) {
+  async onBarCodeScanned(ret) {
     if (this.ignoreRead) return;
     this.ignoreRead = true;
     setTimeout(() => {
@@ -220,7 +222,8 @@ export default class ScanLndInvoice extends React.Component {
                 }}
                 onPress={() => {
                   this.setState({
-                    type: this.state.type === BarCodeScanner.Constants.Type.back
+                    type:
+                      this.state.type === BarCodeScanner.Constants.Type.back
                         ? BarCodeScanner.Constants.Type.front
                         : BarCodeScanner.Constants.Type.back,
                   });

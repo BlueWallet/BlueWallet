@@ -412,7 +412,7 @@ export default class WalletsList extends Component {
                                   </View>
                                 );
                               }
-                              if (rowData.item.type === 'paid_invoices') {
+                              if (rowData.item.type === 'paid_invoice') {
                                 // is it lightning offchain payment?
                                 return (
                                   <View style={{ width: 25 }}>

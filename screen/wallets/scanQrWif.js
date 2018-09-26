@@ -192,7 +192,8 @@ export default class ScanQrWif extends React.Component {
                       }}
                       onPress={() => {
                         this.setState({
-                          type: this.state.type === BarCodeScanner.Constants.Type.back
+                          type:
+                            this.state.type === BarCodeScanner.Constants.Type.back
                               ? BarCodeScanner.Constants.Type.front
                               : BarCodeScanner.Constants.Type.back,
                         });

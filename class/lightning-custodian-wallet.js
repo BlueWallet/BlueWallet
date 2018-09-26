@@ -292,29 +292,31 @@ export class LightningCustodianWallet extends LegacyWallet {
   getTransactions() {
     let txs = [];
     this.pending_transactions_raw = this.pending_transactions_raw || [];
-    console.log('this.pending_transactions_raw', this.pending_transactions_raw);
     this.transactions_raw = this.transactions_raw || [];
-    console.log('this.transactions_raw', this.transactions_raw);
     txs = txs.concat(this.pending_transactions_raw, this.transactions_raw.slice().reverse()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
-      tx.value = parseInt(tx.amount * 100000000);
       tx.received = new Date(tx.time * 1000).toString();
-      tx.memo = 'On-chain transaction';
 
       if (typeof tx.amt !== 'undefined' && typeof tx.fee !== 'undefined') {
         // lnd tx outgoing
         tx.value = parseInt((tx.amt * 1 + tx.fee * 1) * -1);
       }
 
-      if (tx.type === 'paid_invoices') {
-        tx.memo = 'Lightning payment'; // TODO once api is ready
+      if (tx.type === 'paid_invoice') {
+        tx.memo = tx.memo || 'Lightning payment';
+      }
+
+      if (tx.type === 'bitcoind_tx') {
+        tx.memo = 'On-chain transaction';
       }
 
       tx.received = new Date(tx.timestamp * 1000).toString(); // TODO once api is ready
     }
     console.log('getTx', txs);
-    return txs;
+    return txs.sort(function(a, b) {
+      return b.timestamp - a.timestamp;
+    });
   }
 
   async fetchPendingTransactions() {
