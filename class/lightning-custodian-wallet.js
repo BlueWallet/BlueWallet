@@ -296,7 +296,13 @@ export class LightningCustodianWallet extends LegacyWallet {
     txs = txs.concat(this.pending_transactions_raw, this.transactions_raw.slice().reverse()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
-      tx.received = new Date(tx.time * 1000).toString();
+      if (tx.amount) {
+        // pending tx
+        tx.amt = tx.amount * -100000000;
+        tx.fee = 0;
+        tx.timestamp = tx.time;
+        tx.memo = 'On-chain transaction';
+      }
 
       if (typeof tx.amt !== 'undefined' && typeof tx.fee !== 'undefined') {
         // lnd tx outgoing
