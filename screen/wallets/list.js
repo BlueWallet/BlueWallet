@@ -391,21 +391,16 @@ export default class WalletsList extends Component {
                         return (
                           <BlueListItem
                             avatar={(() => {
+                              // is it lightning refill tx?
+                              if (rowData.item.category === 'receive' && rowData.item.confirmations < 3) {
+                                return (
+                                  <View style={{ width: 25 }}>
+                                    <BlueTransactionPendingIcon />
+                                  </View>
+                                );
+                              }
+
                               if (rowData.item.type && rowData.item.type === 'bitcoind_tx') {
-                                // is it lightning onchain tx?
-                                /* if (rowData.item.confirmations < 3) {
-                                  return (
-                                    <View style={{ width: 25 }}>
-                                      <BlueTransactionPendingIcon />
-                                    </View>
-                                  );
-                                } else {
-                                  return (
-                                    <View style={{ width: 25 }}>
-                                      <BlueTransactionOnchainIcon />
-                                    </View>
-                                  );
-                                } */
                                 return (
                                   <View style={{ width: 25 }}>
                                     <BlueTransactionOnchainIcon />
