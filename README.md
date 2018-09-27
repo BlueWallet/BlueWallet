@@ -1,7 +1,7 @@
 # BlueWallet - Bitcoin Wallet
 
 [![GitHub tag](https://img.shields.io/github/package-json/v/Overtorment/BlueWallet.svg)](https://github.com/Overtorment/BlueWallet)
-[![CircleCI](https://circleci.com/gh/Overtorment/BlueWallet.svg?style=svg)](https://circleci.com/gh/Overtorment/BlueWallet)
+[![CircleCI](https://circleci.com/gh/BlueWallet/BlueWallet.svg?style=svg)](https://circleci.com/gh/BlueWallet/BlueWallet)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 Thin Bitcoin Wallet.

@@ -643,7 +643,7 @@ export class BlueTransactionOffchainIcon extends Component {
               size={16}
               type="font-awesome"
               color="#d0021b"
-              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '135deg' }] }}
+              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '155deg' }] }}
             />
           </View>
         </View>

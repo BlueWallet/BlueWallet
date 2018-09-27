@@ -3,7 +3,7 @@ import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from './class';
 let assert = require('assert');
 
-describe.skip('LightningCustodianWallet', () => {
+describe('LightningCustodianWallet', () => {
   let l1 = new LightningCustodianWallet();
 
   it.skip('can issue wallet credentials', async () => {
@@ -168,7 +168,7 @@ describe.skip('LightningCustodianWallet', () => {
     }
   });
 
-  it('can create invoice and pay other blitzhub invoice', async () => {
+  it.skip('can create invoice and pay other blitzhub invoice', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
@@ -212,8 +212,8 @@ describe.skip('LightningCustodianWallet', () => {
 
     await lOld.fetchBalance();
     await lNew.fetchBalance();
-    assert.equal(oldBalance - lOld.balance, 100);
-    assert.equal(lNew.balance, 100);
+    assert.equal(oldBalance - lOld.balance, 1);
+    assert.equal(lNew.balance, 1);
 
     // now, paying back that amount
     invoice = await lOld.addInvoice(1, 'test memo');
