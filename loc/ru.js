@@ -6,6 +6,7 @@ module.exports = {
     months_ago: 'месяцев назад',
     days_ago: 'дней назад',
     hours_ago: 'часов назад',
+    minutes_ago: 'минут назад',
     never: 'никогда',
   },
   wallets: {
