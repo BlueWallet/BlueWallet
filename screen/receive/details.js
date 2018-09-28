@@ -12,7 +12,7 @@ const { width } = Dimensions.get('window');
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
     header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.receive.list.header} onClose={() => navigation.goBack(null)} />;
+      return <BlueHeaderDefaultSub leftText={loc.receive.header} onClose={() => navigation.goBack(null)} />;
     },
   };
 
