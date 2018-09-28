@@ -87,7 +87,7 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'transaction details',
+      title: 'Transaction',
       from: 'Inputs',
       to: 'Outputs',
     },
@@ -95,7 +95,7 @@ module.exports = {
   send: {
     list: {
       tabBarLabel: 'Send',
-      header: 'send',
+      header: 'Send',
     },
     details: {
       title: 'create transaction',
@@ -129,7 +129,7 @@ module.exports = {
   receive: {
     list: {
       tabBarLabel: 'Receive',
-      header: 'receive',
+      header: 'Receive',
     },
     details: {
       title: 'Share this address with payer',

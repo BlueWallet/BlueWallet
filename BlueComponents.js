@@ -190,11 +190,13 @@ export class BlueListItem extends Component {
   render() {
     return (
       <ListItem
+      bottomDivider={true}
         {...this.props}
         containerStyle={{
           backgroundColor: 'transparent',
-          borderBottomColor: 'transparent',
-          borderBottomWidth: 0,
+          borderBottomStartRadius: 20,
+          borderBottomEndRadius: 20,
+          borderBottomColor: '#ededed',
         }}
         titleStyle={{
           color: BlueApp.settings.foregroundColor,
@@ -202,6 +204,7 @@ export class BlueListItem extends Component {
           fontWeight: '500',
         }}
         subtitleStyle={{ color: '#9aa0aa' }}
+        subtitleNumberOfLines={2}
       />
     );
   }
@@ -694,12 +697,6 @@ export class BlueReceiveButtonIcon extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        style={{
-          flex: 1,
-          position: 'absolute',
-          bottom: 30,
-          right: width / 2 + 5,
-        }}
       >
         <View>
           <View
@@ -712,6 +709,7 @@ export class BlueReceiveButtonIcon extends Component {
               backgroundColor: '#ccddf9',
               borderBottomLeftRadius: 15,
               borderTopLeftRadius: 15,
+              alignItems: 'center'
             }}
           >
             <View
@@ -721,9 +719,10 @@ export class BlueReceiveButtonIcon extends Component {
                 borderBottomLeftRadius: 15,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '-45deg' }],
+                alignItems: 'center'
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 0, top: 15 }} />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 5, top: 12 }} />
             </View>
             <Text
               style={{
@@ -731,9 +730,7 @@ export class BlueReceiveButtonIcon extends Component {
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 left: 5,
-                top: 12,
                 backgroundColor: 'transparent',
-                position: 'relative',
               }}
             >
               {loc.receive.list.header}
@@ -750,12 +747,6 @@ export class BlueSendButtonIcon extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        style={{
-          flex: 1,
-          position: 'absolute',
-          bottom: 30,
-          left: width / 2 + 5,
-        }}
       >
         <View>
           <View
@@ -768,6 +759,8 @@ export class BlueSendButtonIcon extends Component {
               backgroundColor: '#ccddf9',
               borderBottomRightRadius: 15,
               borderTopRightRadius: 15,
+              alignItems: 'center',
+              paddingLeft: 15,
             }}
           >
             <View
@@ -780,17 +773,14 @@ export class BlueSendButtonIcon extends Component {
                 transform: [{ rotate: '225deg' }],
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 0, top: 0 }} />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 2, top: 6 }} />
             </View>
             <Text
               style={{
                 color: '#2f5fb3',
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
-                left: 5,
-                top: 12,
                 backgroundColor: 'transparent',
-                position: 'relative',
               }}
             >
               {loc.send.list.header}
@@ -898,7 +888,7 @@ export class NewWalletPannel extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        style={{ paddingRight: 10, left: -20, paddingTop: 20 }}
+        style={{ paddingRight: 10, left: -20 }}
         onPress={() => {
           if (this.handleClick) {
             this.handleClick();
@@ -910,7 +900,7 @@ export class NewWalletPannel extends Component {
           style={{
             padding: 15,
             borderRadius: 10,
-            height: 145,
+            height: 164,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -1013,14 +1003,20 @@ export class WalletsCarousel extends Component {
     return (
       <TouchableOpacity
         activeOpacity={1}
-        style={{ paddingRight: 10, left: -20, paddingTop: 20 }}
+        style={{ paddingRight: 10, left: -20 }}
         onPress={() => {
           if (WalletsCarousel.handleClick) {
             WalletsCarousel.handleClick(index);
           }
         }}
       >
-        <LinearGradient colors={[gradient1, gradient2]} style={{ padding: 15, borderRadius: 10, height: 145 }}>
+        <LinearGradient
+          shadowOpacity={0.4}
+          shadowOffset={{ width: 0, height: 0 }}
+          shadowRadius={3}
+          colors={[gradient1, gradient2]}
+          style={{ padding: 15, borderRadius: 10, height: 164 }}
+        >
           <Image
             source={(new LightningCustodianWallet().type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
             style={{
@@ -1034,6 +1030,7 @@ export class WalletsCarousel extends Component {
 
           <Text style={{ backgroundColor: 'transparent' }} />
           <Text
+            numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
               fontSize: 19,
@@ -1043,6 +1040,7 @@ export class WalletsCarousel extends Component {
             {item.getLabel()}
           </Text>
           <Text
+            numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
               fontWeight: 'bold',
@@ -1054,6 +1052,7 @@ export class WalletsCarousel extends Component {
           </Text>
           <Text style={{ backgroundColor: 'transparent' }} />
           <Text
+            numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
               fontSize: 13,
@@ -1063,6 +1062,7 @@ export class WalletsCarousel extends Component {
             {loc.wallets.list.latest_transaction}
           </Text>
           <Text
+            numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
               fontWeight: 'bold',
