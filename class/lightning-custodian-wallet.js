@@ -77,8 +77,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     this.secret = 'blitzhub://' + json.login + ':' + json.password;
-
-    console.log(response.body);
   }
 
   async payInvoice(invoice) {
@@ -98,8 +96,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (json && json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
-
-    console.log(response.body);
 
     this.last_paid_invoice_result = json;
   }
@@ -151,8 +147,6 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    console.log(response.body);
-
     return json.pay_req;
   }
 
@@ -173,8 +167,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (json && json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
-
-    console.log(json);
   }
 
   /**
@@ -186,7 +178,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   async authorize() {
     let login = this.secret.replace('blitzhub://', '').split(':')[0];
     let password = this.secret.replace('blitzhub://', '').split(':')[1];
-    console.log('auth uses login:pass', login, password);
     let response = await this._api.post('/auth?type=auth', {
       body: { login: login, password: password },
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
@@ -209,8 +200,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.access_token = json.access_token;
     this._refresh_token_created_ts = +new Date();
     this._access_token_created_ts = +new Date();
-
-    console.log(json);
   }
 
   async checkLogin() {
@@ -258,8 +247,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.access_token = json.access_token;
     this._refresh_token_created_ts = +new Date();
     this._access_token_created_ts = +new Date();
-
-    console.log(json);
   }
 
   async fetchBtcAddress() {
@@ -285,8 +272,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     for (let arr of json) {
       this.refill_addressess.push(arr.address);
     }
-
-    console.log(json);
   }
 
   getTransactions() {
@@ -319,7 +304,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       tx.received = new Date(tx.timestamp * 1000).toString(); // TODO once api is ready
     }
-    console.log('getTx', txs);
     return txs.sort(function(a, b) {
       return b.timestamp - a.timestamp;
     });
@@ -344,8 +328,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     this.pending_transactions_raw = json;
-
-    console.log('fetchPendingTransactions()', json);
   }
 
   async fetchTransactions() {
@@ -378,8 +360,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     this.transactions_raw = json;
-
-    console.log('fetchTransactions()', json);
   }
 
   getBalance() {
@@ -417,8 +397,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.balance_raw = json;
     this.balance = json.BTC.AvailableBalance;
     this._lastBalanceFetch = +new Date();
-
-    console.log(json);
   }
 
   /**
@@ -461,8 +439,6 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    console.log(json);
-
     return (this.decoded_invoice_raw = json);
   }
 
@@ -489,8 +465,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     this.info_raw = json;
-
-    console.log(json);
   }
 
   allowReceive() {

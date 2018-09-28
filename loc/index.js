@@ -50,9 +50,12 @@ strings.transactionTimeToReadable = function(time) {
   } else if (ago / (3600 * 24) >= 1) {
     ago = Math.round(ago / (3600 * 24));
     return ago + ' ' + strings._.days_ago;
-  } else {
+  } else if (ago > 3600) {
     ago = Math.round(ago / 3600);
     return ago + ' ' + strings._.hours_ago;
+  } else {
+    ago = Math.round(ago / 60);
+    return ago + ' ' + strings._.minutes_ago;
   }
 };
 
