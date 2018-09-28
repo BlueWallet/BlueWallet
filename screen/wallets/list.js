@@ -13,7 +13,6 @@ import {
   BlueTransactionOffchainIcon,
   BlueSendButtonIcon,
   BlueReceiveButtonIcon,
-  BlueRefreshIcon,
   BlueList,
   BlueListItem,
   BlueHeaderDefaultMain,
@@ -456,76 +455,76 @@ export default class WalletsList extends Component {
             </View>
           );
         })()}
-          <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'center', position: 'absolute', bottom: 30}}>
-        {(() => {
-          if (this.state.showReceiveButton) {
-            return (
-              <BlueReceiveButtonIcon
-                onPress={() => {
-                  let start = +new Date();
-                  let walletIndex = this.lastSnappedTo || 0;
-                  console.log('receiving on #', walletIndex);
+        <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'center', position: 'absolute', bottom: 30 }}>
+          {(() => {
+            if (this.state.showReceiveButton) {
+              return (
+                <BlueReceiveButtonIcon
+                  onPress={() => {
+                    let start = +new Date();
+                    let walletIndex = this.lastSnappedTo || 0;
+                    console.log('receiving on #', walletIndex);
 
-                  let c = 0;
-                  for (let w of BlueApp.getWallets()) {
-                    if (c++ === walletIndex) {
-                      console.log('found receiving address, secret=', w.getAddress(), ',', w.getSecret());
-                      navigate('ReceiveDetails', { address: w.getAddress(), secret: w.getSecret() });
-                      if (w.getAddress()) {
-                        // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, w.getAddress());
+                    let c = 0;
+                    for (let w of BlueApp.getWallets()) {
+                      if (c++ === walletIndex) {
+                        console.log('found receiving address, secret=', w.getAddress(), ',', w.getSecret());
+                        navigate('ReceiveDetails', { address: w.getAddress(), secret: w.getSecret() });
+                        if (w.getAddress()) {
+                          // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, w.getAddress());
+                        }
                       }
                     }
-                  }
-                  let end = +new Date();
-                  console.log('took', (end - start) / 1000, 'sec');
-                }}
-              />
-            );
-          }
-        })()}
+                    let end = +new Date();
+                    console.log('took', (end - start) / 1000, 'sec');
+                  }}
+                />
+              );
+            }
+          })()}
 
-        {(() => {
-          if (this.state.showSendButton) {
-            return (
-              <BlueSendButtonIcon
-                onPress={() => {
-                  let walletIndex = this.lastSnappedTo || 0;
+          {(() => {
+            if (this.state.showSendButton) {
+              return (
+                <BlueSendButtonIcon
+                  onPress={() => {
+                    let walletIndex = this.lastSnappedTo || 0;
 
-                  let c = 0;
-                  for (let w of BlueApp.getWallets()) {
-                    if (c++ === walletIndex) {
-                      if (w.type === new LightningCustodianWallet().type) {
-                        navigate('ScanLndInvoice', { fromSecret: w.getSecret() });
-                      } else {
-                        navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                    let c = 0;
+                    for (let w of BlueApp.getWallets()) {
+                      if (c++ === walletIndex) {
+                        if (w.type === new LightningCustodianWallet().type) {
+                          navigate('ScanLndInvoice', { fromSecret: w.getSecret() });
+                        } else {
+                          navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
+                        }
                       }
                     }
-                  }
-                }}
-              />
-            );
-          }
-        })()}
+                  }}
+                />
+              );
+            }
+          })()}
 
-        {(() => {
-          if (this.state.showManageFundsBigButton) {
-            return (
-              <ManageFundsBigButton
-                onPress={() => {
-                  let walletIndex = this.lastSnappedTo || 0;
+          {(() => {
+            if (this.state.showManageFundsBigButton) {
+              return (
+                <ManageFundsBigButton
+                  onPress={() => {
+                    let walletIndex = this.lastSnappedTo || 0;
 
-                  let c = 0;
-                  for (let w of BlueApp.getWallets()) {
-                    if (c++ === walletIndex) {
-                      console.log('navigating to secret ', w.getSecret());
-                      navigate('ManageFunds', { fromSecret: w.getSecret() });
+                    let c = 0;
+                    for (let w of BlueApp.getWallets()) {
+                      if (c++ === walletIndex) {
+                        console.log('navigating to secret ', w.getSecret());
+                        navigate('ManageFunds', { fromSecret: w.getSecret() });
+                      }
                     }
-                  }
-                }}
-              />
-            );
-          }
-        })()}
+                  }}
+                />
+              );
+            }
+          })()}
         </View>
       </SafeBlueArea>
     );

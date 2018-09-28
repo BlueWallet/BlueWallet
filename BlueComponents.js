@@ -190,7 +190,7 @@ export class BlueListItem extends Component {
   render() {
     return (
       <ListItem
-      bottomDivider={true}
+        bottomDivider
         {...this.props}
         containerStyle={{
           backgroundColor: 'transparent',
@@ -695,9 +695,7 @@ export class BlueTransactionOutgoingIcon extends Component {
 export class BlueReceiveButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity
-        {...this.props}
-      >
+      <TouchableOpacity {...this.props}>
         <View>
           <View
             style={{
@@ -709,7 +707,7 @@ export class BlueReceiveButtonIcon extends Component {
               backgroundColor: '#ccddf9',
               borderBottomLeftRadius: 15,
               borderTopLeftRadius: 15,
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
             <View
@@ -719,7 +717,7 @@ export class BlueReceiveButtonIcon extends Component {
                 borderBottomLeftRadius: 15,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '-45deg' }],
-                alignItems: 'center'
+                alignItems: 'center',
               }}
             >
               <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 5, top: 12 }} />
@@ -745,9 +743,7 @@ export class BlueReceiveButtonIcon extends Component {
 export class BlueSendButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity
-        {...this.props}
-      >
+      <TouchableOpacity {...this.props}>
         <View>
           <View
             style={{
