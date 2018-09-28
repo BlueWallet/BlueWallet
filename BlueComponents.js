@@ -702,7 +702,7 @@ export class BlueReceiveButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.receive.list.header}
+              {loc.receive.header}
             </Text>
           </View>
         </View>
@@ -750,7 +750,7 @@ export class BlueSendButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.send.list.header}
+              {loc.send.header}
             </Text>
           </View>
         </View>
