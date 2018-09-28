@@ -1,29 +1,10 @@
 import React, { Component } from 'react';
-import { View, Dimensions } from 'react-native';
-import {
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueHeaderDefaultSub,
-  BlueLoading,
-  BlueSpacing20,
-  BlueSpacing,
-  BlueSpacing40,
-} from '../../BlueComponents';
+import { View, ScrollView } from 'react-native';
+import { BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub, BlueLoading, BlueSpacing20 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { height, width } = Dimensions.get('window');
-const aspectRatio = height / width;
-let isIpad;
-if (aspectRatio > 1.6) {
-  isIpad = false;
-} else {
-  isIpad = true;
-}
-
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
@@ -94,71 +75,63 @@ export default class TransactionsDetails extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          } else {
-            return <BlueSpacing />;
-          }
-        })()}
-
-        <BlueCard>
-          {(() => {
-            if (BlueApp.tx_metadata[this.state.tx.hash]) {
-              if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
-                return (
-                  <View>
-                    <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</BlueText>
-                    <BlueSpacing20 />
-                  </View>
-                );
+        <ScrollView style={{ flex: 1 }}>
+          <BlueCard>
+            {(() => {
+              if (BlueApp.tx_metadata[this.state.tx.hash]) {
+                if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
+                  return (
+                    <View>
+                      <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</BlueText>
+                      <BlueSpacing20 />
+                    </View>
+                  );
+                }
               }
+            })()}
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>
+              {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
+            </BlueText>
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Txid</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.received)}</BlueText>
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmed</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.block_height)}</BlueText>
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmations</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.confirmations}</BlueText>
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Inputs</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
+
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Outputs</BlueText>
+            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
+          </BlueCard>
+
+          {(() => {
+            if (this.state.tx.confirmations === 0) {
+              return (
+                <BlueButton
+                  onPress={() =>
+                    this.props.navigation.navigate('RBF', {
+                      txid: this.state.tx.hash,
+                    })
+                  }
+                  title="Replace-By-Fee (RBF)"
+                />
+              );
             }
           })()}
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>{loc.transactions.details.from}</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>{loc.transactions.details.to}</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>
-            {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
-          </BlueText>
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.hash}</BlueText>
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>received</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{formatTime(this.state.tx.received)}</BlueText>
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>confirmed</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{formatTime(this.state.tx.confirmed)}</BlueText>
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>confirmations</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.confirmations}</BlueText>
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>inputs</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
-
-          <BlueText style={{ fontSize: 16, fontWeight: '500' }}>outputs</BlueText>
-          <BlueText style={{ marginBottom: 6, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
-
-          <BlueText style={{ marginBottom: 10 }} />
-        </BlueCard>
-
-        {(() => {
-          if (this.state.tx.confirmations === 0) {
-            return (
-              <BlueButton
-                onPress={() =>
-                  this.props.navigation.navigate('RBF', {
-                    txid: this.state.tx.hash,
-                  })
-                }
-                title="Replace-By-Fee (RBF)"
-              />
-            );
-          }
-        })()}
+        </ScrollView>
       </SafeBlueArea>
     );
   }

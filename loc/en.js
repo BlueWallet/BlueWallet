@@ -87,16 +87,13 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'transaction details',
+      title: 'transaction',
       from: 'Inputs',
       to: 'Outputs',
     },
   },
   send: {
-    list: {
-      tabBarLabel: 'Send',
-      header: 'send',
-    },
+    header: 'Send',
     details: {
       title: 'create transaction',
       amount_fiels_is_not_valid: 'Amount field is not valid',
@@ -127,10 +124,7 @@ module.exports = {
     },
   },
   receive: {
-    list: {
-      tabBarLabel: 'Receive',
-      header: 'receive',
-    },
+    header: 'Receive',
     details: {
       title: 'Share this address with payer',
     },
