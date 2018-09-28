@@ -473,11 +473,6 @@ const stylesBlueIcon = StyleSheet.create({
   container: {
     flex: 1,
   },
-  containerRefresh: {
-    flex: 1,
-    position: 'absolute',
-    right: 10,
-  },
   box1: {
     position: 'relative',
     top: 15,
@@ -550,30 +545,6 @@ export class BluePlusIcon extends Component {
           </View>
         </View>
       </View>
-    );
-  }
-}
-
-export class BlueRefreshIcon extends Component {
-  render() {
-    return (
-      <TouchableOpacity {...this.props} style={stylesBlueIcon.containerRefresh}>
-        <View style={stylesBlueIcon.box1}>
-          <View style={stylesBlueIcon.ballTransparrent}>
-            <Ionicons
-              {...this.props}
-              name={'ios-refresh'}
-              size={30}
-              style={{
-                color: BlueApp.settings.foregroundColor,
-                backgroundColor: 'transparent',
-                left: 8,
-                top: 2,
-              }}
-            />
-          </View>
-        </View>
-      </TouchableOpacity>
     );
   }
 }
@@ -884,7 +855,7 @@ export class NewWalletPannel extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        style={{ paddingRight: 10, left: -20 }}
+        style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
         onPress={() => {
           if (this.handleClick) {
             this.handleClick();
@@ -939,7 +910,7 @@ export class NewWalletPannel extends Component {
 
 let sliderWidth = width * 1;
 let itemWidth = width * 0.82;
-let sliderHeight = 175;
+let sliderHeight = 181;
 
 export class WalletsCarousel extends Component {
   constructor(props) {
@@ -999,7 +970,7 @@ export class WalletsCarousel extends Component {
     return (
       <TouchableOpacity
         activeOpacity={1}
-        style={{ paddingRight: 10, left: -20 }}
+        style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
         onPress={() => {
           if (WalletsCarousel.handleClick) {
             WalletsCarousel.handleClick(index);
@@ -1009,7 +980,7 @@ export class WalletsCarousel extends Component {
         <LinearGradient
           shadowOpacity={0.4}
           shadowOffset={{ width: 0, height: 0 }}
-          shadowRadius={3}
+          shadowRadius={4}
           colors={[gradient1, gradient2]}
           style={{ padding: 15, borderRadius: 10, height: 164 }}
         >
