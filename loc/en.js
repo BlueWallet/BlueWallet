@@ -87,7 +87,7 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'Transaction',
+      title: 'transaction',
       from: 'Inputs',
       to: 'Outputs',
     },
