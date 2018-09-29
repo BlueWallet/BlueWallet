@@ -212,7 +212,7 @@ export class BlueListItem extends Component {
           fontWeight: '500',
         }}
         subtitleStyle={{ color: '#9aa0aa' }}
-        subtitleNumberOfLines={2}
+        subtitleNumberOfLines={1}
       />
     );
   }
