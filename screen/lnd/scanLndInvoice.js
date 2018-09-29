@@ -124,6 +124,7 @@ export default class ScanLndInvoice extends React.Component {
       end = +new Date();
     } catch (Err) {
       console.log(Err.message);
+      this.props.navigation.goBack();
       return alert('Error');
     }
 
