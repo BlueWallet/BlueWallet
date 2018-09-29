@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, ScrollView } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub, BlueLoading, BlueSpacing20 } from '../../BlueComponents';
+import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub, BlueLoading, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -90,21 +90,41 @@ export default class TransactionsDetails extends Component {
               }
             })()}
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
+            <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
+              <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
+              <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
+            </View>
             <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
+            <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
+              <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
+              <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
+            </View>
             <BlueText style={{ marginBottom: 26, color: 'grey' }}>
               {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
             </BlueText>
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Txid</BlueText>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+            <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
+              <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
+              <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                const url = `https://live.blockcypher.com/btc/tx/${this.state.tx.hash}`;
+                Linking.canOpenURL(url).then(supported => {
+                  if (supported) {
+                    Linking.openURL(url);
+                  }
+                });
+              }}
+            >
+              <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+            </TouchableOpacity>
 
             <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
             <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.received)}</BlueText>
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmed</BlueText>
+            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
             <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.block_height)}</BlueText>
 
             <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmations</BlueText>
