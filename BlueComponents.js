@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient, Constants } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
-import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard } from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
@@ -145,6 +145,14 @@ export class BlueButtonLink extends Component {
     );
   }
 }
+
+export const BlueCopyToClipboardButton = ({ stringToCopy }) => {
+  return (
+    <TouchableOpacity {...this.props} onPress={() => Clipboard.setString(stringToCopy)}>
+      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{loc.transactions.details.copy}</Text>
+    </TouchableOpacity>
+  );
+};
 
 export class SafeBlueArea extends Component {
   render() {

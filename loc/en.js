@@ -87,9 +87,10 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'transaction',
-      from: 'Inputs',
-      to: 'Outputs',
+      title: 'transaction details',
+      from: 'From',
+      to: 'To',
+      copy: 'Copy',
     },
   },
   send: {
