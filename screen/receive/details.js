@@ -93,7 +93,9 @@ export default class ReceiveDetails extends Component {
               fgColor={BlueApp.settings.brandingColor}
             />
             <TouchableOpacity onPress={this.copyToClipboard}>
-              <Animated.Text style={styles.address}>{this.state.addressText}</Animated.Text>
+              <Animated.Text style={styles.address} numberOfLines={0}>
+                {this.state.addressText}
+              </Animated.Text>
             </TouchableOpacity>
           </View>
           <BlueButton

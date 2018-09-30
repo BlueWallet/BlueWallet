@@ -144,6 +144,8 @@ module.exports = {
     passwords_do_not_match: 'Contraseñas deben ser iguales',
     encrypt_storage: 'Cifrar almacenamiento',
     about: 'Sobre nosotros',
+    language: 'Idioma',
+    currency: 'Moneda',
   },
   plausibledeniability: {
     title: 'Plausible Deniability',

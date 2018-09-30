@@ -144,6 +144,8 @@ module.exports = {
     passwords_do_not_match: 'Passwords não coincidem',
     encrypt_storage: 'Encriptar armazenamento',
     about: 'Sobre',
+    language: '',
+    currency: '',
   },
   plausibledeniability: {
     title: 'Negação plausível',

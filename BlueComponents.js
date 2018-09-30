@@ -199,7 +199,6 @@ export class BlueListItem extends Component {
     return (
       <ListItem
         bottomDivider
-        {...this.props}
         containerStyle={{
           backgroundColor: 'transparent',
           borderBottomStartRadius: 20,
@@ -213,6 +212,7 @@ export class BlueListItem extends Component {
         }}
         subtitleStyle={{ color: '#9aa0aa' }}
         subtitleNumberOfLines={1}
+        {...this.props}
       />
     );
   }
@@ -313,7 +313,6 @@ export class BlueHeaderDefaultSub extends Component {
     return (
       <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
         <Header
-          {...this.props}
           backgroundColor="#FFFFFF"
           outerContainerStyles={{
             borderBottomColor: 'transparent',
@@ -348,6 +347,7 @@ export class BlueHeaderDefaultSub extends Component {
               </View>
             </TouchableOpacity>
           }
+          {...this.props}
         />
       </SafeAreaView>
     );

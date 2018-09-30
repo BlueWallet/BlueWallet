@@ -5,7 +5,7 @@ import { Text, ScrollView, StyleSheet } from 'react-native';
 import { createDrawerNavigator, SafeAreaView } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import Selftest from './screen/selftest';
-import About from './screen/about';
+import About from './screen/settings/about';
 import PlausibleDeniability from './screen/plausibledeniability';
 
 /** @type {AppStorage} */
