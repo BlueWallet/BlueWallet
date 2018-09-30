@@ -144,8 +144,8 @@ module.exports = {
     passwords_do_not_match: 'Паролі не збігаються',
     encrypt_storage: 'Зашифрувати сховище',
     about: 'Про програму',
-    language: '',
-    currency: '',
+    language: 'Language',
+    currency: 'Currency',
   },
   plausibledeniability: {
     title: 'Правдоподібне Заперечення',
