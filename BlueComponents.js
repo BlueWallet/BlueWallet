@@ -358,54 +358,40 @@ export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
       <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
-        <View style={{ height: 120 }}>
-          <TouchableOpacity
-            onPress={() => {
-              // eslint-disable-next-line
-              if (this.props.onClose) this.props.onClose();
-            }}
-          >
-            <View style={stylesBlueIcon.box}>
-              <View style={stylesBlueIcon.ballTransparrent}>
-                <Icon name="kebab-horizontal" size={22} type="octicon" color={BlueApp.settings.foregroundColor} />
-              </View>
-            </View>
-          </TouchableOpacity>
-          <Header
-            {...this.props}
-            backgroundColor="#FFFFFF"
-            outerContainerStyles={{
-              borderBottomColor: 'transparent',
-              borderBottomWidth: 0,
-            }}
-            statusBarProps={{ barStyle: 'default' }}
-            leftComponent={
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  fontSize: 34,
-                  color: BlueApp.settings.foregroundColor,
-                }}
-              >
-                {
-                  // eslint-disable-next-line
-                  this.props.leftText
-                }
-              </Text>
-            }
-            rightComponent={
-              <TouchableOpacity
-                onPress={this.props.onNewWalletPress}
-                style={{
-                  height: 48,
-                  alignSelf: 'flex-end',
-                }}
-              >
-                <BluePlusIcon />
-              </TouchableOpacity>
-            }
-          />
-        </View>
+        <Header
+          {...this.props}
+          backgroundColor="#FFFFFF"
+          outerContainerStyles={{
+            borderBottomColor: 'transparent',
+            borderBottomWidth: 0,
+          }}
+          statusBarProps={{ barStyle: 'default' }}
+          leftComponent={
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 34,
+                color: BlueApp.settings.foregroundColor,
+              }}
+            >
+              {
+                // eslint-disable-next-line
+                this.props.leftText
+              }
+            </Text>
+          }
+          rightComponent={
+            <TouchableOpacity
+              onPress={this.props.onNewWalletPress}
+              style={{
+                height: 48,
+                alignSelf: 'flex-end',
+              }}
+            >
+              <BluePlusIcon />
+            </TouchableOpacity>
+          }
+        />
       </SafeAreaView>
     );
   }

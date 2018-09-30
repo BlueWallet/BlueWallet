@@ -28,17 +28,17 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class WalletsList extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return (
-        <BlueHeaderDefaultMain
-          leftText={loc.wallets.list.title}
-          onNewWalletPress={() => navigation.navigate('AddWallet')}
-          onClose={() => navigation.navigate('Settings')}
-        />
-      );
+  static navigationOptions = ({ navigation }) => ({
+    headerStyle: {
+      backgroundColor: '#FFFFFF',
+      borderBottomWidth: 0,
     },
-  };
+    headerRight: (
+      <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => navigation.navigate('Settings')}>
+        <Icon name="kebab-horizontal" size={22} type="octicon" color={BlueApp.settings.foregroundColor} />
+      </TouchableOpacity>
+    ),
+  });
 
   constructor(props) {
     super(props);
@@ -269,6 +269,7 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea>
+        <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
         <WalletsCarousel
           data={BlueApp.getWallets().concat(false)}
           handleClick={index => {
