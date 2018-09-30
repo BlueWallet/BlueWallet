@@ -88,8 +88,8 @@ module.exports = {
     },
     details: {
       title: 'transaction details',
-      from: 'From',
-      to: 'To',
+      from: 'Input',
+      to: 'Output',
       copy: 'Copy',
     },
   },
@@ -125,13 +125,14 @@ module.exports = {
     },
   },
   receive: {
-    header: 'Receive',
+    header: 'receive',
     details: {
       title: 'Share this address with payer',
+      share: 'share',
+      copiedToClipboard: 'Copied to clipboard.',
     },
   },
   settings: {
-    tabBarLabel: 'Settings',
     header: 'settings',
     plausible_deniability: 'Plausible deniability...',
     storage_not_encrypted: 'Storage: not encrypted',
@@ -142,6 +143,8 @@ module.exports = {
     passwords_do_not_match: 'Passwords do not match',
     encrypt_storage: 'Encrypt storage',
     about: 'About',
+    language: 'Language',
+    currency: 'Currency',
   },
   plausibledeniability: {
     title: 'Plausible Deniability',

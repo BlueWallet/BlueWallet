@@ -199,7 +199,6 @@ export class BlueListItem extends Component {
     return (
       <ListItem
         bottomDivider
-        {...this.props}
         containerStyle={{
           backgroundColor: 'transparent',
           borderBottomStartRadius: 20,
@@ -212,7 +211,8 @@ export class BlueListItem extends Component {
           fontWeight: '500',
         }}
         subtitleStyle={{ color: '#9aa0aa' }}
-        subtitleNumberOfLines={2}
+        subtitleNumberOfLines={1}
+        {...this.props}
       />
     );
   }
@@ -313,7 +313,6 @@ export class BlueHeaderDefaultSub extends Component {
     return (
       <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
         <Header
-          {...this.props}
           backgroundColor="#FFFFFF"
           outerContainerStyles={{
             borderBottomColor: 'transparent',
@@ -348,6 +347,7 @@ export class BlueHeaderDefaultSub extends Component {
               </View>
             </TouchableOpacity>
           }
+          {...this.props}
         />
       </SafeAreaView>
     );
@@ -358,54 +358,40 @@ export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
       <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
-        <View style={{ height: 120 }}>
-          <TouchableOpacity
-            onPress={() => {
-              // eslint-disable-next-line
-              if (this.props.onClose) this.props.onClose();
-            }}
-          >
-            <View style={stylesBlueIcon.box}>
-              <View style={stylesBlueIcon.ballTransparrent}>
-                <Icon name="kebab-horizontal" size={22} type="octicon" color={BlueApp.settings.foregroundColor} />
-              </View>
-            </View>
-          </TouchableOpacity>
-          <Header
-            {...this.props}
-            backgroundColor="#FFFFFF"
-            outerContainerStyles={{
-              borderBottomColor: 'transparent',
-              borderBottomWidth: 0,
-            }}
-            statusBarProps={{ barStyle: 'default' }}
-            leftComponent={
-              <Text
-                style={{
-                  fontWeight: 'bold',
-                  fontSize: 34,
-                  color: BlueApp.settings.foregroundColor,
-                }}
-              >
-                {
-                  // eslint-disable-next-line
-                  this.props.leftText
-                }
-              </Text>
-            }
-            rightComponent={
-              <TouchableOpacity
-                onPress={this.props.onNewWalletPress}
-                style={{
-                  height: 48,
-                  alignSelf: 'flex-end',
-                }}
-              >
-                <BluePlusIcon />
-              </TouchableOpacity>
-            }
-          />
-        </View>
+        <Header
+          {...this.props}
+          backgroundColor="#FFFFFF"
+          outerContainerStyles={{
+            borderBottomColor: 'transparent',
+            borderBottomWidth: 0,
+          }}
+          statusBarProps={{ barStyle: 'default' }}
+          leftComponent={
+            <Text
+              style={{
+                fontWeight: 'bold',
+                fontSize: 34,
+                color: BlueApp.settings.foregroundColor,
+              }}
+            >
+              {
+                // eslint-disable-next-line
+                this.props.leftText
+              }
+            </Text>
+          }
+          rightComponent={
+            <TouchableOpacity
+              onPress={this.props.onNewWalletPress}
+              style={{
+                height: 48,
+                alignSelf: 'flex-end',
+              }}
+            >
+              <BluePlusIcon />
+            </TouchableOpacity>
+          }
+        />
       </SafeAreaView>
     );
   }

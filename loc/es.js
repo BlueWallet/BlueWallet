@@ -90,13 +90,11 @@ module.exports = {
       title: 'Detalles de Transaccion',
       from: 'De',
       to: 'A',
+      copy: 'Copiar',
     },
   },
   send: {
-    list: {
-      tabBarLabel: 'Enviar',
-      header: 'Elige monedero',
-    },
+    header: 'Elige monedero',
     details: {
       title: 'Crear Transaccion',
       amount_fiels_is_not_valid: 'La cantidad no es válida',
@@ -127,12 +125,11 @@ module.exports = {
     },
   },
   receive: {
-    list: {
-      tabBarLabel: 'Recivir',
-      header: 'Elige el monedero',
-    },
+    header: 'Elige el monedero',
     details: {
       title: 'Comparte esta dirección con el pagador',
+      share: 'Compartir',
+      copiedToClipboard: 'Copiado a portapapeles.',
     },
   },
   settings: {
@@ -147,6 +144,8 @@ module.exports = {
     passwords_do_not_match: 'Contraseñas deben ser iguales',
     encrypt_storage: 'Cifrar almacenamiento',
     about: 'Sobre nosotros',
+    language: 'Idioma',
+    currency: 'Moneda',
   },
   plausibledeniability: {
     title: 'Plausible Deniability',

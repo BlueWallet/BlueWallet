@@ -2,7 +2,7 @@
 import React from 'react';
 import { WatchOnlyWallet, LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
 import TestRenderer from 'react-test-renderer';
-import Settings from './screen/settings';
+import Settings from './screen/settings/settings';
 import Selftest from './screen/selftest';
 import { BlueHeader } from './BlueComponents';
 import MockStorage from './MockStorage';
