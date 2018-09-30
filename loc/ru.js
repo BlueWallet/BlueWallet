@@ -143,8 +143,8 @@ module.exports = {
     passwords_do_not_match: 'Пароли не совпадают',
     encrypt_storage: 'Зашифровать хранилище',
     about: 'О программе',
-    language: '',
-    currency: '',
+    language: 'Language',
+    currency: 'Currency',
   },
   plausibledeniability: {
     title: 'Правдоподобное Отрицание',
