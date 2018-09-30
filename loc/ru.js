@@ -89,13 +89,11 @@ module.exports = {
       title: 'Детали транзакци',
       from: 'От',
       to: 'Кому',
+      copy: '',
     },
   },
   send: {
-    list: {
-      tabBarLabel: 'Отправить',
-      header: 'Отправить',
-    },
+    header: 'Отправить',
     details: {
       title: 'Создать Транзакцию',
       amount_fiels_is_not_valid: 'Поле не валидно',
@@ -126,12 +124,11 @@ module.exports = {
     },
   },
   receive: {
-    list: {
-      tabBarLabel: 'Получить',
-      header: 'Получить',
-    },
+    header: 'Получить',
     details: {
       title: 'Покажите этот адрес плательщику',
+      share: '',
+      copiedToClipboard: '',
     },
   },
   settings: {

@@ -1,13 +1,12 @@
 import React, { Component } from 'react';
-import { Dimensions, View } from 'react-native';
+import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
 import QRCode from 'react-native-qrcode';
-import { BlueLoading, BlueFormInputAddress, SafeBlueArea, BlueCard, BlueHeaderDefaultSub, is } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueHeaderDefaultSub, is } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 // let EV = require('../../events');
-const { width } = Dimensions.get('window');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
@@ -25,6 +24,7 @@ export default class ReceiveDetails extends Component {
       isLoading: true,
       address: address,
       secret: secret,
+      addressText: '',
     };
 
     // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.refreshFunction.bind(this));
@@ -56,6 +56,7 @@ export default class ReceiveDetails extends Component {
         BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         this.setState({
           address: address,
+          addressText: address,
           isLoading: false,
         });
       }, 1);
@@ -63,9 +64,17 @@ export default class ReceiveDetails extends Component {
       this.setState({
         isLoading: false,
         address,
+        addressText: '',
       });
     }
   }
+
+  copyToClipboard = () => {
+    this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
+      Clipboard.setString(this.state.address);
+      setTimeout(() => this.setState({ addressText: this.state.address }), 1000);
+    });
+  };
 
   render() {
     console.log('render() receive/details, address,secret=', this.state.address, ',', this.state.secret);
@@ -75,33 +84,44 @@ export default class ReceiveDetails extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <BlueCard
-          containerStyle={{
-            alignItems: 'center',
-            flex: 1,
-            borderColor: 'red',
-            borderWidth: 7,
-          }}
-        >
-          <BlueFormInputAddress editable value={this.state.address} />
-        </BlueCard>
-
-        <View
-          style={{
-            left: (width - ((is.ipad() && 250) || 312)) / 2,
-          }}
-        >
-          <QRCode
-            value={this.state.address}
-            size={(is.ipad() && 250) || 312}
-            bgColor={BlueApp.settings.foregroundColor}
-            fgColor={BlueApp.settings.brandingColor}
+        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <QRCode
+              value={this.state.address}
+              size={(is.ipad() && 300) || 300}
+              bgColor={BlueApp.settings.foregroundColor}
+              fgColor={BlueApp.settings.brandingColor}
+            />
+            <TouchableOpacity onPress={this.copyToClipboard}>
+              <Animated.Text style={styles.address}>{this.state.addressText}</Animated.Text>
+            </TouchableOpacity>
+          </View>
+          <BlueButton
+            icon={{
+              name: 'share-alternative',
+              type: 'entypo',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={async () => {
+              Share.share({
+                message: this.state.address,
+              });
+            }}
+            title={loc.receive.details.share}
           />
         </View>
       </SafeBlueArea>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  address: {
+    marginVertical: 32,
+    fontSize: 15,
+    color: '#9aa0aa',
+  },
+});
 
 ReceiveDetails.propTypes = {
   navigation: PropTypes.shape({

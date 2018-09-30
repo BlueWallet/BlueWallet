@@ -88,8 +88,8 @@ module.exports = {
     },
     details: {
       title: 'transaction details',
-      from: 'From',
-      to: 'To',
+      from: 'Input',
+      to: 'Output',
       copy: 'Copy',
     },
   },
@@ -128,6 +128,8 @@ module.exports = {
     header: 'Receive',
     details: {
       title: 'Share this address with payer',
+      share: 'share',
+      copiedToClipboard: 'Copied to clipboard.',
     },
   },
   settings: {

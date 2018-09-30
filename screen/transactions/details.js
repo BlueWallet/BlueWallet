@@ -1,6 +1,15 @@
 import React, { Component } from 'react';
 import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub, BlueLoading, BlueSpacing20, BlueCopyToClipboardButton } from '../../BlueComponents';
+import {
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueHeaderDefaultSub,
+  BlueLoading,
+  BlueSpacing20,
+  BlueCopyToClipboardButton,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');

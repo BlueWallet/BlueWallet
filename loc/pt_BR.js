@@ -90,13 +90,11 @@ module.exports = {
       title: 'Detalhes da transação',
       from: 'De',
       to: 'Para',
+      copy: 'Copiar',
     },
   },
   send: {
-    list: {
-      tabBarLabel: 'Enviar',
-      header: 'Enviar',
-    },
+    header: 'Enviar',
     details: {
       title: 'Criar Transacção',
       amount_fiels_is_not_valid: 'Campo de quantia não é válido',
@@ -127,12 +125,11 @@ module.exports = {
     },
   },
   receive: {
-    list: {
-      tabBarLabel: 'Receber',
-      header: 'Receber',
-    },
+    header: 'Receber',
     details: {
       title: 'Partilhar este endereço com o pagador',
+      share: '',
+      copiedToClipboard: '',
     },
   },
   settings: {
