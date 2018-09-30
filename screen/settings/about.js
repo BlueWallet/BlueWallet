@@ -10,15 +10,19 @@ import {
   BlueCard,
   BlueText,
   BlueHeaderDefaultSub,
-} from '../BlueComponents';
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
-let BlueApp = require('../BlueApp');
+let BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
 
 export default class About extends Component {
   static navigationOptions = {
-    tabBarVisible: false,
+    headerStyle: {
+      backgroundColor: '#FFFFFF',
+      borderBottomWidth: 0,
+    },
+    headerTintColor: '#0c2550',
   };
 
   constructor(props) {
@@ -41,7 +45,7 @@ export default class About extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub leftText={'about'} onClose={() => this.props.navigation.goBack()} />
+        <BlueHeaderDefaultSub leftText={'about'} rightComponent={null} />
 
         <BlueCard>
           <ScrollView maxHeight={height - 100}>
