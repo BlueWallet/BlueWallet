@@ -1,7 +1,1 @@
-* FIX: Wont broadcast tx with too small fee
-* ADD: HD wallet
-* FIX: transactions list update limit
-* FIX: transactions update on app start
-* FIX: blank screen in the app in case of unexpected TX data
-* FIX: 'Export / Details' button for iPad
-* REF: improved tx details screen
+./fastlane/metadata/en-US/release_notes.txt
