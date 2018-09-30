@@ -90,13 +90,11 @@ module.exports = {
       title: 'Деталі транзакції',
       from: 'Від',
       to: 'Кому',
+      copy: '',
     },
   },
   send: {
-    list: {
-      tabBarLabel: 'Переказ',
-      header: 'Переказ',
-    },
+    header: 'Переказ',
     details: {
       title: 'Створити Транзакцію',
       amount_fiels_is_not_valid: 'Поле не валідно',
@@ -127,12 +125,11 @@ module.exports = {
     },
   },
   receive: {
-    list: {
-      tabBarLabel: 'Отримати',
-      header: 'Отримати',
-    },
+    header: 'Отримати',
     details: {
       title: 'Покажіть цю адресу платникові',
+      share: '',
+      copiedToClipboard: '',
     },
   },
   settings: {
