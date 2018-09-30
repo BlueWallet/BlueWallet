@@ -64,7 +64,7 @@ export default class ReceiveDetails extends Component {
       this.setState({
         isLoading: false,
         address,
-        addressText: '',
+        addressText: address,
       });
     }
   }
