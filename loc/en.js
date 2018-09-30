@@ -125,7 +125,7 @@ module.exports = {
     },
   },
   receive: {
-    header: 'receive',
+    header: 'Receive',
     details: {
       title: 'Share this address with payer',
       share: 'share',

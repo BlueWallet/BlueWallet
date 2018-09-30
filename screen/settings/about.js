@@ -46,9 +46,8 @@ export default class About extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeaderDefaultSub leftText={'about'} rightComponent={null} />
-
-        <BlueCard>
-          <ScrollView maxHeight={height - 100}>
+        <ScrollView>
+          <BlueCard>
             <BlueText h4>BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.</BlueText>
 
             <BlueButton
@@ -114,8 +113,8 @@ export default class About extends Component {
             <BlueTextCentered>
               {Constants.platform.ios.model} ({Constants.platform.ios.platform})
             </BlueTextCentered>
-          </ScrollView>
-        </BlueCard>
+          </BlueCard>
+        </ScrollView>
       </SafeBlueArea>
     );
   }

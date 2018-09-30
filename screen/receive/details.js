@@ -11,7 +11,7 @@ let loc = require('../../loc');
 export default class ReceiveDetails extends Component {
   static navigationOptions = {
     header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.receive.header} onClose={() => navigation.goBack(null)} />;
+      return <BlueHeaderDefaultSub leftText={loc.receive.header.toLowerCase()} onClose={() => navigation.goBack(null)} />;
     },
   };
 
@@ -98,19 +98,21 @@ export default class ReceiveDetails extends Component {
               </Animated.Text>
             </TouchableOpacity>
           </View>
-          <BlueButton
-            icon={{
-              name: 'share-alternative',
-              type: 'entypo',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={async () => {
-              Share.share({
-                message: this.state.address,
-              });
-            }}
-            title={loc.receive.details.share}
-          />
+          <View style={{ marginBottom: 24 }}>
+            <BlueButton
+              icon={{
+                name: 'share-alternative',
+                type: 'entypo',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={async () => {
+                Share.share({
+                  message: this.state.address,
+                });
+              }}
+              title={loc.receive.details.share}
+            />
+          </View>
         </View>
       </SafeBlueArea>
     );
