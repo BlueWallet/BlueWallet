@@ -5,3 +5,7 @@
 * FIX: blank screen in the app in case of unexpected TX data
 * FIX: 'Export / Details' button for iPad
 * REF: improved tx details screen
+* ADD: open tx in external blockexplorer
+* FIX: tx list resolution increased to minutes
+* OPS: Upgrade to Expo 30
+* FIX: misaligned unconf tx icon
