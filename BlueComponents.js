@@ -666,12 +666,10 @@ export class BlueReceiveButtonIcon extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              width: 100,
+              width: 110,
               height: 40,
               position: 'relative',
               backgroundColor: '#ccddf9',
-              borderBottomLeftRadius: 15,
-              borderTopLeftRadius: 15,
               alignItems: 'center',
             }}
           >
@@ -718,8 +716,6 @@ export class BlueSendButtonIcon extends Component {
               height: 40,
               position: 'relative',
               backgroundColor: '#ccddf9',
-              borderBottomRightRadius: 15,
-              borderTopRightRadius: 15,
               alignItems: 'center',
               paddingLeft: 15,
             }}
