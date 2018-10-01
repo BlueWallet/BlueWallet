@@ -28,7 +28,8 @@
       "color": "#000000"
     },
     "splash": {
-      "backgroundColor": "#00aced"
+      "backgroundColor": "#00aced",
+      "image": "./img/splash/splash.png"
     },
     "android": {
       "package": "io.bluewallet.bluewallet"

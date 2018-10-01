@@ -125,7 +125,7 @@ it('Segwit HD (BIP49) can fetch UTXO', async function() {
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
   assert.equal(hd.utxo.length, 9);
-  assert.ok(hd.utxo[0].confirmations);
+  assert.ok(typeof hd.utxo[0].confirmations === 'number');
   assert.ok(hd.utxo[0].txid);
   assert.ok(hd.utxo[0].vout);
   assert.ok(hd.utxo[0].amount);
@@ -283,6 +283,6 @@ it('can convert blockchain.info TX to blockcypher TX format', () => {
   assert.ok(blockcyphertx.received); // time
   assert.ok(blockcyphertx.hash);
   assert.ok(blockcyphertx.value);
-  assert.ok(blockcyphertx.confirmations);
+  assert.ok(typeof blockcyphertx.confirmations === 'number');
   assert.ok(blockcyphertx.outputs);
 });

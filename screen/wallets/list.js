@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, RefreshControl } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList, RefreshControl, LayoutAnimation } from 'react-native';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -26,6 +26,23 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+const customLayoutSpringAnimation = {
+  duration: 300,
+  create: {
+    type: LayoutAnimation.Types.spring,
+    property: LayoutAnimation.Properties.scaleXY,
+    springDamping: 0.7,
+  },
+  update: {
+    type: LayoutAnimation.Types.spring,
+    springDamping: 0.7,
+  },
+  delete: {
+    type: LayoutAnimation.Types.spring,
+    property: LayoutAnimation.Properties.scaleXY,
+    springDamping: 0.7,
+  },
+};
 
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -149,6 +166,7 @@ export default class WalletsList extends Component {
   onSnapToItem(index) {
     console.log('onSnapToItem', index);
     this.lastSnappedTo = index;
+    LayoutAnimation.configureNext(customLayoutSpringAnimation);
     this.setState({
       isLoading: false,
       showReceiveButton: false,
@@ -185,16 +203,13 @@ export default class WalletsList extends Component {
 
       console.log({ showManageFundsBig });
 
-      setTimeout(
-        () =>
-          this.setState({
-            showReceiveButton: showReceive,
-            showManageFundsBigButton: showManageFundsBig,
-            showManageFundsSmallButton,
-            showSendButton: showSend,
-          }),
-        50,
-      ); // just to animate it, no real function
+      LayoutAnimation.configureNext(customLayoutSpringAnimation);
+      this.setState({
+        showReceiveButton: showReceive,
+        showManageFundsBigButton: showManageFundsBig,
+        showManageFundsSmallButton,
+        showSendButton: showSend,
+      });
     }
 
     // now, lets try to fetch balance and txs for this wallet in case it has changed
@@ -456,7 +471,17 @@ export default class WalletsList extends Component {
             </View>
           );
         })()}
-        <View style={{ flex: 1, flexDirection: 'row', alignSelf: 'center', position: 'absolute', bottom: 30 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'center',
+            backgroundColor: 'transparent',
+            position: 'absolute',
+            bottom: 30,
+            borderRadius: 15,
+            overflow: 'hidden',
+          }}
+        >
           {(() => {
             if (this.state.showReceiveButton) {
               return (
