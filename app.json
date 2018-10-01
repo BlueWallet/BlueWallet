@@ -7,7 +7,7 @@
       "ios"
     ],
     "ios": {
-      "buildNumber": "83",
+      "buildNumber": "84",
       "supportsTablet": true,
       "bundleIdentifier": "io.bluewallet.bluewallet",
       "infoPlist": {
