@@ -40,7 +40,6 @@ export class AbstractHDWallet extends LegacyWallet {
     // console.log('converting', tx);
     var clone = Object.assign({}, tx);
     clone.received = new Date(clone.time * 1000).toISOString();
-    clone.confirmations = (clone.block_height && 7) || 0;
     clone.outputs = clone.out;
     for (let o of clone.outputs) {
       o.addresses = [o.addr];
