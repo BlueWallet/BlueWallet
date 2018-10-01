@@ -209,7 +209,7 @@ export default class WalletsList extends Component {
         showManageFundsBigButton: showManageFundsBig,
         showManageFundsSmallButton,
         showSendButton: showSend,
-      })
+      });
     }
 
     // now, lets try to fetch balance and txs for this wallet in case it has changed
