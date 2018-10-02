@@ -11,9 +11,8 @@ module.exports = {
   },
   wallets: {
     list: {
-      tabBarLabel: 'Monederos',
       app_name: 'Blue Wallet',
-      title: 'Mi Monederos de Bitcoin',
+      title: 'carteras',
       header: 'Un Monedero esta representado con secreto (clave privada) y una dirección' + 'que puedes compartir para recibir monedas.',
       add: 'Añadir Monedero',
       create_a_wallet: 'Create a wallet',
@@ -82,7 +81,7 @@ module.exports = {
   transactions: {
     list: {
       tabBarLabel: 'Transacciónes',
-      title: 'Mi Transacciónes',
+      title: 'transacciones',
       description: 'Una lista de las transacciones entrantes o salientes de sus monederos',
       conf: 'conf',
     },
@@ -94,7 +93,7 @@ module.exports = {
     },
   },
   send: {
-    header: 'Elige monedero',
+    header: 'enviar',
     details: {
       title: 'Crear Transaccion',
       amount_fiels_is_not_valid: 'La cantidad no es válida',
@@ -125,7 +124,7 @@ module.exports = {
     },
   },
   receive: {
-    header: 'Elige el monedero',
+    header: 'Recibir',
     details: {
       title: 'Comparte esta dirección con el pagador',
       share: 'Compartir',
@@ -168,7 +167,7 @@ module.exports = {
     success: 'Success',
   },
   lnd: {
-    title: 'manage funds',
+    title: 'manejar fondos',
     choose_source_wallet: 'Choose a source wallet',
     refill_lnd_balance: 'Refill Lightning wallet balance',
     refill: 'Refill',
