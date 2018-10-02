@@ -694,7 +694,7 @@ export class BlueReceiveButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.receive.header}
+              {loc.receive.header.toLowerCase()}
             </Text>
           </View>
         </View>
@@ -740,7 +740,7 @@ export class BlueSendButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.send.header}
+              {loc.send.header.toLowerCase()}
             </Text>
           </View>
         </View>
@@ -752,50 +752,33 @@ export class BlueSendButtonIcon extends Component {
 export class ManageFundsBigButton extends Component {
   render() {
     return (
-      <TouchableOpacity
-        {...this.props}
-        style={{
-          flex: 1,
-          position: 'absolute',
-          bottom: 30,
-          left: (width - 190) / 2,
-        }}
-      >
+      <TouchableOpacity {...this.props}>
         <View>
           <View
             style={{
               flex: 1,
               flexDirection: 'row',
-              width: 190,
+              width: 160,
               height: 40,
               position: 'relative',
               backgroundColor: '#ccddf9',
-              borderBottomRightRadius: 15,
-              borderBottomLeftRadius: 15,
-              borderTopRightRadius: 15,
-              borderTopLeftRadius: 15,
+              alignItems: 'center',
             }}
           >
             <View
               style={{
-                width: 30,
-                height: 30,
-                left: 20,
-                top: 5,
-                borderBottomLeftRadius: 15,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '90deg' }],
+                marginHorizontal: 10,
               }}
             >
-              <Icon {...this.props} name="link" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 0, top: 0 }} />
+              <Icon {...this.props} name="link" size={16} type="font-awesome" color="#2f5fb3" />
             </View>
             <Text
               style={{
                 color: '#2f5fb3',
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
-                left: 25,
-                top: 12,
                 backgroundColor: 'transparent',
                 position: 'relative',
               }}
