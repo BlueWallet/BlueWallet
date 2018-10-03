@@ -312,7 +312,7 @@ export default class WalletsList extends Component {
                   }
                 }}
               >
-                <BlueText style={{ fontWeight: '600', fontSize: 16 }}>Manage funds</BlueText>
+                <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
                 <Icon
                   style={{ position: 'relative' }}
                   name="link"

@@ -783,7 +783,7 @@ export class ManageFundsBigButton extends Component {
                 position: 'relative',
               }}
             >
-              manage funds
+              {loc.lnd.title}
             </Text>
           </View>
         </View>

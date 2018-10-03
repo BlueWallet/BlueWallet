@@ -88,7 +88,7 @@ module.exports = {
       title: 'Детали транзакци',
       from: 'От',
       to: 'Кому',
-      copy: '',
+      copy: 'копировать',
     },
   },
   send: {
@@ -126,8 +126,8 @@ module.exports = {
     header: 'Получить',
     details: {
       title: 'Покажите этот адрес плательщику',
-      share: '',
-      copiedToClipboard: '',
+      share: 'Отправить',
+      copiedToClipboard: 'скопировано',
     },
   },
   settings: {
@@ -142,8 +142,8 @@ module.exports = {
     passwords_do_not_match: 'Пароли не совпадают',
     encrypt_storage: 'Зашифровать хранилище',
     about: 'О программе',
-    language: 'Language',
-    currency: 'Currency',
+    language: 'Язык',
+    currency: 'Валюта',
   },
   plausibledeniability: {
     title: 'Правдоподобное Отрицание',
@@ -168,10 +168,10 @@ module.exports = {
     success: 'Операция успешна',
   },
   lnd: {
-    title: 'manage funds',
-    choose_source_wallet: 'Choose a source wallet',
-    refill_lnd_balance: 'Refill Lightning wallet balance',
-    refill: 'Refill',
-    withdraw: 'Withdraw',
+    title: 'мои средства',
+    choose_source_wallet: 'Выберите с какого кошелька',
+    refill_lnd_balance: 'Пополнить баланс Lightning кошелька',
+    refill: 'Пополнить',
+    withdraw: 'Вывести',
   },
 };
