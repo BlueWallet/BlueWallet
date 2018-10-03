@@ -9,3 +9,5 @@
 * FIX: tx list resolution increased to minutes
 * OPS: Upgrade to Expo 30
 * FIX: misaligned unconf tx icon
+* FIX: github links
+* FIX: after tx broadcast tx list refreshed automatically
