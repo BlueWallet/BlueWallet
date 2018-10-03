@@ -951,7 +951,7 @@ export class WalletsCarousel extends Component {
         }}
       >
         <LinearGradient
-          shadowOpacity={18/100}
+          shadowOpacity={18 / 100}
           shadowOffset={{ width: 0, height: 4 }}
           shadowRadius={10}
           shadowColor="#000000"
