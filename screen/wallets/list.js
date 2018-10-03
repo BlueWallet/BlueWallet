@@ -63,6 +63,7 @@ export default class WalletsList extends Component {
       isLoading: true,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions.bind(this));
   }
 
   async componentDidMount() {
@@ -173,7 +174,6 @@ export default class WalletsList extends Component {
       showManageFundsBigButton: false,
       showManageFundsSmallButton: false,
       showSendButton: false,
-      // TODO: погуглить че это за ебала ds.cloneWithRows, можно ли быстрее сделать прогрузку транзакций на экран
       dataSource: BlueApp.getTransactions(index),
     });
 
