@@ -883,7 +883,7 @@ export class NewWalletPannel extends Component {
 
 let sliderWidth = width * 1;
 let itemWidth = width * 0.82;
-let sliderHeight = 181;
+let sliderHeight = 190;
 
 export class WalletsCarousel extends Component {
   constructor(props) {
@@ -951,9 +951,10 @@ export class WalletsCarousel extends Component {
         }}
       >
         <LinearGradient
-          shadowOpacity={0.4}
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowRadius={4}
+          shadowOpacity={18 / 100}
+          shadowOffset={{ width: 0, height: 4 }}
+          shadowRadius={10}
+          shadowColor="#000000"
           colors={[gradient1, gradient2]}
           style={{ padding: 15, borderRadius: 10, height: 164 }}
         >

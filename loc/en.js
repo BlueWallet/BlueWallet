@@ -11,7 +11,6 @@ module.exports = {
   },
   wallets: {
     list: {
-      tabBarLabel: 'Wallets',
       app_name: 'Blue Wallet',
       title: 'wallets',
       header: 'A wallet represents a pair of a secret (private key) and an address' + 'you can share to receive coins.',
