@@ -15,6 +15,7 @@ import {
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let currency = require('../../currency');
+let EV = require('../../events');
 const { width } = Dimensions.get('window');
 
 export default class ScanLndInvoice extends React.Component {
@@ -129,6 +130,7 @@ export default class ScanLndInvoice extends React.Component {
     }
 
     console.log('payInvoice took', (end - start) / 1000, 'sec');
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
 
     alert('Success');
     this.props.navigation.goBack();
