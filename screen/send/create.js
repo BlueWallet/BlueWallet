@@ -16,6 +16,7 @@ let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+let EV = require('../../events');
 
 export default class SendCreate extends Component {
   static navigationOptions = {
@@ -125,6 +126,7 @@ export default class SendCreate extends Component {
         broadcastSuccessMessage: '',
       });
     } else {
+      EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
       this.setState({ broadcastErrorMessage: '' });
       this.setState({
         broadcastSuccessMessage: 'Success! TXID: ' + JSON.stringify(result.result),
