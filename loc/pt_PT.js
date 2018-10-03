@@ -11,7 +11,6 @@ module.exports = {
   },
   wallets: {
     list: {
-      tabBarLabel: 'Wallets',
       app_name: 'Blue Wallet',
       title: 'Minhas Bitcoin Wallets',
       header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
