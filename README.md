@@ -1,6 +1,6 @@
 # BlueWallet - Bitcoin Wallet
 
-[![GitHub tag](https://img.shields.io/github/package-json/v/Overtorment/BlueWallet.svg)](https://github.com/Overtorment/BlueWallet)
+[![GitHub tag](https://img.shields.io/github/package-json/v/BlueWallet/BlueWallet.svg)](https://github.com/BlueWallet/BlueWallet)
 [![CircleCI](https://circleci.com/gh/BlueWallet/BlueWallet.svg?style=svg)](https://circleci.com/gh/BlueWallet/BlueWallet)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
@@ -33,7 +33,7 @@ Beta version, do not use to store large amounts!
 * In your console:
 
 ```
-git clone https://github.com/Overtorment/BlueWallet.git
+git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
 npm install
 npm start

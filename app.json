@@ -19,7 +19,7 @@
     "name": "Blue Wallet",
     "description": "Bitcoin wallet app. Alpha version (iOS only)",
     "slug": "bluewallet",
-    "githubUrl": "https://github.com/Overtorment/BlueWallet",
+    "githubUrl": "https://github.com/BlueWallet/BlueWallet",
     "orientation": "portrait",
     "primaryColor": "#00aced",
     "icon": "img/icon.png",

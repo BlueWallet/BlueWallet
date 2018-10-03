@@ -57,9 +57,9 @@ export default class About extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL('https://github.com/Overtorment/BlueWallet');
+                Linking.openURL('https://github.com/BlueWallet/BlueWallet');
               }}
-              title="github.com/Overtorment/BlueWallet"
+              title="github.com/BlueWallet/BlueWallet"
             />
 
             <BlueButton
