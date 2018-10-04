@@ -23,7 +23,7 @@ const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 export default class SendDetails extends Component {
   static navigationOptions = {
     header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.send.details.title} onClose={() => navigation.goBack(null)} />;
+      return <BlueHeaderDefaultSub leftText={loc.send.details.title.toLowerCase()} onClose={() => navigation.goBack(null)} />;
     },
   };
 
@@ -220,25 +220,19 @@ export default class SendDetails extends Component {
 
         <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
 
-        <View style={{ flex: 1, flexDirection: 'row' }}>
-          <View style={{ flex: 0.33 }}>
-            <BlueButton onPress={() => this.props.navigation.goBack()} title={loc.send.details.cancel} />
-          </View>
-          <View style={{ flex: 0.33 }}>
-            <BlueButton
-              icon={{
-                name: 'qrcode',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              style={{}}
-              title={loc.send.details.scan}
-              onPress={() => this.props.navigation.navigate('ScanQrAddress')}
-            />
-          </View>
-          <View style={{ flex: 0.33 }}>
-            <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
-          </View>
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+          <BlueButton onPress={() => this.props.navigation.goBack()} title={loc.send.details.cancel} />
+          <BlueButton
+            icon={{
+              name: 'qrcode',
+              type: 'font-awesome',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            style={{}}
+            title={loc.send.details.scan}
+            onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+          />
+          <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
         </View>
       </SafeBlueArea>
     );

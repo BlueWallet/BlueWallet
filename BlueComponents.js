@@ -321,6 +321,7 @@ export class BlueHeaderDefaultSub extends Component {
           statusBarProps={{ barStyle: 'default' }}
           leftComponent={
             <Text
+              adjustsFontSizeToFit
               style={{
                 fontWeight: 'bold',
                 fontSize: 34,
@@ -368,6 +369,7 @@ export class BlueHeaderDefaultMain extends Component {
           statusBarProps={{ barStyle: 'default' }}
           leftComponent={
             <Text
+              numberOfLines={0}
               style={{
                 fontWeight: 'bold',
                 fontSize: 34,
@@ -982,6 +984,7 @@ export class WalletsCarousel extends Component {
           </Text>
           <Text
             numberOfLines={1}
+            adjustsFontSizeToFit
             style={{
               backgroundColor: 'transparent',
               fontWeight: 'bold',
