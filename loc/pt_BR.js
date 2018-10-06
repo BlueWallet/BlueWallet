@@ -15,7 +15,7 @@ module.exports = {
       app_name: 'Blue Wallet',
       title: 'Wallets',
       header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
-      add: 'Adicionar Wallet',
+      add: 'adicionar wallet',
       create_a_wallet: 'Criar uma wallet',
       create_a_wallet1: "Gratuito e pode criar",
       create_a_wallet2: ' quantas quiser',
@@ -125,7 +125,7 @@ module.exports = {
     },
   },
   receive: {
-    header: 'Receber',
+    header: 'receber',
     details: {
       title: 'Partilhar este endereço com o pagador',
       share: 'partilhar',
@@ -134,7 +134,7 @@ module.exports = {
   },
   settings: {
     tabBarLabel: 'Definições',
-    header: 'Definições',
+    header: 'definições',
     plausible_deniability: 'Negação plausível...',
     storage_not_encrypted: 'Armazenamento: não encriptado',
     storage_encrypted: 'Armazenamento: encriptado',
@@ -172,6 +172,6 @@ module.exports = {
     choose_source_wallet: 'Escolha a sua wallet',
     refill_lnd_balance: 'Carregar o saldo da Lightning wallet',
     refill: 'Carregar',
-    withdraw: 'Remover',
+    withdraw: 'Transferir',
   },
 };
