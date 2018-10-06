@@ -22,7 +22,7 @@
   },
   "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
-    "prepare": "./patches/fix_mangle.sh; git apply patches/transaction_builder.js.patch; git apply ./patches/transaction.js.patch",
+    "prepare": "./patches/fix_mangle.sh; git apply patches/transaction_builder.js.patch; git apply ./patches/transaction.js.patch; ./sentry.sh",
     "start": "expo start",
     "eject": "expo eject",
     "android": "expo android",
