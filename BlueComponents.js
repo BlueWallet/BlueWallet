@@ -944,7 +944,6 @@ export class WalletsCarousel extends Component {
 
     return (
       <TouchableOpacity
-        activeOpacity={1}
         style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
         onPress={() => {
           if (WalletsCarousel.handleClick) {

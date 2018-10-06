@@ -1,6 +1,8 @@
 import { createStackNavigator } from 'react-navigation';
 
-import wallets from './screen/wallets';
+import SettingsStackNavigator from './screen/settingsStackNavigator';
+import WalletsList from './screen/wallets/list';
+import Transactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
@@ -20,10 +22,23 @@ import sendCreate from './screen/send/create';
 import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 
+const WalletsStackNavigator = createStackNavigator({
+  Wallets: {
+    screen: WalletsList,
+    path: 'wallets',
+  },
+  WalletTransactions: {
+    screen: Transactions,
+  },
+  Settings: {
+    screen: SettingsStackNavigator,
+  },
+});
+
 const Tabs = createStackNavigator(
   {
     Wallets: {
-      screen: wallets,
+      screen: WalletsStackNavigator,
       path: 'wallets',
       navigationOptions: {
         header: null,
@@ -44,7 +59,6 @@ const Tabs = createStackNavigator(
     WalletExport: {
       screen: WalletExport,
     },
-
     //
 
     TransactionDetails: {

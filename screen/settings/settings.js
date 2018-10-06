@@ -8,11 +8,7 @@ let loc = require('../../loc');
 
 export default class Settings extends Component {
   static navigationOptions = {
-    headerStyle: {
-      backgroundColor: '#FFFFFF',
-      borderBottomWidth: 0,
-    },
-    headerTintColor: '#0c2550',
+    header: null,
   };
 
   constructor(props) {
