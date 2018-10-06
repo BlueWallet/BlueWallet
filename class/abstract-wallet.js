@@ -37,7 +37,7 @@ export class AbstractWallet {
   }
 
   allowSend() {
-    return this.getBalance() > 0;
+    return true;
   }
 
   /**

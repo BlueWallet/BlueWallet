@@ -23,7 +23,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   allowSend() {
-    return this.getBalance() > 0;
+    return true;
   }
 
   generate() {
