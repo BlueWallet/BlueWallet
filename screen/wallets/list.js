@@ -110,18 +110,14 @@ export default class WalletsList extends Component {
     setTimeout(() => {
       console.log('refreshFunction()');
       let showSend = false;
-      let showReceive = false;
-      let showManageFundsBig = false;
       let showManageFundsSmallButton = false;
       let wallets = BlueApp.getWallets();
       let wallet = wallets[this.lastSnappedTo || 0];
       if (wallet) {
         showSend = wallet.allowSend();
-        showReceive = wallet.allowReceive();
       }
 
       if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
-        showManageFundsBig = true;
         showManageFundsSmallButton = false;
       }
 
@@ -132,9 +128,6 @@ export default class WalletsList extends Component {
       this.setState({
         isLoading: false,
         isTransactionsLoading: false,
-        showReceiveButton: showReceive,
-        showSendButton: showSend,
-        showManageFundsBigButton: showManageFundsBig,
         showManageFundsSmallButton,
         dataSource: BlueApp.getTransactions(this.lastSnappedTo || 0),
       });
@@ -167,29 +160,18 @@ export default class WalletsList extends Component {
     LayoutAnimation.configureNext(customLayoutSpringAnimation);
     this.setState({
       isLoading: false,
-      showReceiveButton: false,
-      showManageFundsBigButton: false,
       showManageFundsSmallButton: false,
-      showSendButton: false,
       dataSource: BlueApp.getTransactions(index),
     });
 
     if (index < BlueApp.getWallets().length) {
       // do not show for last card
 
-      let showSend = false;
-      let showReceive = false;
-      let showManageFundsBig = false;
       let wallets = BlueApp.getWallets();
       let wallet = wallets[this.lastSnappedTo || 0];
-      if (wallet) {
-        showSend = wallet.allowSend();
-        showReceive = wallet.allowReceive();
-      }
-      console.log({ showSend });
+  
       let showManageFundsSmallButton = true;
-      if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
-        showManageFundsBig = true;
+      if (wallet && wallet.type === new LightningCustodianWallet().type) {
         showManageFundsSmallButton = false;
       }
 
@@ -198,14 +180,9 @@ export default class WalletsList extends Component {
         showManageFundsSmallButton = false;
       }
 
-      console.log({ showManageFundsBig });
-
       LayoutAnimation.configureNext(customLayoutSpringAnimation);
       this.setState({
-        showReceiveButton: showReceive,
-        showManageFundsBigButton: showManageFundsBig,
         showManageFundsSmallButton,
-        showSendButton: showSend,
       });
     }
 
