@@ -19,7 +19,7 @@ let strings;
       locale = locale.split('-');
       locale = locale[0];
       console.log('current locale:', locale);
-      if (locale === 'en' || locale === 'ru' || locale === 'ua' || locale === 'es' || locale === 'pt') {
+      if (locale === 'en' || locale === 'ru' || locale === 'ua' || locale === 'es' || locale === 'pt_br' || locale === 'pt_pt') {
         strings.setLanguage(locale);
       } else {
         strings.setLanguage('en');
@@ -31,7 +31,8 @@ let strings;
 strings = new Localization({
   en: require('./en.js'),
   ru: require('./ru.js'),
-  pt: require('./pt_BR.js'),
+  pt_br: require('./pt_BR.js'),
+  pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   ua: require('./ua.js'),
 });
