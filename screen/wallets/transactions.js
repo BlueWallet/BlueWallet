@@ -407,22 +407,10 @@ export default class Transactions extends Component {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
-                    let start = +new Date();
-                    let walletIndex = this.lastSnappedTo || 0;
-                    console.log('receiving on #', walletIndex);
-
-                    let c = 0;
-                    for (let w of BlueApp.getWallets()) {
-                      if (c++ === walletIndex) {
-                        console.log('found receiving address, secret=', w.getAddress(), ',', w.getSecret());
-                        navigate('ReceiveDetails', { address: w.getAddress(), secret: w.getSecret() });
-                        if (w.getAddress()) {
-                          // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, w.getAddress());
-                        }
-                      }
+                    navigate('ReceiveDetails', { address: this.state.wallet.getAddress(), secret: this.state.wallet.getSecret() });
+                    if (this.state.wallet.getAddress()) {
+                      // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, w.getAddress());
                     }
-                    let end = +new Date();
-                    console.log('took', (end - start) / 1000, 'sec');
                   }}
                 />
               );
@@ -434,17 +422,10 @@ export default class Transactions extends Component {
               return (
                 <BlueSendButtonIcon
                   onPress={() => {
-                    let walletIndex = this.lastSnappedTo || 0;
-
-                    let c = 0;
-                    for (let w of BlueApp.getWallets()) {
-                      if (c++ === walletIndex) {
-                        if (w.type === new LightningCustodianWallet().type) {
-                          navigate('ScanLndInvoice', { fromSecret: w.getSecret() });
-                        } else {
-                          navigate('SendDetails', { fromAddress: w.getAddress(), fromSecret: w.getSecret() });
-                        }
-                      }
+                    if (this.state.wallet.type === new LightningCustodianWallet().type) {
+                      navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
+                    } else {
+                      navigate('SendDetails', { fromAddress: this.state.wallet.getAddress(), fromSecret: this.state.wallet.getSecret() });
                     }
                   }}
                 />
@@ -457,15 +438,7 @@ export default class Transactions extends Component {
               return (
                 <ManageFundsBigButton
                   onPress={() => {
-                    let walletIndex = this.lastSnappedTo || 0;
-
-                    let c = 0;
-                    for (let w of BlueApp.getWallets()) {
-                      if (c++ === walletIndex) {
-                        console.log('navigating to secret ', w.getSecret());
-                        navigate('ManageFunds', { fromSecret: w.getSecret() });
-                      }
-                    }
+                    navigate('ManageFunds', { fromSecret: this.state.wallet.getSecret() });
                   }}
                 />
               );
