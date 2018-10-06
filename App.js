@@ -9,7 +9,6 @@ import About from './screen/settings/about';
 import PlausibleDeniability from './screen/plausibledeniability';
 import Sentry from 'sentry-expo';
 
-
 Sentry.enableInExpoDevelopment = true; // TODO: Remove this once Sentry is correctly setup.
 Sentry.config('https://23377936131848ca8003448a893cb622@sentry.io/1295736').install();
 
