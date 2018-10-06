@@ -72,6 +72,7 @@
     "readable-stream": "^1.1.14",
     "request-promise-native": "^1.0.5",
     "secure-random": "^1.1.1",
+    "sentry-expo": "^1.10.0",
     "stream-browserify": "^1.0.0",
     "whatwg-fetch": "^2.0.4",
     "wif": "^2.0.1"

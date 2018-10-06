@@ -39,6 +39,18 @@
     },
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "bluewallet",
+            "project": "bluewallet",
+            "authToken": "sentry_api_key"
+          }
+        }
+      ]
+    }
   }
 }
