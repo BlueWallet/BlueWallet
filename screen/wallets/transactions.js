@@ -125,13 +125,13 @@ export default class Transactions extends Component {
         showReceiveButton: showReceive,
         showSendButton: showSend,
         showManageFundsBigButton: wallet && wallet.type === new LightningCustodianWallet().type,
-        dataSource: BlueApp.getTransactions(this.lastSnappedTo || 0),
+        dataSource: wallet.getTransactions(),
       });
     }, 1);
   }
 
   isLightning() {
-    let w = BlueApp.getWallets()[this.lastSnappedTo || 0];
+    let w = this.state.wallet;
     if (w && w.type === new LightningCustodianWallet().type) {
       return true;
     }
