@@ -18,7 +18,7 @@ module.exports = {
       header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
       add: 'adicionar wallet',
       create_a_wallet: 'Criar uma wallet',
-      create_a_wallet1: 'Gratuito e pode criar',
+      create_a_wallet1: "Gratuito e pode criar",
       create_a_wallet2: ' quantas quiser',
       latest_transaction: 'última transação',
       empty_txs1: 'Suas transações aparecerão aqui',
@@ -57,7 +57,7 @@ module.exports = {
     import: {
       title: 'importar',
       explanation:
-        'Escreva aqui sua chave menemonica, chave privada, WIF, etc. Vamos fazer nosso melhor para importat a sua wallet em qualquer formato',
+        "Escreva aqui sua chave menemonica, chave privada, WIF, etc. Vamos fazer nosso melhor para importat a sua wallet em qualquer formato",
       imported: 'Importada',
       error: 'Falhou. é um formato válido?',
       success: 'Sucesso',
