@@ -44,7 +44,7 @@ module.exports = {
       title: 'wallet',
       address: 'Endereço',
       type: 'Tipo',
-      label: 'Etiqueta',
+      label: 'Nome',
       are_you_sure: 'Tem a certeza?',
       yes_delete: 'Sim, eliminar',
       no_cancel: 'Não, cancelar',
@@ -57,12 +57,12 @@ module.exports = {
     import: {
       title: 'importar',
       explanation:
-        "Escreva aqui sua chave menemonica, chave privada, WIF, etc. Vamos fazer nosso melhor para importat a sua wallet em qualquer formato",
+        "Escreva aqui sua frase mnemônica, chave privada, WIF, etc. Vamos fazer nosso melhor para importat a sua wallet em qualquer formato",
       imported: 'Importada',
       error: 'Falhou. é um formato válido?',
       success: 'Sucesso',
       do_import: 'Importar',
-      scan_qr: 'ou scanear um QR code?',
+      scan_qr: 'ou scan um QR code?',
     },
     scanQrWif: {
       go_back: 'Voltar',
@@ -143,7 +143,7 @@ module.exports = {
     password_explain: 'Definir a password para desencriptar o armazenamento',
     retype_password: 'Inserir password novamente',
     passwords_do_not_match: 'Passwords não coincidem',
-    encrypt_storage: 'Encriptar armazenamento',
+    encrypt_storage: 'Encriptar',
     about: 'Sobre',
     language: 'Idioma',
     currency: 'Moeda',
