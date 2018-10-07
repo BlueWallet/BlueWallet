@@ -113,21 +113,10 @@ export default class Transactions extends Component {
       console.log('refreshFunction()');
       let showSend = false;
       let showReceive = false;
-      let showManageFundsBig = false;
-      let showManageFundsSmallButton = false;
       const wallet = this.state.wallet;
       if (wallet) {
         showSend = wallet.allowSend();
         showReceive = wallet.allowReceive();
-      }
-
-      if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
-        showManageFundsBig = true;
-        showManageFundsSmallButton = false;
-      }
-
-      if (wallet && wallet.type === new LightningCustodianWallet().type && wallet.getBalance() > 0) {
-        showManageFundsSmallButton = true;
       }
 
       this.setState({
@@ -135,12 +124,21 @@ export default class Transactions extends Component {
         isTransactionsLoading: false,
         showReceiveButton: showReceive,
         showSendButton: showSend,
-        showManageFundsBigButton: showManageFundsBig,
-        showManageFundsSmallButton,
+        showManageFundsBigButton: wallet && wallet.type === new LightningCustodianWallet().type,
         dataSource: BlueApp.getTransactions(this.lastSnappedTo || 0),
       });
     }, 1);
   }
+
+  isLightning() {
+    let w = BlueApp.getWallets()[this.lastSnappedTo || 0];
+    if (w && w.type === new LightningCustodianWallet().type) {
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet
    */

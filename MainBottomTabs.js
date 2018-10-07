@@ -1,6 +1,9 @@
 import { createStackNavigator } from 'react-navigation';
 
-import SettingsStackNavigator from './screen/settingsStackNavigator';
+import Settings from './screen/settings/settings';
+import About from './screen/settings/about';
+import Language from './screen/settings/language';
+import EncryptStorage from './screen/settings/encryptStorage';
 import WalletsList from './screen/wallets/list';
 import Transactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
@@ -31,7 +34,27 @@ const WalletsStackNavigator = createStackNavigator({
     screen: Transactions,
   },
   Settings: {
-    screen: SettingsStackNavigator,
+    screen: Settings,
+    path: 'Settings',
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 0,
+      },
+      headerTintColor: '#0c2550',
+    },
+  },
+  About: {
+    screen: About,
+    path: 'About',
+  },
+  Language: {
+    screen: Language,
+    path: 'Language',
+  },
+  EncryptStorage: {
+    screen: EncryptStorage,
+    path: 'EncryptStorage',
   },
 });
 

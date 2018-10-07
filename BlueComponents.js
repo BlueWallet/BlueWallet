@@ -883,9 +883,9 @@ export class NewWalletPannel extends Component {
   }
 }
 
-let sliderWidth = width * 1;
-let itemWidth = width * 0.82;
-let sliderHeight = 190;
+const sliderWidth = width * 1;
+const itemWidth = width * 0.82;
+const sliderHeight = 190;
 
 export class WalletsCarousel extends Component {
   constructor(props) {
@@ -944,7 +944,7 @@ export class WalletsCarousel extends Component {
 
     return (
       <TouchableOpacity
-        style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
+        style={{ paddingRight: 10, left: -20 }}
         onPress={() => {
           if (WalletsCarousel.handleClick) {
             WalletsCarousel.handleClick(index);
@@ -957,7 +957,7 @@ export class WalletsCarousel extends Component {
           shadowRadius={10}
           shadowColor="#000000"
           colors={[gradient1, gradient2]}
-          style={{ padding: 15, borderRadius: 10, height: 164 }}
+          style={{ padding: 15, borderRadius: 10 }}
         >
           <Image
             source={(new LightningCustodianWallet().type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
@@ -1022,25 +1022,24 @@ export class WalletsCarousel extends Component {
 
   render() {
     return (
-      <View style={{ height: sliderHeight }}>
-        <Carousel
-          {...this.props}
-          ref={c => {
-            WalletsCarousel.carousel = c;
-          }}
-          renderItem={this._renderItem}
-          sliderWidth={sliderWidth}
-          itemWidth={itemWidth}
-          inactiveSlideScale={1}
-          inactiveSlideOpacity={0.7}
-          onSnapToItem={index => {
-            if (this.onSnapToItem) {
-              this.onSnapToItem(index);
-            }
-            console.log('snapped to card #', index);
-          }}
-        />
-      </View>
+      <Carousel
+        {...this.props}
+        ref={c => {
+          WalletsCarousel.carousel = c;
+        }}
+        renderItem={this._renderItem}
+        sliderWidth={sliderWidth}
+        sliderHeight={sliderHeight}
+        itemWidth={itemWidth}
+        inactiveSlideScale={1}
+        inactiveSlideOpacity={0.7}
+        onSnapToItem={index => {
+          if (this.onSnapToItem) {
+            this.onSnapToItem(index);
+          }
+          console.log('snapped to card #', index);
+        }}
+      />
     );
   }
 }

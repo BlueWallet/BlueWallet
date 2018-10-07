@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, RefreshControl, LayoutAnimation } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList, RefreshControl, LayoutAnimation, ScrollView } from 'react-native';
 
 import {
-  BlueText,
   BlueTransactionOnchainIcon,
   BlueLoading,
   SafeBlueArea,
@@ -17,7 +16,6 @@ import {
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -66,8 +64,14 @@ export default class WalletsList extends Component {
 
   async componentDidMount() {
     this.refreshFunction();
-  } // end of componendDidMount
 
+    LayoutAnimation.configureNext(customLayoutSpringAnimation);
+    this.setState({
+      isLoading: false,
+      showManageFundsSmallButton: false,
+      dataSource: BlueApp.getTransactions(),
+    });
+  }
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet
    */
@@ -82,9 +86,9 @@ export default class WalletsList extends Component {
           // more responsive
           let noErr = true;
           try {
-            await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances();
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletTransactions();
             let end = +new Date();
             console.log('tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -107,31 +111,11 @@ export default class WalletsList extends Component {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     }
 
-    setTimeout(() => {
-      console.log('refreshFunction()');
-      let showSend = false;
-      let showManageFundsSmallButton = false;
-      let wallets = BlueApp.getWallets();
-      let wallet = wallets[this.lastSnappedTo || 0];
-      if (wallet) {
-        showSend = wallet.allowSend();
-      }
-
-      if (wallet && wallet.type === new LightningCustodianWallet().type && !showSend) {
-        showManageFundsSmallButton = false;
-      }
-
-      if (wallet && wallet.type === new LightningCustodianWallet().type && wallet.getBalance() > 0) {
-        showManageFundsSmallButton = true;
-      }
-
-      this.setState({
-        isLoading: false,
-        isTransactionsLoading: false,
-        showManageFundsSmallButton,
-        dataSource: BlueApp.getTransactions(this.lastSnappedTo || 0),
-      });
-    }, 1);
+    this.setState({
+      isLoading: false,
+      isTransactionsLoading: false,
+      dataSource: BlueApp.getTransactions(),
+    });
   }
 
   txMemo(hash) {
@@ -154,51 +138,6 @@ export default class WalletsList extends Component {
     }
   }
 
-  onSnapToItem(index) {
-    console.log('onSnapToItem', index);
-    this.lastSnappedTo = index;
-    LayoutAnimation.configureNext(customLayoutSpringAnimation);
-    this.setState({
-      isLoading: false,
-      showManageFundsSmallButton: false,
-      dataSource: BlueApp.getTransactions(index),
-    });
-
-    if (index < BlueApp.getWallets().length) {
-      // do not show for last card
-
-      let wallets = BlueApp.getWallets();
-      let wallet = wallets[this.lastSnappedTo || 0];
-  
-      let showManageFundsSmallButton = true;
-      if (wallet && wallet.type === new LightningCustodianWallet().type) {
-        showManageFundsSmallButton = false;
-      }
-
-      if (wallet && wallet.type === new LightningCustodianWallet().type) {
-      } else {
-        showManageFundsSmallButton = false;
-      }
-
-      LayoutAnimation.configureNext(customLayoutSpringAnimation);
-      this.setState({
-        showManageFundsSmallButton,
-      });
-    }
-
-    // now, lets try to fetch balance and txs for this wallet in case it has changed
-    this.lazyRefreshWallet(index);
-  }
-
-  isLightning() {
-    let w = BlueApp.getWallets()[this.lastSnappedTo || 0];
-    if (w && w.type === new LightningCustodianWallet().type) {
-      return true;
-    }
-
-    return false;
-  }
-
   /**
    * Decides whether wallet with such index shoud be refreshed,
    * refreshes if yes and redraws the screen
@@ -208,9 +147,7 @@ export default class WalletsList extends Component {
   async lazyRefreshWallet(index) {
     /** @type {Array.<AbstractWallet>} wallets */
     let wallets = BlueApp.getWallets();
-    if (!wallets[index]) {
-      return;
-    }
+
     let oldBalance = wallets[index].getBalance();
     let noErr = true;
     let didRefresh = false;
@@ -251,13 +188,13 @@ export default class WalletsList extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flexDirection: 'row', height: 50 }}>
+      <View>
         <Text
           style={{
             paddingLeft: 15,
-            paddingTop: 15,
             fontWeight: 'bold',
             fontSize: 24,
+            marginVertical: 8,
             color: BlueApp.settings.foregroundColor,
           }}
         >
@@ -276,176 +213,103 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
-        <WalletsCarousel
-          data={BlueApp.getWallets().concat(false)}
-          handleClick={index => {
-            this.handleClick(index);
-          }}
-          onSnapToItem={index => {
-            this.onSnapToItem(index);
-          }}
-        />
+        <ScrollView
+          refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
+        >
+          <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
+          <WalletsCarousel
+            data={BlueApp.getWallets().concat(false)}
+            handleClick={index => {
+              this.handleClick(index);
+            }}
+          />
+          <BlueList>
+            <FlatList
+              ListHeaderComponent={this.renderListHeaderComponent}
+              data={this.state.dataSource}
+              extraData={this.state.dataSource}
+              keyExtractor={this._keyExtractor}
+              renderItem={rowData => {
+                return (
+                  <BlueListItem
+                    avatar={(() => {
+                      // is it lightning refill tx?
+                      if (rowData.item.category === 'receive' && rowData.item.confirmations < 3) {
+                        return (
+                          <View style={{ width: 25 }}>
+                            <BlueTransactionPendingIcon />
+                          </View>
+                        );
+                      }
 
-        {(() => {
-          if (this.state.showManageFundsSmallButton) {
-            return (
-              <TouchableOpacity
-                style={{ alignSelf: 'flex-end', right: 10, flexDirection: 'row' }}
-                onPress={() => {
-                  let walletIndex = this.lastSnappedTo || 0;
+                      if (rowData.item.type && rowData.item.type === 'bitcoind_tx') {
+                        return (
+                          <View style={{ width: 25 }}>
+                            <BlueTransactionOnchainIcon />
+                          </View>
+                        );
+                      }
+                      if (rowData.item.type === 'paid_invoice') {
+                        // is it lightning offchain payment?
+                        return (
+                          <View style={{ width: 25 }}>
+                            <BlueTransactionOffchainIcon />
+                          </View>
+                        );
+                      }
 
-                  let c = 0;
-                  for (let w of BlueApp.getWallets()) {
-                    if (c++ === walletIndex) {
-                      console.log('navigating to secret ', w.getSecret());
-                      navigate('ManageFunds', { fromSecret: w.getSecret() });
+                      if (!rowData.item.confirmations) {
+                        return (
+                          <View style={{ width: 25 }}>
+                            <BlueTransactionPendingIcon />
+                          </View>
+                        );
+                      } else if (rowData.item.value < 0) {
+                        return (
+                          <View style={{ width: 25 }}>
+                            <BlueTransactionOutgoingIcon />
+                          </View>
+                        );
+                      } else {
+                        return (
+                          <View style={{ width: 25 }}>
+                            <BlueTransactionIncommingIcon />
+                          </View>
+                        );
+                      }
+                    })()}
+                    title={loc.transactionTimeToReadable(rowData.item.received)}
+                    subtitle={
+                      (rowData.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + rowData.item.confirmations + ' ' : '') +
+                      this.txMemo(rowData.item.hash) +
+                      (rowData.item.memo || '')
                     }
-                  }
-                }}
-              >
-                <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
-                <Icon
-                  style={{ position: 'relative' }}
-                  name="link"
-                  type="font-awesome"
-                  size={14}
-                  color={BlueApp.settings.foregroundColor}
-                  iconStyle={{ left: 5, transform: [{ rotate: '90deg' }] }}
-                />
-              </TouchableOpacity>
-            );
-          }
-        })()}
-
-        {(() => {
-          return (
-            <View
-              style={{
-                flex: 1,
+                    onPress={() => {
+                      if (rowData.item.hash) {
+                        navigate('TransactionDetails', {
+                          hash: rowData.item.hash,
+                        });
+                      }
+                    }}
+                    badge={{
+                      value: 3,
+                      textStyle: { color: 'orange' },
+                      containerStyle: { marginTop: 0 },
+                    }}
+                    hideChevron
+                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).div(100000000).toString()}
+                    rightTitleStyle={{
+                      fontWeight: '600',
+                      fontSize: 16,
+                      color: rowData.item.value / 100000000 < 0 ? BlueApp.settings.foregroundColor : '#37c0a1',
+                    }}
+                  />
+                );
               }}
-            >
-              {(() => {
-                if (BlueApp.getTransactions(this.lastSnappedTo || 0).length === 0) {
-                  return (
-                    <View>
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          color: '#9aa0aa',
-                          textAlign: 'center',
-                        }}
-                      >
-                        {(this.isLightning() &&
-                          'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
-                          loc.wallets.list.empty_txs1}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          color: '#9aa0aa',
-                          textAlign: 'center',
-                        }}
-                      >
-                        {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
-                          loc.wallets.list.empty_txs2}
-                      </Text>
-                    </View>
-                  );
-                }
-              })()}
-
-              <BlueList>
-                <FlatList
-                  ListHeaderComponent={this.renderListHeaderComponent}
-                  refreshControl={
-                    <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />
-                  }
-                  data={this.state.dataSource}
-                  extraData={this.state.dataSource}
-                  keyExtractor={this._keyExtractor}
-                  renderItem={rowData => {
-                    return (
-                      <BlueListItem
-                        avatar={(() => {
-                          // is it lightning refill tx?
-                          if (rowData.item.category === 'receive' && rowData.item.confirmations < 3) {
-                            return (
-                              <View style={{ width: 25 }}>
-                                <BlueTransactionPendingIcon />
-                              </View>
-                            );
-                          }
-
-                          if (rowData.item.type && rowData.item.type === 'bitcoind_tx') {
-                            return (
-                              <View style={{ width: 25 }}>
-                                <BlueTransactionOnchainIcon />
-                              </View>
-                            );
-                          }
-                          if (rowData.item.type === 'paid_invoice') {
-                            // is it lightning offchain payment?
-                            return (
-                              <View style={{ width: 25 }}>
-                                <BlueTransactionOffchainIcon />
-                              </View>
-                            );
-                          }
-
-                          if (!rowData.item.confirmations) {
-                            return (
-                              <View style={{ width: 25 }}>
-                                <BlueTransactionPendingIcon />
-                              </View>
-                            );
-                          } else if (rowData.item.value < 0) {
-                            return (
-                              <View style={{ width: 25 }}>
-                                <BlueTransactionOutgoingIcon />
-                              </View>
-                            );
-                          } else {
-                            return (
-                              <View style={{ width: 25 }}>
-                                <BlueTransactionIncommingIcon />
-                              </View>
-                            );
-                          }
-                        })()}
-                        title={loc.transactionTimeToReadable(rowData.item.received)}
-                        subtitle={
-                          (rowData.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + rowData.item.confirmations + ' ' : '') +
-                          this.txMemo(rowData.item.hash) +
-                          (rowData.item.memo || '')
-                        }
-                        onPress={() => {
-                          if (rowData.item.hash) {
-                            navigate('TransactionDetails', {
-                              hash: rowData.item.hash,
-                            });
-                          }
-                        }}
-                        badge={{
-                          value: 3,
-                          textStyle: { color: 'orange' },
-                          containerStyle: { marginTop: 0 },
-                        }}
-                        hideChevron
-                        rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).div(100000000).toString()}
-                        rightTitleStyle={{
-                          fontWeight: '600',
-                          fontSize: 16,
-                          color: rowData.item.value / 100000000 < 0 ? BlueApp.settings.foregroundColor : '#37c0a1',
-                        }}
-                      />
-                    );
-                  }}
-                />
-              </BlueList>
-            </View>
-          );
-        })()}
+            />
+          </BlueList>
+          ); })()}
+        </ScrollView>
       </SafeBlueArea>
     );
   }
