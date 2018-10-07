@@ -28,7 +28,7 @@
       "color": "#000000"
     },
     "splash": {
-      "backgroundColor": "#00aced",
+      "backgroundColor": "#FFFFFF",
       "image": "./img/splash/splash.png"
     },
     "android": {
