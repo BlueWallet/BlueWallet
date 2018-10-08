@@ -10,14 +10,14 @@ module.exports = {
     never: 'never',
   },
   wallets: {
-    options: '',
+    options: 'options',
     list: {
       app_name: 'Blue Wallet',
       title: 'wallets',
       header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
       add: 'adicionar wallet',
       create_a_wallet: 'Adicionar uma wallet',
-      create_a_wallet1: "É gratuito e pode",
+      create_a_wallet1: 'É gratuito e pode',
       create_a_wallet2: 'adicionar quantas quiser',
       latest_transaction: 'últimas transacções',
       empty_txs1: 'As suas transacções aparecerão aqui,',
@@ -56,7 +56,7 @@ module.exports = {
     import: {
       title: 'importar',
       explanation:
-        "Escreva a sua frase mnemônica, chave-privada, WIF, ou qualuer informação que disponha. Vamos tentar interpretar o formato e importat a sua wallet",
+        'Escreva a sua frase mnemônica, chave-privada, WIF, ou qualuer informação que disponha. Vamos tentar interpretar o formato e importat a sua wallet',
       imported: 'Importada',
       error: 'Falhou. É um dado válido?',
       success: 'Sucesso',

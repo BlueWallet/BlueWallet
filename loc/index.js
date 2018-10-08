@@ -19,10 +19,8 @@ let strings;
       locale = locale.split('-');
       locale = locale[0];
       console.log('current locale:', locale);
-      if (locale === 'en' || locale === 'ru' || locale === 'ua' || locale === 'es') {
-        strings.setLanguage(locale);
-      } else if (locale === 'pt-br' || locale === 'pt-pt') {
-        locale.replace('-', '_');
+      if (locale === 'en' || locale === 'ru' || locale === 'ua' || locale === 'es' || locale === 'pt-br' || locale === 'pt-pt') {
+        locale = locale.replace('-', '_');
         strings.setLanguage(locale);
       } else {
         strings.setLanguage('en');
