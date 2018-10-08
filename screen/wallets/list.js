@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, FlatList, RefreshControl, LayoutAnimation, ScrollView } from 'react-native';
-
 import {
   BlueTransactionOnchainIcon,
   BlueLoading,
@@ -68,14 +67,20 @@ export default class WalletsList extends Component {
     LayoutAnimation.configureNext(customLayoutSpringAnimation);
     this.setState({
       isLoading: false,
-      showManageFundsSmallButton: false,
       dataSource: BlueApp.getTransactions(),
     });
   }
+
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet
    */
   refreshTransactions() {
+    if (!(this.lastSnappedTo < BlueApp.getWallets().length)) {
+      // last card, nop
+      console.log('last card, nop');
+      return;
+    }
+
     this.setState(
       {
         isTransactionsLoading: true,
@@ -86,11 +91,11 @@ export default class WalletsList extends Component {
           // more responsive
           let noErr = true;
           try {
-            await BlueApp.fetchWalletBalances();
+            await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions();
+            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
             let end = +new Date();
-            console.log('tx took', (end - start) / 1000, 'sec');
+            console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
             noErr = false;
             console.warn(err);
@@ -138,6 +143,19 @@ export default class WalletsList extends Component {
     }
   }
 
+  onSnapToItem(index) {
+    console.log('onSnapToItem', index);
+    this.lastSnappedTo = index;
+    LayoutAnimation.configureNext(customLayoutSpringAnimation);
+
+    if (index < BlueApp.getWallets().length) {
+      // not the last
+    }
+
+    // now, lets try to fetch balance and txs for this wallet in case it has changed
+    this.lazyRefreshWallet(index);
+  }
+
   /**
    * Decides whether wallet with such index shoud be refreshed,
    * refreshes if yes and redraws the screen
@@ -147,6 +165,9 @@ export default class WalletsList extends Component {
   async lazyRefreshWallet(index) {
     /** @type {Array.<AbstractWallet>} wallets */
     let wallets = BlueApp.getWallets();
+    if (!wallets[index]) {
+      return;
+    }
 
     let oldBalance = wallets[index].getBalance();
     let noErr = true;
@@ -221,6 +242,9 @@ export default class WalletsList extends Component {
             data={BlueApp.getWallets().concat(false)}
             handleClick={index => {
               this.handleClick(index);
+            }}
+            onSnapToItem={index => {
+              this.onSnapToItem(index);
             }}
           />
           <BlueList>
