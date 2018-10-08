@@ -120,7 +120,7 @@ export default class WalletDetails extends Component {
                         await BlueApp.saveToDisk();
                         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                         EV(EV.enum.WALLETS_COUNT_CHANGED);
-                        this.props.navigation.goBack();
+                        this.props.navigation.navigate('Wallets');
                       }}
                       title={loc.wallets.details.yes_delete}
                     />

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, Button, View, Image, FlatList, RefreshControl } from 'react-native';
+import { Text, Dimensions, Button, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import { LinearGradient } from 'expo';
 import {
@@ -11,6 +11,7 @@ import {
   HDLegacyP2PKHWallet,
 } from '../../class';
 import {
+  BlueText,
   BlueTransactionOnchainIcon,
   ManageFundsBigButton,
   BlueTransactionIncommingIcon,
@@ -22,12 +23,13 @@ import {
   BlueList,
   BlueListItem,
 } from '../../BlueComponents';
+import { Icon } from 'react-native-elements';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
-let A = require('../../analytics');
+const { width } = Dimensions.get('window');
 
 export default class Transactions extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -62,7 +64,14 @@ export default class Transactions extends Component {
       dataSource: props.navigation.getParam('wallet').getTransactions(),
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions.bind(this));
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+  }
+
+  refreshTransactionsFunction() {
+    let that = this;
+    setTimeout(function() {
+      that.refreshTransactions();
+    }, 4000); // giving a chance to remote server to propagate
   }
 
   async componentDidMount() {
@@ -104,11 +113,10 @@ export default class Transactions extends Component {
     this.setState({ gradientColors: [gradient1, gradient2] });
   }
 
+  /**
+   * Redraws the screen
+   */
   refreshFunction() {
-    if (BlueApp.getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    }
-
     setTimeout(() => {
       console.log('refreshFunction()');
       let showSend = false;
@@ -119,12 +127,23 @@ export default class Transactions extends Component {
         showReceive = wallet.allowReceive();
       }
 
+      let showManageFundsBigButton = false;
+      let showManageFundsSmallButton = false;
+      if (wallet && wallet.type === new LightningCustodianWallet().type && wallet.getBalance() * 1 === 0) {
+        showManageFundsBigButton = true;
+        showManageFundsSmallButton = false;
+      } else if (wallet && wallet.type === new LightningCustodianWallet().type && wallet.getBalance() > 0) {
+        showManageFundsSmallButton = true;
+        showManageFundsBigButton = false;
+      }
+
       this.setState({
         isLoading: false,
         isTransactionsLoading: false,
         showReceiveButton: showReceive,
         showSendButton: showSend,
-        showManageFundsBigButton: wallet && wallet.type === new LightningCustodianWallet().type,
+        showManageFundsBigButton,
+        showManageFundsSmallButton,
         dataSource: wallet.getTransactions(),
       });
     }, 1);
@@ -140,7 +159,7 @@ export default class Transactions extends Component {
   }
 
   /**
-   * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet
+   * Forcefully fetches TXs and balance for wallet
    */
   refreshTransactions() {
     this.setState(
@@ -153,18 +172,20 @@ export default class Transactions extends Component {
           // more responsive
           let noErr = true;
           try {
-            await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
+            /** @type {LegacyWallet} */
+            let wallet = that.state.wallet;
+            await wallet.fetchBalance();
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
+            await wallet.fetchTransactions();
             let end = +new Date();
-            console.log('tx took', (end - start) / 1000, 'sec');
+            console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
             noErr = false;
             console.warn(err);
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
 
-          that.refreshFunction();
+          that.refreshFunction(); // Redraws the screen
         }, 1);
       },
     );
@@ -268,39 +289,69 @@ export default class Transactions extends Component {
     return (
       <View style={{ flex: 1 }}>
         {this.renderWalletHeader()}
-        <View>
+        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+          <View style={{ position: 'absolute', top: 120, width, zIndex: 1 }}>
+            {(() => {
+              let w = this.state.wallet;
+              if (w.getTransactions().length === 0) {
+                return (
+                  <View>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: '#9aa0aa',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {(this.isLightning() &&
+                        'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
+                        loc.wallets.list.empty_txs1}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: '#9aa0aa',
+                        textAlign: 'center',
+                      }}
+                    >
+                      {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
+                        loc.wallets.list.empty_txs2}
+                    </Text>
+                  </View>
+                );
+              }
+            })()}
+          </View>
           {(() => {
-            if (BlueApp.getTransactions(this.lastSnappedTo || 0).length === 0) {
+            if (this.state.showManageFundsSmallButton) {
               return (
-                <View>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      color: '#9aa0aa',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {(this.isLightning() &&
-                      'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
-                      loc.wallets.list.empty_txs1}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      color: '#9aa0aa',
-                      textAlign: 'center',
-                    }}
-                  >
-                    {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
-                      loc.wallets.list.empty_txs2}
-                  </Text>
-                </View>
+                <TouchableOpacity
+                  style={{ alignSelf: 'flex-end', right: 10, flexDirection: 'row' }}
+                  onPress={() => {
+                    let walletIndex = 0;
+
+                    let c = 0;
+                    for (let w of BlueApp.getWallets()) {
+                      if (c++ === walletIndex) {
+                        console.log('navigating to', w.getLabel());
+                        navigate('ManageFunds', { fromSecret: w.getSecret() });
+                      }
+                    }
+                  }}
+                >
+                  <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
+                  <Icon
+                    style={{ position: 'relative' }}
+                    name="link"
+                    type="font-awesome"
+                    size={14}
+                    color={BlueApp.settings.foregroundColor}
+                    iconStyle={{ left: 5, transform: [{ rotate: '90deg' }] }}
+                  />
+                </TouchableOpacity>
               );
             }
           })()}
-        </View>
-
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           <BlueList>
             <FlatList
               style={{ flex: 1 }}
