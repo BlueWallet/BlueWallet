@@ -668,18 +668,20 @@ export class BlueReceiveButtonIcon extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              width: 110,
-              height: 40,
+              height: 52,
               position: 'relative',
               backgroundColor: '#ccddf9',
               alignItems: 'center',
+              paddingLeft: 16,
+              paddingRight: 32,
+              borderTopLeftRadius: 25,
+              borderBottomLeftRadius: 25,
             }}
           >
             <View
               style={{
                 width: 30,
                 height: 30,
-                borderBottomLeftRadius: 15,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '-45deg' }],
                 alignItems: 'center',
@@ -714,12 +716,14 @@ export class BlueSendButtonIcon extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              width: 110,
-              height: 40,
+              height: 52,
               position: 'relative',
               backgroundColor: '#ccddf9',
               alignItems: 'center',
-              paddingLeft: 15,
+              paddingLeft: 16,
+              paddingRight: 32,
+              borderTopRightRadius: 25,
+              borderBottomRightRadius: 25,
             }}
           >
             <View
@@ -727,7 +731,6 @@ export class BlueSendButtonIcon extends Component {
                 width: 30,
                 height: 30,
                 left: 5,
-                borderBottomLeftRadius: 15,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '225deg' }],
               }}
@@ -760,11 +763,14 @@ export class ManageFundsBigButton extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              width: 160,
-              height: 40,
+              height: 52,
               position: 'relative',
               backgroundColor: '#ccddf9',
               alignItems: 'center',
+              paddingLeft: 16,
+              paddingRight: 40,
+              borderTopRightRadius: 25,
+              borderBottomRightRadius: 25,
             }}
           >
             <View
