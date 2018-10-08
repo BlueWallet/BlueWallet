@@ -5,7 +5,7 @@ import About from './screen/settings/about';
 import Language from './screen/settings/language';
 import EncryptStorage from './screen/settings/encryptStorage';
 import WalletsList from './screen/wallets/list';
-import Transactions from './screen/wallets/transactions';
+import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
@@ -29,9 +29,6 @@ const WalletsStackNavigator = createStackNavigator({
   Wallets: {
     screen: WalletsList,
     path: 'wallets',
-  },
-  WalletTransactions: {
-    screen: Transactions,
   },
   Settings: {
     screen: Settings,
@@ -66,6 +63,9 @@ const Tabs = createStackNavigator(
       navigationOptions: {
         header: null,
       },
+    },
+    WalletTransactions: {
+      screen: WalletTransactions,
     },
     AddWallet: {
       screen: AddWallet,

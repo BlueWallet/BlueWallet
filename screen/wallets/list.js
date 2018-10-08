@@ -58,7 +58,10 @@ export default class WalletsList extends Component {
       isLoading: true,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions.bind(this));
+
+    // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
+    // remote server, we just redraw the screen
+    // EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshFunction.bind(this));
   }
 
   async componentDidMount() {

@@ -31,7 +31,7 @@ const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 const { width } = Dimensions.get('window');
 
-export default class Transactions extends Component {
+export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       headerRight: (
@@ -63,10 +63,13 @@ export default class Transactions extends Component {
       gradientColors: ['#FFFFFF', '#FFFFFF'],
       dataSource: props.navigation.getParam('wallet').getTransactions(),
     };
-    EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
+    // here, when we receive TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
   }
 
+  /**
+   * Forcefully fetches TXs and balance for wallet
+   */
   refreshTransactionsFunction() {
     let that = this;
     setTimeout(function() {
@@ -118,7 +121,7 @@ export default class Transactions extends Component {
    */
   refreshFunction() {
     setTimeout(() => {
-      console.log('refreshFunction()');
+      console.log('wallets/transactions refreshFunction()');
       let showSend = false;
       let showReceive = false;
       const wallet = this.state.wallet;
@@ -499,7 +502,7 @@ export default class Transactions extends Component {
   }
 }
 
-Transactions.propTypes = {
+WalletTransactions.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
