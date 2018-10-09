@@ -1,27 +1,34 @@
 import { AlertIOS } from 'react-native';
 
-module.exports = (title, text) => {
+module.exports = (title, text, isCancelable = true) => {
   return new Promise((resolve, reject) => {
-    AlertIOS.prompt(
-      title,
-      text,
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {
-            reject(Error('Cancel Pressed'));
+    const buttons = isCancelable
+      ? [
+          {
+            text: 'Cancel',
+            onPress: () => {
+              reject(Error('Cancel Pressed'));
+            },
+            style: 'cancel',
           },
-          style: 'cancel',
-        },
-        {
-          text: 'OK',
-          onPress: password => {
-            console.log('OK Pressed, password: ' + password);
-            resolve(password);
+          {
+            text: 'OK',
+            onPress: password => {
+              console.log('OK Pressed, password: ' + password);
+              resolve(password);
+            },
           },
-        },
-      ],
-      'secure-text',
-    );
+        ]
+      : [
+          {
+            text: 'OK',
+            onPress: password => {
+              console.log('OK Pressed, password: ' + password);
+              resolve(password);
+            },
+          },
+        ];
+
+    AlertIOS.prompt(title, text, buttons, 'secure-text');
   });
 };
