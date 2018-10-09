@@ -61,12 +61,26 @@ strings.transactionTimeToReadable = function(time) {
   }
 };
 
-strings.formatBalance = function(balance) {
-  if (balance < 0.1 && balance !== 0) {
-    let b = new BigNumber(balance);
-    return b.mul(1000).toString() + ' mBTC';
+strings.formatBalance = (balance, unit) => {
+  if (unit === undefined) {
+    if (balance < 0.1 && balance !== 0) {
+      let b = new BigNumber(balance);
+      return b.mul(1000).toString() + ' mBTC';
+    }
+    return balance + ' BTC';
+  } else {
+    if (balance !== 0) {
+      let b = new BigNumber(balance);
+      if (unit === 'mBTC') {
+        return b.mul(1000).toString() + ' mBTC';
+      } else if (unit === 'bits') {
+        return b.mul(1000000).toString() + ' bits';
+      } else if (unit === 'Satoshis') {
+        return (b.mul(100000).toString() + ' Satoshis').replace(/\./g, '');
+      }
+    }
+    return balance + ' BTC';
   }
-  return balance + ' BTC';
 };
 
 module.exports = strings;

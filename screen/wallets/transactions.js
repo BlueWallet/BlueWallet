@@ -62,8 +62,8 @@ export default class WalletTransactions extends Component {
       wallet: props.navigation.getParam('wallet'),
       gradientColors: ['#FFFFFF', '#FFFFFF'],
       dataSource: props.navigation.getParam('wallet').getTransactions(),
+      walletBalanceUnit: loc.formatBalance(props.navigation.getParam('wallet').getBalance()).replace(/[^A-Za-z]+/g, ''),
     };
-
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
   }
@@ -198,6 +198,18 @@ export default class WalletTransactions extends Component {
     );
   }
 
+  changeWalletBalanceUnit() {
+    if (this.state.walletBalanceUnit === undefined || this.state.walletBalanceUnit === 'BTC') {
+      this.setState({ walletBalanceUnit: 'mBTC' });
+    } else if (this.state.walletBalanceUnit === 'mBTC') {
+      this.setState({ walletBalanceUnit: 'bits' });
+    } else if (this.state.walletBalanceUnit === 'bits') {
+      this.setState({ walletBalanceUnit: 'Satoshis' });
+    } else if (this.state.walletBalanceUnit === 'Satoshis') {
+      this.setState({ walletBalanceUnit: 'BTC' });
+    }
+  }
+
   renderWalletHeader = () => {
     return (
       <LinearGradient colors={[this.state.gradientColors[0], this.state.gradientColors[1]]} style={{ padding: 15, height: 164 }}>
@@ -226,18 +238,20 @@ export default class WalletTransactions extends Component {
         >
           {this.state.wallet.getLabel()}
         </Text>
-        <Text
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          style={{
-            backgroundColor: 'transparent',
-            fontWeight: 'bold',
-            fontSize: 36,
-            color: '#fff',
-          }}
-        >
-          {loc.formatBalance(this.state.wallet.getBalance())}
-        </Text>
+        <TouchableOpacity onPress={() => this.changeWalletBalanceUnit()}>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={{
+              backgroundColor: 'transparent',
+              fontWeight: 'bold',
+              fontSize: 36,
+              color: '#fff',
+            }}
+          >
+            {loc.formatBalance(this.state.wallet.getBalance(), this.state.walletBalanceUnit)}
+          </Text>
+        </TouchableOpacity>
         <Text style={{ backgroundColor: 'transparent' }} />
         <Text
           numberOfLines={1}
