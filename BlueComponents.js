@@ -842,7 +842,7 @@ export class NewWalletPannel extends Component {
           style={{
             padding: 15,
             borderRadius: 10,
-            height: 179,
+            height: 164,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -945,7 +945,7 @@ export class WalletsCarousel extends Component {
     return (
       <TouchableOpacity
         activeOpacity={1}
-        style={{ paddingRight: 10, left: -20, marginVertical: 16 }}
+        style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
         onPress={() => {
           if (WalletsCarousel.handleClick) {
             WalletsCarousel.handleClick(index);
@@ -958,7 +958,7 @@ export class WalletsCarousel extends Component {
           shadowRadius={10}
           shadowColor="#000000"
           colors={[gradient1, gradient2]}
-          style={{ padding: 15, borderRadius: 10 }}
+          style={{ padding: 15, borderRadius: 10, height: 164 }}
         >
           <Image
             source={(new LightningCustodianWallet().type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
@@ -977,7 +977,7 @@ export class WalletsCarousel extends Component {
             numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
-              fontSize: 21,
+              fontSize: 19,
               color: '#fff',
             }}
           >
@@ -989,7 +989,7 @@ export class WalletsCarousel extends Component {
             style={{
               backgroundColor: 'transparent',
               fontWeight: 'bold',
-              fontSize: 40,
+              fontSize: 36,
               color: '#fff',
             }}
           >
@@ -1000,7 +1000,7 @@ export class WalletsCarousel extends Component {
             numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
-              fontSize: 15,
+              fontSize: 13,
               color: '#fff',
             }}
           >
@@ -1011,7 +1011,7 @@ export class WalletsCarousel extends Component {
             style={{
               backgroundColor: 'transparent',
               fontWeight: 'bold',
-              fontSize: 18,
+              fontSize: 16,
               color: '#fff',
             }}
           >
