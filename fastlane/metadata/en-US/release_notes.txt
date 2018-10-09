@@ -1,13 +1,12 @@
-* FIX: Wont broadcast tx with too small fee
-* ADD: HD wallet
-* FIX: transactions list update limit
-* FIX: transactions update on app start
-* FIX: blank screen in the app in case of unexpected TX data
-* FIX: 'Export / Details' button for iPad
-* REF: improved tx details screen
-* ADD: open tx in external blockexplorer
-* FIX: tx list resolution increased to minutes
-* OPS: Upgrade to Expo 30
-* FIX: misaligned unconf tx icon
-* FIX: github links
-* FIX: after tx broadcast tx list refreshed automatically
+OPS: add sentry
+FIX: main call to action (closes #39)
+FIX: Fixed Spanish translations.
+FIX: imroved ru & ua locale
+FIX: github links
+FIX: after tx broadcast tx list refreshed automatically
+ADD: Wallet Details screen
+FIX: Fixed receive and send calls
+FIX: improve splash image and colors
+FIX: Modified Encrypted Storage prompt
+FIX: improved tx refresh strategy
+FIX: HDBread tx confirmations calculation
