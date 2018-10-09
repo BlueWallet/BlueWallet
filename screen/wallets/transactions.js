@@ -63,8 +63,9 @@ export default class WalletTransactions extends Component {
       gradientColors: ['#FFFFFF', '#FFFFFF'],
       dataSource: props.navigation.getParam('wallet').getTransactions(),
     };
-    // here, when we receive TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+
+    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
   }
 
   /**
@@ -186,7 +187,10 @@ export default class WalletTransactions extends Component {
             noErr = false;
             console.warn(err);
           }
-          if (noErr) await BlueApp.saveToDisk(); // caching
+          if (noErr) {
+            await BlueApp.saveToDisk(); // caching
+            EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+          }
 
           that.refreshFunction(); // Redraws the screen
         }, 1);
