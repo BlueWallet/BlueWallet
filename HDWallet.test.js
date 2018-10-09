@@ -220,6 +220,9 @@ it('HD breadwallet works', async function() {
   await hdBread.fetchTransactions();
   assert.ok(hdBread._lastTxFetch > 0);
   assert.equal(hdBread.transactions.length, 177);
+  for (let tx of hdBread.getTransactions()) {
+    assert.ok(tx.confirmations);
+  }
 
   assert.equal(hdBread.next_free_address_index, 10);
   assert.equal(hdBread.next_free_change_address_index, 118);

@@ -972,7 +972,6 @@ export class WalletsCarousel extends Component {
           />
 
           <Text style={{ backgroundColor: 'transparent' }} />
-          <Text style={{ backgroundColor: 'transparent' }} />
           <Text
             numberOfLines={1}
             style={{
