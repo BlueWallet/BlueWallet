@@ -16,6 +16,11 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.info_raw = false;
   }
 
+  allowSend() {
+    console.log(this.getBalance(), this.getBalance() > 0);
+    return this.getBalance() > 0;
+  }
+
   getAddress() {
     return '';
   }

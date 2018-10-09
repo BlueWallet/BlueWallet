@@ -883,9 +883,9 @@ export class NewWalletPannel extends Component {
   }
 }
 
-let sliderWidth = width * 1;
-let itemWidth = width * 0.82;
-let sliderHeight = 190;
+const sliderWidth = width * 1;
+const itemWidth = width * 0.82;
+const sliderHeight = 190;
 
 export class WalletsCarousel extends Component {
   constructor(props) {
@@ -1023,25 +1023,24 @@ export class WalletsCarousel extends Component {
 
   render() {
     return (
-      <View style={{ height: sliderHeight }}>
-        <Carousel
-          {...this.props}
-          ref={c => {
-            WalletsCarousel.carousel = c;
-          }}
-          renderItem={this._renderItem}
-          sliderWidth={sliderWidth}
-          itemWidth={itemWidth}
-          inactiveSlideScale={1}
-          inactiveSlideOpacity={0.7}
-          onSnapToItem={index => {
-            if (this.onSnapToItem) {
-              this.onSnapToItem(index);
-            }
-            console.log('snapped to card #', index);
-          }}
-        />
-      </View>
+      <Carousel
+        {...this.props}
+        ref={c => {
+          WalletsCarousel.carousel = c;
+        }}
+        renderItem={this._renderItem}
+        sliderWidth={sliderWidth}
+        sliderHeight={sliderHeight}
+        itemWidth={itemWidth}
+        inactiveSlideScale={1}
+        inactiveSlideOpacity={0.7}
+        onSnapToItem={index => {
+          if (this.onSnapToItem) {
+            this.onSnapToItem(index);
+          }
+          console.log('snapped to card #', index);
+        }}
+      />
     );
   }
 }

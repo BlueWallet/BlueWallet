@@ -130,7 +130,7 @@ export default class ScanLndInvoice extends React.Component {
     }
 
     console.log('payInvoice took', (end - start) / 1000, 'sec');
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
 
     alert('Success');
     this.props.navigation.goBack();
