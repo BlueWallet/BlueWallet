@@ -349,15 +349,8 @@ export default class WalletTransactions extends Component {
                 <TouchableOpacity
                   style={{ alignSelf: 'flex-end', right: 10, flexDirection: 'row' }}
                   onPress={() => {
-                    let walletIndex = 0;
-
-                    let c = 0;
-                    for (let w of BlueApp.getWallets()) {
-                      if (c++ === walletIndex) {
-                        console.log('navigating to', w.getLabel());
-                        navigate('ManageFunds', { fromSecret: w.getSecret() });
-                      }
-                    }
+                    console.log('navigating to', this.state.wallet.getLabel());
+                    navigate('ManageFunds', { fromSecret: this.state.wallet.getSecret() });
                   }}
                 >
                   <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
@@ -508,6 +501,7 @@ export default class WalletTransactions extends Component {
               return (
                 <ManageFundsBigButton
                   onPress={() => {
+                    console.log('navigating to', this.state.wallet.getLabel());
                     navigate('ManageFunds', { fromSecret: this.state.wallet.getSecret() });
                   }}
                 />
