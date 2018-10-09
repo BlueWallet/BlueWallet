@@ -945,14 +945,21 @@ export class WalletsCarousel extends Component {
     return (
       <TouchableOpacity
         activeOpacity={1}
-        style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
+        style={{ paddingRight: 10, left: -20, marginVertical: 16 }}
         onPress={() => {
           if (WalletsCarousel.handleClick) {
             WalletsCarousel.handleClick(index);
           }
         }}
       >
-        <LinearGradient colors={[gradient1, gradient2]} style={{ padding: 15, borderRadius: 10, height: 179 }}>
+        <LinearGradient
+          shadowOpacity={18 / 100}
+          shadowOffset={{ width: 0, height: 4 }}
+          shadowRadius={10}
+          shadowColor="#000000"
+          colors={[gradient1, gradient2]}
+          style={{ padding: 15, borderRadius: 10 }}
+        >
           <Image
             source={(new LightningCustodianWallet().type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
             style={{
