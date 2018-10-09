@@ -20,7 +20,10 @@ function EV(eventName, arg) {
 }
 
 EV.enum = {
+  // emitted when locally wallet created or deleted, so one must redraw wallets carousel
   WALLETS_COUNT_CHANGED: 'WALLETS_COUNT_CHANGED',
+  // emitted when local wallet (for current wallet) has changed number of transactions
+  // so one must redraw main screen transactions list and WalletTransactions screen tx list
   TRANSACTIONS_COUNT_CHANGED: 'TRANSACTIONS_COUNT_CHANGED',
   CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS: 'CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS',
   // RECEIVE_ADDRESS_CHANGED: 'RECEIVE_ADDRESS_CHANGED',
