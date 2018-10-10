@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, Dimensions, Button, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { Text, Button, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import { LinearGradient } from 'expo';
 import {
@@ -29,7 +29,6 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
-const { width } = Dimensions.get('window');
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
