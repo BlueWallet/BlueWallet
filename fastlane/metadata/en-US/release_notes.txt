@@ -10,3 +10,7 @@ FIX: improve splash image and colors
 FIX: Modified Encrypted Storage prompt
 FIX: improved tx refresh strategy
 FIX: HDBread tx confirmations calculation
+FIX: Import - QR scan - add support for HD seedphrase & blitzhub format (closes #76)
+REF: empty tx list
+FIX: currency undefined error
+REF: qr scan improved
