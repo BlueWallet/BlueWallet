@@ -297,38 +297,6 @@ export default class WalletTransactions extends Component {
       <View style={{ flex: 1 }}>
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-          <View style={{ position: 'absolute', top: 120, width, zIndex: 1 }}>
-            {(() => {
-              let w = this.state.wallet;
-              if (w.getTransactions().length === 0) {
-                return (
-                  <View>
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        color: '#9aa0aa',
-                        textAlign: 'center',
-                      }}
-                    >
-                      {(this.isLightning() &&
-                        'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
-                        loc.wallets.list.empty_txs1}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        color: '#9aa0aa',
-                        textAlign: 'center',
-                      }}
-                    >
-                      {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
-                        loc.wallets.list.empty_txs2}
-                    </Text>
-                  </View>
-                );
-              }
-            })()}
-          </View>
           {(() => {
             if (this.state.showManageFundsSmallButton) {
               return (
@@ -356,6 +324,31 @@ export default class WalletTransactions extends Component {
             <FlatList
               style={{ flex: 1 }}
               ListHeaderComponent={this.renderListHeaderComponent}
+              ListEmptyComponent={
+                <View style={{ top: 50, height: 100 }}>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: '#9aa0aa',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {(this.isLightning() &&
+                      'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
+                      loc.wallets.list.empty_txs1}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: '#9aa0aa',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
+                      loc.wallets.list.empty_txs2}
+                  </Text>
+                </View>
+              }
               refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
               data={this.state.dataSource}
               extraData={this.state.dataSource}

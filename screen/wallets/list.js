@@ -253,6 +253,28 @@ export default class WalletsList extends Component {
           <BlueList>
             <FlatList
               ListHeaderComponent={this.renderListHeaderComponent}
+              ListEmptyComponent={
+                <View style={{ top: 50, height: 100 }}>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: '#9aa0aa',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {loc.wallets.list.empty_txs1}
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: '#9aa0aa',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {loc.wallets.list.empty_txs2}
+                  </Text>
+                </View>
+              }
               data={this.state.dataSource}
               extraData={this.state.dataSource}
               keyExtractor={this._keyExtractor}
