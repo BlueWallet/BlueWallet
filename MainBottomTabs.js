@@ -1,6 +1,11 @@
 import { createStackNavigator } from 'react-navigation';
 
-import wallets from './screen/wallets';
+import Settings from './screen/settings/settings';
+import About from './screen/settings/about';
+import Language from './screen/settings/language';
+import EncryptStorage from './screen/settings/encryptStorage';
+import WalletsList from './screen/wallets/list';
+import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
@@ -20,14 +25,47 @@ import sendCreate from './screen/send/create';
 import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 
+const WalletsStackNavigator = createStackNavigator({
+  Wallets: {
+    screen: WalletsList,
+    path: 'wallets',
+  },
+  Settings: {
+    screen: Settings,
+    path: 'Settings',
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 0,
+      },
+      headerTintColor: '#0c2550',
+    },
+  },
+  About: {
+    screen: About,
+    path: 'About',
+  },
+  Language: {
+    screen: Language,
+    path: 'Language',
+  },
+  EncryptStorage: {
+    screen: EncryptStorage,
+    path: 'EncryptStorage',
+  },
+});
+
 const Tabs = createStackNavigator(
   {
     Wallets: {
-      screen: wallets,
+      screen: WalletsStackNavigator,
       path: 'wallets',
       navigationOptions: {
         header: null,
       },
+    },
+    WalletTransactions: {
+      screen: WalletTransactions,
     },
     AddWallet: {
       screen: AddWallet,
@@ -44,7 +82,6 @@ const Tabs = createStackNavigator(
     WalletExport: {
       screen: WalletExport,
     },
-
     //
 
     TransactionDetails: {

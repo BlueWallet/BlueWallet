@@ -126,7 +126,7 @@ export default class SendCreate extends Component {
         broadcastSuccessMessage: '',
       });
     } else {
-      EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+      EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
       this.setState({ broadcastErrorMessage: '' });
       this.setState({
         broadcastSuccessMessage: 'Success! TXID: ' + JSON.stringify(result.result),

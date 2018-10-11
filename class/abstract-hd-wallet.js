@@ -239,6 +239,11 @@ export class AbstractHDWallet extends LegacyWallet {
             break;
           }
 
+          let latestBlock = false;
+          if (response.body.info && response.body.info.latest_block) {
+            latestBlock = response.body.info.latest_block.height;
+          }
+
           this._lastTxFetch = +new Date();
 
           // processing TXs and adding to internal memory
@@ -291,6 +296,9 @@ export class AbstractHDWallet extends LegacyWallet {
               }
 
               tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
+              if (!tx.confirmations && latestBlock) {
+                tx.confirmations = latestBlock - tx.block_height;
+              }
 
               this.transactions.push(tx);
             }

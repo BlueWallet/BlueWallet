@@ -10,6 +10,7 @@ module.exports = {
     never: 'nunca...',
   },
   wallets: {
+    options: 'options',
     list: {
       tabBarLabel: 'Wallets',
       app_name: 'Blue Wallet',

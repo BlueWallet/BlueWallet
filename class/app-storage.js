@@ -312,7 +312,14 @@ export class AppStorage {
     for (let wallet of this.wallets) {
       txs = txs.concat(wallet.getTransactions());
     }
-    return txs;
+
+    for (let t of txs) {
+      t.sort_ts = +new Date(t.received);
+    }
+
+    return txs.sort(function(a, b) {
+      return b.sort_ts > a.sort_ts;
+    });
   }
 
   /**
