@@ -769,6 +769,8 @@ export class ManageFundsBigButton extends Component {
               alignItems: 'center',
               paddingLeft: 16,
               paddingRight: 40,
+              borderTopLeftRadius: 25,
+              borderBottomLeftRadius: 25,
               borderTopRightRadius: 25,
               borderBottomRightRadius: 25,
             }}
