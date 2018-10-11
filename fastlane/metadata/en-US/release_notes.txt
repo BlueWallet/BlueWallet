@@ -14,3 +14,4 @@ FIX: Import - QR scan - add support for HD seedphrase & blitzhub format (closes 
 REF: empty tx list
 FIX: currency undefined error
 REF: qr scan improved
+FIX: txs with many outputs/inputs are displayd correctly
