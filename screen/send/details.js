@@ -144,7 +144,7 @@ export default class SendDetails extends Component {
       error = loc.send.details.fee_field_is_not_valid;
       console.log('validation error');
     } else if (!this.state.address) {
-      error = loc.send.details.address_fiels_is_not_valid;
+      error = loc.send.details.address_field_is_not_valid;
       console.log('validation error');
     } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, fee) < 0) {
       error = loc.send.details.total_exceeds_balance;
@@ -287,7 +287,7 @@ export default class SendDetails extends Component {
               }}
             >
               <TextInput
-                onChangeText={text => this.setState({ fee: text.replace(',', '.') })}
+                onChangeText={text => this.setState({ fee: text.replace(/\D/g, '') })}
                 keyboardType={'numeric'}
                 value={this.state.fee + ''}
                 maxLength={9}
