@@ -224,7 +224,7 @@ export default class SendDetails extends Component {
             }}
           >
             <TextInput
-              onChangeText={text => this.setState({ address: text })}
+              onChangeText={text => this.setState({ address: text.replace(' ', '') })}
               placeholder={loc.send.details.address}
               value={this.state.address}
               style={{ flex: 1, marginHorizontal: 8 }}

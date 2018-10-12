@@ -77,9 +77,11 @@ export default class SendCreate extends Component {
       BlueApp.saveToDisk();
 
       let feeSatoshi = new BigNumber(this.state.fee);
-      feeSatoshi = feeSatoshi.mul(100000000);
-      satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
-      satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
+      satoshiPerByte = feeSatoshi.mul(100000000).toString();
+      // satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
+      // satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
+      // console.warn(satoshiPerByte)
+
       if (satoshiPerByte < 1) {
         throw new Error(loc.send.create.not_enough_fee);
       }
