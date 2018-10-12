@@ -1,16 +1,7 @@
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
-import {
-  BlueSpacingVariable,
-  BlueHeaderDefaultSub,
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-} from '../../BlueComponents';
+import { BlueSpacingVariable, BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
@@ -19,12 +10,6 @@ let loc = require('../../loc');
 let EV = require('../../events');
 
 export default class SendCreate extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.send.create.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
-
   constructor(props) {
     super(props);
     console.log('send/create constructor');

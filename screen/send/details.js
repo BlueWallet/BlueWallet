@@ -1,15 +1,16 @@
+/* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { Text, FormValidationMessage } from 'react-native-elements';
 import {
-  BlueSpacing20,
-  BlueHeaderDefaultSub,
-  BlueButton,
-  SafeBlueArea,
-  BlueText,
-  BlueFormInput,
-  BlueFormInputAddress,
-} from '../../BlueComponents';
+  ActivityIndicator,
+  View,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from 'react-native';
+import { Text, Icon } from 'react-native-elements';
+import { BlueHeaderDefaultSub, BlueButton, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const bip21 = require('bip21');
 let EV = require('../../events');
@@ -23,7 +24,7 @@ const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 export default class SendDetails extends Component {
   static navigationOptions = {
     header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.send.details.title.toLowerCase()} onClose={() => navigation.goBack(null)} />;
+      return <BlueHeaderDefaultSub leftText={loc.send.header.toLowerCase()} onClose={() => navigation.goBack(null)} />;
     },
   };
 
@@ -64,9 +65,9 @@ export default class SendDetails extends Component {
       fromSecret: fromSecret,
       isLoading: true,
       address: address,
-      amount: '',
+      amount: 0,
       memo,
-      fee: '',
+      fee: 1,
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
@@ -78,7 +79,7 @@ export default class SendDetails extends Component {
         });
       } else {
         const { address, options } = bip21.decode(data);
-
+        console.warn(data);
         if (btcAddressRx.test(address)) {
           this.setState({
             address,
@@ -119,45 +120,45 @@ export default class SendDetails extends Component {
   }
 
   createTransaction() {
+    let error = false;
+
+    // let amount = this.state.amount.toString();
+    // let feeCount = this.state.fee.toString().replace(/\D/g, '').length;
+
+    // while (amount.replace(/\D/g, '').length + feeCount < 8) {
+    //   amount += '0';
+    // }
+
+    // amount = `${amount}${this.state.fee}`;
+
+    let fee = this.state.fee.toString().replace(/\D/g, '');
+    while (fee.length < 9) {
+      fee = `0${fee}`;
+    }
+    fee = [fee.slice(0, 1), '.', fee.slice(1)].join('');
+
     if (!this.state.amount || this.state.amount === '0') {
-      this.setState({
-        errorMessage: loc.send.details.amount_fiels_is_not_valid,
-      });
+      error = loc.send.details.amount_field_is_not_valid;
       console.log('validation error');
-      return;
+    } else if (!this.state.fee) {
+      error = loc.send.details.fee_field_is_not_valid;
+      console.log('validation error');
+    } else if (!this.state.address) {
+      error = loc.send.details.address_fiels_is_not_valid;
+      console.log('validation error');
+    } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, fee) < 0) {
+      error = loc.send.details.total_exceeds_balance;
+      console.log('validation error');
     }
 
-    if (!this.state.fee) {
-      this.setState({
-        errorMessage: loc.send.details.fee_fiels_is_not_valid,
-      });
-      console.log('validation error');
+    if (error) {
+      alert(error);
       return;
     }
-
-    if (!this.state.address) {
-      this.setState({
-        errorMessage: loc.send.details.address_fiels_is_not_valid,
-      });
-      console.log('validation error');
-      return;
-    }
-
-    if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, this.state.fee) < 0) {
-      this.setState({
-        errorMessage: loc.send.details.amount_fiels_is_not_valid,
-      });
-      console.log('validation error');
-      return;
-    }
-
-    this.setState({
-      errorMessage: '',
-    });
 
     this.props.navigation.navigate('CreateTransaction', {
       amount: this.state.amount,
-      fee: this.state.fee,
+      fee: fee,
       address: this.state.address,
       memo: this.state.memo,
       fromAddress: this.state.fromAddress,
@@ -183,58 +184,125 @@ export default class SendDetails extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <View>
-          <BlueFormInputAddress
-            onChangeText={text => this.setState({ address: text })}
-            placeholder={loc.send.details.receiver_placeholder}
-            value={this.state.address}
-          />
-
-          <BlueFormInput
-            onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
-            keyboardType={'numeric'}
-            placeholder={loc.send.details.amount_placeholder}
-            value={this.state.amount + ''}
-          />
-
-          <BlueFormInput
-            onChangeText={text => this.setState({ fee: text.replace(',', '.') })}
-            keyboardType={'numeric'}
-            placeholder={loc.send.details.fee_placeholder}
-            value={this.state.fee + ''}
-          />
-
-          <BlueFormInput
-            onChangeText={text => this.setState({ memo: text })}
-            placeholder={loc.send.details.memo_placeholder}
-            value={this.state.memo}
-          />
-
-          <BlueSpacing20 />
-          <BlueText style={{ paddingLeft: 20 }}>
-            {loc.send.details.remaining_balance}:{' '}
-            {this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, this.state.fee)} BTC
-          </BlueText>
-        </View>
-
-        <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
-
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
-          <BlueButton onPress={() => this.props.navigation.goBack()} title={loc.send.details.cancel} />
-          <BlueButton
-            icon={{
-              name: 'qrcode',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeBlueArea style={{ flex: 1 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 76 }}>
+            <TextInput
+              keyboardType="numeric"
+              onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
+              placeholder="0"
+              maxLength={8}
+              value={this.state.amount + ''}
+              placeholderTextColor="#0f5cc0"
+              style={{
+                color: '#0f5cc0',
+                fontSize: 36,
+                fontWeight: '600',
+              }}
+            />
+            <Text
+              style={{ color: '#0f5cc0', fontSize: 16, marginHorizontal: 4, paddingBottom: 6, fontWeight: '600', alignSelf: 'flex-end' }}
+            >
+              {' '}
+              BTC
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              marginHorizontal: 20,
+              alignItems: 'center',
+              marginVertical: 16,
+              borderRadius: 4,
             }}
-            style={{}}
-            title={loc.send.details.scan}
-            onPress={() => this.props.navigation.navigate('ScanQrAddress')}
-          />
-          <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
-        </View>
-      </SafeBlueArea>
+          >
+            <TextInput
+              onChangeText={text => this.setState({ address: text })}
+              placeholder={loc.send.details.address}
+              value={this.state.address}
+              style={{ flex: 1, marginHorizontal: 8 }}
+            />
+            <TouchableOpacity
+              onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+              style={{
+                width: 75,
+                height: 36,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: '#bebebe',
+                borderRadius: 4,
+                paddingVertical: 4,
+                paddingHorizontal: 8,
+                marginHorizontal: 4,
+              }}
+            >
+              <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+              <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              marginHorizontal: 20,
+              alignItems: 'center',
+              marginVertical: 16,
+              borderRadius: 4,
+            }}
+          >
+            <TextInput
+              onChangeText={text => this.setState({ memo: text })}
+              placeholder={loc.send.details.note_placeholder}
+              value={this.state.memo}
+              style={{ marginHorizontal: 8 }}
+            />
+          </View>
+
+          <View style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between' }}>
+            <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
+            <View
+              style={{
+                backgroundColor: '#d2f8d6',
+                height: 24,
+                borderRadius: 4,
+                justifyContent: 'space-between',
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 10,
+              }}
+            >
+              <TextInput
+                onChangeText={text => this.setState({ fee: text.replace(',', '.') })}
+                keyboardType={'numeric'}
+                value={this.state.fee + ''}
+                maxLength={2}
+                style={{ color: '#37c0a1', maxWidth: 17, width: 17, marginBottom: 0, marginRight: 4, textAlign: 'right' }}
+              />
+              <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+            </View>
+          </View>
+          <KeyboardAvoidingView behavior="position">
+            <View style={{ paddingHorizontal: 56, paddingVertical: 42 }}>
+              <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.send} />
+            </View>
+          </KeyboardAvoidingView>
+        </SafeBlueArea>
+      </TouchableWithoutFeedback>
     );
   }
 }
