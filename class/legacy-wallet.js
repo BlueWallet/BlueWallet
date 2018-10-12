@@ -209,6 +209,17 @@ export class LegacyWallet extends AbstractWallet {
           if (tx.block_height) {
             before = Math.min(before, tx.block_height); // so next time we fetch older TXs
           }
+
+          // now, if we dont have enough outputs or inputs in response we should collect them from API:
+          if (tx.next_outputs) {
+            let newOutputs = await this._fetchAdditionalOutputs(tx.next_outputs);
+            tx.outputs = tx.outputs.concat(newOutputs);
+          }
+          if (tx.next_inputs) {
+            let newInputs = await this._fetchAdditionalInputs(tx.next_inputs);
+            tx.inputs = tx.inputs.concat(newInputs);
+          }
+
           // how much came in...
           let value = 0;
           for (let out of tx.outputs) {
@@ -280,6 +291,62 @@ export class LegacyWallet extends AbstractWallet {
     } catch (err) {
       console.warn(err);
     }
+  }
+
+  async _fetchAdditionalOutputs(nextOutputs) {
+    let outputs = [];
+    let baseURI = nextOutputs.split('/');
+    baseURI = baseURI[0] + '/' + baseURI[1] + '/' + baseURI[2] + '/';
+    const api = new Frisbee({
+      baseURI: baseURI,
+    });
+
+    do {
+      nextOutputs = nextOutputs.replace(baseURI, '');
+
+      let response = await api.get(nextOutputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
+      let json = response.body;
+      if (typeof json === 'undefined') {
+        throw new Error('Could not fetch transactions from API:' + response.err);
+      }
+
+      if (json.outputs && json.outputs.length) {
+        outputs = outputs.concat(json.outputs);
+        nextOutputs = json.next_outputs;
+      } else {
+        break;
+      }
+    } while (1);
+
+    return outputs;
+  }
+
+  async _fetchAdditionalInputs(nextInputs) {
+    let inputs = [];
+    let baseURI = nextInputs.split('/');
+    baseURI = baseURI[0] + '/' + baseURI[1] + '/' + baseURI[2] + '/';
+    const api = new Frisbee({
+      baseURI: baseURI,
+    });
+
+    do {
+      nextInputs = nextInputs.replace(baseURI, '');
+
+      let response = await api.get(nextInputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
+      let json = response.body;
+      if (typeof json === 'undefined') {
+        throw new Error('Could not fetch transactions from API:' + response.err);
+      }
+
+      if (json.inputs && json.inputs.length) {
+        inputs = inputs.concat(json.inputs);
+        nextInputs = json.next_inputs;
+      } else {
+        break;
+      }
+    } while (1);
+
+    return inputs;
   }
 
   async broadcastTx(txhex) {

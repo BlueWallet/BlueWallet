@@ -1,4 +1,3 @@
-/* global alert */
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { Permissions, BarCodeScanner } from 'expo';
@@ -13,8 +12,6 @@ export default class CameraExample extends React.Component {
   state = {
     isLoading: false,
     hasCameraPermission: null,
-    type: BarCodeScanner.Constants.Type.back,
-    barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
   };
 
   async onBarCodeScanned(ret) {
@@ -30,13 +27,7 @@ export default class CameraExample extends React.Component {
 
   async componentWillMount() {
     const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({
-      hasCameraPermission: status === 'granted',
-      onCameraReady: function() {
-        alert('onCameraReady');
-      },
-      barCodeTypes: [BarCodeScanner.Constants.BarCodeType.qr],
-    });
+    this.setState({ hasCameraPermission: status === 'granted' });
   }
 
   render() {
@@ -56,12 +47,7 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <View style={{ flex: 1 }}>
-          <BarCodeScanner
-            style={{ flex: 1 }}
-            barCodeTypes={this.state.barCodeTypes}
-            type={this.state.type}
-            onBarCodeScanned={ret => this.onBarCodeScanned(ret)}
-          >
+          <BarCodeScanner style={{ flex: 1 }} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
             <View
               style={{
                 flex: 1,
@@ -74,14 +60,6 @@ export default class CameraExample extends React.Component {
                   flex: 0.2,
                   alignSelf: 'flex-end',
                   alignItems: 'center',
-                }}
-                onPress={() => {
-                  this.setState({
-                    type:
-                      this.state.type === BarCodeScanner.Constants.Type.back
-                        ? BarCodeScanner.Constants.Type.front
-                        : BarCodeScanner.Constants.Type.back,
-                  });
                 }}
               >
                 <Button style={{ fontSize: 18, marginBottom: 10 }} title="Go back" onPress={() => this.props.navigation.goBack()} />

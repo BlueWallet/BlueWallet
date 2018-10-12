@@ -30,6 +30,7 @@ async function updateExchangeRate() {
     }
   } catch (Err) {
     console.warn(Err);
+    return;
   }
 
   lang[STRUCT.LAST_UPDATED] = +new Date();

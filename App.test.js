@@ -311,7 +311,7 @@ describe('Watch only wallet', () => {
   });
 
   it('can fetch tx', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60 * 1000;
     let w = new WatchOnlyWallet();
 
     w.setSecret('167zK5iZrs1U6piDqubD3FjRqUTM2CZnb8');
@@ -326,6 +326,16 @@ describe('Watch only wallet', () => {
     // fetch again and make sure no duplicates
     await w.fetchTransactions();
     assert.equal(w.getTransactions().length, 2);
+  });
+
+  it('can fetch complex TXs', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    let w = new WatchOnlyWallet();
+    w.setSecret('3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+    await w.fetchTransactions();
+    for (let tx of w.getTransactions()) {
+      assert.ok(tx.value, 'incorrect tx.value');
+    }
   });
 
   it('can validate address', async () => {
