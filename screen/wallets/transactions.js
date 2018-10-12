@@ -24,16 +24,15 @@ import {
   BlueListItem,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-import { BitcoinUnit } from  '../../models/bitcoinUnits';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 
 export default class WalletTransactions extends Component {
-  
   static navigationOptions = ({ navigation }) => {
     return {
       headerRight: (

@@ -1,10 +1,9 @@
 import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
 import { AppStorage } from '../class';
-import {BitcoinUnit} from '../models/bitcoinUnits';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 let BigNumber = require('bignumber.js');
 let strings;
-
 
 // first-time loading sequence
 (async () => {
@@ -67,7 +66,7 @@ strings.formatBalance = (balance, unit) => {
   if (unit === undefined) {
     if (balance < 0.1 && balance !== 0) {
       let b = new BigNumber(balance);
-      return b.mul(1000).toString() + ' ' + BitcoinUnit.MBTC ;
+      return b.mul(1000).toString() + ' ' + BitcoinUnit.MBTC;
     }
     return balance + ' ' + BitcoinUnit.BTC;
   } else {
