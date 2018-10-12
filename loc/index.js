@@ -1,8 +1,10 @@
 import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
 import { AppStorage } from '../class';
+import {BitcoinUnit} from '../models/bitcoinUnits';
 let BigNumber = require('bignumber.js');
 let strings;
+
 
 // first-time loading sequence
 (async () => {
@@ -65,21 +67,21 @@ strings.formatBalance = (balance, unit) => {
   if (unit === undefined) {
     if (balance < 0.1 && balance !== 0) {
       let b = new BigNumber(balance);
-      return b.mul(1000).toString() + ' mBTC';
+      return b.mul(1000).toString() + ' ' + BitcoinUnit.MBTC ;
     }
-    return balance + ' BTC';
+    return balance + ' ' + BitcoinUnit.BTC;
   } else {
     if (balance !== 0) {
       let b = new BigNumber(balance);
-      if (unit === 'mBTC') {
-        return b.mul(1000).toString() + ' mBTC';
-      } else if (unit === 'bits') {
-        return b.mul(1000000).toString() + ' bits';
-      } else if (unit === 'Satoshis') {
-        return (b.mul(100000).toString() + ' Satoshis').replace(/\./g, '');
+      if (unit === BitcoinUnit.MBTC) {
+        return b.mul(1000).toString() + ' ' + BitcoinUnit.MBTC;
+      } else if (unit === BitcoinUnit.BITS) {
+        return b.mul(1000000).toString() + ' ' + BitcoinUnit.BITS;
+      } else if (unit === BitcoinUnit.SATOSHIS) {
+        return (b.mul(100000).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
       }
     }
-    return balance + ' BTC';
+    return balance + ' ' + BitcoinUnit.BTC;
   }
 };
 

@@ -25,12 +25,15 @@ import {
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 /** @type {AppStorage} */
+
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+import { BitcoinUnit } from  '../../models/bitcoinUnits';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 
 export default class WalletTransactions extends Component {
+  
   static navigationOptions = ({ navigation }) => {
     return {
       headerRight: (
@@ -61,7 +64,7 @@ export default class WalletTransactions extends Component {
       wallet: props.navigation.getParam('wallet'),
       gradientColors: ['#FFFFFF', '#FFFFFF'],
       dataSource: props.navigation.getParam('wallet').getTransactions(),
-      walletBalanceUnit: loc.formatBalance(props.navigation.getParam('wallet').getBalance()).replace(/[^A-Za-z]+/g, ''),
+      walletBalanceUnit: BitcoinUnit.MBTC,
     };
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
@@ -198,14 +201,14 @@ export default class WalletTransactions extends Component {
   }
 
   changeWalletBalanceUnit() {
-    if (this.state.walletBalanceUnit === undefined || this.state.walletBalanceUnit === 'BTC') {
-      this.setState({ walletBalanceUnit: 'mBTC' });
-    } else if (this.state.walletBalanceUnit === 'mBTC') {
-      this.setState({ walletBalanceUnit: 'bits' });
-    } else if (this.state.walletBalanceUnit === 'bits') {
-      this.setState({ walletBalanceUnit: 'Satoshis' });
-    } else if (this.state.walletBalanceUnit === 'Satoshis') {
-      this.setState({ walletBalanceUnit: 'BTC' });
+    if (this.state.walletBalanceUnit === undefined || this.state.walletBalanceUnit === BitcoinUnit.BTC) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.MBTC });
+    } else if (this.state.walletBalanceUnit === BitcoinUnit.MBTC) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.BITS });
+    } else if (this.state.walletBalanceUnit === BitcoinUnit.BITS) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.SATOSHIS });
+    } else if (this.state.walletBalanceUnit === BitcoinUnit.SATOSHIS) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.BTC });
     }
   }
 
