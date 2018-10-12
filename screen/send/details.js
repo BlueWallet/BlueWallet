@@ -65,7 +65,7 @@ export default class SendDetails extends Component {
       fromSecret: fromSecret,
       isLoading: true,
       address: address,
-      amount: 0,
+      amount: '',
       memo,
       fee: 1,
     };
