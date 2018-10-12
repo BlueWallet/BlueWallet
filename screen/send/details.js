@@ -290,14 +290,14 @@ export default class SendDetails extends Component {
                 onChangeText={text => this.setState({ fee: text.replace(',', '.') })}
                 keyboardType={'numeric'}
                 value={this.state.fee + ''}
-                maxLength={2}
-                style={{ color: '#37c0a1', maxWidth: 17, width: 17, marginBottom: 0, marginRight: 4, textAlign: 'right' }}
+                maxLength={9}
+                style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}
               />
               <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
             </View>
           </View>
           <KeyboardAvoidingView behavior="position">
-            <View style={{ paddingHorizontal: 56, paddingVertical: 42 }}>
+            <View style={{ paddingHorizontal: 56 }}>
               <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.send} />
             </View>
           </KeyboardAvoidingView>
