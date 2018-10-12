@@ -302,6 +302,7 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     do {
+      await (() => new Promise(resolve => setTimeout(resolve, 1000)))();
       nextOutputs = nextOutputs.replace(baseURI, '');
 
       let response = await api.get(nextOutputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
@@ -330,6 +331,7 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     do {
+      await (() => new Promise(resolve => setTimeout(resolve, 1000)))();
       nextInputs = nextInputs.replace(baseURI, '');
 
       let response = await api.get(nextInputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
