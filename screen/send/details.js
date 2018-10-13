@@ -157,36 +157,23 @@ export default class SendDetails extends Component {
     }
 
     this.setState({ isLoading: true }, async () => {
-      let fromWallet = false;
-      for (let w of BlueApp.getWallets()) {
-        if (w.getSecret() === this.state.fromSecret) {
-          fromWallet = w;
-          break;
-        }
-
-        if (w.getAddress() && w.getAddress() === this.state.fromAddress) {
-          fromWallet = w;
-          break;
-        }
-      }
-
       let utxo;
       let satoshiPerByte;
       let tx;
 
       try {
-        await fromWallet.fetchUtxo();
-        if (fromWallet.getChangeAddressAsync) {
-          await fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
+        await this.state.fromWallet.fetchUtxo();
+        if (this.state.fromWallet.getChangeAddressAsync) {
+          await this.state.fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
         }
-        if (fromWallet.getAddressAsync) {
-          await fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
+        if (this.state.fromWallet.getAddressAsync) {
+          await this.state.fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
         }
 
-        utxo = fromWallet.utxo;
+        utxo = this.state.fromWallet.utxo;
         let startTime = Date.now();
 
-        tx = fromWallet.createTx(utxo, this.state.amount, this.state.fee, this.state.address, this.state.memo);
+        tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
         let endTime = Date.now();
         console.log('create tx ', (endTime - startTime) / 1000, 'sec');
 
@@ -205,6 +192,7 @@ export default class SendDetails extends Component {
 
         let feeSatoshi = new BigNumber(this.state.fee);
         satoshiPerByte = feeSatoshi.mul(100000000).toString();
+
         // satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
         // satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
         // console.warn(satoshiPerByte)
@@ -215,7 +203,7 @@ export default class SendDetails extends Component {
       } catch (err) {
         console.log(err);
         alert(err);
-        this.setState({ isLoading: false })
+        this.setState({ isLoading: false });
         return;
       }
 
@@ -229,11 +217,12 @@ export default class SendDetails extends Component {
             fee: fee,
             address: this.state.address,
             memo: this.state.memo,
-            fromAddress: this.state.fromAddress,
-            fromSecret: this.state.fromSecret,
+            fromWallet: this.state.fromWallet,
+            tx: tx,
+            satoshiPerByte: this.state.fee,
           }),
       );
-    })
+    });
   }
 
   render() {

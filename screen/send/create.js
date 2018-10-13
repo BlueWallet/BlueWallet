@@ -3,7 +3,6 @@ import { TextInput } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
 import { BlueSpacingVariable, BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -13,92 +12,67 @@ export default class SendCreate extends Component {
   constructor(props) {
     super(props);
     console.log('send/create constructor');
+
     this.state = {
-      isLoading: true,
       amount: props.navigation.state.params.amount,
       fee: props.navigation.state.params.fee,
       address: props.navigation.state.params.address,
       memo: props.navigation.state.params.memo,
-      fromAddress: props.navigation.state.params.fromAddress,
-      fromSecret: props.navigation.state.params.fromSecret,
+      fromAddress: props.navigation.state.params.fromWallet.fromAddress,
+      fromSecret: props.navigation.state.params.fromWallet.fromSecret,
       broadcastErrorMessage: '',
+      isLoading: false,
+      size: Math.round(props.navigation.getParam('tx').length / 2),
+      tx: props.navigation.getParam('tx'),
+      satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
     };
-
-    let fromWallet = false;
-    for (let w of BlueApp.getWallets()) {
-      if (w.getSecret() === this.state.fromSecret) {
-        fromWallet = w;
-        break;
-      }
-
-      if (w.getAddress() && w.getAddress() === this.state.fromAddress) {
-        fromWallet = w;
-        break;
-      }
-    }
-    this.state['fromWallet'] = fromWallet;
   }
 
   async componentDidMount() {
-    console.log('send/create - componentDidMount');
-    console.log('address = ', this.state.address);
-
-    let utxo;
-    let satoshiPerByte;
-    let tx;
-
-    try {
-      await this.state.fromWallet.fetchUtxo();
-      if (this.state.fromWallet.getChangeAddressAsync) {
-        await this.state.fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
-      }
-      if (this.state.fromWallet.getAddressAsync) {
-        await this.state.fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
-      }
-
-      utxo = this.state.fromWallet.utxo;
-      let startTime = Date.now();
-
-      tx = this.state.fromWallet.createTx(utxo, this.state.amount, this.state.fee, this.state.address, this.state.memo);
-      let endTime = Date.now();
-      console.log('create tx ', (endTime - startTime) / 1000, 'sec');
-
-      let bitcoin = require('bitcoinjs-lib');
-      let txDecoded = bitcoin.Transaction.fromHex(tx);
-      let txid = txDecoded.getId();
-      console.log('txid', txid);
-      console.log('txhex', tx);
-
-      BlueApp.tx_metadata = BlueApp.tx_metadata || {};
-      BlueApp.tx_metadata[txid] = {
-        txhex: tx,
-        memo: this.state.memo,
-      };
-      BlueApp.saveToDisk();
-
-      let feeSatoshi = new BigNumber(this.state.fee);
-      satoshiPerByte = feeSatoshi.mul(100000000).toString();
-      // satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
-      // satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
-      // console.warn(satoshiPerByte)
-
-      if (satoshiPerByte < 1) {
-        throw new Error(loc.send.create.not_enough_fee);
-      }
-    } catch (err) {
-      console.log(err);
-      return this.setState({
-        isError: true,
-        errorMessage: JSON.stringify(err.message),
-      });
-    }
-
-    this.setState({
-      isLoading: false,
-      size: Math.round(tx.length / 2),
-      tx,
-      satoshiPerByte,
-    });
+    // console.log('send/create - componentDidMount');
+    // console.log('address = ', this.state.address);
+    // let utxo;
+    // let satoshiPerByte;
+    // let tx;
+    // try {
+    //   await this.state.fromWallet.fetchUtxo();
+    //   if (this.state.fromWallet.getChangeAddressAsync) {
+    //     await this.state.fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
+    //   }
+    //   if (this.state.fromWallet.getAddressAsync) {
+    //     await this.state.fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
+    //   }
+    //   utxo = this.state.fromWallet.utxo;
+    //   let startTime = Date.now();
+    //   tx = this.state.fromWallet.createTx(utxo, this.state.amount, this.state.fee, this.state.address, this.state.memo);
+    //   let endTime = Date.now();
+    //   console.log('create tx ', (endTime - startTime) / 1000, 'sec');
+    //   let bitcoin = require('bitcoinjs-lib');
+    //   let txDecoded = bitcoin.Transaction.fromHex(tx);
+    //   let txid = txDecoded.getId();
+    //   console.log('txid', txid);
+    //   console.log('txhex', tx);
+    //   BlueApp.tx_metadata = BlueApp.tx_metadata || {};
+    //   BlueApp.tx_metadata[txid] = {
+    //     txhex: tx,
+    //     memo: this.state.memo,
+    //   };
+    //   BlueApp.saveToDisk();
+    //   let feeSatoshi = new BigNumber(this.state.fee);
+    //   satoshiPerByte = feeSatoshi.mul(100000000).toString();
+    //   // satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
+    //   // satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
+    //   // console.warn(satoshiPerByte)
+    //   if (satoshiPerByte < 1) {
+    //     throw new Error(loc.send.create.not_enough_fee);
+    //   }
+    // } catch (err) {
+    //   console.log(err);
+    //   return this.setState({
+    //     isError: true,
+    //     errorMessage: JSON.stringify(err.message),
+    //   });
+    // }
   }
 
   async broadcast() {
@@ -210,14 +184,17 @@ export default class SendCreate extends Component {
 SendCreate.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    getParam: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,
         fee: PropTypes.string,
         address: PropTypes.string,
         memo: PropTypes.string,
-        fromAddress: PropTypes.string,
-        fromSecret: PropTypes.string,
+        fromWallet: PropTypes.shape({
+          fromAddress: PropTypes.string,
+          fromSecret: PropTypes.string,
+        }),
       }),
     }),
   }),
