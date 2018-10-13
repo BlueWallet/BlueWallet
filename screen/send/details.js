@@ -119,7 +119,7 @@ export default class SendDetails extends Component {
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
-  createTransaction() {
+  async createTransaction() {
     let error = false;
 
     // let amount = this.state.amount.toString();
@@ -156,25 +156,87 @@ export default class SendDetails extends Component {
       return;
     }
 
-    this.props.navigation.navigate('CreateTransaction', {
-      amount: this.state.amount,
-      fee: fee,
-      address: this.state.address,
-      memo: this.state.memo,
-      fromAddress: this.state.fromAddress,
-      fromSecret: this.state.fromSecret,
-    });
+    this.setState({ isLoading: true }, async () => {
+      let fromWallet = false;
+      for (let w of BlueApp.getWallets()) {
+        if (w.getSecret() === this.state.fromSecret) {
+          fromWallet = w;
+          break;
+        }
+
+        if (w.getAddress() && w.getAddress() === this.state.fromAddress) {
+          fromWallet = w;
+          break;
+        }
+      }
+
+      let utxo;
+      let satoshiPerByte;
+      let tx;
+
+      try {
+        await fromWallet.fetchUtxo();
+        if (fromWallet.getChangeAddressAsync) {
+          await fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
+        }
+        if (fromWallet.getAddressAsync) {
+          await fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
+        }
+
+        utxo = fromWallet.utxo;
+        let startTime = Date.now();
+
+        tx = fromWallet.createTx(utxo, this.state.amount, this.state.fee, this.state.address, this.state.memo);
+        let endTime = Date.now();
+        console.log('create tx ', (endTime - startTime) / 1000, 'sec');
+
+        let bitcoin = require('bitcoinjs-lib');
+        let txDecoded = bitcoin.Transaction.fromHex(tx);
+        let txid = txDecoded.getId();
+        console.log('txid', txid);
+        console.log('txhex', tx);
+
+        BlueApp.tx_metadata = BlueApp.tx_metadata || {};
+        BlueApp.tx_metadata[txid] = {
+          txhex: tx,
+          memo: this.state.memo,
+        };
+        BlueApp.saveToDisk();
+
+        let feeSatoshi = new BigNumber(this.state.fee);
+        satoshiPerByte = feeSatoshi.mul(100000000).toString();
+        // satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
+        // satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
+        // console.warn(satoshiPerByte)
+
+        if (satoshiPerByte < 1) {
+          throw new Error(loc.send.create.not_enough_fee);
+        }
+      } catch (err) {
+        console.log(err);
+        alert(err);
+        this.setState({ isLoading: false })
+        return;
+      }
+
+      this.setState(
+        {
+          isLoading: false,
+        },
+        () =>
+          this.props.navigation.navigate('CreateTransaction', {
+            amount: this.state.amount,
+            fee: fee,
+            address: this.state.address,
+            memo: this.state.memo,
+            fromAddress: this.state.fromAddress,
+            fromSecret: this.state.fromSecret,
+          }),
+      );
+    })
   }
 
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
-
     if (!this.state.fromWallet.getAddress) {
       return (
         <View style={{ flex: 1, paddingTop: 20 }}>
@@ -192,6 +254,7 @@ export default class SendDetails extends Component {
               onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
               placeholder="0"
               maxLength={8}
+              editable={!this.state.isLoading}
               value={this.state.amount + ''}
               placeholderTextColor="#0f5cc0"
               style={{
@@ -228,8 +291,10 @@ export default class SendDetails extends Component {
               placeholder={loc.send.details.address}
               value={this.state.address}
               style={{ flex: 1, marginHorizontal: 8 }}
+              editable={!this.state.isLoading}
             />
             <TouchableOpacity
+              disabled={this.state.isLoading}
               onPress={() => this.props.navigation.navigate('ScanQrAddress')}
               style={{
                 width: 75,
@@ -270,6 +335,7 @@ export default class SendDetails extends Component {
               placeholder={loc.send.details.note_placeholder}
               value={this.state.memo}
               style={{ marginHorizontal: 8 }}
+              editable={!this.state.isLoading}
             />
           </View>
 
@@ -291,14 +357,19 @@ export default class SendDetails extends Component {
                 keyboardType={'numeric'}
                 value={this.state.fee + ''}
                 maxLength={9}
+                editable={!this.state.isLoading}
                 style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}
               />
               <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
             </View>
           </View>
           <KeyboardAvoidingView behavior="position">
-            <View style={{ paddingHorizontal: 56 }}>
-              <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.send} />
+            <View style={{ paddingHorizontal: 56, alignContent: 'center', marginVertical: 24 }}>
+              {this.state.isLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <BlueButton disabled={this.state.isLoading} onPress={() => this.createTransaction()} title={loc.send.details.send} />
+              )}
             </View>
           </KeyboardAvoidingView>
         </SafeBlueArea>
