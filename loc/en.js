@@ -31,7 +31,7 @@ module.exports = {
       create: 'Create',
       label_new_segwit: 'New SegWit',
       wallet_name: 'wallet name',
-      wallet_type: 'wallet type',
+      wallet_type: 'type',
       or: 'or',
       import_wallet: 'Import wallet',
       imported: 'Imported',

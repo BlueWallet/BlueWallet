@@ -1,7 +1,7 @@
 /* global alert */
 import { SegwitP2SHWallet } from '../../class';
 import React, { Component } from 'react';
-import { ActivityIndicator, Dimensions, View } from 'react-native';
+import { ActivityIndicator, Dimensions, View, TextInput } from 'react-native';
 import {
   BlueTextCentered,
   BlueText,
@@ -9,7 +9,6 @@ import {
   BitcoinButton,
   BlueButtonLink,
   BlueFormLabel,
-  BlueFormInput,
   BlueButton,
   SafeBlueArea,
   BlueCard,
@@ -75,14 +74,33 @@ export default class WalletsAdd extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         <BlueCard>
           <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
-          <BlueFormInput
-            value={this.state.label}
-            placeholder={loc.wallets.add.label_new_segwit}
-            onChangeText={text => {
-              this.setLabel(text);
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              marginHorizontal: 20,
+              alignItems: 'center',
+              marginVertical: 16,
+              borderRadius: 4,
             }}
-          />
-
+          >
+            <TextInput
+              value={this.state.label}
+              placeholderTextColor="#81868e"
+              placeholder={loc.wallets.add.label_new_segwit}
+              onChangeText={text => {
+                this.setLabel(text);
+              }}
+              style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
+              editable={!this.state.isLoading}
+            />
+          </View>
           <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
 
           <View style={{ flexDirection: 'row', paddingTop: 10, paddingLeft: 20, width: width - 80, borderColor: 'red', borderWidth: 0 }}>
