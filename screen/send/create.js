@@ -18,8 +18,6 @@ export default class SendCreate extends Component {
       fee: props.navigation.state.params.fee,
       address: props.navigation.state.params.address,
       memo: props.navigation.state.params.memo,
-      fromAddress: props.navigation.state.params.fromWallet.fromAddress,
-      fromSecret: props.navigation.state.params.fromWallet.fromSecret,
       broadcastErrorMessage: '',
       isLoading: false,
       size: Math.round(props.navigation.getParam('tx').length / 2),

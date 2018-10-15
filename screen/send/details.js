@@ -8,10 +8,14 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   TouchableWithoutFeedback,
+  StyleSheet,
+  Slider,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import { BlueHeaderDefaultSub, BlueButton, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Modal from 'react-native-modal';
+import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
@@ -59,6 +63,7 @@ export default class SendDetails extends Component {
     console.log({ memo });
 
     this.state = {
+      isFeeSelectionModalVisible: false,
       errorMessage: false,
       fromAddress: fromAddress,
       fromWallet: fromWallet,
@@ -68,6 +73,7 @@ export default class SendDetails extends Component {
       amount: '',
       memo,
       fee: 1,
+      networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
@@ -94,6 +100,11 @@ export default class SendDetails extends Component {
   }
 
   async componentDidMount() {
+    NetworkTransactionFees.recommendedFees()
+      .then(response => {
+        this.setState({ fee: response.halfHourFee, networkTransactionFees: response });
+      })
+      .catch(response => this.setState({ fee: response.halfHourFee, networkTransactionFees: response }));
     let startTime = Date.now();
     console.log('send/details - componentDidMount');
     this.setState({
@@ -225,6 +236,63 @@ export default class SendDetails extends Component {
     });
   }
 
+  renderFeeSelectionModal = () => {
+    return (
+      <Modal
+        isVisible={this.state.isFeeSelectionModalVisible}
+        style={styles.bottomModal}
+        onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
+      >
+        <KeyboardAvoidingView behavior="position">
+          <View style={styles.modalContent}>
+            <View style={styles.satoshisTextInput}>
+              <TextInput
+                keyboardType={'numeric'}
+                value={Number(this.state.fee).toFixed(0)}
+                maxLength={9}
+                onEndEditing={event => this.setState({ fee: event.nativeEvent.text.replace(/\D/g, '') })}
+                editable={!this.state.isLoading}
+                placeholderTextColor="#37c0a1"
+                placeholder={this.state.networkTransactionFees.halfHourFee.toString()}
+                style={{ fontWeight: '600', color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right', fontSize: 36 }}
+              />
+              <Text
+                style={{
+                  fontWeight: '600',
+                  color: '#37c0a1',
+                  paddingRight: 4,
+                  textAlign: 'left',
+                  fontSize: 16,
+                  alignSelf: 'flex-end',
+                  marginBottom: 14,
+                }}
+              >
+                sat/b
+              </Text>
+            </View>
+            {this.state.networkTransactionFees.fastestFee > 1 && (
+              <View style={{ flex: 1, marginTop: 32, minWidth: 240, width: 240 }}>
+                <Slider
+                  onValueChange={value => this.setState({ fee: value.toFixed(0) })}
+                  minimumValue={1}
+                  maximumValue={this.state.networkTransactionFees.fastestFee}
+                  value={Number(this.state.fee)}
+                  maximumTrackTintColor="#d8d8d8"
+                  minimumTrackTintColor="#37c0a1"
+                  style={{ flex: 1 }}
+                />
+                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 }}>
+                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>slow</Text>
+                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>fast</Text>
+                </View>
+              </View>
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    );
+  };
+
   render() {
     if (!this.state.fromWallet.getAddress) {
       return (
@@ -279,7 +347,7 @@ export default class SendDetails extends Component {
               onChangeText={text => this.setState({ address: text.replace(' ', '') })}
               placeholder={loc.send.details.address}
               value={this.state.address}
-              style={{ flex: 1, marginHorizontal: 8 }}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 44 }}
               editable={!this.state.isLoading}
             />
             <TouchableOpacity
@@ -323,17 +391,19 @@ export default class SendDetails extends Component {
               onChangeText={text => this.setState({ memo: text })}
               placeholder={loc.send.details.note_placeholder}
               value={this.state.memo}
-              style={{ marginHorizontal: 8 }}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 44 }}
               editable={!this.state.isLoading}
             />
           </View>
 
-          <View style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
-            <View
+            <TouchableOpacity
+              onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
               style={{
                 backgroundColor: '#d2f8d6',
-                height: 24,
+                height: 40,
+                minWidth: 40,
                 borderRadius: 4,
                 justifyContent: 'space-between',
                 flexDirection: 'row',
@@ -341,16 +411,9 @@ export default class SendDetails extends Component {
                 paddingHorizontal: 10,
               }}
             >
-              <TextInput
-                onChangeText={text => this.setState({ fee: text.replace(/\D/g, '') })}
-                keyboardType={'numeric'}
-                value={this.state.fee + ''}
-                maxLength={9}
-                editable={!this.state.isLoading}
-                style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}
-              />
+              <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
               <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
-            </View>
+            </TouchableOpacity>
           </View>
           <KeyboardAvoidingView behavior="position">
             <View style={{ paddingHorizontal: 56, alignContent: 'center', marginVertical: 24 }}>
@@ -361,11 +424,40 @@ export default class SendDetails extends Component {
               )}
             </View>
           </KeyboardAvoidingView>
+          {this.renderFeeSelectionModal()}
         </SafeBlueArea>
       </TouchableWithoutFeedback>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    marginBottom: 32,
+    minHeight: 200,
+    height: 200,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  satoshisTextInput: {
+    backgroundColor: '#d2f8d6',
+    minWidth: 127,
+    height: 60,
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+});
 
 SendDetails.propTypes = {
   navigation: PropTypes.shape({
