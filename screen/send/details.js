@@ -64,7 +64,6 @@ export default class SendDetails extends Component {
 
     this.state = {
       isFeeSelectionModalVisible: false,
-      errorMessage: false,
       fromAddress: fromAddress,
       fromWallet: fromWallet,
       fromSecret: fromSecret,
@@ -132,16 +131,6 @@ export default class SendDetails extends Component {
 
   async createTransaction() {
     let error = false;
-
-    // let amount = this.state.amount.toString();
-    // let feeCount = this.state.fee.toString().replace(/\D/g, '').length;
-
-    // while (amount.replace(/\D/g, '').length + feeCount < 8) {
-    //   amount += '0';
-    // }
-
-    // amount = `${amount}${this.state.fee}`;
-
     let fee = this.state.fee.toString().replace(/\D/g, '');
     while (fee.length < 9) {
       fee = `0${fee}`;
@@ -420,7 +409,7 @@ export default class SendDetails extends Component {
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <BlueButton disabled={this.state.isLoading} onPress={() => this.createTransaction()} title={loc.send.details.send} />
+                <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.send} />
               )}
             </View>
           </KeyboardAvoidingView>
