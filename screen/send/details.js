@@ -385,14 +385,16 @@ export default class SendDetails extends Component {
             />
           </View>
 
-          <View style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+            style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
+          >
             <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
-            <TouchableOpacity
-              onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+            <View
               style={{
                 backgroundColor: '#d2f8d6',
-                height: 40,
                 minWidth: 40,
+                height: 25,
                 borderRadius: 4,
                 justifyContent: 'space-between',
                 flexDirection: 'row',
@@ -402,8 +404,8 @@ export default class SendDetails extends Component {
             >
               <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
               <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
           <KeyboardAvoidingView behavior="position">
             <View style={{ paddingHorizontal: 56, alignContent: 'center', marginVertical: 24 }}>
               {this.state.isLoading ? (
