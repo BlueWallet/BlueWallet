@@ -99,11 +99,10 @@ export default class SendDetails extends Component {
   }
 
   async componentDidMount() {
-    NetworkTransactionFees.recommendedFees()
-      .then(response => {
-        this.setState({ fee: response.halfHourFee, networkTransactionFees: response });
-      })
-      .catch(response => this.setState({ fee: response.halfHourFee, networkTransactionFees: response }));
+    let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
+      this.setState({ fee: response.halfHourFee, networkTransactionFees: response });
+    });
+    this.setState({ fee: recommendedFees.halfHourFee, networkTransactionFees: recommendedFees });
     let startTime = Date.now();
     console.log('send/details - componentDidMount');
     this.setState({
@@ -234,9 +233,12 @@ export default class SendDetails extends Component {
       >
         <KeyboardAvoidingView behavior="position">
           <View style={styles.modalContent}>
-            <View style={styles.satoshisTextInput}>
+            <TouchableOpacity style={styles.satoshisTextInput} onPress={() => this.textInput.focus()}>
               <TextInput
-                keyboardType={'numeric'}
+                keyboardType="numeric"
+                ref={ref => {
+                  this.textInput = ref;
+                }}
                 value={Number(this.state.fee).toFixed(0)}
                 maxLength={9}
                 onEndEditing={event => this.setState({ fee: event.nativeEvent.text.replace(/\D/g, '') })}
@@ -258,7 +260,7 @@ export default class SendDetails extends Component {
               >
                 sat/b
               </Text>
-            </View>
+            </TouchableOpacity>
             {this.state.networkTransactionFees.fastestFee > 1 && (
               <View style={{ flex: 1, marginTop: 32, minWidth: 240, width: 240 }}>
                 <Slider
