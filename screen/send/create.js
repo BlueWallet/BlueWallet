@@ -118,6 +118,8 @@ export default class SendCreate extends Component {
                 borderRadius: 4,
                 marginTop: 20,
                 color: '#37c0a1',
+                fontWeight: '500',
+                fontSize: 14,
                 paddingHorizontal: 16,
                 paddingBottom: 16,
                 paddingTop: 16,
