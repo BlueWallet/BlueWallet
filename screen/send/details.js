@@ -337,8 +337,9 @@ export default class SendDetails extends Component {
             <TextInput
               onChangeText={text => this.setState({ address: text.replace(' ', '') })}
               placeholder={loc.send.details.address}
+              numberOfLines={1}
               value={this.state.address}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 44 }}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
               editable={!this.state.isLoading}
             />
             <TouchableOpacity
@@ -382,7 +383,8 @@ export default class SendDetails extends Component {
               onChangeText={text => this.setState({ memo: text })}
               placeholder={loc.send.details.note_placeholder}
               value={this.state.memo}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 44 }}
+              numberOfLines={1}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
               editable={!this.state.isLoading}
             />
           </View>
@@ -413,7 +415,7 @@ export default class SendDetails extends Component {
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.send} />
+                <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
               )}
             </View>
           </KeyboardAvoidingView>

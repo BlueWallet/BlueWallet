@@ -1,10 +1,11 @@
+/* global alert */
 import React, { Component } from 'react';
-import { TextInput } from 'react-native';
+import { TextInput, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
-import { BlueSpacingVariable, BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+// let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let EV = require('../../events');
 
@@ -18,7 +19,6 @@ export default class SendCreate extends Component {
       fee: props.navigation.state.params.fee,
       address: props.navigation.state.params.address,
       memo: props.navigation.state.params.memo,
-      broadcastErrorMessage: '',
       isLoading: false,
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
@@ -80,16 +80,11 @@ export default class SendCreate extends Component {
       result = JSON.parse(result);
     }
     if (result && result.error) {
-      this.setState({
-        broadcastErrorMessage: JSON.stringify(result.error),
-        broadcastSuccessMessage: '',
-      });
+      alert(JSON.stringify(result.error));
     } else {
       EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-      this.setState({ broadcastErrorMessage: '' });
-      this.setState({
-        broadcastSuccessMessage: 'Success! TXID: ' + JSON.stringify(result.result),
-      });
+      alert('Transaction has been successfully broadcasted. Your transaction ID is: ' + JSON.stringify(result.result));
+      this.props.navigation.navigate('Wallets');
     }
   }
 
@@ -111,78 +106,81 @@ export default class SendCreate extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <BlueSpacingVariable />
+      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+        <ScrollView>
+          <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+            <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
 
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText>{loc.send.create.this_is_hex}</BlueText>
+            <TextInput
+              style={{
+                borderColor: '#ebebeb',
+                backgroundColor: '#d2f8d6',
+                borderRadius: 4,
+                marginTop: 20,
+                color: '#37c0a1',
+                paddingHorizontal: 16,
+                paddingBottom: 16,
+                paddingTop: 16,
+              }}
+              height={72}
+              multiline
+              editable={false}
+              value={this.state.tx}
+            />
 
-          <TextInput
-            style={{
-              borderColor: '#ebebeb',
-              borderWidth: 1,
-              marginTop: 20,
-              color: '#ebebeb',
-            }}
-            maxHeight={70}
-            multiline
-            editable={false}
-            value={this.state.tx}
-          />
+            <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
+              <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+            </TouchableOpacity>
 
-          <BlueSpacing20 />
+            <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} />
+          </BlueCard>
+          <BlueCard>
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
 
-          <BlueText style={{ paddingTop: 20 }}>
-            {loc.send.create.to}: {this.state.address}
-          </BlueText>
-          <BlueText>
-            {loc.send.create.amount}: {this.state.amount} BTC
-          </BlueText>
-          <BlueText>
-            {loc.send.create.fee}: {this.state.fee} BTC
-          </BlueText>
-          <BlueText>
-            {loc.send.create.tx_size}: {this.state.size} Bytes
-          </BlueText>
-          <BlueText>
-            {loc.send.create.satoshi_per_byte}: {this.state.satoshiPerByte} Sat/B
-          </BlueText>
-          <BlueText>
-            {loc.send.create.memo}: {this.state.memo}
-          </BlueText>
-        </BlueCard>
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} BTC</Text>
 
-        <BlueButton
-          icon={{
-            name: 'megaphone',
-            type: 'octicon',
-            color: BlueApp.settings.buttonTextColor,
-          }}
-          onPress={() => this.broadcast()}
-          title={loc.send.create.broadcast}
-        />
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.fee}</Text>
 
-        <BlueButton
-          icon={{
-            name: 'arrow-left',
-            type: 'octicon',
-            color: BlueApp.settings.buttonTextColor,
-          }}
-          onPress={() => this.props.navigation.goBack()}
-          title={loc.send.create.go_back}
-        />
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.size}</Text>
 
-        <FormValidationMessage>{this.state.broadcastErrorMessage}</FormValidationMessage>
-        <Text style={{ padding: 0, color: '#0f0' }}>{this.state.broadcastSuccessMessage}</Text>
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
+
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
+          </BlueCard>
+
+          <Text style={{ padding: 0, color: '#0f0' }}>{this.state.broadcastSuccessMessage}</Text>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
 }
 
+const styles = StyleSheet.create({
+  transactionDetailsTitle: {
+    color: '#0c2550',
+    fontWeight: '500',
+    fontSize: 17,
+    marginBottom: 2,
+  },
+  transactionDetailsSubtitle: {
+    color: '#9aa0aa',
+    fontWeight: '500',
+    fontSize: 15,
+    marginBottom: 20,
+  },
+});
+
 SendCreate.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
     getParam: PropTypes.function,
+    navigate: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,

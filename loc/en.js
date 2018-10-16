@@ -115,7 +115,7 @@ module.exports = {
       title: 'create transaction',
       error: 'Error creating transaction. Invalid address or send amount?',
       go_back: 'Go Back',
-      this_is_hex: 'This is transaction hex, signed and ready to be broadcast to the network. Continue?',
+      this_is_hex: 'This is transaction hex, signed and ready to be broadcast to the network.',
       to: 'To',
       amount: 'Amount',
       fee: 'Fee',
