@@ -27,50 +27,8 @@ export default class SendCreate extends Component {
   }
 
   async componentDidMount() {
-    // console.log('send/create - componentDidMount');
-    // console.log('address = ', this.state.address);
-    // let utxo;
-    // let satoshiPerByte;
-    // let tx;
-    // try {
-    //   await this.state.fromWallet.fetchUtxo();
-    //   if (this.state.fromWallet.getChangeAddressAsync) {
-    //     await this.state.fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
-    //   }
-    //   if (this.state.fromWallet.getAddressAsync) {
-    //     await this.state.fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
-    //   }
-    //   utxo = this.state.fromWallet.utxo;
-    //   let startTime = Date.now();
-    //   tx = this.state.fromWallet.createTx(utxo, this.state.amount, this.state.fee, this.state.address, this.state.memo);
-    //   let endTime = Date.now();
-    //   console.log('create tx ', (endTime - startTime) / 1000, 'sec');
-    //   let bitcoin = require('bitcoinjs-lib');
-    //   let txDecoded = bitcoin.Transaction.fromHex(tx);
-    //   let txid = txDecoded.getId();
-    //   console.log('txid', txid);
-    //   console.log('txhex', tx);
-    //   BlueApp.tx_metadata = BlueApp.tx_metadata || {};
-    //   BlueApp.tx_metadata[txid] = {
-    //     txhex: tx,
-    //     memo: this.state.memo,
-    //   };
-    //   BlueApp.saveToDisk();
-    //   let feeSatoshi = new BigNumber(this.state.fee);
-    //   satoshiPerByte = feeSatoshi.mul(100000000).toString();
-    //   // satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
-    //   // satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
-    //   // console.warn(satoshiPerByte)
-    //   if (satoshiPerByte < 1) {
-    //     throw new Error(loc.send.create.not_enough_fee);
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    //   return this.setState({
-    //     isError: true,
-    //     errorMessage: JSON.stringify(err.message),
-    //   });
-    // }
+    console.log('send/create - componentDidMount');
+    console.log('address = ', this.state.address);
   }
 
   async broadcast() {
@@ -144,10 +102,10 @@ export default class SendCreate extends Component {
             <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} BTC</Text>
 
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.fee}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.fee} BTC</Text>
 
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.size}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
 
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
             <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
@@ -186,7 +144,7 @@ SendCreate.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,
-        fee: PropTypes.string,
+        fee: PropTypes.number,
         address: PropTypes.string,
         memo: PropTypes.string,
         fromWallet: PropTypes.shape({

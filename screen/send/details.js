@@ -24,6 +24,7 @@ let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+let bitcoin = require('bitcoinjs-lib');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -78,8 +79,6 @@ export default class SendDetails extends Component {
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
-      console.warn('received event with ', data);
-
       if (btcAddressRx.test(data)) {
         this.setState({
           address: data,
@@ -131,8 +130,8 @@ export default class SendDetails extends Component {
     let availableBalance;
     try {
       availableBalance = new BigNumber(balance);
-      availableBalance = availableBalance.sub(amount);
-      availableBalance = availableBalance.sub(fee);
+      availableBalance = availableBalance.minus(amount);
+      availableBalance = availableBalance.minus(fee);
       availableBalance = availableBalance.toString(10);
     } catch (err) {
       return balance;
@@ -143,13 +142,11 @@ export default class SendDetails extends Component {
 
   async createTransaction() {
     let error = false;
-    let fee = this.state.fee.toString().replace(/\D/g, '');
-    while (fee.length < 9) {
-      fee = `0${fee}`;
-    }
-    fee = [fee.slice(0, 1), '.', fee.slice(1)].join('');
+    let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
 
-    if (!this.state.amount || this.state.amount === '0') {
+    console.log({ requestedSatPerByte });
+
+    if (!this.state.amount || this.state.amount === '0' || parseFloat(this.state.amount) === 0) {
       error = loc.send.details.amount_field_is_not_valid;
       console.log('validation error');
     } else if (!this.state.fee) {
@@ -158,7 +155,8 @@ export default class SendDetails extends Component {
     } else if (!this.state.address) {
       error = loc.send.details.address_field_is_not_valid;
       console.log('validation error');
-    } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, fee) < 0) {
+    } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, 0) < 0) {
+      // first sanity check is that sending amount is not bigger than available balance
       error = loc.send.details.total_exceeds_balance;
       console.log('validation error');
     }
@@ -170,8 +168,10 @@ export default class SendDetails extends Component {
 
     this.setState({ isLoading: true }, async () => {
       let utxo;
-      let satoshiPerByte;
-      let tx;
+      let actualSatoshiPerByte;
+      let tx, txid;
+      let tries = 1;
+      let fee = 0.000001; // initial fee guess
 
       try {
         await this.state.fromWallet.fetchUtxo();
@@ -183,35 +183,47 @@ export default class SendDetails extends Component {
         }
 
         utxo = this.state.fromWallet.utxo;
-        let startTime = Date.now();
 
-        tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
-        let endTime = Date.now();
-        console.log('create tx ', (endTime - startTime) / 1000, 'sec');
+        do {
+          console.log('try #', tries, 'fee=', fee);
+          if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, fee) < 0) {
+            // we could not add any fee. user is trying to send all he's got. that wont work
+            throw new Error(loc.send.details.total_exceeds_balance);
+          }
 
-        let bitcoin = require('bitcoinjs-lib');
-        let txDecoded = bitcoin.Transaction.fromHex(tx);
-        let txid = txDecoded.getId();
-        console.log('txid', txid);
-        console.log('txhex', tx);
+          let startTime = Date.now();
+          tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
+          let endTime = Date.now();
+          console.log('create tx ', (endTime - startTime) / 1000, 'sec');
+
+          let txDecoded = bitcoin.Transaction.fromHex(tx);
+          txid = txDecoded.getId();
+          console.log('txid', txid);
+          console.log('txhex', tx);
+
+          let feeSatoshi = new BigNumber(fee).multipliedBy(100000000);
+          actualSatoshiPerByte = feeSatoshi.dividedBy(Math.round(tx.length / 2));
+          actualSatoshiPerByte = actualSatoshiPerByte.toNumber();
+          console.log({ satoshiPerByte: actualSatoshiPerByte });
+
+          if (Math.round(actualSatoshiPerByte) !== requestedSatPerByte * 1 || Math.floor(actualSatoshiPerByte) < 1) {
+            console.log('fee is not correct, retrying');
+            fee = feeSatoshi
+              .multipliedBy(requestedSatPerByte / actualSatoshiPerByte)
+              .plus(10)
+              .dividedBy(100000000)
+              .toNumber();
+          } else {
+            break;
+          }
+        } while (tries++ < 5);
 
         BlueApp.tx_metadata = BlueApp.tx_metadata || {};
         BlueApp.tx_metadata[txid] = {
           txhex: tx,
           memo: this.state.memo,
         };
-        BlueApp.saveToDisk();
-
-        let feeSatoshi = new BigNumber(this.state.fee);
-        satoshiPerByte = feeSatoshi.mul(100000000).toString();
-
-        // satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
-        // satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
-        // console.warn(satoshiPerByte)
-
-        if (satoshiPerByte < 1) {
-          throw new Error(loc.send.create.not_enough_fee);
-        }
+        await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
         alert(err);
@@ -219,20 +231,16 @@ export default class SendDetails extends Component {
         return;
       }
 
-      this.setState(
-        {
-          isLoading: false,
-        },
-        () =>
-          this.props.navigation.navigate('CreateTransaction', {
-            amount: this.state.amount,
-            fee: fee,
-            address: this.state.address,
-            memo: this.state.memo,
-            fromWallet: this.state.fromWallet,
-            tx: tx,
-            satoshiPerByte: this.state.fee,
-          }),
+      this.setState({ isLoading: false }, () =>
+        this.props.navigation.navigate('CreateTransaction', {
+          amount: this.state.amount,
+          fee: fee,
+          address: this.state.address,
+          memo: this.state.memo,
+          fromWallet: this.state.fromWallet,
+          tx: tx,
+          satoshiPerByte: actualSatoshiPerByte.toFixed(2),
+        }),
       );
     });
   }
