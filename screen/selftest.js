@@ -175,8 +175,8 @@ export default class Selftest extends Component {
       }
 
       let feeSatoshi = new BigNumber(0.0001);
-      feeSatoshi = feeSatoshi.mul(100000000);
-      let satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
+      feeSatoshi = feeSatoshi.multipliedBy(100000000);
+      let satoshiPerByte = feeSatoshi.dividedBy(Math.round(tx.length / 2));
       satoshiPerByte = Math.round(satoshiPerByte.toString(10));
 
       if (satoshiPerByte !== 46) {

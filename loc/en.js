@@ -120,7 +120,7 @@ module.exports = {
       amount: 'Amount',
       fee: 'Fee',
       tx_size: 'TX size',
-      satoshi_per_byte: 'satoshiPerByte',
+      satoshi_per_byte: 'Satoshi per byte',
       memo: 'Memo',
       broadcast: 'Broadcast',
       not_enough_fee: 'Not enough fee. Increase the fee',

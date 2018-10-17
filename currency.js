@@ -59,8 +59,8 @@ function satoshiToLocalCurrency(satoshi) {
 
   let b = new BigNumber(satoshi);
   b = b
-    .div(100000000)
-    .mul(lang[STRUCT.BTC_USD])
+    .dividedBy(100000000)
+    .multipliedBy(lang[STRUCT.BTC_USD])
     .toString(10);
   b = parseFloat(b).toFixed(2);
 
@@ -69,7 +69,7 @@ function satoshiToLocalCurrency(satoshi) {
 
 function satoshiToBTC(satoshi) {
   let b = new BigNumber(satoshi);
-  b = b.div(100000000);
+  b = b.dividedBy(100000000);
   return b.toString(10) + ' BTC';
 }
 

@@ -59,8 +59,8 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
           this.unconfirmed_balance += addr.unconfirmed;
           this.usedAddresses.push(addr.addr);
         }
-        this.balance = new BigNumber(this.balance).div(100000000).toString() * 1;
-        this.unconfirmed_balance = new BigNumber(this.unconfirmed_balance).div(100000000).toString() * 1;
+        this.balance = new BigNumber(this.balance).dividedBy(100000000).toString() * 1;
+        this.unconfirmed_balance = new BigNumber(this.unconfirmed_balance).dividedBy(100000000).toString() * 1;
         this._lastBalanceFetch = +new Date();
       } else {
         throw new Error('Could not fetch balance from API: ' + response.err);
@@ -344,7 +344,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
-    let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
+    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
     return signer.createHDSegwitTransaction(
       utxos,
       address,

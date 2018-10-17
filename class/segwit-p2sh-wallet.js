@@ -62,11 +62,11 @@ export class SegwitP2SHWallet extends LegacyWallet {
       u.txid = u.tx_hash;
       u.vout = u.tx_output_n;
       u.amount = new BigNumber(u.value);
-      u.amount = u.amount.div(100000000);
+      u.amount = u.amount.dividedBy(100000000);
       u.amount = u.amount.toString(10);
     }
     // console.log('creating tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
-    let amountPlusFee = parseFloat(new BigNumber(amount).add(fee).toString(10));
+    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
     // to compensate that module substracts fee from amount
     return signer.createSegwitTransaction(utxos, address, amountPlusFee, fee, this.getSecret(), this.getAddress(), sequence);
   }

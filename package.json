@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "asyncstorage-down": "^3.1.1",
-    "bignumber.js": "^5.0.0",
+    "bignumber.js": "^7.0.0",
     "bip21": "^2.0.2",
     "bip39": "^2.5.0",
     "bitcoinjs-lib": "^3.3.2",
