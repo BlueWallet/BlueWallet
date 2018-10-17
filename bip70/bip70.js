@@ -9,13 +9,19 @@ export class BitcoinBIP70Transaction {
   }
 }
 
+export class BitcoinBIP70TransactionError {
+  constructor(errorMessage) {
+    this.errorMessage = errorMessage;
+  }
+}
+
 export default class BitcoinBIP70TransactionDecode {
   static decode(data) {
     return new Promise(async (resolve, reject) => {
       try {
-        const url = data.match(/\bhttps?:\/\/\S+/gi);
+        const url = data.match(/bitcoin:\?r=https?:\/\/\S+/gi);
         const api = new Frisbee({
-          baseURI: url,
+          baseURI: url.toString().split('bitcoin:?r=')[1],
           headers: {
             Accept: 'application/payment-request',
           },
@@ -23,16 +29,26 @@ export default class BitcoinBIP70TransactionDecode {
         let response = await api.get();
         if (response && response.body) {
           const parsedJSON = JSON.parse(response.body);
+
+          // Check that the invoice has not expired
+          const expires = new Date(parsedJSON.expires).getTime();
+          const now = new Date().getTime();
+          if (now > expires) {
+            throw new BitcoinBIP70TransactionError('This invoice has expired.');
+          }
+          //
+
           const decodedTransaction = new BitcoinBIP70Transaction(
             parsedJSON.outputs[0].amount,
             parsedJSON.outputs[0].address,
             parsedJSON.memo,
-            parsedJSON.requiredFeeRate,
+            parsedJSON.requiredFeeRate.toFixed(0),
           );
-          console.log(decodedTransaction)
+          console.log(decodedTransaction);
           resolve(decodedTransaction);
         } else {
-          throw new Error('Could not fetch transaction details: ' + response.err);
+          console.log('Could not fetch transaction details: ' + response.err);
+          throw new BitcoinBIP70TransactionError('Unable to fetch transaction details. Please, make sure the provided link is valid.');
         }
       } catch (err) {
         console.warn(err);
@@ -42,6 +58,6 @@ export default class BitcoinBIP70TransactionDecode {
   }
 
   static matchesPaymentURL(data) {
-    return data.match(/\bhttps?:\/\/\S+/gi) !== null;
+    return data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null;
   }
 }

@@ -103,7 +103,7 @@ export default class SendDetails extends Component {
                 fee: response.fee,
               });
             })
-            .catch(error => console.log(error));
+            .catch(error => alert(error.errorMessage));
         }
       }
     });
