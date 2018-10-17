@@ -40,7 +40,7 @@ export class BlueButton extends Component {
         buttonStyle={Object.assign(
           {
             backgroundColor: '#ccddf9',
-            height: 45,
+            minHeight: 45,
             borderWidth: 0,
             borderRadius: 25,
           },

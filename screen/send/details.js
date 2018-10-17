@@ -16,6 +16,8 @@ import { BlueHeaderDefaultSub, BlueButton, SafeBlueArea } from '../../BlueCompon
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
+import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
@@ -76,7 +78,7 @@ export default class SendDetails extends Component {
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
-      console.log('received event with ', data);
+      console.warn('received event with ', data);
 
       if (btcAddressRx.test(data)) {
         this.setState({
@@ -91,6 +93,17 @@ export default class SendDetails extends Component {
             amount: options.amount,
             memo: options.label,
           });
+        } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
+          BitcoinBIP70TransactionDecode.decode(data)
+            .then(response => {
+              this.setState({
+                address: response.address,
+                amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                memo: response.memo,
+                fee: response.fee,
+              });
+            })
+            .catch(error => console.log(error));
         }
       }
     });
