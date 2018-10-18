@@ -159,7 +159,7 @@ export default class SendDetails extends Component {
     if (!this.state.amount || this.state.amount === '0' || parseFloat(this.state.amount) === 0) {
       error = loc.send.details.amount_field_is_not_valid;
       console.log('validation error');
-    } else if (!this.state.fee) {
+    } else if (!this.state.fee || !requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
       error = loc.send.details.fee_field_is_not_valid;
       console.log('validation error');
     } else if (!this.state.address) {
@@ -247,7 +247,7 @@ export default class SendDetails extends Component {
       this.setState({ isLoading: false }, () =>
         this.props.navigation.navigate('CreateTransaction', {
           amount: this.state.amount,
-          fee: fee,
+          fee: fee.toFixed(8),
           address: this.state.address,
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,
