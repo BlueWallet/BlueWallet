@@ -9,6 +9,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StyleSheet,
+  ScrollView,
   Slider,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
@@ -325,8 +326,8 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
-        <View style={{ paddingHorizontal: 56, alignContent: 'center', marginTop: 24 }}>
+      <KeyboardAvoidingView behavior="padding" enabled style={{ flex: 1 }}>
+        <View style={{ paddingHorizontal: 56, alignContent: 'center', backgroundColor: '#FFFFFF', flex: 1 }}>
           {this.state.isLoading ? (
             <ActivityIndicator />
           ) : (
@@ -347,127 +348,129 @@ export default class SendDetails extends Component {
     }
 
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeBlueArea style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 76 }}>
-            <TextInput
-              keyboardType="numeric"
-              onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
-              placeholder="0"
-              maxLength={10}
-              editable={!this.state.isLoading}
-              value={this.state.amount + ''}
-              placeholderTextColor="#0f5cc0"
-              style={{
-                color: '#0f5cc0',
-                fontSize: 36,
-                fontWeight: '600',
-              }}
-            />
-            <Text
-              style={{ color: '#0f5cc0', fontSize: 16, marginHorizontal: 4, paddingBottom: 6, fontWeight: '600', alignSelf: 'flex-end' }}
-            >
-              {' '}
-              BTC
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              marginHorizontal: 20,
-              alignItems: 'center',
-              marginVertical: 16,
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              onChangeText={text => this.setState({ address: text.replace(' ', '') })}
-              placeholder={loc.send.details.address}
-              numberOfLines={1}
-              value={this.state.address}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
-              editable={!this.state.isLoading}
-            />
-            <TouchableOpacity
-              disabled={this.state.isLoading}
-              onPress={() => this.props.navigation.navigate('ScanQrAddress')}
-              style={{
-                width: 75,
-                height: 36,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: '#bebebe',
-                borderRadius: 4,
-                paddingVertical: 4,
-                paddingHorizontal: 8,
-                marginHorizontal: 4,
-              }}
-            >
-              <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
-              <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              marginHorizontal: 20,
-              alignItems: 'center',
-              marginVertical: 16,
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              onChangeText={text => this.setState({ memo: text })}
-              placeholder={loc.send.details.note_placeholder}
-              value={this.state.memo}
-              numberOfLines={1}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
-              editable={!this.state.isLoading}
-            />
-          </View>
-
-          <TouchableOpacity
-            onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
-            disabled={this.state.isLoading}
-            style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
+      <ScrollView style={{ flex: 1, backgroundColor:'red' }} contentContainerStyle={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 76 }}>
+              <TextInput
+                keyboardType="numeric"
+                onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
+                placeholder="0"
+                maxLength={10}
+                editable={!this.state.isLoading}
+                value={this.state.amount + ''}
+                placeholderTextColor="#0f5cc0"
+                style={{
+                  color: '#0f5cc0',
+                  fontSize: 36,
+                  fontWeight: '600',
+                }}
+              />
+              <Text
+                style={{ color: '#0f5cc0', fontSize: 16, marginHorizontal: 4, paddingBottom: 6, fontWeight: '600', alignSelf: 'flex-end' }}
+              >
+                {' '}
+                BTC
+              </Text>
+            </View>
             <View
               style={{
-                backgroundColor: '#d2f8d6',
-                minWidth: 40,
-                height: 25,
-                borderRadius: 4,
-                justifyContent: 'space-between',
                 flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                marginHorizontal: 20,
                 alignItems: 'center',
-                paddingHorizontal: 10,
+                marginVertical: 16,
+                borderRadius: 4,
               }}
             >
-              <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
-              <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+              <TextInput
+                onChangeText={text => this.setState({ address: text.replace(' ', '') })}
+                placeholder={loc.send.details.address}
+                numberOfLines={1}
+                value={this.state.address}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                editable={!this.state.isLoading}
+              />
+              <TouchableOpacity
+                disabled={this.state.isLoading}
+                onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+                style={{
+                  width: 75,
+                  height: 36,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#bebebe',
+                  borderRadius: 4,
+                  paddingVertical: 4,
+                  paddingHorizontal: 8,
+                  marginHorizontal: 4,
+                }}
+              >
+                <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+                <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-          {this.renderFeeSelectionModal()}
-          {this.renderCreateButton()}
-        </SafeBlueArea>
-      </TouchableWithoutFeedback>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                marginHorizontal: 20,
+                alignItems: 'center',
+                marginVertical: 16,
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                onChangeText={text => this.setState({ memo: text })}
+                placeholder={loc.send.details.note_placeholder}
+                value={this.state.memo}
+                numberOfLines={1}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                editable={!this.state.isLoading}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+              disabled={this.state.isLoading}
+              style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
+              <View
+                style={{
+                  backgroundColor: '#d2f8d6',
+                  minWidth: 40,
+                  height: 25,
+                  borderRadius: 4,
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 10,
+                }}
+              >
+                <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
+                <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+              </View>
+            </TouchableOpacity>
+            {this.renderFeeSelectionModal()}
+          </View>
+        </TouchableWithoutFeedback>
+        {this.renderCreateButton()}
+      </ScrollView>
     );
   }
 }
