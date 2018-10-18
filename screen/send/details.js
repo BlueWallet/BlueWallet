@@ -323,6 +323,20 @@ export default class SendDetails extends Component {
     );
   };
 
+  renderCreateButton = () => {
+    return (
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" enabled>
+        <View style={{ paddingHorizontal: 56, alignContent: 'center', marginTop: 24 }}>
+          {this.state.isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    );
+  };
+
   render() {
     if (!this.state.fromWallet.getAddress) {
       return (
@@ -430,6 +444,7 @@ export default class SendDetails extends Component {
 
           <TouchableOpacity
             onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+            disabled={this.state.isLoading}
             style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
           >
             <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
@@ -449,16 +464,8 @@ export default class SendDetails extends Component {
               <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
             </View>
           </TouchableOpacity>
-          <KeyboardAvoidingView behavior="position">
-            <View style={{ paddingHorizontal: 56, alignContent: 'center', marginVertical: 24 }}>
-              {this.state.isLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
-              )}
-            </View>
-          </KeyboardAvoidingView>
           {this.renderFeeSelectionModal()}
+          {this.renderCreateButton()}
         </SafeBlueArea>
       </TouchableWithoutFeedback>
     );
@@ -474,7 +481,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    marginBottom: 32,
     minHeight: 200,
     height: 200,
   },

@@ -90,7 +90,7 @@ strings.formatBalanceWithoutSuffix = (balance, unit) => {
   if (balance !== 0) {
     let b = new BigNumber(balance);
     if (unit === BitcoinUnit.BTC) {
-      return Number(b.div(conversion))
+      return Number(b.div(conversion));
     } else if (unit === BitcoinUnit.MBTC) {
       return b.multipliedBy(1000).toString();
     } else if (unit === BitcoinUnit.BITS) {
