@@ -60,12 +60,15 @@ export default class BitcoinBIP70TransactionDecode {
   }
 
   static isExpired(transactionExpires) {
+    if (transactionExpires === null) {
+      return false;
+    }
     const expires = new Date(transactionExpires).getTime();
     const now = new Date().getTime();
     return now > expires;
   }
 
   static matchesPaymentURL(data) {
-    return data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null;
+    return data !== null && data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null;
   }
 }

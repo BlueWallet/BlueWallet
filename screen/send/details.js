@@ -326,7 +326,7 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <KeyboardAvoidingView behavior="padding" enabled style={{ flex: 1 }}>
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View style={{ paddingHorizontal: 56, alignContent: 'center', backgroundColor: '#FFFFFF', flex: 1 }}>
           {this.state.isLoading ? (
             <ActivityIndicator />
@@ -348,7 +348,7 @@ export default class SendDetails extends Component {
     }
 
     return (
-      <ScrollView style={{ flex: 1, backgroundColor:'red' }} contentContainerStyle={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={{ flex: 1 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 76 }}>
@@ -390,7 +390,29 @@ export default class SendDetails extends Component {
               }}
             >
               <TextInput
-                onChangeText={text => this.setState({ address: text.replace(' ', '') })}
+                onChangeText={text => {
+                  if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
+                    this.setState(
+                      {
+                        isLoading: true,
+                      },
+                      () => {
+                        BitcoinBIP70TransactionDecode.decode(text).then(response => {
+                          this.setState({
+                            address: response.address,
+                            amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                            memo: response.memo,
+                            fee: response.fee,
+                            bip70TransactionExpiration: response.expires,
+                            isLoading: false,
+                          });
+                        });
+                      },
+                    );
+                  } else {
+                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                  }
+                }}
                 placeholder={loc.send.details.address}
                 numberOfLines={1}
                 value={this.state.address}
