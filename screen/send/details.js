@@ -13,7 +13,7 @@ import {
   Slider,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
-import { BlueHeaderDefaultSub, BlueButton, SafeBlueArea } from '../../BlueComponents';
+import { BlueHeaderDefaultSub, BlueButton } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -326,8 +326,8 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-        <View style={{ paddingHorizontal: 56, alignContent: 'center', backgroundColor: '#FFFFFF', flex: 1 }}>
+      <KeyboardAvoidingView keyboardVerticalOffset={90} behavior="position" style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={{ paddingHorizontal: 56, paddingVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
           {this.state.isLoading ? (
             <ActivityIndicator />
           ) : (
@@ -348,9 +348,9 @@ export default class SendDetails extends Component {
     }
 
     return (
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
+      <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 76 }}>
               <TextInput
                 keyboardType="numeric"
@@ -489,9 +489,9 @@ export default class SendDetails extends Component {
               </View>
             </TouchableOpacity>
             {this.renderFeeSelectionModal()}
+            {this.renderCreateButton()}
           </View>
         </TouchableWithoutFeedback>
-        {this.renderCreateButton()}
       </ScrollView>
     );
   }

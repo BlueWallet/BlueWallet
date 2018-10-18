@@ -41,6 +41,7 @@ export class BlueButton extends Component {
           {
             backgroundColor: '#ccddf9',
             minHeight: 45,
+            height: 45,
             borderWidth: 0,
             borderRadius: 25,
           },
