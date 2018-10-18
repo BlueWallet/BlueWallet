@@ -63,6 +63,7 @@ strings.transactionTimeToReadable = function(time) {
 };
 
 strings.formatBalance = (balance, unit) => {
+  const conversion = 100000000;
   if (unit === undefined) {
     if (balance < 0.1 && balance !== 0) {
       let b = new BigNumber(balance);
@@ -77,7 +78,7 @@ strings.formatBalance = (balance, unit) => {
       } else if (unit === BitcoinUnit.BITS) {
         return b.multipliedBy(1000000).toString() + ' ' + BitcoinUnit.BITS;
       } else if (unit === BitcoinUnit.SATOSHIS) {
-        return (b.multipliedBy(100000).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
+        return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
       }
     }
     return balance + ' ' + BitcoinUnit.BTC;
@@ -85,17 +86,18 @@ strings.formatBalance = (balance, unit) => {
 };
 
 strings.formatBalanceWithoutSuffix = (balance, unit) => {
+  const conversion = 100000000;
   if (balance !== 0) {
     let b = new BigNumber(balance);
     if (unit === BitcoinUnit.BTC) {
-      return b.multipliedBy(100).toString();
+      return Number(b.div(conversion))
     } else if (unit === BitcoinUnit.MBTC) {
       return b.multipliedBy(1000).toString();
     } else if (unit === BitcoinUnit.BITS) {
       return b.multipliedBy(1000000).toString();
     } else if (unit === BitcoinUnit.SATOSHIS) {
       return b
-        .multipliedBy(100000)
+        .times(conversion)
         .toString()
         .replace(/\./g, '');
     }

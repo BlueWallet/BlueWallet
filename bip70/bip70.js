@@ -1,11 +1,12 @@
 import Frisbee from 'frisbee';
 
 export class BitcoinBIP70Transaction {
-  constructor(amount, address, memo, fee) {
+  constructor(amount, address, memo, fee, expires) {
     this.amount = amount;
     this.address = address;
     this.memo = memo;
     this.fee = fee;
+    this.expires = expires;
   }
 }
 
@@ -43,6 +44,7 @@ export default class BitcoinBIP70TransactionDecode {
             parsedJSON.outputs[0].address,
             parsedJSON.memo,
             parsedJSON.requiredFeeRate.toFixed(0),
+            parsedJSON.expires,
           );
           console.log(decodedTransaction);
           resolve(decodedTransaction);
@@ -55,6 +57,12 @@ export default class BitcoinBIP70TransactionDecode {
         reject(err);
       }
     });
+  }
+
+  static isExpired(transactionExpires) {
+    const expires = new Date(transactionExpires).getTime();
+    const now = new Date().getTime();
+    return now > expires;
   }
 
   static matchesPaymentURL(data) {

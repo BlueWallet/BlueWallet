@@ -76,12 +76,15 @@ export default class SendDetails extends Component {
       memo,
       fee: 1,
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
+      feeSliderValue: 1,
+      bip70TransactionExpiration: null,
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
       if (btcAddressRx.test(data)) {
         this.setState({
           address: data,
+          bip70TransactionExpiration: null,
         });
       } else {
         const { address, options } = bip21.decode(data);
@@ -91,6 +94,7 @@ export default class SendDetails extends Component {
             address,
             amount: options.amount,
             memo: options.label,
+            bip70TransactionExpiration: null,
           });
         } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
           BitcoinBIP70TransactionDecode.decode(data)
@@ -100,6 +104,7 @@ export default class SendDetails extends Component {
                 amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
                 memo: response.memo,
                 fee: response.fee,
+                bip70TransactionExpiration: response.expires,
               });
             })
             .catch(error => alert(error.errorMessage));
@@ -112,9 +117,13 @@ export default class SendDetails extends Component {
 
   async componentDidMount() {
     let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
-      this.setState({ fee: response.halfHourFee, networkTransactionFees: response });
+      this.setState({ fee: response.halfHourFee, networkTransactionFees: response, feeSliderValue: response.halfHourFee });
     });
-    this.setState({ fee: recommendedFees.halfHourFee, networkTransactionFees: recommendedFees });
+    this.setState({
+      fee: recommendedFees.halfHourFee,
+      networkTransactionFees: recommendedFees,
+      feeSliderValue: recommendedFees.halfHourFee,
+    });
     let startTime = Date.now();
     console.log('send/details - componentDidMount');
     this.setState({
@@ -158,6 +167,9 @@ export default class SendDetails extends Component {
     } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), this.state.amount, 0) < 0) {
       // first sanity check is that sending amount is not bigger than available balance
       error = loc.send.details.total_exceeds_balance;
+      console.log('validation error');
+    } else if (BitcoinBIP70TransactionDecode.isExpired(this.state.bip70TransactionExpiration)) {
+      error = 'Transaction has expired.';
       console.log('validation error');
     }
 
@@ -260,9 +272,15 @@ export default class SendDetails extends Component {
                 ref={ref => {
                   this.textInput = ref;
                 }}
-                value={Number(this.state.fee).toFixed(0)}
+                value={this.state.fee.toString()}
+                onChangeText={value => {
+                  let newValue = value.replace(/\D/g, '');
+                  if (newValue.length === 0) {
+                    newValue = 1;
+                  }
+                  this.setState({ fee: newValue, feeSliderValue: newValue });
+                }}
                 maxLength={9}
-                onEndEditing={event => this.setState({ fee: event.nativeEvent.text.replace(/\D/g, '') })}
                 editable={!this.state.isLoading}
                 placeholderTextColor="#37c0a1"
                 placeholder={this.state.networkTransactionFees.halfHourFee.toString()}
@@ -285,10 +303,10 @@ export default class SendDetails extends Component {
             {this.state.networkTransactionFees.fastestFee > 1 && (
               <View style={{ flex: 1, marginTop: 32, minWidth: 240, width: 240 }}>
                 <Slider
-                  onValueChange={value => this.setState({ fee: value.toFixed(0) })}
+                  onValueChange={value => this.setState({ feeSliderValue: this.state.feeSliderValue, fee: value.toFixed(0) })}
                   minimumValue={1}
                   maximumValue={this.state.networkTransactionFees.fastestFee}
-                  value={Number(this.state.fee)}
+                  value={Number(this.state.feeSliderValue)}
                   maximumTrackTintColor="#d8d8d8"
                   minimumTrackTintColor="#37c0a1"
                   style={{ flex: 1 }}
@@ -322,7 +340,7 @@ export default class SendDetails extends Component {
               keyboardType="numeric"
               onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
               placeholder="0"
-              maxLength={8}
+              maxLength={10}
               editable={!this.state.isLoading}
               value={this.state.amount + ''}
               placeholderTextColor="#0f5cc0"
