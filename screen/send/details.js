@@ -10,7 +10,6 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Slider,
-  LayoutAnimation,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import { BlueHeaderDefaultSub, BlueButton } from '../../BlueComponents';
@@ -79,9 +78,6 @@ export default class SendDetails extends Component {
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
       feeSliderValue: 1,
       bip70TransactionExpiration: null,
-      showFeeRow: true,
-      showAddressRow: true,
-      showMemoRow: true,
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
@@ -352,7 +348,7 @@ export default class SendDetails extends Component {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           <KeyboardAvoidingView behavior="position">
-            <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 16 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
               <TextInput
                 keyboardType="numeric"
                 onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
@@ -365,23 +361,6 @@ export default class SendDetails extends Component {
                   color: '#0f5cc0',
                   fontSize: 36,
                   fontWeight: '600',
-                }}
-                onFocus={() => {
-                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                  this.setState({
-                    showFeeRow: false,
-                    showAddressRow: false,
-                    showMemoRow: false,
-                  });
-                }}
-                onBlur={() => {
-                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-                  this.setState({
-                    showFeeRow: true,
-                    showAddressRow: true,
-                    showMemoRow: true,
-                  });
                 }}
               />
               <Text
@@ -397,164 +376,123 @@ export default class SendDetails extends Component {
                 {' ' + BitcoinUnit.BTC}
               </Text>
             </View>
-            {this.state.showAddressRow && (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  borderColor: '#d2d2d2',
-                  borderBottomColor: '#d2d2d2',
-                  borderWidth: 1.0,
-                  borderBottomWidth: 0.5,
-                  backgroundColor: '#f5f5f5',
-                  minHeight: 44,
-                  height: 44,
-                  marginHorizontal: 20,
-                  alignItems: 'center',
-                  marginVertical: 8,
-                  borderRadius: 4,
-                }}
-              >
-                <TextInput
-                  onChangeText={text => {
-                    if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
-                      this.setState(
-                        {
-                          isLoading: true,
-                        },
-                        () => {
-                          BitcoinBIP70TransactionDecode.decode(text).then(response => {
-                            this.setState({
-                              address: response.address,
-                              amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
-                              memo: response.memo,
-                              fee: response.fee,
-                              bip70TransactionExpiration: response.expires,
-                              isLoading: false,
-                            });
+            <View
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                marginHorizontal: 20,
+                alignItems: 'center',
+                marginVertical: 8,
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                onChangeText={text => {
+                  if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
+                    this.setState(
+                      {
+                        isLoading: true,
+                      },
+                      () => {
+                        BitcoinBIP70TransactionDecode.decode(text).then(response => {
+                          this.setState({
+                            address: response.address,
+                            amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                            memo: response.memo,
+                            fee: response.fee,
+                            bip70TransactionExpiration: response.expires,
+                            isLoading: false,
                           });
-                        },
-                      );
-                    } else {
-                      this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
-                    }
-                  }}
-                  onFocus={() => {
-                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-                    this.setState({
-                      showFeeRow: false,
-                      showAddressRow: true,
-                      showMemoRow: false,
-                    });
-                  }}
-                  onBlur={() => {
-                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-                    this.setState({
-                      showFeeRow: true,
-                      showAddressRow: true,
-                      showMemoRow: true,
-                    });
-                  }}
-                  placeholder={loc.send.details.address}
-                  numberOfLines={1}
-                  value={this.state.address}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
-                  editable={!this.state.isLoading}
-                />
-                <TouchableOpacity
-                  disabled={this.state.isLoading}
-                  onPress={() => this.props.navigation.navigate('ScanQrAddress')}
-                  style={{
-                    width: 75,
-                    height: 36,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    backgroundColor: '#bebebe',
-                    borderRadius: 4,
-                    paddingVertical: 4,
-                    paddingHorizontal: 8,
-                    marginHorizontal: 4,
-                  }}
-                >
-                  <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
-                  <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {this.state.showMemoRow && (
-              <View
-                hide={!this.state.showMemoRow}
+                        });
+                      },
+                    );
+                  } else {
+                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                  }
+                }}
+                placeholder={loc.send.details.address}
+                numberOfLines={1}
+                value={this.state.address}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                editable={!this.state.isLoading}
+              />
+              <TouchableOpacity
+                disabled={this.state.isLoading}
+                onPress={() => this.props.navigation.navigate('ScanQrAddress')}
                 style={{
+                  width: 75,
+                  height: 36,
                   flexDirection: 'row',
-                  borderColor: '#d2d2d2',
-                  borderBottomColor: '#d2d2d2',
-                  borderWidth: 1.0,
-                  borderBottomWidth: 0.5,
-                  backgroundColor: '#f5f5f5',
-                  minHeight: 44,
-                  height: 44,
-                  marginHorizontal: 20,
                   alignItems: 'center',
-                  marginVertical: 8,
+                  justifyContent: 'space-between',
+                  backgroundColor: '#bebebe',
                   borderRadius: 4,
+                  paddingVertical: 4,
+                  paddingHorizontal: 8,
+                  marginHorizontal: 4,
                 }}
               >
-                <TextInput
-                  onChangeText={text => this.setState({ memo: text })}
-                  placeholder={loc.send.details.note_placeholder}
-                  onFocus={() => {
-                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-                    this.setState({
-                      showFeeRow: false,
-                      showAddressRow: false,
-                      showMemoRow: true,
-                    });
-                  }}
-                  onBlur={() => {
-                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
-                    this.setState({
-                      showFeeRow: true,
-                      showAddressRow: true,
-                      showMemoRow: true,
-                    });
-                  }}
-                  value={this.state.memo}
-                  numberOfLines={1}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
-                  editable={!this.state.isLoading}
-                />
-              </View>
-            )}
-
-            {this.state.showFeeRow && (
-              <TouchableOpacity
-                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
-                disabled={this.state.isLoading}
-                style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
-              >
-                <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
-                <View
-                  style={{
-                    backgroundColor: '#d2f8d6',
-                    minWidth: 40,
-                    height: 25,
-                    borderRadius: 4,
-                    justifyContent: 'space-between',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 10,
-                  }}
-                >
-                  <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
-                  <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
-                </View>
+                <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+                <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
               </TouchableOpacity>
+            </View>
             )}
-
+            <View
+              hide={!this.state.showMemoRow}
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                marginHorizontal: 20,
+                alignItems: 'center',
+                marginVertical: 8,
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                onChangeText={text => this.setState({ memo: text })}
+                placeholder={loc.send.details.note_placeholder}
+                value={this.state.memo}
+                numberOfLines={1}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                editable={!this.state.isLoading}
+              />
+            </View>
+            )}
+            <TouchableOpacity
+              onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+              disabled={this.state.isLoading}
+              style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
+            >
+              <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
+              <View
+                style={{
+                  backgroundColor: '#d2f8d6',
+                  minWidth: 40,
+                  height: 25,
+                  borderRadius: 4,
+                  justifyContent: 'space-between',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingHorizontal: 10,
+                }}
+              >
+                <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
+                <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+              </View>
+            </TouchableOpacity>
+            )}
             {this.renderCreateButton()}
             {this.renderFeeSelectionModal()}
           </KeyboardAvoidingView>
