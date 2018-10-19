@@ -33,7 +33,6 @@ export class BlueButton extends Component {
         delayPressIn={0}
         {...this.props}
         style={{
-          marginTop: 20,
           borderWidth: 0.7,
           borderColor: 'transparent',
         }}

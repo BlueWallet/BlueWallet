@@ -10,10 +10,10 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Slider,
+  LayoutAnimation,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import { BlueHeaderDefaultSub, BlueButton } from '../../BlueComponents';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -79,6 +79,9 @@ export default class SendDetails extends Component {
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
       feeSliderValue: 1,
       bip70TransactionExpiration: null,
+      showFeeRow: true,
+      showAddressRow: true,
+      showMemoRow: true,
     };
 
     EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
@@ -346,39 +349,55 @@ export default class SendDetails extends Component {
     }
 
     return (
-      <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-            <KeyboardAvoidingView behavior="position">
-              <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 76 }}>
-                <TextInput
-                  keyboardType="numeric"
-                  onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
-                  placeholder="0"
-                  maxLength={10}
-                  editable={!this.state.isLoading}
-                  value={this.state.amount + ''}
-                  placeholderTextColor="#0f5cc0"
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 36,
-                    fontWeight: '600',
-                  }}
-                />
-                <Text
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 16,
-                    marginHorizontal: 4,
-                    paddingBottom: 6,
-                    fontWeight: '600',
-                    alignSelf: 'flex-end',
-                  }}
-                >
-                  {' '}
-                  BTC
-                </Text>
-              </View>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+          <KeyboardAvoidingView behavior="position">
+            <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 16 }}>
+              <TextInput
+                keyboardType="numeric"
+                onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
+                placeholder="0"
+                maxLength={10}
+                editable={!this.state.isLoading}
+                value={this.state.amount + ''}
+                placeholderTextColor="#0f5cc0"
+                style={{
+                  color: '#0f5cc0',
+                  fontSize: 36,
+                  fontWeight: '600',
+                }}
+                onFocus={() => {
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  this.setState({
+                    showFeeRow: false,
+                    showAddressRow: false,
+                    showMemoRow: false,
+                  });
+                }}
+                onBlur={() => {
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+                  this.setState({
+                    showFeeRow: true,
+                    showAddressRow: true,
+                    showMemoRow: true,
+                  });
+                }}
+              />
+              <Text
+                style={{
+                  color: '#0f5cc0',
+                  fontSize: 16,
+                  marginHorizontal: 4,
+                  paddingBottom: 6,
+                  fontWeight: '600',
+                  alignSelf: 'flex-end',
+                }}
+              >
+                {' ' + BitcoinUnit.BTC}
+              </Text>
+            </View>
+            {this.state.showAddressRow && (
               <View
                 style={{
                   flexDirection: 'row',
@@ -391,7 +410,7 @@ export default class SendDetails extends Component {
                   height: 44,
                   marginHorizontal: 20,
                   alignItems: 'center',
-                  marginVertical: 16,
+                  marginVertical: 8,
                   borderRadius: 4,
                 }}
               >
@@ -419,6 +438,23 @@ export default class SendDetails extends Component {
                       this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
                     }
                   }}
+                  onFocus={() => {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                    this.setState({
+                      showFeeRow: false,
+                      showAddressRow: true,
+                      showMemoRow: false,
+                    });
+                  }}
+                  onBlur={() => {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+                    this.setState({
+                      showFeeRow: true,
+                      showAddressRow: true,
+                      showMemoRow: true,
+                    });
+                  }}
                   placeholder={loc.send.details.address}
                   numberOfLines={1}
                   value={this.state.address}
@@ -445,8 +481,11 @@ export default class SendDetails extends Component {
                   <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
                 </TouchableOpacity>
               </View>
+            )}
 
+            {this.state.showMemoRow && (
               <View
+                hide={!this.state.showMemoRow}
                 style={{
                   flexDirection: 'row',
                   borderColor: '#d2d2d2',
@@ -458,20 +497,40 @@ export default class SendDetails extends Component {
                   height: 44,
                   marginHorizontal: 20,
                   alignItems: 'center',
-                  marginVertical: 16,
+                  marginVertical: 8,
                   borderRadius: 4,
                 }}
               >
                 <TextInput
                   onChangeText={text => this.setState({ memo: text })}
                   placeholder={loc.send.details.note_placeholder}
+                  onFocus={() => {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+                    this.setState({
+                      showFeeRow: false,
+                      showAddressRow: false,
+                      showMemoRow: true,
+                    });
+                  }}
+                  onBlur={() => {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+                    this.setState({
+                      showFeeRow: true,
+                      showAddressRow: true,
+                      showMemoRow: true,
+                    });
+                  }}
                   value={this.state.memo}
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
                   editable={!this.state.isLoading}
                 />
               </View>
+            )}
 
+            {this.state.showFeeRow && (
               <TouchableOpacity
                 onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
                 disabled={this.state.isLoading}
@@ -494,12 +553,13 @@ export default class SendDetails extends Component {
                   <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
                 </View>
               </TouchableOpacity>
-              {this.renderFeeSelectionModal()}
-              {this.renderCreateButton()}
-            </KeyboardAvoidingView>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAwareScrollView>
+            )}
+
+            {this.renderCreateButton()}
+            {this.renderFeeSelectionModal()}
+          </KeyboardAvoidingView>
+        </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
