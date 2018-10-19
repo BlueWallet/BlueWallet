@@ -9,11 +9,11 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StyleSheet,
-  ScrollView,
   Slider,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
 import { BlueHeaderDefaultSub, BlueButton } from '../../BlueComponents';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -326,15 +326,13 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <KeyboardAvoidingView keyboardVerticalOffset={90} behavior="position" style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={{ paddingHorizontal: 56, paddingVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
-          {this.state.isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
-          )}
-        </View>
-      </KeyboardAvoidingView>
+      <View style={{ paddingHorizontal: 56, paddingVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
+        {this.state.isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <BlueButton onPress={() => this.createTransaction()} title={loc.send.details.create} />
+        )}
+      </View>
     );
   };
 
@@ -348,7 +346,7 @@ export default class SendDetails extends Component {
     }
 
     return (
-      <ScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
+      <KeyboardAwareScrollView style={{ flex: 1, backgroundColor: '#FFFFFF' }} keyboardShouldPersistTaps="always">
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 38, paddingBottom: 76 }}>
@@ -492,7 +490,7 @@ export default class SendDetails extends Component {
             {this.renderCreateButton()}
           </View>
         </TouchableWithoutFeedback>
-      </ScrollView>
+      </KeyboardAwareScrollView>
     );
   }
 }
