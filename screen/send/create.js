@@ -23,6 +23,7 @@ export default class SendCreate extends Component {
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
+      fromWallet: props.navigation.getParam('fromWallet'),
     };
   }
 
