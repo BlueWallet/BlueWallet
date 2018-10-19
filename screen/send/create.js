@@ -19,7 +19,6 @@ export default class SendCreate extends Component {
       fee: props.navigation.state.params.fee,
       address: props.navigation.state.params.address,
       memo: props.navigation.state.params.memo,
-      isLoading: false,
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
@@ -48,22 +47,6 @@ export default class SendCreate extends Component {
   }
 
   render() {
-    if (this.state.isError) {
-      return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-            <BlueText>{loc.send.create.error}</BlueText>
-            <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
-          </BlueCard>
-          <BlueButton onPress={() => this.props.navigation.goBack()} title={loc.send.create.go_back} />
-        </SafeBlueArea>
-      );
-    }
-
-    if (this.state.isLoading) {
-      return <BlueLoading />;
-    }
-
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
         <ScrollView>
@@ -93,7 +76,7 @@ export default class SendCreate extends Component {
               <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
             </TouchableOpacity>
 
-            <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} />
+            <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} style={{ maxWidth: 263, paddingHorizontal: 56 }}/>
           </BlueCard>
           <BlueCard>
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
@@ -114,8 +97,6 @@ export default class SendCreate extends Component {
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
             <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
           </BlueCard>
-
-          <Text style={{ padding: 0, color: '#0f0' }}>{this.state.broadcastSuccessMessage}</Text>
         </ScrollView>
       </SafeBlueArea>
     );
