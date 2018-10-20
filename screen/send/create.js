@@ -1,8 +1,8 @@
 /* global alert */
 import React, { Component } from 'react';
-import { TextInput, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
-import { Text, FormValidationMessage } from 'react-native-elements';
-import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import { TextInput, ActivityIndicator, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
+import { Text } from 'react-native-elements';
+import { BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 // let BlueApp = require('../../BlueApp');
@@ -15,6 +15,7 @@ export default class SendCreate extends Component {
     console.log('send/create constructor');
 
     this.state = {
+      isLoading: false,
       amount: props.navigation.state.params.amount,
       fee: props.navigation.state.params.fee,
       address: props.navigation.state.params.address,
@@ -31,19 +32,22 @@ export default class SendCreate extends Component {
     console.log('address = ', this.state.address);
   }
 
-  async broadcast() {
-    let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-    console.log('broadcast result = ', result);
-    if (typeof result === 'string') {
-      result = JSON.parse(result);
-    }
-    if (result && result.error) {
-      alert(JSON.stringify(result.error));
-    } else {
-      EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-      alert('Transaction has been successfully broadcasted. Your transaction ID is: ' + JSON.stringify(result.result));
-      this.props.navigation.navigate('Wallets');
-    }
+  broadcast() {
+    this.setState({ isLoading: true }, async () => {
+      let result = await this.state.fromWallet.broadcastTx(this.state.tx);
+      console.log('broadcast result = ', result);
+      if (typeof result === 'string') {
+        result = JSON.parse(result);
+      }
+      this.setState({ isLoading: false });
+      if (result && result.error) {
+        alert(JSON.stringify(result.error));
+      } else {
+        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+        alert('Transaction has been successfully broadcasted. Your transaction ID is: ' + JSON.stringify(result.result));
+        this.props.navigation.navigate('Wallets');
+      }
+    });
   }
 
   render() {
@@ -75,8 +79,11 @@ export default class SendCreate extends Component {
             <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
               <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
             </TouchableOpacity>
-
-            <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} style={{ maxWidth: 263, paddingHorizontal: 56 }}/>
+            {this.state.isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} style={{ maxWidth: 263, paddingHorizontal: 56 }} />
+            )}
           </BlueCard>
           <BlueCard>
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
