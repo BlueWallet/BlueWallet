@@ -345,14 +345,14 @@ export class AbstractHDWallet extends LegacyWallet {
     }
 
     // no luck - lets iterate over all addressess we have up to first unused address index
-    for (let c = 0; c <= this.next_free_change_address_index; c++) {
+    for (let c = 0; c <= this.next_free_change_address_index + 3; c++) {
       let possibleAddress = this._getInternalAddressByIndex(c);
       if (possibleAddress === address) {
         return (this._address_to_wif_cache[address] = this._getInternalWIFByIndex(c));
       }
     }
 
-    for (let c = 0; c <= this.next_free_address_index; c++) {
+    for (let c = 0; c <= this.next_free_address_index + 3; c++) {
       let possibleAddress = this._getExternalAddressByIndex(c);
       if (possibleAddress === address) {
         return (this._address_to_wif_cache[address] = this._getExternalWIFByIndex(c));

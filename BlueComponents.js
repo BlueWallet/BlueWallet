@@ -33,13 +33,13 @@ export class BlueButton extends Component {
         delayPressIn={0}
         {...this.props}
         style={{
-          marginTop: 20,
           borderWidth: 0.7,
           borderColor: 'transparent',
         }}
         buttonStyle={Object.assign(
           {
             backgroundColor: '#ccddf9',
+            minHeight: 45,
             height: 45,
             borderWidth: 0,
             borderRadius: 25,
@@ -668,8 +668,8 @@ export class BlueReceiveButtonIcon extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              width: 110,
-              height: 40,
+              minWidth: 110,
+              minHeight: 40,
               position: 'relative',
               backgroundColor: '#ccddf9',
               alignItems: 'center',
@@ -677,9 +677,8 @@ export class BlueReceiveButtonIcon extends Component {
           >
             <View
               style={{
-                width: 30,
-                height: 30,
-                borderBottomLeftRadius: 15,
+                minWidth: 30,
+                minHeight: 30,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '-45deg' }],
                 alignItems: 'center',
@@ -716,7 +715,6 @@ export class BlueSendButtonIcon extends Component {
               flexDirection: 'row',
               width: 110,
               height: 40,
-              position: 'relative',
               backgroundColor: '#ccddf9',
               alignItems: 'center',
               paddingLeft: 15,
@@ -724,10 +722,9 @@ export class BlueSendButtonIcon extends Component {
           >
             <View
               style={{
-                width: 30,
-                height: 30,
+                minWidth: 30,
+                minHeight: 30,
                 left: 5,
-                borderBottomLeftRadius: 15,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '225deg' }],
               }}
@@ -760,9 +757,8 @@ export class ManageFundsBigButton extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              width: 160,
-              height: 40,
-              position: 'relative',
+              minWidth: 160,
+              minHeight: 40,
               backgroundColor: '#ccddf9',
               alignItems: 'center',
             }}
@@ -782,7 +778,6 @@ export class ManageFundsBigButton extends Component {
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 backgroundColor: 'transparent',
-                position: 'relative',
               }}
             >
               {loc.lnd.title}

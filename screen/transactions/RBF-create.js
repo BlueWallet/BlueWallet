@@ -78,11 +78,11 @@ export default class SendCreate extends Component {
         changeAddress = o.addresses[0];
       } else {
         transferAmount = new BigNumber(o.value);
-        transferAmount = transferAmount.div(100000000).toString(10);
+        transferAmount = transferAmount.dividedBy(100000000).toString(10);
       }
     }
     let oldFee = new BigNumber(totalInputAmountSatoshi - totalOutputAmountSatoshi);
-    oldFee = parseFloat(oldFee.div(100000000).toString(10));
+    oldFee = parseFloat(oldFee.dividedBy(100000000).toString(10));
 
     console.log('changeAddress = ', changeAddress);
     console.log('utxo', utxo);
@@ -93,7 +93,7 @@ export default class SendCreate extends Component {
     console.log('oldFee', oldFee);
 
     let newFee = new BigNumber(oldFee);
-    newFee = newFee.add(this.state.feeDelta).toString(10);
+    newFee = newFee.plus(this.state.feeDelta).toString(10);
     console.log('new Fee', newFee);
 
     // creating TX
@@ -124,7 +124,7 @@ export default class SendCreate extends Component {
       }
 
       let newFeeSatoshi = new BigNumber(newFee);
-      newFeeSatoshi = parseInt(newFeeSatoshi.mul(100000000));
+      newFeeSatoshi = parseInt(newFeeSatoshi.multipliedBy(100000000));
       let satoshiPerByte = Math.round(newFeeSatoshi / (tx.length / 2));
       this.setState({
         isLoading: false,

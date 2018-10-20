@@ -368,7 +368,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getBalance() {
-    return new BigNumber(this.balance).div(100000000).toString(10);
+    return new BigNumber(this.balance).dividedBy(100000000).toString(10);
   }
 
   async fetchBalance(noRetry) {

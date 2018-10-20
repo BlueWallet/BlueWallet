@@ -55,6 +55,25 @@ const WalletsStackNavigator = createStackNavigator({
   },
 });
 
+const CreateTransactionStackNavigator = createStackNavigator({
+  SendDetails: {
+    screen: sendDetails,
+  },
+  ScanQrAddress: {
+    screen: sendScanQrAddress,
+  },
+  CreateTransaction: {
+    screen: sendCreate,
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 0,
+      },
+      headerTintColor: '#0c2550',
+    },
+  },
+});
+
 const Tabs = createStackNavigator(
   {
     Wallets: {
@@ -83,6 +102,12 @@ const Tabs = createStackNavigator(
       screen: WalletExport,
     },
     //
+    SendDetails: {
+      screen: CreateTransactionStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
 
     TransactionDetails: {
       screen: details,
@@ -101,16 +126,6 @@ const Tabs = createStackNavigator(
     },
 
     //
-
-    SendDetails: {
-      screen: sendDetails,
-    },
-    ScanQrAddress: {
-      screen: sendScanQrAddress,
-    },
-    CreateTransaction: {
-      screen: sendCreate,
-    },
 
     // LND:
 

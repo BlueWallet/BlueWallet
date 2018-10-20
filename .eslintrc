@@ -13,5 +13,9 @@
         trailingComma: 'all'
       }
     ]
-  }
+  },
+  "env":{
+    "es6": true
+  },
+  "globals": { "fetch": false }
 }

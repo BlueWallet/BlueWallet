@@ -1,236 +1,145 @@
+/* global alert */
 import React, { Component } from 'react';
-import { TextInput } from 'react-native';
-import { Text, FormValidationMessage } from 'react-native-elements';
-import {
-  BlueSpacingVariable,
-  BlueHeaderDefaultSub,
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-} from '../../BlueComponents';
+import { TextInput, ActivityIndicator, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
+import { Text } from 'react-native-elements';
+import { BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+// let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let EV = require('../../events');
 
 export default class SendCreate extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.send.create.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
-
   constructor(props) {
     super(props);
     console.log('send/create constructor');
+
     this.state = {
-      isLoading: true,
+      isLoading: false,
       amount: props.navigation.state.params.amount,
       fee: props.navigation.state.params.fee,
       address: props.navigation.state.params.address,
       memo: props.navigation.state.params.memo,
-      fromAddress: props.navigation.state.params.fromAddress,
-      fromSecret: props.navigation.state.params.fromSecret,
-      broadcastErrorMessage: '',
+      size: Math.round(props.navigation.getParam('tx').length / 2),
+      tx: props.navigation.getParam('tx'),
+      satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
+      fromWallet: props.navigation.getParam('fromWallet'),
     };
-
-    let fromWallet = false;
-    for (let w of BlueApp.getWallets()) {
-      if (w.getSecret() === this.state.fromSecret) {
-        fromWallet = w;
-        break;
-      }
-
-      if (w.getAddress() && w.getAddress() === this.state.fromAddress) {
-        fromWallet = w;
-        break;
-      }
-    }
-    this.state['fromWallet'] = fromWallet;
   }
 
   async componentDidMount() {
     console.log('send/create - componentDidMount');
     console.log('address = ', this.state.address);
+  }
 
-    let utxo;
-    let satoshiPerByte;
-    let tx;
-
-    try {
-      await this.state.fromWallet.fetchUtxo();
-      if (this.state.fromWallet.getChangeAddressAsync) {
-        await this.state.fromWallet.getChangeAddressAsync(); // to refresh internal pointer to next free address
+  broadcast() {
+    this.setState({ isLoading: true }, async () => {
+      let result = await this.state.fromWallet.broadcastTx(this.state.tx);
+      console.log('broadcast result = ', result);
+      if (typeof result === 'string') {
+        result = JSON.parse(result);
       }
-      if (this.state.fromWallet.getAddressAsync) {
-        await this.state.fromWallet.getAddressAsync(); // to refresh internal pointer to next free address
+      this.setState({ isLoading: false });
+      if (result && result.error) {
+        alert(JSON.stringify(result.error));
+      } else {
+        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+        alert('Transaction has been successfully broadcasted. Your transaction ID is: ' + JSON.stringify(result.result));
+        this.props.navigation.navigate('Wallets');
       }
-
-      utxo = this.state.fromWallet.utxo;
-      let startTime = Date.now();
-
-      tx = this.state.fromWallet.createTx(utxo, this.state.amount, this.state.fee, this.state.address, this.state.memo);
-      let endTime = Date.now();
-      console.log('create tx ', (endTime - startTime) / 1000, 'sec');
-
-      let bitcoin = require('bitcoinjs-lib');
-      let txDecoded = bitcoin.Transaction.fromHex(tx);
-      let txid = txDecoded.getId();
-      console.log('txid', txid);
-      console.log('txhex', tx);
-
-      BlueApp.tx_metadata = BlueApp.tx_metadata || {};
-      BlueApp.tx_metadata[txid] = {
-        txhex: tx,
-        memo: this.state.memo,
-      };
-      BlueApp.saveToDisk();
-
-      let feeSatoshi = new BigNumber(this.state.fee);
-      feeSatoshi = feeSatoshi.mul(100000000);
-      satoshiPerByte = feeSatoshi.div(Math.round(tx.length / 2));
-      satoshiPerByte = Math.floor(satoshiPerByte.toString(10));
-      if (satoshiPerByte < 1) {
-        throw new Error(loc.send.create.not_enough_fee);
-      }
-    } catch (err) {
-      console.log(err);
-      return this.setState({
-        isError: true,
-        errorMessage: JSON.stringify(err.message),
-      });
-    }
-
-    this.setState({
-      isLoading: false,
-      size: Math.round(tx.length / 2),
-      tx,
-      satoshiPerByte,
     });
   }
 
-  async broadcast() {
-    let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-    console.log('broadcast result = ', result);
-    if (typeof result === 'string') {
-      result = JSON.parse(result);
-    }
-    if (result && result.error) {
-      this.setState({
-        broadcastErrorMessage: JSON.stringify(result.error),
-        broadcastSuccessMessage: '',
-      });
-    } else {
-      EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-      this.setState({ broadcastErrorMessage: '' });
-      this.setState({
-        broadcastSuccessMessage: 'Success! TXID: ' + JSON.stringify(result.result),
-      });
-    }
-  }
-
   render() {
-    if (this.state.isError) {
-      return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-            <BlueText>{loc.send.create.error}</BlueText>
-            <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
-          </BlueCard>
-          <BlueButton onPress={() => this.props.navigation.goBack()} title={loc.send.create.go_back} />
-        </SafeBlueArea>
-      );
-    }
-
-    if (this.state.isLoading) {
-      return <BlueLoading />;
-    }
-
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <BlueSpacingVariable />
+      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+        <ScrollView>
+          <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+            <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
 
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText>{loc.send.create.this_is_hex}</BlueText>
+            <TextInput
+              style={{
+                borderColor: '#ebebeb',
+                backgroundColor: '#d2f8d6',
+                borderRadius: 4,
+                marginTop: 20,
+                color: '#37c0a1',
+                fontWeight: '500',
+                fontSize: 14,
+                paddingHorizontal: 16,
+                paddingBottom: 16,
+                paddingTop: 16,
+              }}
+              height={72}
+              multiline
+              editable={false}
+              value={this.state.tx}
+            />
 
-          <TextInput
-            style={{
-              borderColor: '#ebebeb',
-              borderWidth: 1,
-              marginTop: 20,
-              color: '#ebebeb',
-            }}
-            maxHeight={70}
-            multiline
-            editable={false}
-            value={this.state.tx}
-          />
+            <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
+              <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+            </TouchableOpacity>
+            {this.state.isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} style={{ maxWidth: 263, paddingHorizontal: 56 }} />
+            )}
+          </BlueCard>
+          <BlueCard>
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
 
-          <BlueSpacing20 />
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} BTC</Text>
 
-          <BlueText style={{ paddingTop: 20 }}>
-            {loc.send.create.to}: {this.state.address}
-          </BlueText>
-          <BlueText>
-            {loc.send.create.amount}: {this.state.amount} BTC
-          </BlueText>
-          <BlueText>
-            {loc.send.create.fee}: {this.state.fee} BTC
-          </BlueText>
-          <BlueText>
-            {loc.send.create.tx_size}: {this.state.size} Bytes
-          </BlueText>
-          <BlueText>
-            {loc.send.create.satoshi_per_byte}: {this.state.satoshiPerByte} Sat/B
-          </BlueText>
-          <BlueText>
-            {loc.send.create.memo}: {this.state.memo}
-          </BlueText>
-        </BlueCard>
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.fee} BTC</Text>
 
-        <BlueButton
-          icon={{
-            name: 'megaphone',
-            type: 'octicon',
-            color: BlueApp.settings.buttonTextColor,
-          }}
-          onPress={() => this.broadcast()}
-          title={loc.send.create.broadcast}
-        />
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
 
-        <BlueButton
-          icon={{
-            name: 'arrow-left',
-            type: 'octicon',
-            color: BlueApp.settings.buttonTextColor,
-          }}
-          onPress={() => this.props.navigation.goBack()}
-          title={loc.send.create.go_back}
-        />
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
 
-        <FormValidationMessage>{this.state.broadcastErrorMessage}</FormValidationMessage>
-        <Text style={{ padding: 0, color: '#0f0' }}>{this.state.broadcastSuccessMessage}</Text>
+            <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
+            <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
+          </BlueCard>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
 }
 
+const styles = StyleSheet.create({
+  transactionDetailsTitle: {
+    color: '#0c2550',
+    fontWeight: '500',
+    fontSize: 17,
+    marginBottom: 2,
+  },
+  transactionDetailsSubtitle: {
+    color: '#9aa0aa',
+    fontWeight: '500',
+    fontSize: 15,
+    marginBottom: 20,
+  },
+});
+
 SendCreate.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    getParam: PropTypes.function,
+    navigate: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,
-        fee: PropTypes.string,
+        fee: PropTypes.number,
         address: PropTypes.string,
         memo: PropTypes.string,
-        fromAddress: PropTypes.string,
-        fromSecret: PropTypes.string,
+        fromWallet: PropTypes.shape({
+          fromAddress: PropTypes.string,
+          fromSecret: PropTypes.string,
+        }),
       }),
     }),
   }),

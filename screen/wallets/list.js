@@ -346,7 +346,7 @@ export default class WalletsList extends Component {
                       containerStyle: { marginTop: 0 },
                     }}
                     hideChevron
-                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).div(100000000).toString()}
+                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000).toString()}
                     rightTitleStyle={{
                       fontWeight: '600',
                       fontSize: 16,

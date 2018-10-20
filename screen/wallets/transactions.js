@@ -24,7 +24,9 @@ import {
   BlueListItem,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
+
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const BigNumber = require('bignumber.js');
@@ -61,8 +63,8 @@ export default class WalletTransactions extends Component {
       wallet: props.navigation.getParam('wallet'),
       gradientColors: ['#FFFFFF', '#FFFFFF'],
       dataSource: props.navigation.getParam('wallet').getTransactions(),
+      walletBalanceUnit: BitcoinUnit.MBTC,
     };
-
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
   }
@@ -197,6 +199,18 @@ export default class WalletTransactions extends Component {
     );
   }
 
+  changeWalletBalanceUnit() {
+    if (this.state.walletBalanceUnit === undefined || this.state.walletBalanceUnit === BitcoinUnit.BTC) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.MBTC });
+    } else if (this.state.walletBalanceUnit === BitcoinUnit.MBTC) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.BITS });
+    } else if (this.state.walletBalanceUnit === BitcoinUnit.BITS) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.SATOSHIS });
+    } else if (this.state.walletBalanceUnit === BitcoinUnit.SATOSHIS) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.BTC });
+    }
+  }
+
   renderWalletHeader = () => {
     return (
       <LinearGradient colors={[this.state.gradientColors[0], this.state.gradientColors[1]]} style={{ padding: 15, height: 164 }}>
@@ -225,18 +239,20 @@ export default class WalletTransactions extends Component {
         >
           {this.state.wallet.getLabel()}
         </Text>
-        <Text
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          style={{
-            backgroundColor: 'transparent',
-            fontWeight: 'bold',
-            fontSize: 36,
-            color: '#fff',
-          }}
-        >
-          {loc.formatBalance(this.state.wallet.getBalance())}
-        </Text>
+        <TouchableOpacity onPress={() => this.changeWalletBalanceUnit()}>
+          <Text
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            style={{
+              backgroundColor: 'transparent',
+              fontWeight: 'bold',
+              fontSize: 36,
+              color: '#fff',
+            }}
+          >
+            {loc.formatBalance(this.state.wallet.getBalance(), this.state.walletBalanceUnit)}
+          </Text>
+        </TouchableOpacity>
         <Text style={{ backgroundColor: 'transparent' }} />
         <Text
           numberOfLines={1}
@@ -420,7 +436,7 @@ export default class WalletTransactions extends Component {
                       containerStyle: { marginTop: 0 },
                     }}
                     hideChevron
-                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).div(100000000).toString()}
+                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000).toString()}
                     rightTitleStyle={{
                       fontWeight: '600',
                       fontSize: 16,
