@@ -19,6 +19,7 @@ import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+const entropy = require('../../entropy');
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -208,11 +209,20 @@ export default class WalletsAdd extends Component {
                     w = new HDSegwitP2SHWallet();
                     w.setLabel((this.state.label || loc.wallets.add.label_new_segwit) + ' HD');
                   }
-                  w.generate();
-                  BlueApp.wallets.push(w);
-                  await BlueApp.saveToDisk();
-                  EV(EV.enum.WALLETS_COUNT_CHANGED);
-                  A(A.ENUM.CREATED_WALLET);
+
+                  let intervalId;
+                  intervalId = setInterval(async () => {
+                    if (entropy.gotEnoughEntropy()) {
+                      w.generate();
+                      BlueApp.wallets.push(w);
+                      await BlueApp.saveToDisk();
+                      EV(EV.enum.WALLETS_COUNT_CHANGED);
+                      A(A.ENUM.CREATED_WALLET);
+                      clearInterval(intervalId);
+                    } else {
+                      console.log('dont have enough entropy, waiting to get some');
+                    }
+                  }, 500);
                 }, 1);
               }}
             />
