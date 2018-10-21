@@ -15,6 +15,7 @@ export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LANG = 'lang';
   static CURRENCY = 'currency';
+  static ENTROPY = 'entropy';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
