@@ -50,6 +50,7 @@ export default class About extends Component {
         <ScrollView>
           <BlueCard>
             <BlueText h4>BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.</BlueText>
+            <BlueSpacing20 />
 
             <BlueButton
               icon={{
@@ -62,6 +63,7 @@ export default class About extends Component {
               }}
               title="github.com/BlueWallet/BlueWallet"
             />
+            <BlueSpacing20 />
 
             <BlueButton
               icon={{
@@ -74,6 +76,7 @@ export default class About extends Component {
               }}
               title="Follow us on Twitter"
             />
+            <BlueSpacing20 />
 
             <BlueButton
               icon={{
@@ -100,6 +103,7 @@ export default class About extends Component {
             <BlueText h4>* rn-nodeify</BlueText>
             <BlueText h4>* bignumber.js</BlueText>
             <BlueText h4>* https://github.com/StefanoBalocco/isaac.js</BlueText>
+            <BlueSpacing20 />
 
             <BlueButton
               onPress={() => {

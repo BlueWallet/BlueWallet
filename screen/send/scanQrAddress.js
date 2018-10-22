@@ -2,7 +2,9 @@ import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { Permissions, BarCodeScanner } from 'expo';
 import PropTypes from 'prop-types';
+import { SafeBlueArea } from '../../BlueComponents';
 let EV = require('../../events');
+let loc = require('../../loc');
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
@@ -46,7 +48,7 @@ export default class CameraExample extends React.Component {
       return <Text>No access to camera</Text>;
     } else {
       return (
-        <View style={{ flex: 1 }}>
+        <SafeBlueArea style={{ flex: 1 }}>
           <BarCodeScanner style={{ flex: 1 }} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
             <View
               style={{
@@ -57,16 +59,17 @@ export default class CameraExample extends React.Component {
             >
               <TouchableOpacity
                 style={{
-                  flex: 0.2,
                   alignSelf: 'flex-end',
                   alignItems: 'center',
+                  marginBottom: 20,
+                  marginLeft: 16,
                 }}
               >
-                <Button style={{ fontSize: 18, marginBottom: 10 }} title="Go back" onPress={() => this.props.navigation.goBack()} />
+                <Button style={{ fontSize: 18 }} title={loc.send.details.cancel} onPress={() => this.props.navigation.goBack()} />
               </TouchableOpacity>
             </View>
           </BarCodeScanner>
-        </View>
+        </SafeBlueArea>
       );
     }
   }

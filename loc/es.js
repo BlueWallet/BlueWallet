@@ -44,6 +44,8 @@ module.exports = {
       address: 'Dirección',
       type: 'Tipo',
       label: 'Etiqueta',
+      destination: 'destino',
+      description: 'descripcion',
       are_you_sure: '¿Estás seguro?',
       yes_delete: 'Si, eliminar',
       no_cancel: 'No, cancelar',

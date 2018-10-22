@@ -44,6 +44,8 @@ module.exports = {
       address: 'Адреса',
       type: 'Тип',
       label: 'Мітка',
+      destination: 'destination',
+      description: 'description',
       are_you_sure: 'Ви впевнені?',
       yes_delete: 'Так, видалити',
       no_cancel: 'Ні, відміна',

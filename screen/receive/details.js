@@ -85,7 +85,7 @@ export default class ReceiveDetails extends Component {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
             <QRCode
               value={this.state.address}
               size={(is.ipad() && 300) || 300}
@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
     marginVertical: 32,
     fontSize: 15,
     color: '#9aa0aa',
+    textAlign: 'center',
   },
 });
 

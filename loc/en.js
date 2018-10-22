@@ -44,6 +44,8 @@ module.exports = {
       address: 'Address',
       type: 'Type',
       label: 'Label',
+      destination: 'destination',
+      description: 'description',
       are_you_sure: 'Are you sure?',
       yes_delete: 'Yes, delete',
       no_cancel: 'No, cancel',

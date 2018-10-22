@@ -44,6 +44,8 @@ module.exports = {
       address: 'Endereço',
       type: 'Tipo',
       label: 'Nome',
+      destination: 'destination',
+      description: 'description',
       are_you_sure: 'Tem a certeza?',
       yes_delete: 'Sim, eliminar',
       no_cancel: 'Não, cancelar',

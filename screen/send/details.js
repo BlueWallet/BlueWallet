@@ -400,6 +400,7 @@ export default class SendDetails extends Component {
                         isLoading: true,
                       },
                       () => {
+                        Keyboard.dismiss();
                         BitcoinBIP70TransactionDecode.decode(text).then(response => {
                           this.setState({
                             address: response.address,
