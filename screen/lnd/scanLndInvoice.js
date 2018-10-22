@@ -1,6 +1,6 @@
 /* global alert */
 import React from 'react';
-import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TouchableWithoutFeedback, TextInput, Keyboard } from 'react-native';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
@@ -124,122 +124,131 @@ export default class ScanLndInvoice extends React.Component {
 
   render() {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <Text style={{ textAlign: 'center', fontSize: 50, fontWeight: '700', color: '#2f5fb3' }}>
-          {this.state.hasOwnProperty('decoded') && currency.satoshiToLocalCurrency(this.state.decoded.num_satoshis)}
-        </Text>
-        <Text style={{ textAlign: 'center', fontSize: 25, fontWeight: '600', color: '#d4d4d4' }}>
-          {this.state.hasOwnProperty('decoded') && currency.satoshiToBTC(this.state.decoded.num_satoshis)}
-        </Text>
-        <BlueSpacing20 />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+          <Text style={{ textAlign: 'center', fontSize: 50, fontWeight: '700', color: '#2f5fb3' }}>
+            {this.state.hasOwnProperty('decoded') &&
+              this.state.decoded !== undefined &&
+              currency.satoshiToLocalCurrency(this.state.decoded.num_satoshis)}
+          </Text>
+          <Text style={{ textAlign: 'center', fontSize: 25, fontWeight: '600', color: '#d4d4d4' }}>
+            {this.state.hasOwnProperty('decoded') &&
+              this.state.decoded !== undefined &&
+              currency.satoshiToBTC(this.state.decoded.num_satoshis)}
+          </Text>
+          <BlueSpacing20 />
 
-        <BlueCard>
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              marginHorizontal: 20,
-              alignItems: 'center',
-              marginVertical: 8,
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              onChangeText={text => {
-                if (text.toLowerCase().startsWith('lnb')) {
-                  this.processInvoice(text);
-                }
-              }}
-              placeholder={loc.wallets.details.destination}
-              numberOfLines={1}
-              value={this.state.hasOwnProperty('decoded') ? this.state.decoded.destination : ''}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
-              editable={!this.state.isLoading}
-            />
-            <TouchableOpacity
-              disabled={this.state.isLoading}
-              onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+          <BlueCard>
+            <View
               style={{
-                width: 75,
-                height: 36,
                 flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                marginHorizontal: 20,
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: '#bebebe',
+                marginVertical: 8,
                 borderRadius: 4,
-                paddingVertical: 4,
-                paddingHorizontal: 8,
-                marginHorizontal: 4,
               }}
             >
-              <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
-              <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
-            </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              marginHorizontal: 20,
-              alignItems: 'center',
-              marginVertical: 8,
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              onChangeText={text => {}}
-              placeholder={loc.wallets.details.description}
-              numberOfLines={1}
-              value={this.state.hasOwnProperty('decoded') ? this.state.decoded.description : ''}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
-              editable={!this.state.isLoading}
-            />
-          </View>
-          {this.state.expiresIn && (
-            <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
-          )}
-        </BlueCard>
+              <TextInput
+                onChangeText={text => {
+                  if (text.toLowerCase().startsWith('lnb')) {
+                    this.processInvoice(text);
+                  } else {
+                    this.setState({ decoded: undefined, expiresIn: undefined });
+                  }
+                }}
+                placeholder={loc.wallets.details.destination}
+                numberOfLines={1}
+                value={this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.destination : ''}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                editable={!this.state.isLoading}
+              />
+              <TouchableOpacity
+                disabled={this.state.isLoading}
+                onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+                style={{
+                  width: 75,
+                  height: 36,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#bebebe',
+                  borderRadius: 4,
+                  paddingVertical: 4,
+                  paddingHorizontal: 8,
+                  marginHorizontal: 4,
+                }}
+              >
+                <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+                <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+              </TouchableOpacity>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                marginHorizontal: 20,
+                alignItems: 'center',
+                marginVertical: 8,
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                onChangeText={text => {}}
+                placeholder={loc.wallets.details.description}
+                numberOfLines={1}
+                value={this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.description : ''}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                editable={!this.state.isLoading}
+              />
+            </View>
+            {this.state.expiresIn !== undefined && (
+              <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
+            )}
+          </BlueCard>
 
-        <BlueSpacing20 />
+          <BlueSpacing20 />
 
-        {this.state.hasOwnProperty('decoded') &&
-          (() => {
-            if (this.state.isPayingInProgress) {
-              return (
-                <View>
-                  <ActivityIndicator />
-                </View>
-              );
-            } else {
-              return (
-                <BlueButton
-                  icon={{
-                    name: 'bolt',
-                    type: 'font-awesome',
-                    color: BlueApp.settings.buttonTextColor,
-                  }}
-                  title={'Pay'}
-                  buttonStyle={{ width: 150, left: (width - 150) / 2 - 20 }}
-                  onPress={() => {
-                    this.pay();
-                  }}
-                />
-              );
-            }
-          })()}
-      </SafeBlueArea>
+          {this.state.hasOwnProperty('decoded') &&
+            this.state.decoded !== undefined &&
+            (() => {
+              if (this.state.isPayingInProgress) {
+                return (
+                  <View>
+                    <ActivityIndicator />
+                  </View>
+                );
+              } else {
+                return (
+                  <BlueButton
+                    icon={{
+                      name: 'bolt',
+                      type: 'font-awesome',
+                      color: BlueApp.settings.buttonTextColor,
+                    }}
+                    title={'Pay'}
+                    buttonStyle={{ width: 150, left: (width - 150) / 2 - 20 }}
+                    onPress={() => {
+                      this.pay();
+                    }}
+                  />
+                );
+              }
+            })()}
+        </SafeBlueArea>
+      </TouchableWithoutFeedback>
     );
   }
 }
