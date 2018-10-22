@@ -5,6 +5,7 @@ import { AppStorage } from './class';
 let prompt = require('./prompt');
 let EV = require('./events');
 let currency = require('./currency');
+let entropy = require('./entropy');
 let loc = require('./loc');
 let A = require('./analytics');
 
@@ -62,5 +63,6 @@ async function startAndDecrypt(retry) {
 A(A.ENUM.INIT);
 startAndDecrypt();
 currency.startUpdater();
+entropy.start();
 
 module.exports = BlueApp;

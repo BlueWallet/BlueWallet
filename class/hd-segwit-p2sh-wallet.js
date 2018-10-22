@@ -6,6 +6,7 @@ const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
 const b58 = require('bs58check');
 const signer = require('../models/signer');
+const entropy = require('../entropy');
 
 /**
  * HD Wallet (BIP39).
@@ -29,12 +30,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   generate() {
     let c = 32;
     let totalhex = '';
-    for (let i = 0; i < c; i++) {
-      let randomNumber = isaac.random();
-      randomNumber = Math.floor(randomNumber * 256);
-      let n = new BigNumber(randomNumber);
-      let hex = n.toString(16);
-      if (hex.length === 1) {
+    for (let i = 0; i < c / 4; i++) {
+      isaac.seed(entropy.get32bitInt());
+      let randomNumber = isaac.rand(); // got 32bit signed int
+      randomNumber = randomNumber >>> 0; // cast signed to unsigned
+      let hex = randomNumber.toString(16);
+      while (hex.length < 8) {
         hex = '0' + hex;
       }
       totalhex += hex;
