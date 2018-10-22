@@ -3,6 +3,7 @@ import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-n
 import { Permissions, BarCodeScanner } from 'expo';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
+let loc = require('../../loc');
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
@@ -57,12 +58,12 @@ export default class CameraExample extends React.Component {
             >
               <TouchableOpacity
                 style={{
-                  flex: 0.2,
                   alignSelf: 'flex-end',
                   alignItems: 'center',
+                  marginBottom: 20,
                 }}
               >
-                <Button style={{ fontSize: 18, marginBottom: 10 }} title="Go back" onPress={() => this.props.navigation.goBack()} />
+                <Button style={{ fontSize: 18 }} title={loc.send.details.cancel} onPress={() => this.props.navigation.goBack()} />
               </TouchableOpacity>
             </View>
           </BarCodeScanner>

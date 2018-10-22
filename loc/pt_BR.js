@@ -44,6 +44,8 @@ module.exports = {
       title: 'wallet',
       address: 'Endereço',
       type: 'Tipo',
+      destination: 'destino',
+      description: 'descripcion',
       label: 'Nome',
       are_you_sure: 'Tem a certeza?',
       yes_delete: 'Sim, eliminar',

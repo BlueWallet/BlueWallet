@@ -46,6 +46,8 @@ module.exports = {
       label: 'Метка',
       are_you_sure: 'Вы уверены?',
       yes_delete: 'Да, удалить',
+      destination: 'destino',
+      description: 'descripcion',
       no_cancel: 'Нет, отмена',
       delete_this_wallet: 'Удалить этот кошелек',
       export_backup: 'Экспорт / резервная копия',

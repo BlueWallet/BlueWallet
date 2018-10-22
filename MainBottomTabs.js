@@ -135,6 +135,9 @@ const Tabs = createStackNavigator(
     ScanLndInvoice: {
       screen: ScanLndInvoice,
     },
+    ScanQrAddress: {
+      screen: sendScanQrAddress,
+    },
   },
   {
     mode: 'modal',

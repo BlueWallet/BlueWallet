@@ -1,33 +1,25 @@
 /* global alert */
 import React from 'react';
-import { Text, Dimensions, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
-import { BarCodeScanner, Permissions } from 'expo';
+import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import {
-  BlueSpacingVariable,
-  BlueFormInput,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueHeaderDefaultSub,
-} from '../../BlueComponents';
+import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let currency = require('../../currency');
 let EV = require('../../events');
+let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class ScanLndInvoice extends React.Component {
   static navigationOptions = {
     header: ({ navigation }) => {
-      return <View />;
+      return <BlueHeaderDefaultSub leftText={'Pay invoice'} onClose={() => navigation.goBack(null)} />;
     },
   };
 
   state = {
     isLoading: false,
-    hasCameraPermission: null,
   };
 
   constructor(props) {
@@ -47,9 +39,13 @@ export default class ScanLndInvoice extends React.Component {
       fromWallet,
       fromSecret,
     };
+
+    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
+      this.processInvoice(data);
+    });
   }
 
-  async onBarCodeScanned(ret) {
+  async processInvoice(data) {
     if (this.ignoreRead) return;
     this.ignoreRead = true;
     setTimeout(() => {
@@ -61,8 +57,8 @@ export default class ScanLndInvoice extends React.Component {
       return this.props.navigation.goBack();
     }
 
-    ret.data = ret.data.replace('LIGHTNING:', '').replace('lightning:', '');
-    console.log(ret.data);
+    data = data.replace('LIGHTNING:', '').replace('lightning:', '');
+    console.log(data);
 
     /**
      * @type {LightningCustodianWallet}
@@ -70,7 +66,7 @@ export default class ScanLndInvoice extends React.Component {
     let w = this.state.fromWallet;
     let decoded = false;
     try {
-      decoded = await w.decodeInvoice(ret.data);
+      decoded = await w.decodeInvoice(data);
 
       let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
       if (+new Date() > expiresIn) {
@@ -78,24 +74,22 @@ export default class ScanLndInvoice extends React.Component {
       } else {
         expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
       }
-
+      Keyboard.dismiss();
       this.setState({
         isPaying: true,
-        invoice: ret.data,
+        invoice: data,
         decoded,
         expiresIn,
       });
     } catch (Err) {
       alert(Err.message);
     }
-  } // end
-
-  async componentWillMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ hasCameraPermission: status === 'granted' });
   }
 
   async pay() {
+    if (!this.state.hasOwnProperty('decoded')) {
+      return null;
+    }
     let decoded = this.state.decoded;
 
     /** @type {LightningCustodianWallet} */
@@ -129,38 +123,99 @@ export default class ScanLndInvoice extends React.Component {
   }
 
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
+    return (
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        <Text style={{ textAlign: 'center', fontSize: 50, fontWeight: '700', color: '#2f5fb3' }}>
+          {this.state.hasOwnProperty('decoded') && currency.satoshiToLocalCurrency(this.state.decoded.num_satoshis)}
+        </Text>
+        <Text style={{ textAlign: 'center', fontSize: 25, fontWeight: '600', color: '#d4d4d4' }}>
+          {this.state.hasOwnProperty('decoded') && currency.satoshiToBTC(this.state.decoded.num_satoshis)}
+        </Text>
+        <BlueSpacing20 />
 
-    if (this.state.isPaying) {
-      return (
-        <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <BlueSpacingVariable />
-          <BlueHeaderDefaultSub leftText={'Pay invoice'} onClose={() => this.props.navigation.goBack()} />
-          <BlueSpacing20 />
-
-          <Text style={{ textAlign: 'center', fontSize: 50, fontWeight: '700', color: '#2f5fb3' }}>
-            {currency.satoshiToLocalCurrency(this.state.decoded.num_satoshis)}
-          </Text>
-          <Text style={{ textAlign: 'center', fontSize: 25, fontWeight: '600', color: '#d4d4d4' }}>
-            {currency.satoshiToBTC(this.state.decoded.num_satoshis)}
-          </Text>
-          <BlueSpacing20 />
-
-          <BlueCard>
-            <BlueFormInput value={this.state.decoded.destination} />
-            <BlueFormInput value={this.state.decoded.description} />
+        <BlueCard>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              marginHorizontal: 20,
+              alignItems: 'center',
+              marginVertical: 8,
+              borderRadius: 4,
+            }}
+          >
+            <TextInput
+              onChangeText={text => {
+                if (text.toLowerCase().startsWith('lnb')) {
+                  this.processInvoice(text);
+                }
+              }}
+              placeholder={loc.wallets.details.destination}
+              numberOfLines={1}
+              value={this.state.hasOwnProperty('decoded') ? this.state.decoded.destination : ''}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+              editable={!this.state.isLoading}
+            />
+            <TouchableOpacity
+              disabled={this.state.isLoading}
+              onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+              style={{
+                width: 75,
+                height: 36,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                backgroundColor: '#bebebe',
+                borderRadius: 4,
+                paddingVertical: 4,
+                paddingHorizontal: 8,
+                marginHorizontal: 4,
+              }}
+            >
+              <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+              <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+            </TouchableOpacity>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              marginHorizontal: 20,
+              alignItems: 'center',
+              marginVertical: 8,
+              borderRadius: 4,
+            }}
+          >
+            <TextInput
+              onChangeText={text => {}}
+              placeholder={loc.wallets.details.description}
+              numberOfLines={1}
+              value={this.state.hasOwnProperty('decoded') ? this.state.decoded.description : ''}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+              editable={!this.state.isLoading}
+            />
+          </View>
+          {this.state.expiresIn && (
             <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
-          </BlueCard>
+          )}
+        </BlueCard>
 
-          <BlueSpacing20 />
+        <BlueSpacing20 />
 
-          {(() => {
+        {this.state.hasOwnProperty('decoded') &&
+          (() => {
             if (this.state.isPayingInProgress) {
               return (
                 <View>
@@ -184,46 +239,15 @@ export default class ScanLndInvoice extends React.Component {
               );
             }
           })()}
-        </SafeBlueArea>
-      );
-    }
-
-    const { hasCameraPermission } = this.state;
-    if (hasCameraPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
-    } else {
-      return (
-        <View style={{ flex: 1 }}>
-          <BarCodeScanner style={{ flex: 1 }} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                flexDirection: 'row',
-              }}
-            >
-              <TouchableOpacity
-                style={{
-                  flex: 0.2,
-                  alignSelf: 'flex-end',
-                  alignItems: 'center',
-                }}
-              >
-                <Button style={{ fontSize: 18, marginBottom: 10 }} title="Go back" onPress={() => this.props.navigation.goBack()} />
-              </TouchableOpacity>
-            </View>
-          </BarCodeScanner>
-        </View>
-      );
-    }
+      </SafeBlueArea>
+    );
   }
 }
 
 ScanLndInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    navigate: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         fromSecret: PropTypes.string,
