@@ -8,6 +8,7 @@ import {
   BlueText,
   BlueFormLabel,
   BlueFormInputAddress,
+  BlueSpacing20,
   BlueHeaderDefaultSub,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -139,6 +140,7 @@ export default class WalletDetails extends Component {
           } else {
             return (
               <View>
+                <BlueSpacing20 />
                 <BlueButton
                   icon={{
                     name: 'stop',
@@ -150,6 +152,7 @@ export default class WalletDetails extends Component {
                   }}
                   title={loc.wallets.details.delete_this_wallet}
                 />
+                <BlueSpacing20 />
 
                 <BlueButton
                   onPress={() =>

@@ -14,9 +14,9 @@ import {
   BlueButtonLink,
   BlueFormLabel,
   BlueLoading,
-  BlueSpacingVariable,
   BlueButton,
   SafeBlueArea,
+  BlueSpacing20,
   BlueHeaderDefaultSub,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -210,8 +210,8 @@ export default class WalletsImport extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         <KeyboardAvoidingView behavior="position" enabled>
-          <BlueSpacingVariable />
           <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
+          <BlueSpacing20 />
           <BlueFormMultiInput
             value={this.state.label}
             placeholder={''}
@@ -219,7 +219,7 @@ export default class WalletsImport extends Component {
               this.setLabel(text);
             }}
           />
-
+          <BlueSpacing20 />
           <View
             style={{
               alignItems: 'center',
@@ -241,7 +241,6 @@ export default class WalletsImport extends Component {
                 }, 1);
               }}
             />
-
             <BlueButtonLink
               title={loc.wallets.import.scan_qr}
               onPress={() => {

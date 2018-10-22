@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
 import { FormValidationMessage } from 'react-native-elements';
-import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -58,6 +58,7 @@ export default class EncryptStorage extends Component {
               return (
                 <View>
                   <FormValidationMessage>{loc.settings.storage_not_encrypted}</FormValidationMessage>
+                  <BlueSpacing20 />
                   <BlueButton
                     icon={{
                       name: 'shield',

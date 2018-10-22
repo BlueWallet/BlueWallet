@@ -59,9 +59,6 @@ const CreateTransactionStackNavigator = createStackNavigator({
   SendDetails: {
     screen: sendDetails,
   },
-  ScanQrAddress: {
-    screen: sendScanQrAddress,
-  },
   CreateTransaction: {
     screen: sendCreate,
     navigationOptions: {
