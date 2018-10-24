@@ -24,6 +24,8 @@ async function startAndDecrypt(retry) {
     console.log('loaded from disk');
     EV(EV.enum.WALLETS_COUNT_CHANGED);
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+    let securityAlert = require('./security-alert');
+    await securityAlert.start();
     // now, lets try to fetch balance and txs for first wallet if it is time for it
     let hadToRefresh = false;
     let noErr = true;
