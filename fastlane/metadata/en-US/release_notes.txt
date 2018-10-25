@@ -1,17 +1,9 @@
-OPS: add sentry
-FIX: main call to action (closes #39)
-FIX: Fixed Spanish translations.
-FIX: imroved ru & ua locale
-FIX: github links
-FIX: after tx broadcast tx list refreshed automatically
-ADD: Wallet Details screen
-FIX: Fixed receive and send calls
-FIX: improve splash image and colors
-FIX: Modified Encrypted Storage prompt
-FIX: improved tx refresh strategy
-FIX: HDBread tx confirmations calculation
-FIX: Import - QR scan - add support for HD seedphrase & blitzhub format (closes #76)
-REF: empty tx list
-FIX: currency undefined error
-REF: qr scan improved
-FIX: txs with many outputs/inputs are displayd correctly
+* REL 
+* ADD: security alert 
+* REL 
+* ADD: You can now pay for a Lightning invoice by manually inserting the invoice ID 
+* REL 
+* ADD: better source of entropy for wallet creation 
+* REL 
+* Development (#103) ADD: New send screen
+ADD: Support for BIP70 decoding
