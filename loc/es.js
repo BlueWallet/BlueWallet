@@ -97,6 +97,13 @@ module.exports = {
   },
   send: {
     header: 'enviar',
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     details: {
       title: 'Crear Transaccion',
       amount_field_is_not_valid: 'La cantidad no es válida',
@@ -116,6 +123,7 @@ module.exports = {
     },
     create: {
       title: 'Crear una Transaccion',
+      details: 'Detalles',
       error: 'Error al crear una transacción. ¿Dirección o cantidad estan invalidas?',
       go_back: 'Regresar',
       this_is_hex: 'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',

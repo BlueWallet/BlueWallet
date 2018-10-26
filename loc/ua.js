@@ -113,8 +113,16 @@ module.exports = {
       create: 'Створити',
       remaining_balance: 'Залишок балансу',
     },
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     create: {
       title: 'Створити Транзакцію',
+      details: 'Details',
       error: 'Помилка при створенні транзакції. Невiрна адреса призначення або недостатньо коштiв?',
       go_back: 'Назад',
       this_is_hex: 'Це дані транзакції. Транзакція підписана і готова бути трансльована в мережу. Продовжити?',

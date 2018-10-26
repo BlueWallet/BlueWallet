@@ -53,8 +53,12 @@ export default class Confirm extends Component {
         alert(JSON.stringify(result.error));
       } else {
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-        alert('Transaction has been successfully broadcasted. Your transaction ID is: ' + JSON.stringify(result.result));
-        this.props.navigation.navigate('Wallets');
+        this.props.navigation.navigate('Success', {
+          satoshiPerByte: Number(this.state.satoshiPerByte),
+          amount: this.state.amount,
+          address: this.state.address,
+          dismissModal: () => this.props.navigation.dismiss(),
+        });
       }
     });
   }
@@ -62,7 +66,7 @@ export default class Confirm extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueHeaderDefaultSub leftText={loc.send.confirm.header.toLowerCase()} onClose={() => navigation.goBack(null)} />
+        <BlueHeaderDefaultSub leftText={loc.send.confirm.header.toLowerCase()} rightComponent={null} />
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <Text
@@ -155,6 +159,7 @@ Confirm.propTypes = {
     goBack: PropTypes.function,
     getParam: PropTypes.function,
     navigate: PropTypes.function,
+    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,

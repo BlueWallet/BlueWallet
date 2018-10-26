@@ -117,6 +117,9 @@ module.exports = {
       header: 'Confirm',
       sendNow: 'Send now',
     },
+    success: {
+      done: 'Done',
+    },
     create: {
       details: 'Details',
       title: 'create transaction',

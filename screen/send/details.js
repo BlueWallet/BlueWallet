@@ -46,7 +46,7 @@ export default class SendDetails extends Component {
     let fromAddress;
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
     let fromSecret;
-    if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
+    if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = {};
 
     let startTime2 = Date.now();
@@ -538,7 +538,8 @@ SendDetails.propTypes = {
       params: PropTypes.shape({
         address: PropTypes.string,
         fromAddress: PropTypes.string,
-        fromSecret: PropTypes.string,
+        satoshiPerByte: PropTypes.string,
+        fromSecret: PropTypes.fromSecret,
         memo: PropTypes.string,
       }),
     }),

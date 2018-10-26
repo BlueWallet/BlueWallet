@@ -98,6 +98,13 @@ module.exports = {
   },
   send: {
     header: 'Enviar',
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     details: {
       title: 'Criar Transacção',
       amount_field_is_not_valid: 'Campo de quantia não é válido',
@@ -117,6 +124,7 @@ module.exports = {
     },
     create: {
       title: 'Criar Transacção',
+      details: 'Details',
       error: 'Erro ao criar transação. Endereço inválido ou quantia?',
       go_back: 'Voltar',
       this_is_hex: 'Este é o hex da transação, assinado e pronto para ser difundido para a network. Continuar?',

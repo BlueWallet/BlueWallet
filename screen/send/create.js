@@ -44,8 +44,12 @@ export default class SendCreate extends Component {
         alert(JSON.stringify(result.error));
       } else {
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-        alert('Transaction has been successfully broadcasted. Your transaction ID is: ' + JSON.stringify(result.result));
-        this.props.navigation.navigate('Wallets');
+        this.props.navigation.navigate('Success', {
+          satoshiPerByte: Number(this.state.satoshiPerByte),
+          amount: this.state.amount,
+          address: this.state.address,
+          dismissModal: () => this.props.navigation.dismiss(),
+        });
       }
     });
   }
@@ -53,7 +57,7 @@ export default class SendCreate extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueHeaderDefaultSub leftText={loc.send.create.details.toLowerCase()} onClose={() => this.props.navigation.goBack(null)} />
+        <BlueHeaderDefaultSub leftText={loc.send.create.details.toLowerCase()} rightComponent={null} />
         <ScrollView>
           <BlueCard style={{ alignItems: 'center', flex: 1 }}>
             <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
@@ -135,6 +139,7 @@ SendCreate.propTypes = {
     goBack: PropTypes.function,
     getParam: PropTypes.function,
     navigate: PropTypes.function,
+    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,
