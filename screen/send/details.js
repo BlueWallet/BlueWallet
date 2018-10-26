@@ -244,9 +244,9 @@ export default class SendDetails extends Component {
       }
 
       this.setState({ isLoading: false }, () =>
-        this.props.navigation.navigate('CreateTransaction', {
+        this.props.navigation.navigate('Confirm', {
           amount: this.state.amount,
-          fee: fee.toFixed(8),
+          fee: Number(fee.toFixed(8)),
           address: this.state.address,
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,

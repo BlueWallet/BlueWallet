@@ -89,7 +89,7 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'transaction details',
+      title: 'Transaction details',
       from: 'Input',
       to: 'Output',
       copy: 'Copy',
@@ -113,7 +113,12 @@ module.exports = {
       create: 'Create',
       remaining_balance: 'Remaining balance',
     },
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
     create: {
+      details: 'Details',
       title: 'create transaction',
       error: 'Error creating transaction. Invalid address or send amount?',
       go_back: 'Go Back',

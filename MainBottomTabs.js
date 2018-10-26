@@ -21,6 +21,7 @@ import receiveDetails from './screen/receive/details';
 import sendDetails from './screen/send/details';
 import sendScanQrAddress from './screen/send/scanQrAddress';
 import sendCreate from './screen/send/create';
+import Confirm from './screen/send/confirm';
 
 import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
@@ -58,6 +59,9 @@ const WalletsStackNavigator = createStackNavigator({
 const CreateTransactionStackNavigator = createStackNavigator({
   SendDetails: {
     screen: sendDetails,
+  },
+  Confirm: {
+    screen: Confirm,
   },
   CreateTransaction: {
     screen: sendCreate,

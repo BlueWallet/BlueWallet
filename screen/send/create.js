@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { TextInput, ActivityIndicator, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueButton, BlueHeaderDefaultSub, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 // let BlueApp = require('../../BlueApp');
@@ -53,6 +53,7 @@ export default class SendCreate extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+        <BlueHeaderDefaultSub leftText={loc.send.create.details.toLowerCase()} onClose={() => this.props.navigation.goBack(null)} />
         <ScrollView>
           <BlueCard style={{ alignItems: 'center', flex: 1 }}>
             <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
@@ -79,11 +80,6 @@ export default class SendCreate extends Component {
             <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
               <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
             </TouchableOpacity>
-            {this.state.isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} style={{ maxWidth: 263, paddingHorizontal: 56 }} />
-            )}
           </BlueCard>
           <BlueCard>
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
@@ -103,6 +99,15 @@ export default class SendCreate extends Component {
 
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
             <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
+            {this.state.isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <BlueButton
+                onPress={() => this.broadcast()}
+                title={loc.send.confirm.sendNow}
+                style={{ maxWidth: 263, paddingHorizontal: 56 }}
+              />
+            )}
           </BlueCard>
         </ScrollView>
       </SafeBlueArea>
