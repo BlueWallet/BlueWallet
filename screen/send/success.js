@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Haptic } from 'expo';
 import { Image, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
@@ -23,6 +24,7 @@ export default class Success extends Component {
   async componentDidMount() {
     console.log('send/create - componentDidMount');
     console.log('address = ', this.state.address);
+    Haptic.notification(Haptic.NotificationTypes.Success);
   }
 
   render() {
