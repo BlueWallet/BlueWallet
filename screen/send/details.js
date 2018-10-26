@@ -239,7 +239,7 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        alert(err);
+        alert(loc.send.details.create_tx_error);
         this.setState({ isLoading: false });
         return;
       }

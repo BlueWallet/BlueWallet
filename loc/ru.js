@@ -112,6 +112,7 @@ module.exports = {
       amount_placeholder: 'сколько отправить (в BTC)',
       fee_placeholder: 'плюс комиссия за перевод (в BTC)',
       note_placeholder: 'примечание платежа',
+      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       cancel: 'Отмена',
       scan: 'Скан QR',
       create: 'Создать',

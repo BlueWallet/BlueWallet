@@ -112,6 +112,7 @@ module.exports = {
       receiver_placeholder: 'endereço de envio aqui',
       amount_placeholder: 'quantia a enviar (em BTC)',
       fee_placeholder: 'mais a taxa de transacção (em BTC)',
+      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       note_placeholder: 'Nota pessoal',
       total_exceeds_balance: 'Total amount exceeds available balance.',
       cancel: 'Cancelar',

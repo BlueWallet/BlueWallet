@@ -113,6 +113,7 @@ module.exports = {
       amount_placeholder: 'cantidad para enviar (in BTC)',
       fee_placeholder: 'más tasa de transaccion (in BTC)',
       note_placeholder: 'comentario (para ti mismo)',
+      create_tx_error: 'Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.',
       cancel: 'Cancelar',
       scan: 'Escaniar',
       address: 'Direccion',
