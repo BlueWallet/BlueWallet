@@ -25,6 +25,7 @@ let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let bitcoin = require('bitcoinjs-lib');
+let currency = require('../../currency');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -374,6 +375,11 @@ export default class SendDetails extends Component {
                 }}
               >
                 {' ' + BitcoinUnit.BTC}
+              </Text>
+            </View>
+            <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
+              <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
+                {currency.satoshiToLocalCurrency(loc.formatBalanceWithoutSuffix(this.state.amount || 0, BitcoinUnit.SATOSHIS))}
               </Text>
             </View>
             <View
