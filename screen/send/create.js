@@ -16,14 +16,13 @@ export default class SendCreate extends Component {
 
     this.state = {
       isLoading: false,
-      amount: props.navigation.state.params.amount,
-      fee: props.navigation.state.params.fee,
-      address: props.navigation.state.params.address,
-      memo: props.navigation.state.params.memo,
+      amount: props.navigation.getParam('amount'),
+      fee: props.navigation.getParam('fee'),
+      address: props.navigation.getParam('address'),
+      memo: props.navigation.getParam('memo'),
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
-      fromWallet: props.navigation.getParam('fromWallet'),
     };
   }
 
@@ -115,10 +114,6 @@ SendCreate.propTypes = {
         fee: PropTypes.number,
         address: PropTypes.string,
         memo: PropTypes.string,
-        fromWallet: PropTypes.shape({
-          fromAddress: PropTypes.string,
-          fromSecret: PropTypes.string,
-        }),
       }),
     }),
   }),

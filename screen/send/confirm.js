@@ -123,7 +123,6 @@ export default class Confirm extends Component {
                 fee: this.state.fee,
                 address: this.state.address,
                 memo: this.state.memo,
-                fromWallet: this.state.fromWallet,
                 tx: this.state.tx,
                 satoshiPerByte: this.state.satoshiPerByte,
               })
