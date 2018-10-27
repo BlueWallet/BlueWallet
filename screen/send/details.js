@@ -205,7 +205,14 @@ export default class SendDetails extends Component {
           }
 
           let startTime = Date.now();
-          tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
+          try {
+            tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
+          } catch (error) {
+            console.log(error);
+            alert(loc.send.details.create_tx_error);
+            this.setState({ isLoading: false });
+            return;
+          }
           let endTime = Date.now();
           console.log('create tx ', (endTime - startTime) / 1000, 'sec');
 
