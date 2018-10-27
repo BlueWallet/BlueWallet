@@ -89,7 +89,7 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'transaction details',
+      title: 'Transaction details',
       from: 'Input',
       to: 'Output',
       copy: 'Copy',
@@ -103,6 +103,7 @@ module.exports = {
       fee_field_is_not_valid: 'Fee field is not valid',
       address_field_is_not_valid: 'Address field is not valid',
       total_exceeds_balance: 'The sending amount exceeds the available balance.',
+      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       address: 'address',
       amount_placeholder: 'amount to send (in BTC)',
       fee_placeholder: 'plus transaction fee (in BTC)',
@@ -113,7 +114,15 @@ module.exports = {
       create: 'Create',
       remaining_balance: 'Remaining balance',
     },
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     create: {
+      details: 'Details',
       title: 'create transaction',
       error: 'Error creating transaction. Invalid address or send amount?',
       go_back: 'Go Back',

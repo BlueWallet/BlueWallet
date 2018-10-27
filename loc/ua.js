@@ -104,6 +104,7 @@ module.exports = {
       receiver_placeholder: 'Адреса одержувача',
       amount_placeholder: 'скільки відправити (в BTC)',
       fee_placeholder: 'плюс комісія за переказ (в BTC)',
+      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       note_placeholder: 'примітка платежу',
       cancel: 'Відміна',
       scan: 'Скан QR',
@@ -113,8 +114,16 @@ module.exports = {
       create: 'Створити',
       remaining_balance: 'Залишок балансу',
     },
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     create: {
       title: 'Створити Транзакцію',
+      details: 'Details',
       error: 'Помилка при створенні транзакції. Невiрна адреса призначення або недостатньо коштiв?',
       go_back: 'Назад',
       this_is_hex: 'Це дані транзакції. Транзакція підписана і готова бути трансльована в мережу. Продовжити?',

@@ -97,6 +97,13 @@ module.exports = {
   },
   send: {
     header: 'Enviar',
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     details: {
       title: 'Criar Transacção',
       amount_field_is_not_valid: 'Campo de quantia não é válido',
@@ -105,6 +112,7 @@ module.exports = {
       receiver_placeholder: 'endereço de envio aqui',
       amount_placeholder: 'quantia a enviar (em BTC)',
       fee_placeholder: 'mais a taxa de transacção (em BTC)',
+      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       note_placeholder: 'Nota pessoal',
       total_exceeds_balance: 'Total amount exceeds available balance.',
       cancel: 'Cancelar',
@@ -116,6 +124,7 @@ module.exports = {
     },
     create: {
       title: 'Criar Transacção',
+      details: 'Details',
       error: 'Erro ao criar transacção. Endereço inválido ou quantia?',
       go_back: 'Voltar',
       this_is_hex: 'Este é o hex da transacção, assinado e pronto para ser difundido para a network. Continuar?',

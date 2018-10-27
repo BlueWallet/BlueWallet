@@ -1,13 +1,9 @@
-/* global alert */
 import React, { Component } from 'react';
-import { TextInput, ActivityIndicator, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
+import { TextInput, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueButton, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueHeaderDefaultSub, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-/** @type {AppStorage} */
-// let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-let EV = require('../../events');
 
 export default class SendCreate extends Component {
   constructor(props) {
@@ -16,14 +12,13 @@ export default class SendCreate extends Component {
 
     this.state = {
       isLoading: false,
-      amount: props.navigation.state.params.amount,
-      fee: props.navigation.state.params.fee,
-      address: props.navigation.state.params.address,
-      memo: props.navigation.state.params.memo,
+      amount: props.navigation.getParam('amount'),
+      fee: props.navigation.getParam('fee'),
+      address: props.navigation.getParam('address'),
+      memo: props.navigation.getParam('memo'),
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
-      fromWallet: props.navigation.getParam('fromWallet'),
     };
   }
 
@@ -32,27 +27,10 @@ export default class SendCreate extends Component {
     console.log('address = ', this.state.address);
   }
 
-  broadcast() {
-    this.setState({ isLoading: true }, async () => {
-      let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-      console.log('broadcast result = ', result);
-      if (typeof result === 'string') {
-        result = JSON.parse(result);
-      }
-      this.setState({ isLoading: false });
-      if (result && result.error) {
-        alert(JSON.stringify(result.error));
-      } else {
-        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-        alert('Transaction has been successfully broadcasted. Your transaction ID is: ' + JSON.stringify(result.result));
-        this.props.navigation.navigate('Wallets');
-      }
-    });
-  }
-
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+        <BlueHeaderDefaultSub leftText={loc.send.create.details.toLowerCase()} rightComponent={null} />
         <ScrollView>
           <BlueCard style={{ alignItems: 'center', flex: 1 }}>
             <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
@@ -79,11 +57,6 @@ export default class SendCreate extends Component {
             <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
               <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
             </TouchableOpacity>
-            {this.state.isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <BlueButton onPress={() => this.broadcast()} title={loc.send.details.send} style={{ maxWidth: 263, paddingHorizontal: 56 }} />
-            )}
           </BlueCard>
           <BlueCard>
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
@@ -130,16 +103,13 @@ SendCreate.propTypes = {
     goBack: PropTypes.function,
     getParam: PropTypes.function,
     navigate: PropTypes.function,
+    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,
         fee: PropTypes.number,
         address: PropTypes.string,
         memo: PropTypes.string,
-        fromWallet: PropTypes.shape({
-          fromAddress: PropTypes.string,
-          fromSecret: PropTypes.string,
-        }),
       }),
     }),
   }),

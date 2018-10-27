@@ -39,7 +39,7 @@ function formatTime(time) {
 export default class TransactionsDetails extends Component {
   static navigationOptions = {
     header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.transactions.details.title} onClose={() => navigation.goBack(null)} />;
+      return <BlueHeaderDefaultSub leftText={loc.transactions.details.title.toLowerCase()} onClose={() => navigation.goBack(null)} />;
     },
   };
 
@@ -78,7 +78,7 @@ export default class TransactionsDetails extends Component {
   }
 
   render() {
-    if (this.state.isLoading) {
+    if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
       return <BlueLoading />;
     }
 
@@ -99,51 +99,82 @@ export default class TransactionsDetails extends Component {
               }
             })()}
 
-            <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-              <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
-              <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
-            </View>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
+            {this.state.hasOwnProperty('from') && (
+              <React.Fragment>
+                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
+                  <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
+                  <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
+                </View>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
+              </React.Fragment>
+            )}
 
-            <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-              <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
-              <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
-            </View>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>
-              {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
-            </BlueText>
+            {this.state.hasOwnProperty('to') && (
+              <React.Fragment>
+                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
+                  <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
+                  <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
+                </View>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>
+                  {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
+                </BlueText>
+              </React.Fragment>
+            )}
 
-            <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-              <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
-              <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
-            </View>
-            <TouchableOpacity
-              onPress={() => {
-                const url = `https://live.blockcypher.com/btc/tx/${this.state.tx.hash}`;
-                Linking.canOpenURL(url).then(supported => {
-                  if (supported) {
-                    Linking.openURL(url);
-                  }
-                });
-              }}
-            >
-              <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.hash}</BlueText>
-            </TouchableOpacity>
+            {this.state.tx.hasOwnProperty('hash') && (
+              <React.Fragment>
+                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
+                  <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
+                  <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
+                </View>
+                <TouchableOpacity
+                  onPress={() => {
+                    const url = `https://live.blockcypher.com/btc/tx/${this.state.tx.hash}`;
+                    Linking.canOpenURL(url).then(supported => {
+                      if (supported) {
+                        Linking.openURL(url);
+                      }
+                    });
+                  }}
+                >
+                  <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+                </TouchableOpacity>
+              </React.Fragment>
+            )}
+            {this.state.tx.hasOwnProperty('received') && (
+              <React.Fragment>
+                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.received)}</BlueText>
+              </React.Fragment>
+            )}
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.received)}</BlueText>
+            {this.state.tx.hasOwnProperty('block_height') && (
+              <React.Fragment>
+                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.block_height)}</BlueText>
+              </React.Fragment>
+            )}
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.block_height)}</BlueText>
+            {this.state.tx.hasOwnProperty('confirmations') && (
+              <React.Fragment>
+                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmations</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.confirmations}</BlueText>
+              </React.Fragment>
+            )}
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmations</BlueText>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.confirmations}</BlueText>
+            {this.state.tx.hasOwnProperty('inputs') && (
+              <React.Fragment>
+                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Inputs</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
+              </React.Fragment>
+            )}
 
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Inputs</BlueText>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
-
-            <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Outputs</BlueText>
-            <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
+            {this.state.tx.hasOwnProperty('outputs') && (
+              <React.Fragment>
+                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Outputs</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
+              </React.Fragment>
+            )}
           </BlueCard>
 
           {(() => {

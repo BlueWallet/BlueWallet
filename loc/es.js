@@ -97,6 +97,13 @@ module.exports = {
   },
   send: {
     header: 'enviar',
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     details: {
       title: 'Crear Transaccion',
       amount_field_is_not_valid: 'La cantidad no es válida',
@@ -106,6 +113,7 @@ module.exports = {
       amount_placeholder: 'cantidad para enviar (in BTC)',
       fee_placeholder: 'más tasa de transaccion (in BTC)',
       note_placeholder: 'comentario (para ti mismo)',
+      create_tx_error: 'Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.',
       cancel: 'Cancelar',
       scan: 'Escaniar',
       address: 'Direccion',
@@ -116,6 +124,7 @@ module.exports = {
     },
     create: {
       title: 'Crear una Transaccion',
+      details: 'Detalles',
       error: 'Error al crear una transacción. ¿Dirección o cantidad estan invalidas?',
       go_back: 'Regresar',
       this_is_hex: 'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',

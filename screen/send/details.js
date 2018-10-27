@@ -25,6 +25,7 @@ let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let bitcoin = require('bitcoinjs-lib');
+let currency = require('../../currency');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -46,7 +47,7 @@ export default class SendDetails extends Component {
     let fromAddress;
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
     let fromSecret;
-    if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
+    if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = {};
 
     let startTime2 = Date.now();
@@ -204,7 +205,14 @@ export default class SendDetails extends Component {
           }
 
           let startTime = Date.now();
-          tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
+          try {
+            tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
+          } catch (error) {
+            console.log(error);
+            alert(loc.send.details.create_tx_error);
+            this.setState({ isLoading: false });
+            return;
+          }
           let endTime = Date.now();
           console.log('create tx ', (endTime - startTime) / 1000, 'sec');
 
@@ -238,15 +246,15 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        alert(err);
+        alert(loc.send.details.create_tx_error);
         this.setState({ isLoading: false });
         return;
       }
 
       this.setState({ isLoading: false }, () =>
-        this.props.navigation.navigate('CreateTransaction', {
+        this.props.navigation.navigate('Confirm', {
           amount: this.state.amount,
-          fee: fee.toFixed(8),
+          fee: Number(fee.toFixed(8)),
           address: this.state.address,
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,
@@ -374,6 +382,11 @@ export default class SendDetails extends Component {
                 }}
               >
                 {' ' + BitcoinUnit.BTC}
+              </Text>
+            </View>
+            <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
+              <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
+                {currency.satoshiToLocalCurrency(loc.formatBalanceWithoutSuffix(this.state.amount || 0, BitcoinUnit.SATOSHIS))}
               </Text>
             </View>
             <View
@@ -538,7 +551,8 @@ SendDetails.propTypes = {
       params: PropTypes.shape({
         address: PropTypes.string,
         fromAddress: PropTypes.string,
-        fromSecret: PropTypes.string,
+        satoshiPerByte: PropTypes.string,
+        fromSecret: PropTypes.fromSecret,
         memo: PropTypes.string,
       }),
     }),

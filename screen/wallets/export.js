@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode';
-import { BlueSpacing, BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -48,6 +48,13 @@ export default class WalletExport extends Component {
     });
   }
 
+  determineSize = () => {
+    if (width > 312) {
+      return width - 48;
+    }
+    return 312;
+  };
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -72,8 +79,6 @@ export default class WalletExport extends Component {
         {(() => {
           if (isIpad) {
             return <BlueSpacing40 />;
-          } else {
-            return <BlueSpacing />;
           }
         })()}
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
@@ -88,11 +93,11 @@ export default class WalletExport extends Component {
           })()}
           <QRCode
             value={this.state.wallet.getSecret()}
-            size={312}
+            size={this.determineSize()}
             bgColor={BlueApp.settings.foregroundColor}
             fgColor={BlueApp.settings.brandingColor}
           />
-          <BlueText>{this.state.wallet.getSecret()}</BlueText>
+          <BlueText style={{ marginVertical: 8 }}>{this.state.wallet.getSecret()}</BlueText>
         </BlueCard>
       </SafeBlueArea>
     );

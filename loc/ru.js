@@ -96,6 +96,13 @@ module.exports = {
   },
   send: {
     header: 'Отправить',
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
+    },
+    success: {
+      done: 'Done',
+    },
     details: {
       title: 'Создать Транзакцию',
       amount_field_is_not_valid: 'Поле не валидно',
@@ -105,6 +112,7 @@ module.exports = {
       amount_placeholder: 'сколько отправить (в BTC)',
       fee_placeholder: 'плюс комиссия за перевод (в BTC)',
       note_placeholder: 'примечание платежа',
+      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       cancel: 'Отмена',
       scan: 'Скан QR',
       create: 'Создать',
@@ -115,6 +123,7 @@ module.exports = {
     },
     create: {
       title: 'Создать Транзакцию',
+      details: 'Details',
       error: 'Ошибка при создании транзакции. Неправильный адрес назначения или недостаточно средств?',
       go_back: 'Назад',
       this_is_hex: 'Это данные транзакции. Транзакция подписана и готова быть транслирована в сеть. Продолжить?',
