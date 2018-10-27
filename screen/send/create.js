@@ -45,7 +45,7 @@ export default class SendCreate extends Component {
       } else {
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
         this.props.navigation.navigate('Success', {
-          satoshiPerByte: Number(this.state.satoshiPerByte),
+          fee: Number(this.state.fee),
           amount: this.state.amount,
           address: this.state.address,
           dismissModal: () => this.props.navigation.dismiss(),

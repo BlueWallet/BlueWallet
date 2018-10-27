@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import { Haptic } from 'expo';
-import { Image, View } from 'react-native';
-import { Text } from 'react-native-elements';
+import { View } from 'react-native';
+import { Text, Icon } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
-/** @type {AppStorage} */
-// let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class Success extends Component {
@@ -15,9 +13,9 @@ export default class Success extends Component {
     console.log('send/create constructor');
 
     this.state = {
-      amount: props.navigation.state.params.amount,
-      address: props.navigation.state.params.address,
-      satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
+      amount: props.navigation.getParam('amount'),
+      address: props.navigation.getParam('address'),
+      fee: props.navigation.getParam('fee'),
     };
   }
 
@@ -64,7 +62,7 @@ export default class Success extends Component {
               alignSelf: 'center',
             }}
           >
-            {Number(this.state.satoshiPerByte).toFixed(0)} {BitcoinUnit.SATS}
+            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
           </Text>
         </BlueCard>
         <View
@@ -79,7 +77,7 @@ export default class Success extends Component {
             marginBottom: 53,
           }}
         >
-          <Image style={{ alignSelf: 'center' }} source={require('../../img/baseline-check-24-px.png')} />
+          <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
         </View>
         <BlueCard>
           <BlueButton
@@ -103,7 +101,7 @@ Success.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,
-        satoshiPerByte: PropTypes.number,
+        fee: PropTypes.number,
         address: PropTypes.string,
       }),
     }),

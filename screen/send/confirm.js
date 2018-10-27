@@ -5,8 +5,6 @@ import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing40, BlueHeaderDefaultSub } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
-/** @type {AppStorage} */
-// let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let EV = require('../../events');
 
@@ -25,10 +23,10 @@ export default class Confirm extends Component {
 
     this.state = {
       isLoading: false,
-      amount: props.navigation.state.params.amount,
-      fee: props.navigation.state.params.fee,
-      address: props.navigation.state.params.address,
-      memo: props.navigation.state.params.memo,
+      amount: props.navigation.getParam('amount'),
+      fee: props.navigation.getParam('fee'),
+      address: props.navigation.getParam('address'),
+      memo: props.navigation.getParam('memo'),
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
@@ -54,7 +52,7 @@ export default class Confirm extends Component {
       } else {
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
         this.props.navigation.navigate('Success', {
-          satoshiPerByte: Number(this.state.satoshiPerByte),
+          fee: Number(this.state.fee),
           amount: this.state.amount,
           address: this.state.address,
           dismissModal: () => this.props.navigation.dismiss(),
@@ -101,7 +99,7 @@ export default class Confirm extends Component {
               alignSelf: 'center',
             }}
           >
-            {Number(this.state.satoshiPerByte).toFixed(0)} {BitcoinUnit.SATS}
+            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
           </Text>
         </BlueCard>
         <BlueCard>
