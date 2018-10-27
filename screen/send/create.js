@@ -32,28 +32,6 @@ export default class SendCreate extends Component {
     console.log('address = ', this.state.address);
   }
 
-  broadcast() {
-    this.setState({ isLoading: true }, async () => {
-      let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-      console.log('broadcast result = ', result);
-      if (typeof result === 'string') {
-        result = JSON.parse(result);
-      }
-      this.setState({ isLoading: false });
-      if (result && result.error) {
-        alert(JSON.stringify(result.error));
-      } else {
-        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-        this.props.navigation.navigate('Success', {
-          fee: Number(this.state.fee),
-          amount: this.state.amount,
-          address: this.state.address,
-          dismissModal: () => this.props.navigation.dismiss(),
-        });
-      }
-    });
-  }
-
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
@@ -103,15 +81,6 @@ export default class SendCreate extends Component {
 
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
             <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
-            {this.state.isLoading ? (
-              <ActivityIndicator />
-            ) : (
-              <BlueButton
-                onPress={() => this.broadcast()}
-                title={loc.send.confirm.sendNow}
-                style={{ maxWidth: 263, paddingHorizontal: 56 }}
-              />
-            )}
           </BlueCard>
         </ScrollView>
       </SafeBlueArea>
