@@ -1,9 +1,7 @@
-* REL 
-* ADD: security alert 
-* REL 
-* ADD: You can now pay for a Lightning invoice by manually inserting the invoice ID 
-* REL 
-* ADD: better source of entropy for wallet creation 
-* REL 
-* Development (#103) ADD: New send screen
-ADD: Support for BIP70 decoding
+FIX: Improve broadcasting experience #66 (#107)
+ADD: New transaction Confirm UI
+REF: Improve broadcasting experience #66
+FIX: Satoshis to local currency in Send screen
+FIX: Fixed Wallet export QR code width
+FIX: Invalid BIP21 URI at value #108
+FIX: #109  TypeError: undefined is not an object (evaluating 'this.state.tx.inputs.length'

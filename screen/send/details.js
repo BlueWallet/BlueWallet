@@ -151,6 +151,7 @@ export default class SendDetails extends Component {
   }
 
   async createTransaction() {
+    this.setState({ isLoading: true });
     let error = false;
     let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
 
@@ -174,7 +175,16 @@ export default class SendDetails extends Component {
       console.log('validation error');
     }
 
+    try {
+      bitcoin.address.toOutputScript(this.state.address);
+    } catch (err) {
+      console.log('validation error');
+      console.log(err);
+      error = loc.send.details.address_field_is_not_valid;
+    }
+
     if (error) {
+      this.setState({ isLoading: false });
       alert(error);
       return;
     }
@@ -205,14 +215,7 @@ export default class SendDetails extends Component {
           }
 
           let startTime = Date.now();
-          try {
-            tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
-          } catch (error) {
-            console.log(error);
-            alert(loc.send.details.create_tx_error);
-            this.setState({ isLoading: false });
-            return;
-          }
+          tx = this.state.fromWallet.createTx(utxo, this.state.amount, fee, this.state.address, this.state.memo);
           let endTime = Date.now();
           console.log('create tx ', (endTime - startTime) / 1000, 'sec');
 
@@ -246,7 +249,7 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        alert(loc.send.details.create_tx_error);
+        alert(err);
         this.setState({ isLoading: false });
         return;
       }

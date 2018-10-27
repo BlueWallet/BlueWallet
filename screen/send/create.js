@@ -1,13 +1,9 @@
-/* global alert */
 import React, { Component } from 'react';
-import { TextInput, ActivityIndicator, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
+import { TextInput, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueButton, BlueHeaderDefaultSub, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueHeaderDefaultSub, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-/** @type {AppStorage} */
-// let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-let EV = require('../../events');
 
 export default class SendCreate extends Component {
   constructor(props) {
