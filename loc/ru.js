@@ -22,6 +22,7 @@ module.exports = {
       latest_transaction: 'последняя транзакция',
       empty_txs1: 'Список транзакций пока пуст',
       empty_txs2: ' ',
+      tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
     add: {
       title: 'добавить кошелек',
@@ -51,6 +52,7 @@ module.exports = {
       no_cancel: 'Нет, отмена',
       delete_this_wallet: 'Удалить этот кошелек',
       export_backup: 'Экспорт / резервная копия',
+      buy_bitcoin: 'Buy Bitcoin',
     },
     export: {
       title: 'Экспорт Кошелька',
@@ -136,6 +138,11 @@ module.exports = {
       broadcast: 'Отправить',
       not_enough_fee: 'Слишком маленькая комиссия. Увеличьте комиссию',
     },
+  },
+  buyBitcoin: {
+    header: 'Buy Bitcoin',
+    tap_your_address: 'Tap your address to copy it to clipboard:',
+    copied: 'Copied to Clipboard!',
   },
   receive: {
     header: 'Получить',

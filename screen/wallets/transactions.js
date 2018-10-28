@@ -362,6 +362,26 @@ export default class WalletTransactions extends Component {
                     {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
                       loc.wallets.list.empty_txs2}
                   </Text>
+
+                  <Text />
+                  <Text />
+
+                  <Text
+                    style={{
+                      fontSize: 18,
+                      color: '#9aa0aa',
+                      textAlign: 'center',
+                      textDecorationLine: 'underline',
+                    }}
+                    onPress={() =>
+                      this.props.navigation.navigate('BuyBitcoin', {
+                        address: this.state.wallet.getAddress(),
+                        secret: this.state.wallet.getSecret(),
+                      })
+                    }
+                  >
+                    {loc.wallets.list.tap_here_to_buy}
+                  </Text>
                 </View>
               }
               refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
