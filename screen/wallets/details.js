@@ -155,6 +155,11 @@ export default class WalletDetails extends Component {
                 <BlueSpacing20 />
 
                 <BlueButton
+                  icon={{
+                    name: 'cloud-upload',
+                    type: 'octicon',
+                    color: BlueApp.settings.buttonTextColor,
+                  }}
                   onPress={() =>
                     this.props.navigation.navigate('WalletExport', {
                       address: this.state.wallet.getAddress(),
@@ -162,6 +167,23 @@ export default class WalletDetails extends Component {
                     })
                   }
                   title={loc.wallets.details.export_backup}
+                />
+
+                <BlueSpacing20 />
+
+                <BlueButton
+                  icon={{
+                    name: 'shopping-cart',
+                    type: 'font-awesome',
+                    color: BlueApp.settings.buttonTextColor,
+                  }}
+                  onPress={() =>
+                    this.props.navigation.navigate('BuyBitcoin', {
+                      address: this.state.wallet.getAddress(),
+                      secret: this.state.wallet.getSecret(),
+                    })
+                  }
+                  title={loc.wallets.details.buy_bitcoin}
                 />
               </View>
             );

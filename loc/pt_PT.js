@@ -22,6 +22,7 @@ module.exports = {
       latest_transaction: 'últimas transacções',
       empty_txs1: 'As suas transacções aparecerão aqui,',
       empty_txs2: 'nenhuma de momento',
+      tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
     add: {
       title: 'adicionar wallet',
@@ -51,6 +52,7 @@ module.exports = {
       no_cancel: 'Não, cancelar',
       delete_this_wallet: 'Apagar esta wallet',
       export_backup: 'Exportar / backup',
+      buy_bitcoin: 'Buy Bitcoin',
     },
     export: {
       title: 'Exportar Wallet',
@@ -137,6 +139,11 @@ module.exports = {
       broadcast: 'Difundir',
       not_enough_fee: 'Taxa demasiado baixo. Aumente a taxa.',
     },
+  },
+  buyBitcoin: {
+    header: 'Buy Bitcoin',
+    tap_your_address: 'Tap your address to copy it to clipboard:',
+    copied: 'Copied to Clipboard!',
   },
   receive: {
     header: 'receber',

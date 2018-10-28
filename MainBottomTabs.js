@@ -10,6 +10,7 @@ import AddWallet from './screen/wallets/add';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
+import BuyBitcoin from './screen/wallets/buyBitcoin';
 import scanQrWif from './screen/wallets/scanQrWif';
 
 import details from './screen/transactions/details';
@@ -85,7 +86,7 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
 });
 
-const Tabs = createStackNavigator(
+const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
       screen: WalletsStackNavigator,
@@ -111,6 +112,9 @@ const Tabs = createStackNavigator(
     },
     WalletExport: {
       screen: WalletExport,
+    },
+    BuyBitcoin: {
+      screen: BuyBitcoin,
     },
     //
     SendDetails: {
@@ -162,4 +166,4 @@ const Tabs = createStackNavigator(
   },
 );
 
-export default Tabs;
+export default MainBottomTabs;
