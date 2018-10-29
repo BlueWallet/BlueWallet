@@ -12,7 +12,7 @@ import {
   Slider,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
-import { BlueHeaderDefaultSub, BlueButton } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -30,11 +30,10 @@ let currency = require('../../currency');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.send.header.toLowerCase()} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.send.header,
+  });
 
   constructor(props) {
     super(props);

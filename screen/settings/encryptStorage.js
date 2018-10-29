@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
 import { FormValidationMessage } from 'react-native-elements';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -10,13 +10,10 @@ let prompt = require('../../prompt');
 let loc = require('../../loc');
 
 export default class EncryptStorage extends Component {
-  static navigationOptions = {
-    headerStyle: {
-      backgroundColor: '#FFFFFF',
-      borderBottomWidth: 0,
-    },
-    headerTintColor: '#0c2550',
-  };
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(),
+    title: loc.settings.encrypt_storage,
+  });
 
   constructor(props) {
     super(props);
@@ -40,8 +37,6 @@ export default class EncryptStorage extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub leftText={loc.settings.encrypt_storage.toLowerCase()} rightComponent={null} />
-
         <BlueCard>
           {(() => {
             if (this.state.storageIsEncrypted) {

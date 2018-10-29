@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
 import QRCode from 'react-native-qrcode';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueHeaderDefaultSub, is } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueNavigationStyle, is } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -9,11 +9,11 @@ let loc = require('../../loc');
 // let EV = require('../../events');
 
 export default class ReceiveDetails extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.receive.header.toLowerCase()} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.receive.header,
+    headerLeft: null,
+  });
 
   constructor(props) {
     super(props);

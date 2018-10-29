@@ -8,20 +8,22 @@ import PropTypes from 'prop-types';
 let loc = require('../../loc');
 
 export default class Success extends Component {
+  static navigationOptions = {
+    header: null,
+  };
+
   constructor(props) {
     super(props);
     console.log('send/create constructor');
 
     this.state = {
       amount: props.navigation.getParam('amount'),
-      address: props.navigation.getParam('address'),
       fee: props.navigation.getParam('fee'),
     };
   }
 
   async componentDidMount() {
     console.log('send/create - componentDidMount');
-    console.log('address = ', this.state.address);
     Haptic.notification(Haptic.NotificationTypes.Success);
   }
 
@@ -82,7 +84,7 @@ export default class Success extends Component {
         <BlueCard>
           <BlueButton
             onPress={() => {
-              this.props.navigation.getParam('dismissModal')();
+              this.props.navigation.dismiss();
             }}
             title={loc.send.success.done}
             style={{ maxWidth: 263, paddingHorizontal: 56 }}
@@ -98,11 +100,11 @@ Success.propTypes = {
     goBack: PropTypes.function,
     getParam: PropTypes.function,
     navigate: PropTypes.function,
+    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,
         fee: PropTypes.number,
-        address: PropTypes.string,
       }),
     }),
   }),

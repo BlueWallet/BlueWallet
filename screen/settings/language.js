@@ -1,19 +1,16 @@
 import React, { Component } from 'react';
 import { Picker } from 'react-native';
-import { BlueLoading, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class Language extends Component {
-  static navigationOptions = {
-    headerStyle: {
-      backgroundColor: '#FFFFFF',
-      borderBottomWidth: 0,
-    },
-    headerTintColor: '#0c2550',
-  };
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(),
+    title: loc.settings.language,
+  });
 
   constructor(props) {
     super(props);
@@ -37,8 +34,6 @@ export default class Language extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub leftText={loc.settings.language.toLowerCase()} rightComponent={null} />
-
         <BlueCard>
           <Picker
             selectedValue={this.state.language}

@@ -12,10 +12,9 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueHeaderDefaultSub,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
-
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -28,11 +27,11 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class WalletsAdd extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.wallets.add.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.wallets.add.title,
+    headerLeft: null,
+  });
 
   constructor(props) {
     super(props);
