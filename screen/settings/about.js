@@ -9,7 +9,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeaderDefaultSub,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -18,13 +18,10 @@ const { width, height } = Dimensions.get('window');
 let loc = require('../../loc/');
 
 export default class About extends Component {
-  static navigationOptions = {
-    headerStyle: {
-      backgroundColor: '#FFFFFF',
-      borderBottomWidth: 0,
-    },
-    headerTintColor: '#0c2550',
-  };
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(),
+    title: loc.settings.about,
+  });
 
   constructor(props) {
     super(props);
@@ -46,7 +43,6 @@ export default class About extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub leftText={loc.settings.about} rightComponent={null} />
         <ScrollView>
           <BlueCard>
             <BlueText h4>BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.</BlueText>

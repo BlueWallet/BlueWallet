@@ -2,20 +2,17 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing40, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let EV = require('../../events');
 
 export default class Confirm extends Component {
-  static navigationOptions = {
-    headerStyle: {
-      backgroundColor: '#FFFFFF',
-      borderBottomWidth: 0,
-    },
-    headerTintColor: '#0c2550',
-  };
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(null, false),
+    title: loc.send.confirm.header,
+  });
 
   constructor(props) {
     super(props);
@@ -64,7 +61,6 @@ export default class Confirm extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueHeaderDefaultSub leftText={loc.send.confirm.header.toLowerCase()} rightComponent={null} />
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <Text

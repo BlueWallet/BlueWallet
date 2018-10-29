@@ -33,6 +33,18 @@ const WalletsStackNavigator = createStackNavigator({
     screen: WalletsList,
     path: 'wallets',
   },
+  WalletTransactions: {
+    screen: WalletTransactions,
+  },
+  TransactionDetails: {
+    screen: details,
+  },
+  RBF: {
+    screen: rbf,
+  },
+  CreateRBF: {
+    screen: createrbf,
+  },
   Settings: {
     screen: Settings,
     path: 'Settings',
@@ -58,15 +70,6 @@ const WalletsStackNavigator = createStackNavigator({
   },
 });
 
-const SuccessTransactionStackNavigation = createStackNavigator(
-  {
-    Success: {
-      screen: Success,
-    },
-  },
-  { mode: 'modal', headerMode: 'none' },
-);
-
 const CreateTransactionStackNavigator = createStackNavigator({
   SendDetails: {
     screen: sendDetails,
@@ -84,6 +87,9 @@ const CreateTransactionStackNavigator = createStackNavigator({
       headerTintColor: '#0c2550',
     },
   },
+  Success: {
+    screen: Success,
+  },
 });
 
 const MainBottomTabs = createStackNavigator(
@@ -94,9 +100,6 @@ const MainBottomTabs = createStackNavigator(
       navigationOptions: {
         header: null,
       },
-    },
-    WalletTransactions: {
-      screen: WalletTransactions,
     },
     AddWallet: {
       screen: AddWallet,
@@ -122,23 +125,6 @@ const MainBottomTabs = createStackNavigator(
       navigationOptions: {
         header: null,
       },
-    },
-
-    TransactionDetails: {
-      screen: details,
-    },
-    Success: {
-      screen: SuccessTransactionStackNavigation,
-      navigationOptions: {
-        header: null,
-        gesturesEnabled: false,
-      },
-    },
-    RBF: {
-      screen: rbf,
-    },
-    CreateRBF: {
-      screen: createrbf,
     },
 
     //

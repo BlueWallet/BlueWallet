@@ -91,7 +91,7 @@ module.exports = {
       conf: 'conf',
     },
     details: {
-      title: 'Detalles de Transaccion',
+      title: 'Transaccion',
       from: 'De',
       to: 'A',
       copy: 'Copiar',

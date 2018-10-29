@@ -146,6 +146,24 @@ export class BlueButtonLink extends Component {
   }
 }
 
+export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false) => ({
+  headerStyle: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 0,
+  },
+  headerTitleStyle: {
+    fontWeight: '600',
+    color: '#0c2550',
+  },
+  headerTintColor: '#0c2550',
+  headerRight: withNavigationCloseButton ? (
+    <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => navigation.goBack(null)}>
+      <Icon name="times" size={24} type="font-awesome" color="#0c2550" />
+    </TouchableOpacity>
+  ) : null,
+  headerBackTitle: null,
+});
+
 export const BlueCopyToClipboardButton = ({ stringToCopy }) => {
   return (
     <TouchableOpacity {...this.props} onPress={() => Clipboard.setString(stringToCopy)}>

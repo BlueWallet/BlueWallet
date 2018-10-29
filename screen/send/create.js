@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { TextInput, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueHeaderDefaultSub, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 
 export default class SendCreate extends Component {
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle,
+    title: loc.send.create.details,
+  });
+
   constructor(props) {
     super(props);
     console.log('send/create constructor');
@@ -30,7 +35,6 @@ export default class SendCreate extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueHeaderDefaultSub leftText={loc.send.create.details.toLowerCase()} rightComponent={null} />
         <ScrollView>
           <BlueCard style={{ alignItems: 'center', flex: 1 }}>
             <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>

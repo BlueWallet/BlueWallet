@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
-import { BlueLoading, SafeBlueArea, BlueHeaderDefaultSub, BlueListItem } from '../../BlueComponents';
+import { ScrollView, TouchableOpacity } from 'react-native';
+import { BlueLoading, SafeBlueArea, BlueNavigationStyle, BlueHeaderDefaultSub, BlueListItem } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -8,13 +8,7 @@ let loc = require('../../loc');
 
 export default class Settings extends Component {
   static navigationOptions = {
-    navigationOptions: {
-      headerStyle: {
-        backgroundColor: '#FFFFFF',
-        borderBottomWidth: 0,
-      },
-      headerTintColor: '#0c2550',
-    },
+    ...BlueNavigationStyle,
   };
 
   constructor(props) {
@@ -41,10 +35,16 @@ export default class Settings extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
         <ScrollView maxHeight={450}>
-          <BlueListItem title={loc.settings.encrypt_storage} onPress={() => this.props.navigation.navigate('EncryptStorage')} />
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('EncryptStorage')}>
+            <BlueListItem title={loc.settings.encrypt_storage} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Language')}>
+            <BlueListItem title={loc.settings.language}  />
+          </TouchableOpacity>
           <BlueListItem title={loc.settings.currency} />
-          <BlueListItem title={loc.settings.language} onPress={() => this.props.navigation.navigate('Language')} />
-          <BlueListItem title={loc.settings.about} onPress={() => this.props.navigation.navigate('About')} />
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('About')}>
+            <BlueListItem title={loc.settings.about} />
+          </TouchableOpacity>
         </ScrollView>
       </SafeBlueArea>
     );

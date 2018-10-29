@@ -9,7 +9,7 @@ import {
   BlueFormLabel,
   BlueFormInputAddress,
   BlueSpacing20,
-  BlueHeaderDefaultSub,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
@@ -18,11 +18,11 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class WalletDetails extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.wallets.details.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.wallets.details.title,
+    headerLeft: null,
+  });
 
   constructor(props) {
     super(props);

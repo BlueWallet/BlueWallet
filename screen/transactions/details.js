@@ -9,6 +9,7 @@ import {
   BlueLoading,
   BlueSpacing20,
   BlueCopyToClipboardButton,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -37,11 +38,9 @@ function formatTime(time) {
 }
 
 export default class TransactionsDetails extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.transactions.details.title.toLowerCase()} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(),
+  });
 
   constructor(props) {
     super(props);
@@ -84,6 +83,7 @@ export default class TransactionsDetails extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
         <ScrollView style={{ flex: 1 }}>
           <BlueCard>
             {(() => {
