@@ -366,7 +366,7 @@ export default class WalletTransactions extends Component {
                   <Text />
                   <Text />
 
-                  <Text
+                  {!this.isLightning() && <Text
                     style={{
                       fontSize: 18,
                       color: '#9aa0aa',
@@ -381,7 +381,7 @@ export default class WalletTransactions extends Component {
                     }
                   >
                     {loc.wallets.list.tap_here_to_buy}
-                  </Text>
+                  </Text>}
                 </View>
               }
               refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}

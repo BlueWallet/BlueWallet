@@ -12,6 +12,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet'
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -171,7 +172,7 @@ export default class WalletDetails extends Component {
 
                 <BlueSpacing20 />
 
-                <BlueButton
+                {(this.state.wallet.type !== (new LightningCustodianWallet()).type) && <BlueButton
                   icon={{
                     name: 'shopping-cart',
                     type: 'font-awesome',
@@ -184,7 +185,7 @@ export default class WalletDetails extends Component {
                     })
                   }
                   title={loc.wallets.details.buy_bitcoin}
-                />
+                />}
               </View>
             );
           }
