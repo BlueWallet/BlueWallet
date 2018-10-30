@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, RefreshControl, LayoutAnimation, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
 import {
   BlueTransactionOnchainIcon,
   BlueLoading,
@@ -21,23 +21,6 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const customLayoutSpringAnimation = {
-  duration: 300,
-  create: {
-    type: LayoutAnimation.Types.spring,
-    property: LayoutAnimation.Properties.scaleXY,
-    springDamping: 0.7,
-  },
-  update: {
-    type: LayoutAnimation.Types.spring,
-    springDamping: 0.7,
-  },
-  delete: {
-    type: LayoutAnimation.Types.spring,
-    property: LayoutAnimation.Properties.scaleXY,
-    springDamping: 0.7,
-  },
-};
 
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -66,12 +49,6 @@ export default class WalletsList extends Component {
 
   async componentDidMount() {
     this.refreshFunction();
-
-    LayoutAnimation.configureNext(customLayoutSpringAnimation);
-    this.setState({
-      isLoading: false,
-      dataSource: BlueApp.getTransactions(),
-    });
   }
 
   /**
@@ -149,7 +126,6 @@ export default class WalletsList extends Component {
   onSnapToItem(index) {
     console.log('onSnapToItem', index);
     this.lastSnappedTo = index;
-    LayoutAnimation.configureNext(customLayoutSpringAnimation);
 
     if (index < BlueApp.getWallets().length) {
       // not the last
