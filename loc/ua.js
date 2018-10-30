@@ -44,6 +44,8 @@ module.exports = {
       title: 'Інформація про Гаманець',
       address: 'Адреса',
       type: 'Тип',
+      delete: 'Delete',
+      save: 'Save',
       label: 'Мітка',
       destination: 'destination',
       description: 'description',

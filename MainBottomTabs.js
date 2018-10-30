@@ -39,6 +39,9 @@ const WalletsStackNavigator = createStackNavigator({
   TransactionDetails: {
     screen: details,
   },
+  WalletDetails: {
+    screen: WalletDetails,
+  },
   RBF: {
     screen: rbf,
   },
@@ -109,9 +112,6 @@ const MainBottomTabs = createStackNavigator(
     },
     ScanQrWif: {
       screen: scanQrWif,
-    },
-    WalletDetails: {
-      screen: WalletDetails,
     },
     WalletExport: {
       screen: WalletExport,

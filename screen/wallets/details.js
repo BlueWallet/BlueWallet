@@ -1,18 +1,9 @@
+/* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import {
-  BlueFormInput,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueFormLabel,
-  BlueFormInputAddress,
-  BlueSpacing20,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
+import { ActivityIndicator, View, Button, Text, TextInput, Alert } from 'react-native';
+import { BlueButton, SafeBlueArea, BlueCard, BlueFormInputAddress, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet'
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -20,9 +11,17 @@ let loc = require('../../loc');
 
 export default class WalletDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
+    ...BlueNavigationStyle(),
     title: loc.wallets.details.title,
-    headerLeft: null,
+    headerRight: (
+      <Button
+        color="#0c2550"
+        title={loc.wallets.details.save}
+        onPress={() => {
+          navigation.getParam('saveAction')();
+        }}
+      />
+    ),
   });
 
   constructor(props) {
@@ -42,11 +41,12 @@ export default class WalletDetails extends Component {
     }
 
     this.state = {
-      confirmDelete: false,
       isLoading: true,
+      walletName: wallet.getLabel(),
       wallet,
       address,
     };
+    this.props.navigation.setParams({ saveAction: () => this.setLabel() });
   }
 
   async componentDidMount() {
@@ -55,18 +55,11 @@ export default class WalletDetails extends Component {
     });
   }
 
-  async setLabel(text) {
-    this.state.wallet.setLabel(text);
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-    }
-    this.timeout = setTimeout(() => {
-      BlueApp.saveToDisk();
-    }, 3000);
-
-    this.setState({
-      labelChanged: true,
-    }); /* also, a hack to make screen update new typed text */
+  async setLabel() {
+    this.state.wallet.setLabel(this.state.walletName);
+    BlueApp.saveToDisk();
+    alert('Wallet updated.');
+    this.props.navigation.goBack(null);
   }
 
   render() {
@@ -85,111 +78,108 @@ export default class WalletDetails extends Component {
             if (this.state.wallet.getAddress()) {
               return (
                 <View>
-                  <BlueFormLabel>{loc.wallets.details.address}:</BlueFormLabel>
                   <BlueFormInputAddress value={this.state.wallet.getAddress()} editable />
                 </View>
               );
             }
           })()}
+          <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>
+            {loc.wallets.add.wallet_name.toLowerCase()}
+          </Text>
 
-          <BlueFormLabel>{loc.wallets.details.type}:</BlueFormLabel>
-          <BlueFormInput value={this.state.wallet.getTypeReadable()} editable={false} />
-
-          <BlueFormLabel>{loc.wallets.details.label}:</BlueFormLabel>
-          <BlueFormInput
-            value={this.state.wallet.getLabel()}
-            onChangeText={text => {
-              this.setLabel(text);
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              alignItems: 'center',
+              borderRadius: 4,
             }}
-          />
+          >
+            <TextInput
+              placeholder={loc.send.details.note_placeholder}
+              value={this.state.walletName}
+              onChangeText={text => this.setState({ walletName: text })}
+              numberOfLines={1}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+              editable={!this.state.isLoading}
+            />
+          </View>
+
+          <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
+            {loc.wallets.details.type.toLowerCase()}
+          </Text>
+          <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getTypeReadable()}</Text>
         </BlueCard>
+        <View>
+          <BlueSpacing20 />
+          <BlueButton
+            icon={{
+              name: 'cloud-upload',
+              type: 'octicon',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={() =>
+              this.props.navigation.navigate('WalletExport', {
+                address: this.state.wallet.getAddress(),
+                secret: this.state.wallet.getSecret(),
+              })
+            }
+            title={loc.wallets.details.export_backup}
+          />
 
-        {(() => {
-          if (this.state.confirmDelete) {
-            return (
-              <View style={{ alignItems: 'center' }}>
-                <BlueText>{loc.wallets.details.are_you_sure}</BlueText>
-                <View style={{ flex: 0, flexDirection: 'row' }}>
-                  <View style={{ flex: 0.5 }}>
-                    <BlueButton
-                      icon={{
-                        name: 'stop',
-                        type: 'octicon',
-                        color: BlueApp.settings.buttonTextColor,
-                      }}
-                      onPress={async () => {
-                        BlueApp.deleteWallet(this.state.wallet);
-                        await BlueApp.saveToDisk();
-                        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                        EV(EV.enum.WALLETS_COUNT_CHANGED);
-                        this.props.navigation.navigate('Wallets');
-                      }}
-                      title={loc.wallets.details.yes_delete}
-                    />
-                  </View>
-                  <View style={{ flex: 0.5 }}>
-                    <BlueButton
-                      onPress={async () => {
-                        this.setState({ confirmDelete: false });
-                      }}
-                      title={loc.wallets.details.no_cancel}
-                    />
-                  </View>
-                </View>
-              </View>
-            );
-          } else {
-            return (
-              <View>
-                <BlueSpacing20 />
-                <BlueButton
-                  icon={{
-                    name: 'stop',
-                    type: 'octicon',
-                    color: BlueApp.settings.buttonTextColor,
-                  }}
-                  onPress={async () => {
-                    this.setState({ confirmDelete: true });
-                  }}
-                  title={loc.wallets.details.delete_this_wallet}
-                />
-                <BlueSpacing20 />
+          <BlueSpacing20 />
 
-                <BlueButton
-                  icon={{
-                    name: 'cloud-upload',
-                    type: 'octicon',
-                    color: BlueApp.settings.buttonTextColor,
-                  }}
-                  onPress={() =>
-                    this.props.navigation.navigate('WalletExport', {
-                      address: this.state.wallet.getAddress(),
-                      secret: this.state.wallet.getSecret(),
-                    })
-                  }
-                  title={loc.wallets.details.export_backup}
-                />
+          {this.state.wallet.type !== new LightningCustodianWallet().type && (
+            <BlueButton
+              icon={{
+                name: 'shopping-cart',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() =>
+                this.props.navigation.navigate('BuyBitcoin', {
+                  address: this.state.wallet.getAddress(),
+                  secret: this.state.wallet.getSecret(),
+                })
+              }
+              title={loc.wallets.details.buy_bitcoin}
+            />
+          )}
+          <BlueSpacing20 />
 
-                <BlueSpacing20 />
-
-                {(this.state.wallet.type !== (new LightningCustodianWallet()).type) && <BlueButton
-                  icon={{
-                    name: 'shopping-cart',
-                    type: 'font-awesome',
-                    color: BlueApp.settings.buttonTextColor,
-                  }}
-                  onPress={() =>
-                    this.props.navigation.navigate('BuyBitcoin', {
-                      address: this.state.wallet.getAddress(),
-                      secret: this.state.wallet.getSecret(),
-                    })
-                  }
-                  title={loc.wallets.details.buy_bitcoin}
-                />}
-              </View>
-            );
-          }
-        })()}
+          <Button
+            title={loc.wallets.details.delete}
+            color="#d0021b"
+            onPress={() =>
+              Alert.alert(
+                'Alert',
+                loc.wallets.details.are_you_sure,
+                [
+                  {
+                    text: loc.wallets.details.yes_delete,
+                    onPress: async () => {
+                      BlueApp.deleteWallet(this.state.wallet);
+                      await BlueApp.saveToDisk();
+                      EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                      EV(EV.enum.WALLETS_COUNT_CHANGED);
+                      this.props.navigation.navigate('Wallets');
+                    },
+                    style: 'destructive',
+                  },
+                  { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
+                ],
+                { cancelable: false },
+              )
+            }
+          />
+        </View>
+        ); } })()}
       </SafeBlueArea>
     );
   }
@@ -205,5 +195,6 @@ WalletDetails.propTypes = {
     }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+    setParams: PropTypes.func,
   }),
 };
