@@ -366,22 +366,24 @@ export default class WalletTransactions extends Component {
                   <Text />
                   <Text />
 
-                  {!this.isLightning() && <Text
-                    style={{
-                      fontSize: 18,
-                      color: '#9aa0aa',
-                      textAlign: 'center',
-                      textDecorationLine: 'underline',
-                    }}
-                    onPress={() =>
-                      this.props.navigation.navigate('BuyBitcoin', {
-                        address: this.state.wallet.getAddress(),
-                        secret: this.state.wallet.getSecret(),
-                      })
-                    }
-                  >
-                    {loc.wallets.list.tap_here_to_buy}
-                  </Text>}
+                  {!this.isLightning() && (
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        color: '#9aa0aa',
+                        textAlign: 'center',
+                        textDecorationLine: 'underline',
+                      }}
+                      onPress={() =>
+                        this.props.navigation.navigate('BuyBitcoin', {
+                          address: this.state.wallet.getAddress(),
+                          secret: this.state.wallet.getSecret(),
+                        })
+                      }
+                    >
+                      {loc.wallets.list.tap_here_to_buy}
+                    </Text>
+                  )}
                 </View>
               }
               refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}

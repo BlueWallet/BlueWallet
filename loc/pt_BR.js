@@ -54,6 +54,8 @@ module.exports = {
       delete_this_wallet: 'Apagar esta wallet',
       export_backup: 'Exportar / backup',
       buy_bitcoin: 'Buy Bitcoin',
+      delete: 'Delete',
+      save: 'Save',
     },
     export: {
       title: 'Exportar Wallet',

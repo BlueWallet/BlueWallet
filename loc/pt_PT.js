@@ -44,6 +44,8 @@ module.exports = {
       title: 'wallet',
       address: 'Endereço',
       type: 'Tipo',
+      delete: 'Delete',
+      save: 'Save',
       label: 'Nome',
       destination: 'destination',
       description: 'description',

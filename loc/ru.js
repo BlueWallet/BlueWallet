@@ -45,6 +45,8 @@ module.exports = {
       address: 'Адрес',
       type: 'Тип',
       label: 'Метка',
+      delete: 'Delete',
+      save: 'Save',
       are_you_sure: 'Вы уверены?',
       yes_delete: 'Да, удалить',
       destination: 'destination',

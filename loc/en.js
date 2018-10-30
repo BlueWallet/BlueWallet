@@ -41,7 +41,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
     },
     details: {
-      title: 'wallet details',
+      title: 'Wallet',
       address: 'Address',
       type: 'Type',
       label: 'Label',
@@ -50,6 +50,8 @@ module.exports = {
       are_you_sure: 'Are you sure?',
       yes_delete: 'Yes, delete',
       no_cancel: 'No, cancel',
+      delete: 'Delete',
+      save: 'Save',
       delete_this_wallet: 'Delete this wallet',
       export_backup: 'Export / backup',
       buy_bitcoin: 'Buy Bitcoin',
