@@ -13,6 +13,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueNavigationStyle,
+  BlueSpacing20,
 } from '../../BlueComponents';
 import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
@@ -160,6 +161,12 @@ export default class WalletsAdd extends Component {
                         <BlueText>{new SegwitP2SHWallet().getTypeReadable()}</BlueText>
                       </RadioButton>
                     </RadioGroup>
+                  </View>
+                );
+              } else {
+                return (
+                  <View>
+                    <BlueSpacing20 />
                   </View>
                 );
               }
