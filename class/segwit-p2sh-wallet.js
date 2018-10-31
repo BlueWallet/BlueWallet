@@ -9,6 +9,10 @@ export class SegwitP2SHWallet extends LegacyWallet {
     this.type = 'segwitP2SH';
   }
 
+  allowRBF() {
+    return true;
+  }
+
   getTypeReadable() {
     return 'SegWit (P2SH)';
   }

@@ -40,6 +40,10 @@ export class AbstractWallet {
     return true;
   }
 
+  allowRBF() {
+    return false;
+  }
+
   /**
    * Returns delta of unconfirmed balance. For example, if theres no
    * unconfirmed balance its 0

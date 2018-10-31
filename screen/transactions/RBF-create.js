@@ -2,17 +2,26 @@
 import React, { Component } from 'react';
 import { TextInput } from 'react-native';
 import { Text, FormValidationMessage } from 'react-native-elements';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing } from '../../BlueComponents';
+import {
+  BlueLoading,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueSpacing,
+  BlueNavigationStyle,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let BigNumber = require('bignumber.js');
 let bitcoinjs = require('bitcoinjs-lib');
 let BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {
-  static navigationOptions = {
-    tabBarVisible: false,
-  };
-
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(null, false),
+    title: 'Create RBF',
+  });
   constructor(props) {
     super(props);
     console.log('send/create constructor');
