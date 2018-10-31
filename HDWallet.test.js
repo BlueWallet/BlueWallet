@@ -160,8 +160,13 @@ it('can work with malformed mnemonic', () => {
 });
 
 it('can create a Legacy HD (BIP44)', async function() {
+  if (!process.env.HD_MNEMONIC_BREAD) {
+    console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
+    return;
+  }
+
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-  let mnemonic = 'high relief amount witness try remember adult destroy puppy fox giant peace';
+  let mnemonic = process.env.HD_MNEMONIC_BREAD;
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(mnemonic);
   assert.equal(hd.validateMnemonic(), true);
