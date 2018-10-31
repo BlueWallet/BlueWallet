@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
-import QRCode from 'react-native-qrcode';
+import { QRCode } from 'react-native-custom-qr-codes';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueNavigationStyle, is } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -87,11 +87,13 @@ export default class ReceiveDetails extends Component {
         <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
             <QRCode
-              value={this.state.address}
+              content={this.state.address}
               size={(is.ipad() && 300) || 300}
               bgColor={BlueApp.settings.foregroundColor}
               fgColor={BlueApp.settings.brandingColor}
+              logo={require('../../img/qr-code.png')}
             />
+
             <TouchableOpacity onPress={this.copyToClipboard}>
               <Animated.Text style={styles.address} numberOfLines={0}>
                 {this.state.addressText}
