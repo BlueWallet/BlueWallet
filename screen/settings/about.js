@@ -15,7 +15,9 @@ import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
-let loc = require('../../loc/');
+const loc = require('../../loc/');
+const pkg = require('../../package.json');
+const appjson = require('../../app.json');
 
 export default class About extends Component {
   static navigationOptions = () => ({
@@ -45,7 +47,7 @@ export default class About extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <ScrollView>
           <BlueCard>
-            <BlueText h4>BlueWallet is free and opensource Bitcoin wallet. Licensed MIT.</BlueText>
+            <BlueText h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueText>
             <BlueSpacing20 />
 
             <BlueButton
@@ -113,6 +115,11 @@ export default class About extends Component {
             </BlueTextCentered>
             <BlueTextCentered>
               {Constants.platform.ios.model} ({Constants.platform.ios.platform})
+            </BlueTextCentered>
+            <BlueSpacing20 />
+
+            <BlueTextCentered>
+              {pkg.name} v{pkg.version} (build {appjson.expo.ios.buildNumber})
             </BlueTextCentered>
           </BlueCard>
         </ScrollView>
