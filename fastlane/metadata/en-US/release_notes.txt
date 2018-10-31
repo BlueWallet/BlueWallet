@@ -11,3 +11,5 @@ REF: Updated navigation headers to better match design
 ADD: buy bitcoin with Changelly
 FIX: Validate address with bitcoin library
 REF: Removed "Send Now" from transaction details
+REF: improved RBF
+FIX: Updated Receive to have logo in QRCode
