@@ -1,20 +1,16 @@
 import React, { Component } from 'react';
 import { ScrollView, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueButton, BlueHeader } from '../BlueComponents';
+import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueButton, BlueNavigationStyle } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet } from '../class';
-let BlueApp = require('../BlueApp');
 let BigNumber = require('bignumber.js');
 let encryption = require('../encryption');
 
 export default class Selftest extends Component {
-  static navigationOptions = {
-    tabBarLabel: 'Self test',
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons name={focused ? 'ios-settings' : 'ios-settings-outline'} size={26} style={{ color: tintColor }} />
-    ),
-  };
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(),
+    title: 'Self test',
+  });
 
   constructor(props) {
     super(props);
@@ -258,13 +254,6 @@ export default class Selftest extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeader
-          backgroundColor={BlueApp.settings.brandingColor}
-          centerComponent={{
-            text: 'Self test',
-            style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
-          }}
-        />
         <BlueCard>
           <ScrollView maxHeight={450}>
             <BlueSpacing20 />

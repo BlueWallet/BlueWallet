@@ -2,6 +2,7 @@ import { createStackNavigator } from 'react-navigation';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
+import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
 import EncryptStorage from './screen/settings/encryptStorage';
 import WalletsList from './screen/wallets/list';
@@ -62,6 +63,9 @@ const WalletsStackNavigator = createStackNavigator({
   About: {
     screen: About,
     path: 'About',
+  },
+  Selftest: {
+    screen: Selftest,
   },
   Language: {
     screen: Language,
