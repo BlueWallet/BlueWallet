@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, Button, Text, TextInput, Alert } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueFormInputAddress, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 let EV = require('../../events');
@@ -77,9 +77,12 @@ export default class WalletDetails extends Component {
           {(() => {
             if (this.state.wallet.getAddress()) {
               return (
-                <View>
-                  <BlueFormInputAddress value={this.state.wallet.getAddress()} editable />
-                </View>
+                <React.Fragment>
+                  <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
+                    {loc.wallets.details.address.toLowerCase()}
+                  </Text>
+                  <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getAddress()}</Text>
+                </React.Fragment>
               );
             }
           })()}
@@ -154,11 +157,11 @@ export default class WalletDetails extends Component {
           <BlueSpacing20 />
 
           <Button
-            title={loc.wallets.details.delete}
+            title={loc.wallets.details.title}
             color="#d0021b"
             onPress={() =>
               Alert.alert(
-                'Alert',
+                loc.wallets.details.delete + ' ' + loc.wallets.details.title,
                 loc.wallets.details.are_you_sure,
                 [
                   {

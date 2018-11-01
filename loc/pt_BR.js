@@ -98,6 +98,7 @@ module.exports = {
       from: 'De',
       to: 'Para',
       copy: 'Copiar',
+      transaction_details: 'Transaction details',
     },
   },
   send: {

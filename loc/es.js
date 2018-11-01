@@ -97,6 +97,7 @@ module.exports = {
       from: 'De',
       to: 'A',
       copy: 'Copiar',
+      transaction_details: 'Detalles de la transacción',
     },
   },
   send: {

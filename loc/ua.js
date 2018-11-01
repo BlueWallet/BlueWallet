@@ -96,6 +96,7 @@ module.exports = {
       from: 'Від',
       to: 'Кому',
       copy: 'копія',
+      transaction_details: 'Transaction details',
     },
   },
   send: {

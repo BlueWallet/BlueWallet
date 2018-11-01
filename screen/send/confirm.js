@@ -124,7 +124,9 @@ export default class Confirm extends Component {
               })
             }
           >
-            <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>{loc.transactions.details.title}</Text>
+            <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>
+              {loc.transactions.details.transaction_details}
+            </Text>
           </TouchableOpacity>
         </BlueCard>
       </SafeBlueArea>

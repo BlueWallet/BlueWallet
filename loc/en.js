@@ -97,6 +97,7 @@ module.exports = {
       from: 'Input',
       to: 'Output',
       copy: 'Copy',
+      transaction_details: 'Transaction details',
     },
   },
   send: {
