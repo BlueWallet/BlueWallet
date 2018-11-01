@@ -361,7 +361,7 @@ export class BlueHeaderDefaultSub extends Component {
             >
               <View style={stylesBlueIcon.box}>
                 <View style={stylesBlueIcon.ballTransparrent}>
-                  <Icon name="times" size={16} type="font-awesome" color={BlueApp.settings.foregroundColor} />
+                  <Image source={require('./img/close.png')} />
                 </View>
               </View>
             </TouchableOpacity>
