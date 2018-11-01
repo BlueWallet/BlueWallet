@@ -157,7 +157,7 @@ export default class WalletDetails extends Component {
           <BlueSpacing20 />
 
           <Button
-            title={loc.wallets.details.title}
+            title={loc.wallets.details.delete}
             color="#d0021b"
             onPress={() =>
               Alert.alert(
