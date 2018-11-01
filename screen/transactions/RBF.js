@@ -1,14 +1,24 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueFormInput, BlueSpacing } from '../../BlueComponents';
+import {
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueFormInput,
+  BlueSpacing,
+  BlueNavigationStyle,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 
 export default class RBF extends Component {
-  static navigationOptions = {
-    tabBarVisible: false,
-  };
+  static navigationOptions = () => ({
+    ...BlueNavigationStyle(null, false),
+    title: 'RBF',
+  });
 
   constructor(props) {
     super(props);

@@ -61,11 +61,22 @@ export default class TransactionsDetails extends Component {
       }
     }
 
+    let wallet = false;
+    for (let w of BlueApp.getWallets()) {
+      for (let t of w.getTransactions()) {
+        if (t.hash === hash) {
+          console.log('tx', hash, 'belongs to', w.getLabel());
+          wallet = w;
+        }
+      }
+    }
+
     this.state = {
       isLoading: true,
       tx: foundTx,
       from,
       to,
+      wallet,
     };
   }
 
@@ -85,6 +96,21 @@ export default class TransactionsDetails extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
         <ScrollView style={{ flex: 1 }}>
+          {(() => {
+            if (this.state.tx.confirmations === 0 && this.state.wallet && this.state.wallet.allowRBF()) {
+              return (
+                <BlueButton
+                  onPress={() =>
+                    this.props.navigation.navigate('RBF', {
+                      txid: this.state.tx.hash,
+                    })
+                  }
+                  title="Replace-By-Fee (RBF)"
+                />
+              );
+            }
+          })()}
+
           <BlueCard>
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
@@ -176,21 +202,6 @@ export default class TransactionsDetails extends Component {
               </React.Fragment>
             )}
           </BlueCard>
-
-          {(() => {
-            if (this.state.tx.confirmations === 0) {
-              return (
-                <BlueButton
-                  onPress={() =>
-                    this.props.navigation.navigate('RBF', {
-                      txid: this.state.tx.hash,
-                    })
-                  }
-                  title="Replace-By-Fee (RBF)"
-                />
-              );
-            }
-          })()}
         </ScrollView>
       </SafeBlueArea>
     );

@@ -71,7 +71,7 @@ it('can generate Segwit HD (BIP49)', async () => {
 
 it('HD (BIP49) can create TX', async () => {
   if (!process.env.HD_MNEMONIC) {
-    console.warn('process.env.HD_MNEMONIC not set, skipped');
+    console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
@@ -160,8 +160,13 @@ it('can work with malformed mnemonic', () => {
 });
 
 it('can create a Legacy HD (BIP44)', async function() {
+  if (!process.env.HD_MNEMONIC_BREAD) {
+    console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
+    return;
+  }
+
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-  let mnemonic = 'high relief amount witness try remember adult destroy puppy fox giant peace';
+  let mnemonic = process.env.HD_MNEMONIC_BREAD;
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(mnemonic);
   assert.equal(hd.validateMnemonic(), true);
@@ -201,9 +206,13 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
 });
 
 it('HD breadwallet works', async function() {
+  if (!process.env.HD_MNEMONIC_BREAD) {
+    console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
+    return;
+  }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   let hdBread = new HDLegacyBreadwalletWallet();
-  hdBread.setSecret('high relief amount witness try remember adult destroy puppy fox giant peace');
+  hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
 
   assert.equal(hdBread.validateMnemonic(), true);
   assert.equal(hdBread._getExternalAddressByIndex(0), '1ARGkNMdsBE36fJhddSwf8PqBXG3s4d2KU');
