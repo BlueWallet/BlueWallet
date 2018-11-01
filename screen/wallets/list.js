@@ -333,7 +333,6 @@ export default class WalletsList extends Component {
               }}
             />
           </BlueList>
-          ); })()}
         </ScrollView>
       </SafeBlueArea>
     );

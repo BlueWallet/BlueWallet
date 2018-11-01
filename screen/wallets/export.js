@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Dimensions, ActivityIndicator, View } from 'react-native';
-import QRCode from 'react-native-qrcode';
+import { QRCode } from 'react-native-custom-qr-codes';
 import { BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -92,10 +92,11 @@ export default class WalletExport extends Component {
             }
           })()}
           <QRCode
-            value={this.state.wallet.getSecret()}
+            content={this.state.wallet.getSecret()}
             size={this.determineSize()}
-            bgColor={BlueApp.settings.foregroundColor}
-            fgColor={BlueApp.settings.brandingColor}
+            color={BlueApp.settings.foregroundColor}
+            backgroundColor={BlueApp.settings.brandingColor}
+            logo={require('../../img/qr-code.png')}
           />
           <BlueText style={{ marginVertical: 8 }}>{this.state.wallet.getSecret()}</BlueText>
         </BlueCard>

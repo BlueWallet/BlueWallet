@@ -100,6 +100,7 @@ export default class WalletsAdd extends Component {
               }}
               style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
               editable={!this.state.isLoading}
+              underlineColorAndroid="transparent"
             />
           </View>
           <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>

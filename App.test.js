@@ -7,7 +7,7 @@ import Selftest from './screen/selftest';
 import { BlueHeader } from './BlueComponents';
 import MockStorage from './MockStorage';
 let assert = require('assert');
-jest.mock('react-native-qrcode', () => 'Video');
+jest.mock('react-native-custom-qr-codes', () => 'Video');
 const AsyncStorage = new MockStorage();
 jest.setMock('AsyncStorage', AsyncStorage);
 jest.useFakeTimers();

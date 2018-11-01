@@ -89,11 +89,10 @@ export default class ReceiveDetails extends Component {
             <QRCode
               content={this.state.address}
               size={(is.ipad() && 300) || 300}
-              bgColor={BlueApp.settings.foregroundColor}
-              fgColor={BlueApp.settings.brandingColor}
+              color={BlueApp.settings.foregroundColor}
+              backgroundColor={BlueApp.settings.brandingColor}
               logo={require('../../img/qr-code.png')}
             />
-
             <TouchableOpacity onPress={this.copyToClipboard}>
               <Animated.Text style={styles.address} numberOfLines={0}>
                 {this.state.addressText}
