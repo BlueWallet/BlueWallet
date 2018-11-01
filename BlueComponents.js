@@ -267,12 +267,13 @@ export class BlueFormMultiInput extends Component {
       <FormInput
         {...this.props}
         multiline
+        underlineColorAndroid="transparent"
         numberOfLines={4}
         inputStyle={{
           width: width - 40,
           color: BlueApp.settings.foregroundColor,
           height: 120,
-          fontSize: (isIpad && 10) || ((is.iphone8() && 12) || 14),
+          // fontSize: (isIpad && 10) || ((is.iphone8() && 12) || 14),
         }}
         containerStyle={{
           marginTop: 5,
