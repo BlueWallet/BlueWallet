@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View, Button, Text, TextInput, Alert } from 'react-native';
+import { ActivityIndicator, View, Button, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -111,6 +111,7 @@ export default class WalletDetails extends Component {
               numberOfLines={1}
               style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
               editable={!this.state.isLoading}
+              underlineColorAndroid="transparent"
             />
           </View>
 
@@ -156,9 +157,8 @@ export default class WalletDetails extends Component {
           )}
           <BlueSpacing20 />
 
-          <Button
-            title={loc.wallets.details.delete}
-            color="#d0021b"
+          <TouchableOpacity
+            style={{ alignItems: 'center' }}
             onPress={() =>
               Alert.alert(
                 loc.wallets.details.delete + ' ' + loc.wallets.details.title,
@@ -180,9 +180,10 @@ export default class WalletDetails extends Component {
                 { cancelable: false },
               )
             }
-          />
+          >
+            <Text style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}>{loc.wallets.details.delete}</Text>
+          </TouchableOpacity>
         </View>
-        ); } })()}
       </SafeBlueArea>
     );
   }

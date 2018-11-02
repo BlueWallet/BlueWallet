@@ -844,7 +844,6 @@ export class NewWalletPannel extends Component {
     return (
       <TouchableOpacity
         {...this.props}
-        style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
         onPress={() => {
           if (this.handleClick) {
             this.handleClick();
@@ -957,81 +956,84 @@ export class WalletsCarousel extends Component {
     }
 
     return (
-      <TouchableOpacity
-        activeOpacity={1}
-        style={{ paddingRight: 10, left: -20, marginVertical: 6 }}
-        onPress={() => {
-          if (WalletsCarousel.handleClick) {
-            WalletsCarousel.handleClick(index);
-          }
-        }}
-      >
-        <LinearGradient
-          shadowOpacity={18 / 100}
-          shadowOffset={{ width: 0, height: 4 }}
-          shadowRadius={10}
-          shadowColor="#000000"
-          colors={[gradient1, gradient2]}
-          style={{ padding: 15, borderRadius: 10, height: 164 }}
+      <View style={{ paddingRight: 10 }}>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => {
+            if (WalletsCarousel.handleClick) {
+              WalletsCarousel.handleClick(index);
+            }
+          }}
         >
-          <Image
-            source={(new LightningCustodianWallet().type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
-            style={{
-              width: 99,
-              height: 94,
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-            }}
-          />
+          <LinearGradient
+            shadowOpacity={18 / 100}
+            shadowOffset={{ width: 0, height: 4 }}
+            shadowRadius={10}
+            shadowColor="#000000"
+            colors={[gradient1, gradient2]}
+            style={{ padding: 15, borderRadius: 10, height: 164 }}
+          >
+            <Image
+              source={
+                (new LightningCustodianWallet().type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')
+              }
+              style={{
+                width: 99,
+                height: 94,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+              }}
+            />
 
-          <Text style={{ backgroundColor: 'transparent' }} />
-          <Text
-            numberOfLines={1}
-            style={{
-              backgroundColor: 'transparent',
-              fontSize: 19,
-              color: '#fff',
-            }}
-          >
-            {item.getLabel()}
-          </Text>
-          <Text
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={{
-              backgroundColor: 'transparent',
-              fontWeight: 'bold',
-              fontSize: 36,
-              color: '#fff',
-            }}
-          >
-            {loc.formatBalance(item.getBalance())}
-          </Text>
-          <Text style={{ backgroundColor: 'transparent' }} />
-          <Text
-            numberOfLines={1}
-            style={{
-              backgroundColor: 'transparent',
-              fontSize: 13,
-              color: '#fff',
-            }}
-          >
-            {loc.wallets.list.latest_transaction}
-          </Text>
-          <Text
-            numberOfLines={1}
-            style={{
-              backgroundColor: 'transparent',
-              fontWeight: 'bold',
-              fontSize: 16,
-              color: '#fff',
-            }}
-          >
-            {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
+            <Text style={{ backgroundColor: 'transparent' }} />
+            <Text
+              numberOfLines={1}
+              style={{
+                backgroundColor: 'transparent',
+                fontSize: 19,
+                color: '#fff',
+              }}
+            >
+              {item.getLabel()}
+            </Text>
+            <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              style={{
+                backgroundColor: 'transparent',
+                fontWeight: 'bold',
+                fontSize: 36,
+                color: '#fff',
+              }}
+            >
+              {loc.formatBalance(item.getBalance())}
+            </Text>
+            <Text style={{ backgroundColor: 'transparent' }} />
+            <Text
+              numberOfLines={1}
+              style={{
+                backgroundColor: 'transparent',
+                fontSize: 13,
+                color: '#fff',
+              }}
+            >
+              {loc.wallets.list.latest_transaction}
+            </Text>
+            <Text
+              numberOfLines={1}
+              style={{
+                backgroundColor: 'transparent',
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: '#fff',
+              }}
+            >
+              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -1048,6 +1050,7 @@ export class WalletsCarousel extends Component {
         itemWidth={itemWidth}
         inactiveSlideScale={1}
         inactiveSlideOpacity={0.7}
+        contentContainerCustomStyle={{ left: -20 }}
         onSnapToItem={index => {
           if (this.onSnapToItem) {
             this.onSnapToItem(index);

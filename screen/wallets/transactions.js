@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, Button, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import { LinearGradient } from 'expo';
 import {
@@ -35,20 +35,23 @@ export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       headerRight: (
-        <Button
+        <TouchableOpacity
+          style={{ marginHorizontal: 8 }}
           onPress={() =>
             navigation.navigate('WalletDetails', {
               address: navigation.state.params.wallet.getAddress(),
               secret: navigation.state.params.wallet.getSecret(),
             })
           }
-          title={loc.wallets.options}
-          color="#fff"
-        />
+        >
+          <Text style={{ color: '#fff', fontSize: 20, fontWeight: '500' }}>{loc.wallets.options}</Text>
+        </TouchableOpacity>
       ),
       headerStyle: {
         backgroundColor: navigation.state.params.headerColor,
         borderBottomWidth: 0,
+        elevation: 0,
+        shadowRadius: 0,
       },
       headerTintColor: '#FFFFFF',
     };
