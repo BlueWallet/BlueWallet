@@ -5,6 +5,7 @@ let BigNumber = require('bignumber.js');
 export class LightningCustodianWallet extends LegacyWallet {
   constructor() {
     super();
+    this.baseURI = 'https://api.blitzhub.io/';
     this.init();
     this.type = 'lightningCustodianWallet';
     this.refresh_token = '';
@@ -14,6 +15,23 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.refill_addressess = [];
     this.pending_transactions_raw = [];
     this.info_raw = false;
+  }
+
+  /**
+   * requires calling init() after setting
+   *
+   * @param URI
+   */
+  setBaseURI(URI) {
+    if (URI) {
+      this.baseURI = URI;
+    } else {
+      this.baseURI = 'https://api.blitzhub.io/';
+    }
+  }
+
+  getBaseURI() {
+    return this.baseURI;
   }
 
   allowSend() {
@@ -43,7 +61,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   init() {
     this._api = new Frisbee({
-      baseURI: 'https://api.blitzhub.io/',
+      baseURI: this.baseURI,
     });
   }
 
