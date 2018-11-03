@@ -157,8 +157,8 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   },
   headerTintColor: '#0c2550',
   headerRight: withNavigationCloseButton ? (
-    <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => navigation.goBack(null)}>
-      <Image source={require('./img/close.png')} />
+    <TouchableOpacity style={{ width: 40, height: 40, padding: 14 }} onPress={() => navigation.goBack(null)}>
+      <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
     </TouchableOpacity>
   ) : null,
   headerBackTitle: null,

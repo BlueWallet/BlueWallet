@@ -458,7 +458,6 @@ export default class SendDetails extends Component {
                 <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
               </TouchableOpacity>
             </View>
-            )}
             <View
               hide={!this.state.showMemoRow}
               style={{
@@ -485,7 +484,6 @@ export default class SendDetails extends Component {
                 editable={!this.state.isLoading}
               />
             </View>
-            )}
             <TouchableOpacity
               onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
               disabled={this.state.isLoading}
@@ -508,7 +506,6 @@ export default class SendDetails extends Component {
                 <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
               </View>
             </TouchableOpacity>
-            )}
             {this.renderCreateButton()}
             {this.renderFeeSelectionModal()}
           </KeyboardAvoidingView>
