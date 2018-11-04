@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TextInput, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
+import { TextInput, Linking, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
 import { Text } from 'react-native-elements';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -60,6 +60,9 @@ export default class SendCreate extends Component {
 
             <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
               <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/#verify')}>
+              <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Open coinb.in/#verify</Text>
             </TouchableOpacity>
           </BlueCard>
           <BlueCard>

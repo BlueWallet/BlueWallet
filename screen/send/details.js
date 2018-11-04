@@ -149,6 +149,29 @@ export default class SendDetails extends Component {
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
+  calculateFee(utxos, txhex) {
+    let index = {};
+    let c = 1;
+    index[0] = 0;
+    for (let utxo of utxos) {
+      index[c] = utxo.amount + index[c - 1];
+      c++;
+    }
+
+    let tx = bitcoin.Transaction.fromHex(txhex);
+    let totalInput = index[tx.ins.length];
+    // ^^^ dumb way to calculate total input. we assume that signer uses utxos sequentially
+    // so total input == sum of yongest used inputs (and num of used inputs is `tx.ins.length`)
+    // TODO: good candidate to refactor and move to appropriate class. some day
+
+    let totalOutput = 0;
+    for (let o of tx.outs) {
+      totalOutput += o.value * 1;
+    }
+
+    return new BigNumber(totalInput - totalOutput).dividedBy(100000000).toNumber();
+  }
+
   async createTransaction() {
     this.setState({ isLoading: true });
     let error = false;
@@ -256,7 +279,7 @@ export default class SendDetails extends Component {
       this.setState({ isLoading: false }, () =>
         this.props.navigation.navigate('Confirm', {
           amount: this.state.amount,
-          fee: Number(fee.toFixed(8)),
+          fee: this.calculateFee(utxo, tx),
           address: this.state.address,
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,

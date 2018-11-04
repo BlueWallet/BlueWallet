@@ -1,6 +1,7 @@
 /* global it, jasmine */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from './class';
 let assert = require('assert');
+let bitcoin = require('bitcoinjs-lib');
 
 it('can convert witness to address', () => {
   let address = SegwitP2SHWallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
@@ -88,7 +89,6 @@ it('HD (BIP49) can create TX', async () => {
     '010000000001029d98d81fe2b596fd79e845fa9f38d7e0b6fb73303c40fac604d04df1fa137aee00000000171600142f18e8406c9d210f30c901b24e5feeae78784eb7ffffffff67fb86f310df24e508d40fce9511c7fde4dd4ee91305fd08a074279a70e2cd22000000001716001468dde644410cc789d91a7f36b823f38369755a1cffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87dc0500000000000017a914850f4dbc255654de2c12c6f6d79cf9cb756cad038702483045022100dc8390a9fd34c31259fa47f9fc182f20d991110ecfd5b58af1cf542fe8de257a022004c2d110da7b8c4127675beccc63b46fd65c706951f090fd381fa3b21d3c5c08012102edd141c5a27a726dda66be10a38b0fd3ccbb40e7c380034aaa43a1656d5f4dd60247304402207c0aef8313d55e72474247daad955979f62e56d1cbac5f2d14b8b022c6ce112602205d9aa3804f04624b12ab8a5ab0214b529c531c2f71c27c6f18aba6502a6ea0a80121030db3c49461a5e539e97bab62ab2b8f88151d1c2376493cf73ef1d02ef60637fd00000000',
   );
 
-  let bitcoin = require('bitcoinjs-lib');
   txhex = hd.createTx(hd.utxo, 0.000005, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
   var tx = bitcoin.Transaction.fromHex(txhex);
   assert.equal(tx.ins.length, 1);
@@ -118,6 +118,15 @@ it('HD (BIP49) can create TX', async () => {
   chunksIn = bitcoin.script.decompile(tx.outs[0].script);
   toAddress = bitcoin.address.fromOutputScript(chunksIn);
   assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+
+  // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee.
+  // theres 0.00003 on UTXOs, lets transfer (0.00003 - 100sat), soo fee is equal to change (100 sat)
+  // which throws @dust error if broadcasted
+  txhex = hd.createTx(hd.utxo, 0.000028, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 2);
+  assert.equal(tx.outs.length, 1); // only 1 output, which means change is neglected
+  assert.equal(tx.outs[0].value, 2800);
 });
 
 it('Segwit HD (BIP49) can fetch UTXO', async function() {

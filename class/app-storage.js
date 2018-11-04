@@ -16,6 +16,7 @@ export class AppStorage {
   static LANG = 'lang';
   static CURRENCY = 'currency';
   static ENTROPY = 'entropy';
+  static BLITZHUB = 'blitzhub';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -150,7 +151,18 @@ export class AppStorage {
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
               break;
             case new LightningCustodianWallet().type:
+              /** @type {LightningCustodianWallet} */
               unserializedWallet = LightningCustodianWallet.fromJson(key);
+              let blitzhub = false;
+              try {
+                blitzhub = await AsyncStorage.getItem(AppStorage.BLITZHUB);
+              } catch (Error) {
+                console.warn(Error);
+              }
+              if (blitzhub) {
+                unserializedWallet.setBaseURI(blitzhub);
+                unserializedWallet.init();
+              }
               break;
             case 'legacy':
             default:

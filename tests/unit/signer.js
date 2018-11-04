@@ -67,6 +67,21 @@ describe('unit - signer', function () {
       assert.equal(tx, '0100000000010160d3d8d96a31d6bae5e2927bb4fe7be81702bb1787b3f9770a8084040359051601000000171600141e16a923b1a9e8d0c2a044030608a6aa13f97e9affffffff0230e60200000000001976a914f7c6c1f9f6142107ed293c8fbf85fbc49eb5f1b988ac400d03000000000017a914e0d81f03546ab8f29392b488ec62ab355ee7c573870247304402202c962e14ae6abd45dc9613d2f088ad487e805670548e244deb25d762b310a60002204f12c7f9b8da3567b39906ff6c46b27ce087e7ae91bbe34fb1cdee1b994b9d3001210314389c888e9669ae05739819fc7c43d7a50fdeabd2a8951f9607c8cad394fd4b00000000')
       done()
     })
+
+
+
+    it('should return valid tx hex for segwit transactions if change is too small so it causes @dust error', function (done) {
+      // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee
+      let signer = require('../../models/signer')
+      let utxos = [ { 'txid': '160559030484800a77f9b38717bb0217e87bfeb47b92e2e5bad6316ad9d8d360', 'vout': 1, 'address': '3NBtBset4qPD8DZeLw4QbFi6SNjNL8hg7x', 'account': '3NBtBset4qPD8DZeLw4QbFi6SNjNL8hg7x', 'scriptPubKey': 'a914e0d81f03546ab8f29392b488ec62ab355ee7c57387', 'amount': 0.00400000, 'confirmations': 271, 'spendable': false, 'solvable': false, 'safe': true } ]
+      let txhex = signer.createSegwitTransaction(utxos, '1Pb81K1xJnMjUfFgKUbva6gr1HCHXxHVnr', 0.003998, 0.000001, 'L4iRvejJG9gRhKVc3rZm5haoyd4EuCi77G91DnXRrvNDqiXktkXh')
+      let bitcoin = require('bitcoinjs-lib')
+      let tx = bitcoin.Transaction.fromHex(txhex);
+      assert.equal(tx.ins.length, 1);
+      assert.equal(tx.outs.length, 1); // only 1 output, which means change is neglected
+      assert.equal(tx.outs[0].value, 399700);
+      done()
+    })
   })
 
   describe('WIF2address()', function () {
