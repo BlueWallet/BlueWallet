@@ -1,7 +1,6 @@
 /* global alert */
-import { SegwitP2SHWallet } from '../../class';
 import React, { Component } from 'react';
-import { ActivityIndicator, Dimensions, View, TextInput } from 'react-native';
+import { AsyncStorage, ActivityIndicator, Dimensions, View, TextInput } from 'react-native';
 import {
   BlueTextCentered,
   BlueText,
@@ -19,6 +18,7 @@ import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { AppStorage, SegwitP2SHWallet } from '../../class';
 const entropy = require('../../entropy');
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -203,8 +203,19 @@ export default class WalletsAdd extends Component {
 
                     w = new LightningCustodianWallet();
                     w.setLabel(this.state.label || w.getTypeReadable());
-                    await w.createAccount();
-                    await w.authorize();
+
+                    try {
+                      let blitzhub = await AsyncStorage.getItem(AppStorage.BLITZHUB);
+                      if (blitzhub) {
+                        w.setBaseURI(blitzhub);
+                        w.init();
+                      }
+                      await w.createAccount();
+                      await w.authorize();
+                    } catch (Err) {
+                      console.warn('lnd create failure', Err);
+                      return; // giving app, not adding anything
+                    }
                     A(A.ENUM.CREATED_LIGHTNING_WALLET);
                   } else if (this.state.selectedIndex === 1) {
                     // btc was selected

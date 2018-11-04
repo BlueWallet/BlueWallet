@@ -5,6 +5,7 @@ import About from './screen/settings/about';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
 import EncryptStorage from './screen/settings/encryptStorage';
+import LightningSettings from './screen/settings/lightningSettings';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
@@ -74,6 +75,10 @@ const WalletsStackNavigator = createStackNavigator({
   EncryptStorage: {
     screen: EncryptStorage,
     path: 'EncryptStorage',
+  },
+  LightningSettings: {
+    screen: LightningSettings,
+    path: 'LightningSettings',
   },
 });
 
