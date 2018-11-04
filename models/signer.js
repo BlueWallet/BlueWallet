@@ -32,7 +32,7 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
     ourOutputs[outputNum].amount = unspent.amount;
     unspentAmountSatoshi += unspent.amount;
     if (unspentAmountSatoshi >= amountToOutputSatoshi + feeInSatoshis) {
-      // found enough inputs su satisfy payee and pay fees
+      // found enough inputs to satisfy payee and pay fees
       break;
     }
     outputNum++;
@@ -47,7 +47,11 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   txb.addOutput(toAddress, amountToOutputSatoshi);
   if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
     // sending less than we have, so the rest should go back
-    txb.addOutput(changeAddress, unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis);
+    if (unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis > 3 * feeInSatoshis) {
+      // to prevent @dust error change transferred amount should be at least 3xfee.
+      // if not - we just dont send change and it wil add to fee
+      txb.addOutput(changeAddress, unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis);
+    }
   }
 
   // now, signing every input with a corresponding key
@@ -86,7 +90,12 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
   txb.addOutput(toAddress, amountToOutput);
   if (amountToOutput + feeInSatoshis < unspentAmount) {
     // sending less than we have, so the rest should go back
-    txb.addOutput(changeAddress, unspentAmount - amountToOutput - feeInSatoshis);
+
+    if (unspentAmount - amountToOutput - feeInSatoshis > 3 * feeInSatoshis) {
+      // to prevent @dust error change transferred amount should be at least 3xfee.
+      // if not - we just dont send change and it wil add to fee
+      txb.addOutput(changeAddress, unspentAmount - amountToOutput - feeInSatoshis);
+    }
   }
 
   for (let c = 0; c < utxos.length; c++) {
