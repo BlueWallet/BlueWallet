@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient, Constants } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
-import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard, Platform } from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
@@ -446,6 +446,9 @@ export class is {
   }
 
   static iphone8() {
+    if (Platform.OS !== 'ios') {
+      return false;
+    }
     return Constants.platform.ios.platform === 'iPhone10,4';
   }
 }
@@ -852,6 +855,8 @@ export class NewWalletPannel extends Component {
       >
         <LinearGradient
           colors={['#eef0f4', '#eef0f4']}
+          start={[0, 0]}
+          end={[1, 1]}
           style={{
             padding: 15,
             borderRadius: 10,
@@ -972,6 +977,8 @@ export class WalletsCarousel extends Component {
             shadowColor="#000000"
             colors={[gradient1, gradient2]}
             style={{ padding: 15, borderRadius: 10, height: 164 }}
+            start={[0, 0]}
+            end={[1, 1]}
           >
             <Image
               source={

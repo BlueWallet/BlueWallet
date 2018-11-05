@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View, Button, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -14,13 +14,14 @@ export default class WalletDetails extends Component {
     ...BlueNavigationStyle(),
     title: loc.wallets.details.title,
     headerRight: (
-      <Button
-        color="#0c2550"
-        title={loc.wallets.details.save}
+      <TouchableOpacity
+        style={{ marginHorizontal: 16 }}
         onPress={() => {
           navigation.getParam('saveAction')();
         }}
-      />
+      >
+        <Text style={{ color: '#0c2550' }}>{loc.wallets.details.save}</Text>
+      </TouchableOpacity>
     ),
   });
 

@@ -214,7 +214,7 @@ export default class WalletsAdd extends Component {
                       await w.authorize();
                     } catch (Err) {
                       console.warn('lnd create failure', Err);
-                      return; // giving app, not adding anything
+                      // giving app, not adding anything
                     }
                     A(A.ENUM.CREATED_LIGHTNING_WALLET);
                   } else if (this.state.selectedIndex === 1) {

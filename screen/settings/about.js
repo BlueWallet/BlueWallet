@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Constants } from 'expo';
-import { ScrollView, Linking, Dimensions } from 'react-native';
+import { ScrollView, Linking, Dimensions, Platform } from 'react-native';
 import {
   BlueTextCentered,
   BlueLoading,
@@ -36,6 +36,36 @@ export default class About extends Component {
     this.setState({
       isLoading: false,
     });
+  }
+
+  platformSpecificInformation() {
+    if (Platform.OS === 'android') {
+      return (
+        <React.Fragment>
+          <BlueTextCentered>
+            {Constants.platform.android.model} ({Constants.platform.android.platform})
+          </BlueTextCentered>
+          <BlueSpacing20 />
+
+          <BlueTextCentered>
+            {pkg.name} v{pkg.version} (build {appjson.expo.android.buildNumber})
+          </BlueTextCentered>
+        </React.Fragment>
+      );
+    } else if (Platform.OS === 'ios') {
+      return (
+        <React.Fragment>
+          <BlueTextCentered>
+            {Constants.platform.ios.model} ({Constants.platform.ios.platform})
+          </BlueTextCentered>
+          <BlueSpacing20 />
+
+          <BlueTextCentered>
+            {pkg.name} v{pkg.version} (build {appjson.expo.ios.buildNumber})
+          </BlueTextCentered>
+        </React.Fragment>
+      );
+    }
   }
 
   render() {
@@ -113,14 +143,7 @@ export default class About extends Component {
             <BlueTextCentered>
               w, h = {width}, {height}
             </BlueTextCentered>
-            <BlueTextCentered>
-              {Constants.platform.ios.model} ({Constants.platform.ios.platform})
-            </BlueTextCentered>
-            <BlueSpacing20 />
-
-            <BlueTextCentered>
-              {pkg.name} v{pkg.version} (build {appjson.expo.ios.buildNumber})
-            </BlueTextCentered>
+            {this.platformSpecificInformation()}
           </BlueCard>
         </ScrollView>
       </SafeBlueArea>
