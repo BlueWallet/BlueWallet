@@ -977,7 +977,12 @@ export class WalletsCarousel extends Component {
             shadowRadius={10}
             shadowColor="#000000"
             colors={[gradient1, gradient2]}
-            style={{ padding: 15, borderRadius: 10, height: 164 }}
+            style={{
+              padding: 15,
+              borderRadius: 10,
+              height: 164,
+              elevation: 5,
+            }}
             start={[0, 0]}
             end={[1, 1]}
           >
