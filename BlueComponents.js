@@ -852,6 +852,7 @@ export class NewWalletPannel extends Component {
             this.handleClick();
           }
         }}
+        style={{ marginVertical: 17 }}
       >
         <LinearGradient
           colors={['#eef0f4', '#eef0f4']}
@@ -961,7 +962,7 @@ export class WalletsCarousel extends Component {
     }
 
     return (
-      <View style={{ paddingRight: 10 }}>
+      <View style={{ paddingRight: 10, marginVertical: 17 }}>
         <TouchableOpacity
           activeOpacity={1}
           onPress={() => {
@@ -971,7 +972,7 @@ export class WalletsCarousel extends Component {
           }}
         >
           <LinearGradient
-            shadowOpacity={18 / 100}
+            shadowOpacity={20 / 100}
             shadowOffset={{ width: 0, height: 4 }}
             shadowRadius={10}
             shadowColor="#000000"
