@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient, Constants } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
-import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard, Platform } from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
@@ -157,8 +157,8 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   },
   headerTintColor: '#0c2550',
   headerRight: withNavigationCloseButton ? (
-    <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => navigation.goBack(null)}>
-      <Image source={require('./img/close.png')} />
+    <TouchableOpacity style={{ width: 40, height: 40, padding: 14 }} onPress={() => navigation.goBack(null)}>
+      <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
     </TouchableOpacity>
   ) : null,
   headerBackTitle: null,
@@ -446,6 +446,9 @@ export class is {
   }
 
   static iphone8() {
+    if (Platform.OS !== 'ios') {
+      return false;
+    }
     return Constants.platform.ios.platform === 'iPhone10,4';
   }
 }
@@ -849,9 +852,12 @@ export class NewWalletPannel extends Component {
             this.handleClick();
           }
         }}
+        style={{ marginVertical: 17 }}
       >
         <LinearGradient
           colors={['#eef0f4', '#eef0f4']}
+          start={[0, 0]}
+          end={[1, 1]}
           style={{
             padding: 15,
             borderRadius: 10,
@@ -956,7 +962,7 @@ export class WalletsCarousel extends Component {
     }
 
     return (
-      <View style={{ paddingRight: 10 }}>
+      <View style={{ paddingRight: 10, marginVertical: 17 }}>
         <TouchableOpacity
           activeOpacity={1}
           onPress={() => {
@@ -966,12 +972,19 @@ export class WalletsCarousel extends Component {
           }}
         >
           <LinearGradient
-            shadowOpacity={18 / 100}
+            shadowOpacity={20 / 100}
             shadowOffset={{ width: 0, height: 4 }}
             shadowRadius={10}
             shadowColor="#000000"
             colors={[gradient1, gradient2]}
-            style={{ padding: 15, borderRadius: 10, height: 164 }}
+            style={{
+              padding: 15,
+              borderRadius: 10,
+              height: 164,
+              elevation: 5,
+            }}
+            start={[0, 0]}
+            end={[1, 1]}
           >
             <Image
               source={

@@ -215,7 +215,12 @@ export default class WalletTransactions extends Component {
 
   renderWalletHeader = () => {
     return (
-      <LinearGradient colors={[this.state.gradientColors[0], this.state.gradientColors[1]]} style={{ padding: 15, height: 164 }}>
+      <LinearGradient
+        start={[0, 0]}
+        end={[1, 1]}
+        colors={[this.state.gradientColors[0], this.state.gradientColors[1]]}
+        style={{ padding: 15, height: 164 }}
+      >
         <Image
           source={
             (new LightningCustodianWallet().type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
