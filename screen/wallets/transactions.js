@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity, LinearGradient } from 'react-native';
 import PropTypes from 'prop-types';
-import { LinearGradient } from 'expo';
 import {
   WatchOnlyWallet,
   HDLegacyBreadwalletWallet,

@@ -856,8 +856,8 @@ export class NewWalletPannel extends Component {
       >
         <LinearGradient
           colors={['#eef0f4', '#eef0f4']}
-          start={[0, 0]}
-          end={[1, 1]}
+          start={[0, 1]}
+          end={[0, 1]}
           style={{
             padding: 15,
             borderRadius: 10,
@@ -972,9 +972,9 @@ export class WalletsCarousel extends Component {
           }}
         >
           <LinearGradient
-            shadowOpacity={20 / 100}
-            shadowOffset={{ width: 0, height: 4 }}
-            shadowRadius={10}
+            shadowOpacity={40 / 100}
+            shadowOffset={{ width: 0, height: 0 }}
+            shadowRadius={5}
             shadowColor="#000000"
             colors={[gradient1, gradient2]}
             style={{
@@ -983,8 +983,8 @@ export class WalletsCarousel extends Component {
               height: 164,
               elevation: 5,
             }}
-            start={[0, 0]}
-            end={[1, 1]}
+            start={[0, 1]}
+            end={[0, 1]}
           >
             <Image
               source={

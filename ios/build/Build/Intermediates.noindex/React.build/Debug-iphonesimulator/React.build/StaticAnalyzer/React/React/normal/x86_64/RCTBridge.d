@@ -1,0 +1,28 @@
+dependencies: \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTBridge.m \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTBridge.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTBridgeDelegate.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTJavaScriptLoader.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTDefines.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTBridgeModule.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTFrameUpdate.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTInvalidating.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTBridge+Private.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTConvert.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Views/RCTAnimationType.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Views/RCTBorderStyle.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTLog.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTAssert.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTUtils.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Views/RCTPointerEvents.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Views/RCTTextDecorationLineType.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/Yoga.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGEnums.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGMacros.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTEventDispatcher.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/DevSupport/RCTInspectorDevServerHelper.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Inspector/RCTInspectorPackagerConnection.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTModuleData.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTPerformanceLogger.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Profiler/RCTProfile.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native/React/Base/RCTReloadCommand.h

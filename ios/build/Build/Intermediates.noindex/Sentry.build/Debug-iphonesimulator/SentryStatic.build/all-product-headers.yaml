@@ -1,0 +1,212 @@
+{
+  'version': 0,
+  'case-sensitive': 'false',
+  'roots': [
+    {
+      'type': 'directory',
+      'name': "/Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator",
+      'contents': [
+        {
+          'type': 'file',
+          'name': "NSData+Compression.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/NSData+Compression.h"
+        },
+        {
+          'type': 'file',
+          'name': "NSDate+Extras.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/NSDate+Extras.h"
+        },
+        {
+          'type': 'file',
+          'name': "NSDictionary+Sanitize.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/NSDictionary+Sanitize.h"
+        },
+        {
+          'type': 'file',
+          'name': "Sentry.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/Sentry.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryAsynchronousOperation.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryAsynchronousOperation.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryBreadcrumb.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryBreadcrumb.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryBreadcrumbStore.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryBreadcrumbStore.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryBreadcrumbTracker.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryBreadcrumbTracker.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryClient+Internal.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryClient+Internal.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryClient.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryClient.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryContext.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryContext.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrash.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrash.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashExceptionApplication.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryCrashExceptionApplication.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashInstallation+Private.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Installations/SentryCrashInstallation+Private.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashInstallation.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Installations/SentryCrashInstallation.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashMonitorType.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorType.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashReportConverter.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryCrashReportConverter.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashReportFilter.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Reporting/Filters/SentryCrashReportFilter.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashReportSink.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryCrashReportSink.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryCrashReportWriter.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrashReportWriter.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryDebugMeta.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryDebugMeta.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryDefines.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryDefines.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryDsn.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryDsn.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryError.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryError.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryEvent.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryEvent.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryException.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryException.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryFileManager.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryFileManager.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryFrame.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryFrame.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryInstallation.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryInstallation.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryJavaScriptBridgeHelper.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryJavaScriptBridgeHelper.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryLog.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryLog.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryMechanism.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryMechanism.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryNSURLRequest.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryNSURLRequest.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryQueueableRequestManager.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryQueueableRequestManager.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryRequestOperation.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryRequestOperation.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentrySerializable.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentrySerializable.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryStacktrace.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryStacktrace.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentrySwizzle.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentrySwizzle.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryThread.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryThread.h"
+        },
+        {
+          'type': 'file',
+          'name': "SentryUser.h",
+          'external-contents': "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/Sentry/include/SentryUser.h"
+        }
+      ]
+    }
+  ]
+}

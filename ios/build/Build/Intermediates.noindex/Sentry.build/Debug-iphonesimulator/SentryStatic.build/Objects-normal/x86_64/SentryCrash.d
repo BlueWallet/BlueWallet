@@ -1,0 +1,19 @@
+dependencies: \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrash.m \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrash.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrashReportWriter.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Reporting/Filters/SentryCrashReportFilter.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorType.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrashC.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrashDoctor.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrashReportFields.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_AppState.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashThread.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashJSONCodecObjC.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Tools/NSError+SimpleConstructor.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitorContext.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashMachineContext.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_System.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/SentryCrashSystemCapabilities.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/ios/Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashLogger.h
