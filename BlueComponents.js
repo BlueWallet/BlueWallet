@@ -12,8 +12,8 @@ import {
   SafeAreaView,
   Clipboard,
   Platform,
-  LinearGradient,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import DeviceInfo from 'react-native-device-info';
@@ -846,7 +846,7 @@ export class BluePlusIconDimmed extends Component {
   }
 }
 
-export class NewWalletPannel extends Component {
+export class NewWalletPanel extends Component {
   constructor(props) {
     super(props);
     // WalletsCarousel.handleClick = props.handleClick // because cant access `this` from _renderItem
@@ -867,8 +867,6 @@ export class NewWalletPannel extends Component {
       >
         <LinearGradient
           colors={['#eef0f4', '#eef0f4']}
-          start={[0, 1]}
-          end={[0, 1]}
           style={{
             padding: 15,
             borderRadius: 10,
@@ -929,7 +927,7 @@ export class WalletsCarousel extends Component {
   _renderItem({ item, index }) {
     if (!item) {
       return (
-        <NewWalletPannel
+        <NewWalletPanel
           onPress={() => {
             if (WalletsCarousel.handleClick) {
               WalletsCarousel.handleClick(index);
@@ -994,8 +992,6 @@ export class WalletsCarousel extends Component {
               height: 164,
               elevation: 5,
             }}
-            start={[0, 1]}
-            end={[0, 1]}
           >
             <Image
               source={

@@ -31,7 +31,7 @@ let listener = function(accelerometerData) {
 
   if (chunks.length >= REQUIRE_NUM_CHUNKS) {
     console.log('got enough entropy, saving to storage');
-    Accelerometer.removeAllListeners();
+  //  Accelerometer.removeAllListeners();
     runningListeners--;
     AsyncStorage.setItem(AppStorage.ENTROPY, JSON.stringify(chunks));
   }
@@ -50,7 +50,7 @@ async function start() {
   setInterval(() => {
     if (chunks.length < REQUIRE_NUM_CHUNKS && runningListeners === 0) {
       console.log('not enough entropy, starting listener to gather');
-      Accelerometer.addListener(listener);
+  //    Accelerometer.addListener(listener);
       runningListeners++;
     }
   }, 1000);

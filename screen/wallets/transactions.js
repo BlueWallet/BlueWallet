@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity, LinearGradient } from 'react-native';
+import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import {
   WatchOnlyWallet,

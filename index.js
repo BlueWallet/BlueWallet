@@ -1,3 +1,4 @@
+import React from 'react';
 import './shim.js';
 import MainBottomTabs from './MainBottomTabs';
 import { Sentry } from 'react-native-sentry';
@@ -14,4 +15,10 @@ if (!Error.captureStackTrace) {
 
 /** @format */
 
-AppRegistry.registerComponent(appName, () => MainBottomTabs);
+class BlueApp extends React.Component {
+  render() {
+    return <MainBottomTabs />;
+  }
+}
+
+AppRegistry.registerComponent(appName, () => BlueApp);
