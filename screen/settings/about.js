@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Constants } from 'expo';
 import { ScrollView, Linking, Dimensions, Platform } from 'react-native';
 import {
   BlueTextCentered,
@@ -12,6 +11,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import DeviceInfo from 'react-native-device-info';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
@@ -42,7 +42,7 @@ export default class About extends Component {
     if (Platform.OS === 'android') {
       return (
         <React.Fragment>
-          <BlueTextCentered>Version code: {Constants.platform.android.versionCode}</BlueTextCentered>
+          <BlueTextCentered>Version code: {DeviceInfo.getSystemName()}</BlueTextCentered>
           <BlueSpacing20 />
         </React.Fragment>
       );
@@ -50,7 +50,7 @@ export default class About extends Component {
       return (
         <React.Fragment>
           <BlueTextCentered>
-            {Constants.platform.ios.model} ({Constants.platform.ios.platform})
+            {DeviceInfo.getmodel()} ({DeviceInfo.getDeviceId()})
           </BlueTextCentered>
           <BlueSpacing20 />
         </React.Fragment>
@@ -116,7 +116,6 @@ export default class About extends Component {
             <BlueText h4>* Bitcoinjs-lib</BlueText>
             <BlueText h4>* blockcypher.com API</BlueText>
             <BlueText h4>* Nodejs</BlueText>
-            <BlueText h4>* Expo</BlueText>
             <BlueText h4>* react-native-elements</BlueText>
             <BlueText h4>* rn-nodeify</BlueText>
             <BlueText h4>* bignumber.js</BlueText>
@@ -135,7 +134,7 @@ export default class About extends Component {
             </BlueTextCentered>
             {this.platformSpecificInformation()}
             <BlueTextCentered>
-              {pkg.name} v{pkg.version} (build {appjson.expo.ios.buildNumber})
+              {pkg.name} v{pkg.version} (build {appjson.buildNumber})
             </BlueTextCentered>
           </BlueCard>
         </ScrollView>

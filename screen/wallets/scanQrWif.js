@@ -2,7 +2,8 @@
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import { Permissions, BarCodeScanner } from 'expo';
+import { RNCamera } from 'react-native-camera';
+import { Permissions } from 'react-native-permissions';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
@@ -163,8 +164,8 @@ export default class ScanQrWif extends React.Component {
   } // end
 
   async componentWillMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ hasCameraPermission: status === 'granted' });
+    const { status } = await Permissions.request('camera');
+    this.setState({ hasCameraPermission: status });
   }
 
   render() {
@@ -210,7 +211,11 @@ export default class ScanQrWif extends React.Component {
               );
             } else {
               return (
-                <BarCodeScanner style={{ flex: 1 }} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
+                <RNCamera
+                  style={{ flex: 1 }}
+                  onBarCodeScanned={ret => this.onBarCodeScanned(ret)}
+                  barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+                >
                   <View
                     style={{
                       flex: 1,
@@ -232,7 +237,7 @@ export default class ScanQrWif extends React.Component {
                       />
                     </TouchableOpacity>
                   </View>
-                </BarCodeScanner>
+                </RNCamera>
               );
             }
           })()}

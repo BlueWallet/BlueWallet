@@ -1,11 +1,22 @@
 /** @type {AppStorage} */
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { LinearGradient, Constants } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
-import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard, Platform } from 'react-native';
+import {
+  TouchableOpacity,
+  ActivityIndicator,
+  View,
+  StyleSheet,
+  Dimensions,
+  Image,
+  SafeAreaView,
+  Clipboard,
+  Platform,
+  LinearGradient,
+} from 'react-native';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
+import DeviceInfo from 'react-native-device-info';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
@@ -449,7 +460,7 @@ export class is {
     if (Platform.OS !== 'ios') {
       return false;
     }
-    return Constants.platform.ios.platform === 'iPhone10,4';
+    return DeviceInfo.getDeviceId() === 'iPhone10,4';
   }
 }
 

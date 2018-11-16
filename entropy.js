@@ -1,5 +1,5 @@
 import { AppStorage } from './class';
-import { Accelerometer } from 'expo';
+import { Accelerometer } from 'react-native-sensors';
 import { AsyncStorage } from 'react-native';
 const bitcoin = require('bitcoinjs-lib');
 const REQUIRE_NUM_CHUNKS = 16;

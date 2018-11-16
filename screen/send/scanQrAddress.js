@@ -1,7 +1,8 @@
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
-import { Permissions, BarCodeScanner } from 'expo';
 import PropTypes from 'prop-types';
+import { RNCamera } from 'react-native-camera';
+import { Permissions } from 'react-native-permissions';
 import { SafeBlueArea } from '../../BlueComponents';
 let EV = require('../../events');
 let loc = require('../../loc');
@@ -28,8 +29,8 @@ export default class CameraExample extends React.Component {
   } // end
 
   async componentDidMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ hasCameraPermission: status === 'granted' });
+    const { status } = await Permissions.request('camera');
+    this.setState({ hasCameraPermission: status });
   }
 
   render() {
@@ -49,7 +50,11 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
-          <BarCodeScanner style={{ flex: 1 }} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
+          <RNCamera
+            style={{ flex: 1 }}
+            onBarCodeScanned={ret => this.onBarCodeScanned(ret)}
+            barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+          >
             <View
               style={{
                 flex: 1,
@@ -68,7 +73,7 @@ export default class CameraExample extends React.Component {
                 <Button style={{ fontSize: 18 }} title={loc.send.details.cancel} onPress={() => this.props.navigation.goBack()} />
               </TouchableOpacity>
             </View>
-          </BarCodeScanner>
+          </RNCamera>
         </SafeBlueArea>
       );
     }

@@ -5,6 +5,36 @@
 	<key>logFormatVersion</key>
 	<integer>9</integer>
 	<key>logs</key>
-	<dict/>
+	<dict>
+		<key>209733A0-3CCF-45D5-971A-A21134780A76</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>209733A0-3CCF-45D5-971A-A21134780A76.xcactivitylog</string>
+			<key>highLevelStatus</key>
+			<string>W</string>
+			<key>schemeIdentifier-containerName</key>
+			<string>BlueWallet project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>BlueWallet</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project BlueWallet with scheme BlueWallet and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>564036798.03721297</real>
+			<key>timeStoppedRecording</key>
+			<real>564036799.402372</real>
+			<key>title</key>
+			<string>Building project BlueWallet with scheme BlueWallet and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>209733A0-3CCF-45D5-971A-A21134780A76</string>
+		</dict>
+	</dict>
 </dict>
 </plist>
