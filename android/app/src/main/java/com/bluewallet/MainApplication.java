@@ -3,6 +3,15 @@ package com.bluewallet;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.horcrux.svg.SvgPackage;
+import com.sensors.RNSensorsPackage;
+import com.mkuczera.RNReactNativeHapticFeedbackPackage;
+import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
+import com.lwansbrough.RCTCamera.RCTCameraPackage;
+import com.sudoplz.reactnativeamplitudeanalytics.RNAmplitudeSDKPackage;
 import io.sentry.RNSentryPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -24,6 +33,15 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNDeviceInfo(),
+            new VectorIconsPackage(),
+            new SvgPackage(),
+            new RNSensorsPackage(),
+            new RNReactNativeHapticFeedbackPackage(),
+            new GoogleAnalyticsBridgePackage(),
+            new RNDeviceInfo(),
+            new RCTCameraPackage(),
+            new RNAmplitudeSDKPackage(),
             new RNSentryPackage()
       );
     }

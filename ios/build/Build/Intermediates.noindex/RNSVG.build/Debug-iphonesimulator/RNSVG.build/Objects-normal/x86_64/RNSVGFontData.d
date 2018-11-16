@@ -1,0 +1,30 @@
+dependencies: \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Text/RNSVGFontData.m \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Text/RNSVGFontData.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Text/RNSVGTextProperties.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Text/RNSVGPropHelper.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Utils/RNSVGLength.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/RNSVGNode.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/UIView+React.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTComponent.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGEnums.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/YGMacros.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Utils/RNSVGCGFCRule.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Elements/RNSVGSvgView.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Brushes/RNSVGPainter.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Utils/RCTConvert+RNSVG.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTConvert.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTAnimationType.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTBorderStyle.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTDefines.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTLog.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTAssert.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTUtils.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTPointerEvents.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTTextDecorationLineType.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/yoga/Yoga.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Utils/RNSVGVBMOS.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Utils/RNSVGUnits.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Utils/RNSVGPathParser.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/Brushes/RNSVGBrushType.h \
+  /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/ios/RNSVGContainer.h

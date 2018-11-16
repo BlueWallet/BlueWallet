@@ -6,7 +6,7 @@
 	<integer>9</integer>
 	<key>logs</key>
 	<dict>
-		<key>209733A0-3CCF-45D5-971A-A21134780A76</key>
+		<key>3DF9E725-BCF5-4293-8171-C170447CD1EF</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -15,9 +15,9 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>209733A0-3CCF-45D5-971A-A21134780A76.xcactivitylog</string>
+			<string>3DF9E725-BCF5-4293-8171-C170447CD1EF.xcactivitylog</string>
 			<key>highLevelStatus</key>
-			<string>W</string>
+			<string>E</string>
 			<key>schemeIdentifier-containerName</key>
 			<string>BlueWallet project</string>
 			<key>schemeIdentifier-schemeName</key>
@@ -27,13 +27,13 @@
 			<key>signature</key>
 			<string>Building project BlueWallet with scheme BlueWallet and configuration Debug</string>
 			<key>timeStartedRecording</key>
-			<real>564036798.03721297</real>
+			<real>564038547.885373</real>
 			<key>timeStoppedRecording</key>
-			<real>564036799.402372</real>
+			<real>564038550.34380698</real>
 			<key>title</key>
 			<string>Building project BlueWallet with scheme BlueWallet and configuration Debug</string>
 			<key>uniqueIdentifier</key>
-			<string>209733A0-3CCF-45D5-971A-A21134780A76</string>
+			<string>3DF9E725-BCF5-4293-8171-C170447CD1EF</string>
 		</dict>
 	</dict>
 </dict>
