@@ -1,12 +1,7 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
-import { NativeModules } from 'react-native'
-const { RNRandomBytes } = NativeModules
-console.log(RNRandomBytes, '?????????????????????????????????');
-// RNRandomBytes.randomBytes(32, (err, bytes) => {
-  // bytes is a base64string
-  // console.log(bytes + ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1');
-// })
+import { NativeModules } from 'react-native';
+const { RNRandomBytes } = NativeModules;
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
@@ -33,25 +28,14 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   async generate() {
-    let that = this
-    console.log('about to generate')
-    return new Promise(function (resolve) {
-      console.log('in promise')
-      randomBytes(32, (err, bytes) => {
-        // bytes is a Buffer object
-        console.log(bytes.toString('hex'))
-        that.secret = bip39.entropyToMnemonic( bytes.toString('hex') )
-        resolve();
-      })
-/*      RNRandomBytes.randomBytes(32, (err, bytes) => {
-        console.log('callback ')
+    let that = this;
+    return new Promise(function(resolve) {
+      RNRandomBytes.randomBytes(32, (err, bytes) => {
         let b = new Buffer(bytes, 'base64').toString('hex');
-        that.secret = bip39.entropyToMnemonic( b );
+        that.secret = bip39.entropyToMnemonic(b);
         resolve();
-      })*/
-      resolve();
-      console.log('end promise')
-    })
+      });
+    });
   }
 
   async fetchBalance() {

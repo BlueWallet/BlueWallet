@@ -227,7 +227,6 @@ export default class WalletsAdd extends Component {
                     w.setLabel((this.state.label || loc.wallets.add.label_new_segwit) + ' HD');
                   }
 
-                  console.log('!!!!!')
                   await w.generate();
                   BlueApp.wallets.push(w);
                   await BlueApp.saveToDisk();

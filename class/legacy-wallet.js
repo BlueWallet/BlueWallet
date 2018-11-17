@@ -2,8 +2,8 @@ import { AbstractWallet } from './abstract-wallet';
 import { SegwitBech32Wallet } from './';
 import { useBlockcypherTokens } from './constants';
 import Frisbee from 'frisbee';
-import { NativeModules } from 'react-native'
-const { RNRandomBytes } = NativeModules
+import { NativeModules } from 'react-native';
+const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
@@ -48,15 +48,17 @@ export class LegacyWallet extends AbstractWallet {
 
   async generate() {
     let that = this;
-    return new Promise(function(resolve){
+    return new Promise(function(resolve) {
       RNRandomBytes.randomBytes(32, (err, bytes) => {
-        that.secret = bitcoin.ECPair.makeRandom({ rng: function (length) {
+        that.secret = bitcoin.ECPair.makeRandom({
+          rng: function(length) {
             let b = new Buffer(bytes, 'base64');
             return b;
-          } }).toWIF();
+          },
+        }).toWIF();
         resolve();
-      })
-    })
+      });
+    });
   }
 
   getTypeReadable() {

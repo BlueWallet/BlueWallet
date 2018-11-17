@@ -2,17 +2,7 @@
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
-import {
-  TouchableOpacity,
-  ActivityIndicator,
-  View,
-  StyleSheet,
-  Dimensions,
-  Image,
-  SafeAreaView,
-  Clipboard,
-  Platform,
-} from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard, Platform } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
