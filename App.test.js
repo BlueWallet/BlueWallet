@@ -101,7 +101,7 @@ it('Appstorage - loadFromDisk works', async () => {
   let Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
-  w.generate();
+  await w.generate();
   Storage.wallets.push(w);
   await Storage.saveToDisk();
 
@@ -130,7 +130,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   let Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
-  w.generate();
+  await w.generate();
   Storage.wallets.push(w);
   await Storage.saveToDisk();
   let isEncrypted = await Storage.storageIsEncrypted();
@@ -171,7 +171,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
   w = new SegwitP2SHWallet();
   w.setLabel('testlabel2');
-  w.generate();
+  await w.generate();
   Storage2.wallets.push(w);
   assert.equal(Storage2.wallets.length, 2);
   assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
@@ -193,7 +193,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.equal(Storage2.cachedPassword, 'fakePassword');
   w = new SegwitP2SHWallet();
   w.setLabel('fakewallet');
-  w.generate();
+  await w.generate();
   Storage2.wallets.push(w);
   await Storage2.saveToDisk();
   // now, will try to load & decrypt with real password and with fake password

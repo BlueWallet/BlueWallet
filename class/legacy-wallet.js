@@ -49,6 +49,21 @@ export class LegacyWallet extends AbstractWallet {
   async generate() {
     let that = this;
     return new Promise(function(resolve) {
+      if (typeof RNRandomBytes === 'undefined') {
+        // CLI/CI environment
+        const crypto = require('crypto');
+        return crypto.randomBytes(32, (err, buf) => {
+          if (err) throw err;
+          that.secret = bitcoin.ECPair.makeRandom({
+            rng: function(length) {
+              return buf;
+            },
+          }).toWIF();
+          resolve();
+        });
+      }
+
+      // RN environment
       RNRandomBytes.randomBytes(32, (err, bytes) => {
         if (err) throw new Error(err);
         that.secret = bitcoin.ECPair.makeRandom({

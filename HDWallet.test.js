@@ -56,7 +56,7 @@ it('can generate Segwit HD (BIP49)', async () => {
   let hd = new HDSegwitP2SHWallet();
   let hashmap = {};
   for (let c = 0; c < 1000; c++) {
-    hd.generate();
+    await hd.generate();
     let secret = hd.getSecret();
     if (hashmap[secret]) {
       throw new Error('Duplicate secret generated!');
