@@ -1,4 +1,4 @@
-import { AlertIOS } from 'react-native';
+import prompt from 'react-native-prompt-android';
 
 module.exports = (title, text, isCancelable = true) => {
   return new Promise((resolve, reject) => {
@@ -29,6 +29,6 @@ module.exports = (title, text, isCancelable = true) => {
           },
         ];
 
-    AlertIOS.prompt(title, text, buttons, 'secure-text');
+    prompt(title, text, buttons, 'secure-text');
   });
 };

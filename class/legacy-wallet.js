@@ -50,9 +50,10 @@ export class LegacyWallet extends AbstractWallet {
     let that = this;
     return new Promise(function(resolve) {
       RNRandomBytes.randomBytes(32, (err, bytes) => {
+        if (err) throw new Error(err);
         that.secret = bitcoin.ECPair.makeRandom({
           rng: function(length) {
-            let b = new Buffer(bytes, 'base64');
+            let b = Buffer.from(bytes, 'base64');
             return b;
           },
         }).toWIF();

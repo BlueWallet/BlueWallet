@@ -31,7 +31,8 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     let that = this;
     return new Promise(function(resolve) {
       RNRandomBytes.randomBytes(32, (err, bytes) => {
-        let b = new Buffer(bytes, 'base64').toString('hex');
+        if (err) throw new Error(err);
+        let b = Buffer.from(bytes, 'base64').toString('hex');
         that.secret = bip39.entropyToMnemonic(b);
         resolve();
       });

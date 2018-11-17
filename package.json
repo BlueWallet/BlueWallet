@@ -71,6 +71,7 @@
     "react-native-material-dropdown": "^0.11.1",
     "react-native-modal": "^6.5.0",
     "react-native-permissions": "^1.1.1",
+    "react-native-prompt-android": "^0.3.4",
     "react-native-randombytes": "^3.5.1",
     "react-native-sensors": "^4.1.0",
     "react-native-sentry": "^0.39.1",

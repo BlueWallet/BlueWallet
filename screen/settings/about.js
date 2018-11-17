@@ -98,6 +98,19 @@ export default class About extends Component {
 
             <BlueButton
               icon={{
+                name: 'telegram',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() => {
+                Linking.openURL('https://t.me/bluewallet');
+              }}
+              title="Join Telegram chat"
+            />
+            <BlueSpacing20 />
+
+            <BlueButton
+              icon={{
                 name: 'thumbsup',
                 type: 'octicon',
                 color: BlueApp.settings.buttonTextColor,
@@ -119,7 +132,6 @@ export default class About extends Component {
             <BlueText h4>* react-native-elements</BlueText>
             <BlueText h4>* rn-nodeify</BlueText>
             <BlueText h4>* bignumber.js</BlueText>
-            <BlueText h4>* https://github.com/StefanoBalocco/isaac.js</BlueText>
             <BlueSpacing20 />
 
             <BlueButton

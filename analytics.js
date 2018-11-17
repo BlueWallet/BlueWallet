@@ -6,9 +6,7 @@ const analytics = new GoogleAnalyticsTracker('UA-121673546-1');
 
 let A = function(event) {
   // Amplitude.logEvent(event);
-  // analytics.hit(new PageHit(event));
-  // .then(() => console.log('success'))
-  // .catch(e => console.log(e.message));
+  analytics.trackEvent(event);
 };
 
 A.ENUM = {

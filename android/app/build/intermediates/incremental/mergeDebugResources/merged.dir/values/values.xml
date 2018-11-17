@@ -1910,6 +1910,14 @@
         <item name="android:paddingLeft">@dimen/abc_action_bar_overflow_padding_start_material</item>
         <item name="android:paddingRight">@dimen/abc_action_bar_overflow_padding_end_material</item>
     </style>
+    <style name="ShimoAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/prompt_color</item>
+    </style>
+    <style name="ShimoEditTextStyle" parent="Widget.AppCompat.EditText">
+        <item name="colorControlNormal">@color/prompt_color</item>
+        <item name="colorControlActivated">@color/prompt_color</item>
+        <item name="colorControlHighlight">@color/prompt_color</item>
+    </style>
     <style name="SpinnerDatePickerDialog" ns2:targetApi="lollipop" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:datePickerStyle">@style/SpinnerDatePickerStyle</item>
     </style>
