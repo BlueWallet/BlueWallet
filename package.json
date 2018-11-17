@@ -29,7 +29,10 @@
     "unit": "./node_modules/.bin/mocha tests/**/*.js"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "transform": {
+      "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
+    }
   },
   "dependencies": {
     "@babel/preset-env": "^7.1.6",
