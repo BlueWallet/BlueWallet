@@ -95,8 +95,8 @@ def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.bluewallet"
@@ -138,6 +138,7 @@ android {
 }
 
 dependencies {
+    compile project(':randombytes')
     compile project(':react-native-vector-icons')
     compile project(':react-native-svg')
     compile project(':react-native-sentry')
@@ -147,9 +148,10 @@ dependencies {
     compile project(':react-native-google-analytics-bridge')
     compile project(':react-native-device-info')
     compile project(':react-native-camera')
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
-    implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation 'com.facebook.react:react-native:+'
+    // From node_modules
 }
 
 // Run this once to be able to run the application with BUCK

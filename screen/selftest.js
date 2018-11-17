@@ -27,7 +27,7 @@ export default class Selftest extends Component {
       let uniqs = {};
       let w = new SegwitP2SHWallet();
       for (let c = 0; c < 1000; c++) {
-        w.generate();
+        await w.generate();
         if (uniqs[w.getSecret()]) {
           errorMessage += 'failed to generate unique private key; ';
           isOk = false;
@@ -217,7 +217,7 @@ export default class Selftest extends Component {
       let hd = new HDSegwitP2SHWallet();
       let hashmap = {};
       for (let c = 0; c < 1000; c++) {
-        hd.generate();
+        await hd.generate();
         let secret = hd.getSecret();
         if (hashmap[secret]) {
           throw new Error('Duplicate secret generated!');

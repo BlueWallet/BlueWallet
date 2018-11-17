@@ -3491,15 +3491,15 @@ public final class R {
      * @see #ActionBar_titleTextStyle
      */
     public static final int[] ActionBar={
-        0x7f020034, 0x7f020036, 0x7f020037, 0x7f02005e, 
-        0x7f02005f, 0x7f020060, 0x7f020061, 0x7f020062, 
-        0x7f020063, 0x7f020066, 0x7f02006a, 0x7f02006b, 
-        0x7f020076, 0x7f020087, 0x7f020088, 0x7f020089, 
-        0x7f02008a, 0x7f02008b, 0x7f020092, 0x7f020095, 
-        0x7f0200a9, 0x7f0200b0, 0x7f0200be, 0x7f0200c5, 
-        0x7f0200c6, 0x7f0200f2, 0x7f0200f5, 0x7f020110, 
-        0x7f020119
-      };
+      0x7f020034, 0x7f020036, 0x7f020037, 0x7f02005e, 
+      0x7f02005f, 0x7f020060, 0x7f020061, 0x7f020062, 
+      0x7f020063, 0x7f020066, 0x7f02006a, 0x7f02006b, 
+      0x7f020076, 0x7f020087, 0x7f020088, 0x7f020089, 
+      0x7f02008a, 0x7f02008b, 0x7f020092, 0x7f020095, 
+      0x7f0200a9, 0x7f0200b0, 0x7f0200be, 0x7f0200c5, 
+      0x7f0200c6, 0x7f0200f2, 0x7f0200f5, 0x7f020110, 
+      0x7f020119
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#background}
      * attribute's value can be found in the {@link #ActionBar} array.
@@ -3886,8 +3886,8 @@ public final class R {
      * @see #ActionBarLayout_android_layout_gravity
      */
     public static final int[] ActionBarLayout={
-        0x010100b3
-      };
+      0x010100b3
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#layout_gravity}
      * attribute's value can be found in the {@link #ActionBarLayout} array.
@@ -3929,8 +3929,8 @@ public final class R {
      * @see #ActionMenuItemView_android_minWidth
      */
     public static final int[] ActionMenuItemView={
-        0x0101013f
-      };
+      0x0101013f
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#minWidth}
      * attribute's value can be found in the {@link #ActionMenuItemView} array.
@@ -3945,7 +3945,7 @@ public final class R {
      */
     public static final int ActionMenuItemView_android_minWidth=0;
     public static final int[] ActionMenuView={
-      };
+    };
     /**
      * Attributes that can be used with a ActionMode.
      * <p>Includes the following attributes:</p>
@@ -3968,9 +3968,9 @@ public final class R {
      * @see #ActionMode_titleTextStyle
      */
     public static final int[] ActionMode={
-        0x7f020034, 0x7f020036, 0x7f02004d, 0x7f020087, 
-        0x7f0200f5, 0x7f020119
-      };
+      0x7f020034, 0x7f020036, 0x7f02004d, 0x7f020087, 
+      0x7f0200f5, 0x7f020119
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#background}
      * attribute's value can be found in the {@link #ActionMode} array.
@@ -4061,8 +4061,8 @@ public final class R {
      * @see #ActivityChooserView_initialActivityCount
      */
     public static final int[] ActivityChooserView={
-        0x7f020077, 0x7f020093
-      };
+      0x7f020077, 0x7f020093
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#expandActivityOverflowButtonDrawable}
      * attribute's value can be found in the {@link #ActivityChooserView} array.
@@ -4111,9 +4111,9 @@ public final class R {
      * @see #AlertDialog_singleChoiceItemLayout
      */
     public static final int[] AlertDialog={
-        0x010100f2, 0x7f020042, 0x7f020043, 0x7f0200a0, 
-        0x7f0200a1, 0x7f0200ad, 0x7f0200e7, 0x7f0200e8
-      };
+      0x010100f2, 0x7f020042, 0x7f020043, 0x7f0200a0, 
+      0x7f0200a1, 0x7f0200ad, 0x7f0200e7, 0x7f0200e8
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#layout}
      * attribute's value can be found in the {@link #AlertDialog} array.
@@ -4227,8 +4227,8 @@ public final class R {
      * @see #AppCompatImageView_tintMode
      */
     public static final int[] AppCompatImageView={
-        0x01010119, 0x7f0200ed, 0x7f02010e, 0x7f02010f
-      };
+      0x01010119, 0x7f0200ed, 0x7f02010e, 0x7f02010f
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#src}
      * attribute's value can be found in the {@link #AppCompatImageView} array.
@@ -4306,8 +4306,8 @@ public final class R {
      * @see #AppCompatSeekBar_tickMarkTintMode
      */
     public static final int[] AppCompatSeekBar={
-        0x01010142, 0x7f02010b, 0x7f02010c, 0x7f02010d
-      };
+      0x01010142, 0x7f02010b, 0x7f02010c, 0x7f02010d
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#thumb}
      * attribute's value can be found in the {@link #AppCompatSeekBar} array.
@@ -4388,9 +4388,9 @@ public final class R {
      * @see #AppCompatTextHelper_android_drawableEnd
      */
     public static final int[] AppCompatTextHelper={
-        0x01010034, 0x0101016d, 0x0101016e, 0x0101016f, 
-        0x01010170, 0x01010392, 0x01010393
-      };
+      0x01010034, 0x0101016d, 0x0101016e, 0x0101016f, 
+      0x01010170, 0x01010392, 0x01010393
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#textAppearance}
      * attribute's value can be found in the {@link #AppCompatTextHelper} array.
@@ -4519,9 +4519,9 @@ public final class R {
      * @see #AppCompatTextView_textAllCaps
      */
     public static final int[] AppCompatTextView={
-        0x01010034, 0x7f02002f, 0x7f020030, 0x7f020031, 
-        0x7f020032, 0x7f020033, 0x7f02007c, 0x7f0200fb
-      };
+      0x01010034, 0x7f02002f, 0x7f020030, 0x7f020031, 
+      0x7f020032, 0x7f020033, 0x7f02007c, 0x7f0200fb
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#textAppearance}
      * attribute's value can be found in the {@link #AppCompatTextView} array.
@@ -4876,37 +4876,37 @@ public final class R {
      * @see #AppCompatTheme_windowNoTitle
      */
     public static final int[] AppCompatTheme={
-        0x01010057, 0x010100ae, 0x7f020000, 0x7f020001, 
-        0x7f020002, 0x7f020003, 0x7f020004, 0x7f020005, 
-        0x7f020006, 0x7f020007, 0x7f020008, 0x7f020009, 
-        0x7f02000a, 0x7f02000b, 0x7f02000c, 0x7f02000e, 
-        0x7f02000f, 0x7f020010, 0x7f020011, 0x7f020012, 
-        0x7f020013, 0x7f020014, 0x7f020015, 0x7f020016, 
-        0x7f020017, 0x7f020018, 0x7f020019, 0x7f02001a, 
-        0x7f02001b, 0x7f02001c, 0x7f02001d, 0x7f02001e, 
-        0x7f020021, 0x7f020025, 0x7f020026, 0x7f020027, 
-        0x7f020028, 0x7f02002e, 0x7f02003b, 0x7f02003c, 
-        0x7f02003d, 0x7f02003e, 0x7f02003f, 0x7f020040, 
-        0x7f020045, 0x7f020046, 0x7f020049, 0x7f02004a, 
-        0x7f020051, 0x7f020052, 0x7f020053, 0x7f020054, 
-        0x7f020055, 0x7f020056, 0x7f020057, 0x7f020058, 
-        0x7f020059, 0x7f02005b, 0x7f020064, 0x7f020068, 
-        0x7f020069, 0x7f02006c, 0x7f02006e, 0x7f020071, 
-        0x7f020072, 0x7f020073, 0x7f020074, 0x7f020075, 
-        0x7f020089, 0x7f020091, 0x7f02009e, 0x7f02009f, 
-        0x7f0200a2, 0x7f0200a3, 0x7f0200a4, 0x7f0200a5, 
-        0x7f0200a6, 0x7f0200a7, 0x7f0200a8, 0x7f0200b8, 
-        0x7f0200b9, 0x7f0200ba, 0x7f0200bd, 0x7f0200bf, 
-        0x7f0200c9, 0x7f0200ca, 0x7f0200cb, 0x7f0200cc, 
-        0x7f0200e0, 0x7f0200e1, 0x7f0200e2, 0x7f0200e3, 
-        0x7f0200ea, 0x7f0200eb, 0x7f0200f9, 0x7f0200fc, 
-        0x7f0200fd, 0x7f0200fe, 0x7f0200ff, 0x7f020100, 
-        0x7f020101, 0x7f020102, 0x7f020103, 0x7f020104, 
-        0x7f020105, 0x7f02011a, 0x7f02011b, 0x7f02011c, 
-        0x7f02011d, 0x7f020123, 0x7f020125, 0x7f020126, 
-        0x7f020127, 0x7f020128, 0x7f020129, 0x7f02012a, 
-        0x7f02012b, 0x7f02012c, 0x7f02012d, 0x7f02012e
-      };
+      0x01010057, 0x010100ae, 0x7f020000, 0x7f020001, 
+      0x7f020002, 0x7f020003, 0x7f020004, 0x7f020005, 
+      0x7f020006, 0x7f020007, 0x7f020008, 0x7f020009, 
+      0x7f02000a, 0x7f02000b, 0x7f02000c, 0x7f02000e, 
+      0x7f02000f, 0x7f020010, 0x7f020011, 0x7f020012, 
+      0x7f020013, 0x7f020014, 0x7f020015, 0x7f020016, 
+      0x7f020017, 0x7f020018, 0x7f020019, 0x7f02001a, 
+      0x7f02001b, 0x7f02001c, 0x7f02001d, 0x7f02001e, 
+      0x7f020021, 0x7f020025, 0x7f020026, 0x7f020027, 
+      0x7f020028, 0x7f02002e, 0x7f02003b, 0x7f02003c, 
+      0x7f02003d, 0x7f02003e, 0x7f02003f, 0x7f020040, 
+      0x7f020045, 0x7f020046, 0x7f020049, 0x7f02004a, 
+      0x7f020051, 0x7f020052, 0x7f020053, 0x7f020054, 
+      0x7f020055, 0x7f020056, 0x7f020057, 0x7f020058, 
+      0x7f020059, 0x7f02005b, 0x7f020064, 0x7f020068, 
+      0x7f020069, 0x7f02006c, 0x7f02006e, 0x7f020071, 
+      0x7f020072, 0x7f020073, 0x7f020074, 0x7f020075, 
+      0x7f020089, 0x7f020091, 0x7f02009e, 0x7f02009f, 
+      0x7f0200a2, 0x7f0200a3, 0x7f0200a4, 0x7f0200a5, 
+      0x7f0200a6, 0x7f0200a7, 0x7f0200a8, 0x7f0200b8, 
+      0x7f0200b9, 0x7f0200ba, 0x7f0200bd, 0x7f0200bf, 
+      0x7f0200c9, 0x7f0200ca, 0x7f0200cb, 0x7f0200cc, 
+      0x7f0200e0, 0x7f0200e1, 0x7f0200e2, 0x7f0200e3, 
+      0x7f0200ea, 0x7f0200eb, 0x7f0200f9, 0x7f0200fc, 
+      0x7f0200fd, 0x7f0200fe, 0x7f0200ff, 0x7f020100, 
+      0x7f020101, 0x7f020102, 0x7f020103, 0x7f020104, 
+      0x7f020105, 0x7f02011a, 0x7f02011b, 0x7f02011c, 
+      0x7f02011d, 0x7f020123, 0x7f020125, 0x7f020126, 
+      0x7f020127, 0x7f020128, 0x7f020129, 0x7f02012a, 
+      0x7f02012b, 0x7f02012c, 0x7f02012d, 0x7f02012e
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#windowIsFloating}
      * attribute's value can be found in the {@link #AppCompatTheme} array.
@@ -6401,8 +6401,8 @@ public final class R {
      * @see #ButtonBarLayout_allowStacking
      */
     public static final int[] ButtonBarLayout={
-        0x7f020029
-      };
+      0x7f020029
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#allowStacking}
      * attribute's value can be found in the {@link #ButtonBarLayout} array.
@@ -6429,8 +6429,8 @@ public final class R {
      * @see #ColorStateListItem_alpha
      */
     public static final int[] ColorStateListItem={
-        0x010101a5, 0x0101031f, 0x7f02002a
-      };
+      0x010101a5, 0x0101031f, 0x7f02002a
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#color}
      * attribute's value can be found in the {@link #ColorStateListItem} array.
@@ -6476,8 +6476,8 @@ public final class R {
      * @see #CompoundButton_buttonTintMode
      */
     public static final int[] CompoundButton={
-        0x01010107, 0x7f020047, 0x7f020048
-      };
+      0x01010107, 0x7f020047, 0x7f020048
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#button}
      * attribute's value can be found in the {@link #CompoundButton} array.
@@ -6536,8 +6536,8 @@ public final class R {
      * @see #CoordinatorLayout_statusBarBackground
      */
     public static final int[] CoordinatorLayout={
-        0x7f020096, 0x7f0200ef
-      };
+      0x7f020096, 0x7f0200ef
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#keylines}
      * attribute's value can be found in the {@link #CoordinatorLayout} array.
@@ -6589,9 +6589,9 @@ public final class R {
      * @see #CoordinatorLayout_Layout_layout_keyline
      */
     public static final int[] CoordinatorLayout_Layout={
-        0x010100b3, 0x7f020098, 0x7f020099, 0x7f02009a, 
-        0x7f02009b, 0x7f02009c, 0x7f02009d
-      };
+      0x010100b3, 0x7f020098, 0x7f020099, 0x7f02009a, 
+      0x7f02009b, 0x7f02009c, 0x7f02009d
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#layout_gravity}
      * attribute's value can be found in the {@link #CoordinatorLayout_Layout} array.
@@ -6752,9 +6752,9 @@ public final class R {
      * @see #DrawerArrowToggle_thickness
      */
     public static final int[] DrawerArrowToggle={
-        0x7f02002c, 0x7f02002d, 0x7f02003a, 0x7f020050, 
-        0x7f02006f, 0x7f020085, 0x7f0200e9, 0x7f020107
-      };
+      0x7f02002c, 0x7f02002d, 0x7f02003a, 0x7f020050, 
+      0x7f02006f, 0x7f020085, 0x7f0200e9, 0x7f020107
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#arrowHeadLength}
      * attribute's value can be found in the {@link #DrawerArrowToggle} array.
@@ -6876,9 +6876,9 @@ public final class R {
      * @see #FontFamily_fontProviderQuery
      */
     public static final int[] FontFamily={
-        0x7f02007d, 0x7f02007e, 0x7f02007f, 0x7f020080, 
-        0x7f020081, 0x7f020082
-      };
+      0x7f02007d, 0x7f02007e, 0x7f02007f, 0x7f020080, 
+      0x7f020081, 0x7f020082
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#fontProviderAuthority}
      * attribute's value can be found in the {@link #FontFamily} array.
@@ -6977,9 +6977,9 @@ public final class R {
      * @see #FontFamilyFont_fontWeight
      */
     public static final int[] FontFamilyFont={
-        0x01010532, 0x01010533, 0x0101053f, 0x7f02007b, 
-        0x7f020083, 0x7f020084
-      };
+      0x01010532, 0x01010533, 0x0101053f, 0x7f02007b, 
+      0x7f020083, 0x7f020084
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#font}
      * attribute's value can be found in the {@link #FontFamilyFont} array.
@@ -7124,15 +7124,15 @@ public final class R {
      * @see #GenericDraweeHierarchy_viewAspectRatio
      */
     public static final int[] GenericDraweeHierarchy={
-        0x7f020023, 0x7f020035, 0x7f020078, 0x7f020079, 
-        0x7f02007a, 0x7f0200b3, 0x7f0200bb, 0x7f0200bc, 
-        0x7f0200c1, 0x7f0200c2, 0x7f0200c3, 0x7f0200c4, 
-        0x7f0200cd, 0x7f0200ce, 0x7f0200cf, 0x7f0200d0, 
-        0x7f0200d1, 0x7f0200d2, 0x7f0200d3, 0x7f0200d4, 
-        0x7f0200d5, 0x7f0200d6, 0x7f0200d7, 0x7f0200d8, 
-        0x7f0200d9, 0x7f0200da, 0x7f0200db, 0x7f0200dc, 
-        0x7f020122
-      };
+      0x7f020023, 0x7f020035, 0x7f020078, 0x7f020079, 
+      0x7f02007a, 0x7f0200b3, 0x7f0200bb, 0x7f0200bc, 
+      0x7f0200c1, 0x7f0200c2, 0x7f0200c3, 0x7f0200c4, 
+      0x7f0200cd, 0x7f0200ce, 0x7f0200cf, 0x7f0200d0, 
+      0x7f0200d1, 0x7f0200d2, 0x7f0200d3, 0x7f0200d4, 
+      0x7f0200d5, 0x7f0200d6, 0x7f0200d7, 0x7f0200d8, 
+      0x7f0200d9, 0x7f0200da, 0x7f0200db, 0x7f0200dc, 
+      0x7f020122
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#actualImageScaleType}
      * attribute's value can be found in the {@link #GenericDraweeHierarchy} array.
@@ -7548,10 +7548,10 @@ public final class R {
      * @see #LinearLayoutCompat_showDividers
      */
     public static final int[] LinearLayoutCompat={
-        0x010100af, 0x010100c4, 0x01010126, 0x01010127, 
-        0x01010128, 0x7f02006b, 0x7f02006d, 0x7f0200ac, 
-        0x7f0200e5
-      };
+      0x010100af, 0x010100c4, 0x01010126, 0x01010127, 
+      0x01010128, 0x7f02006b, 0x7f02006d, 0x7f0200ac, 
+      0x7f0200e5
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#gravity}
      * attribute's value can be found in the {@link #LinearLayoutCompat} array.
@@ -7698,8 +7698,8 @@ public final class R {
      * @see #LinearLayoutCompat_Layout_android_layout_weight
      */
     public static final int[] LinearLayoutCompat_Layout={
-        0x010100b3, 0x010100f4, 0x010100f5, 0x01010181
-      };
+      0x010100b3, 0x010100f4, 0x010100f5, 0x01010181
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#layout_gravity}
      * attribute's value can be found in the {@link #LinearLayoutCompat_Layout} array.
@@ -7798,8 +7798,8 @@ public final class R {
      * @see #ListPopupWindow_android_dropDownVerticalOffset
      */
     public static final int[] ListPopupWindow={
-        0x010102ac, 0x010102ad
-      };
+      0x010102ac, 0x010102ad
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#dropDownHorizontalOffset}
      * attribute's value can be found in the {@link #ListPopupWindow} array.
@@ -7842,8 +7842,8 @@ public final class R {
      * @see #LoadingImageView_imageAspectRatioAdjust
      */
     public static final int[] LoadingImageView={
-        0x7f02004b, 0x7f02008f, 0x7f020090
-      };
+      0x7f02004b, 0x7f02008f, 0x7f020090
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#circleCrop}
      * attribute's value can be found in the {@link #LoadingImageView} array.
@@ -7903,9 +7903,9 @@ public final class R {
      * @see #MenuGroup_android_checkableBehavior
      */
     public static final int[] MenuGroup={
-        0x0101000e, 0x010100d0, 0x01010194, 0x010101de, 
-        0x010101df, 0x010101e0
-      };
+      0x0101000e, 0x010100d0, 0x01010194, 0x010101de, 
+      0x010101df, 0x010101e0
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#enabled}
      * attribute's value can be found in the {@link #MenuGroup} array.
@@ -8040,13 +8040,13 @@ public final class R {
      * @see #MenuItem_tooltipText
      */
     public static final int[] MenuItem={
-        0x01010002, 0x0101000e, 0x010100d0, 0x01010106, 
-        0x01010194, 0x010101de, 0x010101df, 0x010101e1, 
-        0x010101e2, 0x010101e3, 0x010101e4, 0x010101e5, 
-        0x0101026f, 0x7f02000d, 0x7f02001f, 0x7f020020, 
-        0x7f02002b, 0x7f02005d, 0x7f02008c, 0x7f02008d, 
-        0x7f0200b1, 0x7f0200e4, 0x7f02011e
-      };
+      0x01010002, 0x0101000e, 0x010100d0, 0x01010106, 
+      0x01010194, 0x010101de, 0x010101df, 0x010101e1, 
+      0x010101e2, 0x010101e3, 0x010101e4, 0x010101e5, 
+      0x0101026f, 0x7f02000d, 0x7f02001f, 0x7f020020, 
+      0x7f02002b, 0x7f02005d, 0x7f02008c, 0x7f02008d, 
+      0x7f0200b1, 0x7f0200e4, 0x7f02011e
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#icon}
      * attribute's value can be found in the {@link #MenuItem} array.
@@ -8363,10 +8363,10 @@ public final class R {
      * @see #MenuView_subMenuArrow
      */
     public static final int[] MenuView={
-        0x010100ae, 0x0101012c, 0x0101012d, 0x0101012e, 
-        0x0101012f, 0x01010130, 0x01010131, 0x7f0200c0, 
-        0x7f0200f0
-      };
+      0x010100ae, 0x0101012c, 0x0101012d, 0x0101012e, 
+      0x0101012f, 0x01010130, 0x01010131, 0x7f0200c0, 
+      0x7f0200f0
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#windowAnimationStyle}
      * attribute's value can be found in the {@link #MenuView} array.
@@ -8492,8 +8492,8 @@ public final class R {
      * @see #PopupWindow_overlapAnchor
      */
     public static final int[] PopupWindow={
-        0x01010176, 0x010102c9, 0x7f0200b2
-      };
+      0x01010176, 0x010102c9, 0x7f0200b2
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#popupBackground}
      * attribute's value can be found in the {@link #PopupWindow} array.
@@ -8543,8 +8543,8 @@ public final class R {
      * @see #PopupWindowBackgroundState_state_above_anchor
      */
     public static final int[] PopupWindowBackgroundState={
-        0x7f0200ee
-      };
+      0x7f0200ee
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#state_above_anchor}
      * attribute's value can be found in the {@link #PopupWindowBackgroundState} array.
@@ -8569,8 +8569,8 @@ public final class R {
      * @see #RecycleListView_paddingTopNoTitle
      */
     public static final int[] RecycleListView={
-        0x7f0200b4, 0x7f0200b7
-      };
+      0x7f0200b4, 0x7f0200b7
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#paddingBottomNoButtons}
      * attribute's value can be found in the {@link #RecycleListView} array.
@@ -8641,12 +8641,12 @@ public final class R {
      * @see #SearchView_voiceIcon
      */
     public static final int[] SearchView={
-        0x010100da, 0x0101011f, 0x01010220, 0x01010264, 
-        0x7f02004c, 0x7f02005c, 0x7f020067, 0x7f020086, 
-        0x7f02008e, 0x7f020097, 0x7f0200c7, 0x7f0200c8, 
-        0x7f0200de, 0x7f0200df, 0x7f0200f1, 0x7f0200f6, 
-        0x7f020124
-      };
+      0x010100da, 0x0101011f, 0x01010220, 0x01010264, 
+      0x7f02004c, 0x7f02005c, 0x7f020067, 0x7f020086, 
+      0x7f02008e, 0x7f020097, 0x7f0200c7, 0x7f0200c8, 
+      0x7f0200de, 0x7f0200df, 0x7f0200f1, 0x7f0200f6, 
+      0x7f020124
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#focusable}
      * attribute's value can be found in the {@link #SearchView} array.
@@ -8923,8 +8923,8 @@ public final class R {
      * @see #SignInButton_scopeUris
      */
     public static final int[] SignInButton={
-        0x7f020044, 0x7f02005a, 0x7f0200dd
-      };
+      0x7f020044, 0x7f02005a, 0x7f0200dd
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#buttonSize}
      * attribute's value can be found in the {@link #SignInButton} array.
@@ -9055,15 +9055,15 @@ public final class R {
      * @see #SimpleDraweeView_viewAspectRatio
      */
     public static final int[] SimpleDraweeView={
-        0x7f020022, 0x7f020023, 0x7f020024, 0x7f020035, 
-        0x7f020078, 0x7f020079, 0x7f02007a, 0x7f0200b3, 
-        0x7f0200bb, 0x7f0200bc, 0x7f0200c1, 0x7f0200c2, 
-        0x7f0200c3, 0x7f0200c4, 0x7f0200cd, 0x7f0200ce, 
-        0x7f0200cf, 0x7f0200d0, 0x7f0200d1, 0x7f0200d2, 
-        0x7f0200d3, 0x7f0200d4, 0x7f0200d5, 0x7f0200d6, 
-        0x7f0200d7, 0x7f0200d8, 0x7f0200d9, 0x7f0200da, 
-        0x7f0200db, 0x7f0200dc, 0x7f020122
-      };
+      0x7f020022, 0x7f020023, 0x7f020024, 0x7f020035, 
+      0x7f020078, 0x7f020079, 0x7f02007a, 0x7f0200b3, 
+      0x7f0200bb, 0x7f0200bc, 0x7f0200c1, 0x7f0200c2, 
+      0x7f0200c3, 0x7f0200c4, 0x7f0200cd, 0x7f0200ce, 
+      0x7f0200cf, 0x7f0200d0, 0x7f0200d1, 0x7f0200d2, 
+      0x7f0200d3, 0x7f0200d4, 0x7f0200d5, 0x7f0200d6, 
+      0x7f0200d7, 0x7f0200d8, 0x7f0200d9, 0x7f0200da, 
+      0x7f0200db, 0x7f0200dc, 0x7f020122
+    };
     /**
      * <p>This symbol is the offset where the {@link com.bluewallet.R.attr#actualImageResource}
      * attribute's value can be found in the {@link #SimpleDraweeView} array.
@@ -9493,9 +9493,9 @@ public final class R {
      * @see #Spinner_popupTheme
      */
     public static final int[] Spinner={
-        0x010100b2, 0x01010176, 0x0101017b, 0x01010262, 
-        0x7f0200be
-      };
+      0x010100b2, 0x01010176, 0x0101017b, 0x01010262, 
+      0x7f0200be
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#entries}
      * attribute's value can be found in the {@link #Spinner} array.
@@ -9608,11 +9608,11 @@ public final class R {
      * @see #SwitchCompat_trackTintMode
      */
     public static final int[] SwitchCompat={
-        0x01010124, 0x01010125, 0x01010142, 0x7f0200e6, 
-        0x7f0200ec, 0x7f0200f7, 0x7f0200f8, 0x7f0200fa, 
-        0x7f020108, 0x7f020109, 0x7f02010a, 0x7f02011f, 
-        0x7f020120, 0x7f020121
-      };
+      0x01010124, 0x01010125, 0x01010142, 0x7f0200e6, 
+      0x7f0200ec, 0x7f0200f7, 0x7f0200f8, 0x7f0200fa, 
+      0x7f020108, 0x7f020109, 0x7f02010a, 0x7f02011f, 
+      0x7f020120, 0x7f020121
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#textOn}
      * attribute's value can be found in the {@link #SwitchCompat} array.
@@ -9828,11 +9828,11 @@ public final class R {
      * @see #TextAppearance_textAllCaps
      */
     public static final int[] TextAppearance={
-        0x01010095, 0x01010096, 0x01010097, 0x01010098, 
-        0x0101009a, 0x0101009b, 0x01010161, 0x01010162, 
-        0x01010163, 0x01010164, 0x010103ac, 0x7f02007c, 
-        0x7f0200fb
-      };
+      0x01010095, 0x01010096, 0x01010097, 0x01010098, 
+      0x0101009a, 0x0101009b, 0x01010161, 0x01010162, 
+      0x01010163, 0x01010164, 0x010103ac, 0x7f02007c, 
+      0x7f0200fb
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#textSize}
      * attribute's value can be found in the {@link #TextAppearance} array.
@@ -10068,15 +10068,15 @@ public final class R {
      * @see #Toolbar_titleTextColor
      */
     public static final int[] Toolbar={
-        0x010100af, 0x01010140, 0x7f020041, 0x7f02004e, 
-        0x7f02004f, 0x7f02005e, 0x7f02005f, 0x7f020060, 
-        0x7f020061, 0x7f020062, 0x7f020063, 0x7f0200a9, 
-        0x7f0200aa, 0x7f0200ab, 0x7f0200ae, 0x7f0200af, 
-        0x7f0200be, 0x7f0200f2, 0x7f0200f3, 0x7f0200f4, 
-        0x7f020110, 0x7f020111, 0x7f020112, 0x7f020113, 
-        0x7f020114, 0x7f020115, 0x7f020116, 0x7f020117, 
-        0x7f020118
-      };
+      0x010100af, 0x01010140, 0x7f020041, 0x7f02004e, 
+      0x7f02004f, 0x7f02005e, 0x7f02005f, 0x7f020060, 
+      0x7f020061, 0x7f020062, 0x7f020063, 0x7f0200a9, 
+      0x7f0200aa, 0x7f0200ab, 0x7f0200ae, 0x7f0200af, 
+      0x7f0200be, 0x7f0200f2, 0x7f0200f3, 0x7f0200f4, 
+      0x7f020110, 0x7f020111, 0x7f020112, 0x7f020113, 
+      0x7f020114, 0x7f020115, 0x7f020116, 0x7f020117, 
+      0x7f020118
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#gravity}
      * attribute's value can be found in the {@link #Toolbar} array.
@@ -10469,9 +10469,9 @@ public final class R {
      * @see #View_theme
      */
     public static final int[] View={
-        0x01010000, 0x010100da, 0x7f0200b5, 0x7f0200b6, 
-        0x7f020106
-      };
+      0x01010000, 0x010100da, 0x7f0200b5, 0x7f0200b6, 
+      0x7f020106
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#theme}
      * attribute's value can be found in the {@link #View} array.
@@ -10556,8 +10556,8 @@ public final class R {
      * @see #ViewBackgroundHelper_backgroundTintMode
      */
     public static final int[] ViewBackgroundHelper={
-        0x010100d4, 0x7f020038, 0x7f020039
-      };
+      0x010100d4, 0x7f020038, 0x7f020039
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#background}
      * attribute's value can be found in the {@link #ViewBackgroundHelper} array.
@@ -10621,8 +10621,8 @@ public final class R {
      * @see #ViewStubCompat_android_inflatedId
      */
     public static final int[] ViewStubCompat={
-        0x010100d0, 0x010100f2, 0x010100f3
-      };
+      0x010100d0, 0x010100f2, 0x010100f3
+    };
     /**
      * <p>This symbol is the offset where the {@link android.R.attr#id}
      * attribute's value can be found in the {@link #ViewStubCompat} array.

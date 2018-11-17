@@ -1,12 +1,17 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
-const isaac = require('isaac');
+import { NativeModules } from 'react-native'
+const { RNRandomBytes } = NativeModules
+console.log(RNRandomBytes, '?????????????????????????????????');
+// RNRandomBytes.randomBytes(32, (err, bytes) => {
+  // bytes is a base64string
+  // console.log(bytes + ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1');
+// })
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
 const b58 = require('bs58check');
 const signer = require('../models/signer');
-const entropy = require('../entropy');
 
 /**
  * HD Wallet (BIP39).
@@ -27,22 +32,26 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return true;
   }
 
-  generate() {
-    let c = 32;
-    let totalhex = '';
-    for (let i = 0; i < c / 4; i++) {
-      isaac.seed(entropy.get32bitInt());
-      let randomNumber = isaac.rand(); // got 32bit signed int
-      randomNumber = randomNumber >>> 0; // cast signed to unsigned
-      let hex = randomNumber.toString(16);
-      while (hex.length < 8) {
-        hex = '0' + hex;
-      }
-      totalhex += hex;
-    }
-    totalhex = bitcoin.crypto.sha256('hello there' + totalhex).toString('hex');
-    totalhex = bitcoin.crypto.sha256(totalhex).toString('hex');
-    this.secret = bip39.entropyToMnemonic(totalhex);
+  async generate() {
+    let that = this
+    console.log('about to generate')
+    return new Promise(function (resolve) {
+      console.log('in promise')
+      randomBytes(32, (err, bytes) => {
+        // bytes is a Buffer object
+        console.log(bytes.toString('hex'))
+        that.secret = bip39.entropyToMnemonic( bytes.toString('hex') )
+        resolve();
+      })
+/*      RNRandomBytes.randomBytes(32, (err, bytes) => {
+        console.log('callback ')
+        let b = new Buffer(bytes, 'base64').toString('hex');
+        that.secret = bip39.entropyToMnemonic( b );
+        resolve();
+      })*/
+      resolve();
+      console.log('end promise')
+    })
   }
 
   async fetchBalance() {
