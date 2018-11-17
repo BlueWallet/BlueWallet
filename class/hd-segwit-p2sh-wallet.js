@@ -32,8 +32,8 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return new Promise(function(resolve) {
       if (typeof RNRandomBytes === 'undefined') {
         // CLI/CI environment
-        const crypto = require('crypto');
-        return crypto.randomBytes(32, (err, buf) => {
+        // crypto should be provided globally by test launcher
+        return crypto.randomBytes(32, (err, buf) => { // eslint-disable-line
           if (err) throw err;
           that.secret = bip39.entropyToMnemonic(buf.toString('hex'));
           resolve();
