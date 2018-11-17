@@ -151,6 +151,7 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   headerStyle: {
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 0,
+    elevation: 0,
   },
   headerTitleStyle: {
     fontWeight: '600',
@@ -860,7 +861,7 @@ export class NewWalletPanel extends Component {
           style={{
             padding: 15,
             borderRadius: 10,
-            height: 164,
+            minHeight: 164,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -961,7 +962,12 @@ export class WalletsCarousel extends Component {
     }
 
     return (
-      <View style={{ paddingRight: 10, marginVertical: 17 }}>
+      <View
+        style={{ paddingRight: 10, marginVertical: 17 }}
+        shadowOpacity={40 / 100}
+        shadowOffset={{ width: 0, height: 0 }}
+        shadowRadius={5}
+      >
         <TouchableOpacity
           activeOpacity={1}
           onPress={() => {
@@ -971,15 +977,12 @@ export class WalletsCarousel extends Component {
           }}
         >
           <LinearGradient
-            shadowOpacity={40 / 100}
-            shadowOffset={{ width: 0, height: 0 }}
-            shadowRadius={5}
             shadowColor="#000000"
             colors={[gradient1, gradient2]}
             style={{
               padding: 15,
               borderRadius: 10,
-              height: 164,
+              minHeight: 164,
               elevation: 5,
             }}
           >

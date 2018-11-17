@@ -110,7 +110,7 @@ export default class WalletDetails extends Component {
               value={this.state.walletName}
               onChangeText={text => this.setState({ walletName: text })}
               numberOfLines={1}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
             />

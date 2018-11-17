@@ -1,4 +1,4 @@
-#Sat Nov 17 00:40:53 GMT 2018
-base.0=/home/igor/Documents/BlueWallet/android/app/build/intermediates/transforms/dexMerger/debug/0
+#Fri Nov 16 22:50:56 EST 2018
+base.0=/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/transforms/dexMerger/debug/0
 path.0=classes.dex
 renamed.0=classes.dex
