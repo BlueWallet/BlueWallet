@@ -1,5 +1,6 @@
+/* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import Camera from 'react-native-camera';
 import Permissions from 'react-native-permissions';
@@ -28,7 +29,7 @@ export default class CameraExample extends React.Component {
   } // end
 
   async componentDidMount() {
-    Permissions.check('camera').then(response => {
+    Permissions.request('camera').then(response => {
       // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       this.setState({ hasCameraPermission: response === 'authorized' });
     });
@@ -47,7 +48,9 @@ export default class CameraExample extends React.Component {
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
+      alert('BlueWallet does not have permission to use your camera.');
+      this.props.navigation.goBack(null);
+      return <View />;
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
@@ -65,5 +68,6 @@ export default class CameraExample extends React.Component {
 CameraExample.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    dismiss: PropTypes.function,
   }),
 };

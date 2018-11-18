@@ -1,6 +1,6 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import Camera from 'react-native-camera';
 import Permissions from 'react-native-permissions';
@@ -164,8 +164,10 @@ export default class ScanQrWif extends React.Component {
   } // end
 
   async componentWillMount() {
-    const { status } = await Permissions.request('camera');
-    this.setState({ hasCameraPermission: status === 'authorized' });
+    Permissions.request('camera').then(response => {
+      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+      this.setState({ hasCameraPermission: response === 'authorized' });
+    });
   }
 
   render() {
@@ -181,7 +183,9 @@ export default class ScanQrWif extends React.Component {
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
+      alert('BlueWallet does not have permission to use your camera.');
+      this.props.navigation.goBack(null);
+      return <View />;
     } else {
       return (
         <View style={{ flex: 1 }}>
