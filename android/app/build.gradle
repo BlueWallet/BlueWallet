@@ -138,17 +138,17 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-prompt-android')
     compile project(':react-native-vector-icons')
     compile project(':react-native-svg')
     compile project(':react-native-sentry')
     compile project(':react-native-sensors')
+    compile project(':react-native-randombytes')
+    compile project(':react-native-prompt-android')
     compile project(':react-native-linear-gradient')
     compile project(':react-native-haptic-feedback')
     compile project(':react-native-google-analytics-bridge')
     compile project(':react-native-device-info')
     compile project(':react-native-camera')
-    compile project(':react-native-randombytes')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
