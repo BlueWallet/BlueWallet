@@ -39,10 +39,6 @@ export default class ScanLndInvoice extends React.Component {
       fromWallet,
       fromSecret,
     };
-
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
-      this.processInvoice(data);
-    });
   }
 
   async processInvoice(data) {
@@ -171,7 +167,7 @@ export default class ScanLndInvoice extends React.Component {
               />
               <TouchableOpacity
                 disabled={this.state.isLoading}
-                onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+                onPress={(() => this.props.navigation.navigate('ScanQrAddress'), { onBarcodeRead: () => this.processInvoice })}
                 style={{
                   width: 75,
                   height: 36,
