@@ -19,6 +19,7 @@ import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/netw
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 const bip21 = require('bip21');
+let EV = require('../../events');
 let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -79,41 +80,40 @@ export default class SendDetails extends Component {
       bip70TransactionExpiration: null,
     };
 
+    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
+      if (btcAddressRx.test(data)) {
+        this.setState({
+          address: data,
+          bip70TransactionExpiration: null,
+        });
+      } else {
+        const { address, options } = bip21.decode(data);
+        console.warn(data);
+        if (btcAddressRx.test(address)) {
+          this.setState({
+            address,
+            amount: options.amount,
+            memo: options.label,
+            bip70TransactionExpiration: null,
+          });
+        } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
+          BitcoinBIP70TransactionDecode.decode(data)
+            .then(response => {
+              this.setState({
+                address: response.address,
+                amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                memo: response.memo,
+                fee: response.fee,
+                bip70TransactionExpiration: response.expires,
+              });
+            })
+            .catch(error => alert(error.errorMessage));
+        }
+      }
+    });
     let endTime = Date.now();
     console.log('constructor took', (endTime - startTime) / 1000, 'sec');
   }
-
-  onBarcodeRead = data => {
-    if (btcAddressRx.test(data)) {
-      this.setState({
-        address: data,
-        bip70TransactionExpiration: null,
-      });
-    } else {
-      const { address, options } = bip21.decode(data);
-      console.warn(data);
-      if (btcAddressRx.test(address)) {
-        this.setState({
-          address,
-          amount: options.amount,
-          memo: options.label,
-          bip70TransactionExpiration: null,
-        });
-      } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
-        BitcoinBIP70TransactionDecode.decode(data)
-          .then(response => {
-            this.setState({
-              address: response.address,
-              amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
-              memo: response.memo,
-              fee: response.fee,
-              bip70TransactionExpiration: response.expires,
-            });
-          })
-          .catch(error => alert(error.errorMessage));
-      }
-    }
-  };
 
   async componentDidMount() {
     let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
@@ -394,7 +394,6 @@ export default class SendDetails extends Component {
                   color: '#0f5cc0',
                   fontSize: 36,
                   fontWeight: '600',
-                  textAlign: 'right',
                 }}
               />
               <Text
@@ -459,12 +458,12 @@ export default class SendDetails extends Component {
                 placeholder={loc.send.details.address}
                 numberOfLines={1}
                 value={this.state.address}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
                 editable={!this.state.isLoading}
               />
               <TouchableOpacity
                 disabled={this.state.isLoading}
-                onPress={() => this.props.navigation.navigate('ScanQrAddress', { onBarcodeRead: this.onBarcodeRead })}
+                onPress={() => this.props.navigation.navigate('ScanQrAddress')}
                 style={{
                   width: 75,
                   height: 36,
@@ -504,7 +503,7 @@ export default class SendDetails extends Component {
                 placeholder={loc.send.details.note_placeholder}
                 value={this.state.memo}
                 numberOfLines={1}
-                style={{ marginHorizontal: 8, minHeight: 33, height: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
                 editable={!this.state.isLoading}
               />
             </View>

@@ -1,5 +1,5 @@
 /* global alert */
-import React, { Component } from 'react';
+import React from 'react';
 import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import Camera from 'react-native-camera';
@@ -7,7 +7,7 @@ import Permissions from 'react-native-permissions';
 import { SafeBlueArea } from '../../BlueComponents';
 let EV = require('../../events');
 
-export default class CameraExample extends Component {
+export default class CameraExample extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -54,7 +54,7 @@ export default class CameraExample extends Component {
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.props.navigation.getParam('onBarcodeRead')(ret)}>
+          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
             <TouchableOpacity style={{ width: 40, height: 80, padding: 14 }} onPress={() => this.props.navigation.goBack(null)}>
               <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
             </TouchableOpacity>
