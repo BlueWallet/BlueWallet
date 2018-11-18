@@ -1,1 +1,1 @@
-[{"name":"main","index":0,"scopes":["EXTERNAL_LIBRARIES","SUB_PROJECTS","PROJECT"],"types":["DEX"],"format":"DIRECTORY","present":true}]
+[{"name":"main","index":0,"scopes":["PROJECT","SUB_PROJECTS","EXTERNAL_LIBRARIES"],"types":["DEX"],"format":"DIRECTORY","present":true}]

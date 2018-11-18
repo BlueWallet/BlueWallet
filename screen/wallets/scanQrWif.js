@@ -2,8 +2,8 @@
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import { RNCamera } from 'react-native-camera';
-import { Permissions } from 'react-native-permissions';
+import { Camera } from 'react-native-camera';
+import Permissions from 'react-native-permissions';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
@@ -165,7 +165,7 @@ export default class ScanQrWif extends React.Component {
 
   async componentWillMount() {
     const { status } = await Permissions.request('camera');
-    this.setState({ hasCameraPermission: status });
+    this.setState({ hasCameraPermission: status === 'authorized' });
   }
 
   render() {
@@ -211,11 +211,7 @@ export default class ScanQrWif extends React.Component {
               );
             } else {
               return (
-                <RNCamera
-                  style={{ flex: 1 }}
-                  onBarCodeScanned={ret => this.onBarCodeScanned(ret)}
-                  barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
-                >
+                <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
                   <View
                     style={{
                       flex: 1,
@@ -225,19 +221,16 @@ export default class ScanQrWif extends React.Component {
                   >
                     <TouchableOpacity
                       style={{
-                        flex: 0.2,
                         alignSelf: 'flex-end',
                         alignItems: 'center',
+                        marginBottom: 20,
+                        marginLeft: 16,
                       }}
                     >
-                      <Button
-                        style={{ fontSize: 18, marginBottom: 10 }}
-                        title={loc.wallets.scanQrWif.go_back}
-                        onPress={() => this.props.navigation.goBack()}
-                      />
+                      <Button style={{ fontSize: 18 }} title={loc.send.details.cancel} onPress={() => this.props.navigation.goBack()} />
                     </TouchableOpacity>
                   </View>
-                </RNCamera>
+                </Camera>
               );
             }
           })()}

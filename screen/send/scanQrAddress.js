@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
-import { RNCamera } from 'react-native-camera';
-import { Permissions } from 'react-native-permissions';
+import { Camera } from 'react-native-camera';
+import Permissions from 'react-native-permissions';
 import { SafeBlueArea } from '../../BlueComponents';
 let EV = require('../../events');
 let loc = require('../../loc');
@@ -29,8 +29,10 @@ export default class CameraExample extends React.Component {
   } // end
 
   async componentDidMount() {
-    const { status } = await Permissions.request('camera');
-    this.setState({ hasCameraPermission: status });
+    Permissions.check('camera').then(response => {
+      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+      this.setState({ hasCameraPermission: response === 'authorized' });
+    });
   }
 
   render() {
@@ -50,30 +52,7 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
-          <RNCamera
-            style={{ flex: 1 }}
-            onBarCodeScanned={ret => this.onBarCodeScanned(ret)}
-            barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
-          >
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                flexDirection: 'row',
-              }}
-            >
-              <TouchableOpacity
-                style={{
-                  alignSelf: 'flex-end',
-                  alignItems: 'center',
-                  marginBottom: 20,
-                  marginLeft: 16,
-                }}
-              >
-                <Button style={{ fontSize: 18 }} title={loc.send.details.cancel} onPress={() => this.props.navigation.goBack()} />
-              </TouchableOpacity>
-            </View>
-          </RNCamera>
+          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)} />
         </SafeBlueArea>
       );
     }
