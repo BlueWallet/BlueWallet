@@ -29,6 +29,9 @@ module.exports = (title, text, isCancelable = true) => {
           },
         ];
 
-    prompt(title, text, buttons, 'secure-text');
+    prompt(title, text, buttons, {
+      type: 'secure-text',
+      cancelable: isCancelable,
+    });
   });
 };
