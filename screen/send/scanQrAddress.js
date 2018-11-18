@@ -1,11 +1,10 @@
 import React from 'react';
-import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
+import { Text, ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
-import { Camera } from 'react-native-camera';
+import Camera from 'react-native-camera';
 import Permissions from 'react-native-permissions';
 import { SafeBlueArea } from '../../BlueComponents';
 let EV = require('../../events');
-let loc = require('../../loc');
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
@@ -52,7 +51,11 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)} />
+          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
+            <TouchableOpacity style={{ width: 40, height: 80, padding: 14 }} onPress={() => this.props.navigation.goBack(null)}>
+              <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+            </TouchableOpacity>
+          </Camera>
         </SafeBlueArea>
       );
     }

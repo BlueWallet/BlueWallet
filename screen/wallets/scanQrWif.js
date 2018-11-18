@@ -1,8 +1,8 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
+import { Text, ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import { Camera } from 'react-native-camera';
+import Camera from 'react-native-camera';
 import Permissions from 'react-native-permissions';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
 import PropTypes from 'prop-types';
@@ -212,24 +212,9 @@ export default class ScanQrWif extends React.Component {
             } else {
               return (
                 <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: 'transparent',
-                      flexDirection: 'row',
-                    }}
-                  >
-                    <TouchableOpacity
-                      style={{
-                        alignSelf: 'flex-end',
-                        alignItems: 'center',
-                        marginBottom: 20,
-                        marginLeft: 16,
-                      }}
-                    >
-                      <Button style={{ fontSize: 18 }} title={loc.send.details.cancel} onPress={() => this.props.navigation.goBack()} />
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity style={{ width: 40, height: 80, padding: 14 }} onPress={() => this.props.navigation.goBack(null)}>
+                    <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+                  </TouchableOpacity>
                 </Camera>
               );
             }
