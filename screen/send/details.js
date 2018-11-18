@@ -80,42 +80,46 @@ export default class SendDetails extends Component {
       bip70TransactionExpiration: null,
     };
 
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
-      if (btcAddressRx.test(data)) {
-        this.setState({
-          address: data,
-          bip70TransactionExpiration: null,
-        });
-      } else {
-        const { address, options } = bip21.decode(data);
-        console.warn(data);
-        if (btcAddressRx.test(address)) {
-          this.setState({
-            address,
-            amount: options.amount,
-            memo: options.label,
-            bip70TransactionExpiration: null,
-          });
-        } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
-          BitcoinBIP70TransactionDecode.decode(data)
-            .then(response => {
-              this.setState({
-                address: response.address,
-                amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
-                memo: response.memo,
-                fee: response.fee,
-                bip70TransactionExpiration: response.expires,
-              });
-            })
-            .catch(error => alert(error.errorMessage));
-        }
-      }
-    });
     let endTime = Date.now();
     console.log('constructor took', (endTime - startTime) / 1000, 'sec');
   }
 
   async componentDidMount() {
+    EV(
+      EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS,
+      data => {
+        if (btcAddressRx.test(data)) {
+          this.setState({
+            address: data,
+            bip70TransactionExpiration: null,
+          });
+        } else {
+          const { address, options } = bip21.decode(data);
+          console.warn(data);
+          if (btcAddressRx.test(address)) {
+            this.setState({
+              address,
+              amount: options.amount,
+              memo: options.label,
+              bip70TransactionExpiration: null,
+            });
+          } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
+            BitcoinBIP70TransactionDecode.decode(data)
+              .then(response => {
+                this.setState({
+                  address: response.address,
+                  amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                  memo: response.memo,
+                  fee: response.fee,
+                  bip70TransactionExpiration: response.expires,
+                });
+              })
+              .catch(error => alert(error.errorMessage));
+          }
+        }
+      },
+      true,
+    );
     let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
       this.setState({ fee: response.halfHourFee, networkTransactionFees: response, feeSliderValue: response.halfHourFee });
     });
