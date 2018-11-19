@@ -18,6 +18,7 @@ import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { HDSegwitP2SHWallet } from '../../class';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
@@ -153,11 +154,14 @@ export default class SendDetails extends Component {
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
-  calculateFee(utxos, txhex) {
+  calculateFee(utxos, txhex, utxoIsInSatoshis) {
     let index = {};
     let c = 1;
     index[0] = 0;
     for (let utxo of utxos) {
+      if (!utxoIsInSatoshis) {
+        utxo.amount = new BigNumber(utxo.amount).multipliedBy(100000000).toNumber();
+      }
       index[c] = utxo.amount + index[c - 1];
       c++;
     }
@@ -283,7 +287,8 @@ export default class SendDetails extends Component {
       this.setState({ isLoading: false }, () =>
         this.props.navigation.navigate('Confirm', {
           amount: this.state.amount,
-          fee: this.calculateFee(utxo, tx),
+          // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
+          fee: this.calculateFee(utxo, tx, this.state.fromWallet.type === new HDSegwitP2SHWallet().type),
           address: this.state.address,
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,
