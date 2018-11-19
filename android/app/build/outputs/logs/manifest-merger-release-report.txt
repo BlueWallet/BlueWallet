@@ -1,0 +1,371 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+MERGED from [:react-native-vector-icons] /home/igor/Documents/BlueWallet/node_modules/react-native-vector-icons/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
+MERGED from [:react-native-svg] /home/igor/Documents/BlueWallet/node_modules/react-native-svg/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-9:12
+MERGED from [:react-native-sentry] /home/igor/Documents/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-14:12
+MERGED from [:react-native-sensors] /home/igor/Documents/BlueWallet/node_modules/react-native-sensors/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
+MERGED from [:react-native-randombytes] /home/igor/Documents/BlueWallet/node_modules/react-native-randombytes/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
+MERGED from [:react-native-prompt-android] /home/igor/Documents/BlueWallet/node_modules/react-native-prompt-android/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
+MERGED from [:react-native-linear-gradient] /home/igor/Documents/BlueWallet/node_modules/react-native-linear-gradient/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-11:12
+MERGED from [:react-native-haptic-feedback] /home/igor/Documents/BlueWallet/node_modules/react-native-haptic-feedback/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-13:12
+MERGED from [:react-native-google-analytics-bridge] /home/igor/Documents/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-14:12
+MERGED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-22:12
+MERGED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:2:1-20:12
+MERGED from [com.facebook.react:react-native:0.57.5] /home/igor/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/0cc7cf0d2523b5cfcfaeece6cc2a2c6b/AndroidManifest.xml:2:1-15:12
+MERGED from [com.android.support:appcompat-v7:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/d7f1d9708b7e5a36a0b1e2b1bb7489e4/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:17:1-47:12
+MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3a35e2988696f7abc5f7285023e1b186/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:17:1-28:12
+MERGED from [com.android.support:animated-vector-drawable:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.1.aar/ef7d7ad63e8cc839b830fe536d0f0fd0/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-vector-drawable:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.1.aar/40b57c1f7512a088ec6bd397a0a4c855/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:17:1-31:12
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:17:1-28:12
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:17:1-29:12
+MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/c8503befbc362a20fbba2ead7c90990e/AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.gms:play-services-stats:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/9e9c3e2da5971b7e3b23f2ba377b7f99/AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/52ef92b8c85c1d86239b9012e2f9eb6f/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/3de60077d348cf685ceda667179548ef/AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:17:1-28:12
+MERGED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-media-compat:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-media-compat-26.1.0.aar/04305667cd42eac6580090df754ddd91/AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-fragment:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.1.aar/7258a85a8c8ea7b6720e801b333f9620/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-ui:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.1.aar/2258f9d005e1c324e63a9b4bf155fa85/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-utils:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.1.aar/984ae3f0f4ad16f1e262910522555fa6/AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-compat:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/d0144f34cac22b85bc81abaca435e002/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/ca813d3b23887f38e1591fe46726f6d2/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/dd5fef10a66ed77354f062b4568a727c/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/0e8d0a3584fb84daa79f29528a717abb/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.core:runtime:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/3aea731980c9435558fe113bfe017d74/AndroidManifest.xml:17:1-22:12
+MERGED from [com.facebook.fresco:fresco:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/fresco-1.10.0.aar/824800d2c3a4aad1d73e3b6a7d065937/AndroidManifest.xml:2:1-9:12
+MERGED from [com.facebook.fresco:imagepipeline-okhttp3:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-okhttp3-1.10.0.aar/f48328c94dc4b731bd629a4e4fc00b55/AndroidManifest.xml:2:1-9:12
+MERGED from [com.facebook.fresco:drawee:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/drawee-1.10.0.aar/408aa05ebefd20c4b3ba86616f4df766/AndroidManifest.xml:2:1-9:12
+MERGED from [com.facebook.fresco:imagepipeline:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-1.10.0.aar/95ff78d90495f43377407b68ab8fc7e1/AndroidManifest.xml:2:1-9:12
+MERGED from [com.facebook.fresco:imagepipeline-base:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-base-1.10.0.aar/898b3f3491d51d051dd3384f6b443283/AndroidManifest.xml:2:1-9:12
+MERGED from [com.facebook.soloader:soloader:0.5.1] /home/igor/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4d1ed1f1b1b9c7acb10c6645803d4312/AndroidManifest.xml:2:1-13:12
+MERGED from [org.webkit:android-jsc:r174650] /home/igor/.gradle/caches/transforms-1/files-1.1/android-jsc-r174650.aar/6a225f01d369ef06874895d6ee1c4cdc/AndroidManifest.xml:1:1-3:12
+MERGED from [com.facebook.fresco:fbcore:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/fbcore-1.10.0.aar/66139fe67b2fdbd6e8546de9964dc07a/AndroidManifest.xml:2:1-9:12
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+	package
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:2:5-29
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:11-69
+uses-permission#android.permission.INTERNET
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:4:5-67
+MERGED from [:react-native-sentry] /home/igor/Documents/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-67
+MERGED from [:react-native-sentry] /home/igor/Documents/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-67
+MERGED from [:react-native-google-analytics-bridge] /home/igor/Documents/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-67
+MERGED from [:react-native-google-analytics-bridge] /home/igor/Documents/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-67
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:23:5-67
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:23:5-67
+MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:24:5-67
+MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:24:5-67
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:23:5-67
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:23:5-67
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:24:5-67
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:24:5-67
+	android:name
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:4:22-64
+uses-permission#android.permission.SYSTEM_ALERT_WINDOW
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:5:5-77
+MERGED from [com.facebook.react:react-native:0.57.5] /home/igor/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/0cc7cf0d2523b5cfcfaeece6cc2a2c6b/AndroidManifest.xml:11:5-78
+MERGED from [com.facebook.react:react-native:0.57.5] /home/igor/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/0cc7cf0d2523b5cfcfaeece6cc2a2c6b/AndroidManifest.xml:11:5-78
+	android:name
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:5:22-75
+application
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:7:5-24:19
+MERGED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-20:19
+MERGED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-20:19
+MERGED from [com.facebook.react:react-native:0.57.5] /home/igor/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/0cc7cf0d2523b5cfcfaeece6cc2a2c6b/AndroidManifest.xml:13:5-20
+MERGED from [com.facebook.react:react-native:0.57.5] /home/igor/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/0cc7cf0d2523b5cfcfaeece6cc2a2c6b/AndroidManifest.xml:13:5-20
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:29:5-45:19
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:29:5-45:19
+MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3a35e2988696f7abc5f7285023e1b186/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3a35e2988696f7abc5f7285023e1b186/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:29:5-20
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:29:5-20
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:22:5-27:19
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:22:5-27:19
+MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/c8503befbc362a20fbba2ead7c90990e/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/c8503befbc362a20fbba2ead7c90990e/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-stats:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/9e9c3e2da5971b7e3b23f2ba377b7f99/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-stats:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/9e9c3e2da5971b7e3b23f2ba377b7f99/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/52ef92b8c85c1d86239b9012e2f9eb6f/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/52ef92b8c85c1d86239b9012e2f9eb6f/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/3de60077d348cf685ceda667179548ef/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/3de60077d348cf685ceda667179548ef/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:22:5-26:19
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:22:5-26:19
+MERGED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-media-compat:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-media-compat-26.1.0.aar/04305667cd42eac6580090df754ddd91/AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-media-compat:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-media-compat-26.1.0.aar/04305667cd42eac6580090df754ddd91/AndroidManifest.xml:25:5-29:19
+MERGED from [com.facebook.soloader:soloader:0.5.1] /home/igor/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4d1ed1f1b1b9c7acb10c6645803d4312/AndroidManifest.xml:11:5-20
+MERGED from [com.facebook.soloader:soloader:0.5.1] /home/igor/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4d1ed1f1b1b9c7acb10c6645803d4312/AndroidManifest.xml:11:5-20
+MERGED from [org.webkit:android-jsc:r174650] /home/igor/.gradle/caches/transforms-1/files-1.1/android-jsc-r174650.aar/6a225f01d369ef06874895d6ee1c4cdc/AndroidManifest.xml:2:3-17
+MERGED from [org.webkit:android-jsc:r174650] /home/igor/.gradle/caches/transforms-1/files-1.1/android-jsc-r174650.aar/6a225f01d369ef06874895d6ee1c4cdc/AndroidManifest.xml:2:3-17
+	android:label
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:9:7-39
+	android:icon
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:10:7-41
+	android:allowBackup
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:11:7-34
+	android:theme
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:12:7-38
+	android:name
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:8:7-38
+activity#com.bluewallet.MainActivity
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:13:7-22:18
+	android:label
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:15:9-41
+	android:windowSoftInputMode
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:17:9-51
+	android:configChanges
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:16:9-79
+	android:name
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:14:9-37
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:18:9-21:25
+action#android.intent.action.MAIN
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:19:13-65
+	android:name
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:19:21-62
+category#android.intent.category.LAUNCHER
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:20:13-73
+	android:name
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:20:23-70
+activity#com.facebook.react.devsupport.DevSettingsActivity
+ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:23:7-84
+	android:name
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:23:17-81
+uses-sdk
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+MERGED from [:react-native-vector-icons] /home/igor/Documents/BlueWallet/node_modules/react-native-vector-icons/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-vector-icons] /home/igor/Documents/BlueWallet/node_modules/react-native-vector-icons/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-svg] /home/igor/Documents/BlueWallet/node_modules/react-native-svg/android/build/intermediates/manifests/full/release/AndroidManifest.xml:5:5-7:41
+MERGED from [:react-native-svg] /home/igor/Documents/BlueWallet/node_modules/react-native-svg/android/build/intermediates/manifests/full/release/AndroidManifest.xml:5:5-7:41
+MERGED from [:react-native-sentry] /home/igor/Documents/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-sentry] /home/igor/Documents/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-sensors] /home/igor/Documents/BlueWallet/node_modules/react-native-sensors/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-sensors] /home/igor/Documents/BlueWallet/node_modules/react-native-sensors/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-randombytes] /home/igor/Documents/BlueWallet/node_modules/react-native-randombytes/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-randombytes] /home/igor/Documents/BlueWallet/node_modules/react-native-randombytes/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-prompt-android] /home/igor/Documents/BlueWallet/node_modules/react-native-prompt-android/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-prompt-android] /home/igor/Documents/BlueWallet/node_modules/react-native-prompt-android/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-linear-gradient] /home/igor/Documents/BlueWallet/node_modules/react-native-linear-gradient/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-linear-gradient] /home/igor/Documents/BlueWallet/node_modules/react-native-linear-gradient/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-haptic-feedback] /home/igor/Documents/BlueWallet/node_modules/react-native-haptic-feedback/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-haptic-feedback] /home/igor/Documents/BlueWallet/node_modules/react-native-haptic-feedback/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-google-analytics-bridge] /home/igor/Documents/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-google-analytics-bridge] /home/igor/Documents/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:7:5-9:41
+MERGED from [com.facebook.react:react-native:0.57.5] /home/igor/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/0cc7cf0d2523b5cfcfaeece6cc2a2c6b/AndroidManifest.xml:7:5-9:41
+MERGED from [com.facebook.react:react-native:0.57.5] /home/igor/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/0cc7cf0d2523b5cfcfaeece6cc2a2c6b/AndroidManifest.xml:7:5-9:41
+MERGED from [com.android.support:appcompat-v7:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/d7f1d9708b7e5a36a0b1e2b1bb7489e4/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/d7f1d9708b7e5a36a0b1e2b1bb7489e4/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3a35e2988696f7abc5f7285023e1b186/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3a35e2988696f7abc5f7285023e1b186/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.1.aar/ef7d7ad63e8cc839b830fe536d0f0fd0/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.1.aar/ef7d7ad63e8cc839b830fe536d0f0fd0/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.1.aar/40b57c1f7512a088ec6bd397a0a4c855/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.1.aar/40b57c1f7512a088ec6bd397a0a4c855/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/c8503befbc362a20fbba2ead7c90990e/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/c8503befbc362a20fbba2ead7c90990e/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-stats:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/9e9c3e2da5971b7e3b23f2ba377b7f99/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-stats:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/9e9c3e2da5971b7e3b23f2ba377b7f99/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/52ef92b8c85c1d86239b9012e2f9eb6f/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/52ef92b8c85c1d86239b9012e2f9eb6f/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/3de60077d348cf685ceda667179548ef/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/3de60077d348cf685ceda667179548ef/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-media-compat:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-media-compat-26.1.0.aar/04305667cd42eac6580090df754ddd91/AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-media-compat:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-media-compat-26.1.0.aar/04305667cd42eac6580090df754ddd91/AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-fragment:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.1.aar/7258a85a8c8ea7b6720e801b333f9620/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-fragment-27.1.1.aar/7258a85a8c8ea7b6720e801b333f9620/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.1.aar/2258f9d005e1c324e63a9b4bf155fa85/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.1.aar/2258f9d005e1c324e63a9b4bf155fa85/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.1.aar/984ae3f0f4ad16f1e262910522555fa6/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.1.aar/984ae3f0f4ad16f1e262910522555fa6/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/d0144f34cac22b85bc81abaca435e002/AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:27.1.1] /home/igor/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/d0144f34cac22b85bc81abaca435e002/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/ca813d3b23887f38e1591fe46726f6d2/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/ca813d3b23887f38e1591fe46726f6d2/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/dd5fef10a66ed77354f062b4568a727c/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/dd5fef10a66ed77354f062b4568a727c/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/0e8d0a3584fb84daa79f29528a717abb/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/0e8d0a3584fb84daa79f29528a717abb/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/3aea731980c9435558fe113bfe017d74/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/3aea731980c9435558fe113bfe017d74/AndroidManifest.xml:20:5-44
+MERGED from [com.facebook.fresco:fresco:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/fresco-1.10.0.aar/824800d2c3a4aad1d73e3b6a7d065937/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:fresco:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/fresco-1.10.0.aar/824800d2c3a4aad1d73e3b6a7d065937/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:imagepipeline-okhttp3:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-okhttp3-1.10.0.aar/f48328c94dc4b731bd629a4e4fc00b55/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:imagepipeline-okhttp3:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-okhttp3-1.10.0.aar/f48328c94dc4b731bd629a4e4fc00b55/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:drawee:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/drawee-1.10.0.aar/408aa05ebefd20c4b3ba86616f4df766/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:drawee:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/drawee-1.10.0.aar/408aa05ebefd20c4b3ba86616f4df766/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:imagepipeline:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-1.10.0.aar/95ff78d90495f43377407b68ab8fc7e1/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:imagepipeline:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-1.10.0.aar/95ff78d90495f43377407b68ab8fc7e1/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:imagepipeline-base:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-base-1.10.0.aar/898b3f3491d51d051dd3384f6b443283/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:imagepipeline-base:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/imagepipeline-base-1.10.0.aar/898b3f3491d51d051dd3384f6b443283/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.soloader:soloader:0.5.1] /home/igor/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4d1ed1f1b1b9c7acb10c6645803d4312/AndroidManifest.xml:7:5-9:41
+MERGED from [com.facebook.soloader:soloader:0.5.1] /home/igor/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4d1ed1f1b1b9c7acb10c6645803d4312/AndroidManifest.xml:7:5-9:41
+MERGED from [com.facebook.fresco:fbcore:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/fbcore-1.10.0.aar/66139fe67b2fdbd6e8546de9964dc07a/AndroidManifest.xml:5:5-7:41
+MERGED from [com.facebook.fresco:fbcore:1.10.0] /home/igor/.gradle/caches/transforms-1/files-1.1/fbcore-1.10.0.aar/66139fe67b2fdbd6e8546de9964dc07a/AndroidManifest.xml:5:5-7:41
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+	tools:overrideLibrary
+		ADDED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:23:9-51
+	android:targetSdkVersion
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from [:react-native-sentry] /home/igor/Documents/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/release/AndroidManifest.xml:12:5-79
+MERGED from [:react-native-google-analytics-bridge] /home/igor/Documents/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/release/AndroidManifest.xml:12:5-79
+MERGED from [:react-native-google-analytics-bridge] /home/igor/Documents/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/release/AndroidManifest.xml:12:5-79
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:24:5-79
+MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:24:5-79
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:24:5-79
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:24:5-79
+	android:name
+		ADDED from [:react-native-sentry] /home/igor/Documents/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/release/AndroidManifest.xml:12:22-76
+uses-permission#android.permission.VIBRATE
+ADDED from [:react-native-haptic-feedback] /home/igor/Documents/BlueWallet/node_modules/react-native-haptic-feedback/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-66
+	android:name
+		ADDED from [:react-native-haptic-feedback] /home/igor/Documents/BlueWallet/node_modules/react-native-haptic-feedback/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:22-63
+receiver#com.learnium.RNDeviceInfo.RNDeviceReceiver
+ADDED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:12:9-19:20
+	android:enabled
+		ADDED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:14:13-35
+	android:exported
+		ADDED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:15:13-36
+	android:name
+		ADDED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:13:13-70
+intent-filter#action:name:com.android.vending.INSTALL_REFERRER
+ADDED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:16:13-18:29
+action#com.android.vending.INSTALL_REFERRER
+ADDED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:17:17-79
+	android:name
+		ADDED from [:react-native-device-info] /home/igor/Documents/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/release/AndroidManifest.xml:17:25-76
+uses-permission#android.permission.CAMERA
+ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:5-65
+	android:name
+		ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:11:22-62
+uses-feature#android.hardware.camera
+ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:13:5-15:36
+	android:required
+		ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:15:9-33
+	android:name
+		ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:14:9-47
+uses-feature#android.hardware.camera.autofocus
+ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:16:5-18:36
+	android:required
+		ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:18:9-33
+	android:name
+		ADDED from [:react-native-camera] /home/igor/Documents/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/release/AndroidManifest.xml:17:9-57
+uses-permission#android.permission.WAKE_LOCK
+ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:27:5-68
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:27:5-68
+MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/b444063dab1f489fecaa9c32f8760444/AndroidManifest.xml:27:5-68
+	android:name
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:27:22-65
+receiver#com.google.android.gms.analytics.AnalyticsReceiver
+ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:30:9-34:20
+	android:enabled
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:32:13-35
+	android:exported
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:33:13-37
+	android:name
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:31:13-78
+service#com.google.android.gms.analytics.AnalyticsService
+ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:36:9-39:40
+	android:enabled
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:38:13-35
+	android:exported
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:39:13-37
+	android:name
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:37:13-77
+service#com.google.android.gms.analytics.AnalyticsJobService
+ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:40:9-44:72
+	android:enabled
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:42:13-35
+	android:exported
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:43:13-37
+	android:permission
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:44:13-69
+	android:name
+		ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/e13aab1dc7010ed07b366908b9549249/AndroidManifest.xml:41:13-80
+uses-permission#com.google.android.c2dm.permission.RECEIVE
+ADDED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:23:5-82
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:23:5-82
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/836c5b216cb5dcc61772737ed193f10e/AndroidManifest.xml:23:5-82
+	android:name
+		ADDED from [com.google.android.gms:play-services-gcm:16.0.0] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/3f84b52ff93dc0450a1e982b7bd2351e/AndroidManifest.xml:23:22-79
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:23:9-26:75
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:25:13-37
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:26:13-72
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/facd2dedf8bd3c4363ef83126e89e4dd/AndroidManifest.xml:24:13-79
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:23:9-25:69
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:25:13-66
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:16.0.1] /home/igor/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/db9b6fc6880778f1616ee5730b63e707/AndroidManifest.xml:24:13-58
+meta-data#android.support.VERSION
+ADDED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-media-compat:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-media-compat-26.1.0.aar/04305667cd42eac6580090df754ddd91/AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-media-compat:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-media-compat-26.1.0.aar/04305667cd42eac6580090df754ddd91/AndroidManifest.xml:26:9-28:38
+	android:value
+		ADDED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:28:13-35
+	android:name
+		ADDED from [com.android.support:support-v4:26.1.0] /home/igor/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/a761eca4471dd0225378bc3dff870f70/AndroidManifest.xml:27:13-51
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+IMPLIED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12 reason: org.webkit.android_jsc has a targetSdkVersion < 4
+uses-permission#android.permission.READ_PHONE_STATE
+IMPLIED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12 reason: org.webkit.android_jsc has a targetSdkVersion < 4
+uses-permission#android.permission.READ_EXTERNAL_STORAGE
+IMPLIED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12 reason: org.webkit.android_jsc requested WRITE_EXTERNAL_STORAGE

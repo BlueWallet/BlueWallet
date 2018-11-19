@@ -1,0 +1,15 @@
+diff --git a/node_modules/metro-minify-uglify/src/minifier.js b/node_modules/metro-minify-uglify/src/minifier.js
+index 021df4c..dcea186 100644
+--- a/node_modules/metro-minify-uglify/src/minifier.js
++++ b/node_modules/metro-minify-uglify/src/minifier.js
+@@ -44,9 +44,7 @@ function minify(_ref) {
+     reserved = _ref.reserved,
+     config = _ref.config;
+   const options = _extends({}, config, {
+-    mangle: _extends({}, config.mangle, {
+-      reserved
+-    }),
++    mangle: false, // !!!!!!!!!!!!!!!!
+ 
+     sourceMap: _extends({}, config.sourceMap, {
+       content: map

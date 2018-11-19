@@ -1,0 +1,3 @@
+./gradlew cleanBuildCache
+./gradlew assembleRelease
+react-native run-android --variant=release
