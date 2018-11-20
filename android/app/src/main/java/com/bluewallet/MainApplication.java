@@ -1,4 +1,4 @@
-package com.bluewallet;
+package io.bluewallet.bluewallet;
 
 import android.app.Application;
 

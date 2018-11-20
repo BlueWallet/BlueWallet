@@ -52,7 +52,7 @@ INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManife
 INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
 INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
 	package
-		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:2:5-29
+		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:2:5-39
 		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
 		INJECTED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml
 	android:versionName
@@ -133,7 +133,7 @@ MERGED from [org.webkit:android-jsc:r174650] /home/igor/.gradle/caches/transform
 		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:12:7-38
 	android:name
 		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:8:7-38
-activity#com.bluewallet.MainActivity
+activity#io.bluewallet.bluewallet.MainActivity
 ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:13:7-22:18
 	android:label
 		ADDED from /home/igor/Documents/BlueWallet/android/app/src/main/AndroidManifest.xml:15:9-41

@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Mon Nov 19 00:47:26 GMT 2018
+#Mon Nov 19 22:38:55 GMT 2018
 5.base=/home/igor/Documents/BlueWallet/android/app/build/intermediates/assets/release
 22.path=lib/x86/libreactnativejni.so
 32.set=NATIVE_RESOURCE
