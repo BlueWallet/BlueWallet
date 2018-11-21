@@ -340,7 +340,7 @@ export default class WalletTransactions extends Component {
           <FlatList
             ListHeaderComponent={this.renderListHeaderComponent}
             ListEmptyComponent={
-              <View style={{ top: 50, height: 100 }}>
+              <View style={{ top: 50, minHeight: 200 }}>
                 <Text
                   style={{
                     fontSize: 18,
