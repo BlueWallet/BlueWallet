@@ -55,7 +55,10 @@ export default class CameraExample extends React.Component {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
           <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
-            <TouchableOpacity style={{ width: 40, height: 80, padding: 14 }} onPress={() => this.props.navigation.goBack(null)}>
+            <TouchableOpacity
+              style={{ width: 40, height: 80, padding: 14, marginTop: 32 }}
+              onPress={() => this.props.navigation.goBack(null)}
+            >
               <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
             </TouchableOpacity>
           </Camera>
