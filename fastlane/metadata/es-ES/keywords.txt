@@ -1,1 +1,1 @@
-bitcoin, segwit, wallet, blockchain, btc, plausible deniability, cryptocurrency, crypto
+bitcoin,wallet,segwit,crypto,blockchain,btc,cryptocurrency,wallet,bread,samurai,ripple,xrp,ethereum

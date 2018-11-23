@@ -1,1 +1,1 @@
-bitcoin, segwit, replace by fee, blockchain, btc, plausible deniability, cryptocurrency, wallet
+bitcoin,wallet,segwit,crypto,blockchain,btc,cryptocurrency,wallet,bread,samurai,ripple,xrp,ethereum
