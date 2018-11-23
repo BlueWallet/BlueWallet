@@ -59,6 +59,7 @@ const WalletsStackNavigator = createStackNavigator(
         headerStyle: {
           backgroundColor: '#FFFFFF',
           borderBottomWidth: 0,
+          elevation: 0,
         },
         headerTintColor: '#0c2550',
       },

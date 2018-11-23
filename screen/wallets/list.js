@@ -27,6 +27,7 @@ export default class WalletsList extends Component {
     headerStyle: {
       backgroundColor: '#FFFFFF',
       borderBottomWidth: 0,
+      elevation: 0,
     },
     headerRight: (
       <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => navigation.navigate('Settings')}>

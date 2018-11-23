@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Fri Nov 23 01:10:43 EST 2018
+#Fri Nov 23 01:23:27 EST 2018
 5.base=/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/assets/debug
 22.path=lib/x86/libfb.so
 32.set=NATIVE_RESOURCE
