@@ -59,16 +59,57 @@ export default class WalletTransactions extends Component {
 
   constructor(props) {
     super(props);
+
+    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+    const wallet = props.navigation.getParam('wallet');
+
+    let gradient1 = '#65ceef';
+    let gradient2 = '#68bbe1';
+
+    if (new WatchOnlyWallet().type === wallet.type) {
+      gradient1 = '#7d7d7d';
+      gradient2 = '#4a4a4a';
+    }
+
+    if (new LegacyWallet().type === wallet.type) {
+      gradient1 = '#40fad1';
+      gradient2 = '#15be98';
+    }
+
+    if (new HDLegacyP2PKHWallet().type === wallet.type) {
+      gradient1 = '#e36dfa';
+      gradient2 = '#bd10e0';
+    }
+
+    if (new HDLegacyBreadwalletWallet().type === wallet.type) {
+      gradient1 = '#fe6381';
+      gradient2 = '#f99c42';
+    }
+
+    if (new HDSegwitP2SHWallet().type === wallet.type) {
+      gradient1 = '#c65afb';
+      gradient2 = '#9053fe';
+    }
+
+    if (new LightningCustodianWallet().type === wallet.type) {
+      gradient1 = '#f1be07';
+      gradient2 = '#f79056';
+    }
+
+    this.props.navigation.setParams({ headerColor: gradient1, wallet: wallet });
     this.state = {
       isLoading: true,
       isTransactionsLoading: false,
-      wallet: props.navigation.getParam('wallet'),
-      gradientColors: ['#FFFFFF', '#FFFFFF'],
-      dataSource: props.navigation.getParam('wallet').getTransactions(),
+      wallet: wallet,
+      gradientColors: [gradient1, gradient2],
+      dataSource: wallet.getTransactions(),
       walletBalanceUnit: BitcoinUnit.MBTC,
     };
-    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+  }
+
+  async componentDidMount() {
+    this.refreshFunction();
   }
 
   /**
@@ -79,45 +120,6 @@ export default class WalletTransactions extends Component {
     setTimeout(function() {
       that.refreshTransactions();
     }, 4000); // giving a chance to remote server to propagate
-  }
-
-  async componentDidMount() {
-    this.refreshFunction();
-    let gradient1 = '#65ceef';
-    let gradient2 = '#68bbe1';
-
-    if (new WatchOnlyWallet().type === this.state.wallet.type) {
-      gradient1 = '#7d7d7d';
-      gradient2 = '#4a4a4a';
-    }
-
-    if (new LegacyWallet().type === this.state.wallet.type) {
-      gradient1 = '#40fad1';
-      gradient2 = '#15be98';
-    }
-
-    if (new HDLegacyP2PKHWallet().type === this.state.wallet.type) {
-      gradient1 = '#e36dfa';
-      gradient2 = '#bd10e0';
-    }
-
-    if (new HDLegacyBreadwalletWallet().type === this.state.wallet.type) {
-      gradient1 = '#fe6381';
-      gradient2 = '#f99c42';
-    }
-
-    if (new HDSegwitP2SHWallet().type === this.state.wallet.type) {
-      gradient1 = '#c65afb';
-      gradient2 = '#9053fe';
-    }
-
-    if (new LightningCustodianWallet().type === this.state.wallet.type) {
-      gradient1 = '#f1be07';
-      gradient2 = '#f79056';
-    }
-
-    this.props.navigation.setParams({ headerColor: gradient1, wallet: this.state.wallet });
-    this.setState({ gradientColors: [gradient1, gradient2] });
   }
 
   /**

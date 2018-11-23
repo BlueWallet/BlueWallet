@@ -9,4 +9,5 @@ dependencies: \
   /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTDefines.h \
   /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTBridgeModule.h \
   /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTFrameUpdate.h \
-  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTInvalidating.h
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RCTInvalidating.h \
+  /Users/marcosrodriguez/BlueWallet/ios/build/Build/Products/Debug-iphonesimulator/include/React/RNSentry.h

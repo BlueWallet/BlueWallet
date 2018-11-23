@@ -50,7 +50,7 @@ export default class About extends Component {
       return (
         <React.Fragment>
           <BlueTextCentered>
-            {DeviceInfo.getmodel()} ({DeviceInfo.getDeviceId()})
+            {DeviceInfo.getModel()} ({DeviceInfo.getDeviceId()})
           </BlueTextCentered>
           <BlueSpacing20 />
         </React.Fragment>

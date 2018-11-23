@@ -8,9 +8,45 @@
 		<data>
 		TneGhDkoD7Q01Gl8e5EScUBsgfM=
 		</data>
+		<key>AppIcon20x20@2x.png</key>
+		<data>
+		u9jEtkM/TZGae4bVZDKKvixF0no=
+		</data>
+		<key>AppIcon20x20@3x.png</key>
+		<data>
+		N98ZxqqSJTGnfZc2v7+4Xs1/B/Q=
+		</data>
+		<key>AppIcon29x29@2x.png</key>
+		<data>
+		rfVvqH05BQfzYGS5pnwk/ji626E=
+		</data>
+		<key>AppIcon29x29@3x.png</key>
+		<data>
+		mdgVZbxKP9om67kLjNO3thZ97Lg=
+		</data>
+		<key>AppIcon40x40@2x.png</key>
+		<data>
+		i50jyj17sa69Cd/P0zaT1dEZJOk=
+		</data>
+		<key>AppIcon40x40@3x.png</key>
+		<data>
+		X/0af1xG2wS2gwJjst1UwTlKvQ4=
+		</data>
+		<key>AppIcon60x60@2x.png</key>
+		<data>
+		X/0af1xG2wS2gwJjst1UwTlKvQ4=
+		</data>
+		<key>AppIcon60x60@3x.png</key>
+		<data>
+		qnEo9qlLP6uSMF9h8zA6JoqA0bs=
+		</data>
+		<key>Assets.car</key>
+		<data>
+		ulqZgpwTtM/KUSmeLLE7++HzlnQ=
+		</data>
 		<key>Base.lproj/LaunchScreen.nib</key>
 		<data>
-		rxcid8fs83pMdQKhG4KhGHtsNSI=
+		AoMLv2GJcsOBN5JSusx59ZZpRUI=
 		</data>
 		<key>Entypo.ttf</key>
 		<data>
@@ -30,15 +66,15 @@
 		</data>
 		<key>FontAwesome5_Brands.ttf</key>
 		<data>
-		grn/4L28SVheCDsHNWSzXlD6Cdc=
+		5qUMbo09q4lTNYYzUqKacUeCiYg=
 		</data>
 		<key>FontAwesome5_Regular.ttf</key>
 		<data>
-		9g09gMIWA5vFMbtbzLdJj/uNipo=
+		tlwJkB7NQUF8fvt0c3Lf73Y7ovE=
 		</data>
 		<key>FontAwesome5_Solid.ttf</key>
 		<data>
-		WiG+2H4jPlxeguo6ACFcVEg34SU=
+		VbYNJIPcR/jz6kYN2NDviISJPFs=
 		</data>
 		<key>Foundation.ttf</key>
 		<data>
@@ -75,7 +111,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		5RZv9tRyDqSXZ/OpslBEi/qqhpY=
+		gQxsccr77nKf5WiEsopj2g/ebbE=
 		</data>
 		<key>Ionicons.ttf</key>
 		<data>
@@ -103,11 +139,11 @@
 		</data>
 		<key>PlugIns/BlueWalletTests.xctest.dSYM/Contents/Resources/DWARF/BlueWalletTests</key>
 		<data>
-		irkZ9YTjbkYXhVo2d4gv991hIAM=
+		fKJMxJjZyUbXdJt702JHLHjfBGk=
 		</data>
 		<key>PlugIns/BlueWalletTests.xctest/BlueWalletTests</key>
 		<data>
-		7pv2gNXkUBsa4DVX2WGto3ROUFc=
+		Ve+v0uObSDabhWG665lt9AIUTlo=
 		</data>
 		<key>PlugIns/BlueWalletTests.xctest/Info.plist</key>
 		<data>
@@ -139,15 +175,114 @@
 			eVXKFBJ7MEEsEU6xPP1wK12rJl/rGIDRaV1zyqgkzeE=
 			</data>
 		</dict>
+		<key>AppIcon20x20@2x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			u9jEtkM/TZGae4bVZDKKvixF0no=
+			</data>
+			<key>hash2</key>
+			<data>
+			pjsPDyex4DvNKcCkjZtV98nAQbxL3jejlROUn5P5s7c=
+			</data>
+		</dict>
+		<key>AppIcon20x20@3x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			N98ZxqqSJTGnfZc2v7+4Xs1/B/Q=
+			</data>
+			<key>hash2</key>
+			<data>
+			GRHQ2JLE1blFd8AHiwFIC96VHeSUBBRZ0WbEjUqV1CA=
+			</data>
+		</dict>
+		<key>AppIcon29x29@2x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			rfVvqH05BQfzYGS5pnwk/ji626E=
+			</data>
+			<key>hash2</key>
+			<data>
+			RLhIxBibYpl/MYQ54YorJoOKIL8gOuDqGdXIMOtYG7I=
+			</data>
+		</dict>
+		<key>AppIcon29x29@3x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			mdgVZbxKP9om67kLjNO3thZ97Lg=
+			</data>
+			<key>hash2</key>
+			<data>
+			YhL4p3PeVzs+ABsMac9oiDZWFYPmzZRu74uX/4uBUmQ=
+			</data>
+		</dict>
+		<key>AppIcon40x40@2x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			i50jyj17sa69Cd/P0zaT1dEZJOk=
+			</data>
+			<key>hash2</key>
+			<data>
+			c6CxHMJCn7APbFGpWeDThkfscIrxu104Jj1x1kkU5h0=
+			</data>
+		</dict>
+		<key>AppIcon40x40@3x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			X/0af1xG2wS2gwJjst1UwTlKvQ4=
+			</data>
+			<key>hash2</key>
+			<data>
+			sWBF1KyIll4sAQk40HLXkyUmbFr9bIniG+JDW4KFkck=
+			</data>
+		</dict>
+		<key>AppIcon60x60@2x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			X/0af1xG2wS2gwJjst1UwTlKvQ4=
+			</data>
+			<key>hash2</key>
+			<data>
+			sWBF1KyIll4sAQk40HLXkyUmbFr9bIniG+JDW4KFkck=
+			</data>
+		</dict>
+		<key>AppIcon60x60@3x.png</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			qnEo9qlLP6uSMF9h8zA6JoqA0bs=
+			</data>
+			<key>hash2</key>
+			<data>
+			FHNMZWz0aiZs7T7vkQIYKoZVRHO2r+SdpVw7YMCfOGA=
+			</data>
+		</dict>
+		<key>Assets.car</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			ulqZgpwTtM/KUSmeLLE7++HzlnQ=
+			</data>
+			<key>hash2</key>
+			<data>
+			hEHd8GqHWg2QdIydxptfX8DwdnWBdGkz0V4qUagSfR0=
+			</data>
+		</dict>
 		<key>Base.lproj/LaunchScreen.nib</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			rxcid8fs83pMdQKhG4KhGHtsNSI=
+			AoMLv2GJcsOBN5JSusx59ZZpRUI=
 			</data>
 			<key>hash2</key>
 			<data>
-			OvSyPZZka498TndXf22TBUn98LN06fMplh845NfiZGI=
+			Is1VadPganDvDfBb970SNPAogc5wPj8JkU/WnBNO42c=
 			</data>
 		</dict>
 		<key>Entypo.ttf</key>
@@ -198,33 +333,33 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			grn/4L28SVheCDsHNWSzXlD6Cdc=
+			5qUMbo09q4lTNYYzUqKacUeCiYg=
 			</data>
 			<key>hash2</key>
 			<data>
-			VmDKN8uFHpEU+IgABQpNa1v4cdSL/n5ta6QzLYIgJV8=
+			29CNAlYCt5znGRCypoV3lZy/LvAvxmTiQ79QJ3dU/fw=
 			</data>
 		</dict>
 		<key>FontAwesome5_Regular.ttf</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			9g09gMIWA5vFMbtbzLdJj/uNipo=
+			tlwJkB7NQUF8fvt0c3Lf73Y7ovE=
 			</data>
 			<key>hash2</key>
 			<data>
-			E8IiY5q9YR0GZhnBZcWPWWs63Q1mSxsyvrfH6Cya8hE=
+			7LVxnrZAg1nZH9JTBkYGSj8lGu1pH9SCdyicyNbVPfo=
 			</data>
 		</dict>
 		<key>FontAwesome5_Solid.ttf</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			WiG+2H4jPlxeguo6ACFcVEg34SU=
+			VbYNJIPcR/jz6kYN2NDviISJPFs=
 			</data>
 			<key>hash2</key>
 			<data>
-			B3erbrnUcU8/Dw3dcYQ2/iIhqayo0EN1oVC1evRaAhU=
+			uXra1+zpeSr0EirogQPK2Pq1RVilKcS6ebUiTCsC6+k=
 			</data>
 		</dict>
 		<key>Foundation.ttf</key>
@@ -365,22 +500,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			irkZ9YTjbkYXhVo2d4gv991hIAM=
+			fKJMxJjZyUbXdJt702JHLHjfBGk=
 			</data>
 			<key>hash2</key>
 			<data>
-			j4wZJKSuaian5mfOqhEY6s4Y9vW/GcJqi+eMXiBvBX8=
+			e5EYeyh066dlkON/LmbBi4+C841WAGGDiKX4q00bqE0=
 			</data>
 		</dict>
 		<key>PlugIns/BlueWalletTests.xctest/BlueWalletTests</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			7pv2gNXkUBsa4DVX2WGto3ROUFc=
+			Ve+v0uObSDabhWG665lt9AIUTlo=
 			</data>
 			<key>hash2</key>
 			<data>
-			NipN7RS61Z4e4ZXfJtlX7V8ad+73fbsJi6PunPCccq0=
+			1K8zOW9NSnA7LM3g2/wJTVTwqmitu7lXCKLR09qgrSA=
 			</data>
 		</dict>
 		<key>PlugIns/BlueWalletTests.xctest/Info.plist</key>

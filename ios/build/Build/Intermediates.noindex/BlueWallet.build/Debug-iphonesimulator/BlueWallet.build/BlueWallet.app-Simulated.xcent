@@ -3,10 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>application-identifier</key>
-	<string>D39W4U3HY6.org.reactjs.native.example.BlueWallet</string>
+	<string>5TXH73B266.io.bluewallet.bluewallet</string>
 	<key>keychain-access-groups</key>
 	<array>
-		<string>D39W4U3HY6.org.reactjs.native.example.BlueWallet</string>
+		<string>5TXH73B266.io.bluewallet.bluewallet</string>
 	</array>
 </dict>
 </plist>
