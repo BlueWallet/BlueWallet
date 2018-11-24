@@ -153,7 +153,6 @@ dependencies {
     compile project(':react-native-vector-icons')
     compile project(':react-native-svg')
     compile project(':react-native-sentry')
-    compile project(':react-native-sensors')
     compile project(':react-native-randombytes')
     compile project(':react-native-prompt-android')
     compile project(':react-native-linear-gradient')

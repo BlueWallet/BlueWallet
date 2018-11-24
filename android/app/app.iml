@@ -164,6 +164,5 @@
     <orderEntry type="module" module-name="react-native-google-analytics-bridge" />
     <orderEntry type="module" module-name="react-native-sentry" />
     <orderEntry type="module" module-name="react-native-device-info" />
-    <orderEntry type="module" module-name="react-native-sensors" />
   </component>
 </module>
