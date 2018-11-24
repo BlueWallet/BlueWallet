@@ -1,58 +1,39 @@
-Free opensource Bitcoin wallet for iOS
+Store, send and receive bitcoin with the wallet focus on security and simplicity.
 
-* Private keys never leave your device
-* Full encryption
-* Fake decryption password (plausible deniability)
-* Segwit ready
-* Replace-by-Fee (RBF)
-* Watch-only (Sentinel) wallets
+On Blue Wallet you own you private keys. A Bitcoin wallet focused on us the users.
 
+You can instantly transact with anyone in the world and transform the financial system right from your pocket.
 
-Features
-=======
+Create for free unlimited number of bitcoin wallets or access your existing one on your iOS device. It's simple and fast.
 
+_____
+
+Here's what you get:
+
+1 - Security by design
 
 Open Source
-------------
-Since this app is MIT licensed, you can build it and run it on your own! Made with ReactNative
-
-
-Be in control
--------------
-Private keys never leave your device
-
-
-Full encryption
---------------
-On top of iOS multi-layer encryption, BlueWallet encrypts everything with additional user password. And yes, biometric security is not reliable
-
+MIT licensed, you can build it and run it on your own! Made with ReactNative
 
 Plausible deniability
--------------------
-Fake password which decrypts fake wallets. For special cases when you are forced to disclose your access, you
-can disclose fake password, keeping your real coins hidden
+Password which decrypts fake wallets if you are forced to disclose your access
 
+Full encryption
+On top of iOS multi-layer encryption, we encrypt everyting with added passwords
+
+SegWit & HD wallets
+SegWit supported and HD wallets enable
+
+2 - Focused on your experience
+
+Be in control
+Private keys never leave your device.  You control your private keys
 
 Flexible fees
--------------
-Starting from 1 Satoshi. Don't overpay for transactions
+Starting from 1 Satoshi.  Defined by you, the user
 
+Replace-By-Fee
+(RBF) Speed-up your transactions by increasing the fee (BIP125)
 
-Replace-By-Fee (RBF)
-----------------------
-Speed-up your transactions by increasing the fee (BIP125). You can also change destination address for non-confirmed tx
-
-
-SegWit
---------
-SegWit supported (in P2SH-compatibility mode). Helps reduce the fees even more
-
-
-Export TXHEX
---------------
-Get transaction TXHEX without broadcasting it and broadcast with a relay of your choice
-
-
-Watch-only (Sentinel) wallets
------------------------------
-You can watch status of your offline wallets. No private keys on your device!
+Sentinel wallets new
+Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
