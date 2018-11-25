@@ -712,6 +712,10 @@
         "source": "/Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/4062a7cf9e2de2faa76cfa2e71433aa6/res/drawable-xxxhdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png"
     },
     {
+        "merged": "/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/res/merged/debug/layout_surface_view.xml.flat",
+        "source": "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/packaged_res/debug/layout/surface_view.xml"
+    },
+    {
         "merged": "/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/res/merged/debug/drawable-hdpi-v4_abc_ic_menu_share_mtrl_alpha.png.flat",
         "source": "/Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/4062a7cf9e2de2faa76cfa2e71433aa6/res/drawable-hdpi-v4/abc_ic_menu_share_mtrl_alpha.png"
     },
@@ -1066,6 +1070,10 @@
     {
         "merged": "/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/res/merged/debug/drawable-xxxhdpi-v4_abc_ic_star_black_16dp.png.flat",
         "source": "/Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/4062a7cf9e2de2faa76cfa2e71433aa6/res/drawable-xxxhdpi-v4/abc_ic_star_black_16dp.png"
+    },
+    {
+        "merged": "/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/res/merged/debug/layout-v14_texture_view.xml.flat",
+        "source": "/Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/packaged_res/debug/layout-v14/texture_view.xml"
     },
     {
         "merged": "/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/res/merged/debug/drawable-xxhdpi-v4_abc_btn_check_to_on_mtrl_015.png.flat",

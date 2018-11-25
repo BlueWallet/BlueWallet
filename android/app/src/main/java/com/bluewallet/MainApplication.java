@@ -6,18 +6,17 @@ import com.facebook.react.ReactApplication;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.horcrux.svg.SvgPackage;
 import io.sentry.RNSentryPackage;
-import com.sensors.RNSensorsPackage;
 import com.bitgo.randombytes.RandomBytesPackage;
 import im.shimo.react.prompt.RNPromptPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import com.mkuczera.RNReactNativeHapticFeedbackPackage;
 import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.learnium.RNDeviceInfo.RNDeviceInfo;
-import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import org.reactnative.camera.RNCameraPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 
 import java.util.Arrays;
@@ -38,14 +37,13 @@ public class MainApplication extends Application implements ReactApplication {
             new VectorIconsPackage(),
             new SvgPackage(),
             new RNSentryPackage(),
-            new RNSensorsPackage(),
             new RandomBytesPackage(),
             new RNPromptPackage(),
             new LinearGradientPackage(),
             new RNReactNativeHapticFeedbackPackage(),
             new GoogleAnalyticsBridgePackage(),
             new RNDeviceInfo(),
-            new RCTCameraPackage(),
+              new RNCameraPackage(),
             new RNGestureHandlerPackage()
       );
     }

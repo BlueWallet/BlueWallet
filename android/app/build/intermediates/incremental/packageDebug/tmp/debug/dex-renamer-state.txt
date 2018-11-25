@@ -1,4 +1,4 @@
-#Fri Nov 23 01:23:26 EST 2018
+#Sat Nov 24 22:01:22 EST 2018
 base.0=/Users/marcosrodriguez/BlueWallet/android/app/build/intermediates/transforms/dexMerger/debug/0
 path.0=classes.dex
 renamed.0=classes.dex

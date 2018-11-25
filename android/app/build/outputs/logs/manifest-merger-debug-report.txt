@@ -1,34 +1,38 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
-INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
-INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
-INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
+INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
+INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
+INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
 MERGED from [:react-native-gesture-handler] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-gesture-handler/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-vector-icons] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-vector-icons/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-svg] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-9:12
 MERGED from [:react-native-sentry] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-14:12
-MERGED from [:react-native-sensors] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sensors/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-randombytes] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-randombytes/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-prompt-android] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-prompt-android/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-linear-gradient] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-linear-gradient/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-11:12
 MERGED from [:react-native-haptic-feedback] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-haptic-feedback/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-13:12
 MERGED from [:react-native-google-analytics-bridge] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-14:12
 MERGED from [:react-native-device-info] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-22:12
-MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-20:12
+MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:2:1-18:12
 MERGED from [com.facebook.react:react-native:0.57.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/2ab33866c7a2928580844c8d762e8ee3/AndroidManifest.xml:2:1-15:12
 MERGED from [com.android.support:appcompat-v7:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/4062a7cf9e2de2faa76cfa2e71433aa6/AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.android.gms:play-services-analytics:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/77863c496b2968cb1f620df0c61c575f/AndroidManifest.xml:17:1-47:12
 MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3245f47a82af893acfe1f9598fb2f3ae/AndroidManifest.xml:17:1-24:12
 MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/15197b2e7b41d92f898594f73228f82b/AndroidManifest.xml:17:1-28:12
+MERGED from [com.google.android.gms:play-services-vision:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-15.0.2.aar/5e48ad25b319b0437e0466f0c38cc180/AndroidManifest.xml:2:1-9:12
 MERGED from [com.android.support:animated-vector-drawable:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.1.aar/71af0cda7d01f2293c458970e28cf17c/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support:support-vector-drawable:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.1.aar/10dd8d636ab5741596ead040f14523b9/AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/6e901dbbae48120c7f6c4b1d47df26e9/AndroidManifest.xml:17:1-31:12
-MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:17:1-28:12
-MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:17:1-29:12
 MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/17b7e0af51b4c2468f44df9c2f9ecf6e/AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:17:1-28:12
 MERGED from [com.google.android.gms:play-services-stats:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/d229702f1eb21fa76140d81a97b49b10/AndroidManifest.xml:2:1-9:12
 MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/13de7e0132612faa7f875f131122fe7e/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.android.gms:play-services-vision-common:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-common-15.0.2.aar/ff8299f5f4b46e00c87bd6422ceef747/AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.android.gms:play-services-clearcut:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-clearcut-15.0.1.aar/39c136a0c7bedf4321b4b9d91d0d7a5a/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.android.gms:play-services-flags:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-flags-15.0.1.aar/da1565b01771ef23e5969aed1cce19a1/AndroidManifest.xml:17:1-22:12
+MERGED from [com.google.android.gms:play-services-phenotype:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-phenotype-15.0.1.aar/3ca135d3048c0a96c57b4d8019ee8e20/AndroidManifest.xml:17:1-24:12
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:17:1-29:12
 MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/471865111e560b8c8e42a33c1775cee4/AndroidManifest.xml:2:1-9:12
 MERGED from [com.google.android.gms:play-services-basement:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/aa0035aa3bf5cf500bea5a80734396a2/AndroidManifest.xml:17:1-28:12
 MERGED from [com.android.support:support-v4:26.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/cb762f2099d804b25eb0bf9d53497cb3/AndroidManifest.xml:17:1-31:12
@@ -37,10 +41,6 @@ MERGED from [com.android.support:support-fragment:27.1.1] /Users/marcosrodriguez
 MERGED from [com.android.support:support-core-ui:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-core-ui-27.1.1.aar/5cfb97cb8b36e653658bd0440ee56879/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support:support-core-utils:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.1.aar/eb80cfbf40a485c7b00e4a3c739d4ccd/AndroidManifest.xml:17:1-22:12
 MERGED from [com.android.support:support-compat:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/e24345755064a2835a8bf2287502cf2e/AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/0caba60fad0b64121400f1d8ca81c707/AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/3f696fbf49df091be2f907f7eb4b28d5/AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/ef1a4c5efaa2f78d3464bbf070f2b618/AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.core:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/a613c8d145a7c2a19dd218133f8340c9/AndroidManifest.xml:17:1-22:12
 MERGED from [com.facebook.fresco:fresco:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/fresco-1.10.0.aar/ff22a72932c96486809c10fcd3eabc30/AndroidManifest.xml:2:1-9:12
 MERGED from [com.facebook.fresco:imagepipeline-okhttp3:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/imagepipeline-okhttp3-1.10.0.aar/aeee5374a64f38e0e5468bdf5a8681eb/AndroidManifest.xml:2:1-9:12
 MERGED from [com.facebook.fresco:drawee:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/drawee-1.10.0.aar/a5bb8c26d578b8d91052dec977633ce3/AndroidManifest.xml:2:1-9:12
@@ -48,21 +48,25 @@ MERGED from [com.facebook.fresco:imagepipeline:1.10.0] /Users/marcosrodriguez/.g
 MERGED from [com.facebook.fresco:imagepipeline-base:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/imagepipeline-base-1.10.0.aar/387cc374ff01114a88391c850b1e7116/AndroidManifest.xml:2:1-9:12
 MERGED from [com.facebook.soloader:soloader:0.5.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4bd4e105ac11db4272039f155d6a9962/AndroidManifest.xml:2:1-13:12
 MERGED from [org.webkit:android-jsc:r174650] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/android-jsc-r174650.aar/419212fe1d5243e26f0d731cef037db8/AndroidManifest.xml:1:1-3:12
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/0caba60fad0b64121400f1d8ca81c707/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/3f696fbf49df091be2f907f7eb4b28d5/AndroidManifest.xml:17:1-22:12
 MERGED from [com.facebook.fresco:fbcore:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/fbcore-1.10.0.aar/84ad9883e4e608c3b052c1cae04c8fef/AndroidManifest.xml:2:1-9:12
-INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
-INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
-INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/ef1a4c5efaa2f78d3464bbf070f2b618/AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.core:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/a613c8d145a7c2a19dd218133f8340c9/AndroidManifest.xml:17:1-22:12
+INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
+INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
+INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
 	package
 		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:2:5-39
 		INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
 		INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12
 		INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:11-69
@@ -88,8 +92,14 @@ MERGED from [com.facebook.react:react-native:0.57.5] /Users/marcosrodriguez/.gra
 MERGED from [com.facebook.react:react-native:0.57.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/2ab33866c7a2928580844c8d762e8ee3/AndroidManifest.xml:11:5-78
 	android:name
 		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:5:22-75
+uses-permission#android.permission.CAMERA
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:6:5-65
+MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:9:5-65
+MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:9:5-65
+	android:name
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:6:22-62
 application
-ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:7:5-24:19
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:8:5-25:19
 MERGED from [:react-native-device-info] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:11:5-20:19
 MERGED from [:react-native-device-info] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:11:5-20:19
 MERGED from [com.facebook.react:react-native:0.57.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/2ab33866c7a2928580844c8d762e8ee3/AndroidManifest.xml:13:5-20
@@ -100,18 +110,26 @@ MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /Us
 MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3245f47a82af893acfe1f9598fb2f3ae/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/15197b2e7b41d92f898594f73228f82b/AndroidManifest.xml:26:5-20
 MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/15197b2e7b41d92f898594f73228f82b/AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-vision:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-15.0.2.aar/5e48ad25b319b0437e0466f0c38cc180/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-vision:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-15.0.2.aar/5e48ad25b319b0437e0466f0c38cc180/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/6e901dbbae48120c7f6c4b1d47df26e9/AndroidManifest.xml:29:5-20
 MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/6e901dbbae48120c7f6c4b1d47df26e9/AndroidManifest.xml:29:5-20
-MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:26:5-20
-MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:26:5-20
-MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:22:5-27:19
-MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:22:5-27:19
 MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/17b7e0af51b4c2468f44df9c2f9ecf6e/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/17b7e0af51b4c2468f44df9c2f9ecf6e/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:26:5-20
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:26:5-20
 MERGED from [com.google.android.gms:play-services-stats:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/d229702f1eb21fa76140d81a97b49b10/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-stats:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/d229702f1eb21fa76140d81a97b49b10/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/13de7e0132612faa7f875f131122fe7e/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/13de7e0132612faa7f875f131122fe7e/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-vision-common:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-common-15.0.2.aar/ff8299f5f4b46e00c87bd6422ceef747/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-vision-common:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-common-15.0.2.aar/ff8299f5f4b46e00c87bd6422ceef747/AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-clearcut:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-clearcut-15.0.1.aar/39c136a0c7bedf4321b4b9d91d0d7a5a/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-clearcut:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-clearcut-15.0.1.aar/39c136a0c7bedf4321b4b9d91d0d7a5a/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-phenotype:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-phenotype-15.0.1.aar/3ca135d3048c0a96c57b4d8019ee8e20/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-phenotype:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-phenotype-15.0.1.aar/3ca135d3048c0a96c57b4d8019ee8e20/AndroidManifest.xml:22:5-20
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:22:5-27:19
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:22:5-27:19
 MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/471865111e560b8c8e42a33c1775cee4/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/471865111e560b8c8e42a33c1775cee4/AndroidManifest.xml:7:5-20
 MERGED from [com.google.android.gms:play-services-basement:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/aa0035aa3bf5cf500bea5a80734396a2/AndroidManifest.xml:22:5-26:19
@@ -125,39 +143,39 @@ MERGED from [com.facebook.soloader:soloader:0.5.1] /Users/marcosrodriguez/.gradl
 MERGED from [org.webkit:android-jsc:r174650] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/android-jsc-r174650.aar/419212fe1d5243e26f0d731cef037db8/AndroidManifest.xml:2:3-17
 MERGED from [org.webkit:android-jsc:r174650] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/android-jsc-r174650.aar/419212fe1d5243e26f0d731cef037db8/AndroidManifest.xml:2:3-17
 	android:label
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:9:7-39
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:10:7-39
 	android:icon
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:10:7-41
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:11:7-41
 	android:allowBackup
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:11:7-34
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:12:7-34
 	android:theme
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:12:7-38
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:13:7-38
 	android:name
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:8:7-38
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:9:7-38
 activity#io.bluewallet.bluewallet.MainActivity
-ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:13:7-22:18
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:14:7-23:18
 	android:label
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:15:9-41
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:16:9-41
 	android:windowSoftInputMode
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:17:9-51
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:18:9-51
 	android:configChanges
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:16:9-79
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:17:9-79
 	android:name
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:14:9-37
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:15:9-37
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:18:9-21:25
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:19:9-22:25
 action#android.intent.action.MAIN
-ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:19:13-65
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:20:13-65
 	android:name
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:19:21-62
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:20:21-62
 category#android.intent.category.LAUNCHER
-ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:20:13-73
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:21:13-73
 	android:name
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:20:23-70
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:21:23-70
 activity#com.facebook.react.devsupport.DevSettingsActivity
-ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:23:7-84
+ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:24:7-84
 	android:name
-		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:23:17-81
+		ADDED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:24:17-81
 uses-sdk
 INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
@@ -170,8 +188,6 @@ MERGED from [:react-native-svg] /Users/marcosrodriguez/BlueWallet/node_modules/r
 MERGED from [:react-native-svg] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-svg/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:5:5-7:41
 MERGED from [:react-native-sentry] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-sentry] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sentry/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
-MERGED from [:react-native-sensors] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sensors/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
-MERGED from [:react-native-sensors] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-sensors/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-randombytes] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-randombytes/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-randombytes] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-randombytes/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-prompt-android] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-prompt-android/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
@@ -184,8 +200,8 @@ MERGED from [:react-native-google-analytics-bridge] /Users/marcosrodriguez/BlueW
 MERGED from [:react-native-google-analytics-bridge] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-google-analytics-bridge/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-device-info] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
 MERGED from [:react-native-device-info] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
-MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
-MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:7:5-9:41
+MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:5:5-7:41
+MERGED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:5:5-7:41
 MERGED from [com.facebook.react:react-native:0.57.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/2ab33866c7a2928580844c8d762e8ee3/AndroidManifest.xml:7:5-9:41
 MERGED from [com.facebook.react:react-native:0.57.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/react-native-0.57.5.aar/2ab33866c7a2928580844c8d762e8ee3/AndroidManifest.xml:7:5-9:41
 MERGED from [com.android.support:appcompat-v7:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/appcompat-v7-27.1.1.aar/4062a7cf9e2de2faa76cfa2e71433aa6/AndroidManifest.xml:20:5-44
@@ -196,22 +212,32 @@ MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /Us
 MERGED from [com.google.android.gms:play-services-tagmanager-v4-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tagmanager-v4-impl-16.0.5.aar/3245f47a82af893acfe1f9598fb2f3ae/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/15197b2e7b41d92f898594f73228f82b/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-gcm:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-gcm-16.0.0.aar/15197b2e7b41d92f898594f73228f82b/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-vision:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-15.0.2.aar/5e48ad25b319b0437e0466f0c38cc180/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-vision:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-15.0.2.aar/5e48ad25b319b0437e0466f0c38cc180/AndroidManifest.xml:5:5-44
 MERGED from [com.android.support:animated-vector-drawable:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.1.aar/71af0cda7d01f2293c458970e28cf17c/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:animated-vector-drawable:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-27.1.1.aar/71af0cda7d01f2293c458970e28cf17c/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:support-vector-drawable:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.1.aar/10dd8d636ab5741596ead040f14523b9/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:support-vector-drawable:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-vector-drawable-27.1.1.aar/10dd8d636ab5741596ead040f14523b9/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/6e901dbbae48120c7f6c4b1d47df26e9/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/6e901dbbae48120c7f6c4b1d47df26e9/AndroidManifest.xml:20:5-44
-MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:20:5-44
-MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:20:5-44
-MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:20:5-44
-MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/17b7e0af51b4c2468f44df9c2f9ecf6e/AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.gms:play-services-measurement-base:16.0.4] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-measurement-base-16.0.4.aar/17b7e0af51b4c2468f44df9c2f9ecf6e/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-iid:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-iid-16.0.0.aar/9d0f65f973af364dbe46eac8ca599fb9/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-stats:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/d229702f1eb21fa76140d81a97b49b10/AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.gms:play-services-stats:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-stats-16.0.1.aar/d229702f1eb21fa76140d81a97b49b10/AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/13de7e0132612faa7f875f131122fe7e/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-ads-identifier:16.0.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-ads-identifier-16.0.0.aar/13de7e0132612faa7f875f131122fe7e/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-vision-common:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-common-15.0.2.aar/ff8299f5f4b46e00c87bd6422ceef747/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-vision-common:15.0.2] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-vision-common-15.0.2.aar/ff8299f5f4b46e00c87bd6422ceef747/AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-clearcut:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-clearcut-15.0.1.aar/39c136a0c7bedf4321b4b9d91d0d7a5a/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-clearcut:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-clearcut-15.0.1.aar/39c136a0c7bedf4321b4b9d91d0d7a5a/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-flags:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-flags-15.0.1.aar/da1565b01771ef23e5969aed1cce19a1/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-flags:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-flags-15.0.1.aar/da1565b01771ef23e5969aed1cce19a1/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-phenotype:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-phenotype-15.0.1.aar/3ca135d3048c0a96c57b4d8019ee8e20/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-phenotype:15.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-phenotype-15.0.1.aar/3ca135d3048c0a96c57b4d8019ee8e20/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-base-16.0.1.aar/a97d4378f06fb2b881679187487251c9/AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/471865111e560b8c8e42a33c1775cee4/AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.gms:play-services-tasks:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-tasks-16.0.1.aar/471865111e560b8c8e42a33c1775cee4/AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.gms:play-services-basement:16.0.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-basement-16.0.1.aar/aa0035aa3bf5cf500bea5a80734396a2/AndroidManifest.xml:20:5-44
@@ -228,14 +254,6 @@ MERGED from [com.android.support:support-core-utils:27.1.1] /Users/marcosrodrigu
 MERGED from [com.android.support:support-core-utils:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-core-utils-27.1.1.aar/eb80cfbf40a485c7b00e4a3c739d4ccd/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:support-compat:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/e24345755064a2835a8bf2287502cf2e/AndroidManifest.xml:20:5-44
 MERGED from [com.android.support:support-compat:27.1.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-compat-27.1.1.aar/e24345755064a2835a8bf2287502cf2e/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/0caba60fad0b64121400f1d8ca81c707/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/0caba60fad0b64121400f1d8ca81c707/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/3f696fbf49df091be2f907f7eb4b28d5/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/3f696fbf49df091be2f907f7eb4b28d5/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/ef1a4c5efaa2f78d3464bbf070f2b618/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/ef1a4c5efaa2f78d3464bbf070f2b618/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.core:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/a613c8d145a7c2a19dd218133f8340c9/AndroidManifest.xml:20:5-44
-MERGED from [android.arch.core:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/a613c8d145a7c2a19dd218133f8340c9/AndroidManifest.xml:20:5-44
 MERGED from [com.facebook.fresco:fresco:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/fresco-1.10.0.aar/ff22a72932c96486809c10fcd3eabc30/AndroidManifest.xml:5:5-7:41
 MERGED from [com.facebook.fresco:fresco:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/fresco-1.10.0.aar/ff22a72932c96486809c10fcd3eabc30/AndroidManifest.xml:5:5-7:41
 MERGED from [com.facebook.fresco:imagepipeline-okhttp3:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/imagepipeline-okhttp3-1.10.0.aar/aeee5374a64f38e0e5468bdf5a8681eb/AndroidManifest.xml:5:5-7:41
@@ -248,8 +266,16 @@ MERGED from [com.facebook.fresco:imagepipeline-base:1.10.0] /Users/marcosrodrigu
 MERGED from [com.facebook.fresco:imagepipeline-base:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/imagepipeline-base-1.10.0.aar/387cc374ff01114a88391c850b1e7116/AndroidManifest.xml:5:5-7:41
 MERGED from [com.facebook.soloader:soloader:0.5.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4bd4e105ac11db4272039f155d6a9962/AndroidManifest.xml:7:5-9:41
 MERGED from [com.facebook.soloader:soloader:0.5.1] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/soloader-0.5.1.aar/4bd4e105ac11db4272039f155d6a9962/AndroidManifest.xml:7:5-9:41
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/0caba60fad0b64121400f1d8ca81c707/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/livedata-core-1.1.0.aar/0caba60fad0b64121400f1d8ca81c707/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/3f696fbf49df091be2f907f7eb4b28d5/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/viewmodel-1.1.0.aar/3f696fbf49df091be2f907f7eb4b28d5/AndroidManifest.xml:20:5-44
 MERGED from [com.facebook.fresco:fbcore:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/fbcore-1.10.0.aar/84ad9883e4e608c3b052c1cae04c8fef/AndroidManifest.xml:5:5-7:41
 MERGED from [com.facebook.fresco:fbcore:1.10.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/fbcore-1.10.0.aar/84ad9883e4e608c3b052c1cae04c8fef/AndroidManifest.xml:5:5-7:41
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/ef1a4c5efaa2f78d3464bbf070f2b618/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/ef1a4c5efaa2f78d3464bbf070f2b618/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/a613c8d145a7c2a19dd218133f8340c9/AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/runtime-1.1.0.aar/a613c8d145a7c2a19dd218133f8340c9/AndroidManifest.xml:20:5-44
 INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
 INJECTED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml
 	tools:overrideLibrary
@@ -290,22 +316,18 @@ action#com.android.vending.INSTALL_REFERRER
 ADDED from [:react-native-device-info] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:17:17-79
 	android:name
 		ADDED from [:react-native-device-info] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-device-info/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:17:25-76
-uses-permission#android.permission.CAMERA
-ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:11:5-65
-	android:name
-		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:11:22-62
 uses-feature#android.hardware.camera
-ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:13:5-15:36
+ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:11:5-13:36
 	android:required
-		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:15:9-33
+		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:13:9-33
 	android:name
-		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:14:9-47
+		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:12:9-47
 uses-feature#android.hardware.camera.autofocus
-ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:16:5-18:36
+ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:14:5-16:36
 	android:required
-		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:18:9-33
+		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:16:9-33
 	android:name
-		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:17:9-57
+		ADDED from [:react-native-camera] /Users/marcosrodriguez/BlueWallet/node_modules/react-native-camera/android/build/intermediates/manifests/full/debug/AndroidManifest.xml:15:9-57
 uses-permission#android.permission.WAKE_LOCK
 ADDED from [com.google.android.gms:play-services-analytics:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-16.0.5.aar/77863c496b2968cb1f620df0c61c575f/AndroidManifest.xml:27:5-68
 MERGED from [com.google.android.gms:play-services-analytics-impl:16.0.5] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/play-services-analytics-impl-16.0.5.aar/6e901dbbae48120c7f6c4b1d47df26e9/AndroidManifest.xml:27:5-68
@@ -367,8 +389,8 @@ MERGED from [com.android.support:support-media-compat:26.1.0] /Users/marcosrodri
 	android:name
 		ADDED from [com.android.support:support-v4:26.1.0] /Users/marcosrodriguez/.gradle/caches/transforms-1/files-1.1/support-v4-26.1.0.aar/cb762f2099d804b25eb0bf9d53497cb3/AndroidManifest.xml:27:13-51
 uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
-IMPLIED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12 reason: org.webkit.android_jsc has a targetSdkVersion < 4
+IMPLIED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12 reason: org.webkit.android_jsc has a targetSdkVersion < 4
 uses-permission#android.permission.READ_PHONE_STATE
-IMPLIED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12 reason: org.webkit.android_jsc has a targetSdkVersion < 4
+IMPLIED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12 reason: org.webkit.android_jsc has a targetSdkVersion < 4
 uses-permission#android.permission.READ_EXTERNAL_STORAGE
-IMPLIED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-26:12 reason: org.webkit.android_jsc requested WRITE_EXTERNAL_STORAGE
+IMPLIED from /Users/marcosrodriguez/BlueWallet/android/app/src/main/AndroidManifest.xml:1:1-27:12 reason: org.webkit.android_jsc requested WRITE_EXTERNAL_STORAGE
