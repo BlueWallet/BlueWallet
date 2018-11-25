@@ -40,3 +40,7 @@ DerivedData
 *.ipa
 *.xcuserstate
 #
+
+# Android
+#
+android/local.properties
