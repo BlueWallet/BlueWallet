@@ -9,6 +9,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StyleSheet,
+  Platform,
   Slider,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
@@ -306,7 +307,7 @@ export default class SendDetails extends Component {
         style={styles.bottomModal}
         onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
       >
-        <KeyboardAvoidingView behavior="position">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <TouchableOpacity style={styles.satoshisTextInput} onPress={() => this.textInput.focus()}>
               <TextInput
@@ -467,7 +468,7 @@ export default class SendDetails extends Component {
                 placeholder={loc.send.details.address}
                 numberOfLines={1}
                 value={this.state.address}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                 editable={!this.state.isLoading}
               />
               <TouchableOpacity
@@ -512,7 +513,7 @@ export default class SendDetails extends Component {
                 placeholder={loc.send.details.note_placeholder}
                 value={this.state.memo}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                 editable={!this.state.isLoading}
               />
             </View>
