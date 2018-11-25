@@ -44,3 +44,8 @@ DerivedData
 # Android
 #
 android/local.properties
+android/app/bluewallet-release-key.keystore
+.idea
+.gradle
+*.iml
+build/
