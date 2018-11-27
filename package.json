@@ -75,6 +75,7 @@
     "react-native-modal": "^7.0.0",
     "react-native-permissions": "^1.1.1",
     "react-native-prompt-android": "^0.3.4",
+    "react-native-qrcode": "^0.2.7",
     "react-native-randombytes": "^3.5.1",
     "react-native-sentry": "^0.39.1",
     "react-native-snap-carousel": "^3.7.4",
