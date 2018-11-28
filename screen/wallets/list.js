@@ -205,6 +205,13 @@ export default class WalletsList extends Component {
     );
   };
 
+  handleLongPress = () => {
+    return;
+    if (BlueApp.getWallets().length > 1) {
+      this.props.navigation.navigate('ReorderWallets');
+    }
+  };
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -223,6 +230,7 @@ export default class WalletsList extends Component {
             handleClick={index => {
               this.handleClick(index);
             }}
+            handleLongPress={this.handleLongPress}
             onSnapToItem={index => {
               this.onSnapToItem(index);
             }}

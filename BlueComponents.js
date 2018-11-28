@@ -911,6 +911,7 @@ export class WalletsCarousel extends Component {
     super(props);
     // eslint-disable-next-line
     WalletsCarousel.handleClick = props.handleClick; // because cant access `this` from _renderItem
+    WalletsCarousel.handleLongPress = props.handleLongPress;
     // eslint-disable-next-line
     this.onSnapToItem = props.onSnapToItem;
   }
@@ -970,6 +971,7 @@ export class WalletsCarousel extends Component {
       >
         <TouchableOpacity
           activeOpacity={1}
+          onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
               WalletsCarousel.handleClick(index);

@@ -64,6 +64,7 @@
     "react-native-camera": "^1.4.3",
     "react-native-custom-qr-codes": "^1.0.2",
     "react-native-device-info": "^0.24.3",
+    "react-native-draggable-flatlist": "^1.1.5",
     "react-native-elements": "^0.19.0",
     "react-native-flexi-radio-button": "^0.2.2",
     "react-native-gesture-handler": "^1.0.9",

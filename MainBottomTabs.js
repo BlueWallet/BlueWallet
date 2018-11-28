@@ -15,6 +15,7 @@ import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import scanQrWif from './screen/wallets/scanQrWif';
+import ReorderWallets from './screen/wallets/reorderWallets';
 
 import details from './screen/transactions/details';
 import rbf from './screen/transactions/RBF';
@@ -30,6 +31,12 @@ import Success from './screen/send/success';
 
 import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
+
+const ReorderWalletsStackNavigator = createStackNavigator({
+  ReorderWallets: {
+    screen: ReorderWallets,
+  },
+});
 
 const WalletsStackNavigator = createStackNavigator(
   {
@@ -163,6 +170,12 @@ const MainBottomTabs = createStackNavigator(
     },
     ScanQrAddress: {
       screen: sendScanQrAddress,
+    },
+    ReorderWallets: {
+      screen: ReorderWalletsStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
   },
   {
