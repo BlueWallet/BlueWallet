@@ -1,54 +1,48 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Image, Text } from 'react-native';
+import { View, Image, Text } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
-import DraggableFlatList from 'react-native-draggable-flatlist';
+import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import { WatchOnlyWallet, LegacyWallet } from '../../class';
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+let EV = require('../../events');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc/');
 
 export default class ReorderWallets extends Component {
-  state = {
-    data: BlueApp.getWallets().concat(false),
-  };
-
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
   });
 
-  // renderItem = ({ item, index, move, moveEnd, isActive }) => {
-  //   return (
-  //     <TouchableOpacity
-  //       style={{
-  //         height: 100,
-  //         backgroundColor: isActive ? 'blue' : item.backgroundColor,
-  //         alignItems: 'center',
-  //         justifyContent: 'center',
-  //       }}
-  //       onLongPress={move}
-  //       onPressOut={moveEnd}
-  //     >
-  //       <Text
-  //         style={{
-  //           fontWeight: 'bold',
-  //           color: 'white',
-  //           fontSize: 32,
-  //         }}
-  //       >
-  //         {item.label}
-  //       </Text>
-  //     </TouchableOpacity>
-  //   );
-  // };
+  state = { data: BlueApp.getWallets().concat(false) };
 
-  _renderItem({ item, index, move, moveEnd, isActive }) {
-    if (!item) {
+  componentDidMount() {
+    // this.loadWallets();
+  }
+
+  async componentWillUnmount() {
+    console.warn(this.state.data);
+    // if (this.state.data.length > 0) {
+    //   BlueApp.wallets = this.state.data;
+    //   await BlueApp.saveToDisk();
+    //   EV(EV.enum.WALLETS_COUNT_CHANGED);
+    // }
+  }
+
+  loadWallets() {
+    const wallets = BlueApp.getWallets();
+    wallets.pop();
+    this.setState({ data: wallets });
+  }
+
+  _renderItem = (item, active) => {
+    if (!item.data) {
       return;
     }
+    item = item.data;
 
     let gradient1 = '#65ceef';
     let gradient2 = '#68bbe1';
@@ -84,17 +78,12 @@ export default class ReorderWallets extends Component {
     }
 
     return (
-
       <View
-        style={{ padding: 10, marginVertical: 17 }}
         shadowOpacity={40 / 100}
         shadowOffset={{ width: 0, height: 0 }}
         shadowRadius={5}
+        style={{ backgroundColor: 'transparent', padding: 10, marginVertical: 17 }}
       >
-        <TouchableOpacity
-                onLongPress={move}
-        onPressOut={moveEnd}
-        >
         <LinearGradient
           shadowColor="#000000"
           colors={[gradient1, gradient2]}
@@ -106,7 +95,10 @@ export default class ReorderWallets extends Component {
           }}
         >
           <Image
-            source={(new LightningCustodianWallet().type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')}
+            source={
+              (new LightningCustodianWallet().type === item.type && require('../../img/lnd-shape.png')) ||
+              require('../../img/btc-shape.png')
+            }
             style={{
               width: 99,
               height: 94,
@@ -162,22 +154,14 @@ export default class ReorderWallets extends Component {
             {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
-        </TouchableOpacity>
       </View>
     );
-  }
+  };
 
   render() {
     return (
       <SafeBlueArea>
-        <DraggableFlatList
-          style={{ flex: 1 }}
-          data={this.state.data}
-          renderItem={this._renderItem}
-          keyExtractor={(item, index) => `draggable-item-${item.key}`}
-          scrollPercent={5}
-          onMoveEnd={({ data }) => this.setState({ data })}
-        />
+        <SortableList style={{ flex: 1 }} data={this.state.data} renderRow={this._renderItem} />
       </SafeBlueArea>
     );
   }
