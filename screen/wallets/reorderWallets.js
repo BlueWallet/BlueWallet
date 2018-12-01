@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Image, Text } from 'react-native';
+import { View, ActivityIndicator, Image, Text } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -9,7 +9,8 @@ import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-//let EV = require('../../events');
+let EV = require('../../events');
+/** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc/');
 
@@ -23,28 +24,40 @@ export default class ReorderWallets extends Component {
     title: loc.wallets.reorder.title,
   });
 
-  state = { data: [], hasMovedARow: false };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+      data: [],
+      hasMovedARow: false,
+    };
+  }
 
   componentDidMount() {
-    this.loadWallets();
     this.props.navigation.setParams({
-      customCloseButtonFunction: () => {
+      customCloseButtonFunction: async () => {
         if (this.sortableList.state.data.length === this.state.data.length && this.state.hasMovedARow) {
           let newWalletsOrderArray = [];
           this.sortableList.state.order.forEach(element => {
             newWalletsOrderArray.push(this.state.data[element]);
           });
           BlueApp.wallets = newWalletsOrderArray;
-          BlueApp.saveToDisk().then(() => {
-            this.props.navigation.dismiss();
-          });
+          await BlueApp.saveToDisk();
+          setTimeout(function() {
+            EV(EV.enum.WALLETS_COUNT_CHANGED);
+          }, 500); // adds some animaton
+          this.props.navigation.dismiss();
+        } else {
+          this.props.navigation.dismiss();
         }
       },
     });
-  }
-  loadWallets() {
-    const wallets = BlueApp.getWallets().concat(false);
-    this.setState({ data: wallets });
+
+    const wallets = BlueApp.getWallets();
+    this.setState({
+      data: wallets,
+      isLoading: false,
+    });
   }
 
   _renderItem = (item, _active) => {
@@ -168,6 +181,14 @@ export default class ReorderWallets extends Component {
   };
 
   render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+
     return (
       <SafeBlueArea>
         <SortableList
