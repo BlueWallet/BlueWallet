@@ -40,6 +40,7 @@ export default class WalletsList extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      wallets: BlueApp.getWallets().concat(false),
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
 
@@ -93,15 +94,23 @@ export default class WalletsList extends Component {
    * Redraws the screen
    */
   refreshFunction() {
-    if (BlueApp.getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    }
+    this.setState(
+      {
+        isLoading: true,
+      },
+      () => {
+        if (BlueApp.getBalance() !== 0) {
+          A(A.ENUM.GOT_NONZERO_BALANCE);
+        }
 
-    this.setState({
-      isLoading: false,
-      isTransactionsLoading: false,
-      dataSource: BlueApp.getTransactions(),
-    });
+        this.setState({
+          isLoading: false,
+          isTransactionsLoading: false,
+          dataSource: BlueApp.getTransactions(),
+          wallets: BlueApp.getWallets().concat(false),
+        });
+      },
+    );
   }
 
   txMemo(hash) {
@@ -185,7 +194,7 @@ export default class WalletsList extends Component {
     }
   }
 
-  _keyExtractor = (item, index) => index.toString();
+  _keyExtractor = (_item, index) => index.toString();
 
   renderListHeaderComponent = () => {
     return (
@@ -206,7 +215,6 @@ export default class WalletsList extends Component {
   };
 
   handleLongPress = () => {
-    return;
     if (BlueApp.getWallets().length > 1) {
       this.props.navigation.navigate('ReorderWallets');
     }
@@ -226,7 +234,7 @@ export default class WalletsList extends Component {
         >
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel
-            data={BlueApp.getWallets().concat(false)}
+            data={this.state.wallets}
             handleClick={index => {
               this.handleClick(index);
             }}
