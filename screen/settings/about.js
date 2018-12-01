@@ -116,7 +116,11 @@ export default class About extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
+                if (Platform.OS === 'ios') {
+                  Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
+                } else {
+                  Linking.openURL('https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet');
+                }
               }}
               title="Leave us a review on Appstore"
             />
