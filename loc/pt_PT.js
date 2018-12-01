@@ -24,6 +24,9 @@ module.exports = {
       empty_txs2: 'nenhuma de momento',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
+    reorder: {
+      title: 'Reorder Wallets',
+    },
     add: {
       title: 'adicionar wallet',
       description:

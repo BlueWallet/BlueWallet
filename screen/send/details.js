@@ -123,18 +123,23 @@ export default class SendDetails extends Component {
       true,
     );
     let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
-      this.setState({ fee: response.halfHourFee, networkTransactionFees: response, feeSliderValue: response.halfHourFee });
+      this.setState({
+        fee: response.halfHourFee,
+        networkTransactionFees: response,
+        feeSliderValue: response.halfHourFee,
+        isLoading: false,
+      });
     });
-    this.setState({
-      fee: recommendedFees.halfHourFee,
-      networkTransactionFees: recommendedFees,
-      feeSliderValue: recommendedFees.halfHourFee,
-    });
+    if (recommendedFees) {
+      this.setState({
+        fee: recommendedFees.halfHourFee,
+        networkTransactionFees: recommendedFees,
+        feeSliderValue: recommendedFees.halfHourFee,
+        isLoading: false,
+      });
+    }
     let startTime = Date.now();
     console.log('send/details - componentDidMount');
-    this.setState({
-      isLoading: false,
-    });
     let endTime = Date.now();
     console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
   }

@@ -147,7 +147,7 @@ export class BlueButtonLink extends Component {
   }
 }
 
-export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false) => ({
+export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => ({
   headerStyle: {
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 0,
@@ -159,7 +159,10 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   },
   headerTintColor: '#0c2550',
   headerRight: withNavigationCloseButton ? (
-    <TouchableOpacity style={{ width: 40, height: 40, padding: 14 }} onPress={() => navigation.goBack(null)}>
+    <TouchableOpacity
+      style={{ width: 40, height: 40, padding: 14 }}
+      onPress={customCloseButtonFunction === undefined ? () => navigation.goBack(null) : customCloseButtonFunction}
+    >
       <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
     </TouchableOpacity>
   ) : null,
@@ -911,6 +914,7 @@ export class WalletsCarousel extends Component {
     super(props);
     // eslint-disable-next-line
     WalletsCarousel.handleClick = props.handleClick; // because cant access `this` from _renderItem
+    WalletsCarousel.handleLongPress = props.handleLongPress;
     // eslint-disable-next-line
     this.onSnapToItem = props.onSnapToItem;
   }
@@ -970,6 +974,7 @@ export class WalletsCarousel extends Component {
       >
         <TouchableOpacity
           activeOpacity={1}
+          onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
               WalletsCarousel.handleClick(index);

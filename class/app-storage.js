@@ -212,6 +212,7 @@ export class AppStorage {
   async saveToDisk() {
     let walletsToSave = [];
     for (let key of this.wallets) {
+      if (typeof key === 'boolean') continue;
       walletsToSave.push(JSON.stringify(key));
     }
 
