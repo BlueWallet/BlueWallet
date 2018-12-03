@@ -15,7 +15,7 @@ export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LANG = 'lang';
   static CURRENCY = 'currency';
-  static BLITZHUB = 'blitzhub';
+  static LNDHUB = 'lndhub';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -152,14 +152,14 @@ export class AppStorage {
             case new LightningCustodianWallet().type:
               /** @type {LightningCustodianWallet} */
               unserializedWallet = LightningCustodianWallet.fromJson(key);
-              let blitzhub = false;
+              let lndhub = false;
               try {
-                blitzhub = await AsyncStorage.getItem(AppStorage.BLITZHUB);
+                lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
               } catch (Error) {
                 console.warn(Error);
               }
-              if (blitzhub) {
-                unserializedWallet.setBaseURI(blitzhub);
+              if (lndhub) {
+                unserializedWallet.setBaseURI(lndhub);
                 unserializedWallet.init();
               }
               break;

@@ -21,7 +21,7 @@ export default class LightningSettings extends Component {
   }
 
   async componentDidMount() {
-    let URI = await AsyncStorage.getItem(AppStorage.BLITZHUB);
+    let URI = await AsyncStorage.getItem(AppStorage.LNDHUB);
 
     this.setState({
       isLoading: false,
@@ -32,7 +32,7 @@ export default class LightningSettings extends Component {
 
   async save() {
     this.state.URI = this.state.URI ? this.state.URI : '';
-    await AsyncStorage.setItem(AppStorage.BLITZHUB, this.state.URI);
+    await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
 
     // set each lnd wallets and re-init api
     for (/** @type {LightningCustodianWallet} */ let w of BlueApp.getWallets()) {

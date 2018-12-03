@@ -64,7 +64,7 @@ export default class WalletsImport extends Component {
   async importMnemonic(text) {
     try {
       // is it lightning custodian?
-      if (text.indexOf('blitzhub://') !== -1) {
+      if (text.indexOf('blitzhub://') !== -1 || text.indexOf('lndhub://') !== -1) {
         // yep its lnd
         for (let t of BlueApp.getWallets()) {
           if (t.type === new LightningCustodianWallet().type) {

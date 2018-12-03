@@ -93,8 +93,8 @@ export default class ScanQrWif extends React.Component {
     }
     // nope
 
-    // is it blitzhub?
-    if (ret.data.indexOf('blitzhub://') !== -1) {
+    // is it lndhub?
+    if (ret.data.indexOf('blitzhub://') !== -1 || ret.data.indexOf('lndhub://') !== -1) {
       this.setState({ isLoading: true });
       let lnd = new LightningCustodianWallet();
       lnd.setSecret(ret.data);

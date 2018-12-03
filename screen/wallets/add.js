@@ -204,9 +204,9 @@ export default class WalletsAdd extends Component {
                     w.setLabel(this.state.label || w.getTypeReadable());
 
                     try {
-                      let blitzhub = await AsyncStorage.getItem(AppStorage.BLITZHUB);
-                      if (blitzhub) {
-                        w.setBaseURI(blitzhub);
+                      let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                      if (lndhub) {
+                        w.setBaseURI(lndhub);
                         w.init();
                       }
                       await w.createAccount();
