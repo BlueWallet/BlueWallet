@@ -110,4 +110,6 @@
   <androidx.biometric/>
   <androidx.concurrent/>
   <androidx.activity/>
+  <com.android.tools.apkparser/>
+  <com.android.tools.pixelprobe/>
 </metadata>
