@@ -199,7 +199,6 @@ export class BlueText extends Component {
   render() {
     return (
       <Text
-        {...this.props}
         style={Object.assign(
           {
             color: BlueApp.settings.foregroundColor,
@@ -207,6 +206,7 @@ export class BlueText extends Component {
           // eslint-disable-next-line
           this.props.style,
         )}
+        {...this.props}
       />
     );
   }
