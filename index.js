@@ -30,7 +30,7 @@ async function migrateDataFromExpo() {
   if (!expoDirectoryExists) {
     return;
   }
-
+  await RNFS.unlink(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1');
   RNFS.copyFile(
     RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage',
     RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1',
