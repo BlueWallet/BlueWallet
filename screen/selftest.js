@@ -275,7 +275,9 @@ export default class Selftest extends Component {
               } else {
                 return (
                   <View style={{ alignItems: 'center' }}>
-                    <BlueText h4 numberOfLines={0}>error: {this.state.errorMessage}</BlueText>
+                    <BlueText h4 numberOfLines={0}>
+                      error: {this.state.errorMessage}
+                    </BlueText>
                   </View>
                 );
               }

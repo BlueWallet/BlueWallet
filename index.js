@@ -25,39 +25,29 @@ class BlueAppComponent extends React.Component {
 
 // Migrate Document directory from Expo
 async function migrateDataFromExpo() {
- // await AsyncStorage.removeItem('data');
-  const currentData = await AsyncStorage.getItem('data');
-  if (currentData) {
+  const RNFS = require('react-native-fs');
+  const expoDirectoryExists = await RNFS.exists(RNFS.DocumentDirectoryPath + '/ExponentExperienceData');
+  if (!expoDirectoryExists) {
     return;
   }
-  const RNFS = require('react-native-fs');
-  RNFS.readDir(RNFS.DocumentDirectoryPath + '/ExponentExperienceData')
-    .then(result => {
-      return result;
-    })
-    .then(paths => {
-      paths.forEach(directory => {
-        if (directory.isDirectory()) {
-          RNFS.readDir(directory.path + '/RCTAsyncLocalStorage').then(files => {
-            if (files.length === 2) {
-              RNFS.copyFile(directory.path + '/RCTAsyncLocalStorage', RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1').then(() => {
-                RNFS.readDir(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1').then(files => {
-                  files.forEach(file => {
-                    if (file.name !== 'manifest.json') {
-                      RNFS.readFile(file.path).then(fileContents => {
-                        AsyncStorage.setItem('data', fileContents);
-                        RNFS.unlink(RNFS.DocumentDirectoryPath + '/ExponentExperienceData');
-                        alert('Previously added wallets have been imported. Please, restart the app in order to see them.');
-                      });
-                    }
-                  });
-                });
-              });
-            }
+
+  RNFS.copyFile(
+    RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage',
+    RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1',
+  ).then(() => {
+    RNFS.readDir(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1').then(files => {
+      files.forEach(file => {
+        if (file.name !== 'manifest.json') {
+          RNFS.readFile(file.path).then(fileContents => {
+            AsyncStorage.setItem('data', fileContents).then(() => {
+              RNFS.unlink(RNFS.DocumentDirectoryPath + '/ExponentExperienceData');
+              alert('Previously added wallets have been imported. Please, restart the app in order to see them.');
+            });
           });
         }
       });
     });
+  });
 }
 
 //
