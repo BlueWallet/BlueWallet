@@ -39,7 +39,7 @@ export default class LightningSettings extends Component {
       if (w.type === new LightningCustodianWallet().type) {
         w.setBaseURI(this.state.URI);
         w.init();
-        console.log('inited');
+        console.log('inited', w.baseURI);
       }
     }
   }
