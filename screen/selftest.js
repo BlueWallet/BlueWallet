@@ -262,7 +262,7 @@ export default class Selftest extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueCard>
-          <ScrollView maxHeight={450}>
+          <ScrollView>
             <BlueSpacing20 />
 
             {(() => {
@@ -275,7 +275,9 @@ export default class Selftest extends Component {
               } else {
                 return (
                   <View style={{ alignItems: 'center' }}>
-                    <BlueText h4>error: {this.state.errorMessage}</BlueText>
+                    <BlueText h4 numberOfLines={0}>
+                      error: {this.state.errorMessage}
+                    </BlueText>
                   </View>
                 );
               }

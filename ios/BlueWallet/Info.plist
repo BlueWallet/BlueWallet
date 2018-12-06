@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>120</string>
+	<string>125</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -35,23 +35,23 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSCameraUsageDescription</key>
-	<string>In order to scan QR Codes, Blue Wallet needs your permission to use your camera.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This alert should not show up as we do not require this data</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
+	<key>NSCameraUsageDescription</key>
+	<string>In order to scan QR Codes, Blue Wallet needs your permission to use your camera.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This alert should not show up as we do not require this data</string>
+	<key>NSMotionUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
-	<key>NSMotionUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>UIAppFonts</key>
 	<array>
