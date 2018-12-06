@@ -11,7 +11,7 @@ export default class WalletMigrate extends Component {
 
   migrationComplete() {
     EV(EV.enum.WALLETS_COUNT_CHANGED);
-    console.log('Migration was successful. Exiting migration...')
+    console.log('Migration was successful. Exiting migration...');
     this.props.onComplete();
   }
 
@@ -20,48 +20,49 @@ export default class WalletMigrate extends Component {
     const expoDirectoryExists = await RNFS.exists(RNFS.DocumentDirectoryPath + '/ExponentExperienceData');
 
     if (!expoDirectoryExists) {
-        console.log('Expo data was previously migrated. Exiting migration...');
+      console.log('Expo data was previously migrated. Exiting migration...');
       this.props.onComplete();
       return;
     }
     try {
-        await RNFS.unlink(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1')
-        console.log('/RCTAsyncLocalStorage_V1 has been deleted. Continuing...')
-    } catch {
-        console.log('/RCTAsyncLocalStorage_V1 does not exist. Continuing...')
+      await RNFS.unlink(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1');
+      console.log('/RCTAsyncLocalStorage_V1 has been deleted. Continuing...');
+    } catch (_) {
+      console.log('/RCTAsyncLocalStorage_V1 does not exist. Continuing...');
     }
     RNFS.copyFile(
       RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage',
       RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1',
     )
       .then(() => {
-        RNFS.readDir(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1').then(files => {
-          files.forEach(file => {
+        RNFS.readDir(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1')
+          .then(files => {
+            files.forEach(file => {
               if (file.name === 'manifest.json') {
                 RNFS.readFile(file.path).then(manifestFile => {
-                    const manifestFileParsed = JSON.parse(manifestFile);
-                    AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted).then(() => this.migrationComplete());
+                  const manifestFileParsed = JSON.parse(manifestFile);
+                  AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted).then(() => this.migrationComplete());
                 });
-            } else if (file.name !== 'manifest.json') {
-              RNFS.readFile(file.path).then(fileContents => {
-                AsyncStorage.setItem('data', fileContents)
-                .then(() => {
-                  RNFS.unlink(RNFS.DocumentDirectoryPath + '/ExponentExperienceData').then(() => this.migrationComplete());
-                })
-                .catch(() => {
-                    console.log('An error was encountered when trying to delete /ExponentExperienceData. Exiting migration...');
-                    this.props.onComplete();
-                })
-                .then(() => this.migrationComplete())
-              });
-            }
-          });
-        })
-        .catch(error => {
+              } else if (file.name !== 'manifest.json') {
+                RNFS.readFile(file.path).then(fileContents => {
+                  AsyncStorage.setItem('data', fileContents)
+                    .then(() => {
+                      RNFS.unlink(RNFS.DocumentDirectoryPath + '/ExponentExperienceData').then(() => this.migrationComplete());
+                    })
+                    .catch(() => {
+                      console.log('An error was encountered when trying to delete /ExponentExperienceData. Exiting migration...');
+                      this.props.onComplete();
+                    })
+                    .then(() => this.migrationComplete());
+                });
+              }
+            });
+          })
+          .catch(error => {
             console.log('An error was encountered when trying to read the /RTCAsyncLocalStorage_V1 directory. Exiting migration...');
             console.log(error);
             this.props.onComplete();
-        });
+          });
       })
       .catch(_error => this.props.onComplete());
   }
