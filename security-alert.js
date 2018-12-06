@@ -1,4 +1,4 @@
-import { AsyncStorage, Alert } from 'react-native';
+import { AsyncStorage, Platform, Alert } from 'react-native';
 
 async function start() {
   const key = 'security_alert_num_times';
@@ -7,7 +7,7 @@ async function start() {
 
   console.log({ times });
 
-  if (times < 3) {
+  if (times < 3 && Platform.OS === 'ios') {
     Alert.alert(
       'Security alert',
       'If you used BlueWallet prior to version 3.1.0 you are advised to re-create wallets ' +
