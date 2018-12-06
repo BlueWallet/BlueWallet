@@ -62,7 +62,7 @@ async function startAndDecrypt(retry) {
 }
 
 A(A.ENUM.INIT);
-BlueApp.startAndDecrypt = startAndDecrypt();
+BlueApp.startAndDecrypt = startAndDecrypt;
 currency.startUpdater();
 
 module.exports = BlueApp;
