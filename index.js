@@ -25,7 +25,7 @@ class BlueAppComponent extends React.Component {
   }
 
   setIsMigratingData = () => {
-    this.setState({ isMigratingData: false }, () => BlueApp.startAndDecrypt);
+    this.setState({ isMigratingData: false }, () => BlueApp.startAndDecrypt());
   };
 
   render() {
