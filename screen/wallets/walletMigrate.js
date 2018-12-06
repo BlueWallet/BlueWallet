@@ -37,7 +37,12 @@ export default class WalletMigrate extends Component {
       .then(() => {
         RNFS.readDir(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1').then(files => {
           files.forEach(file => {
-            if (file.name !== 'manifest.json') {
+              if (file.name === 'manifest.json') {
+                RNFS.readFile(file.path).then(manifestFile => {
+                    const manifestFileParsed = JSON.parse(manifestFile);
+                    AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted).then(() => this.migrationComplete());
+                });
+            } else if (file.name !== 'manifest.json') {
               RNFS.readFile(file.path).then(fileContents => {
                 AsyncStorage.setItem('data', fileContents)
                 .then(() => {
