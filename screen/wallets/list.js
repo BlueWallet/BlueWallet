@@ -113,12 +113,13 @@ export default class WalletsList extends Component {
     return '';
   }
 
-  handleClick(index) {
+  handleClick(index, gradients) {
     console.log('click', index);
     let wallet = BlueApp.wallets[index];
     if (wallet) {
       this.props.navigation.navigate('WalletTransactions', {
         wallet: wallet,
+        gradients: gradients,
       });
     } else {
       // if its out of index - this must be last card with incentive to create wallet
@@ -228,8 +229,8 @@ export default class WalletsList extends Component {
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel
             data={this.state.wallets}
-            handleClick={index => {
-              this.handleClick(index);
+            handleClick={(index, headerColor) => {
+              this.handleClick(index, headerColor);
             }}
             handleLongPress={this.handleLongPress}
             onSnapToItem={index => {

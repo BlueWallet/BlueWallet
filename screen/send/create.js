@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TextInput, Linking, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
+import { TextInput, Linking, TouchableOpacity, Clipboard, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Text } from 'react-native-elements';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -35,10 +35,9 @@ export default class SendCreate extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <ScrollView>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <BlueCard style={{ alignItems: 'center', flex: 1 }}>
             <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
-
             <TextInput
               style={{
                 borderColor: '#ebebeb',
@@ -84,7 +83,7 @@ export default class SendCreate extends Component {
             <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
             <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
           </BlueCard>
-        </ScrollView>
+        </TouchableWithoutFeedback>
       </SafeBlueArea>
     );
   }

@@ -977,7 +977,7 @@ export class WalletsCarousel extends Component {
           onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
-              WalletsCarousel.handleClick(index);
+              WalletsCarousel.handleClick(index, [gradient1, gradient2]);
             }
           }}
         >

@@ -2,14 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import {
-  WatchOnlyWallet,
-  HDLegacyBreadwalletWallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  LegacyWallet,
-  HDLegacyP2PKHWallet,
-} from '../../class';
+import { LightningCustodianWallet } from '../../class';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -48,7 +41,7 @@ export default class WalletTransactions extends Component {
         </TouchableOpacity>
       ),
       headerStyle: {
-        backgroundColor: navigation.state.params.headerColor,
+        backgroundColor: navigation.getParam('gradients')[0],
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
@@ -64,45 +57,11 @@ export default class WalletTransactions extends Component {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
     const wallet = props.navigation.getParam('wallet');
 
-    let gradient1 = '#65ceef';
-    let gradient2 = '#68bbe1';
-
-    if (new WatchOnlyWallet().type === wallet.type) {
-      gradient1 = '#7d7d7d';
-      gradient2 = '#4a4a4a';
-    }
-
-    if (new LegacyWallet().type === wallet.type) {
-      gradient1 = '#40fad1';
-      gradient2 = '#15be98';
-    }
-
-    if (new HDLegacyP2PKHWallet().type === wallet.type) {
-      gradient1 = '#e36dfa';
-      gradient2 = '#bd10e0';
-    }
-
-    if (new HDLegacyBreadwalletWallet().type === wallet.type) {
-      gradient1 = '#fe6381';
-      gradient2 = '#f99c42';
-    }
-
-    if (new HDSegwitP2SHWallet().type === wallet.type) {
-      gradient1 = '#c65afb';
-      gradient2 = '#9053fe';
-    }
-
-    if (new LightningCustodianWallet().type === wallet.type) {
-      gradient1 = '#f1be07';
-      gradient2 = '#f79056';
-    }
-
-    this.props.navigation.setParams({ headerColor: gradient1, wallet: wallet });
+    this.props.navigation.setParams({ wallet: wallet });
     this.state = {
       isLoading: true,
       isTransactionsLoading: false,
       wallet: wallet,
-      gradientColors: [gradient1, gradient2],
       dataSource: wallet.getTransactions(),
       walletBalanceUnit: BitcoinUnit.MBTC,
     };
@@ -227,8 +186,9 @@ export default class WalletTransactions extends Component {
   }
 
   renderWalletHeader = () => {
+    const gradients = this.props.navigation.getParam('gradients');
     return (
-      <LinearGradient colors={[this.state.gradientColors[0], this.state.gradientColors[1]]} style={{ padding: 15, minHeight: 164 }}>
+      <LinearGradient colors={[gradients[0], gradients[1]]} style={{ padding: 15, minHeight: 164 }}>
         <Image
           source={
             (new LightningCustodianWallet().type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
