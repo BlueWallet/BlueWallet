@@ -146,6 +146,14 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
+      let txs = wallet.getTransactions();
+      for (let tx of txs) {
+        tx.sort_ts = +new Date(tx.received);
+      }
+      txs = txs.sort(function(a, b) {
+        return b.sort_ts - a.sort_ts;
+      });
+
       this.setState({
         isLoading: false,
         isTransactionsLoading: false,
@@ -153,7 +161,7 @@ export default class WalletTransactions extends Component {
         showSendButton: showSend,
         showManageFundsBigButton,
         showManageFundsSmallButton,
-        dataSource: wallet.getTransactions(),
+        dataSource: txs,
       });
     }, 1);
   }
@@ -186,6 +194,9 @@ export default class WalletTransactions extends Component {
             await wallet.fetchBalance();
             let start = +new Date();
             await wallet.fetchTransactions();
+            if (wallet.fetchPendingTransactions) {
+              await wallet.fetchPendingTransactions();
+            }
             let end = +new Date();
             console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {

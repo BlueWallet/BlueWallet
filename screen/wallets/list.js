@@ -94,23 +94,16 @@ export default class WalletsList extends Component {
    * Redraws the screen
    */
   refreshFunction() {
-    this.setState(
-      {
-        isLoading: true,
-      },
-      () => {
-        if (BlueApp.getBalance() !== 0) {
-          A(A.ENUM.GOT_NONZERO_BALANCE);
-        }
+    if (BlueApp.getBalance() !== 0) {
+      A(A.ENUM.GOT_NONZERO_BALANCE);
+    }
 
-        this.setState({
-          isLoading: false,
-          isTransactionsLoading: false,
-          dataSource: BlueApp.getTransactions(),
-          wallets: BlueApp.getWallets().concat(false),
-        });
-      },
-    );
+    this.setState({
+      isLoading: false,
+      isTransactionsLoading: false,
+      dataSource: BlueApp.getTransactions(),
+      wallets: BlueApp.getWallets().concat(false),
+    });
   }
 
   txMemo(hash) {

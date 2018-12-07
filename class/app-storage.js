@@ -335,7 +335,7 @@ export class AppStorage {
     }
 
     return txs.sort(function(a, b) {
-      return b.sort_ts > a.sort_ts;
+      return b.sort_ts - a.sort_ts;
     });
   }
 
