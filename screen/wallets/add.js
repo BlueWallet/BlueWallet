@@ -191,7 +191,8 @@ export default class WalletsAdd extends Component {
                   if (this.state.activeLightning) {
                     // lightning was selected
 
-                    return alert('Coming soon');
+                    global.lightning_create_try = global.lightning_create_try || 1;
+                    if (global.lightning_create_try++ < 9) return alert('Coming soon');
                     // eslint-disable-next-line
                     for (let t of BlueApp.getWallets()) {
                       if (t.type === new LightningCustodianWallet().type) {
