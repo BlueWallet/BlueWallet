@@ -16,8 +16,6 @@ import DeviceInfo from 'react-native-device-info';
 let BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
-const pkg = require('../../package.json');
-const appjson = require('../../app.json');
 
 export default class About extends Component {
   static navigationOptions = () => ({
@@ -38,26 +36,6 @@ export default class About extends Component {
     });
   }
 
-  platformSpecificInformation() {
-    if (Platform.OS === 'android') {
-      return (
-        <React.Fragment>
-          <BlueTextCentered>Version code: {DeviceInfo.getSystemName()}</BlueTextCentered>
-          <BlueSpacing20 />
-        </React.Fragment>
-      );
-    } else if (Platform.OS === 'ios') {
-      return (
-        <React.Fragment>
-          <BlueTextCentered>
-            {DeviceInfo.getModel()} ({DeviceInfo.getDeviceId()})
-          </BlueTextCentered>
-          <BlueSpacing20 />
-        </React.Fragment>
-      );
-    }
-  }
-
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
@@ -67,7 +45,11 @@ export default class About extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <ScrollView>
           <BlueCard>
-            <BlueText h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueText>
+            <BlueTextCentered h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
+            <BlueSpacing20 />
+
+            <BlueTextCentered h4>Still in beta, don't use to store large amounts!</BlueTextCentered>
+            <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
             <BlueSpacing20 />
 
             <BlueButton
@@ -146,11 +128,11 @@ export default class About extends Component {
             />
             <BlueTextCentered />
             <BlueTextCentered>
-              w, h = {width}, {height}
+              {DeviceInfo.getApplicationName()} ver {DeviceInfo.getVersion()} (build number {DeviceInfo.getBuildNumber()})
             </BlueTextCentered>
-            {this.platformSpecificInformation()}
+            <BlueTextCentered>{DeviceInfo.getBundleId()}</BlueTextCentered>
             <BlueTextCentered>
-              {pkg.name} v{pkg.version} (build {appjson.buildNumber})
+              w, h = {width}, {height}
             </BlueTextCentered>
           </BlueCard>
         </ScrollView>
