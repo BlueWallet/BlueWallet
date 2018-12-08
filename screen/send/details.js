@@ -90,7 +90,7 @@ export default class SendDetails extends Component {
     EV(
       EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS,
       data => {
-        if (btcAddressRx.test(data)) {
+        if (btcAddressRx.test(data) || data.indexOf('bc1') === 0) {
           this.setState({
             address: data,
             bip70TransactionExpiration: null,
