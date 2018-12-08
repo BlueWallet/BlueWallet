@@ -96,13 +96,20 @@ export default class SendDetails extends Component {
             bip70TransactionExpiration: null,
           });
         } else {
-          const { address, options } = bip21.decode(data);
-          console.warn(data);
+          let address, options;
+          try {
+            const decoded = bip21.decode(data);
+            address = decoded.address;
+            options = decoded.options;
+          } catch (Err) {
+            console.log(Err);
+          }
+          console.log(options);
           if (btcAddressRx.test(address)) {
             this.setState({
               address,
               amount: options.amount,
-              memo: options.label,
+              memo: options.label || options.message,
               bip70TransactionExpiration: null,
             });
           } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
