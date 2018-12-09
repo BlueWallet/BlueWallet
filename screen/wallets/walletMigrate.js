@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { View, ActivityIndicator, AsyncStorage } from 'react-native';
 import PropTypes from 'prop-types';
 import RNFS from 'react-native-fs';
-let EV = require('../../events');
 
 export default class WalletMigrate extends Component {
   componentDidMount() {

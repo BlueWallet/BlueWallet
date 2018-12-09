@@ -15,6 +15,7 @@ import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+const dayjs = require('dayjs');
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
@@ -170,7 +171,7 @@ export default class TransactionsDetails extends Component {
             {this.state.tx.hasOwnProperty('received') && (
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{formatTime(this.state.tx.received)}</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
               </React.Fragment>
             )}
 
