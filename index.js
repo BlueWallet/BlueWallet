@@ -22,12 +22,13 @@ class BlueAppComponent extends React.Component {
     this.state = { isMigratingData: true };
   }
 
-  setIsMigratingData = () => {
-    this.setState({ isMigratingData: false }, () => BlueApp.startAndDecrypt());
-  };
+  async setIsMigratingData() {
+    await BlueApp.startAndDecrypt();
+    this.setState({ isMigratingData: false });
+  }
 
   render() {
-    return this.state.isMigratingData ? <WalletMigrate onComplete={this.setIsMigratingData} /> : <MainBottomTabs />;
+    return this.state.isMigratingData ? <WalletMigrate onComplete={() => this.setIsMigratingData()} /> : <MainBottomTabs />;
   }
 }
 
