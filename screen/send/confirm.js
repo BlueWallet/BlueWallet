@@ -97,7 +97,7 @@ export default class Confirm extends Component {
               alignSelf: 'center',
             }}
           >
-            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)} (
+            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.BTC)} (
             {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
           </Text>
         </BlueCard>
