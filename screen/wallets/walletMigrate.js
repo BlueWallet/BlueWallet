@@ -53,7 +53,7 @@ export default class WalletMigrate extends Component {
             const manifestFileParsed = JSON.parse(manifestFile);
             if (manifestFileParsed.hasOwnProperty('data_encrypted')) {
               if (typeof manifestFileParsed.data_encrypted === 'string') {
-                await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
+                await AsyncStorage.setItem('data_encrypted', JSON.stringify(manifestFileParsed.data_encrypted));
               }
             }
             if (manifestFileParsed.hasOwnProperty('data')) {
