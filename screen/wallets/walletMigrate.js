@@ -47,16 +47,27 @@ export default class WalletMigrate extends Component {
     const files = await RNFS.readDir(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1');
     for (const file of files) {
       try {
-        if (file.isFile() && file.name !== 'manifest.json') {
-          const fileParsed = JSON.parse(await RNFS.readFile(file.path));
-          if (fileParsed.hasOwnProperty('wallets')) {
-            await AsyncStorage.setItem('data', fileParsed);
-          }
-        } else if (file.isFile() && file.name === 'manifest.json') {
-          const manifestFile = await RNFS.readFile(file.path);
-          const manifestFileParsed = JSON.parse(manifestFile);
-          await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
-          await AsyncStorage.setItem('data', manifestFileParsed.data);
+        if (file.isFile()) {
+          if (file.name === 'manifest.json') {
+            const manifestFile = await RNFS.readFile(file.path);
+            const manifestFileParsed = JSON.parse(manifestFile);
+            if (manifestFileParsed.hasOwnProperty('data_encrypted')) {
+              if (typeof manifestFileParsed.data_encrypted === 'string') {
+                await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
+              }
+            }
+            if (manifestFileParsed.hasOwnProperty('data')) {
+              if (manifestFileParsed.data !== null) {
+                if (typeof manifestFileParsed.data === 'string') {
+                  await AsyncStorage.setItem('data', manifestFileParsed.data);
+                }
+              }
+            }
+          } else if (file.name !== 'manifest.json') {
+            const manifestFile = await RNFS.readFile(file.path);
+            const manifestFileParsed = JSON.parse(manifestFile);
+            if (typeof manifestFileParsed === 'object') await AsyncStorage.setItem('data', JSON.stringify(manifestFileParsed));
+        }
         }
       } catch (error) {
         console.log(error);
