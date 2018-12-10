@@ -14,6 +14,7 @@ import {
   BlueHeaderDefaultMain,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
+import { NavigationEvents } from 'react-navigation';
 import PropTypes from 'prop-types';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
@@ -49,7 +50,7 @@ export default class WalletsList extends Component {
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshFunction.bind(this));
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.refreshFunction();
   }
 
@@ -223,6 +224,7 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <NavigationEvents onWillFocus={() => { this.refreshFunction() }} />
         <ScrollView
           refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
         >
