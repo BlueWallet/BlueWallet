@@ -3,6 +3,8 @@ import { View, ActivityIndicator, AsyncStorage } from 'react-native';
 import PropTypes from 'prop-types';
 import RNFS from 'react-native-fs';
 
+const expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
+
 export default class WalletMigrate extends Component {
   componentDidMount() {
     this.migrateDataFromExpo();
@@ -30,10 +32,7 @@ export default class WalletMigrate extends Component {
       console.log('/RCTAsyncLocalStorage_V1 does not exist. Continuing...');
     }
     try {
-      await RNFS.copyFile(
-        RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage',
-        RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1',
-      );
+      await RNFS.copyFile(expoDataDirectory, RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1');
     } catch (error) {
       console.log('An error was encountered when trying to copy Expo data to /RCTAsyncLocalStorage_V1. Exiting migration...');
       console.log(error);
@@ -44,19 +43,28 @@ export default class WalletMigrate extends Component {
       console.log('An error was encountered when trying to delete .DS_Store. Continuing migration...');
       console.log(error);
     }
-    const files = await RNFS.readDir(RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1');
+    const files = await RNFS.readDir(expoDataDirectory);
     for (const file of files) {
       try {
-        if (file.isFile() && file.name !== 'manifest.json') {
-          const fileParsed = JSON.parse(await RNFS.readFile(file.path));
-          if (fileParsed.hasOwnProperty('wallets')) {
-            await AsyncStorage.setItem('data', fileParsed);
+        if (file.isFile()) {
+          if (file.name === 'manifest.json') {
+            const manifestFile = await RNFS.readFile(file.path);
+            const manifestFileParsed = JSON.parse(manifestFile);
+            if (manifestFileParsed.hasOwnProperty('data')) {
+              if (typeof manifestFileParsed.data === 'string') {
+                await AsyncStorage.setItem('data', manifestFileParsed.data);
+              }
+            }
+            if (manifestFileParsed.hasOwnProperty('data_encrypted')) {
+              if (typeof manifestFileParsed.data_encrypted === 'string') {
+                await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
+              }
+            }
+          } else if (file.name !== 'manifest.json') {
+            const manifestFile = await RNFS.readFile(file.path);
+            const manifestFileParsed = JSON.parse(manifestFile);
+            if (typeof manifestFileParsed === 'object') await AsyncStorage.setItem('data', JSON.stringify(manifestFileParsed));
           }
-        } else if (file.isFile() && file.name === 'manifest.json') {
-          const manifestFile = await RNFS.readFile(file.path);
-          const manifestFileParsed = JSON.parse(manifestFile);
-          await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
-          await AsyncStorage.setItem('data', manifestFileParsed.data);
         }
       } catch (error) {
         console.log(error);

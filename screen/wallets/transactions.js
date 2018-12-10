@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
+import { NavigationEvents } from 'react-navigation';
 import { LightningCustodianWallet } from '../../class';
 import {
   BlueText,
@@ -67,7 +68,7 @@ export default class WalletTransactions extends Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.refreshFunction();
   }
 
@@ -285,6 +286,7 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
+        <NavigationEvents onWillFocus={() => { this.refreshFunction() }} />
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           {(() => {

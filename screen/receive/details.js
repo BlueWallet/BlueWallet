@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
 import { QRCode } from 'react-native-custom-qr-codes';
-import bip21 from "bip21";
+import bip21 from 'bip21';
 import { BlueLoading, SafeBlueArea, BlueButton, BlueNavigationStyle, is } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
