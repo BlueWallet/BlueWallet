@@ -52,7 +52,7 @@ export default class WalletMigrate extends Component {
             const manifestFile = await RNFS.readFile(file.path);
             const manifestFileParsed = JSON.parse(manifestFile);
             if (manifestFileParsed.hasOwnProperty('data_encrypted')) {
-              if (typeof manifestFileParsed.data_encrypted !== 'undefined') {
+              if (typeof manifestFileParsed.data_encrypted === 'string') {
                 await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
               }
             }
