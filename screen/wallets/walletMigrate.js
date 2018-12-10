@@ -52,8 +52,8 @@ export default class WalletMigrate extends Component {
             const manifestFile = await RNFS.readFile(file.path);
             const manifestFileParsed = JSON.parse(manifestFile);
             if (manifestFileParsed.hasOwnProperty('data_encrypted')) {
-              if (typeof manifestFileParsed.data_encrypted === 'string') {
-                await AsyncStorage.setItem('data_encrypted', JSON.stringify(manifestFileParsed.data_encrypted));
+              if (typeof manifestFileParsed.data_encrypted !== 'undefined') {
+                await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
               }
             }
             if (manifestFileParsed.hasOwnProperty('data')) {
@@ -67,7 +67,7 @@ export default class WalletMigrate extends Component {
             const manifestFile = await RNFS.readFile(file.path);
             const manifestFileParsed = JSON.parse(manifestFile);
             if (typeof manifestFileParsed === 'object') await AsyncStorage.setItem('data', JSON.stringify(manifestFileParsed));
-        }
+          }
         }
       } catch (error) {
         console.log(error);
