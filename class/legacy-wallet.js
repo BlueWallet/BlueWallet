@@ -2,11 +2,11 @@ import { AbstractWallet } from './abstract-wallet';
 import { SegwitBech32Wallet } from './';
 import { useBlockcypherTokens } from './constants';
 import Frisbee from 'frisbee';
-const isaac = require('isaac');
+import { NativeModules } from 'react-native';
+const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
-const entropy = require('../entropy');
 
 /**
  *  Has private key and address signle like "1ABCD....."
@@ -46,27 +46,35 @@ export class LegacyWallet extends AbstractWallet {
     return false;
   }
 
-  generate() {
-    function myRng(c) {
-      let buf = Buffer.alloc(c);
-      let totalhex = '';
-      for (let i = 0; i < c / 4; i++) {
-        // c = 32
-        isaac.seed(entropy.get32bitInt());
-        let randomNumber = isaac.rand(); // got 32bit signed int
-        randomNumber = randomNumber >>> 0; // cast signed to unsigned
-        let hex = randomNumber.toString(16);
-        while (hex.length < 8) {
-          hex = '0' + hex;
-        }
-        totalhex += hex;
+  async generate() {
+    let that = this;
+    return new Promise(function(resolve) {
+      if (typeof RNRandomBytes === 'undefined') {
+        // CLI/CI environment
+        // crypto should be provided globally by test launcher
+        return crypto.randomBytes(32, (err, buf) => { // eslint-disable-line
+          if (err) throw err;
+          that.secret = bitcoin.ECPair.makeRandom({
+            rng: function(length) {
+              return buf;
+            },
+          }).toWIF();
+          resolve();
+        });
       }
-      totalhex = bitcoin.crypto.sha256('oh hai!' + totalhex).toString('hex');
-      totalhex = bitcoin.crypto.sha256(totalhex).toString('hex');
-      buf.fill(totalhex, 0, 'hex');
-      return buf;
-    }
-    this.secret = bitcoin.ECPair.makeRandom({ rng: myRng }).toWIF();
+
+      // RN environment
+      RNRandomBytes.randomBytes(32, (err, bytes) => {
+        if (err) throw new Error(err);
+        that.secret = bitcoin.ECPair.makeRandom({
+          rng: function(length) {
+            let b = Buffer.from(bytes, 'base64');
+            return b;
+          },
+        }).toWIF();
+        resolve();
+      });
+    });
   }
 
   getTypeReadable() {

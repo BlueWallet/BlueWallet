@@ -168,7 +168,7 @@ describe('LightningCustodianWallet', () => {
     }
   });
 
-  it.skip('can create invoice and pay other blitzhub invoice', async () => {
+  it('can create invoice and pay other blitzhub invoice', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
@@ -192,6 +192,7 @@ describe('LightningCustodianWallet', () => {
     assert.equal(invoices2.length, invoices.length + 1);
     assert.ok(invoices2[0].ispaid === false);
     assert.ok(invoices2[0].description);
+    assert.equal(invoices2[0].description, 'test memo');
     assert.ok(invoices2[0].payment_request);
     assert.equal(invoices2[0].amt, 1);
 
@@ -216,11 +217,12 @@ describe('LightningCustodianWallet', () => {
     assert.equal(lNew.balance, 1);
 
     // now, paying back that amount
+    oldBalance = lOld.balance;
     invoice = await lOld.addInvoice(1, 'test memo');
     await lNew.payInvoice(invoice);
     await lOld.fetchBalance();
     await lNew.fetchBalance();
-    assert.equal(oldBalance - lOld.balance, 0);
+    assert.equal(lOld.balance - oldBalance, 1);
     assert.equal(lNew.balance, 0);
   });
 });

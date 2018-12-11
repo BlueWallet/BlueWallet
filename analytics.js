@@ -1,14 +1,12 @@
-import { Amplitude } from 'expo';
-import { Analytics, PageHit } from 'expo-analytics';
+//  import Amplitude from 'react-native-amplitude-analytics';
+import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge';
 
-Amplitude.initialize('8b7cf19e8eea3cdcf16340f5fbf16330');
-const analytics = new Analytics('UA-121673546-1');
+// Amplitude.initialize('8b7cf19e8eea3cdcf16340f5fbf16330');
+const analytics = new GoogleAnalyticsTracker('UA-121673546-1');
 
 let A = function(event) {
-  Amplitude.logEvent(event);
-  analytics.hit(new PageHit(event));
-  // .then(() => console.log('success'))
-  // .catch(e => console.log(e.message));
+  // Amplitude.logEvent(event);
+  analytics.trackEvent(event, event);
 };
 
 A.ENUM = {

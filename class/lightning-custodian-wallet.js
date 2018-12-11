@@ -5,7 +5,7 @@ let BigNumber = require('bignumber.js');
 export class LightningCustodianWallet extends LegacyWallet {
   constructor() {
     super();
-    this.baseURI = 'https://api.blitzhub.io/';
+    this.setBaseURI(); // no args to init with default value
     this.init();
     this.type = 'lightningCustodianWallet';
     this.refresh_token = '';
@@ -26,7 +26,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (URI) {
       this.baseURI = URI;
     } else {
-      this.baseURI = 'https://api.blitzhub.io/';
+      this.baseURI = 'https://lndhub.herokuapp.com/';
     }
   }
 
@@ -44,12 +44,12 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   timeToRefreshBalance() {
-    // blitzhub calls are cheap, so why not refresh constantly
+    // lndhub calls are cheap, so why not refresh constantly
     return true;
   }
 
   timeToRefreshTransaction() {
-    // blitzhub calls are cheap, so why not refresh the list constantly
+    // lndhub calls are cheap, so why not refresh the list constantly
     return true;
   }
 
@@ -92,14 +92,14 @@ export class LightningCustodianWallet extends LegacyWallet {
     }
 
     if (json && json.error) {
-      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+      throw new Error('API error: ' + (json.message ? json.message : json.error) + ' (code ' + json.code + ')');
     }
 
     if (!json.login || !json.password) {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
-    this.secret = 'blitzhub://' + json.login + ':' + json.password;
+    this.secret = 'lndhub://' + json.login + ':' + json.password;
   }
 
   async payInvoice(invoice) {
@@ -199,8 +199,14 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @return {Promise.<void>}
    */
   async authorize() {
-    let login = this.secret.replace('blitzhub://', '').split(':')[0];
-    let password = this.secret.replace('blitzhub://', '').split(':')[1];
+    let login, password;
+    if (this.secret.indexOf('blitzhub://') !== -1) {
+      login = this.secret.replace('blitzhub://', '').split(':')[0];
+      password = this.secret.replace('blitzhub://', '').split(':')[1];
+    } else {
+      login = this.secret.replace('lndhub://', '').split(':')[0];
+      password = this.secret.replace('lndhub://', '').split(':')[1];
+    }
     let response = await this._api.post('/auth?type=auth', {
       body: { login: login, password: password },
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },

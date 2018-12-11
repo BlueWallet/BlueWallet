@@ -39,10 +39,16 @@ export default class ScanLndInvoice extends React.Component {
       fromWallet,
       fromSecret,
     };
+  }
 
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
-      this.processInvoice(data);
-    });
+  async componentDidMount() {
+    EV(
+      EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS,
+      data => {
+        this.processInvoice(data);
+      },
+      true,
+    );
   }
 
   async processInvoice(data) {

@@ -43,6 +43,7 @@ export default class EncryptStorage extends Component {
               return (
                 <View>
                   <BlueText>{loc.settings.storage_encrypted}</BlueText>
+                  <BlueSpacing20 />
                   <BlueButton
                     onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
                     title={loc.settings.plausible_deniability}

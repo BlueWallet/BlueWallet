@@ -7,6 +7,8 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let EV = require('../../events');
+let currency = require('../../currency');
+let Bignumber = require('bignumber.js');
 
 export default class Confirm extends Component {
   static navigationOptions = () => ({
@@ -16,12 +18,12 @@ export default class Confirm extends Component {
 
   constructor(props) {
     super(props);
-    console.log('send/create constructor');
 
     this.state = {
       isLoading: false,
       amount: props.navigation.getParam('amount'),
       fee: props.navigation.getParam('fee'),
+      feeSatoshi: new Bignumber(props.navigation.getParam('fee')).multipliedBy(100000000).toNumber(),
       address: props.navigation.getParam('address'),
       memo: props.navigation.getParam('memo'),
       size: Math.round(props.navigation.getParam('tx').length / 2),
@@ -32,7 +34,7 @@ export default class Confirm extends Component {
   }
 
   async componentDidMount() {
-    console.log('send/create - componentDidMount');
+    console.log('send/confirm - componentDidMount');
     console.log('address = ', this.state.address);
   }
 
@@ -95,7 +97,8 @@ export default class Confirm extends Component {
               alignSelf: 'center',
             }}
           >
-            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
+            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.BTC)} (
+            {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
           </Text>
         </BlueCard>
         <BlueCard>

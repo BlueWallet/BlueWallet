@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Constants } from 'expo';
 import { ScrollView, Linking, Dimensions, Platform } from 'react-native';
 import {
   BlueTextCentered,
@@ -12,12 +11,11 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import DeviceInfo from 'react-native-device-info';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
-const pkg = require('../../package.json');
-const appjson = require('../../app.json');
 
 export default class About extends Component {
   static navigationOptions = () => ({
@@ -38,26 +36,6 @@ export default class About extends Component {
     });
   }
 
-  platformSpecificInformation() {
-    if (Platform.OS === 'android') {
-      return (
-        <React.Fragment>
-          <BlueTextCentered>Version code: {Constants.platform.android.versionCode}</BlueTextCentered>
-          <BlueSpacing20 />
-        </React.Fragment>
-      );
-    } else if (Platform.OS === 'ios') {
-      return (
-        <React.Fragment>
-          <BlueTextCentered>
-            {Constants.platform.ios.model} ({Constants.platform.ios.platform})
-          </BlueTextCentered>
-          <BlueSpacing20 />
-        </React.Fragment>
-      );
-    }
-  }
-
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
@@ -67,7 +45,11 @@ export default class About extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <ScrollView>
           <BlueCard>
-            <BlueText h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueText>
+            <BlueTextCentered h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
+            <BlueSpacing20 />
+
+            <BlueTextCentered h4>Still in beta, don't use to store large amounts!</BlueTextCentered>
+            <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
             <BlueSpacing20 />
 
             <BlueButton
@@ -98,12 +80,29 @@ export default class About extends Component {
 
             <BlueButton
               icon={{
+                name: 'telegram',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() => {
+                Linking.openURL('https://t.me/bluewallet');
+              }}
+              title="Join Telegram chat"
+            />
+            <BlueSpacing20 />
+
+            <BlueButton
+              icon={{
                 name: 'thumbsup',
                 type: 'octicon',
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
+                if (Platform.OS === 'ios') {
+                  Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
+                } else {
+                  Linking.openURL('https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet');
+                }
               }}
               title="Leave us a review on Appstore"
             />
@@ -116,11 +115,9 @@ export default class About extends Component {
             <BlueText h4>* Bitcoinjs-lib</BlueText>
             <BlueText h4>* blockcypher.com API</BlueText>
             <BlueText h4>* Nodejs</BlueText>
-            <BlueText h4>* Expo</BlueText>
             <BlueText h4>* react-native-elements</BlueText>
             <BlueText h4>* rn-nodeify</BlueText>
             <BlueText h4>* bignumber.js</BlueText>
-            <BlueText h4>* https://github.com/StefanoBalocco/isaac.js</BlueText>
             <BlueSpacing20 />
 
             <BlueButton
@@ -131,11 +128,11 @@ export default class About extends Component {
             />
             <BlueTextCentered />
             <BlueTextCentered>
-              w, h = {width}, {height}
+              {DeviceInfo.getApplicationName()} ver {DeviceInfo.getVersion()} (build number {DeviceInfo.getBuildNumber()})
             </BlueTextCentered>
-            {this.platformSpecificInformation()}
+            <BlueTextCentered>{DeviceInfo.getBundleId()}</BlueTextCentered>
             <BlueTextCentered>
-              {pkg.name} v{pkg.version} (build {appjson.expo.ios.buildNumber})
+              w, h = {width}, {height}
             </BlueTextCentered>
           </BlueCard>
         </ScrollView>

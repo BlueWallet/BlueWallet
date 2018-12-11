@@ -1,8 +1,9 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import { Permissions, BarCodeScanner } from 'expo';
+import Camera from 'react-native-camera';
+import Permissions from 'react-native-permissions';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
@@ -92,8 +93,8 @@ export default class ScanQrWif extends React.Component {
     }
     // nope
 
-    // is it blitzhub?
-    if (ret.data.indexOf('blitzhub://') !== -1) {
+    // is it lndhub?
+    if (ret.data.indexOf('blitzhub://') !== -1 || ret.data.indexOf('lndhub://') !== -1) {
       this.setState({ isLoading: true });
       let lnd = new LightningCustodianWallet();
       lnd.setSecret(ret.data);
@@ -163,8 +164,10 @@ export default class ScanQrWif extends React.Component {
   } // end
 
   async componentWillMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ hasCameraPermission: status === 'granted' });
+    Permissions.request('camera').then(response => {
+      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+      this.setState({ hasCameraPermission: response === 'authorized' });
+    });
   }
 
   render() {
@@ -180,7 +183,9 @@ export default class ScanQrWif extends React.Component {
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
+      alert('BlueWallet does not have permission to use your camera.');
+      this.props.navigation.goBack(null);
+      return <View />;
     } else {
       return (
         <View style={{ flex: 1 }}>
@@ -210,29 +215,16 @@ export default class ScanQrWif extends React.Component {
               );
             } else {
               return (
-                <BarCodeScanner style={{ flex: 1 }} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: 'transparent',
-                      flexDirection: 'row',
-                    }}
-                  >
+                <SafeBlueArea style={{ flex: 1 }}>
+                  <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
                     <TouchableOpacity
-                      style={{
-                        flex: 0.2,
-                        alignSelf: 'flex-end',
-                        alignItems: 'center',
-                      }}
+                      style={{ width: 80, height: 80, padding: 14, marginTop: 32 }}
+                      onPress={() => this.props.navigation.goBack(null)}
                     >
-                      <Button
-                        style={{ fontSize: 18, marginBottom: 10 }}
-                        title={loc.wallets.scanQrWif.go_back}
-                        onPress={() => this.props.navigation.goBack()}
-                      />
+                      <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
                     </TouchableOpacity>
-                  </View>
-                </BarCodeScanner>
+                  </Camera>
+                </SafeBlueArea>
               );
             }
           })()}

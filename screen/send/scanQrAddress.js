@@ -1,10 +1,11 @@
+/* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, Button, View, TouchableOpacity } from 'react-native';
-import { Permissions, BarCodeScanner } from 'expo';
+import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
+import Camera from 'react-native-camera';
+import Permissions from 'react-native-permissions';
 import { SafeBlueArea } from '../../BlueComponents';
 let EV = require('../../events');
-let loc = require('../../loc');
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
@@ -28,8 +29,10 @@ export default class CameraExample extends React.Component {
   } // end
 
   async componentDidMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
-    this.setState({ hasCameraPermission: status === 'granted' });
+    Permissions.request('camera').then(response => {
+      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
+      this.setState({ hasCameraPermission: response === 'authorized' });
+    });
   }
 
   render() {
@@ -45,30 +48,20 @@ export default class CameraExample extends React.Component {
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
-      return <Text>No access to camera</Text>;
+      alert('BlueWallet does not have permission to use your camera.');
+      this.props.navigation.goBack(null);
+      return <View />;
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
-          <BarCodeScanner style={{ flex: 1 }} onBarCodeScanned={ret => this.onBarCodeScanned(ret)}>
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: 'transparent',
-                flexDirection: 'row',
-              }}
+          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
+            <TouchableOpacity
+              style={{ width: 40, height: 80, padding: 14, marginTop: 32 }}
+              onPress={() => this.props.navigation.goBack(null)}
             >
-              <TouchableOpacity
-                style={{
-                  alignSelf: 'flex-end',
-                  alignItems: 'center',
-                  marginBottom: 20,
-                  marginLeft: 16,
-                }}
-              >
-                <Button style={{ fontSize: 18 }} title={loc.send.details.cancel} onPress={() => this.props.navigation.goBack()} />
-              </TouchableOpacity>
-            </View>
-          </BarCodeScanner>
+              <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+            </TouchableOpacity>
+          </Camera>
         </SafeBlueArea>
       );
     }
@@ -78,5 +71,6 @@ export default class CameraExample extends React.Component {
 CameraExample.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    dismiss: PropTypes.function,
   }),
 };

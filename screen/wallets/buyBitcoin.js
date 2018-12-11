@@ -1,17 +1,17 @@
 import React, { Component } from 'react';
 import { Animated, Linking, StyleSheet, View, TouchableOpacity, Clipboard } from 'react-native';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueHeaderDefaultSub, BlueText, BlueSpacing40 } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueLoading, SafeBlueArea, BlueButton, BlueText, BlueSpacing40 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class BuyBitcoin extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.buyBitcoin.header.toLowerCase()} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.buyBitcoin.header,
+    headerLeft: null,
+  });
 
   constructor(props) {
     super(props);

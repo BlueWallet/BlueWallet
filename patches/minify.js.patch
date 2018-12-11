@@ -1,0 +1,13 @@
+diff --git a/node_modules/uglify-es/lib/minify.js b/node_modules/uglify-es/lib/minify.js
+index ee1d478..966f7ad 100644
+--- a/node_modules/uglify-es/lib/minify.js
++++ b/node_modules/uglify-es/lib/minify.js
+@@ -51,7 +51,7 @@ function minify(files, options) {
+             ie8: false,
+             keep_classnames: undefined,
+             keep_fnames: false,
+-            mangle: {},
++            mangle: false, // !!!!!!!!!!!!!!!!!!!!
+             nameCache: null,
+             output: {},
+             parse: {},

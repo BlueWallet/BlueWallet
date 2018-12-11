@@ -1,56 +1,7 @@
 {
-  "expo": {
-    "sdkVersion": "30.0.0",
-    "version": "3.1.2",
-    "privacy": "public",
-    "platforms": [
-      "ios"
-    ],
-    "ios": {
-      "buildNumber": "117",
-      "supportsTablet": true,
-      "bundleIdentifier": "io.bluewallet.bluewallet",
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Discover local stores nearby that accept Bitcoin",
-        "NSCameraUsageDescription": "Allow BlueWallet to scan QR codes",
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
-    "name": "Blue Wallet",
-    "description": "Bitcoin wallet app. Alpha version (iOS only)",
-    "slug": "bluewallet",
-    "githubUrl": "https://github.com/BlueWallet/BlueWallet",
-    "orientation": "portrait",
-    "primaryColor": "#00aced",
-    "icon": "img/icon.png",
-    "notification": {
-      "icon": "https://s3.amazonaws.com/exp-us-standard/placeholder-push-icon.png",
-      "color": "#000000"
-    },
-    "splash": {
-      "backgroundColor": "#FFFFFF",
-      "image": "./img/splash/splash.png"
-    },
-    "android": {
-      "package": "io.bluewallet.bluewallet"
-    },
-    "updates": {
-      "enabled": false
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "hooks": {
-      "postPublish": [
-        {
-          "file": "sentry-expo/upload-sourcemaps",
-          "config": {
-            "organization": "bluewallet",
-            "project": "bluewallet",
-            "authToken": "sentry_api_key"
-          }
-        }
-      ]
-    }
+  "displayName": "Blue Wallet",
+  "name": "BlueWallet",
+  "ios": {
+    "buildNumber": "118"
   }
 }

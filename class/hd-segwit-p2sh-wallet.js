@@ -1,12 +1,12 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
-const isaac = require('isaac');
+import { NativeModules } from 'react-native';
+const { RNRandomBytes } = NativeModules;
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
 const b58 = require('bs58check');
 const signer = require('../models/signer');
-const entropy = require('../entropy');
 
 /**
  * HD Wallet (BIP39).
@@ -27,22 +27,27 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return true;
   }
 
-  generate() {
-    let c = 32;
-    let totalhex = '';
-    for (let i = 0; i < c / 4; i++) {
-      isaac.seed(entropy.get32bitInt());
-      let randomNumber = isaac.rand(); // got 32bit signed int
-      randomNumber = randomNumber >>> 0; // cast signed to unsigned
-      let hex = randomNumber.toString(16);
-      while (hex.length < 8) {
-        hex = '0' + hex;
+  async generate() {
+    let that = this;
+    return new Promise(function(resolve) {
+      if (typeof RNRandomBytes === 'undefined') {
+        // CLI/CI environment
+        // crypto should be provided globally by test launcher
+        return crypto.randomBytes(32, (err, buf) => { // eslint-disable-line
+          if (err) throw err;
+          that.secret = bip39.entropyToMnemonic(buf.toString('hex'));
+          resolve();
+        });
       }
-      totalhex += hex;
-    }
-    totalhex = bitcoin.crypto.sha256('hello there' + totalhex).toString('hex');
-    totalhex = bitcoin.crypto.sha256(totalhex).toString('hex');
-    this.secret = bip39.entropyToMnemonic(totalhex);
+
+      // RN environment
+      RNRandomBytes.randomBytes(32, (err, bytes) => {
+        if (err) throw new Error(err);
+        let b = Buffer.from(bytes, 'base64').toString('hex');
+        that.secret = bip39.entropyToMnemonic(b);
+        resolve();
+      });
+    });
   }
 
   async fetchBalance() {

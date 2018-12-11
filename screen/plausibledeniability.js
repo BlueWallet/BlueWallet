@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeader } from '../BlueComponents';
+import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeader, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
@@ -54,6 +54,8 @@ export default class PlausibleDeniability extends Component {
 
             <BlueText>{loc.plausibledeniability.help2}</BlueText>
 
+            <BlueSpacing20 />
+
             <BlueButton
               icon={{
                 name: 'shield',
@@ -83,6 +85,8 @@ export default class PlausibleDeniability extends Component {
                 this.props.navigation.navigate('Wallets');
               }}
             />
+
+            <BlueSpacing20 />
 
             <BlueButton
               icon={{

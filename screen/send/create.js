@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TextInput, Linking, TouchableOpacity, Clipboard, StyleSheet, ScrollView } from 'react-native';
+import { TextInput, ScrollView, Linking, TouchableOpacity, Clipboard, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Text } from 'react-native-elements';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -35,56 +35,57 @@ export default class SendCreate extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <ScrollView>
-          <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-            <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <ScrollView>
+            <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+              <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
+              <TextInput
+                style={{
+                  borderColor: '#ebebeb',
+                  backgroundColor: '#d2f8d6',
+                  borderRadius: 4,
+                  marginTop: 20,
+                  color: '#37c0a1',
+                  fontWeight: '500',
+                  fontSize: 14,
+                  paddingHorizontal: 16,
+                  paddingBottom: 16,
+                  paddingTop: 16,
+                }}
+                height={72}
+                multiline
+                editable
+                value={this.state.tx}
+              />
 
-            <TextInput
-              style={{
-                borderColor: '#ebebeb',
-                backgroundColor: '#d2f8d6',
-                borderRadius: 4,
-                marginTop: 20,
-                color: '#37c0a1',
-                fontWeight: '500',
-                fontSize: 14,
-                paddingHorizontal: 16,
-                paddingBottom: 16,
-                paddingTop: 16,
-              }}
-              height={72}
-              multiline
-              editable={false}
-              value={this.state.tx}
-            />
+              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
+                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
+                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Verify on coinb.in</Text>
+              </TouchableOpacity>
+            </BlueCard>
+            <BlueCard>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
 
-            <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
-              <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/#verify')}>
-              <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Open coinb.in/#verify</Text>
-            </TouchableOpacity>
-          </BlueCard>
-          <BlueCard>
-            <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} BTC</Text>
 
-            <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} BTC</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.fee} BTC</Text>
 
-            <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.fee} BTC</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
 
-            <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
 
-            <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
-
-            <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
-            <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
-          </BlueCard>
-        </ScrollView>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
+            </BlueCard>
+          </ScrollView>
+        </TouchableWithoutFeedback>
       </SafeBlueArea>
     );
   }

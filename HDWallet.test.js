@@ -1,5 +1,6 @@
 /* global it, jasmine */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from './class';
+global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 let bitcoin = require('bitcoinjs-lib');
 
@@ -56,7 +57,7 @@ it('can generate Segwit HD (BIP49)', async () => {
   let hd = new HDSegwitP2SHWallet();
   let hashmap = {};
   for (let c = 0; c < 1000; c++) {
-    hd.generate();
+    await hd.generate();
     let secret = hd.getSecret();
     if (hashmap[secret]) {
       throw new Error('Duplicate secret generated!');

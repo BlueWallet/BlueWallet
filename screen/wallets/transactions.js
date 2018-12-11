@@ -1,15 +1,9 @@
 import React, { Component } from 'react';
 import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { LinearGradient } from 'expo';
-import {
-  WatchOnlyWallet,
-  HDLegacyBreadwalletWallet,
-  HDSegwitP2SHWallet,
-  LightningCustodianWallet,
-  LegacyWallet,
-  HDLegacyP2PKHWallet,
-} from '../../class';
+import { NavigationEvents } from 'react-navigation';
+import { LightningCustodianWallet } from '../../class';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -48,7 +42,7 @@ export default class WalletTransactions extends Component {
         </TouchableOpacity>
       ),
       headerStyle: {
-        backgroundColor: navigation.state.params.headerColor,
+        backgroundColor: navigation.getParam('gradients')[0],
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
@@ -59,16 +53,23 @@ export default class WalletTransactions extends Component {
 
   constructor(props) {
     super(props);
+
+    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+    const wallet = props.navigation.getParam('wallet');
+
+    this.props.navigation.setParams({ wallet: wallet });
     this.state = {
       isLoading: true,
       isTransactionsLoading: false,
-      wallet: props.navigation.getParam('wallet'),
-      gradientColors: ['#FFFFFF', '#FFFFFF'],
-      dataSource: props.navigation.getParam('wallet').getTransactions(),
+      wallet: wallet,
+      dataSource: wallet.getTransactions(),
       walletBalanceUnit: BitcoinUnit.MBTC,
     };
-    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+  }
+
+  componentDidMount() {
+    this.refreshFunction();
   }
 
   /**
@@ -79,45 +80,6 @@ export default class WalletTransactions extends Component {
     setTimeout(function() {
       that.refreshTransactions();
     }, 4000); // giving a chance to remote server to propagate
-  }
-
-  async componentDidMount() {
-    this.refreshFunction();
-    let gradient1 = '#65ceef';
-    let gradient2 = '#68bbe1';
-
-    if (new WatchOnlyWallet().type === this.state.wallet.type) {
-      gradient1 = '#7d7d7d';
-      gradient2 = '#4a4a4a';
-    }
-
-    if (new LegacyWallet().type === this.state.wallet.type) {
-      gradient1 = '#40fad1';
-      gradient2 = '#15be98';
-    }
-
-    if (new HDLegacyP2PKHWallet().type === this.state.wallet.type) {
-      gradient1 = '#e36dfa';
-      gradient2 = '#bd10e0';
-    }
-
-    if (new HDLegacyBreadwalletWallet().type === this.state.wallet.type) {
-      gradient1 = '#fe6381';
-      gradient2 = '#f99c42';
-    }
-
-    if (new HDSegwitP2SHWallet().type === this.state.wallet.type) {
-      gradient1 = '#c65afb';
-      gradient2 = '#9053fe';
-    }
-
-    if (new LightningCustodianWallet().type === this.state.wallet.type) {
-      gradient1 = '#f1be07';
-      gradient2 = '#f79056';
-    }
-
-    this.props.navigation.setParams({ headerColor: gradient1, wallet: this.state.wallet });
-    this.setState({ gradientColors: [gradient1, gradient2] });
   }
 
   /**
@@ -144,6 +106,14 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
+      let txs = wallet.getTransactions();
+      for (let tx of txs) {
+        tx.sort_ts = +new Date(tx.received);
+      }
+      txs = txs.sort(function(a, b) {
+        return b.sort_ts - a.sort_ts;
+      });
+
       this.setState({
         isLoading: false,
         isTransactionsLoading: false,
@@ -151,7 +121,7 @@ export default class WalletTransactions extends Component {
         showSendButton: showSend,
         showManageFundsBigButton,
         showManageFundsSmallButton,
-        dataSource: wallet.getTransactions(),
+        dataSource: txs,
       });
     }, 1);
   }
@@ -184,6 +154,9 @@ export default class WalletTransactions extends Component {
             await wallet.fetchBalance();
             let start = +new Date();
             await wallet.fetchTransactions();
+            if (wallet.fetchPendingTransactions) {
+              await wallet.fetchPendingTransactions();
+            }
             let end = +new Date();
             console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -214,13 +187,9 @@ export default class WalletTransactions extends Component {
   }
 
   renderWalletHeader = () => {
+    const gradients = this.props.navigation.getParam('gradients');
     return (
-      <LinearGradient
-        start={[0, 0]}
-        end={[1, 1]}
-        colors={[this.state.gradientColors[0], this.state.gradientColors[1]]}
-        style={{ padding: 15, height: 164 }}
-      >
+      <LinearGradient colors={[gradients[0], gradients[1]]} style={{ padding: 15, minHeight: 164 }}>
         <Image
           source={
             (new LightningCustodianWallet().type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
@@ -317,6 +286,7 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
+        <NavigationEvents onWillFocus={() => { this.refreshFunction() }} />
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           {(() => {
@@ -345,7 +315,7 @@ export default class WalletTransactions extends Component {
           <FlatList
             ListHeaderComponent={this.renderListHeaderComponent}
             ListEmptyComponent={
-              <View style={{ top: 50, height: 100 }}>
+              <View style={{ top: 50, minHeight: 200 }}>
                 <Text
                   style={{
                     fontSize: 18,

@@ -9,6 +9,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   StyleSheet,
+  Platform,
   Slider,
 } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
@@ -18,6 +19,7 @@ import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { HDSegwitP2SHWallet } from '../../class';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
@@ -80,55 +82,71 @@ export default class SendDetails extends Component {
       bip70TransactionExpiration: null,
     };
 
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
-      if (btcAddressRx.test(data)) {
-        this.setState({
-          address: data,
-          bip70TransactionExpiration: null,
-        });
-      } else {
-        const { address, options } = bip21.decode(data);
-        console.warn(data);
-        if (btcAddressRx.test(address)) {
-          this.setState({
-            address,
-            amount: options.amount,
-            memo: options.label,
-            bip70TransactionExpiration: null,
-          });
-        } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
-          BitcoinBIP70TransactionDecode.decode(data)
-            .then(response => {
-              this.setState({
-                address: response.address,
-                amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
-                memo: response.memo,
-                fee: response.fee,
-                bip70TransactionExpiration: response.expires,
-              });
-            })
-            .catch(error => alert(error.errorMessage));
-        }
-      }
-    });
     let endTime = Date.now();
     console.log('constructor took', (endTime - startTime) / 1000, 'sec');
   }
 
   async componentDidMount() {
+    EV(
+      EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS,
+      data => {
+        if (btcAddressRx.test(data) || data.indexOf('bc1') === 0) {
+          this.setState({
+            address: data,
+            bip70TransactionExpiration: null,
+          });
+        } else {
+          let address, options;
+          try {
+            const decoded = bip21.decode(data);
+            address = decoded.address;
+            options = decoded.options;
+          } catch (Err) {
+            console.log(Err);
+          }
+          console.log(options);
+          if (btcAddressRx.test(address)) {
+            this.setState({
+              address,
+              amount: options.amount,
+              memo: options.label || options.message,
+              bip70TransactionExpiration: null,
+            });
+          } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
+            BitcoinBIP70TransactionDecode.decode(data)
+              .then(response => {
+                this.setState({
+                  address: response.address,
+                  amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                  memo: response.memo,
+                  fee: response.fee,
+                  bip70TransactionExpiration: response.expires,
+                });
+              })
+              .catch(error => alert(error.errorMessage));
+          }
+        }
+      },
+      true,
+    );
     let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
-      this.setState({ fee: response.halfHourFee, networkTransactionFees: response, feeSliderValue: response.halfHourFee });
+      this.setState({
+        fee: response.halfHourFee,
+        networkTransactionFees: response,
+        feeSliderValue: response.halfHourFee,
+        isLoading: false,
+      });
     });
-    this.setState({
-      fee: recommendedFees.halfHourFee,
-      networkTransactionFees: recommendedFees,
-      feeSliderValue: recommendedFees.halfHourFee,
-    });
+    if (recommendedFees) {
+      this.setState({
+        fee: recommendedFees.halfHourFee,
+        networkTransactionFees: recommendedFees,
+        feeSliderValue: recommendedFees.halfHourFee,
+        isLoading: false,
+      });
+    }
     let startTime = Date.now();
     console.log('send/details - componentDidMount');
-    this.setState({
-      isLoading: false,
-    });
     let endTime = Date.now();
     console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
   }
@@ -149,11 +167,14 @@ export default class SendDetails extends Component {
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
-  calculateFee(utxos, txhex) {
+  calculateFee(utxos, txhex, utxoIsInSatoshis) {
     let index = {};
     let c = 1;
     index[0] = 0;
     for (let utxo of utxos) {
+      if (!utxoIsInSatoshis) {
+        utxo.amount = new BigNumber(utxo.amount).multipliedBy(100000000).toNumber();
+      }
       index[c] = utxo.amount + index[c - 1];
       c++;
     }
@@ -279,7 +300,8 @@ export default class SendDetails extends Component {
       this.setState({ isLoading: false }, () =>
         this.props.navigation.navigate('Confirm', {
           amount: this.state.amount,
-          fee: this.calculateFee(utxo, tx),
+          // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
+          fee: this.calculateFee(utxo, tx, this.state.fromWallet.type === new HDSegwitP2SHWallet().type),
           address: this.state.address,
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,
@@ -297,7 +319,7 @@ export default class SendDetails extends Component {
         style={styles.bottomModal}
         onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
       >
-        <KeyboardAvoidingView behavior="position">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <TouchableOpacity style={styles.satoshisTextInput} onPress={() => this.textInput.focus()}>
               <TextInput
@@ -458,7 +480,7 @@ export default class SendDetails extends Component {
                 placeholder={loc.send.details.address}
                 numberOfLines={1}
                 value={this.state.address}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                 editable={!this.state.isLoading}
               />
               <TouchableOpacity
@@ -503,7 +525,7 @@ export default class SendDetails extends Component {
                 placeholder={loc.send.details.note_placeholder}
                 value={this.state.memo}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                 editable={!this.state.isLoading}
               />
             </View>

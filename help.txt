@@ -1,0 +1,9 @@
+ANDROID
+=======
+
+https://facebook.github.io/react-native/docs/signed-apk-android
+https://developer.android.com/studio/run/emulator-commandline
+
+./gradlew cleanBuildCache
+./gradlew assembleRelease
+react-native run-android --variant=release

@@ -1,7 +1,7 @@
 import Frisbee from 'frisbee';
 
 export class NetworkTransactionFee {
-  constructor(fastestFee, halfHourFee, hourFee) {
+  constructor(fastestFee = 1, halfHourFee = 1, hourFee = 1) {
     this.fastestFee = fastestFee;
     this.halfHourFee = halfHourFee;
     this.hourFee = hourFee;
@@ -18,7 +18,8 @@ export default class NetworkTransactionFees {
           const networkFee = new NetworkTransactionFee(response.body.fastestFee, response.body.halfHourFee, response.body.hourFee);
           resolve(networkFee);
         } else {
-          throw new Error('Could not fetch recommended network fees: ' + response.err);
+          const networkFee = new NetworkTransactionFee(1, 1, 1);
+          reject(networkFee);
         }
       } catch (err) {
         console.warn(err);

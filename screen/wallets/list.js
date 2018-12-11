@@ -14,6 +14,7 @@ import {
   BlueHeaderDefaultMain,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
+import { NavigationEvents } from 'react-navigation';
 import PropTypes from 'prop-types';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
@@ -27,6 +28,7 @@ export default class WalletsList extends Component {
     headerStyle: {
       backgroundColor: '#FFFFFF',
       borderBottomWidth: 0,
+      elevation: 0,
     },
     headerRight: (
       <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => navigation.navigate('Settings')}>
@@ -39,6 +41,7 @@ export default class WalletsList extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      wallets: BlueApp.getWallets().concat(false),
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
 
@@ -47,7 +50,7 @@ export default class WalletsList extends Component {
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshFunction.bind(this));
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.refreshFunction();
   }
 
@@ -100,6 +103,7 @@ export default class WalletsList extends Component {
       isLoading: false,
       isTransactionsLoading: false,
       dataSource: BlueApp.getTransactions(),
+      wallets: BlueApp.getWallets().concat(false),
     });
   }
 
@@ -110,12 +114,13 @@ export default class WalletsList extends Component {
     return '';
   }
 
-  handleClick(index) {
+  handleClick(index, gradients) {
     console.log('click', index);
     let wallet = BlueApp.wallets[index];
     if (wallet) {
       this.props.navigation.navigate('WalletTransactions', {
         wallet: wallet,
+        gradients: gradients,
       });
     } else {
       // if its out of index - this must be last card with incentive to create wallet
@@ -184,7 +189,7 @@ export default class WalletsList extends Component {
     }
   }
 
-  _keyExtractor = (item, index) => index.toString();
+  _keyExtractor = (_item, index) => index.toString();
 
   renderListHeaderComponent = () => {
     return (
@@ -204,6 +209,12 @@ export default class WalletsList extends Component {
     );
   };
 
+  handleLongPress = () => {
+    if (BlueApp.getWallets().length > 1) {
+      this.props.navigation.navigate('ReorderWallets');
+    }
+  };
+
   render() {
     const { navigate } = this.props.navigation;
 
@@ -213,15 +224,17 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <NavigationEvents onWillFocus={() => { this.refreshFunction() }} />
         <ScrollView
           refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
         >
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel
-            data={BlueApp.getWallets().concat(false)}
-            handleClick={index => {
-              this.handleClick(index);
+            data={this.state.wallets}
+            handleClick={(index, headerColor) => {
+              this.handleClick(index, headerColor);
             }}
+            handleLongPress={this.handleLongPress}
             onSnapToItem={index => {
               this.onSnapToItem(index);
             }}

@@ -8,7 +8,7 @@ import {
   HDLegacyP2PKHWallet,
 } from '../../class';
 import React, { Component } from 'react';
-import { KeyboardAvoidingView, Dimensions, View } from 'react-native';
+import { KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -64,7 +64,7 @@ export default class WalletsImport extends Component {
   async importMnemonic(text) {
     try {
       // is it lightning custodian?
-      if (text.indexOf('blitzhub://') !== -1) {
+      if (text.indexOf('blitzhub://') !== -1 || text.indexOf('lndhub://') !== -1) {
         // yep its lnd
         for (let t of BlueApp.getWallets()) {
           if (t.type === new LightningCustodianWallet().type) {
@@ -209,46 +209,48 @@ export default class WalletsImport extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-        <KeyboardAvoidingView behavior="position" enabled>
-          <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
-          <BlueSpacing20 />
-          <BlueFormMultiInput
-            value={this.state.label}
-            placeholder={''}
-            onChangeText={text => {
-              this.setLabel(text);
-            }}
-          />
-          <BlueSpacing20 />
-          <View
-            style={{
-              alignItems: 'center',
-            }}
-          >
-            <BlueButton
-              title={loc.wallets.import.do_import}
-              buttonStyle={{
-                width: width / 1.5,
-              }}
-              onPress={async () => {
-                if (!this.state.label) {
-                  return;
-                }
-                this.setState({ isLoading: true });
-                setTimeout(async () => {
-                  await this.importMnemonic(this.state.label.trim());
-                  this.setState({ isLoading: false });
-                }, 1);
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <KeyboardAvoidingView behavior="position" enabled>
+            <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
+            <BlueSpacing20 />
+            <BlueFormMultiInput
+              value={this.state.label}
+              placeholder={''}
+              onChangeText={text => {
+                this.setLabel(text);
               }}
             />
-            <BlueButtonLink
-              title={loc.wallets.import.scan_qr}
-              onPress={() => {
-                this.props.navigation.navigate('ScanQrWif');
+            <BlueSpacing20 />
+            <View
+              style={{
+                alignItems: 'center',
               }}
-            />
-          </View>
-        </KeyboardAvoidingView>
+            >
+              <BlueButton
+                title={loc.wallets.import.do_import}
+                buttonStyle={{
+                  width: width / 1.5,
+                }}
+                onPress={async () => {
+                  if (!this.state.label) {
+                    return;
+                  }
+                  this.setState({ isLoading: true });
+                  setTimeout(async () => {
+                    await this.importMnemonic(this.state.label.trim());
+                    this.setState({ isLoading: false });
+                  }, 1);
+                }}
+              />
+              <BlueButtonLink
+                title={loc.wallets.import.scan_qr}
+                onPress={() => {
+                  this.props.navigation.navigate('ScanQrWif');
+                }}
+              />
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
       </SafeBlueArea>
     );
   }

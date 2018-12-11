@@ -1,11 +1,12 @@
 /** @type {AppStorage} */
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { LinearGradient, Constants } from 'expo';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
 import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard, Platform } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
+import DeviceInfo from 'react-native-device-info';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
@@ -146,10 +147,11 @@ export class BlueButtonLink extends Component {
   }
 }
 
-export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false) => ({
+export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => ({
   headerStyle: {
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 0,
+    elevation: 0,
   },
   headerTitleStyle: {
     fontWeight: '600',
@@ -157,7 +159,10 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   },
   headerTintColor: '#0c2550',
   headerRight: withNavigationCloseButton ? (
-    <TouchableOpacity style={{ width: 40, height: 40, padding: 14 }} onPress={() => navigation.goBack(null)}>
+    <TouchableOpacity
+      style={{ width: 40, height: 40, padding: 14 }}
+      onPress={customCloseButtonFunction === undefined ? () => navigation.goBack(null) : customCloseButtonFunction}
+    >
       <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
     </TouchableOpacity>
   ) : null,
@@ -194,7 +199,6 @@ export class BlueText extends Component {
   render() {
     return (
       <Text
-        {...this.props}
         style={Object.assign(
           {
             color: BlueApp.settings.foregroundColor,
@@ -202,6 +206,7 @@ export class BlueText extends Component {
           // eslint-disable-next-line
           this.props.style,
         )}
+        {...this.props}
       />
     );
   }
@@ -449,7 +454,7 @@ export class is {
     if (Platform.OS !== 'ios') {
       return false;
     }
-    return Constants.platform.ios.platform === 'iPhone10,4';
+    return DeviceInfo.getDeviceId() === 'iPhone10,4';
   }
 }
 
@@ -835,7 +840,7 @@ export class BluePlusIconDimmed extends Component {
   }
 }
 
-export class NewWalletPannel extends Component {
+export class NewWalletPanel extends Component {
   constructor(props) {
     super(props);
     // WalletsCarousel.handleClick = props.handleClick // because cant access `this` from _renderItem
@@ -856,12 +861,10 @@ export class NewWalletPannel extends Component {
       >
         <LinearGradient
           colors={['#eef0f4', '#eef0f4']}
-          start={[0, 0]}
-          end={[1, 1]}
           style={{
             padding: 15,
             borderRadius: 10,
-            height: 164,
+            minHeight: 164,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -911,6 +914,7 @@ export class WalletsCarousel extends Component {
     super(props);
     // eslint-disable-next-line
     WalletsCarousel.handleClick = props.handleClick; // because cant access `this` from _renderItem
+    WalletsCarousel.handleLongPress = props.handleLongPress;
     // eslint-disable-next-line
     this.onSnapToItem = props.onSnapToItem;
   }
@@ -918,7 +922,7 @@ export class WalletsCarousel extends Component {
   _renderItem({ item, index }) {
     if (!item) {
       return (
-        <NewWalletPannel
+        <NewWalletPanel
           onPress={() => {
             if (WalletsCarousel.handleClick) {
               WalletsCarousel.handleClick(index);
@@ -962,29 +966,30 @@ export class WalletsCarousel extends Component {
     }
 
     return (
-      <View style={{ paddingRight: 10, marginVertical: 17 }}>
+      <View
+        style={{ paddingRight: 10, marginVertical: 17 }}
+        shadowOpacity={40 / 100}
+        shadowOffset={{ width: 0, height: 0 }}
+        shadowRadius={5}
+      >
         <TouchableOpacity
           activeOpacity={1}
+          onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
-              WalletsCarousel.handleClick(index);
+              WalletsCarousel.handleClick(index, [gradient1, gradient2]);
             }
           }}
         >
           <LinearGradient
-            shadowOpacity={20 / 100}
-            shadowOffset={{ width: 0, height: 4 }}
-            shadowRadius={10}
             shadowColor="#000000"
             colors={[gradient1, gradient2]}
             style={{
               padding: 15,
               borderRadius: 10,
-              height: 164,
+              minHeight: 164,
               elevation: 5,
             }}
-            start={[0, 0]}
-            end={[1, 1]}
           >
             <Image
               source={

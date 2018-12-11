@@ -1,4 +1,4 @@
-function EV(eventName, arg) {
+function EV(eventName, arg, isExclusive) {
   if (Object.values(EV.enum).indexOf(eventName) === -1) {
     return console.warn('Unregistered event', eventName, 'registered events:', EV.enum);
   }
@@ -15,6 +15,11 @@ function EV(eventName, arg) {
   } else {
     // its a callback. subscribe it to event
     console.log('someone subscribed to', eventName);
+    if (isExclusive) {
+      // if it'a an excluside subscribe - other subscribers should be terminated
+      console.log('exclusive subscribe');
+      EV.callbacks[eventName] = [];
+    }
     EV.callbacks[eventName].push(arg);
   }
 }

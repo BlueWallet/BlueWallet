@@ -15,8 +15,7 @@ export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LANG = 'lang';
   static CURRENCY = 'currency';
-  static ENTROPY = 'entropy';
-  static BLITZHUB = 'blitzhub';
+  static LNDHUB = 'lndhub';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -153,16 +152,20 @@ export class AppStorage {
             case new LightningCustodianWallet().type:
               /** @type {LightningCustodianWallet} */
               unserializedWallet = LightningCustodianWallet.fromJson(key);
-              let blitzhub = false;
+              let lndhub = false;
               try {
-                blitzhub = await AsyncStorage.getItem(AppStorage.BLITZHUB);
+                lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
               } catch (Error) {
                 console.warn(Error);
               }
-              if (blitzhub) {
-                unserializedWallet.setBaseURI(blitzhub);
-                unserializedWallet.init();
+              if (lndhub) {
+                console.log('using', lndhub, 'for lndhub wallet');
+                unserializedWallet.setBaseURI(lndhub);
+              } else {
+                unserializedWallet.setBaseURI();
+                console.log('using default uri for for lndhub wallet:', unserializedWallet.baseURI);
               }
+              unserializedWallet.init();
               break;
             case 'legacy':
             default:
@@ -213,6 +216,7 @@ export class AppStorage {
   async saveToDisk() {
     let walletsToSave = [];
     for (let key of this.wallets) {
+      if (typeof key === 'boolean') continue;
       walletsToSave.push(JSON.stringify(key));
     }
 
@@ -331,7 +335,7 @@ export class AppStorage {
     }
 
     return txs.sort(function(a, b) {
-      return b.sort_ts > a.sort_ts;
+      return b.sort_ts - a.sort_ts;
     });
   }
 
