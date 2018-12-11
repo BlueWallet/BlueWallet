@@ -5,14 +5,11 @@
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 Thin Bitcoin Wallet.
-Built with React Native, Expo and BlockCypher API.
+Built with React Native and BlockCypher API.
 
 [![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8)
 
 Website: [bluewallet.io](http://bluewallet.io)
-
-Discussion thread: https://bitcointalk.org/index.php?topic=2893813
-
 
 * Build and run on your own using Expo Client
 * Private keys never leave your device
@@ -36,12 +33,8 @@ Beta version, do not use to store large amounts!
 git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
 npm install
-npm start
+npm start android
 ``` 
-
-* Install Expo client: https://itunes.apple.com/app/apple-store/id982107779?ct=www&mt=8
-* Send the link shown in your console after `npm start` to your device
-* Open the link with Safari, Expo client should automatically handle `exp://` URI scheme
 
 ## TESTS
 
@@ -124,11 +117,11 @@ Support for single private-key wallets:
         * ~~Do RBF on TX (with change-destination address)~~
         * Do CPFP
 * Settings
-    * Appstore RateMe link
+    * ~~Appstore RateMe link~~
 
 ### v3.0.0 beta
 
-Support HD (multi-private keys)
+~~Support HD (multi-private keys)~~
 Support bech32 addresses
 
 #### Screens
