@@ -9,6 +9,7 @@ import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -196,7 +197,16 @@ export default class ReorderWallets extends Component {
           style={{ flex: 1 }}
           data={this.state.data}
           renderRow={this._renderItem}
-          onChangeOrder={() => this.setState({ hasMovedARow: true })}
+          onChangeOrder={() => {
+            ReactNativeHapticFeedback.trigger('impactMedium', true);
+            this.setState({ hasMovedARow: true });
+          }}
+          onActivateRow={() => {
+            ReactNativeHapticFeedback.trigger('selection', true);
+          }}
+          onReleaseRow={() => {
+            ReactNativeHapticFeedback.trigger('impactLight', true);
+          }}
         />
       </SafeBlueArea>
     );
