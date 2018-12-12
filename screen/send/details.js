@@ -358,7 +358,7 @@ export default class SendDetails extends Component {
             {this.state.networkTransactionFees.fastestFee > 1 && (
               <View style={{ flex: 1, marginTop: 32, minWidth: 240, width: 240 }}>
                 <Slider
-                  onValueChange={value => this.setState({ feeSliderValue: this.state.feeSliderValue, fee: value.toFixed(0) })}
+                  onValueChange={value => this.setState({ feeSliderValue: value.toFixed(0), fee: value.toFixed(0) })}
                   minimumValue={1}
                   maximumValue={this.state.networkTransactionFees.fastestFee}
                   value={Number(this.state.feeSliderValue)}
