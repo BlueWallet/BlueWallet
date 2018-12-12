@@ -286,7 +286,11 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
-        <NavigationEvents onWillFocus={() => { this.refreshFunction() }} />
+        <NavigationEvents
+          onWillFocus={() => {
+            this.refreshFunction();
+          }}
+        />
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           {(() => {

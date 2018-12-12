@@ -224,7 +224,11 @@ export default class WalletsList extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <NavigationEvents onWillFocus={() => { this.refreshFunction() }} />
+        <NavigationEvents
+          onWillFocus={() => {
+            this.refreshFunction();
+          }}
+        />
         <ScrollView
           refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
         >

@@ -2,7 +2,19 @@
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
-import { TouchableOpacity, ActivityIndicator, View, StyleSheet, Dimensions, Image, SafeAreaView, Clipboard, Platform } from 'react-native';
+import {
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Animated,
+  ActivityIndicator,
+  View,
+  StyleSheet,
+  Dimensions,
+  Image,
+  SafeAreaView,
+  Clipboard,
+  Platform,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { WatchOnlyWallet, LegacyWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
@@ -920,6 +932,15 @@ export class WalletsCarousel extends Component {
   }
 
   _renderItem({ item, index }) {
+    let scaleValue = new Animated.Value(1.0);
+
+    this.onPressedIn = () => {
+      Animated.spring(scaleValue, { toValue: 0.95 }).start();
+    };
+    this.onPressedOut = () => {
+      Animated.spring(scaleValue, { toValue: 1.0 }).start();
+    };
+
     if (!item) {
       return (
         <NewWalletPanel
@@ -966,14 +987,15 @@ export class WalletsCarousel extends Component {
     }
 
     return (
-      <View
-        style={{ paddingRight: 10, marginVertical: 17 }}
+      <Animated.View
+        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
         shadowOpacity={40 / 100}
         shadowOffset={{ width: 0, height: 0 }}
         shadowRadius={5}
       >
-        <TouchableOpacity
-          activeOpacity={1}
+        <TouchableWithoutFeedback
+          onPressIn={this.onPressedIn}
+          onPressOut={this.onPressedOut}
           onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
@@ -1050,8 +1072,8 @@ export class WalletsCarousel extends Component {
               {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
-        </TouchableOpacity>
-      </View>
+        </TouchableWithoutFeedback>
+      </Animated.View>
     );
   }
 
