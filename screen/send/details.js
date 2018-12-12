@@ -50,10 +50,12 @@ export default class SendDetails extends Component {
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
     let fromSecret;
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
-    let fromWallet = {};
+    let fromWallet = null;
+
+    const wallets = BlueApp.getWallets();
 
     let startTime2 = Date.now();
-    for (let w of BlueApp.getWallets()) {
+    for (let w of wallets) {
       if (w.getSecret() === fromSecret) {
         fromWallet = w;
         break;
@@ -61,6 +63,24 @@ export default class SendDetails extends Component {
 
       if (w.getAddress() === fromAddress) {
         fromWallet = w;
+      }
+    }
+
+    // fallback to first wallet if it exists
+    if (!fromWallet && wallets[0]) fromWallet = wallets[0];
+
+    let amount = '';
+    let parsedBitcoinUri = null;
+    if (props.navigation.state.params.uri) {
+      try {
+        parsedBitcoinUri = bip21.decode(props.navigation.state.params.uri);
+
+        address = parsedBitcoinUri.address ? parsedBitcoinUri.address : address;
+        amount = parsedBitcoinUri.options.amount ? parsedBitcoinUri.options.amount : amount;
+        memo = parsedBitcoinUri.options.label ? parsedBitcoinUri.options.label : memo;
+      } catch (error) {
+        console.error(error);
+        alert('Error: Unable to decode Bitcoin address');
       }
     }
 
@@ -75,7 +95,7 @@ export default class SendDetails extends Component {
       fromSecret: fromSecret,
       isLoading: true,
       address: address,
-      amount: '',
+      amount,
       memo,
       fee: 1,
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
@@ -601,6 +621,7 @@ SendDetails.propTypes = {
         satoshiPerByte: PropTypes.string,
         fromSecret: PropTypes.fromSecret,
         memo: PropTypes.string,
+        uri: PropTypes.string,
       }),
     }),
   }),
