@@ -19,6 +19,7 @@ import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import { AppStorage, SegwitP2SHWallet } from '../../class';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -234,6 +235,7 @@ export default class WalletsAdd extends Component {
                     await BlueApp.saveToDisk();
                     EV(EV.enum.WALLETS_COUNT_CHANGED);
                     A(A.ENUM.CREATED_WALLET);
+                    ReactNativeHapticFeedback.trigger('notificationSuccess', false);
                   }, 1);
                 }}
               />

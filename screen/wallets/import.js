@@ -21,6 +21,7 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -51,6 +52,7 @@ export default class WalletsImport extends Component {
 
   async _saveWallet(w) {
     alert(loc.wallets.import.success);
+    ReactNativeHapticFeedback.trigger('notificationSuccess', false);
     w.setLabel(loc.wallets.import.imported + ' ' + w.getTypeReadable());
     BlueApp.wallets.push(w);
     await BlueApp.saveToDisk();
@@ -180,7 +182,7 @@ export default class WalletsImport extends Component {
     }
 
     alert(loc.wallets.import.error);
-
+    ReactNativeHapticFeedback.trigger('notificationError', false);
     // Plan:
     // 1. check if its HDSegwitP2SHWallet (BIP49)
     // 2. check if its HDLegacyP2PKHWallet (BIP44)

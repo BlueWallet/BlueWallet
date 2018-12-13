@@ -935,10 +935,10 @@ export class WalletsCarousel extends Component {
     let scaleValue = new Animated.Value(1.0);
 
     this.onPressedIn = () => {
-      Animated.spring(scaleValue, { toValue: 0.95, useNativeDriver: Platform.OS === 'android' }).start();
+      Animated.spring(scaleValue, { toValue: 0.90, duration: 100, useNativeDriver: Platform.OS === 'android' }).start();
     };
     this.onPressedOut = () => {
-      Animated.spring(scaleValue, { toValue: 1.0, useNativeDriver: Platform.OS === 'android' }).start();
+      Animated.spring(scaleValue, { toValue: 1.0, duration: 100, useNativeDriver: Platform.OS === 'android' }).start();
     };
 
     if (!item) {

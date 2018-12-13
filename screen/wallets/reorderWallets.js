@@ -198,14 +198,14 @@ export default class ReorderWallets extends Component {
           data={this.state.data}
           renderRow={this._renderItem}
           onChangeOrder={() => {
-            ReactNativeHapticFeedback.trigger('impactMedium', true);
+            ReactNativeHapticFeedback.trigger('impactMedium', false);
             this.setState({ hasMovedARow: true });
           }}
           onActivateRow={() => {
-            ReactNativeHapticFeedback.trigger('selection', true);
+            ReactNativeHapticFeedback.trigger('selection', false);
           }}
           onReleaseRow={() => {
-            ReactNativeHapticFeedback.trigger('impactLight', true);
+            ReactNativeHapticFeedback.trigger('impactLight', false);
           }}
         />
       </SafeBlueArea>

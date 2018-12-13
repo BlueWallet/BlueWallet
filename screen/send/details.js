@@ -20,6 +20,7 @@ import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/netw
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { HDSegwitP2SHWallet } from '../../class';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
@@ -229,6 +230,7 @@ export default class SendDetails extends Component {
     if (error) {
       this.setState({ isLoading: false });
       alert(error);
+      ReactNativeHapticFeedback.trigger('notificationError', false);
       return;
     }
 
@@ -292,6 +294,7 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
+        ReactNativeHapticFeedback.trigger('notificationError', false);
         alert(err);
         this.setState({ isLoading: false });
         return;

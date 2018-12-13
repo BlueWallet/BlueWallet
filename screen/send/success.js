@@ -24,7 +24,7 @@ export default class Success extends Component {
 
   async componentDidMount() {
     console.log('send/create - componentDidMount');
-    ReactNativeHapticFeedback.trigger('notificationSuccess', true);
+    ReactNativeHapticFeedback.trigger('notificationSuccess', false);
   }
 
   render() {

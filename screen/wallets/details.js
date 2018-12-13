@@ -4,6 +4,7 @@ import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyb
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -60,6 +61,7 @@ export default class WalletDetails extends Component {
     this.state.wallet.setLabel(this.state.walletName);
     BlueApp.saveToDisk();
     alert('Wallet updated.');
+
     this.props.navigation.goBack(null);
   }
 
@@ -162,7 +164,8 @@ export default class WalletDetails extends Component {
 
               <TouchableOpacity
                 style={{ alignItems: 'center' }}
-                onPress={() =>
+                onPress={() => {
+                  ReactNativeHapticFeedback.trigger('notificationWarning', false);
                   Alert.alert(
                     loc.wallets.details.delete + ' ' + loc.wallets.details.title,
                     loc.wallets.details.are_you_sure,
@@ -171,6 +174,7 @@ export default class WalletDetails extends Component {
                         text: loc.wallets.details.yes_delete,
                         onPress: async () => {
                           BlueApp.deleteWallet(this.state.wallet);
+                          ReactNativeHapticFeedback.trigger('notificationSuccess', false);
                           await BlueApp.saveToDisk();
                           EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -181,8 +185,8 @@ export default class WalletDetails extends Component {
                       { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
                     ],
                     { cancelable: false },
-                  )
-                }
+                  );
+                }}
               >
                 <Text style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}>{loc.wallets.details.delete}</Text>
               </TouchableOpacity>
