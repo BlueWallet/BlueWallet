@@ -31,7 +31,10 @@ export default class WalletsList extends Component {
       elevation: 0,
     },
     headerRight: (
-      <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => navigation.navigate('Settings')}>
+      <TouchableOpacity
+        style={{ marginHorizontal: 16, width: 40, height: 40, justifyContent: 'flex-end', alignContent: 'flex-end' }}
+        onPress={() => navigation.navigate('Settings')}
+      >
         <Icon name="kebab-horizontal" size={22} type="octicon" color={BlueApp.settings.foregroundColor} />
       </TouchableOpacity>
     ),
