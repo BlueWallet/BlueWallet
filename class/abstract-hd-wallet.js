@@ -1,6 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import { WatchOnlyWallet } from './watch-only-wallet';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 const bip39 = require('bip39');
 
 export class AbstractHDWallet extends LegacyWallet {
@@ -14,6 +15,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this._xpub = ''; // cache
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
+    this.preferredBalanceUnit = BitcoinUnit.BTC;
   }
 
   generate() {
@@ -77,6 +79,19 @@ export class AbstractHDWallet extends LegacyWallet {
   setSecret(newSecret) {
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
+    return this;
+  }
+
+  getPreferredBalanceUnit() {
+    return this.preferredBalanceUnit;
+  }
+
+  getPreferredBalanceUnitIndex = () => {
+    return BitcoinUnit.ARRAY.indexOf(this.getPreferredBalanceUnit);
+  };
+
+  setPreferredBalanceUnit(unit) {
+    this.preferredBalanceUnit = unit;
     return this;
   }
 

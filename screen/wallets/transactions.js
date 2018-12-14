@@ -64,7 +64,7 @@ export default class WalletTransactions extends Component {
       isTransactionsLoading: false,
       wallet: wallet,
       dataSource: wallet.getTransactions(),
-      walletBalanceUnit: BitcoinUnit.MBTC,
+      walletBalanceUnit: Object.keys(BitcoinUnit)[wallet.getPreferredBalanceUnit],
     };
   }
 

@@ -1,3 +1,5 @@
+import { BitcoinUnit } from '../models/bitcoinUnits';
+
 export class AbstractWallet {
   constructor() {
     this.type = 'abstract';
@@ -10,6 +12,7 @@ export class AbstractWallet {
     this.utxo = [];
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
+    this.preferredBalanceUnit = BitcoinUnit.BTC;
   }
 
   getTransactions() {
@@ -30,6 +33,19 @@ export class AbstractWallet {
 
   getBalance() {
     return this.balance;
+  }
+
+  getPreferredBalanceUnit() {
+    return this.preferredBalanceUnit;
+  }
+
+  getPreferredBalanceUnitIndex = () => {
+    return BitcoinUnit.ARRAY.indexOf(this.getPreferredBalanceUnit);
+  };
+
+  setPreferredBalanceUnit(unit) {
+    this.preferredBalanceUnit = unit;
+    return this;
   }
 
   allowReceive() {

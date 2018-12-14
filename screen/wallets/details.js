@@ -3,8 +3,10 @@ import React, { Component } from 'react';
 import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { ButtonGroup } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -65,6 +67,10 @@ export default class WalletDetails extends Component {
     this.props.navigation.goBack(null);
   }
 
+  updatePreferredBalanceUnit = selectedIndex => {
+    this.state.wallet.setPreferredBalanceUnit(Object.keys(BitcoinUnit)[selectedIndex]);
+  };
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -73,7 +79,6 @@ export default class WalletDetails extends Component {
         </View>
       );
     }
-
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -124,15 +129,19 @@ export default class WalletDetails extends Component {
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
               <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getTypeReadable()}</Text>
+
+              <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
+                {loc.wallets.details.displayBalanceUsing.toLowerCase()}
+              </Text>
+              <ButtonGroup
+                onPress={this.updatePreferredBalanceUnit}
+                selectedIndex={Number(this.state.wallet.getPreferredBalanceUnitIndex)}
+                buttons={[BitcoinUnit.BTC, BitcoinUnit.MBTC, BitcoinUnit.BITS, BitcoinUnit.SATOSHIS]}
+              />
             </BlueCard>
             <View>
               <BlueSpacing20 />
               <BlueButton
-                icon={{
-                  name: 'cloud-upload',
-                  type: 'octicon',
-                  color: BlueApp.settings.buttonTextColor,
-                }}
                 onPress={() =>
                   this.props.navigation.navigate('WalletExport', {
                     address: this.state.wallet.getAddress(),

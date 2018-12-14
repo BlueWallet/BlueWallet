@@ -71,19 +71,16 @@ strings.formatBalance = (balance, unit) => {
     }
     return balance + ' ' + BitcoinUnit.BTC;
   } else {
-    if (balance !== 0) {
-      let b = new BigNumber(balance);
-      if (unit === BitcoinUnit.MBTC) {
-        return b.multipliedBy(1000).toString() + ' ' + BitcoinUnit.MBTC;
-      } else if (unit === BitcoinUnit.BITS) {
-        return b.multipliedBy(1000000).toString() + ' ' + BitcoinUnit.BITS;
-      } else if (unit === BitcoinUnit.SATOSHIS) {
-        return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
-      } else if (unit === BitcoinUnit.SATS) {
-        return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATS).replace(/\./g, '');
-      }
+    let b = new BigNumber(balance);
+    if (unit === BitcoinUnit.MBTC) {
+      return b.multipliedBy(1000).toString() + ' ' + BitcoinUnit.MBTC;
+    } else if (unit === BitcoinUnit.BITS) {
+      return b.multipliedBy(1000000).toString() + ' ' + BitcoinUnit.BITS;
+    } else if (unit === BitcoinUnit.SATOSHIS) {
+      return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
+    } else if (unit === BitcoinUnit.SATS) {
+      return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATS).replace(/\./g, '');
     }
-    return balance + ' ' + BitcoinUnit.BTC;
   }
 };
 

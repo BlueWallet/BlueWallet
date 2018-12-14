@@ -55,6 +55,7 @@ module.exports = {
       no_cancel: 'No, cancel',
       delete: 'Delete',
       save: 'Save',
+      displayBalanceUsing: 'Display balance using',
       delete_this_wallet: 'Delete this wallet',
       export_backup: 'Export / backup',
       buy_bitcoin: 'Buy Bitcoin',
