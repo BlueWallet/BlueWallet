@@ -26,12 +26,12 @@
 * REF: QR code content follows BIP21
 * ADD: fee in local currency when send
 * FIX: Refresh wallet info on page focus
-* OPS: Store description in English and Portuguese. More keywords relevant for search on all languages.
+* OPS: Store description in English and Portuguese. More keywords relevant for search on all languages. 
 * FIX: better android support
 * ADD: blitzhub api URI settings
-* FIX: better final fee calculation on transaction/details screen
-* ADD: link to open coinb.in to verify txhex
-* FIX: TX with extra small change output throws dust error
+* FIX: better final fee calculation on transaction/details screen 
+* ADD: link to open coinb.in to verify txhex 
+* FIX: TX with extra small change output throws dust error 
 * FIX: More Android fixes (#116) FIX: More Android fixes
 * FIX:  Addressed some crashes when running on an Android device
 * FIX: Weird styling on inputs #68

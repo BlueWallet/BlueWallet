@@ -1,1 +1,1 @@
-bitcoin,segwit,wallet,blockchain,btc,negação plausível,cryptomoeda,crypto,carteira
+bitcoin,wallet,segwit,crypto,blockchain,cryptocurrency,carteira,bread,samurai,ripple,xrp,ethereum
