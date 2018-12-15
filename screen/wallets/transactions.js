@@ -64,7 +64,7 @@ export default class WalletTransactions extends Component {
       isTransactionsLoading: false,
       wallet: wallet,
       dataSource: wallet.getTransactions(),
-      walletBalanceUnit: BitcoinUnit.MBTC,
+      walletBalanceUnit: BitcoinUnit.BTC,
     };
   }
 
@@ -176,13 +176,16 @@ export default class WalletTransactions extends Component {
 
   changeWalletBalanceUnit() {
     if (this.state.walletBalanceUnit === undefined || this.state.walletBalanceUnit === BitcoinUnit.BTC) {
-      this.setState({ walletBalanceUnit: BitcoinUnit.MBTC });
+      // this.setState({ walletBalanceUnit: BitcoinUnit.MBTC });
+      this.setState({ walletBalanceUnit: BitcoinUnit.LOCAL_CURRENCY });
     } else if (this.state.walletBalanceUnit === BitcoinUnit.MBTC) {
       this.setState({ walletBalanceUnit: BitcoinUnit.BITS });
     } else if (this.state.walletBalanceUnit === BitcoinUnit.BITS) {
       this.setState({ walletBalanceUnit: BitcoinUnit.SATOSHIS });
     } else if (this.state.walletBalanceUnit === BitcoinUnit.SATOSHIS) {
       this.setState({ walletBalanceUnit: BitcoinUnit.BTC });
+    } else if (this.state.walletBalanceUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      this.setState({ walletBalanceUnit: BitcoinUnit.MBTC });
     }
   }
 

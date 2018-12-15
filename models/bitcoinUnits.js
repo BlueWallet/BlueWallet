@@ -4,4 +4,5 @@ export const BitcoinUnit = Object.freeze({
   BITS: 'bits',
   SATOSHIS: 'satoshis',
   SATS: 'sats',
+  LOCAL_CURRENCY: 'local_currency',
 });

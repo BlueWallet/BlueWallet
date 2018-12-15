@@ -2,6 +2,7 @@ import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+let currency = require('../currency');
 let BigNumber = require('bignumber.js');
 let strings;
 
@@ -62,13 +63,15 @@ strings.transactionTimeToReadable = function(time) {
   }
 };
 
+/**
+ *
+ * @param balance {Number} Float amount of bitcoins
+ * @param unit {String} Value from models/bitcoinUnits.js
+ * @returns {string}
+ */
 strings.formatBalance = (balance, unit) => {
   const conversion = 100000000;
   if (unit === undefined) {
-    if (balance < 0.1 && balance !== 0) {
-      let b = new BigNumber(balance);
-      return b.multipliedBy(1000).toString() + ' ' + BitcoinUnit.MBTC;
-    }
     return balance + ' ' + BitcoinUnit.BTC;
   } else {
     if (balance !== 0) {
@@ -81,6 +84,8 @@ strings.formatBalance = (balance, unit) => {
         return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
       } else if (unit === BitcoinUnit.SATS) {
         return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATS).replace(/\./g, '');
+      } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
+        return currency.satoshiToLocalCurrency(b.times(conversion).toNumber());
       }
     }
     return balance + ' ' + BitcoinUnit.BTC;
