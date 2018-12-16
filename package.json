@@ -71,6 +71,7 @@
     "react-native-gesture-handler": "^1.0.11",
     "react-native-google-analytics-bridge": "^6.1.2",
     "react-native-haptic-feedback": "^1.4.2",
+    "react-native-level-fs": "^3.0.1",
     "react-native-linear-gradient": "^2.5.3",
     "react-native-material-dropdown": "^0.11.1",
     "react-native-modal": "^7.0.2",

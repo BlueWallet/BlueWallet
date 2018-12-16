@@ -64,7 +64,6 @@ export default class WalletTransactions extends Component {
       isTransactionsLoading: false,
       wallet: wallet,
       dataSource: wallet.getTransactions(),
-      walletBalanceUnit: wallet.getPreferredBalanceUnit(),
     };
   }
 
@@ -122,7 +121,6 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton,
         showManageFundsSmallButton,
         dataSource: txs,
-        walletBalanceUnit: wallet.getPreferredBalanceUnit(),
       });
     }, 1);
   }
@@ -176,17 +174,22 @@ export default class WalletTransactions extends Component {
   }
 
   changeWalletBalanceUnit() {
-    if (BitcoinUnit[this.state.walletBalanceUnit] === undefined || BitcoinUnit[this.state.walletBalanceUnit] === BitcoinUnit.BTC) {
-      this.setState({ walletBalanceUnit: BitcoinUnit.LOCAL_CURRENCY });
-    } else if (BitcoinUnit[this.state.walletBalanceUnit] === BitcoinUnit.MBTC) {
-      this.setState({ walletBalanceUnit: BitcoinUnit.BITS });
-    } else if (BitcoinUnit[this.state.walletBalanceUnit] === BitcoinUnit.BITS) {
-      this.setState({ walletBalanceUnit: BitcoinUnit.SATOSHIS });
-    } else if (BitcoinUnit[this.state.walletBalanceUnit] === BitcoinUnit.SATOSHIS) {
-      this.setState({ walletBalanceUnit: BitcoinUnit.BTC });
-    } else if (BitcoinUnit[this.state.walletBalanceUnit] === BitcoinUnit.LOCAL_CURRENCY) {
-      this.setState({ walletBalanceUnit: BitcoinUnit.MBTC });
+    const indexOf = Object.keys(BitcoinUnit).indexOf(this.state.wallet.getPreferredBalanceUnit());
+    const currentPreferredUnit = Object.entries(BitcoinUnit)[indexOf][0];
+    const { wallet } = this.state;
+
+    if (BitcoinUnit[currentPreferredUnit] === undefined || BitcoinUnit[currentPreferredUnit] === BitcoinUnit.BTC) {
+      wallet.setPreferredBalanceUnit(BitcoinUnit.LOCAL_CURRENCY);
+    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.MBTC) {
+      wallet.setPreferredBalanceUnit(BitcoinUnit.BITS);
+    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.BITS) {
+      wallet.setPreferredBalanceUnit(BitcoinUnit.SATOSHIS);
+    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.SATOSHIS) {
+      wallet.setPreferredBalanceUnit(BitcoinUnit.BTC);
+    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.LOCAL_CURRENCY) {
+      wallet.setPreferredBalanceUnit(BitcoinUnit.MBTC);
     }
+    this.setState({ wallet: wallet }, () => BlueApp.saveToDisk());
   }
 
   renderWalletHeader = () => {
@@ -229,7 +232,7 @@ export default class WalletTransactions extends Component {
               color: '#fff',
             }}
           >
-            {loc.formatBalance(this.state.wallet.getBalance(), this.state.walletBalanceUnit)}
+            {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit())}
           </Text>
         </TouchableOpacity>
         <Text style={{ backgroundColor: 'transparent' }} />
@@ -440,7 +443,10 @@ export default class WalletTransactions extends Component {
                     containerStyle: { marginTop: 0 },
                   }}
                   hideChevron
-                  rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000).toString()}
+                  rightTitle={loc.formatBalance(
+                    new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000),
+                    this.state.wallet.getPreferredBalanceUnit(),
+                  )}
                   rightTitleStyle={{
                     fontWeight: '600',
                     fontSize: 16,
