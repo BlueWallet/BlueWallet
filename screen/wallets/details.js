@@ -18,7 +18,7 @@ export default class WalletDetails extends Component {
     title: loc.wallets.details.title,
     headerRight: (
       <TouchableOpacity
-        style={{ marginHorizontal: 16 }}
+        style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
           navigation.getParam('saveAction')();
         }}
@@ -68,7 +68,7 @@ export default class WalletDetails extends Component {
   }
 
   updatePreferredBalanceUnit = selectedIndex => {
-    this.state.wallet.setPreferredBalanceUnit(Object.keys(BitcoinUnit)[selectedIndex]);
+    this.state.wallet.setPreferredBalanceUnit(Object.entries(BitcoinUnit)[selectedIndex][0]);
   };
 
   render() {
@@ -136,7 +136,7 @@ export default class WalletDetails extends Component {
               <ButtonGroup
                 onPress={this.updatePreferredBalanceUnit}
                 selectedIndex={Number(this.state.wallet.getPreferredBalanceUnitIndex)}
-                buttons={[BitcoinUnit.BTC, BitcoinUnit.MBTC, BitcoinUnit.BITS, BitcoinUnit.SATOSHIS]}
+                buttons={[BitcoinUnit.BTC, BitcoinUnit.MBTC, BitcoinUnit.BITS, BitcoinUnit.SATOSHIS, BitcoinUnit.LOCAL_CURRENCY]}
               />
             </BlueCard>
             <View>

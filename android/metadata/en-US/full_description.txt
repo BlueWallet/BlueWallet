@@ -1,0 +1,39 @@
+Store, send and receive bitcoin with the wallet focus on security and simplicity.
+
+On Blue Wallet you own you private keys.
+
+You can instantly transact with anyone in the world and transform the financial system right from your pocket.
+
+Create for free unlimited number of wallets or access your existing one on your Android device. It's simple and fast.
+
+_____
+
+Here's what you get:
+
+1 - Security by design
+
+Open Source
+MIT licensed, you can build it and run it on your own! Made with ReactNative
+
+Plausible deniability
+Password which decrypts fake wallets if you are forced to disclose your access
+
+Full encryption
+You can protect and encrypt your wallet by defining a password
+
+SegWit & HD wallets
+SegWit supported and HD wallets enable
+
+2 - Focused on your experience
+
+Be in control
+Private keys never leave your device. You control your private keys
+
+Flexible fees
+Starting from 1 Satoshi. Defined by you, the user
+
+Replace-By-Fee
+(RBF) Speed-up your transactions by increasing the fee (BIP125)
+
+Sentinel wallets new
+Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.

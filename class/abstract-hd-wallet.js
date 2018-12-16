@@ -86,8 +86,8 @@ export class AbstractHDWallet extends LegacyWallet {
     return this.preferredBalanceUnit;
   }
 
-  getPreferredBalanceUnitIndex = () => {
-    return BitcoinUnit.ARRAY.indexOf(this.getPreferredBalanceUnit);
+  getPreferredBalanceUnitIndex() {
+    return Object.entries(BitcoinUnit).indexOf(this.getPreferredBalanceUnit);
   };
 
   setPreferredBalanceUnit(unit) {
@@ -312,7 +312,7 @@ export class AbstractHDWallet extends LegacyWallet {
 
               tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
               if (!tx.confirmations && latestBlock) {
-                tx.confirmations = latestBlock - tx.block_height;
+                tx.confirmations = latestBlock - tx.block_height + 1;
               }
 
               this.transactions.push(tx);

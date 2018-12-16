@@ -124,7 +124,7 @@ export class LightningButton extends Component {
           <View style={{ paddingTop: 30 }}>
             <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
             <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              {loc.wallets.add.lightning}
+              {loc.wallets.add.lightning} (beta)
             </Text>
           </View>
         </View>
@@ -1047,7 +1047,7 @@ export class WalletsCarousel extends Component {
                 color: '#fff',
               }}
             >
-              {loc.formatBalance(item.getBalance())}
+              {loc.formatBalance(item.getBalance(), item.getPreferredBalanceUnit())}
             </Text>
             <Text style={{ backgroundColor: 'transparent' }} />
             <Text

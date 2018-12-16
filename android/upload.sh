@@ -1,0 +1,1 @@
+fastlane supply --json_key ~/Documents/bluewalletsecure/api-8414470778596272879-665287-df921afdf533.json  --package_name io.bluewallet.bluewallet   --apk   ~/Documents/BlueWallet/android/app/build/outputs/apk/release/app-release.apk
