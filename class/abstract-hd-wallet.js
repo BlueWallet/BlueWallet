@@ -88,7 +88,7 @@ export class AbstractHDWallet extends LegacyWallet {
 
   getPreferredBalanceUnitIndex() {
     return Object.entries(BitcoinUnit).indexOf(this.getPreferredBalanceUnit);
-  };
+  }
 
   setPreferredBalanceUnit(unit) {
     this.preferredBalanceUnit = unit;

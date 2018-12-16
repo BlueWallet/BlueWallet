@@ -41,7 +41,7 @@ export class AbstractWallet {
 
   getPreferredBalanceUnitIndex() {
     return Object.entries(BitcoinUnit).indexOf(this.getPreferredBalanceUnit);
-  };
+  }
 
   setPreferredBalanceUnit(unit) {
     this.preferredBalanceUnit = unit;
