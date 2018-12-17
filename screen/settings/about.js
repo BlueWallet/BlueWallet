@@ -48,7 +48,6 @@ export default class About extends Component {
             <BlueTextCentered h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
             <BlueSpacing20 />
 
-            <BlueTextCentered h4>Still in beta, don't use to store large amounts!</BlueTextCentered>
             <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
             <BlueSpacing20 />
 

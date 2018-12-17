@@ -124,7 +124,7 @@ export class LightningButton extends Component {
           <View style={{ paddingTop: 30 }}>
             <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
             <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              {loc.wallets.add.lightning} (beta)
+              {loc.wallets.add.lightning}
             </Text>
           </View>
         </View>
