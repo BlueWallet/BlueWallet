@@ -15,6 +15,7 @@ import {
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
@@ -215,6 +216,8 @@ export default class WalletsList extends Component {
   handleLongPress = () => {
     if (BlueApp.getWallets().length > 1) {
       this.props.navigation.navigate('ReorderWallets');
+    } else {
+      ReactNativeHapticFeedback.trigger('notificationError', false);
     }
   };
 
