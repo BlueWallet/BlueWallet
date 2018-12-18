@@ -42,7 +42,7 @@ export default class WalletTransactions extends Component {
         </TouchableOpacity>
       ),
       headerStyle: {
-        backgroundColor: navigation.getParam('gradients')[0],
+        backgroundColor: navigation.getParam('gradients')[0] || '#65ceef',
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
@@ -188,7 +188,7 @@ export default class WalletTransactions extends Component {
   }
 
   renderWalletHeader = () => {
-    const gradients = this.props.navigation.getParam('gradients');
+    const gradients = this.props.navigation.getParam('gradients') || ['#65ceef', '#68bbe1'];
     return (
       <LinearGradient colors={[gradients[0], gradients[1]]} style={{ padding: 15, minHeight: 164 }}>
         <Image
