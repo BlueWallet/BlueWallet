@@ -174,22 +174,17 @@ export default class WalletTransactions extends Component {
   }
 
   changeWalletBalanceUnit() {
-    const indexOf = Object.keys(BitcoinUnit).indexOf(this.state.wallet.getPreferredBalanceUnit());
-    const currentPreferredUnit = Object.entries(BitcoinUnit)[indexOf][0];
     const { wallet } = this.state;
-
-    if (BitcoinUnit[currentPreferredUnit] === undefined || BitcoinUnit[currentPreferredUnit] === BitcoinUnit.BTC) {
+    if (wallet.getPreferredBalanceUnit() === undefined || wallet.getPreferredBalanceUnit() === BitcoinUnit.BTC) {
+      wallet.setPreferredBalanceUnit(BitcoinUnit.SATS);
+    } else if (wallet.getPreferredBalanceUnit() === BitcoinUnit.SATS) {
       wallet.setPreferredBalanceUnit(BitcoinUnit.LOCAL_CURRENCY);
-    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.MBTC) {
-      wallet.setPreferredBalanceUnit(BitcoinUnit.BITS);
-    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.BITS) {
-      wallet.setPreferredBalanceUnit(BitcoinUnit.SATOSHIS);
-    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.SATOSHIS) {
+    } else if (wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY) {
       wallet.setPreferredBalanceUnit(BitcoinUnit.BTC);
-    } else if (BitcoinUnit[currentPreferredUnit] === BitcoinUnit.LOCAL_CURRENCY) {
-      wallet.setPreferredBalanceUnit(BitcoinUnit.MBTC);
     }
-    this.setState({ wallet: wallet }, () => BlueApp.saveToDisk());
+    this.setState({ wallet: wallet }, async () => {
+      await BlueApp.saveToDisk();
+    });
   }
 
   renderWalletHeader = () => {

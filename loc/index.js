@@ -76,20 +76,14 @@ strings.formatBalance = (balance, unit) => {
   } else {
     if (balance !== 0) {
       let b = new BigNumber(balance);
-      if (BitcoinUnit[unit] === BitcoinUnit.MBTC) {
-        return b.multipliedBy(1000).toString() + ' ' + BitcoinUnit.MBTC;
-      } else if (BitcoinUnit[unit] === BitcoinUnit.BITS) {
-        return b.multipliedBy(1000000).toString() + ' ' + BitcoinUnit.BITS;
-      } else if (BitcoinUnit[unit] === BitcoinUnit.SATOSHIS) {
-        return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
-      } else if (BitcoinUnit[unit] === BitcoinUnit.SATS) {
+      if (unit === BitcoinUnit.SATS) {
         return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATS).replace(/\./g, '');
-      } else if (BitcoinUnit[unit] === BitcoinUnit.LOCAL_CURRENCY) {
+      } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
         return currency.satoshiToLocalCurrency(b.times(conversion).toNumber());
       }
     }
-    return balance + ' ' + BitcoinUnit.BTC;
   }
+  return balance + ' ' + BitcoinUnit.BTC;
 };
 
 strings.formatBalanceWithoutSuffix = (balance, unit) => {
@@ -98,11 +92,7 @@ strings.formatBalanceWithoutSuffix = (balance, unit) => {
     let b = new BigNumber(balance);
     if (unit === BitcoinUnit.BTC) {
       return Number(b.div(conversion));
-    } else if (unit === BitcoinUnit.MBTC) {
-      return b.multipliedBy(1000).toString();
-    } else if (unit === BitcoinUnit.BITS) {
-      return b.multipliedBy(1000000).toString();
-    } else if (unit === BitcoinUnit.SATOSHIS) {
+    } else if (unit === BitcoinUnit.SATS) {
       return b
         .times(conversion)
         .toString()

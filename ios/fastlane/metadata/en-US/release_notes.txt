@@ -1,7 +1,4 @@
-* Eject (#126)
 * OPS: randombytes work
-* OPS: porting to RN android: added prompt, refactoring
-* OPS: better android prompt
 * FIX: scan qr callback
 * FIX: correct fee sat calculation for HD & classic segwit wallets
 * FIX: Fixed height for button in empty transaction list
@@ -9,12 +6,10 @@
 * FIX: slow QR code generation for HD backup screen
 * ADD: wallet reorder
 * FIX: TypeError: undefined is not an object (evaluating 'recommendedFees.halfHourFee') #133
-* FIX: android appstore link
 * OPS: Code to Migrate Expo json
 * REF: renamed blitzhub to lndhub
 * OPS: Migration: move expo files instead of parsing
 * FIX: lndhub uri usage
-* FIX: no security alert on android (it was ios specific)
 * REF: better tx list rendering and sorting
 * ADD: verify tx on coinb.in
 * FIX: Tap to dismiss is not working #137
@@ -27,11 +22,17 @@
 * ADD: fee in local currency when send
 * FIX: Refresh wallet info on page focus
 * OPS: Store description in English and Portuguese. More keywords relevant for search on all languages. 
-* FIX: better android support
 * ADD: blitzhub api URI settings
 * FIX: better final fee calculation on transaction/details screen 
 * ADD: link to open coinb.in to verify txhex 
 * FIX: TX with extra small change output throws dust error 
-* FIX: More Android fixes (#116) FIX: More Android fixes
-* FIX:  Addressed some crashes when running on an Android device
-* FIX: Weird styling on inputs #68
+* FIX: Weird styling on inputs #68* REF 
+* Updated camera permission info 
+* FIX: Package.json updates 
+* FIX: keep balance and units in BTC (closes #67) 
+* OPS: fastlane ios docs 
+* FIX: Removed 'currency' from settings. Made tappable area for settings larger 
+* FIX: Haptic feedback updates 
+* Fix: Fee slider not setting new value on change 
+* FIX: Haptic feedback when moving wallets 
+* ADD: Wallet UI feedback on touch 

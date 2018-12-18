@@ -16,7 +16,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.refill_addressess = [];
     this.pending_transactions_raw = [];
     this.info_raw = false;
-    this.preferredBalanceUnit = BitcoinUnit.SATOSHIS;
+    this.preferredBalanceUnit = BitcoinUnit.SATS;
   }
 
   /**
@@ -507,9 +507,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   setPreferredBalanceUnit(unit) {
-    const indexOf = Object.values(BitcoinUnit).indexOf(unit);
-    const currentPreferredUnit = Object.entries(BitcoinUnit)[indexOf][0];
-    this.preferredBalanceUnit = currentPreferredUnit;
+    this.preferredBalanceUnit = unit;
     return this;
   }
 }

@@ -41,7 +41,7 @@ export class AbstractWallet {
 
   setPreferredBalanceUnit(unit) {
     const indexOf = Object.values(BitcoinUnit).indexOf(unit);
-    const currentPreferredUnit = Object.entries(BitcoinUnit)[indexOf][0];
+    const currentPreferredUnit = Object.entries(BitcoinUnit)[indexOf];
     this.preferredBalanceUnit = currentPreferredUnit;
     return this;
   }
