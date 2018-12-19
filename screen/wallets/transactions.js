@@ -22,7 +22,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 
 export default class WalletTransactions extends Component {
@@ -182,8 +181,8 @@ export default class WalletTransactions extends Component {
     } else if (wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY) {
       wallet.setPreferredBalanceUnit(BitcoinUnit.BTC);
     }
-    this.setState({ wallet: wallet }, async () => {
-      await BlueApp.saveToDisk();
+    this.setState({ wallet: wallet }, () => {
+      BlueApp.saveToDisk();
     });
   }
 
@@ -439,7 +438,7 @@ export default class WalletTransactions extends Component {
                   }}
                   hideChevron
                   rightTitle={loc.formatBalanceWithoutSuffix(
-                    new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000),
+                    (rowData.item.value && rowData.item.value) || 0,
                     this.state.wallet.getPreferredBalanceUnit(),
                   )}
                   rightTitleStyle={{
