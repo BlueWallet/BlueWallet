@@ -2,6 +2,8 @@ import { LegacyWallet } from './';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
+const BigNumber = require('bignumber.js');
+const signer = require('../models/signer');
 
 /**
  * HD Wallet (BIP39).
@@ -16,6 +18,10 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
 
   getTypeReadable() {
     return 'HD Legacy (BIP44 P2PKH)';
+  }
+
+  allowSend() {
+    return true;
   }
 
   getXpub() {
@@ -98,5 +104,29 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
         .getAddress();
       return (this.internal_addresses_cache[index] = address);
     }
+  }
+
+  weOwnAddress(addr) {
+    let hashmap = {};
+    for (let a of this.usedAddresses) {
+      hashmap[a] = 1;
+    }
+
+    return hashmap[addr] === 1;
+  }
+
+  createTx(utxos, amount, fee, address) {
+    for (let utxo of utxos) {
+      utxo.wif = this._getWifForAddress(utxo.address);
+    }
+
+    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+    return signer.createHDTransaction(
+      utxos,
+      address,
+      amountPlusFee,
+      fee,
+      this._getInternalAddressByIndex(this.next_free_change_address_index),
+    );
   }
 }
