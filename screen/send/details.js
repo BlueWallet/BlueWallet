@@ -75,9 +75,9 @@ export default class SendDetails extends Component {
       try {
         parsedBitcoinUri = bip21.decode(props.navigation.state.params.uri);
 
-        address = parsedBitcoinUri.address ? parsedBitcoinUri.address : address;
-        amount = parsedBitcoinUri.options.amount ? parsedBitcoinUri.options.amount : amount;
-        memo = parsedBitcoinUri.options.label ? parsedBitcoinUri.options.label : memo;
+        address = parsedBitcoinUri.address || address;
+        amount = parsedBitcoinUri.options.amount || amount;
+        memo = parsedBitcoinUri.options.label || memo;
       } catch (error) {
         console.error(error);
         alert('Error: Unable to decode Bitcoin address');
