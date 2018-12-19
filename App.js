@@ -20,7 +20,7 @@ export default class App extends React.Component {
   }
 
   handleOpenURL = event => {
-    if (event.url && event.url.indexOf('bitcoin:') === 0) {
+    if (event.url && event.url.toLowerCase().indexOf('bitcoin:') === 0) {
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({

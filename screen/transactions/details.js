@@ -12,6 +12,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -63,7 +64,6 @@ export default class TransactionsDetails extends Component {
         }
       }
     }
-
     this.state = {
       isLoading: true,
       tx: foundTx,
@@ -140,6 +140,13 @@ export default class TransactionsDetails extends Component {
               </React.Fragment>
             )}
 
+            {this.state.tx.hasOwnProperty('fee') && (
+              <React.Fragment>
+                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.send.create.fee}</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{loc.formatBalance(this.state.tx.fee, BitcoinUnit.BTC)}</BlueText>
+              </React.Fragment>
+            )}
+
             {this.state.tx.hasOwnProperty('hash') && (
               <React.Fragment>
                 <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
@@ -160,6 +167,7 @@ export default class TransactionsDetails extends Component {
                 </TouchableOpacity>
               </React.Fragment>
             )}
+
             {this.state.tx.hasOwnProperty('received') && (
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>

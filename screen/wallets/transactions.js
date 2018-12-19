@@ -438,7 +438,7 @@ export default class WalletTransactions extends Component {
                     containerStyle: { marginTop: 0 },
                   }}
                   hideChevron
-                  rightTitle={loc.formatBalance(
+                  rightTitle={loc.formatBalanceWithoutSuffix(
                     new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000),
                     this.state.wallet.getPreferredBalanceUnit(),
                   )}

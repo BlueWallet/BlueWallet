@@ -76,7 +76,12 @@ strings.formatBalance = (balance, unit) => {
   } else {
     if (balance !== 0) {
       let b = new BigNumber(balance);
-      if (unit === BitcoinUnit.SATS) {
+      if (unit === BitcoinUnit.BTC) {
+        if (!Number.isInteger(balance)) {
+          return balance + ' ' + BitcoinUnit.BTC;
+        }
+        return b.times(conversion).toString() + ' ' + BitcoinUnit.BTC;
+      } else if (unit === BitcoinUnit.SATS) {
         return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATS).replace(/\./g, '');
       } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
         return currency.satoshiToLocalCurrency(b.times(conversion).toNumber());
@@ -91,12 +96,17 @@ strings.formatBalanceWithoutSuffix = (balance, unit) => {
   if (balance !== 0) {
     let b = new BigNumber(balance);
     if (unit === BitcoinUnit.BTC) {
-      return Number(b.div(conversion));
+      if (!Number.isInteger(balance)) {
+        return b.times(conversion).toString();
+      }
+      return b.times(conversion).toString();
     } else if (unit === BitcoinUnit.SATS) {
       return b
         .times(conversion)
         .toString()
         .replace(/\./g, '');
+    } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
+      return currency.satoshiToLocalCurrency(b.times(conversion).toNumber());
     }
   }
   return balance;
