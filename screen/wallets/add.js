@@ -95,7 +95,7 @@ export default class WalletsAdd extends Component {
               <TextInput
                 value={this.state.label}
                 placeholderTextColor="#81868e"
-                placeholder={loc.wallets.add.label_new_segwit}
+                placeholder={this.state.activeBitcoin ? loc.wallets.add.label_new_segwit : loc.wallets.add.label_new_lightning}
                 onChangeText={text => {
                   this.setLabel(text);
                 }}

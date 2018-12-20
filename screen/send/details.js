@@ -141,7 +141,7 @@ export default class SendDetails extends Component {
                 .then(response => {
                   this.setState({
                     address: response.address,
-                    amount: loc.formatBalanceWithoutSuffix(response.amount),
+                    amount: response.amount,
                     memo: response.memo,
                     fee: response.fee,
                     bip70TransactionExpiration: response.expires,
@@ -441,7 +441,7 @@ export default class SendDetails extends Component {
                 placeholder="0"
                 maxLength={10}
                 editable={!this.state.isLoading}
-                value={this.state.amount + ''}
+                value={loc.formatBalanceWithoutSuffix(this.state.amount || 0 + '', BitcoinUnit.BTC)}
                 placeholderTextColor="#0f5cc0"
                 style={{
                   color: '#0f5cc0',
@@ -462,14 +462,11 @@ export default class SendDetails extends Component {
                 {' ' + BitcoinUnit.BTC}
               </Text>
             </View>
-            {this.state.amount > 0 && (
-              <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-                <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-                  {currency.satoshiToLocalCurrency(loc.formatBalanceWithoutSuffix(this.state.amount || 0, BitcoinUnit.SATS))}
-                </Text>
-              </View>
-            )}
-
+            <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
+              <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
+                {currency.satoshiToLocalCurrency(loc.formatBalanceWithoutSuffix(this.state.amount || 0, BitcoinUnit.SATS))}
+              </Text>
+            </View>
             <View
               style={{
                 flexDirection: 'row',
@@ -498,7 +495,7 @@ export default class SendDetails extends Component {
                         BitcoinBIP70TransactionDecode.decode(text).then(response => {
                           this.setState({
                             address: response.address,
-                            amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                            amount: response.amount,
                             memo: response.memo,
                             fee: response.fee,
                             bip70TransactionExpiration: response.expires,

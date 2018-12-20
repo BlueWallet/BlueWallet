@@ -35,6 +35,7 @@ module.exports = {
       scan: 'Scanear',
       create: 'Criar',
       label_new_segwit: 'Novo SegWit',
+      label_new_lightning: 'Novo Lightning',
       wallet_name: 'Nome',
       wallet_type: 'Tipo',
       or: 'ou',

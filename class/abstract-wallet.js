@@ -36,7 +36,7 @@ export class AbstractWallet {
   }
 
   getPreferredBalanceUnit() {
-    return this.preferredBalanceUnit;
+    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   setPreferredBalanceUnit(unit) {

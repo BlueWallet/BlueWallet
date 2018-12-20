@@ -34,6 +34,7 @@ module.exports = {
       scan: 'Отсканировать',
       create: 'Создать',
       label_new_segwit: 'Новый SegWit',
+      label_new_lightning: 'Новый Lightning',
       wallet_name: 'имя кошелька',
       wallet_type: 'тип кошелька',
       or: 'or',

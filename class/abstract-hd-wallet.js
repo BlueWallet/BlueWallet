@@ -83,7 +83,7 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   getPreferredBalanceUnit() {
-    return this.preferredBalanceUnit;
+    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   setPreferredBalanceUnit(unit) {
