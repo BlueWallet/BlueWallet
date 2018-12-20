@@ -180,6 +180,8 @@ export default class WalletTransactions extends Component {
       wallet.setPreferredBalanceUnit(BitcoinUnit.LOCAL_CURRENCY);
     } else if (wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY) {
       wallet.setPreferredBalanceUnit(BitcoinUnit.BTC);
+    } else {
+      wallet.setPreferredBalanceUnit(BitcoinUnit.BTC);
     }
     this.setState({ wallet: wallet }, () => {
       BlueApp.saveToDisk();
@@ -437,10 +439,12 @@ export default class WalletTransactions extends Component {
                     containerStyle: { marginTop: 0 },
                   }}
                   hideChevron
-                  rightTitle={loc.formatBalanceWithoutSuffix(
-                    (rowData.item.value && rowData.item.value) || 0,
-                    this.state.wallet.getPreferredBalanceUnit(),
-                  )}
+                  rightTitle={loc
+                    .formatBalanceWithoutSuffix(
+                      (rowData.item.value && rowData.item.value) || 0,
+                      this.state.wallet.getPreferredBalanceUnit(),
+                    )
+                    .toString()}
                   rightTitleStyle={{
                     fontWeight: '600',
                     fontSize: 16,

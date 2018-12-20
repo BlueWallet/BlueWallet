@@ -105,7 +105,7 @@ strings.formatBalanceWithoutSuffix = (balance, unit) => {
         .replace(/\./g, '');
     } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
       conversion = 1;
-      return currency.satoshiToLocalCurrency(b.times(conversion).toNumber());
+      return currency.satoshiToLocalCurrency(b.times(conversion).toNumber()).toString();
     }
   }
   return balance;
