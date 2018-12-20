@@ -215,6 +215,80 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
   assert.equal(hd._getInternalAddressByIndex(0), '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX');
 });
 
+it('Legacy HD (BIP44) can create TX', async () => {
+  if (!process.env.HD_MNEMONIC) {
+    console.error('process.env.HD_MNEMONIC not set, skipped');
+    return;
+  }
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+  let hd = new HDLegacyP2PKHWallet();
+  hd.setSecret(process.env.HD_MNEMONIC);
+  assert.ok(hd.validateMnemonic());
+
+  await hd.fetchUtxo();
+  await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
+  await hd.getAddressAsync(); // to refresh internal pointer to next free address
+  let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  assert.equal(
+    txhex,
+    '010000000001029d98d81fe2b596fd79e845fa9f38d7e0b6fb73303c40fac604d04df1fa137aee00000000171600142f18e8406c9d210f30c901b24e5feeae78784eb7ffffffff67fb86f310df24e508d40fce9511c7fde4dd4ee91305fd08a074279a70e2cd22000000001716001468dde644410cc789d91a7f36b823f38369755a1cffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87dc0500000000000017a914850f4dbc255654de2c12c6f6d79cf9cb756cad038702483045022100dc8390a9fd34c31259fa47f9fc182f20d991110ecfd5b58af1cf542fe8de257a022004c2d110da7b8c4127675beccc63b46fd65c706951f090fd381fa3b21d3c5c08012102edd141c5a27a726dda66be10a38b0fd3ccbb40e7c380034aaa43a1656d5f4dd60247304402207c0aef8313d55e72474247daad955979f62e56d1cbac5f2d14b8b022c6ce112602205d9aa3804f04624b12ab8a5ab0214b529c531c2f71c27c6f18aba6502a6ea0a80121030db3c49461a5e539e97bab62ab2b8f88151d1c2376493cf73ef1d02ef60637fd00000000',
+  );
+
+  txhex = hd.createTx(hd.utxo, 0.000005, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  var tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 1);
+  assert.equal(tx.outs.length, 2);
+  assert.equal(tx.outs[0].value, 500);
+  assert.equal(tx.outs[1].value, 400);
+  let chunksIn = bitcoin.script.decompile(tx.outs[0].script);
+  let toAddress = bitcoin.address.fromOutputScript(chunksIn);
+  chunksIn = bitcoin.script.decompile(tx.outs[1].script);
+  let changeAddress = bitcoin.address.fromOutputScript(chunksIn);
+  assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+  assert.equal(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
+
+  //
+
+  txhex = hd.createTx(hd.utxo, 0.000015, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 2);
+  assert.equal(tx.outs.length, 2);
+
+  //
+
+  txhex = hd.createTx(hd.utxo, 0.00025, 0.00001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 7);
+  assert.equal(tx.outs.length, 1);
+  chunksIn = bitcoin.script.decompile(tx.outs[0].script);
+  toAddress = bitcoin.address.fromOutputScript(chunksIn);
+  assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+
+  // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee.
+  // theres 0.00003 on UTXOs, lets transfer (0.00003 - 100sat), soo fee is equal to change (100 sat)
+  // which throws @dust error if broadcasted
+  txhex = hd.createTx(hd.utxo, 0.000028, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 2);
+  assert.equal(tx.outs.length, 1); // only 1 output, which means change is neglected
+  assert.equal(tx.outs[0].value, 2800);
+});
+
+it('Legacy HD (BIP44) can fetch UTXO', async function() {
+  let hd = new HDLegacyP2PKHWallet();
+  hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
+  await hd.fetchUtxo();
+  assert.equal(hd.utxo.length, 11);
+  assert.ok(typeof hd.utxo[0].confirmations === 'number');
+  assert.ok(hd.utxo[0].txid);
+  assert.ok(hd.utxo[0].vout);
+  assert.ok(hd.utxo[0].amount);
+  assert.ok(
+    hd.utxo[0].address &&
+      (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' || hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
+  );
+});
+
 it('HD breadwallet works', async function() {
   if (!process.env.HD_MNEMONIC_BREAD) {
     console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
