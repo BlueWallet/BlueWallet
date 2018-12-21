@@ -158,6 +158,8 @@ module.exports = {
       title: 'Покажите этот адрес плательщику',
       share: 'Отправить',
       copiedToClipboard: 'скопировано',
+      amount: 'amount to receive (BTC)',
+      label: 'note to sender',
     },
   },
   settings: {

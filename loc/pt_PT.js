@@ -159,6 +159,8 @@ module.exports = {
       title: 'Partilhar este endereço com o pagador',
       share: 'partilhar',
       copiedToClipboard: 'copiado para clip board',
+      amount: 'amount to receive (BTC)',
+      label: 'note to sender',
     },
   },
   settings: {
