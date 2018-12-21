@@ -1,4 +1,4 @@
-# BlueWallet - A Bitcoin Wallet
+# BlueWallet - A Bitcoin & Lightning Wallet
 
 [![GitHub tag](https://img.shields.io/github/package-json/v/BlueWallet/BlueWallet.svg)](https://github.com/BlueWallet/BlueWallet)
 [![CircleCI](https://circleci.com/gh/BlueWallet/BlueWallet.svg?style=svg)](https://circleci.com/gh/BlueWallet/BlueWallet)
