@@ -19,7 +19,7 @@ import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { HDSegwitP2SHWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
 let EV = require('../../events');
@@ -332,7 +332,11 @@ export default class SendDetails extends Component {
         this.props.navigation.navigate('Confirm', {
           amount: this.state.amount,
           // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
-          fee: this.calculateFee(utxo, tx, this.state.fromWallet.type === new HDSegwitP2SHWallet().type),
+          fee: this.calculateFee(
+            utxo,
+            tx,
+            this.state.fromWallet.type === new HDSegwitP2SHWallet().type || this.state.fromWallet.type === new HDLegacyP2PKHWallet().type,
+          ),
           address: this.state.address,
           memo: this.state.memo,
           fromWallet: this.state.fromWallet,
