@@ -221,6 +221,7 @@ export default class WalletsImport extends Component {
               onChangeText={text => {
                 this.setLabel(text);
               }}
+              autoCorrect={false}
             />
             <BlueSpacing20 />
             <View

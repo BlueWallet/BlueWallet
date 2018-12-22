@@ -1,4 +1,5 @@
 import { LegacyWallet } from './legacy-wallet';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
 const BigNumber = require('bignumber.js');
@@ -7,6 +8,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
   constructor() {
     super();
     this.type = 'segwitP2SH';
+    this.preferredBalanceUnit = BitcoinUnit.BTC;
   }
 
   allowRBF() {
@@ -41,6 +43,10 @@ export class SegwitP2SHWallet extends LegacyWallet {
     this._address = address;
 
     return this._address;
+  }
+
+  getPreferredBalanceUnit() {
+    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   /**

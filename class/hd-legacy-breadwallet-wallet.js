@@ -1,4 +1,5 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 import Frisbee from 'frisbee';
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
@@ -11,10 +12,15 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
   constructor() {
     super();
     this.type = 'HDLegacyBreadwallet';
+    this.preferredBalanceUnit = BitcoinUnit.BTC;
   }
 
   getTypeReadable() {
     return 'HD Legacy Breadwallet (P2PKH)';
+  }
+
+  getPreferredBalanceUnit() {
+    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   /**

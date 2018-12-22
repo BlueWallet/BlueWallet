@@ -1,6 +1,7 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
 import { NativeModules } from 'react-native';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 const { RNRandomBytes } = NativeModules;
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
@@ -17,6 +18,11 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   constructor() {
     super();
     this.type = 'HDsegwitP2SH';
+    this.preferredBalanceUnit = BitcoinUnit.BTC;
+  }
+
+  getPreferredBalanceUnit() {
+    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   getTypeReadable() {

@@ -35,7 +35,7 @@
     }
   },
   "dependencies": {
-    "@babel/preset-env": "^7.2.0",
+    "@babel/preset-env": "^7.2.3",
     "asyncstorage-down": "^3.1.1",
     "bignumber.js": "^7.0.0",
     "bip21": "^2.0.2",
@@ -64,11 +64,11 @@
     "react-localization": "^1.0.10",
     "react-native": "^0.57.8",
     "react-native-camera": "^1.6.4",
-    "react-native-custom-qr-codes": "^1.0.2",
+    "react-native-custom-qr-codes": "^2.0.0",
     "react-native-device-info": "^0.24.3",
     "react-native-elements": "^0.19.0",
     "react-native-flexi-radio-button": "^0.2.2",
-    "react-native-fs": "^2.13.2",
+    "react-native-fs": "^2.13.3",
     "react-native-gesture-handler": "^1.0.12",
     "react-native-google-analytics-bridge": "^6.1.2",
     "react-native-haptic-feedback": "^1.4.2",

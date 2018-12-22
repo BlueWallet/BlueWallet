@@ -283,7 +283,6 @@ export class BlueFormMultiInput extends Component {
   render() {
     return (
       <FormInput
-        {...this.props}
         multiline
         underlineColorAndroid="transparent"
         numberOfLines={4}
@@ -301,6 +300,7 @@ export class BlueFormMultiInput extends Component {
           borderBottomWidth: 0.5,
           backgroundColor: '#f5f5f5',
         }}
+        {...this.props}
       />
     );
   }
