@@ -444,7 +444,7 @@ export default class SendDetails extends Component {
                 placeholder="0"
                 maxLength={10}
                 editable={!this.state.isLoading}
-                value={loc.formatBalanceWithoutSuffix(Number(this.state.amount || 0), BitcoinUnit.BTC, BitcoinUnit.BTC).toString()}
+                value={this.state.amount}
                 placeholderTextColor="#0f5cc0"
                 style={{
                   color: '#0f5cc0',
