@@ -234,7 +234,7 @@ export default class WalletTransactions extends Component {
           >
             {loc
               .formatBalance(
-                this.state.wallet.getBalance(),
+                Number(this.state.wallet.getBalance()),
                 this.state.walletPreviousPreferredUnit,
                 this.state.wallet.getPreferredBalanceUnit(),
               )

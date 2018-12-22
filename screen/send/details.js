@@ -41,6 +41,7 @@ export default class SendDetails extends Component {
     super(props);
     console.log('props.navigation.state.params=', props.navigation.state.params);
     let address;
+    let memo;
     if (props.navigation.state.params) address = props.navigation.state.params.address;
     if (props.navigation.state.params) memo = props.navigation.state.params.memo;
     let fromAddress;
@@ -67,11 +68,12 @@ export default class SendDetails extends Component {
 
     this.state = {
       isFeeSelectionModalVisible: false,
-      fromAddress: fromAddress,
-      fromWallet: fromWallet,
-      fromSecret: fromSecret,
+      fromAddress,
+      fromWallet,
+      fromSecret,
       isLoading: true,
-      address: address,
+      address,
+      memo,
       fee: 1,
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
       feeSliderValue: 1,

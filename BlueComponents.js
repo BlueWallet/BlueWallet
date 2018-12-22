@@ -1048,7 +1048,7 @@ export class WalletsCarousel extends Component {
                 color: '#fff',
               }}
             >
-              {loc.formatBalance(item.getBalance(), BitcoinUnit.BTC, item.getPreferredBalanceUnit())}
+              {loc.formatBalance(Number(item.getBalance()), BitcoinUnit.BTC, item.getPreferredBalanceUnit())}
             </Text>
             <Text style={{ backgroundColor: 'transparent' }} />
             <Text

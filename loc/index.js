@@ -71,6 +71,7 @@ strings.transactionTimeToReadable = function(time) {
  */
 strings.formatBalance = (balance, fromUnit, toUnit) => {
   if (toUnit === undefined) {
+    balance = Number(balance);
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (fromUnit === BitcoinUnit.LOCAL_CURRENCY) {
@@ -81,23 +82,23 @@ strings.formatBalance = (balance, fromUnit, toUnit) => {
     );
   }
   if (toUnit === BitcoinUnit.BTC) {
+    balance = Number(balance);
     return BTCUnits(balance, fromUnit)
       .to(BitcoinUnit.BTC)
       .format();
   } else if (toUnit === BitcoinUnit.SATS) {
+    balance = Number(balance);
     return BTCUnits(balance, BitcoinUnit.BTC)
       .to(BitcoinUnit.SATS)
       .format();
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.satoshiToLocalCurrency(
-      BTCUnits(balance, BitcoinUnit.BTC)
-        .to(BitcoinUnit.SATS)
-        .value(),
-    );
+    const satoshis = BTCUnits(balance, BitcoinUnit.BTC).to(BitcoinUnit.SATS).value();
+    return currency.satoshiToLocalCurrency(satoshis);
   }
 };
 
 strings.formatBalanceWithoutSuffix = (balance, fromUnit, toUnit) => {
+  balance = Number(balance);
   if (toUnit === undefined) {
     return balance;
   }
@@ -112,9 +113,9 @@ strings.formatBalanceWithoutSuffix = (balance, fromUnit, toUnit) => {
         .to(BitcoinUnit.BTC)
         .toString();
     } else if (toUnit === BitcoinUnit.SATS) {
-      return BTCUnits(balance, fromUnit)
+      return String(BTCUnits(balance, fromUnit)
         .to(BitcoinUnit.SATS)
-        .toString();
+        .format()).replace(' satoshis','');
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(BTCUnits(balance, fromUnit).to(BitcoinUnit.SATS));
     }
