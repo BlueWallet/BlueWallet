@@ -9,6 +9,55 @@
 let bitcoinjs = require('bitcoinjs-lib');
 const toSatoshi = num => parseInt((num * 100000000).toFixed(0));
 
+exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
+  let feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
+  let amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get
+  let txb = new bitcoinjs.TransactionBuilder();
+  let unspentAmountSatoshi = 0;
+  let ourOutputs = {};
+  let outputNum = 0;
+  for (const unspent of utxos) {
+    if (unspent.confirmations < 2) {
+      // using only confirmed outputs
+      continue;
+    }
+    txb.addInput(unspent.txid, unspent.vout);
+    ourOutputs[outputNum] = ourOutputs[outputNum] || {};
+    ourOutputs[outputNum].keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif);
+    unspentAmountSatoshi += unspent.amount;
+    if (unspentAmountSatoshi >= amountToOutputSatoshi + feeInSatoshis) {
+      // found enough inputs to satisfy payee and pay fees
+      break;
+    }
+    outputNum++;
+  }
+
+  if (unspentAmountSatoshi < amountToOutputSatoshi + feeInSatoshis) {
+    throw new Error('Not enough confirmed inputs');
+  }
+
+  // adding outputs
+
+  txb.addOutput(toAddress, amountToOutputSatoshi);
+  if (amountToOutputSatoshi + feeInSatoshis < unspentAmountSatoshi) {
+    // sending less than we have, so the rest should go back
+    if (unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis > 3 * feeInSatoshis) {
+      // to prevent @dust error change transferred amount should be at least 3xfee.
+      // if not - we just dont send change and it wil add to fee
+      txb.addOutput(changeAddress, unspentAmountSatoshi - amountToOutputSatoshi - feeInSatoshis);
+    }
+  }
+
+  // now, signing every input with a corresponding key
+
+  for (let c = 0; c <= outputNum; c++) {
+    txb.sign(c, ourOutputs[c].keyPair);
+  }
+
+  let tx = txb.build();
+  return tx.toHex();
+};
+
 exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
   let feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
   let amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get

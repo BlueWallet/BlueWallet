@@ -181,14 +181,18 @@ it('can create a Legacy HD (BIP44)', async function() {
   hd.setSecret(mnemonic);
   assert.equal(hd.validateMnemonic(), true);
   assert.equal(hd._getExternalAddressByIndex(0), '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
+  assert.equal(hd._getExternalAddressByIndex(1), '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5');
   assert.equal(hd._getInternalAddressByIndex(0), '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX');
+  assert.equal(hd._getInternalAddressByIndex(1), '13CW9WWBsWpDUvLtbFqYziWBWTYUoQb4nU');
   assert.equal(
     hd.getXpub(),
     'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps',
   );
 
   assert.equal(hd._getExternalWIFByIndex(0), 'L1hqNoJ26YuCdujMBJfWBNfgf4Jo7AcKFvcNcKLoMtoJDdDtRq7Q');
+  assert.equal(hd._getExternalWIFByIndex(1), 'KyyH4h59iatJWwFfiYPnYkw39SP7cBwydC3xzszsBBXHpfwz9cKb');
   assert.equal(hd._getInternalWIFByIndex(0), 'Kx3QkrfemEEV49Mj5oWfb4bsWymboPdstta7eN3kAzop9apxYEFP');
+  assert.equal(hd._getInternalWIFByIndex(1), 'Kwfg1EDjFapN9hgwafdNPEH22z3vkd4gtG785vXXjJ6uvVWAJGtr');
   await hd.fetchBalance();
   assert.equal(hd.balance, 0);
   assert.ok(hd._lastTxFetch === 0);
@@ -213,6 +217,65 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
   hd._xpub = xpub;
   assert.equal(hd._getExternalAddressByIndex(0), '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
   assert.equal(hd._getInternalAddressByIndex(0), '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX');
+  assert.equal(hd._getExternalAddressByIndex(1), '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5');
+  assert.equal(hd._getInternalAddressByIndex(1), '13CW9WWBsWpDUvLtbFqYziWBWTYUoQb4nU');
+});
+
+it('Legacy HD (BIP44) can create TX', async () => {
+  if (!process.env.HD_MNEMONIC) {
+    console.error('process.env.HD_MNEMONIC not set, skipped');
+    return;
+  }
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+  let hd = new HDLegacyP2PKHWallet();
+  hd.setSecret(process.env.HD_MNEMONIC);
+  assert.ok(hd.validateMnemonic());
+
+  await hd.fetchUtxo();
+  await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
+  await hd.getAddressAsync(); // to refresh internal pointer to next free address
+  let txhex = hd.createTx(hd.utxo, 0.0008, 0.000005, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+
+  assert.equal(
+    txhex,
+    '01000000045fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f030000006b4830450221009be5dbe37db5a8409ddce3570140c95d162a07651b1e48cf39a6a741892adc53022061a25b8024d8f3cb1b94f264245de0c6e9a103ea557ddeb66245b40ec8e9384b012102ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f000000006a47304402207106e9fa4e2e35d351fbccc9c0fad3356d85d0cd35a9d7e9cbcefce5440da1e5022073c1905b5927447378c0f660e62900c1d4b2691730799458889fb87d86f5159101210316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f020000006a4730440220250b15094096c4d4fe6793da8e45fa118ed057cc2759a480c115e76e23590791022079cdbdc9e630d713395602071e2837ecc1d192a36a24d8ec71bc51d5e62b203b01210316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f010000006b483045022100879da610e6ed12c84d55f12baf3bf6222d59b5282502b3c7f4db1d22152c16900220759a1c88583cbdaf7fde21c273ad985dfdf94a2fa85e42ee41dcea2fd69136fd012102ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002ffffffff02803801000000000017a914a3a65daca3064280ae072b9d6773c027b30abace872c4c0000000000001976a9146ee5e3e66dc73587a3a2d77a1a6c8554fae21b8a88ac00000000',
+  );
+
+  var tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 4);
+  assert.equal(tx.outs.length, 2);
+  assert.equal(tx.outs[0].value, 80000); // payee
+  assert.equal(tx.outs[1].value, 19500); // change
+  let chunksIn = bitcoin.script.decompile(tx.outs[0].script);
+  let toAddress = bitcoin.address.fromOutputScript(chunksIn);
+  chunksIn = bitcoin.script.decompile(tx.outs[1].script);
+  let changeAddress = bitcoin.address.fromOutputScript(chunksIn);
+  assert.equal('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+  assert.equal(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
+
+  // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee.
+  // theres 0.001 on UTXOs, lets transfer (0.001 - 100sat), soo fee is equal to change (100 sat)
+  // which throws @dust error if broadcasted
+  txhex = hd.createTx(hd.utxo, 0.000998, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.equal(tx.ins.length, 4);
+  assert.equal(tx.outs.length, 1); // only 1 output, which means change is neglected
+  assert.equal(tx.outs[0].value, 99800);
+});
+
+it('Legacy HD (BIP44) can fetch UTXO', async function() {
+  let hd = new HDLegacyP2PKHWallet();
+  hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
+  await hd.fetchUtxo();
+  assert.equal(hd.utxo.length, 11);
+  assert.ok(typeof hd.utxo[0].confirmations === 'number');
+  assert.ok(hd.utxo[0].txid);
+  assert.ok(hd.utxo[0].vout);
+  assert.ok(hd.utxo[0].amount);
+  assert.ok(
+    hd.utxo[0].address &&
+      (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' || hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
+  );
 });
 
 it('HD breadwallet works', async function() {

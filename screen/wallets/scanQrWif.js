@@ -4,7 +4,7 @@ import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import Camera from 'react-native-camera';
 import Permissions from 'react-native-permissions';
-import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet } from '../../class';
+import {SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet} from '../../class';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -27,7 +27,7 @@ export default class ScanQrWif extends React.Component {
   };
 
   async onBarCodeScanned(ret) {
-    if (+new Date() - this.lastTimeIveBeenHere < 3000) {
+    if (+new Date() - this.lastTimeIveBeenHere < 6000) {
       this.lastTimeIveBeenHere = +new Date();
       return;
     }
@@ -70,8 +70,33 @@ export default class ScanQrWif extends React.Component {
       }
     }
 
+    // is it HD legacy (BIP44) mnemonic?
+    let hd = new HDLegacyP2PKHWallet();
+    hd.setSecret(ret.data);
+    if (hd.validateMnemonic()) {
+      for (let w of BlueApp.wallets) {
+        if (w.getSecret() === hd.getSecret()) {
+          // lookig for duplicates
+          return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
+        }
+      }
+      this.setState({ isLoading: true });
+      await hd.fetchTransactions();
+      if (hd.getTransactions().length !== 0) {
+        await hd.fetchBalance();
+        hd.setLabel(loc.wallets.import.imported + ' ' + hd.getTypeReadable());
+        BlueApp.wallets.push(hd);
+        await BlueApp.saveToDisk();
+        alert(loc.wallets.import.success);
+        this.props.navigation.popToTop();
+        setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+        return;
+      }
+    }
+    // nope
+
     // is it HD mnemonic?
-    let hd = new HDSegwitP2SHWallet();
+    hd = new HDSegwitP2SHWallet();
     hd.setSecret(ret.data);
     if (hd.validateMnemonic()) {
       for (let w of BlueApp.wallets) {
