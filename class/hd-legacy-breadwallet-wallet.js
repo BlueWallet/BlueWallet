@@ -1,4 +1,5 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
+import Frisbee from 'frisbee';
 const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 
@@ -79,5 +80,27 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
     let path = "m/0'/1/" + index;
     let child = root.derivePath(path);
     return child.keyPair.toWIF();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async fetchBalance() {
+    try {
+      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+
+      let response = await api.get('/balance?active=' + this.getXpub());
+
+      if (response && response.body) {
+        for (let xpub of Object.keys(response.body)) {
+          this.balance = response.body[xpub].final_balance / 100000000;
+        }
+        this._lastBalanceFetch = +new Date();
+      } else {
+        throw new Error('Could not fetch balance from API: ' + response.err);
+      }
+    } catch (err) {
+      console.warn(err);
+    }
   }
 }
