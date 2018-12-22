@@ -61,7 +61,7 @@ I had experience with awesome bitcoin-js lib (javascript), and since I dont own 
 
 MIT
 
-## What to contribute?
+## Want to contribute?
 
 Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you.
 Our [telegram group](https://t.me/bluewallet) where we hangout :+1:
