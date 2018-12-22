@@ -183,13 +183,13 @@ export default class WalletTransactions extends Component {
       walletPreviousPreferredUnit = BitcoinUnit.SATS;
     } else if (walletPreviousPreferredUnit === BitcoinUnit.LOCAL_CURRENCY) {
       wallet.preferredBalanceUnit = BitcoinUnit.BTC;
-      walletPreviousPreferredUnit = BitcoinUnit.LOCAL_CURRENCY;
+      walletPreviousPreferredUnit = BitcoinUnit.BTC;
     } else {
       wallet.preferredBalanceUnit = BitcoinUnit.BTC;
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
 
-    this.setState({ wallet: wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit });
+    this.setState({ wallet: wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => BlueApp.saveToDisk());
   }
 
   renderWalletHeader = () => {

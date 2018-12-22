@@ -70,23 +70,30 @@ strings.transactionTimeToReadable = function(time) {
  * @returns {string}
  */
 strings.formatBalance = (balance, fromUnit, toUnit) => {
-  if (toUnit === undefined || fromUnit === toUnit) {
+  if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (balance !== 0) {
+    if (fromUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      return currency.satoshiToLocalCurrency(
+        BTCUnits(balance, BitcoinUnit.BTC)
+          .to(BitcoinUnit.SATS)
+          .value(),
+      );
+    }
     if (toUnit === BitcoinUnit.BTC) {
       return BTCUnits(balance, fromUnit)
         .to(BitcoinUnit.BTC)
         .format();
     } else if (toUnit === BitcoinUnit.SATS) {
-      return BTCUnits(balance, fromUnit)
+      return BTCUnits(balance, BitcoinUnit.BTC)
         .to(BitcoinUnit.SATS)
         .format();
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(
         BTCUnits(balance, BitcoinUnit.BTC)
           .to(BitcoinUnit.SATS)
-          .toString(),
+          .value(),
       );
     }
   }
@@ -98,8 +105,10 @@ strings.formatBalanceWithoutSuffix = (balance, fromUnit, toUnit) => {
     return balance;
   }
   if (balance !== 0) {
-    if (fromUnit === BitcoinUnit.LOCAL_CURRENCY || toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      BTCUnits.setFiat(BitcoinUnit.LOCAL_CURRENCY, 3600);
+    if (fromUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      return BTCUnits(balance, BitcoinUnit.SATS)
+        .to(BitcoinUnit.SATS)
+        .toString();
     }
     if (toUnit === BitcoinUnit.BTC || toUnit === undefined) {
       return BTCUnits(balance, fromUnit)
