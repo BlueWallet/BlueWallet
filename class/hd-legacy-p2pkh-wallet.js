@@ -77,7 +77,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
       let node = bitcoin.HDNode.fromBase58(this._xpub);
       let address = node
         .derive(0)
-        .derive(0)
+        .derive(index)
         .getAddress();
       return (this.external_addresses_cache[index] = address);
     }
@@ -101,7 +101,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
       let node = bitcoin.HDNode.fromBase58(this._xpub);
       let address = node
         .derive(1)
-        .derive(0)
+        .derive(index)
         .getAddress();
       return (this.internal_addresses_cache[index] = address);
     }
