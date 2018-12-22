@@ -498,7 +498,7 @@ export default class SendDetails extends Component {
                         BitcoinBIP70TransactionDecode.decode(text).then(response => {
                           this.setState({
                             address: response.address,
-                            amount: response.amount,
+                            amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.SATS, BitcoinUnit.BTC),
                             memo: response.memo,
                             fee: response.fee,
                             bip70TransactionExpiration: response.expires,
