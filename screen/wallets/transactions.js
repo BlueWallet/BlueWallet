@@ -29,7 +29,7 @@ export default class WalletTransactions extends Component {
     return {
       headerRight: (
         <TouchableOpacity
-          style={{ marginHorizontal: 8 }}
+          style={{ marginHorizontal: 8, minWidth: 150 }}
           onPress={() =>
             navigation.navigate('WalletDetails', {
               address: navigation.state.params.wallet.getAddress(),
@@ -37,7 +37,7 @@ export default class WalletTransactions extends Component {
             })
           }
         >
-          <Text style={{ color: '#fff', fontSize: 20, fontWeight: '500' }}>{loc.wallets.options}</Text>
+          <Text style={{ color: '#fff', fontSize: 20, fontWeight: '500', textAlign: 'right' }}>{loc.wallets.options}</Text>
         </TouchableOpacity>
       ),
       headerStyle: {
