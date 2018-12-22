@@ -73,31 +73,28 @@ strings.formatBalance = (balance, fromUnit, toUnit) => {
   if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
   }
-  if (balance !== 0) {
-    if (fromUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      return currency.satoshiToLocalCurrency(
-        BTCUnits(balance, BitcoinUnit.BTC)
-          .to(BitcoinUnit.SATS)
-          .value(),
-      );
-    }
-    if (toUnit === BitcoinUnit.BTC) {
-      return BTCUnits(balance, fromUnit)
-        .to(BitcoinUnit.BTC)
-        .format();
-    } else if (toUnit === BitcoinUnit.SATS) {
-      return BTCUnits(balance, BitcoinUnit.BTC)
+  if (fromUnit === BitcoinUnit.LOCAL_CURRENCY) {
+    return currency.satoshiToLocalCurrency(
+      BTCUnits(balance, BitcoinUnit.BTC)
         .to(BitcoinUnit.SATS)
-        .format();
-    } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      return currency.satoshiToLocalCurrency(
-        BTCUnits(balance, BitcoinUnit.BTC)
-          .to(BitcoinUnit.SATS)
-          .value(),
-      );
-    }
+        .value(),
+    );
   }
-  return balance + ' ' + BitcoinUnit.BTC;
+  if (toUnit === BitcoinUnit.BTC) {
+    return BTCUnits(balance, fromUnit)
+      .to(BitcoinUnit.BTC)
+      .format();
+  } else if (toUnit === BitcoinUnit.SATS) {
+    return BTCUnits(balance, BitcoinUnit.BTC)
+      .to(BitcoinUnit.SATS)
+      .format();
+  } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
+    return currency.satoshiToLocalCurrency(
+      BTCUnits(balance, BitcoinUnit.BTC)
+        .to(BitcoinUnit.SATS)
+        .value(),
+    );
+  }
 };
 
 strings.formatBalanceWithoutSuffix = (balance, fromUnit, toUnit) => {

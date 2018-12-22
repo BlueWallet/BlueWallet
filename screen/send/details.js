@@ -445,7 +445,7 @@ export default class SendDetails extends Component {
                 placeholder="0"
                 maxLength={10}
                 editable={!this.state.isLoading}
-                value={loc.formatBalanceWithoutSuffix(this.state.amount || 0 + '', BitcoinUnit.BTC)}
+                // value={loc.formatBalanceWithoutSuffix(this.state.amount || 0 + '', BitcoinUnit.BTC, BitcoinUnit.BTC)}
                 placeholderTextColor="#0f5cc0"
                 style={{
                   color: '#0f5cc0',
@@ -468,7 +468,7 @@ export default class SendDetails extends Component {
             </View>
             <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
               <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-                {currency.satoshiToLocalCurrency(loc.formatBalanceWithoutSuffix(this.state.amount || 0, BitcoinUnit.SATS))}
+                {loc.formatBalance(Number(this.state.amount || 0), BitcoinUnit.BTC, BitcoinUnit.LOCAL_CURRENCY)}
               </Text>
             </View>
             <View

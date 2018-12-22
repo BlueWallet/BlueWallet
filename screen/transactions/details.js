@@ -143,7 +143,9 @@ export default class TransactionsDetails extends Component {
             {this.state.tx.hasOwnProperty('fee') && (
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.send.create.fee}</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{loc.formatBalance(this.state.tx.fee, BitcoinUnit.BTC)}</BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>
+                  {loc.formatBalance(this.state.tx.fee, BitcoinUnit.SATS, BitcoinUnit.BTC)}
+                </BlueText>
               </React.Fragment>
             )}
 

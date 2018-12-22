@@ -30,6 +30,7 @@ export default class App extends React.Component {
       return;
     }
     if (event.url.indexOf('bitcoin:') === 0 || event.url.indexOf('BITCOIN:') === 0) {
+      console.warn(event);
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
