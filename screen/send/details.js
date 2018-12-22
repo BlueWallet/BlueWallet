@@ -40,10 +40,8 @@ export default class SendDetails extends Component {
   constructor(props) {
     super(props);
     console.log('props.navigation.state.params=', props.navigation.state.params);
-    let startTime = Date.now();
     let address;
     if (props.navigation.state.params) address = props.navigation.state.params.address;
-    let memo = false;
     if (props.navigation.state.params) memo = props.navigation.state.params.memo;
     let fromAddress;
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
@@ -53,7 +51,6 @@ export default class SendDetails extends Component {
 
     const wallets = BlueApp.getWallets();
 
-    let startTime2 = Date.now();
     for (let w of wallets) {
       if (w.getSecret() === fromSecret) {
         fromWallet = w;
@@ -68,25 +65,6 @@ export default class SendDetails extends Component {
     // fallback to first wallet if it exists
     if (!fromWallet && wallets[0]) fromWallet = wallets[0];
 
-    let amount = '';
-    let parsedBitcoinUri = null;
-    if (props.navigation.state.params.uri) {
-      try {
-        parsedBitcoinUri = bip21.decode(props.navigation.state.params.uri);
-
-        address = parsedBitcoinUri.address || address;
-        amount = parsedBitcoinUri.options.amount || amount;
-        memo = parsedBitcoinUri.options.label || memo;
-      } catch (error) {
-        console.error(error);
-        alert('Error: Unable to decode Bitcoin address');
-      }
-    }
-
-    let endTime2 = Date.now();
-    console.log('getAddress() took', (endTime2 - startTime2) / 1000, 'sec');
-    console.log({ memo });
-
     this.state = {
       isFeeSelectionModalVisible: false,
       fromAddress: fromAddress,
@@ -94,16 +72,11 @@ export default class SendDetails extends Component {
       fromSecret: fromSecret,
       isLoading: true,
       address: address,
-      amount,
-      memo,
       fee: 1,
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
       feeSliderValue: 1,
       bip70TransactionExpiration: null,
     };
-
-    let endTime = Date.now();
-    console.log('constructor took', (endTime - startTime) / 1000, 'sec');
   }
 
   async componentDidMount() {
@@ -172,11 +145,27 @@ export default class SendDetails extends Component {
         feeSliderValue: recommendedFees.halfHourFee,
         isLoading: false,
       });
+
+      if (this.props.navigation.state.params.uri) {
+        if (!this.processBIP70Invoice(this.props.navigation.state.params.uri)) {
+          try {
+            let amount = '';
+            let parsedBitcoinUri = null;
+            let address = '';
+            let memo = '';
+
+            parsedBitcoinUri = bip21.decode(this.props.navigation.state.params.uri);
+            address = parsedBitcoinUri.address || address;
+            amount = parsedBitcoinUri.options.amount.toString() || amount;
+            memo = parsedBitcoinUri.options.label || memo;
+            this.setState({ address, amount, memo });
+          } catch (error) {
+            console.log(error);
+            alert('Error: Unable to decode Bitcoin address');
+          }
+        }
+      }
     }
-    let startTime = Date.now();
-    console.log('send/details - componentDidMount');
-    let endTime = Date.now();
-    console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
   }
 
   recalculateAvailableBalance(balance, amount, fee) {
@@ -219,6 +208,33 @@ export default class SendDetails extends Component {
     }
 
     return new BigNumber(totalInput - totalOutput).dividedBy(100000000).toNumber();
+  }
+
+  processBIP70Invoice(text) {
+    if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
+      this.setState(
+        {
+          isLoading: true,
+        },
+        () => {
+          Keyboard.dismiss();
+          BitcoinBIP70TransactionDecode.decode(text).then(response => {
+            this.setState({
+              address: response.address,
+              amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.SATS, BitcoinUnit.BTC),
+              memo: response.memo,
+              fee: response.fee,
+              bip70TransactionExpiration: response.expires,
+              isLoading: false,
+            });
+          });
+        },
+      );
+      return true;
+    } else {
+      this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+      return false;
+    }
   }
 
   async createTransaction() {
@@ -487,30 +503,7 @@ export default class SendDetails extends Component {
               }}
             >
               <TextInput
-                onChangeText={text => {
-                  if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
-                    this.setState(
-                      {
-                        isLoading: true,
-                      },
-                      () => {
-                        Keyboard.dismiss();
-                        BitcoinBIP70TransactionDecode.decode(text).then(response => {
-                          this.setState({
-                            address: response.address,
-                            amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.SATS, BitcoinUnit.BTC),
-                            memo: response.memo,
-                            fee: response.fee,
-                            bip70TransactionExpiration: response.expires,
-                            isLoading: false,
-                          });
-                        });
-                      },
-                    );
-                  } else {
-                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
-                  }
-                }}
+                onChangeText={text => () => this.processBIP70Invoice(text)}
                 placeholder={loc.send.details.address}
                 numberOfLines={1}
                 value={this.state.address}

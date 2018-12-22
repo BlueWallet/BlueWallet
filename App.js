@@ -20,17 +20,13 @@ export default class App extends React.Component {
   }
 
   handleOpenURL = event => {
-    if (typeof event !== 'undefined') {
+    if (event.url === null) {
       return;
     }
-    if (event === null) {
-      return;
-    }
-    if (!event.hasOwnProperty('url')) {
+    if (typeof event.url !== 'string') {
       return;
     }
     if (event.url.indexOf('bitcoin:') === 0 || event.url.indexOf('BITCOIN:') === 0) {
-      console.warn(event);
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
