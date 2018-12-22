@@ -1,4 +1,4 @@
-# BlueWallet - Bitcoin Wallet
+# BlueWallet - A Bitcoin & Lightning Wallet
 
 [![GitHub tag](https://img.shields.io/github/package-json/v/BlueWallet/BlueWallet.svg)](https://github.com/BlueWallet/BlueWallet)
 [![CircleCI](https://circleci.com/gh/BlueWallet/BlueWallet.svg?style=svg)](https://circleci.com/gh/BlueWallet/BlueWallet)
@@ -7,19 +7,22 @@
 Thin Bitcoin Wallet.
 Built with React Native and BlockCypher API.
 
-[![Appstore](http://www.bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8)
+[![Appstore](https://bluewallet.io/img/app-store-badge.svg)](https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8)
+[![Playstore](https://bluewallet.io/img/play-store-badge.svg)](https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet)
 
 Website: [bluewallet.io](http://bluewallet.io)
+Our [telegram group](https://t.me/bluewallet)
 
-* Build and run on your own using Expo Client
 * Private keys never leave your device
+* Lightning Network supported
 * SegWit-first. Replace-By-Fee support
 * Encryption. Plausible deniability
+* And many more [features...](https://bluewallet.io/features.html)
 
 Beta version, do not use to store large amounts!
 
 
-<img src="https://bluewallet.io/img/bluewallet-big.png" width="460">
+<img src="https://i.imgur.com/hHYJnMj.png" width="100%">
 
 
 
@@ -58,109 +61,7 @@ I had experience with awesome bitcoin-js lib (javascript), and since I dont own 
 
 MIT
 
+## What to contribute?
 
-## ROADMAP
-
-### v1.0.0 alpha
-
-Support for single private-key wallets:
-
-* ~~SegWith P2SH compatibility addresses~~
-
-#### Screens:
- 
-* Wallets
-    * Sub-screen Edit Wallet
-        * ~~Edit label~~
-        * ~~Delete~~
-        * ~~View info: type, address, privkey (?)~~
-    * ~~Sub-screen Add Wallet~~
-* Transactions
-    * ~~Sub screen to view transaction details (confs, fee, seen date, confirmed date, time to confirm)~~
-        * View TX on block explorer
-* Receive 
-    * ~~Choose wallet~~
-    * ~~Sub-screen with QR~~
-        * ~~address as un-editable input (for copy-paste)~~
-* Send
-    * ~~Choose Wallet~~
-    * ~~Scan QR~~
-        * ~~Sub screen edit balance, memo, receiver name ...~~
-            * ~~Validation error in case of empty fields~~
-        * ~~Broadcast TX~~
-            * ~~save TX meta info to wallet storage (memo, txhex)~~
-* Settings
-    * ~~Opensource link~~    
-    * ~~Technologies used~~
-
-
-### v2.0.0 beta
-
-* ~~Legacy addresses~~
-* ~~Encrypt all storage, PIN/Password/Fingerprint security~~
-* Currency conversion
-* ~~Localization (RU, UA)~~
-
-#### Screens:
-
-* Receive
-    * Choose wallet 
-        * Choose amount in BTC, label etc
-        * Generate specialized QR wih above info
-    * Choose walet
-        * Receive through changelly/shapeshift
-* Send    
-    * Handle `bitcoin://` URI
-    * ~~Scan QR with `bitcoin://` URI~~
-* Transactions
-    * ~~Sub screen to view transaction details (confs, fee, seen date, confirmed date, time to confirm)~~
-        * ~~Do RBF on TX (with change-destination address)~~
-        * Do CPFP
-* Settings
-    * ~~Appstore RateMe link~~
-
-### v3.0.0 beta
-
-~~Support HD (multi-private keys)~~
-Support bech32 addresses
-
-#### Screens
-
-* Settings
-    * Different UTXO usage strategies
-* Address book..?
-
-### v4.0.0
-
-Lightning support?
-
-
-## BACKLOG FEATURES
-
-* [x] RBF
-* [ ] CPFP
-* [ ] Sign any message with private key
-* [ ] Verify other message signature
-* [ ] Tool: Cold wallet verifier (scans private keys and displays public keys realtime)
-* [x] Export (backup) secrets/private keys
-* [ ] Export (bip38 password-encrypted)
-* [ ] Cold wallet generator
-* [x] Export created signed tx, no broadcast 
-* [ ] Work through proxy? TOR?
-* [x] Localizations (RU, UA, BY? Arab, JP, CH?)
-* [ ] OFFLINE TX: get unspents offline, create & sign TX offline, export txhex
-* [ ] Sweep other private key
-* [ ] Rebroadcast TX (to some different endpoints?)
-* [ ] Batch transaction
-* [ ] MultiSig M-of-N  (while keeping only 1..M of all sigs on device)
-    * [ ] Sign your part of multisig via QR code
-* [ ] Transaztion queue chart, fee estimation
-* [ ] Push notifications for all associated addresses
-* [ ] Keep PrivKey/WIF on paper, scan only on TX signing, not keping on device (watch-only address)
-* [ ] Decode TX screen
-* [ ] Migrate to ElectrumX server (ditch blockcypher) - requires socket/tcp support in Expo OR rpc2rest proxy
-* [x] Fake password which unlocks fake wallets (aka plausible deniability)
-* [x] BIP38 (password-protected key)
-* [ ] Self-destruct if several password attempts
-* [ ] Generate keys with desired text in address (3MyAddRess......)
-* [ ] Generate private key with dice or coin flip as a source of entropy
+Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you.
+Our [telegram group](https://t.me/bluewallet) where we hangout :+1:
