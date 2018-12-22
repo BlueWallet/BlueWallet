@@ -11,7 +11,8 @@ Built with React Native and BlockCypher API.
 [![Playstore](https://bluewallet.io/img/play-store-badge.svg)](https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet)
 
 Website: [bluewallet.io](http://bluewallet.io)
-Our [telegram group](https://t.me/bluewallet)
+
+Community: [telegram group](https://t.me/bluewallet)
 
 * Private keys never leave your device
 * Lightning Network supported
@@ -64,4 +65,5 @@ MIT
 ## Want to contribute?
 
 Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you.
-Our [telegram group](https://t.me/bluewallet) where we hangout :+1:
+
+Join us at our [telegram group](https://t.me/bluewallet) where we hangout :+1:
