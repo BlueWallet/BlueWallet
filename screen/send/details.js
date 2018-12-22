@@ -28,7 +28,6 @@ let BigNumber = require('bignumber.js');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let bitcoin = require('bitcoinjs-lib');
-let currency = require('../../currency');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -445,7 +444,7 @@ export default class SendDetails extends Component {
                 placeholder="0"
                 maxLength={10}
                 editable={!this.state.isLoading}
-                // value={loc.formatBalanceWithoutSuffix(this.state.amount || 0 + '', BitcoinUnit.BTC, BitcoinUnit.BTC)}
+                value={loc.formatBalanceWithoutSuffix(Number(this.state.amount || 0), BitcoinUnit.BTC, BitcoinUnit.BTC).toString()}
                 placeholderTextColor="#0f5cc0"
                 style={{
                   color: '#0f5cc0',
