@@ -88,11 +88,6 @@ export class AbstractHDWallet extends LegacyWallet {
     return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
-  setPreferredBalanceUnit(unit) {
-    this.preferredBalanceUnit = unit;
-    return this;
-  }
-
   /**
    * @return {Boolean} is mnemonic in `this.secret` valid
    */

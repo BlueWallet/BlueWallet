@@ -505,11 +505,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   getPreferredBalanceUnit() {
     return this.preferredBalanceUnit || BitcoinUnit.SATS;
   }
-
-  setPreferredBalanceUnit(unit) {
-    this.preferredBalanceUnit = unit;
-    return this;
-  }
 }
 
 /*

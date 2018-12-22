@@ -40,6 +40,7 @@
     "bignumber.js": "^7.0.0",
     "bip21": "^2.0.2",
     "bip39": "^2.5.0",
+    "bitcoin-units": "^0.3.0",
     "bitcoinjs-lib": "^3.3.2",
     "buffer": "^5.2.1",
     "buffer-reverse": "^1.0.1",

@@ -3,7 +3,6 @@ import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'r
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
-import { LightningCustodianWallet } from '../../class';
 import {
   BlueText,
   BlueTransactionOnchainIcon,
@@ -18,9 +17,10 @@ import {
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { LightningCustodianWallet } from '../../class';
 /** @type {AppStorage} */
-
 let BlueApp = require('../../BlueApp');
+
 let loc = require('../../loc');
 let EV = require('../../events');
 
@@ -56,13 +56,13 @@ export default class WalletTransactions extends Component {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
     const wallet = props.navigation.getParam('wallet');
-
     this.props.navigation.setParams({ wallet: wallet });
     this.state = {
       isLoading: true,
       isTransactionsLoading: false,
       wallet: wallet,
       dataSource: wallet.getTransactions(),
+      walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
     };
   }
 
@@ -173,19 +173,23 @@ export default class WalletTransactions extends Component {
   }
 
   changeWalletBalanceUnit() {
-    const { wallet } = this.state;
-    if (wallet.getPreferredBalanceUnit() === undefined || wallet.getPreferredBalanceUnit() === BitcoinUnit.BTC) {
-      wallet.setPreferredBalanceUnit(BitcoinUnit.SATS);
-    } else if (wallet.getPreferredBalanceUnit() === BitcoinUnit.SATS) {
-      wallet.setPreferredBalanceUnit(BitcoinUnit.LOCAL_CURRENCY);
-    } else if (wallet.getPreferredBalanceUnit() === BitcoinUnit.LOCAL_CURRENCY) {
-      wallet.setPreferredBalanceUnit(BitcoinUnit.BTC);
+    let walletPreviousPreferredUnit = this.state.wallet.getPreferredBalanceUnit();
+    const wallet = this.state.wallet;
+    if (walletPreviousPreferredUnit === BitcoinUnit.BTC) {
+      wallet.preferredBalanceUnit = BitcoinUnit.SATS;
+      walletPreviousPreferredUnit = BitcoinUnit.BTC;
+    } else if (walletPreviousPreferredUnit === BitcoinUnit.SATS) {
+      wallet.preferredBalanceUnit = BitcoinUnit.LOCAL_CURRENCY;
+      walletPreviousPreferredUnit = BitcoinUnit.SATS;
+    } else if (walletPreviousPreferredUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
+      walletPreviousPreferredUnit = BitcoinUnit.LOCAL_CURRENCY;
     } else {
-      wallet.setPreferredBalanceUnit(BitcoinUnit.BTC);
+      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
+      walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
-    this.setState({ wallet: wallet }, () => {
-      BlueApp.saveToDisk();
-    });
+
+    this.setState({ wallet: wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit });
   }
 
   renderWalletHeader = () => {
@@ -228,7 +232,13 @@ export default class WalletTransactions extends Component {
               color: '#fff',
             }}
           >
-            {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit())}
+            {loc
+              .formatBalance(
+                this.state.wallet.getBalance(),
+                this.state.walletPreviousPreferredUnit,
+                this.state.wallet.getPreferredBalanceUnit(),
+              )
+              .toString()}
           </Text>
         </TouchableOpacity>
         <Text style={{ backgroundColor: 'transparent' }} />
@@ -442,6 +452,7 @@ export default class WalletTransactions extends Component {
                   rightTitle={loc
                     .formatBalanceWithoutSuffix(
                       (rowData.item.value && rowData.item.value) || 0,
+                      BitcoinUnit.SATS,
                       this.state.wallet.getPreferredBalanceUnit(),
                     )
                     .toString()}

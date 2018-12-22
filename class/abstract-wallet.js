@@ -39,13 +39,6 @@ export class AbstractWallet {
     return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
-  setPreferredBalanceUnit(unit) {
-    const indexOf = Object.values(BitcoinUnit).indexOf(unit);
-    const currentPreferredUnit = Object.entries(BitcoinUnit)[indexOf];
-    this.preferredBalanceUnit = currentPreferredUnit;
-    return this;
-  }
-
   allowReceive() {
     return true;
   }

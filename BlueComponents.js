@@ -23,6 +23,7 @@ import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from './class/lightning-custodian-wallet';
+import { BitcoinUnit } from './models/bitcoinUnits';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -1047,7 +1048,7 @@ export class WalletsCarousel extends Component {
                 color: '#fff',
               }}
             >
-              {loc.formatBalance(item.getBalance(), item.getPreferredBalanceUnit())}
+              {loc.formatBalance(item.getBalance(), BitcoinUnit.BTC, item.getPreferredBalanceUnit())}
             </Text>
             <Text style={{ backgroundColor: 'transparent' }} />
             <Text
