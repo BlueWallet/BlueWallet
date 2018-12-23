@@ -485,7 +485,7 @@ export default class SendDetails extends Component {
             </View>
             <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
               <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-                {loc.formatBalance(Number(this.state.amount || 0), BitcoinUnit.BTC, BitcoinUnit.LOCAL_CURRENCY)}
+                {loc.formatBalance(this.state.amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
               </Text>
             </View>
             <View
@@ -505,7 +505,10 @@ export default class SendDetails extends Component {
               }}
             >
               <TextInput
-                onChangeText={text => () => this.processBIP70Invoice(text)}
+                onChangeText={text => { 
+                  if (!this.processBIP70Invoice(text)) {
+                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                  }}}
                 placeholder={loc.send.details.address}
                 numberOfLines={1}
                 value={this.state.address}

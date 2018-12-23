@@ -234,8 +234,7 @@ export default class WalletTransactions extends Component {
           >
             {loc
               .formatBalance(
-                Number(this.state.wallet.getBalance()),
-                this.state.walletPreviousPreferredUnit,
+                this.state.wallet.getBalance(),
                 this.state.wallet.getPreferredBalanceUnit(),
               )
               .toString()}
@@ -452,7 +451,6 @@ export default class WalletTransactions extends Component {
                   rightTitle={loc
                     .formatBalanceWithoutSuffix(
                       (rowData.item.value && rowData.item.value) || 0,
-                      BitcoinUnit.SATS,
                       this.state.wallet.getPreferredBalanceUnit(),
                     )
                     .toString()}

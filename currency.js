@@ -67,6 +67,19 @@ function satoshiToLocalCurrency(satoshi) {
   return '$' + b;
 }
 
+function BTCToLocalCurrency(bitcoin) {
+  if (!lang[STRUCT.BTC_USD]) return bitcoin;
+
+  let b = new BigNumber(bitcoin);
+  b = b
+    .multipliedBy(1)
+    .multipliedBy(lang[STRUCT.BTC_USD])
+    .toString(10);
+  b = parseFloat(b).toFixed(2);
+
+  return '$' + b;
+}
+
 function satoshiToBTC(satoshi) {
   let b = new BigNumber(satoshi);
   b = b.dividedBy(100000000);
@@ -78,3 +91,4 @@ module.exports.startUpdater = startUpdater;
 module.exports.STRUCT = STRUCT;
 module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
 module.exports.satoshiToBTC = satoshiToBTC;
+module.exports.BTCToLocalCurrency = BTCToLocalCurrency;

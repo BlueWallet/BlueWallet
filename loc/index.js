@@ -79,8 +79,7 @@ strings.formatBalance = (balance, toUnit) => {
     const value = new BigNumber(balance).multipliedBy(0.001);
     return parseInt(value.toString().replace('.', '')).toString() + ' sats';
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    const value = new BigNumber(balance).multipliedBy(0.001);
-    return currency.satoshiToLocalCurrency(parseInt(value.toString().replace('.', '')));
+    return currency.BTCToLocalCurrency(balance);
   }
 };
 
