@@ -36,7 +36,12 @@ export class AbstractWallet {
   }
 
   getPreferredBalanceUnit() {
-    return this.preferredBalanceUnit || BitcoinUnit.BTC;
+    for (let value of Object.values(BitcoinUnit)) {
+      if (value === this.preferredBalanceUnit) {
+        return this.preferredBalanceUnit;
+      }
+    }
+    return BitcoinUnit.BTC;
   }
 
   allowReceive() {

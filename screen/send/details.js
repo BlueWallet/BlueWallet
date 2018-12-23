@@ -135,8 +135,25 @@ export default class SendDetails extends Component {
       });
 
       if (this.props.navigation.state.params.uri) {
-        if (!BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.navigation.state.params.uri)) {
+        if (BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.navigation.state.params.uri)) {
           this.processBIP70Invoice(this.props.navigation.state.params.uri);
+        } else {
+          try {
+            let amount = '';
+            let parsedBitcoinUri = null;
+            let address = '';
+            let memo = '';
+
+            parsedBitcoinUri = bip21.decode(this.props.navigation.state.params.uri);
+            console.warn(parsedBitcoinUri);
+            address = parsedBitcoinUri.address || address;
+            amount = parsedBitcoinUri.options.amount.toString() || amount;
+            memo = parsedBitcoinUri.options.label || memo;
+            this.setState({ address, amount, memo });
+          } catch (error) {
+            console.log(error);
+            alert('Error: Unable to decode Bitcoin address');
+          }
         }
       }
     }
