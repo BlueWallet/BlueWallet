@@ -113,6 +113,8 @@ strings.formatBalanceWithoutSuffix = (balance, fromUnit, toUnit) => {
     if (toUnit === BitcoinUnit.BTC || toUnit === undefined) {
       return BTCUnits(balance, fromUnit)
         .to(BitcoinUnit.BTC)
+        .value()
+        .toFixed(8)
         .toString();
     } else if (toUnit === BitcoinUnit.SATS) {
       return String(

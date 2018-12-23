@@ -345,13 +345,17 @@ export default class WalletsList extends Component {
                       containerStyle: { marginTop: 0 },
                     }}
                     hideChevron
-                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000).toString()}
+                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0)
+                      .dividedBy(100000000)
+                      .toFixed(8)
+                      .toString()}
                     rightTitleStyle={{
                       fontWeight: '600',
                       fontSize: 16,
-                      color: rowData.item.value / 100000000 < 0 || rowData.item.type === 'paid_invoice'
-                        ? BlueApp.settings.foregroundColor
-                        : '#37c0a1',
+                      color:
+                        rowData.item.value / 100000000 < 0 || rowData.item.type === 'paid_invoice'
+                          ? BlueApp.settings.foregroundColor
+                          : '#37c0a1',
                     }}
                   />
                 );
