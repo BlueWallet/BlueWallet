@@ -14,6 +14,7 @@ import {
   SafeAreaView,
   Clipboard,
   Platform,
+  TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { WatchOnlyWallet, LegacyWallet } from './class';
@@ -282,24 +283,24 @@ export class BlueFormInput extends Component {
 export class BlueFormMultiInput extends Component {
   render() {
     return (
-      <FormInput
+      <TextInput
         multiline
         underlineColorAndroid="transparent"
         numberOfLines={4}
-        inputStyle={{
-          width: width - 40,
-          color: BlueApp.settings.foregroundColor,
-          height: 120,
-          // fontSize: (isIpad && 10) || ((is.iphone8() && 12) || 14),
-        }}
-        containerStyle={{
+        style={{
           marginTop: 5,
+          marginHorizontal: 20,
           borderColor: '#d2d2d2',
           borderBottomColor: '#d2d2d2',
           borderWidth: 0.5,
           borderBottomWidth: 0.5,
           backgroundColor: '#f5f5f5',
+          height: 200,
+          color: BlueApp.settings.foregroundColor,
         }}
+        autoCorrect={false}
+        autoCapitalize="none"
+        spellCheck={false}
         {...this.props}
       />
     );

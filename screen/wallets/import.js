@@ -60,7 +60,7 @@ export default class WalletsImport extends Component {
     A(A.ENUM.CREATED_WALLET);
     setTimeout(() => {
       this.props.navigation.popToTop();
-    }, 500);
+    });
   }
 
   async importMnemonic(text) {
@@ -217,11 +217,10 @@ export default class WalletsImport extends Component {
             <BlueSpacing20 />
             <BlueFormMultiInput
               value={this.state.label}
-              placeholder={''}
+              placeholder=""
               onChangeText={text => {
                 this.setLabel(text);
               }}
-              autoCorrect={false}
             />
             <BlueSpacing20 />
             <View
