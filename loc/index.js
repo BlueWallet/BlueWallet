@@ -2,8 +2,8 @@ import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-const BTCUnits = require('bitcoin-units');
 const currency = require('../currency');
+const BigNumber = require('bignumber.js');
 let strings;
 
 // first-time loading sequence
@@ -69,63 +69,36 @@ strings.transactionTimeToReadable = function(time) {
  * @param unit {String} Value from models/bitcoinUnits.js
  * @returns {string}
  */
-strings.formatBalance = (balance, fromUnit, toUnit) => {
+strings.formatBalance = (balance, toUnit) => {
   if (toUnit === undefined) {
-    balance = Number(balance);
     return balance + ' ' + BitcoinUnit.BTC;
   }
-  if (fromUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.satoshiToLocalCurrency(
-      BTCUnits(balance, BitcoinUnit.BTC)
-        .to(BitcoinUnit.SATS)
-        .value(),
-    );
-  }
   if (toUnit === BitcoinUnit.BTC) {
-    balance = Number(balance);
-    return BTCUnits(balance, fromUnit)
-      .to(BitcoinUnit.BTC)
-      .format();
+    return balance + ' BTC';
   } else if (toUnit === BitcoinUnit.SATS) {
-    balance = Number(balance);
-    return BTCUnits(balance, BitcoinUnit.BTC)
-      .to(BitcoinUnit.SATS)
-      .format();
+    const value = new BigNumber(balance).multipliedBy(0.001);
+    return parseInt(value.toString().replace('.', '')).toString() + ' sats';
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    const satoshis = BTCUnits(balance, BitcoinUnit.BTC)
-      .to(BitcoinUnit.SATS)
-      .value();
-    return currency.satoshiToLocalCurrency(satoshis);
+    const value = new BigNumber(balance).multipliedBy(0.001);
+    return currency.satoshiToLocalCurrency(parseInt(value.toString().replace('.', '')));
   }
 };
 
-strings.formatBalanceWithoutSuffix = (balance, fromUnit, toUnit) => {
-  balance = Number(balance);
+strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
   if (toUnit === undefined) {
     return balance;
   }
   if (balance !== 0) {
-    if (fromUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      return BTCUnits(balance, BitcoinUnit.SATS)
-        .to(BitcoinUnit.SATS)
-        .toString();
-    }
     if (toUnit === BitcoinUnit.BTC || toUnit === undefined) {
-      return BTCUnits(balance, fromUnit)
-        .to(BitcoinUnit.BTC)
-        .value()
-        .toFixed(8)
-        .toString();
+      return new BigNumber(balance).dividedBy(100000000).toFixed(8);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return String(
-        BTCUnits(balance, fromUnit)
-          .to(BitcoinUnit.SATS)
-          .format(),
-      )
-        .replace(' satoshis', '')
-        .replace(' satoshi', '');
+      const value = new BigNumber(balance)
+        .multipliedBy(0.0001)
+        .toString()
+        .replace('.', '');
+      return parseFloat(value).toLocaleString();
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      return currency.satoshiToLocalCurrency(BTCUnits(balance, fromUnit).to(BitcoinUnit.SATS));
+      return currency.satoshiToLocalCurrency(balance);
     }
   }
   return balance;
