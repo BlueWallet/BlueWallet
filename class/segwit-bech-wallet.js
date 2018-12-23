@@ -1,16 +1,10 @@
 import { LegacyWallet } from './legacy-wallet';
-import { BitcoinUnit } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 
 export class SegwitBech32Wallet extends LegacyWallet {
   constructor() {
     super();
     this.type = 'segwitBech32';
-    this.preferredBalanceUnit = BitcoinUnit.BTC;
-  }
-
-  getPreferredBalanceUnit() {
-    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   getTypeReadable() {

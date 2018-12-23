@@ -1,7 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import { WatchOnlyWallet } from './watch-only-wallet';
-import { BitcoinUnit } from '../models/bitcoinUnits';
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -17,7 +16,6 @@ export class AbstractHDWallet extends LegacyWallet {
     this._xpub = ''; // cache
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
-    this.preferredBalanceUnit = BitcoinUnit.BTC;
   }
 
   generate() {
@@ -82,10 +80,6 @@ export class AbstractHDWallet extends LegacyWallet {
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     return this;
-  }
-
-  getPreferredBalanceUnit() {
-    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   /**

@@ -3,7 +3,6 @@ import { SegwitBech32Wallet } from './';
 import { useBlockcypherTokens } from './constants';
 import Frisbee from 'frisbee';
 import { NativeModules } from 'react-native';
-import { BitcoinUnit } from '../models/bitcoinUnits';
 const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -17,7 +16,6 @@ export class LegacyWallet extends AbstractWallet {
   constructor() {
     super();
     this.type = 'legacy';
-    this.preferredBalanceUnit = BitcoinUnit.BTC;
   }
 
   /**
@@ -81,10 +79,6 @@ export class LegacyWallet extends AbstractWallet {
 
   getTypeReadable() {
     return 'Legacy (P2PKH)';
-  }
-
-  getPreferredBalanceUnit() {
-    return this.preferredBalanceUnit || BitcoinUnit.BTC;
   }
 
   /**
