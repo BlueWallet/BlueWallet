@@ -505,10 +505,11 @@ export default class SendDetails extends Component {
               }}
             >
               <TextInput
-                onChangeText={text => { 
+                onChangeText={text => {
                   if (!this.processBIP70Invoice(text)) {
                     this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
-                  }}}
+                  }
+                }}
                 placeholder={loc.send.details.address}
                 numberOfLines={1}
                 value={this.state.address}
