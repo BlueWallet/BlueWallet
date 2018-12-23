@@ -163,7 +163,7 @@ export default class ScanLndInvoice extends React.Component {
             >
               <TextInput
                 onChangeText={text => {
-                  if (text.toLowerCase().startsWith('lnb')) {
+                  if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lntb')) {
                     this.processInvoice(text);
                   } else {
                     this.setState({ decoded: undefined, expiresIn: undefined });

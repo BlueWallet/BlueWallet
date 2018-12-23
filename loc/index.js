@@ -92,7 +92,9 @@ strings.formatBalance = (balance, fromUnit, toUnit) => {
       .to(BitcoinUnit.SATS)
       .format();
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    const satoshis = BTCUnits(balance, BitcoinUnit.BTC).to(BitcoinUnit.SATS).value();
+    const satoshis = BTCUnits(balance, BitcoinUnit.BTC)
+      .to(BitcoinUnit.SATS)
+      .value();
     return currency.satoshiToLocalCurrency(satoshis);
   }
 };
@@ -113,9 +115,13 @@ strings.formatBalanceWithoutSuffix = (balance, fromUnit, toUnit) => {
         .to(BitcoinUnit.BTC)
         .toString();
     } else if (toUnit === BitcoinUnit.SATS) {
-      return String(BTCUnits(balance, fromUnit)
-        .to(BitcoinUnit.SATS)
-        .format()).replace(' satoshis','');
+      return String(
+        BTCUnits(balance, fromUnit)
+          .to(BitcoinUnit.SATS)
+          .format(),
+      )
+        .replace(' satoshis', '')
+        .replace(' satoshi', '');
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(BTCUnits(balance, fromUnit).to(BitcoinUnit.SATS));
     }

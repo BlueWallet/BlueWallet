@@ -349,7 +349,9 @@ export default class WalletsList extends Component {
                     rightTitleStyle={{
                       fontWeight: '600',
                       fontSize: 16,
-                      color: rowData.item.value / 100000000 < 0 ? BlueApp.settings.foregroundColor : '#37c0a1',
+                      color: rowData.item.value / 100000000 < 0 || rowData.item.type === 'paid_invoice'
+                        ? BlueApp.settings.foregroundColor
+                        : '#37c0a1',
                     }}
                   />
                 );
