@@ -17,6 +17,7 @@ import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 const BigNumber = require('bignumber.js');
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -345,10 +346,7 @@ export default class WalletsList extends Component {
                       containerStyle: { marginTop: 0 },
                     }}
                     hideChevron
-                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0)
-                      .dividedBy(100000000)
-                      .toFixed(8)
-                      .toString()}
+                    rightTitle={loc.formatBalanceWithoutSuffix(rowData.item.value && rowData.item.value, BitcoinUnit.BTC)}
                     rightTitleStyle={{
                       fontWeight: '600',
                       fontSize: 16,

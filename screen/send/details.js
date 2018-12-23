@@ -185,27 +185,34 @@ export default class SendDetails extends Component {
   }
 
   processBIP70Invoice(text) {
-    if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
-      this.setState(
-        {
-          isLoading: true,
-        },
-        () => {
-          Keyboard.dismiss();
-          BitcoinBIP70TransactionDecode.decode(text).then(response => {
-            this.setState({
-              address: response.address,
-              amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
-              memo: response.memo,
-              fee: response.fee,
-              bip70TransactionExpiration: response.expires,
-              isLoading: false,
-            });
-          });
-        },
-      );
+    try {
+      if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
+        this.setState(
+          {
+            isLoading: true,
+          },
+          () => {
+            Keyboard.dismiss();
+            BitcoinBIP70TransactionDecode.decode(text)
+              .then(response => {
+                this.setState({
+                  address: response.address,
+                  amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                  memo: response.memo,
+                  fee: response.fee,
+                  bip70TransactionExpiration: response.expires,
+                  isLoading: false,
+                });
+              })
+              .catch(error => {
+                alert(error.errorMessage);
+                this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null, amount: 0 });
+              });
+          },
+        );
+      }
       return true;
-    } else {
+    } catch (error) {
       this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null, amount: 0 });
       return false;
     }
@@ -479,6 +486,8 @@ export default class SendDetails extends Component {
               <TextInput
                 onChangeText={text => {
                   if (!this.processBIP70Invoice(text)) {
+                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                  } else {
                     this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
                   }
                 }}

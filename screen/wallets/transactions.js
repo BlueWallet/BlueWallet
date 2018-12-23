@@ -189,7 +189,7 @@ export default class WalletTransactions extends Component {
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
 
-    this.setState({ wallet: wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => BlueApp.saveToDisk());
+    this.setState({ wallet: wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit });
   }
 
   renderWalletHeader = () => {
@@ -288,6 +288,10 @@ export default class WalletTransactions extends Component {
     );
   };
 
+  async onWillBlur() {
+    await BlueApp.saveToDisk();
+  }
+
   render() {
     const { navigate } = this.props.navigation;
     return (
@@ -296,6 +300,7 @@ export default class WalletTransactions extends Component {
           onWillFocus={() => {
             this.refreshFunction();
           }}
+          onWillBlur={() => this.onWillBlur()}
         />
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>

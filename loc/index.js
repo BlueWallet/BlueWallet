@@ -63,6 +63,18 @@ strings.transactionTimeToReadable = function(time) {
   }
 };
 
+function removeTrailingZeros(value) {
+  value = value.toString();
+
+  if (value.indexOf('.') === -1) {
+    return value;
+  }
+  while ((value.slice(-1) === '0' || value.slice(-1) === '.') && value.indexOf('.') !== -1) {
+    value = value.substr(0, value.length - 1);
+  }
+  return value;
+}
+
 /**
  *
  * @param balance {Number} Float amount of bitcoins
@@ -89,7 +101,8 @@ strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
   }
   if (balance !== 0) {
     if (toUnit === BitcoinUnit.BTC || toUnit === undefined) {
-      return new BigNumber(balance).dividedBy(100000000).toFixed(8);
+      const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
+      return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
       const value = new BigNumber(balance)
         .multipliedBy(0.0001)
