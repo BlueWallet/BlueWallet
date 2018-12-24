@@ -1,1 +1,1 @@
-BlueWallet - Bitcoin Wallet
+BlueWallet - Bitcoin & Lightning Wallet
