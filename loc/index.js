@@ -2,8 +2,8 @@ import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-let currency = require('../currency');
-let BigNumber = require('bignumber.js');
+const currency = require('../currency');
+const BigNumber = require('bignumber.js');
 let strings;
 
 // first-time loading sequence
@@ -63,50 +63,56 @@ strings.transactionTimeToReadable = function(time) {
   }
 };
 
+function removeTrailingZeros(value) {
+  value = value.toString();
+
+  if (value.indexOf('.') === -1) {
+    return value;
+  }
+  while ((value.slice(-1) === '0' || value.slice(-1) === '.') && value.indexOf('.') !== -1) {
+    value = value.substr(0, value.length - 1);
+  }
+  return value;
+}
+
 /**
  *
  * @param balance {Number} Float amount of bitcoins
- * @param unit {String} Value from models/bitcoinUnits.js
+ * @param toUnit {String} Value from models/bitcoinUnits.js
  * @returns {string}
  */
-strings.formatBalance = (balance, unit) => {
-  const conversion = 100000000;
-  if (unit === undefined) {
+strings.formatBalance = (balance, toUnit) => {
+  if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
-  } else {
-    if (balance !== 0) {
-      let b = new BigNumber(balance);
-      if (unit === BitcoinUnit.MBTC) {
-        return b.multipliedBy(1000).toString() + ' ' + BitcoinUnit.MBTC;
-      } else if (unit === BitcoinUnit.BITS) {
-        return b.multipliedBy(1000000).toString() + ' ' + BitcoinUnit.BITS;
-      } else if (unit === BitcoinUnit.SATOSHIS) {
-        return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATOSHIS).replace(/\./g, '');
-      } else if (unit === BitcoinUnit.SATS) {
-        return (b.times(conversion).toString() + ' ' + BitcoinUnit.SATS).replace(/\./g, '');
-      } else if (unit === BitcoinUnit.LOCAL_CURRENCY) {
-        return currency.satoshiToLocalCurrency(b.times(conversion).toNumber());
-      }
-    }
+  }
+  if (toUnit === BitcoinUnit.BTC) {
     return balance + ' ' + BitcoinUnit.BTC;
+  } else if (toUnit === BitcoinUnit.SATS) {
+    const value = new BigNumber(balance).multipliedBy(0.001);
+    return parseInt(value.toString().replace('.', '')).toString() + ' ' + BitcoinUnit.SATS;
+  } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
+    return currency.BTCToLocalCurrency(balance);
   }
 };
 
-strings.formatBalanceWithoutSuffix = (balance, unit) => {
-  const conversion = 100000000;
+/**
+ *
+ * @param balance {Integer} Satoshis
+ * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @returns {string}
+ */
+strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
+  if (toUnit === undefined) {
+    return balance;
+  }
   if (balance !== 0) {
-    let b = new BigNumber(balance);
-    if (unit === BitcoinUnit.BTC) {
-      return Number(b.div(conversion));
-    } else if (unit === BitcoinUnit.MBTC) {
-      return b.multipliedBy(1000).toString();
-    } else if (unit === BitcoinUnit.BITS) {
-      return b.multipliedBy(1000000).toString();
-    } else if (unit === BitcoinUnit.SATOSHIS) {
-      return b
-        .times(conversion)
-        .toString()
-        .replace(/\./g, '');
+    if (toUnit === BitcoinUnit.BTC) {
+      const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
+      return removeTrailingZeros(value);
+    } else if (toUnit === BitcoinUnit.SATS) {
+      return balance;
+    } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      return currency.satoshiToLocalCurrency(balance);
     }
   }
   return balance;

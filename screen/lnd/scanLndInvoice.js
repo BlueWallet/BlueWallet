@@ -4,6 +4,7 @@ import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TouchableW
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let currency = require('../../currency');
@@ -28,6 +29,13 @@ export default class ScanLndInvoice extends React.Component {
     if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = {};
 
+    if (!fromSecret) {
+      const lightningWallets = BlueApp.getWallets().filter(item => item.type === new LightningCustodianWallet().type);
+      if (lightningWallets.length > 0) {
+        fromSecret = lightningWallets[0].getSecret();
+      }
+    }
+
     for (let w of BlueApp.getWallets()) {
       if (w.getSecret() === fromSecret) {
         fromWallet = w;
@@ -49,6 +57,10 @@ export default class ScanLndInvoice extends React.Component {
       },
       true,
     );
+
+    if (this.props.navigation.state.params.uri) {
+      this.processTextForInvoice(this.props.navigation.getParam('uri'));
+    }
   }
 
   async processInvoice(data) {
@@ -128,6 +140,14 @@ export default class ScanLndInvoice extends React.Component {
     this.props.navigation.goBack();
   }
 
+  processTextForInvoice = text => {
+    if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb')) {
+      this.processInvoice(text);
+    } else {
+      this.setState({ decoded: undefined, expiresIn: undefined });
+    }
+  };
+
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -162,13 +182,7 @@ export default class ScanLndInvoice extends React.Component {
               }}
             >
               <TextInput
-                onChangeText={text => {
-                  if (text.toLowerCase().startsWith('lnb')) {
-                    this.processInvoice(text);
-                  } else {
-                    this.setState({ decoded: undefined, expiresIn: undefined });
-                  }
-                }}
+                onChangeText={this.processTextForInvoice}
                 placeholder={loc.wallets.details.destination}
                 numberOfLines={1}
                 value={this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.destination : ''}
@@ -263,8 +277,10 @@ ScanLndInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
     navigate: PropTypes.function,
+    getParam: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
+        uri: PropTypes.string,
         fromSecret: PropTypes.string,
       }),
     }),

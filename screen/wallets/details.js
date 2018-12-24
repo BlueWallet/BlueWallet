@@ -16,7 +16,7 @@ export default class WalletDetails extends Component {
     title: loc.wallets.details.title,
     headerRight: (
       <TouchableOpacity
-        style={{ marginHorizontal: 16 }}
+        style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
           navigation.getParam('saveAction')();
         }}
@@ -73,7 +73,6 @@ export default class WalletDetails extends Component {
         </View>
       );
     }
-
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -128,11 +127,6 @@ export default class WalletDetails extends Component {
             <View>
               <BlueSpacing20 />
               <BlueButton
-                icon={{
-                  name: 'cloud-upload',
-                  type: 'octicon',
-                  color: BlueApp.settings.buttonTextColor,
-                }}
                 onPress={() =>
                   this.props.navigation.navigate('WalletExport', {
                     address: this.state.wallet.getAddress(),

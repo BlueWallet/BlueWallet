@@ -11,6 +11,7 @@ module.exports = {
   },
   wallets: {
     options: 'options',
+    select_wallet: 'Select Wallet',
     list: {
       app_name: 'Blue Wallet',
       title: 'wallets',
@@ -34,6 +35,7 @@ module.exports = {
       scan: 'Scan',
       create: 'Adicionar',
       label_new_segwit: 'Novo SegWit',
+      label_new_lightning: 'Novo Lightning',
       wallet_name: 'nome',
       wallet_type: 'tipo',
       or: 'ou',

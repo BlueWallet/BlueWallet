@@ -4,6 +4,7 @@ import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
+import Currency from './screen/settings/currency';
 import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
@@ -16,6 +17,7 @@ import WalletExport from './screen/wallets/export';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import scanQrWif from './screen/wallets/scanQrWif';
 import ReorderWallets from './screen/wallets/reorderWallets';
+import SelectWallet from './screen/wallets/selectWallet';
 
 import details from './screen/transactions/details';
 import rbf from './screen/transactions/RBF';
@@ -71,6 +73,9 @@ const WalletsStackNavigator = createStackNavigator(
         headerTintColor: '#0c2550',
       },
     },
+    Currency: {
+      screen: Currency,
+    },
     About: {
       screen: About,
       path: 'About',
@@ -117,6 +122,9 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
   Success: {
     screen: Success,
+  },
+  SelectWallet: {
+    screen: SelectWallet,
   },
 });
 
@@ -176,6 +184,12 @@ const MainBottomTabs = createStackNavigator(
       navigationOptions: {
         header: null,
       },
+    },
+
+    // Select Wallet. Mostly for deeplinking
+
+    SelectWallet: {
+      screen: SelectWallet,
     },
   },
   {

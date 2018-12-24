@@ -44,6 +44,9 @@ export default class Settings extends Component {
           <TouchableOpacity onPress={() => this.props.navigation.navigate('Language')}>
             <BlueListItem title={loc.settings.language} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('Currency')}>
+            <BlueListItem title={loc.settings.currency} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('About')}>
             <BlueListItem title={loc.settings.about} />
           </TouchableOpacity>

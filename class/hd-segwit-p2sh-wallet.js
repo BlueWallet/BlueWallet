@@ -236,7 +236,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
               tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
               if (response.body.hasOwnProperty('info')) {
                 if (response.body.info.latest_block.height && tx.block_height) {
-                  tx.confirmations = response.body.info.latest_block.height - tx.block_height;
+                  tx.confirmations = response.body.info.latest_block.height - tx.block_height + 1;
                 } else {
                   tx.confirmations = 0;
                 }

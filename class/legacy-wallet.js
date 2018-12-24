@@ -9,7 +9,7 @@ const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
 
 /**
- *  Has private key and address signle like "1ABCD....."
+ *  Has private key and single address like "1ABCD....."
  *  (legacy P2PKH compressed)
  */
 export class LegacyWallet extends AbstractWallet {

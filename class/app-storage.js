@@ -16,6 +16,7 @@ export class AppStorage {
   static LANG = 'lang';
   static CURRENCY = 'currency';
   static LNDHUB = 'lndhub';
+  static PREFERREDCURRENCY = 'preferredCurrency';
 
   constructor() {
     /** {Array.<AbstractWallet>} */

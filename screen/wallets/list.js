@@ -15,8 +15,9 @@ import {
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-const BigNumber = require('bignumber.js');
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -32,7 +33,7 @@ export default class WalletsList extends Component {
     },
     headerRight: (
       <TouchableOpacity
-        style={{ marginHorizontal: 16, width: 40, height: 40, justifyContent: 'flex-end', alignContent: 'flex-end' }}
+        style={{ marginHorizontal: 16, width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end' }}
         onPress={() => navigation.navigate('Settings')}
       >
         <Icon name="kebab-horizontal" size={22} type="octicon" color={BlueApp.settings.foregroundColor} />
@@ -215,6 +216,8 @@ export default class WalletsList extends Component {
   handleLongPress = () => {
     if (BlueApp.getWallets().length > 1) {
       this.props.navigation.navigate('ReorderWallets');
+    } else {
+      ReactNativeHapticFeedback.trigger('notificationError', false);
     }
   };
 
@@ -342,11 +345,14 @@ export default class WalletsList extends Component {
                       containerStyle: { marginTop: 0 },
                     }}
                     hideChevron
-                    rightTitle={new BigNumber((rowData.item.value && rowData.item.value) || 0).dividedBy(100000000).toString()}
+                    rightTitle={loc.formatBalanceWithoutSuffix(rowData.item.value && rowData.item.value, BitcoinUnit.BTC)}
                     rightTitleStyle={{
                       fontWeight: '600',
                       fontSize: 16,
-                      color: rowData.item.value / 100000000 < 0 ? BlueApp.settings.foregroundColor : '#37c0a1',
+                      color:
+                        rowData.item.value / 100000000 < 0 || rowData.item.type === 'paid_invoice'
+                          ? BlueApp.settings.foregroundColor
+                          : '#37c0a1',
                     }}
                   />
                 );

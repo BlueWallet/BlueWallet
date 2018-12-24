@@ -1,6 +1,8 @@
+import 'intl';
+import 'intl/locale-data/jsonp/en';
 import React from 'react';
 import './shim.js';
-import MainBottomTabs from './MainBottomTabs';
+import App from './App';
 import { Sentry } from 'react-native-sentry';
 import { AppRegistry } from 'react-native';
 import WalletMigrate from './screen/wallets/walletMigrate';
@@ -28,7 +30,7 @@ class BlueAppComponent extends React.Component {
   }
 
   render() {
-    return this.state.isMigratingData ? <WalletMigrate onComplete={() => this.setIsMigratingData()} /> : <MainBottomTabs />;
+    return this.state.isMigratingData ? <WalletMigrate onComplete={() => this.setIsMigratingData()} /> : <App />;
   }
 }
 

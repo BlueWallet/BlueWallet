@@ -277,7 +277,7 @@ export class AbstractHDWallet extends LegacyWallet {
 
               tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
               if (!tx.confirmations && latestBlock) {
-                tx.confirmations = latestBlock - tx.block_height;
+                tx.confirmations = latestBlock - tx.block_height + 1;
               }
 
               this.transactions.push(tx);
@@ -324,7 +324,7 @@ export class AbstractHDWallet extends LegacyWallet {
       }
     }
 
-    // no luck - lets iterate over all addressess we have up to first unused address index
+    // no luck - lets iterate over all addresses we have up to first unused address index
     for (let c = 0; c <= this.next_free_change_address_index + 3; c++) {
       let possibleAddress = this._getInternalAddressByIndex(c);
       if (possibleAddress === address) {

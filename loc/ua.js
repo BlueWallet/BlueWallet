@@ -11,6 +11,7 @@ module.exports = {
   },
   wallets: {
     options: 'options',
+    select_wallet: 'Select Wallet',
     list: {
       app_name: 'BlueWallet',
       title: 'гаманці',
@@ -34,6 +35,7 @@ module.exports = {
       scan: 'Відсканувати',
       create: 'Створити',
       label_new_segwit: 'Новий SegWit',
+      label_new_lightning: 'Новий Lightning',
       wallet_name: "ім'я гаманця",
       wallet_type: 'тип гаманця',
       or: 'чи',
