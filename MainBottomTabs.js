@@ -4,6 +4,7 @@ import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
+import Currency from './screen/settings/currency';
 import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
@@ -71,6 +72,9 @@ const WalletsStackNavigator = createStackNavigator(
         },
         headerTintColor: '#0c2550',
       },
+    },
+    Currency: {
+      screen: Currency,
     },
     About: {
       screen: About,
