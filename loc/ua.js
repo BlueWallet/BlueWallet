@@ -11,6 +11,7 @@ module.exports = {
   },
   wallets: {
     options: 'options',
+    select_wallet: 'Select Wallet',
     list: {
       app_name: 'BlueWallet',
       title: 'гаманці',

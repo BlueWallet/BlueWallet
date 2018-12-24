@@ -10,6 +10,7 @@ module.exports = {
     never: 'never',
   },
   wallets: {
+    select_wallet: 'Select Wallet',
     options: 'options',
     list: {
       app_name: 'Blue Wallet',

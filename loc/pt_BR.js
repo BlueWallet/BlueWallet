@@ -11,6 +11,7 @@ module.exports = {
   },
   wallets: {
     options: 'options',
+    select_wallet: 'Select Wallet',
     list: {
       tabBarLabel: 'Wallets',
       app_name: 'Blue Wallet',

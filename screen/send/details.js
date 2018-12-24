@@ -11,8 +11,9 @@ import {
   StyleSheet,
   Platform,
   Slider,
+  Text,
 } from 'react-native';
-import { Text, Icon } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import { BlueNavigationStyle, BlueButton } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
@@ -360,6 +361,12 @@ export default class SendDetails extends Component {
     });
   }
 
+  onWalletSelect = wallet => {
+    this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () =>
+      this.props.navigation.goBack(null),
+    );
+  };
+
   renderFeeSelectionModal = () => {
     return (
       <Modal
@@ -438,6 +445,33 @@ export default class SendDetails extends Component {
     );
   };
 
+  renderWalletSelectionButton = () => {
+    return (
+      <View style={{ marginBottom: 24, alignItems: 'center' }}>
+        {!this.state.isLoading && (
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}
+            onPress={() => this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect })}
+          >
+            <Text style={{ color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center' }}>
+              {loc.wallets.select_wallet.toLowerCase()}
+            </Text>
+            <Icon name="angle-right" size={22} type="font-awesome" color="#9aa0aa" />
+          </TouchableOpacity>
+        )}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+          <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
+          <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+            {this.state.fromWallet.getBalance()}
+          </Text>
+          <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
+            {BitcoinUnit.BTC}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   render() {
     if (!this.state.fromWallet.getAddress) {
       return (
@@ -449,142 +483,145 @@ export default class SendDetails extends Component {
 
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-          <KeyboardAvoidingView behavior="position">
-            <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
-              <TextInput
-                keyboardType="numeric"
-                onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
-                placeholder="0"
-                maxLength={10}
-                editable={!this.state.isLoading}
-                value={this.state.amount}
-                placeholderTextColor="#0f5cc0"
-                style={{
-                  color: '#0f5cc0',
-                  fontSize: 36,
-                  fontWeight: '600',
-                }}
-              />
-              <Text
-                style={{
-                  color: '#0f5cc0',
-                  fontSize: 16,
-                  marginHorizontal: 4,
-                  paddingBottom: 6,
-                  fontWeight: '600',
-                  alignSelf: 'flex-end',
-                }}
-              >
-                {' ' + BitcoinUnit.BTC}
-              </Text>
-            </View>
-            <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-              <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-                {loc.formatBalance(this.state.amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 8,
-                borderRadius: 4,
-              }}
-            >
-              <TextInput
-                onChangeText={text => {
-                  if (!this.processBIP70Invoice(text)) {
-                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
-                  } else {
-                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
-                  }
-                }}
-                placeholder={loc.send.details.address}
-                numberOfLines={1}
-                value={this.state.address}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
-                editable={!this.state.isLoading}
-              />
-              <TouchableOpacity
-                disabled={this.state.isLoading}
-                onPress={() => this.props.navigation.navigate('ScanQrAddress')}
-                style={{
-                  width: 75,
-                  height: 36,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: '#bebebe',
-                  borderRadius: 4,
-                  paddingVertical: 4,
-                  paddingHorizontal: 8,
-                  marginHorizontal: 4,
-                }}
-              >
-                <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
-                <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
-              </TouchableOpacity>
-            </View>
-            <View
-              hide={!this.state.showMemoRow}
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 8,
-                borderRadius: 4,
-              }}
-            >
-              <TextInput
-                onChangeText={text => this.setState({ memo: text })}
-                placeholder={loc.send.details.note_placeholder}
-                value={this.state.memo}
-                numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
-                editable={!this.state.isLoading}
-              />
-            </View>
-            <TouchableOpacity
-              onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
-              disabled={this.state.isLoading}
-              style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
-            >
-              <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
+        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+          <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+            <KeyboardAvoidingView behavior="position">
+              <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
+                <TextInput
+                  keyboardType="numeric"
+                  onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
+                  placeholder="0"
+                  maxLength={10}
+                  editable={!this.state.isLoading}
+                  value={this.state.amount}
+                  placeholderTextColor="#0f5cc0"
+                  style={{
+                    color: '#0f5cc0',
+                    fontSize: 36,
+                    fontWeight: '600',
+                  }}
+                />
+                <Text
+                  style={{
+                    color: '#0f5cc0',
+                    fontSize: 16,
+                    marginHorizontal: 4,
+                    paddingBottom: 6,
+                    fontWeight: '600',
+                    alignSelf: 'flex-end',
+                  }}
+                >
+                  {' ' + BitcoinUnit.BTC}
+                </Text>
+              </View>
+              <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
+                <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
+                  {loc.formatBalance(this.state.amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
+                </Text>
+              </View>
               <View
                 style={{
-                  backgroundColor: '#d2f8d6',
-                  minWidth: 40,
-                  height: 25,
-                  borderRadius: 4,
-                  justifyContent: 'space-between',
                   flexDirection: 'row',
+                  borderColor: '#d2d2d2',
+                  borderBottomColor: '#d2d2d2',
+                  borderWidth: 1.0,
+                  borderBottomWidth: 0.5,
+                  backgroundColor: '#f5f5f5',
+                  minHeight: 44,
+                  height: 44,
+                  marginHorizontal: 20,
                   alignItems: 'center',
-                  paddingHorizontal: 10,
+                  marginVertical: 8,
+                  borderRadius: 4,
                 }}
               >
-                <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
-                <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+                <TextInput
+                  onChangeText={text => {
+                    if (!this.processBIP70Invoice(text)) {
+                      this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                    } else {
+                      this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                    }
+                  }}
+                  placeholder={loc.send.details.address}
+                  numberOfLines={1}
+                  value={this.state.address}
+                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                  editable={!this.state.isLoading}
+                />
+                <TouchableOpacity
+                  disabled={this.state.isLoading}
+                  onPress={() => this.props.navigation.navigate('ScanQrAddress')}
+                  style={{
+                    width: 75,
+                    height: 36,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#bebebe',
+                    borderRadius: 4,
+                    paddingVertical: 4,
+                    paddingHorizontal: 8,
+                    marginHorizontal: 4,
+                  }}
+                >
+                  <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+                  <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+                </TouchableOpacity>
               </View>
-            </TouchableOpacity>
-            {this.renderCreateButton()}
-            {this.renderFeeSelectionModal()}
-          </KeyboardAvoidingView>
+              <View
+                hide={!this.state.showMemoRow}
+                style={{
+                  flexDirection: 'row',
+                  borderColor: '#d2d2d2',
+                  borderBottomColor: '#d2d2d2',
+                  borderWidth: 1.0,
+                  borderBottomWidth: 0.5,
+                  backgroundColor: '#f5f5f5',
+                  minHeight: 44,
+                  height: 44,
+                  marginHorizontal: 20,
+                  alignItems: 'center',
+                  marginVertical: 8,
+                  borderRadius: 4,
+                }}
+              >
+                <TextInput
+                  onChangeText={text => this.setState({ memo: text })}
+                  placeholder={loc.send.details.note_placeholder}
+                  value={this.state.memo}
+                  numberOfLines={1}
+                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                  editable={!this.state.isLoading}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+                disabled={this.state.isLoading}
+                style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
+              >
+                <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
+                <View
+                  style={{
+                    backgroundColor: '#d2f8d6',
+                    minWidth: 40,
+                    height: 25,
+                    borderRadius: 4,
+                    justifyContent: 'space-between',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingHorizontal: 10,
+                  }}
+                >
+                  <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
+                  <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+                </View>
+              </TouchableOpacity>
+              {this.renderCreateButton()}
+              {this.renderFeeSelectionModal()}
+            </KeyboardAvoidingView>
+          </View>
+          {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>
     );

@@ -86,10 +86,10 @@ strings.formatBalance = (balance, toUnit) => {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
-    return balance + ' BTC';
+    return balance + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     const value = new BigNumber(balance).multipliedBy(0.001);
-    return parseInt(value.toString().replace('.', '')).toString() + ' sats';
+    return parseInt(value.toString().replace('.', '')).toString() + ' ' + BitcoinUnit.SATS;
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.BTCToLocalCurrency(balance);
   }
