@@ -14,7 +14,15 @@ const STRUCT = {
 };
 
 async function updateExchangeRate() {
-  preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERREDCURRENCY));
+  let preferredFiatCurrency;
+  try {
+    preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERREDCURRENCY));
+    if (preferredFiatCurrency === null) {
+      throw Error();
+    }
+  } catch (_error) {
+    preferredFiatCurrency = FiatUnit.USD;
+  }
   if (+new Date() - lang[STRUCT.LAST_UPDATED] <= 30 * 60 * 1000) {
     // not updating too often
     return;
@@ -42,9 +50,16 @@ async function updateExchangeRate() {
 async function startUpdater(force = false) {
   if (force) {
     const lang = JSON.parse(await AsyncStorage.getItem(AppStorage.CURRENCY));
-    delete lang[STRUCT.LAST_UPDATED]
+    delete lang[STRUCT.LAST_UPDATED];
     await AsyncStorage.setItem(AppStorage.CURRENCY, JSON.stringify(lang));
-    preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERREDCURRENCY));
+    try {
+      preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERREDCURRENCY));
+      if (preferredFiatCurrency === null) {
+        throw Error();
+      }
+    } catch (_error) {
+      preferredFiatCurrency = FiatUnit.USD;
+    }
   }
   lang = await AsyncStorage.getItem(AppStorage.CURRENCY);
   try {
