@@ -78,7 +78,7 @@ function removeTrailingZeros(value) {
 /**
  *
  * @param balance {Number} Float amount of bitcoins
- * @param unit {String} Value from models/bitcoinUnits.js
+ * @param toUnit {String} Value from models/bitcoinUnits.js
  * @returns {string}
  */
 strings.formatBalance = (balance, toUnit) => {
@@ -95,6 +95,12 @@ strings.formatBalance = (balance, toUnit) => {
   }
 };
 
+/**
+ *
+ * @param balance {Integer} Satoshis
+ * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @returns {string}
+ */
 strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
   if (toUnit === undefined) {
     return balance;

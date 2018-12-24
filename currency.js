@@ -93,21 +93,10 @@ function satoshiToLocalCurrency(satoshi) {
 }
 
 function BTCToLocalCurrency(bitcoin) {
-  if (!lang[STRUCT[preferredFiatCurrency.storageKey]]) return bitcoin;
+  let sat = new BigNumber(bitcoin);
+  sat = sat.multipliedBy(100000000).toNumber();
 
-  let b = new BigNumber(bitcoin);
-  b = b
-    .multipliedBy(1)
-    .multipliedBy(lang[STRUCT[preferredFiatCurrency.storageKey]])
-    .toString(10);
-  b = parseFloat(b).toFixed(2);
-
-  const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: preferredFiatCurrency.formatterValue,
-    minimumFractionDigits: 2,
-  });
-  return formatter.format(b);
+  return satoshiToLocalCurrency(sat);
 }
 
 function satoshiToBTC(satoshi) {
