@@ -52,6 +52,7 @@
     "eslint-plugin-standard": "^4.0.0",
     "events": "^1.1.1",
     "frisbee": "^1.6.4",
+    "intl": "^1.2.5",
     "isaac": "0.0.5",
     "mocha": "^5.2.0",
     "node-libs-react-native": "^1.0.1",

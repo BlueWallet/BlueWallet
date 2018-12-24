@@ -106,15 +106,11 @@ strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
     return balance;
   }
   if (balance !== 0) {
-    if (toUnit === BitcoinUnit.BTC || toUnit === undefined) {
+    if (toUnit === BitcoinUnit.BTC) {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      const value = new BigNumber(balance)
-        .multipliedBy(0.0001)
-        .toString()
-        .replace('.', '');
-      return parseFloat(value).toLocaleString();
+      return balance;
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(balance);
     }
