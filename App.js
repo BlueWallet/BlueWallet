@@ -36,6 +36,16 @@ export default class App extends React.Component {
             },
           }),
         );
+    } else if (event.url.indexOf('lightning:') === 0 || event.url.indexOf('LIGHTNING:') === 0) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'ScanLndInvoice',
+            params: {
+              uri: event.url,
+            },
+          }),
+        );
     }
   };
 

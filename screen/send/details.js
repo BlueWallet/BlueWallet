@@ -146,7 +146,6 @@ export default class SendDetails extends Component {
             let memo = '';
 
             parsedBitcoinUri = bip21.decode(this.props.navigation.state.params.uri);
-            console.warn(parsedBitcoinUri);
             address = parsedBitcoinUri.address || address;
             amount = parsedBitcoinUri.options.amount.toString() || amount;
             memo = parsedBitcoinUri.options.label || memo;

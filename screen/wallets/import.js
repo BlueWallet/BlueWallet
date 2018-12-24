@@ -58,9 +58,7 @@ export default class WalletsImport extends Component {
     await BlueApp.saveToDisk();
     EV(EV.enum.WALLETS_COUNT_CHANGED);
     A(A.ENUM.CREATED_WALLET);
-    setTimeout(() => {
-      this.props.navigation.popToTop();
-    });
+    this.props.navigation.dismiss();
   }
 
   async importMnemonic(text) {
@@ -261,7 +259,7 @@ export default class WalletsImport extends Component {
 WalletsImport.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    popToTop: PropTypes.func,
+    dismiss: PropTypes.func,
     goBack: PropTypes.func,
   }),
 };
