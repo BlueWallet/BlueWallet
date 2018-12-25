@@ -8,6 +8,7 @@ import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet } 
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import bip21 from 'bip21';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
@@ -143,8 +144,19 @@ export default class ScanQrWif extends React.Component {
 
     // is it just address..?
     let watchOnly = new WatchOnlyWallet();
-    if (watchOnly.isAddressValid(ret.data)) {
-      watchOnly.setSecret(ret.data);
+    let watchAddr = ret.data;
+
+    // Is it BIP21 format?
+    if (ret.data.indexOf('bitcoin:') === 0 || ret.data.indexOf('BITCOIN:') === 0) {
+      try {
+        watchAddr = bip21.decode(ret.data).address;
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    if (watchOnly.isAddressValid(watchAddr)) {
+      watchOnly.setSecret(watchAddr);
       watchOnly.setLabel(loc.wallets.scanQrWif.imported_watchonly);
       BlueApp.wallets.push(watchOnly);
       alert(loc.wallets.scanQrWif.imported_watchonly + loc.wallets.scanQrWif.with_address + watchOnly.getAddress());
