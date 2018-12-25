@@ -14,6 +14,7 @@ import {
   BlueSendButtonIcon,
   BlueReceiveButtonIcon,
   BlueListItem,
+  BlueTransactionOffchainIncomingIcon,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -154,6 +155,9 @@ export default class WalletTransactions extends Component {
             await wallet.fetchTransactions();
             if (wallet.fetchPendingTransactions) {
               await wallet.fetchPendingTransactions();
+            }
+            if (wallet.fetchUserInvoices) {
+              await wallet.fetchUserInvoices();
             }
             let end = +new Date();
             console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
@@ -405,6 +409,15 @@ export default class WalletTransactions extends Component {
                       return (
                         <View style={{ width: 25 }}>
                           <BlueTransactionOffchainIcon />
+                        </View>
+                      );
+                    }
+
+                    if (rowData.item.type === 'user_invoice' && rowData.item.ispaid) {
+                      // is it lightning offchain incoming payment?
+                      return (
+                        <View style={{ width: 25 }}>
+                          <BlueTransactionOffchainIncomingIcon />
                         </View>
                       );
                     }

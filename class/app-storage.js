@@ -290,11 +290,23 @@ export class AppStorage {
       for (let wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchTransactions();
+          if (wallet.fetchPendingTransactions) {
+            await wallet.fetchPendingTransactions();
+          }
+          if (wallet.fetchUserInvoices) {
+            await wallet.fetchUserInvoices();
+          }
         }
       }
     } else {
       for (let wallet of this.wallets) {
         await wallet.fetchTransactions();
+        if (wallet.fetchPendingTransactions) {
+          await wallet.fetchPendingTransactions();
+        }
+        if (wallet.fetchUserInvoices) {
+          await wallet.fetchUserInvoices();
+        }
       }
     }
   }

@@ -12,6 +12,7 @@ import {
   BlueList,
   BlueListItem,
   BlueHeaderDefaultMain,
+  BlueTransactionOffchainIncomingIcon,
 } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -59,7 +60,8 @@ export default class WalletsList extends Component {
   }
 
   /**
-   * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet
+   * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
+   * Triggered manually by user on pull-to-refresh.
    */
   refreshTransactions() {
     if (!(this.lastSnappedTo < BlueApp.getWallets().length)) {
@@ -176,6 +178,9 @@ export default class WalletsList extends Component {
           await wallets[index].fetchTransactions();
           if (wallets[index].fetchPendingTransactions) {
             await wallets[index].fetchPendingTransactions();
+          }
+          if (wallets[index].fetchUserInvoices) {
+            await wallets[index].fetchUserInvoices();
           }
           this.refreshFunction();
           didRefresh = true;
@@ -302,6 +307,15 @@ export default class WalletsList extends Component {
                         return (
                           <View style={{ width: 25 }}>
                             <BlueTransactionOffchainIcon />
+                          </View>
+                        );
+                      }
+
+                      if (rowData.item.type === 'user_invoice' && rowData.item.ispaid) {
+                        // is it lightning offchain incoming payment?
+                        return (
+                          <View style={{ width: 25 }}>
+                            <BlueTransactionOffchainIncomingIcon />
                           </View>
                         );
                       }
