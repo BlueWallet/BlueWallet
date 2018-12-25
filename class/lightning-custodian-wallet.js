@@ -499,7 +499,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   allowReceive() {
-    return false;
+    return true;
   }
 }
 

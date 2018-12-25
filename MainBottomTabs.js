@@ -33,6 +33,8 @@ import Success from './screen/send/success';
 
 import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
+import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
+import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -128,6 +130,16 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
 });
 
+const LNDCreateInvoiceStackNavigator = createStackNavigator({
+  LNDCreateInvoice: {
+    screen: LNDCreateInvoice,
+  },
+  LNDViewInvoice: {
+    screen: LNDViewInvoice,
+    gesturesEnabled: false,
+  },
+});
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -185,8 +197,14 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
+    LNDCreateInvoice: {
+      screen: LNDCreateInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
 
-    // Select Wallet. Mostly for deeplinking
+    // Select Wallet. Mostly for deep-linking
 
     SelectWallet: {
       screen: SelectWallet,

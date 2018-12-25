@@ -483,9 +483,10 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
-                    navigate('ReceiveDetails', { address: this.state.wallet.getAddress(), secret: this.state.wallet.getSecret() });
-                    if (this.state.wallet.getAddress()) {
-                      // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, w.getAddress());
+                    if (this.state.wallet.type === new LightningCustodianWallet().type) {
+                      navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
+                    } else {
+                      navigate('ReceiveDetails', { address: this.state.wallet.getAddress(), secret: this.state.wallet.getSecret() });
                     }
                   }}
                 />

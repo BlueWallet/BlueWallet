@@ -46,6 +46,7 @@ export default class ScanLndInvoice extends React.Component {
     this.state = {
       fromWallet,
       fromSecret,
+      destination: '',
     };
   }
 
@@ -72,7 +73,7 @@ export default class ScanLndInvoice extends React.Component {
 
     if (!this.state.fromWallet) {
       alert('Error: cant find source wallet (this should never happen)');
-      return this.props.navigation.goBack();
+      return this.props.navigation.dismiss();
     }
 
     data = data.replace('LIGHTNING:', '').replace('lightning:', '');
@@ -82,7 +83,7 @@ export default class ScanLndInvoice extends React.Component {
      * @type {LightningCustodianWallet}
      */
     let w = this.state.fromWallet;
-    let decoded = false;
+    let decoded;
     try {
       decoded = await w.decodeInvoice(data);
 
@@ -98,8 +99,10 @@ export default class ScanLndInvoice extends React.Component {
         invoice: data,
         decoded,
         expiresIn,
+        destination: data,
       });
     } catch (Err) {
+      this.setState({ destination: '' });
       alert(Err.message);
     }
   }
@@ -129,7 +132,7 @@ export default class ScanLndInvoice extends React.Component {
       end = +new Date();
     } catch (Err) {
       console.log(Err.message);
-      this.props.navigation.goBack();
+      this.props.navigation.dismiss();
       return alert('Error');
     }
 
@@ -137,14 +140,14 @@ export default class ScanLndInvoice extends React.Component {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
 
     alert('Success');
-    this.props.navigation.goBack();
+    this.props.navigation.dismiss();
   }
 
   processTextForInvoice = text => {
     if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb')) {
       this.processInvoice(text);
     } else {
-      this.setState({ decoded: undefined, expiresIn: undefined });
+      this.setState({ decoded: undefined, expiresIn: undefined, destination: text });
     }
   };
 
@@ -163,7 +166,6 @@ export default class ScanLndInvoice extends React.Component {
               currency.satoshiToBTC(this.state.decoded.num_satoshis)}
           </Text>
           <BlueSpacing20 />
-
           <BlueCard>
             <View
               style={{
@@ -182,10 +184,13 @@ export default class ScanLndInvoice extends React.Component {
               }}
             >
               <TextInput
-                onChangeText={this.processTextForInvoice}
+                onChangeText={text => {
+                  this.setState({ destination: text });
+                  this.processTextForInvoice(text);
+                }}
                 placeholder={loc.wallets.details.destination}
                 numberOfLines={1}
-                value={this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.destination : ''}
+                value={this.state.destination}
                 style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
                 editable={!this.state.isLoading}
               />
@@ -238,35 +243,26 @@ export default class ScanLndInvoice extends React.Component {
               <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
             )}
           </BlueCard>
-
           <BlueSpacing20 />
-
-          {this.state.hasOwnProperty('decoded') &&
-            this.state.decoded !== undefined &&
-            (() => {
-              if (this.state.isPayingInProgress) {
-                return (
-                  <View>
-                    <ActivityIndicator />
-                  </View>
-                );
-              } else {
-                return (
-                  <BlueButton
-                    icon={{
-                      name: 'bolt',
-                      type: 'font-awesome',
-                      color: BlueApp.settings.buttonTextColor,
-                    }}
-                    title={'Pay'}
-                    buttonStyle={{ width: 150, left: (width - 150) / 2 - 20 }}
-                    onPress={() => {
-                      this.pay();
-                    }}
-                  />
-                );
-              }
-            })()}
+          {this.state.isPayingInProgress ? (
+            <View>
+              <ActivityIndicator />
+            </View>
+          ) : (
+            <BlueButton
+              icon={{
+                name: 'bolt',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              title={'Pay'}
+              buttonStyle={{ width: 150, left: (width - 150) / 2 - 20 }}
+              onPress={() => {
+                this.pay();
+              }}
+              disabled={!this.state.decoded}
+            />
+          )}
         </SafeBlueArea>
       </TouchableWithoutFeedback>
     );
@@ -275,7 +271,7 @@ export default class ScanLndInvoice extends React.Component {
 
 ScanLndInvoice.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
+    dismiss: PropTypes.function,
     navigate: PropTypes.function,
     getParam: PropTypes.function,
     state: PropTypes.shape({
