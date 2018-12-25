@@ -12,7 +12,6 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -143,9 +142,7 @@ export default class TransactionsDetails extends Component {
             {this.state.tx.hasOwnProperty('fee') && (
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.send.create.fee}</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>
-                  {this.state.tx.fee + ' sats'}
-                </BlueText>
+                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.fee + ' sats'}</BlueText>
               </React.Fragment>
             )}
 
