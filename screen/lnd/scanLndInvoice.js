@@ -3,7 +3,7 @@ import React from 'react';
 import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TouchableWithoutFeedback, TextInput, Keyboard } from 'react-native';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -13,11 +13,11 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class ScanLndInvoice extends React.Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={'Pay invoice'} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.send.header,
+    headerLeft: null,
+  });
 
   state = {
     isLoading: false,

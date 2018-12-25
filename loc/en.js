@@ -69,7 +69,7 @@ module.exports = {
       explanation:
         "Write here you mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
       imported: 'Imported',
-      error: 'Failed to import. Is it event valid?',
+      error: 'Failed to import. Please, make sure that the provided data is valid.',
       success: 'Success',
       do_import: 'Import',
       scan_qr: 'or scan QR code instead?',

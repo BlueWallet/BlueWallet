@@ -17,7 +17,7 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueSpacing20,
-  BlueHeaderDefaultSub,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -30,11 +30,10 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class WalletsImport extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.wallets.import.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(),
+    title: loc.wallets.import.title,
+  });
 
   constructor(props) {
     super(props);
@@ -43,7 +42,7 @@ export default class WalletsImport extends Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.setState({
       isLoading: false,
       label: '',
@@ -241,6 +240,7 @@ export default class WalletsImport extends Component {
                     this.setState({ isLoading: false });
                   }, 1);
                 }}
+                disabled={!this.state.label}
               />
               <BlueButtonLink
                 title={loc.wallets.import.scan_qr}

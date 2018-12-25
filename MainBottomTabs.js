@@ -140,6 +140,15 @@ const LNDCreateInvoiceStackNavigator = createStackNavigator({
   },
 });
 
+const CreateWalletStackNavigator = createStackNavigator({
+  AddWallet: {
+    screen: AddWallet,
+  },
+  ImportWallet: {
+    screen: ImportWallet,
+  },
+});
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -150,10 +159,10 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     AddWallet: {
-      screen: AddWallet,
-    },
-    ImportWallet: {
-      screen: ImportWallet,
+      screen: CreateWalletStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     ScanQrWif: {
       screen: scanQrWif,
