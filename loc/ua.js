@@ -153,8 +153,8 @@ module.exports = {
       title: 'Покажіть цю адресу платникові',
       share: 'Відправити',
       copiedToClipboard: 'Зкопіювано',
-      amount: 'amount to receive (BTC)',
-      label: 'note to sender',
+      label: 'Description',
+      setAmount: 'Receive with amount',
     },
   },
   buyBitcoin: {

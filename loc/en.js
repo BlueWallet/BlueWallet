@@ -153,8 +153,8 @@ module.exports = {
       title: 'Share this address with payer',
       share: 'share',
       copiedToClipboard: 'Copied to clipboard.',
-      amount: 'amount to receive (BTC)',
-      label: 'note to sender',
+      label: 'Description',
+      setAmount: 'Receive with amount',
     },
   },
   buyBitcoin: {
