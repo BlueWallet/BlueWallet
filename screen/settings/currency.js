@@ -44,8 +44,8 @@ export default class Currency extends Component {
         }}
       >
         <BlueListItem
-          title={item.symbol + ' ' + item.formatterValue}
-          {...(this.state.selectedCurrency.formatterValue === item.formatterValue
+          title={item.symbol + ' ' + item.endPointKey}
+          {...(this.state.selectedCurrency.endPointKey === item.endPointKey
             ? {
                 rightIcon: this.state.selectedNewCurrency ? (
                   <ActivityIndicator />

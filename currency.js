@@ -30,11 +30,11 @@ async function updateExchangeRate() {
   let json;
   try {
     const api = new Frisbee({
-      baseURI: 'https://www.bitstamp.net',
+      baseURI: 'https://api.coindesk.com',
     });
-    let response = await api.get('/api/v2/ticker/' + preferredFiatCurrency.endPointKey);
+    let response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
     json = response.body;
-    if (typeof json === 'undefined' || typeof json.last === 'undefined') {
+    if (typeof json === 'undefined' || typeof json.bpi[preferredFiatCurrency.endPointKey].rate_foat === 'undefined') {
       throw new Error('Could not update currency rate: ' + response.err);
     }
   } catch (Err) {
@@ -43,7 +43,8 @@ async function updateExchangeRate() {
   }
 
   lang[STRUCT.LAST_UPDATED] = +new Date();
-  lang[STRUCT[preferredFiatCurrency.storageKey]] = json.last * 1;
+  lang[STRUCT[preferredFiatCurrency['BTC_' + preferredFiatCurrency.endPointKey]]] =
+    json.bpi[preferredFiatCurrency.endPointKey].rate_foat * 1;
   await AsyncStorage.setItem(AppStorage.CURRENCY, JSON.stringify(lang));
 }
 
@@ -69,24 +70,24 @@ async function startUpdater(force = false) {
   }
   lang = lang || {};
   lang[STRUCT.LAST_UPDATED] = lang[STRUCT.LAST_UPDATED] || 0;
-  lang[STRUCT[preferredFiatCurrency.storageKey]] = lang[STRUCT[preferredFiatCurrency.storageKey]] || 6500;
+  lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]] = lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]] || 6500;
   setInterval(() => updateExchangeRate(), 2 * 60 * 100);
   return updateExchangeRate();
 }
 
 function satoshiToLocalCurrency(satoshi) {
-  if (!lang[STRUCT[preferredFiatCurrency.storageKey]]) return satoshi;
+  if (!lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]]) return satoshi;
 
   let b = new BigNumber(satoshi);
   b = b
     .dividedBy(100000000)
-    .multipliedBy(lang[STRUCT[preferredFiatCurrency.storageKey]])
+    .multipliedBy(lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]])
     .toString(10);
   b = parseFloat(b).toFixed(2);
 
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: preferredFiatCurrency.formatterValue,
+    currency: preferredFiatCurrency.endPointKey,
     minimumFractionDigits: 2,
   });
   return formatter.format(b);
