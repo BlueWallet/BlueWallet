@@ -453,6 +453,10 @@ export default class WalletTransactions extends Component {
                       navigate('TransactionDetails', {
                         hash: rowData.item.hash,
                       });
+                    } else if (rowData.item.type === 'user_invoice') {
+                      this.props.navigation.navigate('LNDViewInvoice', {
+                        invoice: rowData.item.payment_request,
+                      });
                     }
                   }}
                   badge={{
