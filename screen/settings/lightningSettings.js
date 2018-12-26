@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
-import { AsyncStorage, View, TextInput } from 'react-native';
+import { AsyncStorage, View, TextInput, Linking } from 'react-native';
 import { AppStorage } from '../../class';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueSpacing40 } from '../../BlueComponents';
+import {
+  BlueLoading,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueNavigationStyle,
+  BlueSpacing40,
+  BlueText,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
@@ -52,6 +61,27 @@ export default class LightningSettings extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueCard>
+          <BlueText>
+            To connect to your own LND node please install LndHub and put its URL here in settings. Leave blank to use default LndHub
+            (lndhub.io)
+          </BlueText>
+
+          <BlueButton
+            icon={{
+              name: 'mark-github',
+              type: 'octicon',
+              color: BlueApp.settings.buttonTextColor,
+              backgroundColor: '#FFFFFF',
+            }}
+            onPress={() => {
+              Linking.openURL('https://github.com/BlueWallet/LndHub');
+            }}
+            title="github.com/BlueWallet/LndHub"
+            buttonStyle={{
+              backgroundColor: '#FFFFFF',
+            }}
+          />
+
           <BlueSpacing40 />
 
           <View
