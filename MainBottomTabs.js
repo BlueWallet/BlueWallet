@@ -14,6 +14,7 @@ import AddWallet from './screen/wallets/add';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
+import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import scanQrWif from './screen/wallets/scanQrWif';
 import ReorderWallets from './screen/wallets/reorderWallets';
@@ -148,6 +149,9 @@ const MainBottomTabs = createStackNavigator(
     },
     WalletExport: {
       screen: WalletExport,
+    },
+    WalletXpub: {
+      screen: WalletXpub,
     },
     BuyBitcoin: {
       screen: BuyBitcoin,

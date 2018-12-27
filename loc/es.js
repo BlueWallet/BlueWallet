@@ -60,9 +60,13 @@ module.exports = {
       delete_this_wallet: 'Eliminar esta carterqa',
       export_backup: 'Exportar / Guardar',
       buy_bitcoin: 'Buy Bitcoin',
+      show_xpub: 'Show wallet XPUB',
     },
     export: {
       title: 'Exportacion de billetera',
+    },
+    xpub: {
+      title: 'wallet XPUB',
     },
     import: {
       title: 'importar',

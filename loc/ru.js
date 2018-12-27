@@ -60,9 +60,13 @@ module.exports = {
       delete_this_wallet: 'Удалить этот кошелек',
       export_backup: 'Экспорт / резервная копия',
       buy_bitcoin: 'Buy Bitcoin',
+      show_xpub: 'Show wallet XPUB',
     },
     export: {
       title: 'Экспорт Кошелька',
+    },
+    xpub: {
+      title: 'wallet XPUB',
     },
     import: {
       title: 'import',
