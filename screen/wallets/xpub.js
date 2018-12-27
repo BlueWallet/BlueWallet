@@ -78,23 +78,11 @@ export default class WalletXpub extends Component {
       );
     }
 
-    /*
-
-          <BlueText style={{marginBottom: 10}}>
-            WIF stands for Wallet Import Format. Backup your WIF (also shown on QR) in a safe place.
-          </BlueText>
-
-          <Divider style={{ backgroundColor: '#ebebeb', marginBottom:20, }} />
-
-    */
-
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          }
-        })()}
+        {isIpad && (
+          <BlueSpacing40 />
+        )}
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View>
             <BlueText>{this.state.wallet.getTypeReadable()}</BlueText>
