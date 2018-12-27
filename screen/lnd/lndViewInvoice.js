@@ -16,7 +16,7 @@ export default class LNDViewInvoice extends Component {
     title: loc.receive.header,
     headerLeft: null,
   });
-  
+
   constructor(props) {
     super(props);
     const invoice = props.navigation.getParam('invoice');
@@ -47,7 +47,7 @@ export default class LNDViewInvoice extends Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this.fetchInvoiceInterval)
+    clearInterval(this.fetchInvoiceInterval);
   }
 
   copyToClipboard = () => {

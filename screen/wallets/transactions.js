@@ -302,16 +302,16 @@ export default class WalletTransactions extends Component {
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+        return loc.formatBalanceWithoutSuffix(item.value && item.value, this.state.wallet.getPreferredBalanceUnit()).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+          return loc.formatBalanceWithoutSuffix(item.value && item.value, this.state.wallet.getPreferredBalanceUnit()).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+      return loc.formatBalanceWithoutSuffix(item.value && item.value, this.state.wallet.getPreferredBalanceUnit()).toString();
     }
   };
 

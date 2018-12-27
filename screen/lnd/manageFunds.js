@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-material-dropdown';
-import { BlueSpacingVariable, BlueLoading, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueSpacingVariable, BlueNavigationStyle, BlueLoading, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -13,11 +13,11 @@ let loc = require('../../loc');
 let data = [];
 
 export default class ManageFunds extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.lnd.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.lnd.title,
+    headerLeft: null,
+  });
 
   constructor(props) {
     super(props);
