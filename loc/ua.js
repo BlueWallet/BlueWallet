@@ -67,6 +67,7 @@ module.exports = {
     },
     xpub: {
       title: 'wallet XPUB',
+      copiedToClipboard: 'Зкопіювано',
     },
     import: {
       title: 'імпорт',

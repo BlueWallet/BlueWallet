@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, Platform, ActivityIndicator, View } from 'react-native';
+import { Dimensions, Platform, ActivityIndicator, View, Clipboard, Animated, TouchableOpacity } from 'react-native';
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
 import { BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -40,6 +40,7 @@ export default class WalletXpub extends Component {
       isLoading: true,
       wallet,
       xpub: wallet.getXpub(),
+      xpubText: wallet.getXpub(),
     };
   }
 
@@ -59,6 +60,13 @@ export default class WalletXpub extends Component {
       return width - 48;
     }
     return 312;
+  };
+
+  copyToClipboard = () => {
+    this.setState({ xpubText: loc.wallets.xpub.copiedToClipboard }, () => {
+      Clipboard.setString(this.state.xpub);
+      setTimeout(() => this.setState({ xpubText: this.state.xpub }), 1000);
+    });
   };
 
   render() {
@@ -124,7 +132,11 @@ export default class WalletXpub extends Component {
             }
           })()}
 
-          <BlueText style={{ marginVertical: 8 }}>{this.state.xpub}</BlueText>
+          <TouchableOpacity onPress={this.copyToClipboard}>
+            <Animated.Text style={{ marginVertical: 8, textAlign: 'center' }} numberOfLines={0}>
+              {this.state.xpubText}
+            </Animated.Text>
+          </TouchableOpacity>
         </BlueCard>
       </SafeBlueArea>
     );

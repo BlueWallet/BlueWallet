@@ -67,6 +67,7 @@ module.exports = {
     },
     xpub: {
       title: 'wallet XPUB',
+      copiedToClipboard: 'copiado para clip board',
     },
     import: {
       title: 'importar',
