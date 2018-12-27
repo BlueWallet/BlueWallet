@@ -26,24 +26,40 @@ export default class LNDViewInvoice extends Component {
       fromWallet,
       isLoading: true,
       addressText: typeof invoice === 'object' ? invoice.payment_request : invoice,
+      isFetchingInvoices: false,
     };
     this.fetchInvoiceInterval = undefined;
   }
 
   async componentDidMount() {
     this.fetchInvoiceInterval = setInterval(async () => {
-      const userInvoices = JSON.stringify(await this.state.fromWallet.getUserInvoices());
-      const updatedUserInvoice = JSON.parse(userInvoices).filter(invoice =>
-        typeof this.state.invoice === 'object'
-          ? invoice.payment_request === this.state.invoice.payment_request
-          : invoice.payment_request === this.state.invoice,
-      )[0];
-      this.setState({ invoice: updatedUserInvoice, isLoading: false });
-      if (updatedUserInvoice.ispaid) {
-        ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-        clearInterval(this.fetchInvoiceInterval);
-        this.fetchInvoiceInterval = undefined;
-        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+      if (!this.state.isFetchingInvoices) {
+        this.setState({ isFetchingInvoices: true });
+        const userInvoices = JSON.stringify(await this.state.fromWallet.getUserInvoices());
+        const updatedUserInvoice = JSON.parse(userInvoices).filter(invoice =>
+          typeof this.state.invoice === 'object'
+            ? invoice.payment_request === this.state.invoice.payment_request
+            : invoice.payment_request === this.state.invoice,
+        )[0];
+        this.setState({ invoice: updatedUserInvoice, isLoading: false });
+        if (updatedUserInvoice.ispaid) {
+          this.setState({ isFetchingInvoices: false });
+          ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+          clearInterval(this.fetchInvoiceInterval);
+          this.fetchInvoiceInterval = undefined;
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+        } else {
+          const currentDate = new Date();
+          const now = (currentDate.getTime() / 1000) | 0;
+          const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
+          if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
+            this.setState({ isFetchingInvoices: false });
+            ReactNativeHapticFeedback.trigger('notificationError', false);
+            clearInterval(this.fetchInvoiceInterval);
+            this.fetchInvoiceInterval = undefined;
+            EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+          }
+        }
       }
     }, 5000);
   }
