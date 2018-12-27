@@ -4,6 +4,9 @@ import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyb
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
+import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
+import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 /** @type {AppStorage} */
@@ -135,6 +138,21 @@ export default class WalletDetails extends Component {
                 }
                 title={loc.wallets.details.export_backup}
               />
+
+              <BlueSpacing20 />
+
+              {(this.state.wallet.type === new HDLegacyBreadwalletWallet().type ||
+                this.state.wallet.type === new HDLegacyP2PKHWallet().type ||
+                this.state.wallet.type === new HDSegwitP2SHWallet().type) && (
+                <BlueButton
+                  onPress={() =>
+                    this.props.navigation.navigate('WalletXpub', {
+                      secret: this.state.wallet.getSecret(),
+                    })
+                  }
+                  title={loc.wallets.details.show_xpub}
+                />
+              )}
 
               <BlueSpacing20 />
 

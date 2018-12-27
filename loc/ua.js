@@ -60,9 +60,14 @@ module.exports = {
       delete_this_wallet: 'Видалити цей гаманець',
       export_backup: 'Експорт / резервна копія',
       buy_bitcoin: 'Buy Bitcoin',
+      show_xpub: 'Show wallet XPUB',
     },
     export: {
       title: 'Експорт Гаманця',
+    },
+    xpub: {
+      title: 'wallet XPUB',
+      copiedToClipboard: 'Зкопіювано',
     },
     import: {
       title: 'імпорт',

@@ -60,9 +60,14 @@ module.exports = {
       delete_this_wallet: 'Delete this wallet',
       export_backup: 'Export / backup',
       buy_bitcoin: 'Buy Bitcoin',
+      show_xpub: 'Show wallet XPUB',
     },
     export: {
       title: 'wallet export',
+    },
+    xpub: {
+      title: 'wallet XPUB',
+      copiedToClipboard: 'Copied to clipboard.',
     },
     import: {
       title: 'import',
