@@ -21,7 +21,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
-
 let loc = require('../../loc');
 let EV = require('../../events');
 
@@ -296,6 +295,54 @@ export default class WalletTransactions extends Component {
     await BlueApp.saveToDisk();
   }
 
+  rowTitle = item => {
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+        } else {
+          return loc.lnd.expired;
+        }
+      }
+    } else {
+      return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+    }
+  };
+
+  rowTitleStyle = item => {
+    let color = '#37c0a1';
+
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        color = '#37c0a1';
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          color = '#37c0a1';
+        } else {
+          color = '#FF0000';
+        }
+      }
+    } else if (item.value / 100000000 < 0) {
+      color = BlueApp.settings.foregroundColor;
+    }
+
+    return {
+      fontWeight: '600',
+      fontSize: 16,
+      color: color,
+    };
+  };
+
   render() {
     const { navigate } = this.props.navigation;
     return (
@@ -382,7 +429,6 @@ export default class WalletTransactions extends Component {
             }
             refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
             data={this.state.dataSource}
-            extraData={this.state.dataSource}
             keyExtractor={this._keyExtractor}
             renderItem={rowData => {
               return (
@@ -453,9 +499,10 @@ export default class WalletTransactions extends Component {
                       navigate('TransactionDetails', {
                         hash: rowData.item.hash,
                       });
-                    } else if (rowData.item.type === 'user_invoice') {
+                    } else if (rowData.item.type === 'user_invoice' || rowData.item.type === 'payment_request') {
                       this.props.navigation.navigate('LNDViewInvoice', {
-                        invoice: rowData.item.payment_request,
+                        invoice: rowData.item,
+                        fromWallet: this.state.wallet,
                       });
                     }
                   }}
@@ -465,20 +512,8 @@ export default class WalletTransactions extends Component {
                     containerStyle: { marginTop: 0 },
                   }}
                   hideChevron
-                  rightTitle={loc
-                    .formatBalanceWithoutSuffix(
-                      (rowData.item.value && rowData.item.value) || 0,
-                      this.state.wallet.getPreferredBalanceUnit(),
-                    )
-                    .toString()}
-                  rightTitleStyle={{
-                    fontWeight: '600',
-                    fontSize: 16,
-                    color:
-                      rowData.item.value / 100000000 < 0 || rowData.item.type === 'paid_invoice'
-                        ? BlueApp.settings.foregroundColor
-                        : '#37c0a1',
-                  }}
+                  rightTitle={this.rowTitle(rowData.item)}
+                  rightTitleStyle={this.rowTitleStyle(rowData.item)}
                 />
               );
             }}

@@ -203,5 +203,6 @@ module.exports = {
     refill_lnd_balance: 'Пополнить баланс Lightning кошелька',
     refill: 'Пополнить',
     withdraw: 'Вывести',
+    expired: 'Expired',
   },
 };

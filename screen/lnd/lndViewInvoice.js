@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
 // import { QRCode } from 'react-native-custom-qr-codes';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const loc = require('../../loc');
+const EV = require('../../events');
 const QRFast = require('react-native-qrcode');
 
 export default class LNDViewInvoice extends Component {
@@ -14,15 +16,38 @@ export default class LNDViewInvoice extends Component {
     title: loc.receive.header,
     headerLeft: null,
   });
-
+  
   constructor(props) {
     super(props);
-    const invoice = props.navigation.getParam('invoice').toString();
+    const invoice = props.navigation.getParam('invoice');
+    const fromWallet = props.navigation.getParam('fromWallet');
     this.state = {
-      isLoading: false,
       invoice,
-      addressText: invoice,
+      fromWallet,
+      addressText: typeof invoice === 'object' ? invoice.payment_request : invoice,
     };
+    this.fetchInvoiceInterval = undefined;
+  }
+
+  async componentDidMount() {
+    if (!this.state.invoice.isLoading) {
+      this.fetchInvoiceInterval = setInterval(async () => {
+        const userInvoices = JSON.stringify(await this.state.fromWallet.getUserInvoices());
+        const updatedUserInvoice = JSON.parse(userInvoices).filter(
+          invoice => invoice.payment_request === this.state.invoice.payment_request,
+        )[0];
+        this.setState({ invoice: updatedUserInvoice });
+        if (updatedUserInvoice.ispaid) {
+          ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+          clearInterval(this.fetchInvoiceInterval);
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+        }
+      }, 5000);
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.fetchInvoiceInterval)
   }
 
   copyToClipboard = () => {
@@ -37,19 +62,49 @@ export default class LNDViewInvoice extends Component {
       return <BlueLoading />;
     }
 
+    const { invoice } = this.state;
+    if (typeof invoice === 'object') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = invoice.timestamp + invoice.expire_time;
+
+      if (invoice.ispaid) {
+        return (
+          <SafeBlueArea style={{ flex: 1 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <BlueText>This invoice has been paid for.</BlueText>
+            </View>
+          </SafeBlueArea>
+        );
+      }
+      if (invoiceExpiration < now && !invoice.ispaid) {
+        return (
+          <SafeBlueArea style={{ flex: 1 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <BlueText>This invoice was not paid for and has expired.</BlueText>
+            </View>
+          </SafeBlueArea>
+        );
+      } else if (invoiceExpiration > now && invoice.ispaid) {
+        if (invoice.ispaid) {
+          return (
+            <SafeBlueArea style={{ flex: 1 }}>
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <BlueText>'This invoice has been paid for.'</BlueText>
+              </View>
+            </SafeBlueArea>
+          );
+        }
+      }
+    }
+
+    // Invoice has not expired, nor has it been paid for.
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-            {/* <QRCode
-              content={this.state.invoice}
-              size={(is.ipad() && 300) || 300}
-              color={BlueApp.settings.foregroundColor}
-              backgroundColor={BlueApp.settings.brandingColor}
-              logo={require('../../img/qr-code.png')}
-            /> */}
             <QRFast
-              value={this.state.invoice}
+              value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
               size={300}
               fgColor={BlueApp.settings.brandingColor}
               bgColor={BlueApp.settings.foregroundColor}
@@ -69,7 +124,7 @@ export default class LNDViewInvoice extends Component {
               }}
               onPress={async () => {
                 Share.share({
-                  message: this.state.invoice,
+                  message: invoice,
                 });
               }}
               title={loc.receive.details.share}

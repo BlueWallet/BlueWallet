@@ -47,6 +47,7 @@ export default class WalletsList extends Component {
     this.state = {
       isLoading: true,
       wallets: BlueApp.getWallets().concat(false),
+      lastSnappedTo: 0,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
 
@@ -137,6 +138,7 @@ export default class WalletsList extends Component {
   onSnapToItem(index) {
     console.log('onSnapToItem', index);
     this.lastSnappedTo = index;
+    this.setState({ lastSnappedTo: index });
 
     if (index < BlueApp.getWallets().length) {
       // not the last
@@ -226,13 +228,60 @@ export default class WalletsList extends Component {
     }
   };
 
+  rowTitle = item => {
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+        } else {
+          return loc.lnd.expired;
+        }
+      }
+    } else {
+      return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC);
+    }
+  };
+
+  rowTitleStyle = item => {
+    let color = '#37c0a1';
+
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        color = '#37c0a1';
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          color = '#37c0a1';
+        } else {
+          color = '#FF0000';
+        }
+      }
+    } else if (item.value / 100000000 < 0) {
+      color = BlueApp.settings.foregroundColor;
+    }
+
+    return {
+      fontWeight: '600',
+      fontSize: 16,
+      color: color,
+    };
+  };
+
   render() {
     const { navigate } = this.props.navigation;
 
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
-
     return (
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <NavigationEvents
@@ -352,9 +401,10 @@ export default class WalletsList extends Component {
                           hash: rowData.item.hash,
                         });
                       } else if (rowData.item.type === 'user_invoice') {
-                        this.props.navigation.navigate('LNDViewInvoice', {
-                          invoice: rowData.item.payment_request,
-                        });
+                        // this.props.navigation.navigate('LNDViewInvoice', {
+                        //   invoice: rowData.item,
+                        //   fromWallet: this.state.wallets[this.state.lastSnappedTo],
+                        // });
                       }
                     }}
                     badge={{
@@ -363,15 +413,8 @@ export default class WalletsList extends Component {
                       containerStyle: { marginTop: 0 },
                     }}
                     hideChevron
-                    rightTitle={loc.formatBalanceWithoutSuffix(rowData.item.value && rowData.item.value, BitcoinUnit.BTC)}
-                    rightTitleStyle={{
-                      fontWeight: '600',
-                      fontSize: 16,
-                      color:
-                        rowData.item.value / 100000000 < 0 || rowData.item.type === 'paid_invoice'
-                          ? BlueApp.settings.foregroundColor
-                          : '#37c0a1',
-                    }}
+                    rightTitle={this.rowTitle(rowData.item)}
+                    rightTitleStyle={this.rowTitleStyle(rowData.item)}
                   />
                 );
               }}

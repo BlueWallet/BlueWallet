@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
+let EV = require('../../events');
 let loc = require('../../loc');
 
 export default class LNDCreateInvoice extends Component {
@@ -31,6 +32,7 @@ export default class LNDCreateInvoice extends Component {
       if (invoiceRequest === null) {
         ReactNativeHapticFeedback.trigger('notificationError', false);
       } else {
+        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', false);
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,

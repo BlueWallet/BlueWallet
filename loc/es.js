@@ -202,5 +202,6 @@ module.exports = {
     refill_lnd_balance: 'Rellenar el balance de la billetera Lightning',
     refill: 'Rellenar',
     withdraw: 'Retirar',
+    expired: 'Expirado',
   },
 };

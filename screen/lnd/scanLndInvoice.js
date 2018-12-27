@@ -73,7 +73,7 @@ export default class ScanLndInvoice extends React.Component {
 
     if (!this.state.fromWallet) {
       alert('Error: cant find source wallet (this should never happen)');
-      return this.props.navigation.dismiss();
+      return this.props.navigation.goBack();
     }
 
     data = data.replace('LIGHTNING:', '').replace('lightning:', '');
@@ -132,7 +132,7 @@ export default class ScanLndInvoice extends React.Component {
       end = +new Date();
     } catch (Err) {
       console.log(Err.message);
-      this.props.navigation.dismiss();
+      this.props.navigation.goBack();
       return alert('Error');
     }
 
@@ -140,7 +140,7 @@ export default class ScanLndInvoice extends React.Component {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
 
     alert('Success');
-    this.props.navigation.dismiss();
+    this.props.navigation.goBack();
   }
 
   processTextForInvoice = text => {
@@ -271,7 +271,7 @@ export default class ScanLndInvoice extends React.Component {
 
 ScanLndInvoice.propTypes = {
   navigation: PropTypes.shape({
-    dismiss: PropTypes.function,
+    goBack: PropTypes.function,
     navigate: PropTypes.function,
     getParam: PropTypes.function,
     state: PropTypes.shape({
