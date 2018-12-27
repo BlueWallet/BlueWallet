@@ -93,24 +93,13 @@ export default class ReceiveAmount extends Component {
             logo={require('../../img/qr-code.png')}
           />
         </View>
-        <TouchableOpacity onPress={this.copyToClipboard}>
-          <Animated.Text style={styles.address} numberOfLines={0}>
-            {this.state.addressText}
-          </Animated.Text>
-        </TouchableOpacity>
-        <BlueButton
-          icon={{
-            name: 'share-alternative',
-            type: 'entypo',
-            color: BlueApp.settings.buttonTextColor,
-          }}
-          onPress={async () => {
-            Share.share({
-              message: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
-            });
-          }}
-          title={loc.receive.details.share}
-        />
+        <View style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
+          <TouchableOpacity onPress={this.copyToClipboard}>
+            <Animated.Text style={styles.address} numberOfLines={0}>
+              {this.state.addressText}
+            </Animated.Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -118,8 +107,7 @@ export default class ReceiveAmount extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+          <View style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'space-between' }}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 amount={this.state.amount || ''}
@@ -128,8 +116,26 @@ export default class ReceiveAmount extends Component {
               />
               {this.state.amountSet ? this.renderWithSetAmount() : this.renderDefault()}
             </KeyboardAvoidingView>
+            {this.state.amountSet && (
+              <BlueButton
+                buttonStyle={{
+                  alignSelf: 'center',
+                  marginBottom: 24,
+                }}
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={async () => {
+                  Share.share({
+                    message: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
+                  });
+                }}
+                title={loc.receive.details.share}
+              />
+            )}
           </View>
-        </View>
       </SafeBlueArea>
     );
   }

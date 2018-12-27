@@ -100,7 +100,7 @@ export default class ReceiveDetails extends Component {
               </Animated.Text>
             </TouchableOpacity>
           </View>
-          <View style={{ marginBottom: 24 }}>
+          <View style={{ marginBottom: 24, alignItems: 'center' }}>
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
