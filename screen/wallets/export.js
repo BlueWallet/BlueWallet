@@ -29,7 +29,6 @@ export default class WalletExport extends Component {
     let address = props.navigation.state.params.address;
     let secret = props.navigation.state.params.secret;
     let wallet;
-
     for (let w of BlueApp.getWallets()) {
       if ((address && w.getAddress() === address) || w.getSecret() === secret) {
         // found our wallet

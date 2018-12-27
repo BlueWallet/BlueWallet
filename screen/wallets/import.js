@@ -50,14 +50,18 @@ export default class WalletsImport extends Component {
   }
 
   async _saveWallet(w) {
-    alert(loc.wallets.import.success);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-    w.setLabel(loc.wallets.import.imported + ' ' + w.getTypeReadable());
-    BlueApp.wallets.push(w);
-    await BlueApp.saveToDisk();
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
-    A(A.ENUM.CREATED_WALLET);
-    this.props.navigation.dismiss();
+    if (BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret)) {
+      alert('This wallet has been previously imported.');
+    } else {
+      alert(loc.wallets.import.success);
+      ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+      w.setLabel(loc.wallets.import.imported + ' ' + w.getTypeReadable());
+      BlueApp.wallets.push(w);
+      await BlueApp.saveToDisk();
+      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      A(A.ENUM.CREATED_WALLET);
+      this.props.navigation.dismiss();
+    }
   }
 
   async importMnemonic(text) {

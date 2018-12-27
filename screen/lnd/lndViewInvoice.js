@@ -24,30 +24,33 @@ export default class LNDViewInvoice extends Component {
     this.state = {
       invoice,
       fromWallet,
+      isLoading: true,
       addressText: typeof invoice === 'object' ? invoice.payment_request : invoice,
     };
     this.fetchInvoiceInterval = undefined;
   }
 
   async componentDidMount() {
-    if (!this.state.invoice.isLoading) {
-      this.fetchInvoiceInterval = setInterval(async () => {
-        const userInvoices = JSON.stringify(await this.state.fromWallet.getUserInvoices());
-        const updatedUserInvoice = JSON.parse(userInvoices).filter(
-          invoice => invoice.payment_request === this.state.invoice.payment_request,
-        )[0];
-        this.setState({ invoice: updatedUserInvoice });
-        if (updatedUserInvoice.ispaid) {
-          ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-          clearInterval(this.fetchInvoiceInterval);
-          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-        }
-      }, 5000);
-    }
+    this.fetchInvoiceInterval = setInterval(async () => {
+      const userInvoices = JSON.stringify(await this.state.fromWallet.getUserInvoices());
+      const updatedUserInvoice = JSON.parse(userInvoices).filter(invoice =>
+        typeof this.state.invoice === 'object'
+          ? invoice.payment_request === this.state.invoice.payment_request
+          : invoice.payment_request === this.state.invoice,
+      )[0];
+      this.setState({ invoice: updatedUserInvoice, isLoading: false });
+      if (updatedUserInvoice.ispaid) {
+        ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+        clearInterval(this.fetchInvoiceInterval);
+        this.fetchInvoiceInterval = undefined;
+        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+      }
+    }, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
+    this.fetchInvoiceInterval = undefined;
   }
 
   copyToClipboard = () => {
