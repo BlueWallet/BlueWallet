@@ -152,7 +152,7 @@ export default class ReorderWallets extends Component {
               color: '#fff',
             }}
           >
-            {loc.formatBalance(item.getBalance())}
+            {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit())}
           </Text>
           <Text style={{ backgroundColor: 'transparent' }} />
           <Text
