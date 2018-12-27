@@ -152,6 +152,7 @@ export default class TransactionsDetails extends Component {
                   <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
                 </View>
+                <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.hash}</BlueText>
                 <TouchableOpacity
                   onPress={() => {
                     const url = `https://live.blockcypher.com/btc/tx/${this.state.tx.hash}`;
@@ -162,7 +163,7 @@ export default class TransactionsDetails extends Component {
                     });
                   }}
                 >
-                  <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+                  <BlueText style={{ marginBottom: 26, color: '#2f5fb3' }}>{loc.transactions.details.show_in_block_explorer}</BlueText>
                 </TouchableOpacity>
               </React.Fragment>
             )}
