@@ -68,6 +68,8 @@ describe('LightningCustodianWallet', () => {
     for (let tx of l2.getTransactions()) {
       assert.ok(typeof tx.fee !== 'undefined');
       assert.ok(tx.value);
+      assert.ok(tx.timestamp);
+      assert.ok(tx.description || tx.memo, JSON.stringify(tx));
       assert.ok(!isNaN(tx.value));
       assert.ok(tx.type === 'bitcoind_tx' || tx.type === 'paid_invoice', 'unexpected tx type ' + tx.type);
     }
@@ -139,6 +141,8 @@ describe('LightningCustodianWallet', () => {
     let l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     await l2.authorize();
+    await l2.fetchTransactions();
+    let txLen = l2.transactions_raw.length;
 
     let decoded = await l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
@@ -153,6 +157,10 @@ describe('LightningCustodianWallet', () => {
       console.warn('payInvoice took', (end - start) / 1000, 'sec');
     }
 
+    await l2.fetchTransactions();
+    assert.equal(l2.transactions_raw.length, txLen + 1);
+    // transactions became more after paying an invoice
+
     // now, trying to pay duplicate invoice
     start = +new Date();
     let caughtError = false;
@@ -162,6 +170,9 @@ describe('LightningCustodianWallet', () => {
       caughtError = true;
     }
     assert.ok(caughtError);
+    await l2.fetchTransactions();
+    assert.equal(l2.transactions_raw.length, txLen + 1);
+    // havent changed since last time
     end = +new Date();
     if ((end - start) / 1000 > 9) {
       console.warn('duplicate payInvoice took', (end - start) / 1000, 'sec');
@@ -178,6 +189,8 @@ describe('LightningCustodianWallet', () => {
     let lOld = new LightningCustodianWallet();
     lOld.setSecret(process.env.BLITZHUB);
     await lOld.authorize();
+    await lOld.fetchTransactions();
+    let txLen = lOld.transactions_raw.length;
 
     // creating LND wallet
     let lNew = new LightningCustodianWallet();
@@ -215,6 +228,16 @@ describe('LightningCustodianWallet', () => {
     await lNew.fetchBalance();
     assert.equal(oldBalance - lOld.balance, 1);
     assert.equal(lNew.balance, 1);
+
+    await lOld.fetchTransactions();
+    assert.equal(lOld.transactions_raw.length, txLen + 1, 'internal invoice should also produce record in payer`s tx list');
+    let newTx = lOld.transactions_raw.slice().pop();
+    assert.ok(typeof newTx.fee !== 'undefined');
+    assert.ok(newTx.value);
+    assert.ok(newTx.description || newTx.memo, JSON.stringify(newTx));
+    assert.ok(newTx.timestamp);
+    assert.ok(!isNaN(newTx.value));
+    assert.ok(newTx.type === 'paid_invoice', 'unexpected tx type ' + newTx.type);
 
     // now, paying back that amount
     oldBalance = lOld.balance;
