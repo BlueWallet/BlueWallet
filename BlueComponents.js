@@ -1124,16 +1124,16 @@ export class BlueBitcoinAmount extends Component {
             maxLength={10}
             editable={!this.props.isLoading && !this.props.disabled}
             value={this.props.amount}
-            placeholderTextColor="#0f5cc0"
+            placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
             style={{
-              color: '#0f5cc0',
+              color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
               fontSize: 36,
               fontWeight: '600',
             }}
           />
           <Text
             style={{
-              color: '#0f5cc0',
+              color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
               fontSize: 16,
               marginHorizontal: 4,
               paddingBottom: 6,
