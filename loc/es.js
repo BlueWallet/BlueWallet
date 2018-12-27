@@ -103,6 +103,7 @@ module.exports = {
       to: 'A',
       copy: 'Copiar',
       transaction_details: 'Detalles de la transacción',
+      show_in_block_explorer: 'Show in block explorer',
     },
   },
   send: {
