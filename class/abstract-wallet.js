@@ -15,6 +15,8 @@ export class AbstractWallet {
   }
 
   constructor() {
+    this.type = this.constructor.type;
+    this.typeReadable = this.constructor.typeReadable;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
@@ -25,14 +27,6 @@ export class AbstractWallet {
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
-  }
-
-  get type() {
-    return this.constructor.type;
-  }
-
-  get typeReadable() {
-    return this.constructor.typeReadable;
   }
 
   getTransactions() {
