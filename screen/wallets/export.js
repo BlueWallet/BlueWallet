@@ -89,7 +89,7 @@ export default class WalletExport extends Component {
         })()}
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View>
-            <BlueText>{this.state.wallet.getTypeReadable()}</BlueText>
+            <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
 
           {(() => {

@@ -70,7 +70,7 @@ export default class WalletsImport extends Component {
       if (text.indexOf('blitzhub://') !== -1 || text.indexOf('lndhub://') !== -1) {
         // yep its lnd
         for (let t of BlueApp.getWallets()) {
-          if (t.type === new LightningCustodianWallet().type) {
+          if (t.type === LightningCustodianWallet.type) {
             // already exist
             return alert('Only 1 Ligthning wallet allowed for now');
           }
@@ -244,7 +244,6 @@ export default class WalletsImport extends Component {
                     this.setState({ isLoading: false });
                   }, 1);
                 }}
-                disabled={!this.state.label}
               />
               <BlueButtonLink
                 title={loc.wallets.import.scan_qr}

@@ -83,7 +83,7 @@ export default class WalletXpub extends Component {
         {isIpad && <BlueSpacing40 />}
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View>
-            <BlueText>{this.state.wallet.getTypeReadable()}</BlueText>
+            <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
 
           {(() => {

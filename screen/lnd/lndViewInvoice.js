@@ -43,7 +43,7 @@ export default class LNDViewInvoice extends Component {
               ? invoice.payment_request === this.state.invoice.payment_request
               : invoice.payment_request === this.state.invoice,
           )[0];
-          this.setState({ invoice: updatedUserInvoice, isLoading: false });
+          this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
           if (updatedUserInvoice.ispaid) {
             this.setState({ isFetchingInvoices: false });
             ReactNativeHapticFeedback.trigger('notificationSuccess', false);
@@ -78,8 +78,8 @@ export default class LNDViewInvoice extends Component {
 
   copyToClipboard = () => {
     this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(this.state.invoice);
-      setTimeout(() => this.setState({ addressText: this.state.invoice }), 1000);
+      Clipboard.setString(this.state.invoice.payment_request);
+      setTimeout(() => this.setState({ addressText: this.state.invoice.payment_request }), 1000);
     });
   };
 
@@ -150,7 +150,7 @@ export default class LNDViewInvoice extends Component {
               }}
               onPress={async () => {
                 Share.share({
-                  message: invoice,
+                  message: invoice.payment_request,
                 });
               }}
               title={loc.receive.details.share}

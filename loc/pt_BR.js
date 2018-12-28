@@ -109,6 +109,7 @@ module.exports = {
       to: 'Para',
       copy: 'Copiar',
       transaction_details: 'Transaction details',
+      show_in_block_explorer: 'Show in block explorer',
     },
   },
   send: {

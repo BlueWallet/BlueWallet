@@ -132,25 +132,25 @@ export class AppStorage {
           let tempObj = JSON.parse(key);
           let unserializedWallet;
           switch (tempObj.type) {
-            case 'segwitBech32':
+            case SegwitBech32Wallet.type:
               unserializedWallet = SegwitBech32Wallet.fromJson(key);
               break;
-            case 'segwitP2SH':
+            case SegwitP2SHWallet.type:
               unserializedWallet = SegwitP2SHWallet.fromJson(key);
               break;
-            case 'watchOnly':
+            case WatchOnlyWallet.type:
               unserializedWallet = WatchOnlyWallet.fromJson(key);
               break;
-            case new HDLegacyP2PKHWallet().type:
+            case HDLegacyP2PKHWallet.type:
               unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
               break;
-            case new HDSegwitP2SHWallet().type:
+            case HDSegwitP2SHWallet.type:
               unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
               break;
-            case new HDLegacyBreadwalletWallet().type:
+            case HDLegacyBreadwalletWallet.type:
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
               break;
-            case new LightningCustodianWallet().type:
+            case LightningCustodianWallet.type:
               /** @type {LightningCustodianWallet} */
               unserializedWallet = LightningCustodianWallet.fromJson(key);
               let lndhub = false;
@@ -168,7 +168,7 @@ export class AppStorage {
               }
               unserializedWallet.init();
               break;
-            case 'legacy':
+            case LegacyWallet.type:
             default:
               unserializedWallet = LegacyWallet.fromJson(key);
               break;
@@ -218,7 +218,7 @@ export class AppStorage {
     let walletsToSave = [];
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
-      walletsToSave.push(JSON.stringify(key));
+      walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 
     let data = {

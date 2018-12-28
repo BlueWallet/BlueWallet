@@ -45,7 +45,7 @@ export default class LightningSettings extends Component {
 
     // set each lnd wallets and re-init api
     for (/** @type {LightningCustodianWallet} */ let w of BlueApp.getWallets()) {
-      if (w.type === new LightningCustodianWallet().type) {
+      if (w.type === LightningCustodianWallet.type) {
         w.setBaseURI(this.state.URI);
         w.init();
         console.log('inited', w.baseURI);

@@ -11,14 +11,8 @@ const signer = require('../models/signer');
  * @see https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
 export class HDLegacyP2PKHWallet extends AbstractHDWallet {
-  constructor() {
-    super();
-    this.type = 'HDlegacyP2PKH';
-  }
-
-  getTypeReadable() {
-    return 'HD Legacy (BIP44 P2PKH)';
-  }
+  static type = 'HDlegacyP2PKH';
+  static typeReadable = 'HD Legacy (BIP44 P2PKH)';
 
   allowSend() {
     return true;
