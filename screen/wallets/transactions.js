@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -292,6 +292,7 @@ export default class WalletTransactions extends Component {
   };
 
   async onWillBlur() {
+    StatusBar.setBarStyle('dark-content');
     await BlueApp.saveToDisk();
   }
 
@@ -349,6 +350,7 @@ export default class WalletTransactions extends Component {
       <View style={{ flex: 1 }}>
         <NavigationEvents
           onWillFocus={() => {
+            StatusBar.setBarStyle('light-content');
             this.refreshFunction();
           }}
           onWillBlur={() => this.onWillBlur()}
