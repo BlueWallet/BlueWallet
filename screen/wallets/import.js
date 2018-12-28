@@ -230,6 +230,7 @@ export default class WalletsImport extends Component {
               }}
             >
               <BlueButton
+                disabled={!this.state.label}
                 title={loc.wallets.import.do_import}
                 buttonStyle={{
                   width: width / 1.5,
