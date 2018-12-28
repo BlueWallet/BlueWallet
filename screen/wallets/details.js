@@ -144,17 +144,19 @@ export default class WalletDetails extends Component {
               {(this.state.wallet.type === HDLegacyBreadwalletWallet.type ||
                 this.state.wallet.type === HDLegacyP2PKHWallet.type ||
                 this.state.wallet.type === HDSegwitP2SHWallet.type) && (
-                <BlueButton
-                  onPress={() =>
-                    this.props.navigation.navigate('WalletXpub', {
-                      secret: this.state.wallet.getSecret(),
-                    })
-                  }
-                  title={loc.wallets.details.show_xpub}
-                />
-              )}
+                <React.Fragment>
+                  <BlueButton
+                    onPress={() =>
+                      this.props.navigation.navigate('WalletXpub', {
+                        secret: this.state.wallet.getSecret(),
+                      })
+                    }
+                    title={loc.wallets.details.show_xpub}
+                  />
 
-              <BlueSpacing20 />
+                  <BlueSpacing20 />
+                </React.Fragment>
+              )}
 
               {this.state.wallet.type !== LightningCustodianWallet.type && (
                 <BlueButton
