@@ -296,6 +296,10 @@ export default class WalletTransactions extends Component {
     await BlueApp.saveToDisk();
   }
 
+  componentWillUnmount() {
+    this.onWillBlur();
+  }
+
   rowTitle = item => {
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
