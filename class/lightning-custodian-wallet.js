@@ -4,11 +4,13 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 let BigNumber = require('bignumber.js');
 
 export class LightningCustodianWallet extends LegacyWallet {
+  static type = 'lightningCustodianWallet';
+  static typeReadable = 'Lightning';
+
   constructor() {
     super();
     this.setBaseURI(); // no args to init with default value
     this.init();
-    this.type = 'lightningCustodianWallet';
     this.refresh_token = '';
     this.access_token = '';
     this._refresh_token_created_ts = 0;
@@ -77,10 +79,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   generate() {
     // nop
-  }
-
-  getTypeReadable() {
-    return 'Lightning';
   }
 
   async createAccount(isTest) {

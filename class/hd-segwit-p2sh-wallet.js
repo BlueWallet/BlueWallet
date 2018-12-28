@@ -14,14 +14,8 @@ const signer = require('../models/signer');
  * @see https://github.com/bitcoin/bips/blob/master/bip-0049.mediawiki
  */
 export class HDSegwitP2SHWallet extends AbstractHDWallet {
-  constructor() {
-    super();
-    this.type = 'HDsegwitP2SH';
-  }
-
-  getTypeReadable() {
-    return 'HD SegWit (BIP49 P2SH)';
-  }
+  static type = 'HDsegwitP2SH';
+  static typeReadable = 'HD SegWit (BIP49 P2SH)';
 
   allowSend() {
     return true;

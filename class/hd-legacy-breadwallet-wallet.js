@@ -8,14 +8,8 @@ const bip39 = require('bip39');
  * In particular, Breadwallet-compatible (Legacy addresses)
  */
 export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
-  constructor() {
-    super();
-    this.type = 'HDLegacyBreadwallet';
-  }
-
-  getTypeReadable() {
-    return 'HD Legacy Breadwallet (P2PKH)';
-  }
+  static type = 'HDLegacyBreadwallet';
+  static typeReadable = 'HD Legacy Breadwallet (P2PKH)';
 
   /**
    * @see https://github.com/bitcoinjs/bitcoinjs-lib/issues/584

@@ -1,8 +1,20 @@
 import { BitcoinUnit } from '../models/bitcoinUnits';
 
 export class AbstractWallet {
+  static type = 'abstract';
+  static typeReadable = 'abstract';
+
+  static fromJson(obj) {
+    let obj2 = JSON.parse(obj);
+    let temp = new this();
+    for (let key2 of Object.keys(obj2)) {
+      temp[key2] = obj2[key2];
+    }
+
+    return temp;
+  }
+
   constructor() {
-    this.type = 'abstract';
     this.label = '';
     this.secret = ''; // private key or recovery phrase
     this.balance = 0;
@@ -15,12 +27,16 @@ export class AbstractWallet {
     this.preferredBalanceUnit = BitcoinUnit.BTC;
   }
 
-  getTransactions() {
-    return this.transactions;
+  get type() {
+    return this.constructor.type;
   }
 
-  getTypeReadable() {
-    return this.type;
+  get typeReadable() {
+    return this.constructor.typeReadable;
+  }
+
+  getTransactions() {
+    return this.transactions;
   }
 
   /**
@@ -82,16 +98,6 @@ export class AbstractWallet {
 
   getLatestTransactionTime() {
     return 0;
-  }
-
-  static fromJson(obj) {
-    let obj2 = JSON.parse(obj);
-    let temp = new this();
-    for (let key2 of Object.keys(obj2)) {
-      temp[key2] = obj2[key2];
-    }
-
-    return temp;
   }
 
   getAddress() {}

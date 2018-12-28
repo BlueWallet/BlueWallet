@@ -13,10 +13,8 @@ const signer = require('../models/signer');
  *  (legacy P2PKH compressed)
  */
 export class LegacyWallet extends AbstractWallet {
-  constructor() {
-    super();
-    this.type = 'legacy';
-  }
+  static type = 'legacy';
+  static typeReadable = 'Legacy (P2PKH)';
 
   /**
    * Simple function which says that we havent tried to fetch balance
@@ -75,10 +73,6 @@ export class LegacyWallet extends AbstractWallet {
         resolve();
       });
     });
-  }
-
-  getTypeReadable() {
-    return 'Legacy (P2PKH)';
   }
 
   /**

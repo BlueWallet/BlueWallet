@@ -6,9 +6,11 @@ const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 
 export class AbstractHDWallet extends LegacyWallet {
+  static type = 'abstract';
+  static typeReadable = 'abstract';
+
   constructor() {
     super();
-    this.type = 'abstract';
     this.next_free_address_index = 0;
     this.next_free_change_address_index = 0;
     this.internal_addresses_cache = {}; // index => address
@@ -91,10 +93,6 @@ export class AbstractHDWallet extends LegacyWallet {
 
   getMnemonicToSeedHex() {
     return bip39.mnemonicToSeedHex(this.secret);
-  }
-
-  getTypeReadable() {
-    throw new Error('Not implemented');
   }
 
   /**

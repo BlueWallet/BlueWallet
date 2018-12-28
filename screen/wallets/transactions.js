@@ -96,10 +96,10 @@ export default class WalletTransactions extends Component {
 
       let showManageFundsBigButton = false;
       let showManageFundsSmallButton = false;
-      if (wallet && wallet.type === new LightningCustodianWallet().type && wallet.getBalance() * 1 === 0) {
+      if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() * 1 === 0) {
         showManageFundsBigButton = true;
         showManageFundsSmallButton = false;
-      } else if (wallet && wallet.type === new LightningCustodianWallet().type && wallet.getBalance() > 0) {
+      } else if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() > 0) {
         showManageFundsSmallButton = true;
         showManageFundsBigButton = false;
       }
@@ -126,7 +126,7 @@ export default class WalletTransactions extends Component {
 
   isLightning() {
     let w = this.state.wallet;
-    if (w && w.type === new LightningCustodianWallet().type) {
+    if (w && w.type === LightningCustodianWallet.type) {
       return true;
     }
 
@@ -198,7 +198,7 @@ export default class WalletTransactions extends Component {
       <LinearGradient colors={[gradients[0], gradients[1]]} style={{ padding: 15, minHeight: 164 }}>
         <Image
           source={
-            (new LightningCustodianWallet().type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
+            (LightningCustodianWallet.type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
             require('../../img/btc-shape.png')
           }
           style={{
@@ -498,7 +498,7 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueSendButtonIcon
                   onPress={() => {
-                    if (this.state.wallet.type === new LightningCustodianWallet().type) {
+                    if (this.state.wallet.type === LightningCustodianWallet.type) {
                       navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
                     } else {
                       navigate('SendDetails', { fromAddress: this.state.wallet.getAddress(), fromSecret: this.state.wallet.getSecret() });

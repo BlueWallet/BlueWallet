@@ -2,14 +2,8 @@ import { LegacyWallet } from './legacy-wallet';
 const bitcoin = require('bitcoinjs-lib');
 
 export class SegwitBech32Wallet extends LegacyWallet {
-  constructor() {
-    super();
-    this.type = 'segwitBech32';
-  }
-
-  getTypeReadable() {
-    return 'P2 WPKH';
-  }
+  static type = 'segwitBech32';
+  static typeReadable = 'P2 WPKH';
 
   getAddress() {
     if (this._address) return this._address;

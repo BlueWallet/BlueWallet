@@ -125,7 +125,7 @@ export default class WalletDetails extends Component {
               <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
-              <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getTypeReadable()}</Text>
+              <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
             </BlueCard>
             <View>
               <BlueSpacing20 />
@@ -141,9 +141,9 @@ export default class WalletDetails extends Component {
 
               <BlueSpacing20 />
 
-              {(this.state.wallet.type === new HDLegacyBreadwalletWallet().type ||
-                this.state.wallet.type === new HDLegacyP2PKHWallet().type ||
-                this.state.wallet.type === new HDSegwitP2SHWallet().type) && (
+              {(this.state.wallet.type === HDLegacyBreadwalletWallet.type ||
+                this.state.wallet.type === HDLegacyP2PKHWallet.type ||
+                this.state.wallet.type === HDSegwitP2SHWallet.type) && (
                 <BlueButton
                   onPress={() =>
                     this.props.navigation.navigate('WalletXpub', {
@@ -156,7 +156,7 @@ export default class WalletDetails extends Component {
 
               <BlueSpacing20 />
 
-              {this.state.wallet.type !== new LightningCustodianWallet().type && (
+              {this.state.wallet.type !== LightningCustodianWallet.type && (
                 <BlueButton
                   icon={{
                     name: 'shopping-cart',

@@ -28,7 +28,7 @@ export default class SelectWallet extends Component {
   }
 
   componentDidMount() {
-    const wallets = BlueApp.getWallets().filter(item => item.type !== new LightningCustodianWallet().type);
+    const wallets = BlueApp.getWallets().filter(item => item.type !== LightningCustodianWallet.type);
     this.setState({
       data: wallets,
       isLoading: false,
@@ -39,32 +39,32 @@ export default class SelectWallet extends Component {
     let gradient1 = '#65ceef';
     let gradient2 = '#68bbe1';
 
-    if (new WatchOnlyWallet().type === item.type) {
+    if (WatchOnlyWallet.type === item.type) {
       gradient1 = '#7d7d7d';
       gradient2 = '#4a4a4a';
     }
 
-    if (new LegacyWallet().type === item.type) {
+    if (LegacyWallet.type === item.type) {
       gradient1 = '#40fad1';
       gradient2 = '#15be98';
     }
 
-    if (new HDLegacyP2PKHWallet().type === item.type) {
+    if (HDLegacyP2PKHWallet.type === item.type) {
       gradient1 = '#e36dfa';
       gradient2 = '#bd10e0';
     }
 
-    if (new HDLegacyBreadwalletWallet().type === item.type) {
+    if (HDLegacyBreadwalletWallet.type === item.type) {
       gradient1 = '#fe6381';
       gradient2 = '#f99c42';
     }
 
-    if (new HDSegwitP2SHWallet().type === item.type) {
+    if (HDSegwitP2SHWallet.type === item.type) {
       gradient1 = '#c65afb';
       gradient2 = '#9053fe';
     }
 
-    if (new LightningCustodianWallet().type === item.type) {
+    if (LightningCustodianWallet.type === item.type) {
       gradient1 = '#f1be07';
       gradient2 = '#f79056';
     }
@@ -94,8 +94,7 @@ export default class SelectWallet extends Component {
           >
             <Image
               source={
-                (new LightningCustodianWallet().type === item.type && require('../../img/lnd-shape.png')) ||
-                require('../../img/btc-shape.png')
+                (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
               }
               style={{
                 width: 99,

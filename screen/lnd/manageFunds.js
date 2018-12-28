@@ -47,7 +47,7 @@ export default class ManageFunds extends Component {
     data = [];
     for (let c = 0; c < BlueApp.getWallets().length; c++) {
       let w = BlueApp.getWallets()[c];
-      if (w.type !== new LightningCustodianWallet().type) {
+      if (w.type !== LightningCustodianWallet.type) {
         data.push({
           value: c,
           label: w.getLabel() + ' (' + w.getBalance() + ' BTC)',

@@ -85,7 +85,7 @@ export default class ScanQrWif extends React.Component {
       await hd.fetchTransactions();
       if (hd.getTransactions().length !== 0) {
         await hd.fetchBalance();
-        hd.setLabel(loc.wallets.import.imported + ' ' + hd.getTypeReadable());
+        hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
         BlueApp.wallets.push(hd);
         await BlueApp.saveToDisk();
         alert(loc.wallets.import.success);
@@ -107,7 +107,7 @@ export default class ScanQrWif extends React.Component {
         }
       }
       this.setState({ isLoading: true });
-      hd.setLabel(loc.wallets.import.imported + ' ' + hd.getTypeReadable());
+      hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
       BlueApp.wallets.push(hd);
       await hd.fetchBalance();
       await hd.fetchTransactions();
@@ -134,7 +134,7 @@ export default class ScanQrWif extends React.Component {
       }
 
       BlueApp.wallets.push(lnd);
-      lnd.setLabel(loc.wallets.import.imported + ' ' + lnd.getTypeReadable());
+      lnd.setLabel(loc.wallets.import.imported + ' ' + lnd.typeReadable);
       this.props.navigation.popToTop();
       alert(loc.wallets.import.success);
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
