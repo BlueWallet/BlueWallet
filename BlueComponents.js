@@ -632,14 +632,7 @@ export class BlueTransactionExpiredIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon
-              {...this.props}
-              name="hourglass-end"
-              size={16}
-              type="font-awesome"
-              color="#d0021b"
-              iconStyle={{ left: 0, top: 6 }}
-            />
+            <Icon {...this.props} name="hourglass-end" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 6 }} />
           </View>
         </View>
       </View>

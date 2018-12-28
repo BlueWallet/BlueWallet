@@ -466,24 +466,25 @@ export default class WalletTransactions extends Component {
                       );
                     }
 
-                    if (rowData.item.type === 'user_invoice' || (rowData.item.type === 'payment_request' && !rowData.item.ispaid)) {
-                      const currentDate = new Date();
-                      const now = (currentDate.getTime() / 1000) | 0;
-                      const invoiceExpiration = rowData.item.timestamp + rowData.item.expire_time;
-                      if (invoiceExpiration < now) {
+                    if (rowData.item.type === 'user_invoice' || rowData.item.type === 'payment_request') {
+                      if (!rowData.item.ispaid) {
+                        const currentDate = new Date();
+                        const now = (currentDate.getTime() / 1000) | 0;
+                        const invoiceExpiration = rowData.item.timestamp + rowData.item.expire_time;
+                        if (invoiceExpiration < now) {
+                          return (
+                            <View style={{ width: 25 }}>
+                              <BlueTransactionExpiredIcon />
+                            </View>
+                          );
+                        }
+                      } else {
                         return (
                           <View style={{ width: 25 }}>
-                            <BlueTransactionExpiredIcon />
+                            <BlueTransactionOffchainIncomingIcon />
                           </View>
                         );
                       }
-                    } else if (rowData.item.type === 'user_invoice' || (rowData.item.type === 'payment_request' && rowData.item.ispaid)) {
-                      // is it lightning offchain incoming payment?
-                      return (
-                        <View style={{ width: 25 }}>
-                          <BlueTransactionOffchainIncomingIcon />
-                        </View>
-                      );
                     }
 
                     if (!rowData.item.confirmations) {
