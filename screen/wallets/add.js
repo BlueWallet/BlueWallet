@@ -156,11 +156,11 @@ export default class WalletsAdd extends Component {
                       }}
                     >
                       <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
-                        <RadioButton value={new HDSegwitP2SHWallet().type}>
-                          <BlueText>{new HDSegwitP2SHWallet().getTypeReadable()}</BlueText>
+                        <RadioButton value={HDSegwitP2SHWallet.type}>
+                          <BlueText>{HDSegwitP2SHWallet.typeReadable}</BlueText>
                         </RadioButton>
-                        <RadioButton value={new SegwitP2SHWallet().type}>
-                          <BlueText>{new SegwitP2SHWallet().getTypeReadable()}</BlueText>
+                        <RadioButton value={SegwitP2SHWallet.type}>
+                          <BlueText>{SegwitP2SHWallet.typeReadable}</BlueText>
                         </RadioButton>
                       </RadioGroup>
                     </View>
@@ -197,14 +197,14 @@ export default class WalletsAdd extends Component {
                       if (global.lightning_create_try++ < 9 && +new Date() < 1545264000000) return alert('Coming soon');
                       // eslint-disable-next-line
                     for (let t of BlueApp.getWallets()) {
-                        if (t.type === new LightningCustodianWallet().type) {
+                        if (t.type === LightningCustodianWallet.type) {
                           // already exist
                           return alert('Only 1 Ligthning wallet allowed for now');
                         }
                       }
 
                       w = new LightningCustodianWallet();
-                      w.setLabel(this.state.label || w.getTypeReadable());
+                      w.setLabel(this.state.label || w.typeReadable);
 
                       try {
                         let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);

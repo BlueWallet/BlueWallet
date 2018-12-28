@@ -2,14 +2,8 @@ import { LegacyWallet } from './legacy-wallet';
 const bitcoin = require('bitcoinjs-lib');
 
 export class WatchOnlyWallet extends LegacyWallet {
-  constructor() {
-    super();
-    this.type = 'watchOnly';
-  }
-
-  getTypeReadable() {
-    return 'Watch-only';
-  }
+  static type = 'watchOnly';
+  static typeReadable = 'Watch-only';
 
   allowSend() {
     return false;

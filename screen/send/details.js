@@ -348,7 +348,7 @@ export default class SendDetails extends Component {
           fee: this.calculateFee(
             utxo,
             tx,
-            this.state.fromWallet.type === new HDSegwitP2SHWallet().type || this.state.fromWallet.type === new HDLegacyP2PKHWallet().type,
+            this.state.fromWallet.type === HDSegwitP2SHWallet.type || this.state.fromWallet.type === HDLegacyP2PKHWallet.type,
           ),
           address: this.state.address,
           memo: this.state.memo,

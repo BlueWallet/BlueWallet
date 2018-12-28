@@ -53,7 +53,7 @@ export default class WalletsImport extends Component {
   async _saveWallet(w) {
     alert(loc.wallets.import.success);
     ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-    w.setLabel(loc.wallets.import.imported + ' ' + w.getTypeReadable());
+    w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
     BlueApp.wallets.push(w);
     await BlueApp.saveToDisk();
     EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -67,7 +67,7 @@ export default class WalletsImport extends Component {
       if (text.indexOf('blitzhub://') !== -1 || text.indexOf('lndhub://') !== -1) {
         // yep its lnd
         for (let t of BlueApp.getWallets()) {
-          if (t.type === new LightningCustodianWallet().type) {
+          if (t.type === LightningCustodianWallet.type) {
             // already exist
             return alert('Only 1 Ligthning wallet allowed for now');
           }

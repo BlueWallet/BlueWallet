@@ -4,17 +4,11 @@ const signer = require('../models/signer');
 const BigNumber = require('bignumber.js');
 
 export class SegwitP2SHWallet extends LegacyWallet {
-  constructor() {
-    super();
-    this.type = 'segwitP2SH';
-  }
+  static type = 'segwitP2SH';
+  static typeReadable = 'SegWit (P2SH)';
 
   allowRBF() {
     return true;
-  }
-
-  getTypeReadable() {
-    return 'SegWit (P2SH)';
   }
 
   static witnessToAddress(witness) {
