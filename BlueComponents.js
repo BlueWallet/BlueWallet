@@ -548,6 +548,12 @@ const stylesBlueIcon = StyleSheet.create({
     backgroundColor: '#f8d2d2',
     transform: [{ rotate: '225deg' }],
   },
+  ballOutgoingWithoutRotate: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f8d2d2',
+  },
   ballTransparrent: {
     width: 30,
     height: 30,
@@ -611,6 +617,27 @@ export class BlueTransactionPendingIcon extends Component {
               size={16}
               type="font-awesome"
               color={BlueApp.settings.foregroundColor}
+              iconStyle={{ left: 0, top: 6 }}
+            />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
+export class BlueTransactionExpiredIcon extends Component {
+  render() {
+    return (
+      <View {...this.props}>
+        <View style={stylesBlueIcon.boxIncomming}>
+          <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
+            <Icon
+              {...this.props}
+              name="hourglass-end"
+              size={16}
+              type="font-awesome"
+              color="#d0021b"
               iconStyle={{ left: 0, top: 6 }}
             />
           </View>
