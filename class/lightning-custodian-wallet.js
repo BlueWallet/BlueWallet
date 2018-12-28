@@ -338,6 +338,8 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       if (tx.type === 'paid_invoice') {
         tx.memo = tx.memo || 'Lightning payment';
+        if (tx.value > 0) tx.value = (tx.value * 1 + tx.fee * 1) * -1;
+        // outer code expects spending transactions to of negative value
       }
 
       if (tx.type === 'bitcoind_tx') {
