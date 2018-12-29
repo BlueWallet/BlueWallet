@@ -9,8 +9,6 @@ let lang = {};
 
 const STRUCT = {
   LAST_UPDATED: 'LAST_UPDATED',
-  BTC_USD: 'BTC_USD',
-  BTC_EUR: 'BTC_EUR',
 };
 
 async function updateExchangeRate() {
@@ -33,8 +31,8 @@ async function updateExchangeRate() {
       baseURI: 'https://api.coindesk.com',
     });
     let response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
-    json = response.body;
-    if (typeof json === 'undefined' || typeof json.bpi[preferredFiatCurrency.endPointKey].rate_foat === 'undefined') {
+    json = JSON.parse(response.body);
+    if (typeof json === 'undefined' || typeof json.bpi[preferredFiatCurrency.endPointKey].rate_float === 'undefined') {
       throw new Error('Could not update currency rate: ' + response.err);
     }
   } catch (Err) {
@@ -43,16 +41,13 @@ async function updateExchangeRate() {
   }
 
   lang[STRUCT.LAST_UPDATED] = +new Date();
-  lang[STRUCT[preferredFiatCurrency['BTC_' + preferredFiatCurrency.endPointKey]]] =
-    json.bpi[preferredFiatCurrency.endPointKey].rate_foat * 1;
+  lang['BTC_' + preferredFiatCurrency.endPointKey] = json.bpi[preferredFiatCurrency.endPointKey].rate_float * 1;
   await AsyncStorage.setItem(AppStorage.CURRENCY, JSON.stringify(lang));
 }
 
 async function startUpdater(force = false) {
   if (force) {
-    const lang = JSON.parse(await AsyncStorage.getItem(AppStorage.CURRENCY));
-    delete lang[STRUCT.LAST_UPDATED];
-    await AsyncStorage.setItem(AppStorage.CURRENCY, JSON.stringify(lang));
+    await AsyncStorage.removeItem(AppStorage.CURRENCY);
     try {
       preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERREDCURRENCY));
       if (preferredFiatCurrency === null) {
@@ -63,6 +58,7 @@ async function startUpdater(force = false) {
     }
   }
   lang = await AsyncStorage.getItem(AppStorage.CURRENCY);
+  preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERREDCURRENCY));
   try {
     lang = JSON.parse(lang);
   } catch (Err) {
@@ -70,22 +66,22 @@ async function startUpdater(force = false) {
   }
   lang = lang || {};
   lang[STRUCT.LAST_UPDATED] = lang[STRUCT.LAST_UPDATED] || 0;
-  lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]] = lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]] || 6500;
+  lang['BTC_' + preferredFiatCurrency.endPointKey] = lang['BTC_' + preferredFiatCurrency.endPointKey] || 0;
   setInterval(() => updateExchangeRate(), 2 * 60 * 100);
   return updateExchangeRate();
 }
 
 function satoshiToLocalCurrency(satoshi) {
-  if (!lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]]) return satoshi;
+  if (!lang['BTC_' + preferredFiatCurrency.endPointKey]) return satoshi;
 
   let b = new BigNumber(satoshi);
   b = b
     .dividedBy(100000000)
-    .multipliedBy(lang[STRUCT['BTC_' + preferredFiatCurrency.endPointKey]])
+    .multipliedBy(lang['BTC_' + preferredFiatCurrency.endPointKey])
     .toString(10);
   b = parseFloat(b).toFixed(2);
 
-  const formatter = new Intl.NumberFormat('en-US', {
+  const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
     style: 'currency',
     currency: preferredFiatCurrency.endPointKey,
     minimumFractionDigits: 2,
