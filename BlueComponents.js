@@ -1108,12 +1108,14 @@ export class WalletsCarousel extends Component {
 export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
-    amount: PropTypes.string,
+    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onChangeText: PropTypes.func,
     disabled: PropTypes.bool,
   };
 
   render() {
+    const amount = typeof this.props.amount === 'number' ? this.props.amount.toString() : this.props.amount;
+
     return (
       <View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
@@ -1123,7 +1125,7 @@ export class BlueBitcoinAmount extends Component {
             placeholder="0"
             maxLength={10}
             editable={!this.props.isLoading && !this.props.disabled}
-            value={this.props.amount}
+            value={amount}
             placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
             style={{
               color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
@@ -1146,7 +1148,7 @@ export class BlueBitcoinAmount extends Component {
         </View>
         <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
           <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-            {loc.formatBalance(this.props.amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
+            {loc.formatBalance(amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
           </Text>
         </View>
       </View>
