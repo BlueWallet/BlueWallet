@@ -13,7 +13,7 @@ import {
 import { QRCode as QRSlow } from "react-native-custom-qr-codes";
 import QRFast from 'react-native-qrcode';
 import bip21 from 'bip21';
-import { SafeBlueArea, BlueButton, BlueNavigationStyle, is, BlueBitcoinAmount, BlueText } from '../../BlueComponents';
+import { SafeBlueArea, BlueButton, BlueNavigationStyle, BlueBitcoinAmount, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
