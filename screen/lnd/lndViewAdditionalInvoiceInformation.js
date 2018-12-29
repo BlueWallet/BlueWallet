@@ -11,7 +11,7 @@ const loc = require('../../loc');
 export default class LNDViewAdditionalInvoiceInformation extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
-    title: "Additional Information",
+    title: 'Additional Information',
   });
 
   state = { walletInfo: undefined };

@@ -25,29 +25,34 @@ export default class ScanLndInvoice extends React.Component {
 
   constructor(props) {
     super(props);
-    let fromSecret;
-    if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
-    let fromWallet = {};
 
-    if (!fromSecret) {
-      const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
-      if (lightningWallets.length > 0) {
-        fromSecret = lightningWallets[0].getSecret();
+    if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
+      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+    } else {
+      let fromSecret;
+      if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
+      let fromWallet = {};
+
+      if (!fromSecret) {
+        const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+        if (lightningWallets.length > 0) {
+          fromSecret = lightningWallets[0].getSecret();
+        }
       }
-    }
 
-    for (let w of BlueApp.getWallets()) {
-      if (w.getSecret() === fromSecret) {
-        fromWallet = w;
-        break;
+      for (let w of BlueApp.getWallets()) {
+        if (w.getSecret() === fromSecret) {
+          fromWallet = w;
+          break;
+        }
       }
-    }
 
-    this.state = {
-      fromWallet,
-      fromSecret,
-      destination: '',
-    };
+      this.state = {
+        fromWallet,
+        fromSecret,
+        destination: '',
+      };
+    }
   }
 
   async componentDidMount() {

@@ -22,6 +22,7 @@ import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
@@ -40,46 +41,51 @@ export default class SendDetails extends Component {
 
   constructor(props) {
     super(props);
-    console.log('props.navigation.state.params=', props.navigation.state.params);
-    let address;
-    let memo;
-    if (props.navigation.state.params) address = props.navigation.state.params.address;
-    if (props.navigation.state.params) memo = props.navigation.state.params.memo;
-    let fromAddress;
-    if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
-    let fromSecret;
-    if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
-    let fromWallet = null;
-
     const wallets = BlueApp.getWallets();
 
-    for (let w of wallets) {
-      if (w.getSecret() === fromSecret) {
-        fromWallet = w;
-        break;
+    if (!BlueApp.getWallets().some(item => item.type !== LightningCustodianWallet.type)) {
+      alert('Before sending Bitcoins, you must first add a Bitcoin wallet.');
+      props.navigation.goBack();
+    } else {
+      console.log('props.navigation.state.params=', props.navigation.state.params);
+      let address;
+      let memo;
+      if (props.navigation.state.params) address = props.navigation.state.params.address;
+      if (props.navigation.state.params) memo = props.navigation.state.params.memo;
+      let fromAddress;
+      if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
+      let fromSecret;
+      if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
+      let fromWallet = null;
+
+      for (let w of wallets) {
+        if (w.getSecret() === fromSecret) {
+          fromWallet = w;
+          break;
+        }
+
+        if (w.getAddress() === fromAddress) {
+          fromWallet = w;
+        }
       }
 
-      if (w.getAddress() === fromAddress) {
-        fromWallet = w;
-      }
+      // fallback to first wallet if it exists
+      if (!fromWallet && wallets[0]) fromWallet = wallets[0];
+
+      this.state = {
+        isFeeSelectionModalVisible: false,
+        fromAddress,
+        fromWallet,
+        fromSecret,
+        isLoading: true,
+        address,
+        memo,
+        fee: 1,
+        networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
+        feeSliderValue: 1,
+        bip70TransactionExpiration: null,
+      };
     }
-
-    // fallback to first wallet if it exists
-    if (!fromWallet && wallets[0]) fromWallet = wallets[0];
-
-    this.state = {
-      isFeeSelectionModalVisible: false,
-      fromAddress,
-      fromWallet,
-      fromSecret,
-      isLoading: true,
-      address,
-      memo,
-      fee: 1,
-      networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
-      feeSliderValue: 1,
-      bip70TransactionExpiration: null,
-    };
   }
 
   async componentDidMount() {
