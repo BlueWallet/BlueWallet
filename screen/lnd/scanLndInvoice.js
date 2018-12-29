@@ -28,6 +28,7 @@ export default class ScanLndInvoice extends React.Component {
 
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+      props.navigation.dismiss()
     } else {
       let fromSecret;
       if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
@@ -77,7 +78,7 @@ export default class ScanLndInvoice extends React.Component {
     }, 6000);
 
     if (!this.state.fromWallet) {
-      alert('Error: cant find source wallet (this should never happen)');
+      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       return this.props.navigation.goBack();
     }
 

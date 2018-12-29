@@ -14,7 +14,7 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueLoading } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -41,11 +41,12 @@ export default class SendDetails extends Component {
 
   constructor(props) {
     super(props);
+    this.state = { isLoading: true };
     const wallets = BlueApp.getWallets();
 
     if (!BlueApp.getWallets().some(item => item.type !== LightningCustodianWallet.type)) {
       alert('Before sending Bitcoins, you must first add a Bitcoin wallet.');
-      props.navigation.goBack();
+      props.navigation.dismiss();
     } else {
       console.log('props.navigation.state.params=', props.navigation.state.params);
       let address;
@@ -130,7 +131,7 @@ export default class SendDetails extends Component {
         fee: response.halfHourFee,
         networkTransactionFees: response,
         feeSliderValue: response.halfHourFee,
-        isLoading: false,
+        isLoading: typeof this.state.fromWallet === 'object',
       });
     });
     if (recommendedFees) {
@@ -138,7 +139,7 @@ export default class SendDetails extends Component {
         fee: recommendedFees.halfHourFee,
         networkTransactionFees: recommendedFees,
         feeSliderValue: recommendedFees.halfHourFee,
-        isLoading: false,
+        isLoading: typeof this.state.fromWallet === 'object',
       });
 
       if (this.props.navigation.state.params.uri) {
@@ -478,10 +479,10 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    if (!this.state.fromWallet.getAddress) {
+    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <Text>System error: Source wallet not found (this should never happen)</Text>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <BlueLoading />
         </View>
       );
     }
@@ -664,6 +665,7 @@ SendDetails.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
     navigate: PropTypes.func,
+    dismiss: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
