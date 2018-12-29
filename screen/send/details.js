@@ -78,7 +78,7 @@ export default class SendDetails extends Component {
         fromAddress,
         fromWallet,
         fromSecret,
-        isLoading: true,
+        isLoading: false,
         address,
         memo,
         fee: 1,
@@ -131,7 +131,7 @@ export default class SendDetails extends Component {
         fee: response.halfHourFee,
         networkTransactionFees: response,
         feeSliderValue: response.halfHourFee,
-        isLoading: typeof this.state.fromWallet === 'object',
+        isLoading: typeof this.state.fromWallet !== 'object',
       });
     });
     if (recommendedFees) {
@@ -139,7 +139,7 @@ export default class SendDetails extends Component {
         fee: recommendedFees.halfHourFee,
         networkTransactionFees: recommendedFees,
         feeSliderValue: recommendedFees.halfHourFee,
-        isLoading: typeof this.state.fromWallet === 'object',
+        isLoading: typeof this.state.fromWallet !== 'object',
       });
 
       if (this.props.navigation.state.params.uri) {
