@@ -1,12 +1,24 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Share, TextInput, KeyboardAvoidingView, Clipboard, Animated, TouchableOpacity } from 'react-native';
-import { QRCode } from 'react-native-custom-qr-codes';
+import {
+  StyleSheet,
+  View,
+  Share,
+  TextInput,
+  KeyboardAvoidingView,
+  Clipboard,
+  Animated,
+  TouchableOpacity,
+  Platform, Dimensions
+} from "react-native";
+import { QRCode as QRSlow } from "react-native-custom-qr-codes";
+import QRFast from 'react-native-qrcode';
 import bip21 from 'bip21';
 import { SafeBlueArea, BlueButton, BlueNavigationStyle, is, BlueBitcoinAmount, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+const { width } = Dimensions.get('window');
 
 export default class ReceiveAmount extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -43,6 +55,13 @@ export default class ReceiveAmount extends Component {
       Clipboard.setString(this.state.address);
       setTimeout(() => this.setState({ addressText: this.state.address }), 1000);
     });
+  };
+
+  determineSize = () => {
+    if (width > 312) {
+      return width - 48;
+    }
+    return 312;
   };
 
   renderDefault() {
@@ -85,13 +104,23 @@ export default class ReceiveAmount extends Component {
           {this.state.label}
         </BlueText>
         <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-          <QRCode
-            content={bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
-            size={(is.ipad() && 300) || 300}
-            color={BlueApp.settings.foregroundColor}
-            backgroundColor={BlueApp.settings.brandingColor}
-            logo={require('../../img/qr-code.png')}
-          />
+          {(Platform.OS === 'ios' || this.state.wallet.getSecret().length < 54) ? (
+            <QRSlow
+              content={bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
+              size={this.determineSize()}
+              color={BlueApp.settings.foregroundColor}
+              backgroundColor={BlueApp.settings.brandingColor}
+              logo={require('../../img/qr-code.png')}
+              ecl={'Q'}
+            />
+            ) : (
+            <QRFast
+              value={bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
+              size={this.determineSize()}
+              fgColor={BlueApp.settings.brandingColor}
+              bgColor={BlueApp.settings.foregroundColor}
+            />
+          )}
         </View>
         <View style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
           <TouchableOpacity onPress={this.copyToClipboard}>
