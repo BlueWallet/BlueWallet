@@ -174,8 +174,10 @@ export class AppStorage {
               break;
           }
           // done
-          this.wallets.push(unserializedWallet);
-          this.tx_metadata = data.tx_metadata;
+          if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
+            this.wallets.push(unserializedWallet);
+            this.tx_metadata = data.tx_metadata;
+          }
         }
         return true;
       } else {
