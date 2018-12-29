@@ -36,6 +36,7 @@ import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
+import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -137,7 +138,11 @@ const LNDCreateInvoiceStackNavigator = createStackNavigator({
   },
   LNDViewInvoice: {
     screen: LNDViewInvoice,
+    swipeEnabled: false,
     gesturesEnabled: false,
+  },
+  LNDViewAdditionalInvoiceInformation: {
+    screen: LNDViewAdditionalInvoiceInformation,
   },
 });
 

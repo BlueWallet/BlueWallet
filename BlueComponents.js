@@ -665,14 +665,7 @@ export class BlueTransactionOffchainIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballOutgoing}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color="#d0021b"
-              iconStyle={{ left: 0, top: 7 }}
-            />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
       </View>
@@ -686,14 +679,7 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
           <View style={stylesBlueIcon.ballIncomming}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color="#37c0a1"
-              iconStyle={{ left: 0, top: 7 }}
-            />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
       </View>

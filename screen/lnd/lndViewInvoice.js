@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
 // import { QRCode } from 'react-native-custom-qr-codes';
-import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
@@ -144,6 +144,16 @@ export default class LNDViewInvoice extends Component {
           <View style={{ marginBottom: 24 }}>
             <BlueButton
               icon={{
+                name: 'info',
+                type: 'entypo',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
+              title="Additional Information"
+            />
+            <BlueSpacing20 />
+            <BlueButton
+              icon={{
                 name: 'share-alternative',
                 type: 'entypo',
                 color: BlueApp.settings.buttonTextColor,
@@ -174,6 +184,7 @@ const styles = StyleSheet.create({
 LNDViewInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    navigate: PropTypes.function,
     getParam: PropTypes.function,
     dismiss: PropTypes.function,
   }),
