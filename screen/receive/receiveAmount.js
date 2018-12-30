@@ -54,7 +54,7 @@ export default class ReceiveAmount extends Component {
 
   copyToClipboard = () => {
     this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }));
+      Clipboard.setString(this.state.bip21);
       setTimeout(() => this.setState({ addressText: this.state.address }), 1000);
     });
   };
@@ -94,7 +94,15 @@ export default class ReceiveAmount extends Component {
             editable={!this.state.isLoading}
           />
         </View>
-        <BlueButton title="Create" onPress={() => this.setState({ amountSet: true })} />
+        <BlueButton
+          title="Create"
+          onPress={() => {
+            this.setState({
+              amountSet: true,
+              bip21: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
+            });
+          }}
+        />
       </View>
     );
   }
@@ -106,9 +114,9 @@ export default class ReceiveAmount extends Component {
           {this.state.label}
         </BlueText>
         <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-          {Platform.OS === 'ios' || bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }).length < 54 ? (
+          {Platform.OS === 'ios' || this.state.bip21.length < 54 ? (
             <QRSlow
-              content={bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
+              content={this.state.bip21}
               size={this.determineSize()}
               color={BlueApp.settings.foregroundColor}
               backgroundColor={BlueApp.settings.brandingColor}
@@ -117,7 +125,7 @@ export default class ReceiveAmount extends Component {
             />
           ) : (
             <QRFast
-              value={bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
+              value={this.state.bip21}
               size={this.determineSize()}
               fgColor={BlueApp.settings.brandingColor}
               bgColor={BlueApp.settings.foregroundColor}
@@ -127,7 +135,7 @@ export default class ReceiveAmount extends Component {
         <View style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
           <TouchableOpacity onPress={this.copyToClipboard}>
             <Animated.Text style={styles.address} numberOfLines={0}>
-              {bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
+              {this.state.bip21}
             </Animated.Text>
           </TouchableOpacity>
         </View>
@@ -161,7 +169,7 @@ export default class ReceiveAmount extends Component {
                 }}
                 onPress={async () => {
                   Share.share({
-                    message: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
+                    message: this.state.bip21,
                   });
                 }}
                 title={loc.receive.details.share}
