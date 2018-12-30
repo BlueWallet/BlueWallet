@@ -132,6 +132,17 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
 });
 
+const LNDViewInvoiceStackNavigator = createStackNavigator({
+  LNDViewInvoice: {
+    screen: LNDViewInvoice,
+    swipeEnabled: false,
+    gesturesEnabled: false,
+  },
+  LNDViewAdditionalInvoiceInformation: {
+    screen: LNDViewAdditionalInvoiceInformation,
+  },
+});
+
 const LNDCreateInvoiceStackNavigator = createStackNavigator({
   LNDCreateInvoice: {
     screen: LNDCreateInvoice,
@@ -221,7 +232,12 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
-
+    LNDViewExistingInvoice: {
+      screen: LNDViewInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
     // Select Wallet. Mostly for deep-linking
 
     SelectWallet: {

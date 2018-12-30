@@ -665,7 +665,7 @@ SendDetails.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
     navigate: PropTypes.func,
-    dismiss: PropTypes.func,
+    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,

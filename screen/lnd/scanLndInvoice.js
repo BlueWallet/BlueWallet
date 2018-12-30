@@ -28,7 +28,7 @@ export default class ScanLndInvoice extends React.Component {
 
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
-      props.navigation.dismiss()
+      props.navigation.dismiss();
     } else {
       let fromSecret;
       if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
@@ -280,6 +280,7 @@ ScanLndInvoice.propTypes = {
     goBack: PropTypes.function,
     navigate: PropTypes.function,
     getParam: PropTypes.function,
+    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         uri: PropTypes.string,

@@ -519,7 +519,7 @@ export default class WalletTransactions extends Component {
                         hash: rowData.item.hash,
                       });
                     } else if (rowData.item.type === 'user_invoice' || rowData.item.type === 'payment_request') {
-                      this.props.navigation.navigate('LNDViewInvoice', {
+                      this.props.navigation.navigate('LNDViewExistingInvoice', {
                         invoice: rowData.item,
                         fromWallet: this.state.wallet,
                       });
