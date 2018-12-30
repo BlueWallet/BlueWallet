@@ -8,9 +8,11 @@ import {
   Clipboard,
   Animated,
   TouchableOpacity,
-  Platform, Dimensions
-} from "react-native";
-import { QRCode as QRSlow } from "react-native-custom-qr-codes";
+  Platform,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
+import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
 import QRFast from 'react-native-qrcode';
 import bip21 from 'bip21';
 import { SafeBlueArea, BlueButton, BlueNavigationStyle, BlueBitcoinAmount, BlueText } from '../../BlueComponents';
@@ -52,7 +54,7 @@ export default class ReceiveAmount extends Component {
 
   copyToClipboard = () => {
     this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(this.state.address);
+      Clipboard.setString(bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }));
       setTimeout(() => this.setState({ addressText: this.state.address }), 1000);
     });
   };
@@ -104,7 +106,7 @@ export default class ReceiveAmount extends Component {
           {this.state.label}
         </BlueText>
         <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-          {(Platform.OS === 'ios' || this.state.wallet.getSecret().length < 54) ? (
+          {Platform.OS === 'ios' || bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }).length < 54 ? (
             <QRSlow
               content={bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
               size={this.determineSize()}
@@ -113,7 +115,7 @@ export default class ReceiveAmount extends Component {
               logo={require('../../img/qr-code.png')}
               ecl={'Q'}
             />
-            ) : (
+          ) : (
             <QRFast
               value={bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
               size={this.determineSize()}
@@ -125,7 +127,7 @@ export default class ReceiveAmount extends Component {
         <View style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
           <TouchableOpacity onPress={this.copyToClipboard}>
             <Animated.Text style={styles.address} numberOfLines={0}>
-              {this.state.addressText}
+              {bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label })}
             </Animated.Text>
           </TouchableOpacity>
         </View>
@@ -136,35 +138,37 @@ export default class ReceiveAmount extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'space-between' }}>
-          <KeyboardAvoidingView behavior="position">
-            <BlueBitcoinAmount
-              amount={this.state.amount || ''}
-              onChangeText={text => this.setState({ amount: text })}
-              disabled={this.state.amountSet}
-            />
-            {this.state.amountSet ? this.renderWithSetAmount() : this.renderDefault()}
-          </KeyboardAvoidingView>
-          {this.state.amountSet && (
-            <BlueButton
-              buttonStyle={{
-                alignSelf: 'center',
-                marginBottom: 24,
-              }}
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={async () => {
-                Share.share({
-                  message: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
-                });
-              }}
-              title={loc.receive.details.share}
-            />
-          )}
-        </View>
+        <ScrollView>
+          <View style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'space-between' }}>
+            <KeyboardAvoidingView behavior="position">
+              <BlueBitcoinAmount
+                amount={this.state.amount || ''}
+                onChangeText={text => this.setState({ amount: text })}
+                disabled={this.state.amountSet}
+              />
+              {this.state.amountSet ? this.renderWithSetAmount() : this.renderDefault()}
+            </KeyboardAvoidingView>
+            {this.state.amountSet && (
+              <BlueButton
+                buttonStyle={{
+                  alignSelf: 'center',
+                  marginBottom: 24,
+                }}
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={async () => {
+                  Share.share({
+                    message: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
+                  });
+                }}
+                title={loc.receive.details.share}
+              />
+            )}
+          </View>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
