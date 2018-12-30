@@ -1,6 +1,7 @@
 /** @type {AppStorage} */
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import PropTypes from 'prop-types';
 import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
 import {
   TouchableOpacity,
@@ -24,6 +25,7 @@ import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from './class/lightning-custodian-wallet';
+import { BitcoinUnit } from './models/bitcoinUnits';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -1097,6 +1099,57 @@ export class WalletsCarousel extends Component {
           console.log('snapped to card #', index);
         }}
       />
+    );
+  }
+}
+
+export class BlueBitcoinAmount extends Component {
+  static propTypes = {
+    isLoading: PropTypes.bool,
+    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    onChangeText: PropTypes.func,
+    disabled: PropTypes.bool,
+  };
+
+  render() {
+    const amount = typeof this.props.amount === 'number' ? this.props.amount.toString() : this.props.amount;
+
+    return (
+      <View>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
+          <TextInput
+            keyboardType="numeric"
+            onChangeText={text => this.props.onChangeText(text.replace(',', '.'))}
+            placeholder="0"
+            maxLength={10}
+            editable={!this.props.isLoading && !this.props.disabled}
+            value={amount}
+            placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
+            style={{
+              color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
+              fontSize: 36,
+              fontWeight: '600',
+            }}
+          />
+          <Text
+            style={{
+              color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
+              fontSize: 16,
+              marginHorizontal: 4,
+              paddingBottom: 6,
+              fontWeight: '600',
+              alignSelf: 'flex-end',
+            }}
+          >
+            {' ' + BitcoinUnit.BTC}
+          </Text>
+        </View>
+        <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
+          <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
+            {loc.formatBalance(amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
+          </Text>
+        </View>
+      </View>
     );
   }
 }

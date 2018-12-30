@@ -14,7 +14,7 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -485,39 +485,11 @@ export default class SendDetails extends Component {
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <KeyboardAvoidingView behavior="position">
-              <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
-                <TextInput
-                  keyboardType="numeric"
-                  onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
-                  placeholder="0"
-                  maxLength={10}
-                  editable={!this.state.isLoading}
-                  value={this.state.amount}
-                  placeholderTextColor="#0f5cc0"
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 36,
-                    fontWeight: '600',
-                  }}
-                />
-                <Text
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 16,
-                    marginHorizontal: 4,
-                    paddingBottom: 6,
-                    fontWeight: '600',
-                    alignSelf: 'flex-end',
-                  }}
-                >
-                  {' ' + BitcoinUnit.BTC}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-                <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-                  {loc.formatBalance(this.state.amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
-                </Text>
-              </View>
+              <BlueBitcoinAmount
+                isLoading={this.state.isLoading}
+                amount={this.state.amount}
+                onChangeText={text => this.setState({ amount: text })}
+              />
               <View
                 style={{
                   flexDirection: 'row',
