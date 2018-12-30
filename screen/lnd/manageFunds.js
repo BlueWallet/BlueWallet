@@ -19,11 +19,11 @@ export default class ManageFunds extends Component {
     super(props);
     this.onWalletSelect = this.onWalletSelect.bind(this);
 
-    this.state = { fromWallet: props.navigation.getParam('fromWallet') }
+    this.state = { fromWallet: props.navigation.getParam('fromWallet') };
   }
 
   async onWalletSelect(wallet) {
-    this.props.navigation.dismiss()
+    this.props.navigation.dismiss();
     /** @type {LightningCustodianWallet} */
     let toAddress = false;
     if (this.state.fromWallet.refill_addressess.length > 0) {
@@ -45,7 +45,6 @@ export default class ManageFunds extends Component {
           address: toAddress,
         });
       }, 100);
-
     } else {
       return alert('Internal error');
     }
@@ -84,6 +83,7 @@ export default class ManageFunds extends Component {
 ManageFunds.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    dismiss: PropTypes.function,
     navigate: PropTypes.function,
     getParam: PropTypes.function,
     state: PropTypes.shape({

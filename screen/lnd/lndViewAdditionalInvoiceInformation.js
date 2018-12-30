@@ -1,7 +1,7 @@
+/* global alert */
 import React, { Component } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
-// import { QRCode } from 'react-native-custom-qr-codes';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueNavigationStyle, BlueText, BlueSpacing20 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { QRCode } from 'react-native-custom-qr-codes';
 /** @type {AppStorage} */
@@ -25,7 +25,12 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
 
   async componentDidMount() {
     const fromWallet = this.props.navigation.getParam('fromWallet');
-    await fromWallet.fetchInfo();
+    try {
+      await fromWallet.fetchInfo();
+    } catch (_) {
+      alert('Network error');
+      return;
+    }
     this.setState({ walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0] });
   }
 
@@ -37,7 +42,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
         </SafeBlueArea>
       );
     }
-    // Invoice has not expired, nor has it been paid for.
+
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
@@ -49,6 +54,8 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               backgroundColor={BlueApp.settings.brandingColor}
               logo={require('../../img/qr-code.png')}
             />
+            <BlueSpacing20 />
+            <BlueText>Open direct channel with this node:</BlueText>
             <TouchableOpacity onPress={this.copyToClipboard}>
               <Animated.Text style={styles.address} numberOfLines={0}>
                 {this.state.addressText}

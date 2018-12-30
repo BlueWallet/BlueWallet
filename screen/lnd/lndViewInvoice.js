@@ -1,10 +1,10 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
-// import { QRCode } from 'react-native-custom-qr-codes';
-import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
+import { Animated, ScrollView, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
+import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Icon } from 'react-native-elements';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -27,26 +27,29 @@ export default class LNDViewInvoice extends Component {
       fromWallet,
       isLoading: typeof invoice === 'string',
       addressText: typeof invoice === 'object' ? invoice.payment_request : invoice,
-      isFetchingInvoices: false,
+      isFetchingInvoices: true,
     };
     this.fetchInvoiceInterval = undefined;
   }
 
   async componentDidMount() {
     this.fetchInvoiceInterval = setInterval(async () => {
-      if (!this.state.isFetchingInvoices) {
+      if (this.state.isFetchingInvoices) {
         try {
-          this.setState({ isFetchingInvoices: true });
           const userInvoices = JSON.stringify(await this.state.fromWallet.getUserInvoices());
           const updatedUserInvoice = JSON.parse(userInvoices).filter(invoice =>
             typeof this.state.invoice === 'object'
               ? invoice.payment_request === this.state.invoice.payment_request
               : invoice.payment_request === this.state.invoice,
           )[0];
+
           this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
           if (updatedUserInvoice.ispaid) {
+            // we fetched the invoice, and it is paid :-)
             this.setState({ isFetchingInvoices: false });
+            console.log('isFetchingInvoices set to false');
             ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+            console.log('clear interval');
             clearInterval(this.fetchInvoiceInterval);
             this.fetchInvoiceInterval = undefined;
             EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
@@ -55,6 +58,7 @@ export default class LNDViewInvoice extends Component {
             const now = (currentDate.getTime() / 1000) | 0;
             const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
             if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
+              // invoice expired :-(
               this.setState({ isFetchingInvoices: false });
               ReactNativeHapticFeedback.trigger('notificationError', false);
               clearInterval(this.fetchInvoiceInterval);
@@ -98,7 +102,21 @@ export default class LNDViewInvoice extends Component {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <BlueText>This invoice has been paid for.</BlueText>
+              <View
+                style={{
+                  backgroundColor: '#ccddf9',
+                  width: 120,
+                  height: 120,
+                  borderRadius: 60,
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  marginTop: 43,
+                  marginBottom: 53,
+                }}
+              >
+                <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
+              </View>
+              <BlueText>This invoice has been paid for</BlueText>
             </View>
           </SafeBlueArea>
         );
@@ -107,7 +125,7 @@ export default class LNDViewInvoice extends Component {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <BlueText>This invoice was not paid for and has expired.</BlueText>
+              <BlueText>This invoice was not paid for and has expired</BlueText>
             </View>
           </SafeBlueArea>
         );
@@ -127,46 +145,50 @@ export default class LNDViewInvoice extends Component {
     // Invoice has not expired, nor has it been paid for.
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-            <QRFast
-              value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
-              size={300}
-              fgColor={BlueApp.settings.brandingColor}
-              bgColor={BlueApp.settings.foregroundColor}
-            />
-            <TouchableOpacity onPress={this.copyToClipboard}>
-              <Animated.Text style={styles.address} numberOfLines={0}>
-                {this.state.addressText}
-              </Animated.Text>
-            </TouchableOpacity>
+        <ScrollView>
+          <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+              <QRFast
+                value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
+                size={300}
+                fgColor={BlueApp.settings.brandingColor}
+                bgColor={BlueApp.settings.foregroundColor}
+              />
+              {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
+              {invoice && invoice.description && <BlueText>For: {invoice.description}</BlueText>}
+              <TouchableOpacity onPress={this.copyToClipboard}>
+                <Animated.Text style={styles.address} numberOfLines={0}>
+                  {this.state.addressText}
+                </Animated.Text>
+              </TouchableOpacity>
+
+              <BlueButton
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={async () => {
+                  Share.share({
+                    message: invoice.payment_request,
+                  });
+                }}
+                title={loc.receive.details.share}
+              />
+              <BlueButton
+                buttonStyle={{ backgroundColor: 'white' }}
+                icon={{
+                  name: 'info',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
+                title="Additional Information"
+              />
+            </View>
+            <View style={{ marginBottom: 24 }} />
           </View>
-          <View style={{ marginBottom: 24 }}>
-            <BlueButton
-              icon={{
-                name: 'info',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
-              title="Additional Information"
-            />
-            <BlueSpacing20 />
-            <BlueButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={async () => {
-                Share.share({
-                  message: invoice.payment_request,
-                });
-              }}
-              title={loc.receive.details.share}
-            />
-          </View>
-        </View>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
