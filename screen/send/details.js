@@ -44,21 +44,20 @@ export default class SendDetails extends Component {
     this.state = { isLoading: true };
     const wallets = BlueApp.getWallets();
 
-    if (!BlueApp.getWallets().some(item => item.type !== LightningCustodianWallet.type)) {
+    console.log('props.navigation.state.params=', props.navigation.state.params);
+    let address;
+    let memo;
+    if (props.navigation.state.params) address = props.navigation.state.params.address;
+    if (props.navigation.state.params) memo = props.navigation.state.params.memo;
+    let fromAddress;
+    if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
+    let fromSecret;
+    if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
+    let fromWallet;
+    if (!BlueApp.getWallets().some(item => item.type !== LightningCustodianWallet.type) && typeof address === 'undefined') {
       alert('Before sending Bitcoins, you must first add a Bitcoin wallet.');
       props.navigation.dismiss();
     } else {
-      console.log('props.navigation.state.params=', props.navigation.state.params);
-      let address;
-      let memo;
-      if (props.navigation.state.params) address = props.navigation.state.params.address;
-      if (props.navigation.state.params) memo = props.navigation.state.params.memo;
-      let fromAddress;
-      if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
-      let fromSecret;
-      if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
-      let fromWallet = null;
-
       for (let w of wallets) {
         if (w.getSecret() === fromSecret) {
           fromWallet = w;

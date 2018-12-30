@@ -55,7 +55,7 @@ export default class WalletsImport extends Component {
     } else {
       alert(loc.wallets.import.success);
       ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-      w.setLabel(loc.wallets.import.imported + ' ' + w.getTypeReadable());
+      w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -263,7 +263,7 @@ export default class WalletsImport extends Component {
 WalletsImport.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    dismiss: PropTypes.func,
     goBack: PropTypes.func,
+    dismiss: PropTypes.func,
   }),
 };

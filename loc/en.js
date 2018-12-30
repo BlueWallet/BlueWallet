@@ -185,7 +185,7 @@ module.exports = {
     help:
       'Under certain circumstances, you might be forced to disclose a ' +
       'password. To keep your coins safe, BlueWallet can create another ' +
-      'encrypted storage, with a different password. Under the pressure, ' +
+      'encrypted storage, with a different password. Under pressure, ' +
       'you can disclose this password to a 3rd party. If entered in ' +
       "BlueWallet, it will unlock new 'fake' storage. This will seem " +
       'legit to a 3rd party, but will secretly keep your main storage ' +
