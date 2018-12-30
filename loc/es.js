@@ -160,6 +160,8 @@ module.exports = {
       title: 'Comparte esta dirección con el pagador',
       share: 'Compartir',
       copiedToClipboard: 'Copiado a portapapeles.',
+      label: 'Description',
+      setAmount: 'Receive with amount',
     },
   },
   buyBitcoin: {

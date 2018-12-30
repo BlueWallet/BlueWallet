@@ -14,7 +14,7 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton, BlueLoading } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -22,7 +22,6 @@ import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 const bip21 = require('bip21');
 let EV = require('../../events');
 let BigNumber = require('bignumber.js');
@@ -41,9 +40,6 @@ export default class SendDetails extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { isLoading: true };
-    const wallets = BlueApp.getWallets();
-
     console.log('props.navigation.state.params=', props.navigation.state.params);
     let address;
     let memo;
@@ -53,39 +49,37 @@ export default class SendDetails extends Component {
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
     let fromSecret;
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
-    let fromWallet;
-    if (!BlueApp.getWallets().some(item => item.type !== LightningCustodianWallet.type) && typeof address === 'undefined') {
-      alert('Before sending Bitcoins, you must first add a Bitcoin wallet.');
-      props.navigation.dismiss();
-    } else {
-      for (let w of wallets) {
-        if (w.getSecret() === fromSecret) {
-          fromWallet = w;
-          break;
-        }
+    let fromWallet = null;
 
-        if (w.getAddress() === fromAddress) {
-          fromWallet = w;
-        }
+    const wallets = BlueApp.getWallets();
+
+    for (let w of wallets) {
+      if (w.getSecret() === fromSecret) {
+        fromWallet = w;
+        break;
       }
 
-      // fallback to first wallet if it exists
-      if (!fromWallet && wallets[0]) fromWallet = wallets[0];
-
-      this.state = {
-        isFeeSelectionModalVisible: false,
-        fromAddress,
-        fromWallet,
-        fromSecret,
-        isLoading: false,
-        address,
-        memo,
-        fee: 1,
-        networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
-        feeSliderValue: 1,
-        bip70TransactionExpiration: null,
-      };
+      if (w.getAddress() === fromAddress) {
+        fromWallet = w;
+      }
     }
+
+    // fallback to first wallet if it exists
+    if (!fromWallet && wallets[0]) fromWallet = wallets[0];
+
+    this.state = {
+      isFeeSelectionModalVisible: false,
+      fromAddress,
+      fromWallet,
+      fromSecret,
+      isLoading: true,
+      address,
+      memo,
+      fee: 1,
+      networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
+      feeSliderValue: 1,
+      bip70TransactionExpiration: null,
+    };
   }
 
   async componentDidMount() {
@@ -130,7 +124,7 @@ export default class SendDetails extends Component {
         fee: response.halfHourFee,
         networkTransactionFees: response,
         feeSliderValue: response.halfHourFee,
-        isLoading: typeof this.state.fromWallet !== 'object',
+        isLoading: false,
       });
     });
     if (recommendedFees) {
@@ -138,7 +132,7 @@ export default class SendDetails extends Component {
         fee: recommendedFees.halfHourFee,
         networkTransactionFees: recommendedFees,
         feeSliderValue: recommendedFees.halfHourFee,
-        isLoading: typeof this.state.fromWallet !== 'object',
+        isLoading: false,
       });
 
       if (this.props.navigation.state.params.uri) {
@@ -478,10 +472,10 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
+    if (!this.state.fromWallet.getAddress) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <BlueLoading />
+        <View style={{ flex: 1, paddingTop: 20 }}>
+          <Text>System error: Source wallet not found (this should never happen)</Text>
         </View>
       );
     }
@@ -491,39 +485,11 @@ export default class SendDetails extends Component {
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <KeyboardAvoidingView behavior="position">
-              <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
-                <TextInput
-                  keyboardType="numeric"
-                  onChangeText={text => this.setState({ amount: text.replace(',', '.') })}
-                  placeholder="0"
-                  maxLength={10}
-                  editable={!this.state.isLoading}
-                  value={this.state.amount}
-                  placeholderTextColor="#0f5cc0"
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 36,
-                    fontWeight: '600',
-                  }}
-                />
-                <Text
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 16,
-                    marginHorizontal: 4,
-                    paddingBottom: 6,
-                    fontWeight: '600',
-                    alignSelf: 'flex-end',
-                  }}
-                >
-                  {' ' + BitcoinUnit.BTC}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-                <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-                  {loc.formatBalance(this.state.amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
-                </Text>
-              </View>
+              <BlueBitcoinAmount
+                isLoading={this.state.isLoading}
+                amount={this.state.amount}
+                onChangeText={text => this.setState({ amount: text })}
+              />
               <View
                 style={{
                   flexDirection: 'row',
@@ -664,7 +630,6 @@ SendDetails.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
     navigate: PropTypes.func,
-    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,

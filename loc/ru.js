@@ -164,6 +164,8 @@ module.exports = {
       title: 'Покажите этот адрес плательщику',
       share: 'Отправить',
       copiedToClipboard: 'скопировано',
+      label: 'Description',
+      setAmount: 'Receive with amount',
     },
   },
   settings: {
