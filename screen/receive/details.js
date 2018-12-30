@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
 import { QRCode } from 'react-native-custom-qr-codes';
 import bip21 from 'bip21';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueNavigationStyle, is } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, BlueButton, BlueButtonLink, BlueNavigationStyle, is } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -100,7 +100,15 @@ export default class ReceiveDetails extends Component {
               </Animated.Text>
             </TouchableOpacity>
           </View>
-          <View style={{ marginBottom: 24 }}>
+          <View style={{ marginBottom: 24, alignItems: 'center' }}>
+            <BlueButtonLink
+              title={loc.receive.details.setAmount}
+              onPress={() => {
+                this.props.navigation.navigate('ReceiveAmount', {
+                  address: this.state.address,
+                });
+              }}
+            />
             <BlueButton
               icon={{
                 name: 'share-alternative',
@@ -133,6 +141,7 @@ const styles = StyleSheet.create({
 ReceiveDetails.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    navigate: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,

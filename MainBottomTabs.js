@@ -25,6 +25,7 @@ import rbf from './screen/transactions/RBF';
 import createrbf from './screen/transactions/RBF-create';
 
 import receiveDetails from './screen/receive/details';
+import setReceiveAmount from './screen/receive/receiveAmount';
 
 import sendDetails from './screen/send/details';
 import sendScanQrAddress from './screen/send/scanQrAddress';
@@ -168,6 +169,10 @@ const MainBottomTabs = createStackNavigator(
 
     ReceiveDetails: {
       screen: receiveDetails,
+    },
+
+    ReceiveAmount: {
+      screen: setReceiveAmount,
     },
 
     //

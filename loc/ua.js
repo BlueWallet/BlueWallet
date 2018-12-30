@@ -159,6 +159,8 @@ module.exports = {
       title: 'Покажіть цю адресу платникові',
       share: 'Відправити',
       copiedToClipboard: 'Зкопіювано',
+      label: 'Description',
+      setAmount: 'Receive with amount',
     },
   },
   buyBitcoin: {
