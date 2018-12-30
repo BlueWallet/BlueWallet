@@ -132,6 +132,21 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
 });
 
+const ManageFundsStackNavigator = createStackNavigator({
+  ManageFunds: {
+    screen: ManageFunds,
+  },
+  SelectWallet: {
+    screen: SelectWallet,
+  },
+  SendDetails: {
+    screen: CreateTransactionStackNavigator,
+    navigationOptions: {
+      header: null,
+    },
+  },
+});
+
 const LNDViewInvoiceStackNavigator = createStackNavigator({
   LNDViewInvoice: {
     screen: LNDViewInvoice,
@@ -212,7 +227,10 @@ const MainBottomTabs = createStackNavigator(
     // LND:
 
     ManageFunds: {
-      screen: ManageFunds,
+      screen: ManageFundsStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     ScanLndInvoice: {
       screen: ScanLndInvoice,
@@ -239,10 +257,6 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     // Select Wallet. Mostly for deep-linking
-
-    SelectWallet: {
-      screen: SelectWallet,
-    },
   },
   {
     mode: 'modal',
