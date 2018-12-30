@@ -306,6 +306,6 @@ describe('currency', () => {
     cur = JSON.parse(cur);
     assert.ok(Number.isInteger(cur[currency.STRUCT.LAST_UPDATED]));
     assert.ok(cur[currency.STRUCT.LAST_UPDATED] > 0);
-    assert.ok(cur[currency.STRUCT.BTC_USD] > 0);
+    assert.ok(cur['BTC_USD'] > 0);
   });
 });
