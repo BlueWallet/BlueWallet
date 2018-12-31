@@ -193,7 +193,7 @@ module.exports = {
       'BlueWallet einen anderen Speicher zur Täuschung. Dies wirkt ' +
       'auf Fremde täuschen echt und dein Hauptspeicher bleibt geheim ' +
       'und sicher.',
-    help2: 'Der weitere Speicher ist voll funktional und man kann einen Minimalbetrag für die Glaubhaftigkeit hinterlegen.'',
+    help2: 'Der weitere Speicher ist voll funktional und man kann einen Minimalbetrag für die Glaubhaftigkeit hinterlegen.',
     create_fake_storage: 'Erstelle verschlüsselten Speicher zur Täuschung',
     go_back: 'Zurück',
     create_password: 'Erstelle ein Passwort',
