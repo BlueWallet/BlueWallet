@@ -534,6 +534,13 @@ const stylesBlueIcon = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: '#d2f8d6',
+    transform: [{ rotate: '-45deg' }],
+  },
+  ballIncommingWithoutRotate: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#d2f8d6',
   },
   ballReceive: {
     width: 30,
@@ -547,6 +554,7 @@ const stylesBlueIcon = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: '#f8d2d2',
+    transform: [{ rotate: '225deg' }],
   },
   ballOutgoingWithoutRotate: {
     width: 30,
@@ -666,7 +674,7 @@ export class BlueTransactionOffchainIcon extends Component {
     return (
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
-          <View style={stylesBlueIcon.ballOutgoing}>
+          <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
             <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
@@ -680,7 +688,7 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
     return (
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
-          <View style={stylesBlueIcon.ballIncomming}>
+          <View style={stylesBlueIcon.ballIncommingWithoutRotate}>
             <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
