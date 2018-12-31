@@ -21,7 +21,15 @@ let strings;
       locale = locale.split('-');
       locale = locale[0];
       console.log('current locale:', locale);
-      if (locale === 'en' || locale === 'ru' || locale === 'ua' || locale === 'es' || locale === 'pt-br' || locale === 'pt-pt' || locale === 'de-de') {
+      if (
+        locale === 'en' ||
+        locale === 'ru' ||
+        locale === 'ua' ||
+        locale === 'es' ||
+        locale === 'pt-br' ||
+        locale === 'pt-pt' ||
+        locale === 'de-de'
+      ) {
         locale = locale.replace('-', '_');
         strings.setLanguage(locale);
       } else {
@@ -38,7 +46,7 @@ strings = new Localization({
   pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   ua: require('./ua.js'),
-  de_de: require('.de_DE.js')
+  de_de: require('./de_DE.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
