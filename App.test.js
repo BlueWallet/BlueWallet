@@ -75,7 +75,7 @@ it('BlueHeader works', () => {
   expect(rendered).toBeTruthy();
 });
 
-it.skip('Settings work', () => {
+it('Settings work', () => {
   const rendered = TestRenderer.create(<Settings />).toJSON();
   expect(rendered).toBeTruthy();
 });
