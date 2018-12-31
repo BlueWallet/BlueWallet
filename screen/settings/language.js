@@ -50,6 +50,7 @@ export default class Language extends Component {
             <Picker.Item color={BlueApp.settings.foregroundColor} label="Spanish" value="es" />
             <Picker.Item color={BlueApp.settings.foregroundColor} label="Portuguese (BR)" value="pt_br" />
             <Picker.Item color={BlueApp.settings.foregroundColor} label="Portuguese (PT)" value="pt_pt" />
+            <Picker.Item color={BlueApp.settings.foregroundColor} label="Deutsch (DE)" value="de_DE" />
           </Picker>
         </BlueCard>
       </SafeBlueArea>
