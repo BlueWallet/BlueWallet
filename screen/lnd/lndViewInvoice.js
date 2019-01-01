@@ -80,7 +80,7 @@ export default class LNDViewInvoice extends Component {
 
   copyToClipboard = () => {
     this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(this.state.invoice.payment_request);
+      Clipboard.setString('lightning:' + this.state.invoice.payment_request);
       setTimeout(() => this.setState({ addressText: this.state.invoice.payment_request }), 1000);
     });
   };
@@ -168,7 +168,7 @@ export default class LNDViewInvoice extends Component {
                 }}
                 onPress={async () => {
                   Share.share({
-                    message: invoice.payment_request,
+                    message: 'lightning:' + invoice.payment_request,
                   });
                 }}
                 title={loc.receive.details.share}
