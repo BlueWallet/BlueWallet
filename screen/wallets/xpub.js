@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, Platform, ActivityIndicator, View, Clipboard, Animated, TouchableOpacity } from 'react-native';
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
-import { BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const QRFast = require('react-native-qrcode');
 /** @type {AppStorage} */
@@ -17,11 +17,11 @@ if (aspectRatio > 1.6) {
 }
 
 export default class WalletXpub extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.wallets.xpub.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.wallets.xpub.title,
+    headerLeft: null,
+  });
 
   constructor(props) {
     super(props);

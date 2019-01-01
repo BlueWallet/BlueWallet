@@ -211,5 +211,6 @@ module.exports = {
     refill_lnd_balance: 'Carregar o saldo da Lightning wallet',
     refill: 'Carregar',
     withdraw: 'Transferir',
+    expired: 'Expired',
   },
 };

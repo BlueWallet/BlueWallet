@@ -6,12 +6,6 @@ let assert = require('assert');
 describe('LightningCustodianWallet', () => {
   let l1 = new LightningCustodianWallet();
 
-  it.skip('can issue wallet credentials', async () => {
-    let l0 = new LightningCustodianWallet();
-    await l0.createAccount();
-    console.log(l0.getSecret());
-  });
-
   it('can create, auth and getbtc', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
@@ -207,7 +201,12 @@ describe('LightningCustodianWallet', () => {
     assert.ok(invoices2[0].description);
     assert.equal(invoices2[0].description, 'test memo');
     assert.ok(invoices2[0].payment_request);
+    assert.ok(invoices2[0].timestamp);
+    assert.ok(invoices2[0].expire_time);
     assert.equal(invoices2[0].amt, 1);
+    for (let inv of invoices2) {
+      assert.equal(inv.type, 'user_invoice');
+    }
 
     await lOld.fetchBalance();
     let oldBalance = lOld.balance;

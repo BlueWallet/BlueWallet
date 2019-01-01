@@ -211,5 +211,6 @@ module.exports = {
     refill_lnd_balance: 'Збільшити баланс Lightning гаманця',
     refill: 'Поповнити',
     withdraw: 'Вивести',
+    expired: 'Expired',
   },
 };

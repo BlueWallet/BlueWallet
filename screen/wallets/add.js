@@ -186,7 +186,6 @@ export default class WalletsAdd extends Component {
                   width: width / 1.5,
                 }}
                 onPress={() => {
-                  this.props.navigation.goBack();
                   setTimeout(async () => {
                     let w;
 
@@ -236,6 +235,7 @@ export default class WalletsAdd extends Component {
                     EV(EV.enum.WALLETS_COUNT_CHANGED);
                     A(A.ENUM.CREATED_WALLET);
                     ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                    this.props.navigation.dismiss();
                   }, 1);
                 }}
               />
@@ -258,5 +258,6 @@ WalletsAdd.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+    dismiss: PropTypes.func,
   }),
 };

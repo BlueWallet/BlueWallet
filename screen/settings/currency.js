@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { FlatList, TouchableOpacity, AsyncStorage, ActivityIndicator, View } from 'react-native';
+import { FlatList, TouchableOpacity, ActivityIndicator, View } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
-import { AppStorage } from '../../class';
 import { FiatUnit } from '../../models/fiatUnit';
-/** @type {AppStorage} */
 let loc = require('../../loc');
 let currency = require('../../currency');
 
@@ -22,7 +20,7 @@ export default class Currency extends Component {
 
   async componentDidMount() {
     try {
-      const preferredCurrency = await AsyncStorage.getItem(AppStorage.PREFERREDCURRENCY);
+      const preferredCurrency = await currency.getPreferredCurrency();
       if (preferredCurrency === null) {
         throw Error();
       }
@@ -37,15 +35,15 @@ export default class Currency extends Component {
       <TouchableOpacity
         onPress={() => {
           this.setState({ isSavingNewPreferredCurrency: true, selectedCurrency: item }, async () => {
-            await AsyncStorage.setItem(AppStorage.PREFERREDCURRENCY, JSON.stringify(item));
-            await currency.startUpdater(true);
+            await currency.setPrefferedCurrency(item);
+            await currency.startUpdater();
             this.setState({ isSavingNewPreferredCurrency: false });
           });
         }}
       >
         <BlueListItem
-          title={item.symbol + ' ' + item.formatterValue}
-          {...(this.state.selectedCurrency.formatterValue === item.formatterValue
+          title={item.symbol + ' ' + item.endPointKey}
+          {...(this.state.selectedCurrency.endPointKey === item.endPointKey
             ? {
                 rightIcon: this.state.selectedNewCurrency ? (
                   <ActivityIndicator />

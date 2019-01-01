@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Dimensions, Platform, ActivityIndicator, View } from 'react-native';
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
-import { BlueSpacing40, SafeBlueArea, BlueCard, BlueText, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueSpacing40, SafeBlueArea, BlueNavigationStyle, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const QRFast = require('react-native-qrcode');
 /** @type {AppStorage} */
@@ -17,11 +17,11 @@ if (aspectRatio > 1.6) {
 }
 
 export default class WalletExport extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.wallets.export.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.wallets.export.title,
+    headerLeft: null,
+  });
 
   constructor(props) {
     super(props);
@@ -29,7 +29,6 @@ export default class WalletExport extends Component {
     let address = props.navigation.state.params.address;
     let secret = props.navigation.state.params.secret;
     let wallet;
-
     for (let w of BlueApp.getWallets()) {
       if ((address && w.getAddress() === address) || w.getSecret() === secret) {
         // found our wallet

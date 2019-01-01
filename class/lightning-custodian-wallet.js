@@ -145,7 +145,19 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
+    this.user_invoices_raw = json;
+
     return json;
+  }
+
+  /**
+   * Basically the same as this.getUserInvoices() but saves invoices list
+   * to internal variable
+   *
+   * @returns {Promise<void>}
+   */
+  async fetchUserInvoices() {
+    await this.getUserInvoices();
   }
 
   async addInvoice(amt, memo) {
@@ -306,8 +318,9 @@ export class LightningCustodianWallet extends LegacyWallet {
   getTransactions() {
     let txs = [];
     this.pending_transactions_raw = this.pending_transactions_raw || [];
+    this.user_invoices_raw = this.user_invoices_raw || [];
     this.transactions_raw = this.transactions_raw || [];
-    txs = txs.concat(this.pending_transactions_raw, this.transactions_raw.slice().reverse()); // slice so array is cloned
+    txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
       if (tx.amount) {
@@ -325,13 +338,21 @@ export class LightningCustodianWallet extends LegacyWallet {
 
       if (tx.type === 'paid_invoice') {
         tx.memo = tx.memo || 'Lightning payment';
+        if (tx.value > 0) tx.value = (tx.value * 1 + tx.fee * 1) * -1;
+        // outer code expects spending transactions to of negative value
       }
 
       if (tx.type === 'bitcoind_tx') {
         tx.memo = 'On-chain transaction';
       }
 
-      tx.received = new Date(tx.timestamp * 1000).toString(); // TODO once api is ready
+      if (tx.type === 'user_invoice') {
+        // incoming ln tx
+        tx.value = parseInt(tx.amt);
+        tx.memo = tx.description || 'Lightning invoice';
+      }
+
+      tx.received = new Date(tx.timestamp * 1000).toString();
     }
     return txs.sort(function(a, b) {
       return b.timestamp - a.timestamp;
@@ -497,7 +518,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   allowReceive() {
-    return false;
+    return true;
   }
 }
 

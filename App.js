@@ -1,7 +1,6 @@
 import React from 'react';
 import { Linking } from 'react-native';
 import { NavigationActions } from 'react-navigation';
-
 import MainBottomTabs from './MainBottomTabs';
 
 export default class App extends React.Component {

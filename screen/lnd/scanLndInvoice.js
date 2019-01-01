@@ -3,7 +3,7 @@ import React from 'react';
 import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TouchableWithoutFeedback, TextInput, Keyboard } from 'react-native';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueHeaderDefaultSub } from '../../BlueComponents';
+import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -13,11 +13,11 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class ScanLndInvoice extends React.Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={'Pay invoice'} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: loc.send.header,
+    headerLeft: null,
+  });
 
   state = {
     isLoading: false,
@@ -25,28 +25,35 @@ export default class ScanLndInvoice extends React.Component {
 
   constructor(props) {
     super(props);
-    let fromSecret;
-    if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
-    let fromWallet = {};
 
-    if (!fromSecret) {
-      const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
-      if (lightningWallets.length > 0) {
-        fromSecret = lightningWallets[0].getSecret();
+    if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
+      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+      props.navigation.dismiss();
+    } else {
+      let fromSecret;
+      if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
+      let fromWallet = {};
+
+      if (!fromSecret) {
+        const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+        if (lightningWallets.length > 0) {
+          fromSecret = lightningWallets[0].getSecret();
+        }
       }
-    }
 
-    for (let w of BlueApp.getWallets()) {
-      if (w.getSecret() === fromSecret) {
-        fromWallet = w;
-        break;
+      for (let w of BlueApp.getWallets()) {
+        if (w.getSecret() === fromSecret) {
+          fromWallet = w;
+          break;
+        }
       }
-    }
 
-    this.state = {
-      fromWallet,
-      fromSecret,
-    };
+      this.state = {
+        fromWallet,
+        fromSecret,
+        destination: '',
+      };
+    }
   }
 
   async componentDidMount() {
@@ -71,7 +78,7 @@ export default class ScanLndInvoice extends React.Component {
     }, 6000);
 
     if (!this.state.fromWallet) {
-      alert('Error: cant find source wallet (this should never happen)');
+      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       return this.props.navigation.goBack();
     }
 
@@ -82,7 +89,7 @@ export default class ScanLndInvoice extends React.Component {
      * @type {LightningCustodianWallet}
      */
     let w = this.state.fromWallet;
-    let decoded = false;
+    let decoded;
     try {
       decoded = await w.decodeInvoice(data);
 
@@ -98,8 +105,10 @@ export default class ScanLndInvoice extends React.Component {
         invoice: data,
         decoded,
         expiresIn,
+        destination: data,
       });
     } catch (Err) {
+      this.setState({ destination: '' });
       alert(Err.message);
     }
   }
@@ -144,7 +153,7 @@ export default class ScanLndInvoice extends React.Component {
     if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb')) {
       this.processInvoice(text);
     } else {
-      this.setState({ decoded: undefined, expiresIn: undefined });
+      this.setState({ decoded: undefined, expiresIn: undefined, destination: text });
     }
   };
 
@@ -163,7 +172,6 @@ export default class ScanLndInvoice extends React.Component {
               currency.satoshiToBTC(this.state.decoded.num_satoshis)}
           </Text>
           <BlueSpacing20 />
-
           <BlueCard>
             <View
               style={{
@@ -182,10 +190,13 @@ export default class ScanLndInvoice extends React.Component {
               }}
             >
               <TextInput
-                onChangeText={this.processTextForInvoice}
+                onChangeText={text => {
+                  this.setState({ destination: text });
+                  this.processTextForInvoice(text);
+                }}
                 placeholder={loc.wallets.details.destination}
                 numberOfLines={1}
-                value={this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.destination : ''}
+                value={this.state.destination}
                 style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
                 editable={!this.state.isLoading}
               />
@@ -238,35 +249,26 @@ export default class ScanLndInvoice extends React.Component {
               <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
             )}
           </BlueCard>
-
           <BlueSpacing20 />
-
-          {this.state.hasOwnProperty('decoded') &&
-            this.state.decoded !== undefined &&
-            (() => {
-              if (this.state.isPayingInProgress) {
-                return (
-                  <View>
-                    <ActivityIndicator />
-                  </View>
-                );
-              } else {
-                return (
-                  <BlueButton
-                    icon={{
-                      name: 'bolt',
-                      type: 'font-awesome',
-                      color: BlueApp.settings.buttonTextColor,
-                    }}
-                    title={'Pay'}
-                    buttonStyle={{ width: 150, left: (width - 150) / 2 - 20 }}
-                    onPress={() => {
-                      this.pay();
-                    }}
-                  />
-                );
-              }
-            })()}
+          {this.state.isPayingInProgress ? (
+            <View>
+              <ActivityIndicator />
+            </View>
+          ) : (
+            <BlueButton
+              icon={{
+                name: 'bolt',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              title={'Pay'}
+              buttonStyle={{ width: 150, left: (width - 150) / 2 - 20 }}
+              onPress={() => {
+                this.pay();
+              }}
+              disabled={!this.state.decoded}
+            />
+          )}
         </SafeBlueArea>
       </TouchableWithoutFeedback>
     );
@@ -278,6 +280,7 @@ ScanLndInvoice.propTypes = {
     goBack: PropTypes.function,
     navigate: PropTypes.function,
     getParam: PropTypes.function,
+    dismiss: PropTypes.function,
     state: PropTypes.shape({
       params: PropTypes.shape({
         uri: PropTypes.string,
