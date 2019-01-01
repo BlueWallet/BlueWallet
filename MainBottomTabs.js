@@ -128,8 +128,6 @@ const CreateTransactionStackNavigator = createStackNavigator({
   Success: {
     screen: Success,
   },
-
-  // Select Wallet. Mostly for deep-linking
   SelectWallet: {
     screen: SelectWallet,
   },

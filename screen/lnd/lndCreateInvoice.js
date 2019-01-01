@@ -127,7 +127,7 @@ export default class LNDCreateInvoice extends Component {
               >
                 <TextInput
                   onChangeText={text => this.setState({ memo: text })}
-                  placeholder={'invoice description'}
+                  placeholder={loc.receive.details.label}
                   value={this.state.memo}
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
