@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Animated, ScrollView, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
+import { Animated, ScrollView, StyleSheet, View, TouchableOpacity, Clipboard, Dimensions, Share } from 'react-native';
 import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -10,6 +10,7 @@ let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const EV = require('../../events');
 const QRFast = require('react-native-qrcode');
+const { width } = Dimensions.get('window');
 
 export default class LNDViewInvoice extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -144,14 +145,14 @@ export default class LNDViewInvoice extends Component {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <ScrollView>
+          <QRFast
+            value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
+            size={width}
+            fgColor={BlueApp.settings.brandingColor}
+            bgColor={BlueApp.settings.foregroundColor}
+          />
           <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-              <QRFast
-                value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
-                size={300}
-                fgColor={BlueApp.settings.brandingColor}
-                bgColor={BlueApp.settings.foregroundColor}
-              />
               {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
               {invoice && invoice.description && <BlueText>For: {invoice.description}</BlueText>}
               <TouchableOpacity onPress={this.copyToClipboard}>
