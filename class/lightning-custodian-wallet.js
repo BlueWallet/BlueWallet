@@ -162,7 +162,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async addInvoice(amt, memo) {
     let response = await this._api.post('/addinvoice', {
-      body: { amt: amt + '', memo: encodeURIComponent(memo) },
+      body: { amt: amt + '', memo: memo },
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
