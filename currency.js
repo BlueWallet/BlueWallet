@@ -28,14 +28,12 @@ async function getPreferredCurrency() {
 async function updateExchangeRate() {
   if (+new Date() - exchangeRates[STRUCT.LAST_UPDATED] <= 30 * 60 * 1000) {
     // not updating too often
-    console.log('not updating too often');
     return;
   }
 
   try {
     preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
   } catch (_) {
-    console.log('error :-( default will be used');
   }
   preferredFiatCurrency = preferredFiatCurrency || FiatUnit.USD;
 
@@ -63,7 +61,6 @@ async function updateExchangeRate() {
 let interval = false;
 async function startUpdater() {
   if (interval) {
-    console.log('clear interval');
     clearInterval(interval);
     exchangeRates[STRUCT.LAST_UPDATED] = 0;
   }

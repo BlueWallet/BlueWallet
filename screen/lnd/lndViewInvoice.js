@@ -47,9 +47,7 @@ export default class LNDViewInvoice extends Component {
           if (updatedUserInvoice.ispaid) {
             // we fetched the invoice, and it is paid :-)
             this.setState({ isFetchingInvoices: false });
-            console.log('isFetchingInvoices set to false');
             ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-            console.log('clear interval');
             clearInterval(this.fetchInvoiceInterval);
             this.fetchInvoiceInterval = undefined;
             EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
@@ -72,7 +70,7 @@ export default class LNDViewInvoice extends Component {
           this.props.navigation.dismiss();
         }
       }
-    }, 5000);
+    }, 3000);
   }
 
   componentWillUnmount() {

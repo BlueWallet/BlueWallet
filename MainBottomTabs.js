@@ -128,6 +128,8 @@ const CreateTransactionStackNavigator = createStackNavigator({
   Success: {
     screen: Success,
   },
+
+  // Select Wallet. Mostly for deep-linking
   SelectWallet: {
     screen: SelectWallet,
   },
@@ -261,7 +263,6 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
-    // Select Wallet. Mostly for deep-linking
   },
   {
     mode: 'modal',
