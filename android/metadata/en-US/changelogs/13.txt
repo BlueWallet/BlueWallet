@@ -30,4 +30,4 @@ FIX: Disabled autocorrect when importing wallet (security issue)
 FIX: amount display bug
 ADD: spend bip44 (legacy HD wallets)
 FIX: BIP44 mnemonic QR correctly imported
-ADD: haptic feedback when the user only has 1 wallet
+ADD: haptic feedback when the user only has 1 wallet* Merge pull request #176 from BlueWallet/receiveBase Create LND invoice
