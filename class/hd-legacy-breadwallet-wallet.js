@@ -57,22 +57,27 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
   }
 
   _getExternalWIFByIndex(index) {
-    index = index * 1; // cast to int
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = "m/0'/0/" + index;
-    let child = root.derivePath(path);
-    return child.keyPair.toWIF();
+    return this._getWIFByIndex(false, index);
   }
 
   _getInternalWIFByIndex(index) {
-    index = index * 1; // cast to int
+    return this._getWIFByIndex(true, index);
+  }
+
+  /**
+   * Get internal/external WIF by wallet index
+   * @param {Boolean} internal
+   * @param {Number} index
+   * @returns {*}
+   * @private
+   */
+  _getWIFByIndex(internal, index) {
     let mnemonic = this.secret;
     let seed = bip39.mnemonicToSeed(mnemonic);
     let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = "m/0'/1/" + index;
+    let path = `m/0'/${internal ? 1 : 0}/${index}`;
     let child = root.derivePath(path);
+
     return child.keyPair.toWIF();
   }
 
