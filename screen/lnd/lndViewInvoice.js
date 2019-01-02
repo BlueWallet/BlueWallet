@@ -165,7 +165,7 @@ export default class LNDViewInvoice extends Component {
             fgColor={BlueApp.settings.brandingColor}
             bgColor={BlueApp.settings.foregroundColor}
           />
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+          <View style={{ justifyContent: 'center', alignItems: 'center', marginVertical: 16, paddingHorizontal: 16 }}>
             {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
             {invoice && invoice.description && <BlueText>For: {invoice.description}</BlueText>}
             <TouchableOpacity onPress={this.copyToClipboard}>
