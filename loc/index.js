@@ -28,7 +28,8 @@ let strings;
         locale === 'es' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
-        locale === 'de-de'
+        locale === 'de-de' ||
+        locale === 'cs-cz'
       ) {
         locale = locale.replace('-', '_');
         strings.setLanguage(locale);
@@ -47,6 +48,7 @@ strings = new Localization({
   es: require('./es.js'),
   ua: require('./ua.js'),
   de_de: require('./de_DE.js'),
+  cs_cz: require('./cs_CZ.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
