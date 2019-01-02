@@ -1,8 +1,8 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
-const bitcoin = require('bitcoinjs-lib');
-const bip39 = require('bip39');
-const BigNumber = require('bignumber.js');
-const signer = require('../models/signer');
+import bitcoin from 'bitcoinjs-lib';
+import bip39 from 'bip39';
+import BigNumber from 'bignumber.js';
+import signer from '../models/signer';
 
 /**
  * HD Wallet (BIP39).
@@ -21,13 +21,14 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.HDNode.fromSeedBuffer(seed);
 
-    let path = "m/44'/0'/0'";
-    let child = root.derivePath(path).neutered();
+    const path = "m/44'/0'/0'";
+    const child = root.derivePath(path).neutered();
     this._xpub = child.toBase58();
+
     return this._xpub;
   }
 
@@ -47,16 +48,16 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
    * @private
    */
   _getWIFByIndex(internal, index) {
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
-    let child = root.derivePath(path);
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
+    const child = root.derivePath(path);
 
     return child.keyPair.toWIF();
   }
 
-  _getExternalAddressByIndex (index) {
+  _getExternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
@@ -69,7 +70,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     return (this.external_addresses_cache[index] = address);
   }
 
-  _getInternalAddressByIndex (index) {
+  _getInternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
