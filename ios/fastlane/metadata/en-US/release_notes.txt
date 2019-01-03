@@ -1,3 +1,10 @@
+v3.5.1
+------
+
+FIX: Fixed an error on while updating invoice
+FIX: Fixed content size issue on viewing lnd invoice
+ADD: Czech translation
+
 v3.5.0
 ------
 
