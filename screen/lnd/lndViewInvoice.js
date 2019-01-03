@@ -15,7 +15,7 @@ const { width } = Dimensions.get('window');
 export default class LNDViewInvoice extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
-    title: loc.receive.header,
+    title: 'Lightning Invoice',
     headerLeft: null,
   });
 
