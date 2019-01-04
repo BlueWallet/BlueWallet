@@ -1127,6 +1127,7 @@ export class BlueBitcoinAmount extends Component {
     const amount = typeof this.props.amount === 'number' ? this.props.amount.toString() : this.props.amount;
 
     return (
+      <TouchableWithoutFeedback onPress={() => this.textInput.focus()}>
       <View>
         <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
           <TextInput
@@ -1134,6 +1135,7 @@ export class BlueBitcoinAmount extends Component {
             onChangeText={text => this.props.onChangeText(text.replace(',', '.'))}
             placeholder="0"
             maxLength={10}
+            ref={(textInput) => this.textInput = textInput}
             editable={!this.props.isLoading && !this.props.disabled}
             value={amount}
             placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
@@ -1162,6 +1164,7 @@ export class BlueBitcoinAmount extends Component {
           </Text>
         </View>
       </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
