@@ -126,7 +126,7 @@ strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
       return currency.satoshiToLocalCurrency(balance);
     }
   }
-  return balance;
+  return balance.toString();
 };
 
 module.exports = strings;
