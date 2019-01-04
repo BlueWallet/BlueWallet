@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Picker } from 'react-native';
-import { BlueLoading, SafeBlueArea, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
+import { FlatList, TouchableOpacity } from 'react-native';
+import { BlueLoading, BlueText, SafeBlueArea, BlueListItem, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+import { Icon } from 'react-native-elements';
 let loc = require('../../loc');
 
 export default class Language extends Component {
@@ -17,15 +16,46 @@ export default class Language extends Component {
     this.state = {
       isLoading: true,
       language: loc.getLanguage(),
+      availableLanguages: [
+        { label: 'English', value: 'en' },
+        { label: 'Русский', value: 'ru' },
+        { label: 'Українська', value: 'ua' },
+        { label: 'Spanish', value: 'es' },
+        { label: 'Portuguese (BR)', value: 'pt_br' },
+        { label: 'Portuguese (PT)', value: 'pt_pt' },
+        { label: 'Deutsch (DE)', value: 'de_de' },
+        { label: 'Česky (CZ)', value: 'cs_cz' },
+      ],
     };
   }
 
   async componentDidMount() {
     this.setState({
       isLoading: false,
-      storageIsEncrypted: await BlueApp.storageIsEncrypted(),
     });
   }
+
+  renderItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          console.log('setLanguage', item.value);
+          loc.setLanguage(item.value);
+          loc.saveLanguage(item.value);
+          return this.setState({ language: item.value });
+        }}
+      >
+        <BlueListItem
+          title={item.label}
+          {...(this.state.language === item.value
+            ? {
+                rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+              }
+            : { hideChevron: true })}
+        />
+      </TouchableOpacity>
+    );
+  };
 
   render() {
     if (this.state.isLoading) {
@@ -34,25 +64,15 @@ export default class Language extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        <FlatList
+          style={{ flex: 1 }}
+          keyExtractor={(_item, index) => `${index}`}
+          data={this.state.availableLanguages}
+          extraData={this.state.availableLanguages}
+          renderItem={this.renderItem}
+        />
         <BlueCard>
-          <Picker
-            selectedValue={this.state.language}
-            onValueChange={(itemValue, itemIndex) => {
-              console.log('setLanguage', itemValue);
-              loc.setLanguage(itemValue);
-              loc.saveLanguage(itemValue);
-              return this.setState({ language: itemValue });
-            }}
-          >
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="English" value="en" />
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="Русский" value="ru" />
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="Українська" value="ua" />
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="Spanish" value="es" />
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="Portuguese (BR)" value="pt_br" />
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="Portuguese (PT)" value="pt_pt" />
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="Deutsch (DE)" value="de_de" />
-            <Picker.Item color={BlueApp.settings.foregroundColor} label="Česky (CZ)" value="cs_cz" />
-          </Picker>
+          <BlueText>When selecting a new language, restarting Blue Wallet may be required for the change to take effect.</BlueText>
         </BlueCard>
       </SafeBlueArea>
     );

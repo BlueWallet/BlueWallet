@@ -166,7 +166,6 @@ export default class LNDViewInvoice extends Component {
           <View
             style={{
               flex: 1,
-              justifyContent: 'center',
               alignItems: 'center',
               marginTop: 8,
               paddingHorizontal: 16,

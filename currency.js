@@ -78,11 +78,24 @@ function satoshiToLocalCurrency(satoshi) {
     .toString(10);
   b = parseFloat(b).toFixed(2);
 
-  const formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
-    style: 'currency',
-    currency: preferredFiatCurrency.endPointKey,
-    minimumFractionDigits: 2,
-  });
+  let formatter;
+
+  try {
+    formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
+      style: 'currency',
+      currency: preferredFiatCurrency.endPointKey,
+      minimumFractionDigits: 2,
+    });
+  } catch (error) {
+    console.warn(error);
+    console.log(error);
+    formatter = new Intl.NumberFormat(FiatUnit.USD.locale, {
+      style: 'currency',
+      currency: preferredFiatCurrency.endPointKey,
+      minimumFractionDigits: 2,
+    });
+  }
+
   return formatter.format(b);
 }
 
