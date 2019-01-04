@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { FlatList, TouchableOpacity, ActivityIndicator, View } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
+import { SafeBlueArea, BlueNavigationStyle, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
@@ -24,7 +24,7 @@ export default class Currency extends Component {
       if (preferredCurrency === null) {
         throw Error();
       }
-      this.setState({ selectedCurrency: JSON.parse(preferredCurrency) });
+      this.setState({ selectedCurrency: preferredCurrency });
     } catch (_error) {
       this.setState({ selectedCurrency: FiatUnit.USD });
     }
@@ -68,6 +68,9 @@ export default class Currency extends Component {
             extraData={this.state.data}
             renderItem={this.renderItem}
           />
+          <BlueCard>
+            <BlueText>Prices are obtained from CoinDesk</BlueText>
+          </BlueCard>
         </SafeBlueArea>
       );
     }
