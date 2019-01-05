@@ -15,7 +15,7 @@ module.exports = {
     list: {
       app_name: 'Blue Wallet',
       title: 'wallets',
-      header: 'En wallet er et sæt af en hemmelig (privat nøgle) og en adresse' + 'du kan dele for at modtage coins.',
+      header: 'En wallet er et sæt bestående af en hemmelig (privat nøgle) og en adresse' + 'du kan dele for at modtage coins.',
       add: 'Tilføj Wallet',
       create_a_wallet: 'Opret en  wallet',
       create_a_wallet1: "Det er helt gratis og du kan oprette",
