@@ -102,9 +102,9 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.secret = 'lndhub://' + json.login + ':' + json.password;
   }
 
-  async payInvoice(invoice) {
+  async payInvoice(invoice, freeAmount = 0) {
     let response = await this._api.post('/payinvoice', {
-      body: { invoice: invoice },
+      body: { invoice: invoice, amount: freeAmount },
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',

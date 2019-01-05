@@ -10,6 +10,7 @@ let BlueApp = require('../../BlueApp');
 let currency = require('../../currency');
 let EV = require('../../events');
 let loc = require('../../loc');
+let prompt = require('../../prompt');
 const { width } = Dimensions.get('window');
 
 export default class ScanLndInvoice extends React.Component {
@@ -92,6 +93,14 @@ export default class ScanLndInvoice extends React.Component {
     let decoded;
     try {
       decoded = await w.decodeInvoice(data);
+      let freeAmount = 0;
+      while (+decoded.num_satoshis === 0) {
+        freeAmount = await prompt('This is free amount invoice', 'How many satoshis do you want to tip?', false, 'numeric');
+        freeAmount = parseInt(freeAmount);
+        if (!isNaN(freeAmount) && freeAmount > 0) {
+          decoded.num_satoshis = freeAmount;
+        }
+      }
 
       let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
       if (+new Date() > expiresIn) {
@@ -105,6 +114,7 @@ export default class ScanLndInvoice extends React.Component {
         invoice: data,
         decoded,
         expiresIn,
+        freeAmount,
         destination: data,
       });
     } catch (Err) {
@@ -143,7 +153,7 @@ export default class ScanLndInvoice extends React.Component {
         let start = +new Date();
         let end;
         try {
-          await fromWallet.payInvoice(this.state.invoice);
+          await fromWallet.payInvoice(this.state.invoice, this.state.freeAmount);
           end = +new Date();
         } catch (Err) {
           console.log(Err.message);
@@ -170,7 +180,24 @@ export default class ScanLndInvoice extends React.Component {
 
   render() {
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <TouchableWithoutFeedback
+        onPress={async () => {
+          if (this.state.freeAmount) {
+            // must ask user again about the amount
+            let freeAmount = await prompt('This is free amount invoice', 'How many satoshis do you want to tip?', false, 'numeric');
+            freeAmount = parseInt(freeAmount);
+            if (!isNaN(freeAmount) && freeAmount > 0) {
+              let decoded = this.state.decoded;
+              decoded.num_satoshis = freeAmount;
+              this.setState({ decoded, freeAmount });
+              Keyboard.dismiss();
+            }
+          } else {
+            Keyboard.dismiss();
+          }
+        }}
+        accessible={false}
+      >
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
           <Text style={{ textAlign: 'center', fontSize: 50, fontWeight: '700', color: '#2f5fb3' }}>
             {this.state.hasOwnProperty('decoded') &&

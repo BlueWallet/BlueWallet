@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, Linking, View } from 'react-native';
 import { BlueSpacingVariable, BlueNavigationStyle, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
@@ -68,7 +68,7 @@ export default class ManageFunds extends Component {
             titleStyle={{ color: BlueApp.settings.foregroundColor }}
             component={TouchableOpacity}
             onPress={a => {
-              alert('Coming soon');
+              Linking.openURL('https://zigzag.io');
             }}
             title={loc.lnd.withdraw}
           />
