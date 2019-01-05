@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Animated, ScrollView, StyleSheet, View, TouchableOpacity, Clipboard, Dimensions, Share } from 'react-native';
+import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Dimensions, Share } from 'react-native';
 import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -10,7 +10,7 @@ let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const EV = require('../../events');
 const QRFast = require('react-native-qrcode');
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default class LNDViewInvoice extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -29,6 +29,7 @@ export default class LNDViewInvoice extends Component {
       isLoading: typeof invoice === 'string',
       addressText: typeof invoice === 'object' && invoice.hasOwnProperty('payment_request') ? invoice.payment_request : invoice,
       isFetchingInvoices: true,
+      qrCodeHeight: height > width ? height / 2.5 : width / 2,
     };
     this.fetchInvoiceInterval = undefined;
   }
@@ -88,6 +89,11 @@ export default class LNDViewInvoice extends Component {
       Clipboard.setString(this.state.invoice.payment_request);
       setTimeout(() => this.setState({ addressText: this.state.invoice.payment_request }), 1000);
     });
+  };
+
+  onLayout = () => {
+    const { height } = Dimensions.get('window');
+    this.setState({ qrCodeHeight: height > width ? height / 2.5 : width / 2 });
   };
 
   render() {
@@ -162,57 +168,59 @@ export default class LNDViewInvoice extends Component {
     // Invoice has not expired, nor has it been paid for.
     return (
       <SafeBlueArea>
-        <ScrollView style={{ flex: 1 }}>
-          <View
-            style={{
-              flex: 1,
-              alignItems: 'center',
-              marginTop: 8,
-              paddingHorizontal: 16,
-              justifyContent: 'space-between',
-            }}
-          >
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            marginTop: 8,
+            paddingHorizontal: 16,
+            justifyContent: 'space-between',
+          }}
+          onLayout={this.onLayout}
+        >
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <QRFast
               value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
-              size={width - 40}
               fgColor={BlueApp.settings.brandingColor}
               bgColor={BlueApp.settings.foregroundColor}
-            />
-            <BlueSpacing20 />
-            {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
-            {invoice && invoice.description && <BlueText>For: {invoice.description}</BlueText>}
-            <TouchableOpacity onPress={this.copyToClipboard}>
-              <Animated.Text style={styles.address} numberOfLines={0}>
-                {this.state.addressText}
-              </Animated.Text>
-            </TouchableOpacity>
-
-            <BlueButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={async () => {
-                Share.share({
-                  message: 'lightning:' + invoice.payment_request,
-                });
-              }}
-              title={loc.receive.details.share}
-            />
-            <BlueButton
-              buttonStyle={{ backgroundColor: 'white' }}
-              icon={{
-                name: 'info',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
-              title="Additional Information"
+              size={this.state.qrCodeHeight}
             />
           </View>
+
           <BlueSpacing20 />
-        </ScrollView>
+          {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
+          {invoice && invoice.description && <BlueText>For: {invoice.description}</BlueText>}
+          <TouchableOpacity onPress={this.copyToClipboard}>
+            <Animated.Text style={styles.address} numberOfLines={0}>
+              {this.state.addressText}
+            </Animated.Text>
+          </TouchableOpacity>
+
+          <BlueButton
+            icon={{
+              name: 'share-alternative',
+              type: 'entypo',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={async () => {
+              Share.share({
+                message: 'lightning:' + invoice.payment_request,
+              });
+            }}
+            title={loc.receive.details.share}
+          />
+          <BlueButton
+            buttonStyle={{ backgroundColor: 'white' }}
+            icon={{
+              name: 'info',
+              type: 'entypo',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
+            title="Additional Information"
+          />
+        </View>
+        <BlueSpacing20 />
       </SafeBlueArea>
     );
   }
