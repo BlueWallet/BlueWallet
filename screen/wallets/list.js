@@ -20,6 +20,7 @@ import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { LightningCustodianWallet } from '../../class';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -413,11 +414,20 @@ export default class WalletsList extends Component {
                         navigate('TransactionDetails', {
                           hash: rowData.item.hash,
                         });
-                      } else if (rowData.item.type === 'user_invoice') {
-                        // this.props.navigation.navigate('LNDViewInvoice', {
-                        //   invoice: rowData.item,
-                        //   fromWallet: this.state.wallets[this.state.lastSnappedTo],
-                        // });
+                      } else if (
+                        rowData.item.type === 'user_invoice' ||
+                        rowData.item.type === 'payment_request' ||
+                        rowData.item.type === 'paid_invoice'
+                      ) {
+                        const lightningWallet = this.state.wallets.filter(wallet => wallet.type === LightningCustodianWallet.type);
+                        if (typeof lightningWallet === 'object') {
+                          if (lightningWallet.length === 1) {
+                            this.props.navigation.navigate('LNDViewInvoice', {
+                              invoice: rowData.item,
+                              fromWallet: lightningWallet[0],
+                            });
+                          }
+                        }
                       }
                     }}
                     badge={{
