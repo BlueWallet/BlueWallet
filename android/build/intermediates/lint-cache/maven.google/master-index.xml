@@ -112,4 +112,9 @@
   <androidx.activity/>
   <com.android.tools.apkparser/>
   <com.android.tools.pixelprobe/>
+  <androidx.textclassifier/>
+  <androidx.remotecallback/>
+  <com.android.tools.chunkio/>
+  <com.android.tools.fakeadbserver/>
+  <androidx.savedstate/>
 </metadata>
