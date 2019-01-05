@@ -720,7 +720,7 @@ export class BlueReceiveButtonIcon extends Component {
         <View
           style={{
             flex: 1,
-            minWidth: 168,
+            minWidth: 130,
             backgroundColor: '#ccddf9',
           }}
         >
@@ -763,18 +763,18 @@ export class BlueSendButtonIcon extends Component {
         <View
           style={{
             flex: 1,
-            minWidth: 168,
+            minWidth: 130,
             backgroundColor: '#ccddf9',
+            alignItems: 'center',
           }}
         >
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             <View
               style={{
                 minWidth: 30,
                 minHeight: 30,
                 left: 5,
                 backgroundColor: 'transparent',
-                alignItems: 'center',
                 transform: [{ rotate: '225deg' }],
                 marginBottom: 11,
               }}
