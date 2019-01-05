@@ -9,5 +9,6 @@ export const FiatUnit = Object.freeze({
   JPY: { endPointKey: 'JPY', symbol: '¥', locale: 'ja-JP' },
   INR: { endPointKey: 'INR', symbol: '₹', locale: 'hi-HN' },
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE' },
+  SGD: { endPointKey: 'SGD', symbol: 'S$', locale: 'zh-SG' },
   ZAR: { endPointKey: 'ZAR', symbol: 'R', locale: 'en-ZA' },
 });
