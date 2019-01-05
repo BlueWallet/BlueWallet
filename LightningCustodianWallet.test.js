@@ -247,4 +247,69 @@ describe('LightningCustodianWallet', () => {
     assert.equal(lOld.balance - oldBalance, 1);
     assert.equal(lNew.balance, 0);
   });
+
+  it('can pay free amount (tip) invoice', async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
+
+    // fetchig invoice from tippin.me :
+
+    const api = new Frisbee({
+      baseURI: 'https://tippin.me',
+    });
+    const res = await api.post('/lndreq/newinvoice.php', {
+      headers: {
+        Origin: 'https://tippin.me',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Accept: 'application/json, text/javascript, */*; q=0.01',
+      },
+      body: 'userid=1188&username=overtorment&istaco=0&customAmnt=0&customMemo=',
+    });
+
+    let json;
+    let invoice;
+    if (res && res.body && (json = JSON.parse(res.body)) && json.message) {
+      invoice = json.message;
+    } else {
+      throw new Error('tippin.me problem: ' + JSON.stringify(res));
+    }
+
+    // --> use to pay specific invoice
+    // invoice =
+    //   'lnbc1pwrp35spp5z62nvj8yw6luq7ns4a8utpwn2qkkdwdt0ludwm54wjeazk2xv5wsdpu235hqurfdcsx7an9wf6x7undv4h8ggpgw35hqurfdchx6eff9p6nzvfc8q5scqzysxqyz5vqj8xq6wz6dezmunw6qxleuw67ensjnt3fldltrmmkvzurge0dczpn94fkwwh7hkh5wqrhsvfegtvhswn252hn6uw5kx99dyumz4v5n9sp337py2';
+
+    let l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+    await l2.fetchTransactions();
+    await l2.fetchBalance();
+    let oldBalance = +l2.balance;
+    let txLen = l2.transactions_raw.length;
+
+    let decoded = await l2.decodeInvoice(invoice);
+    assert.ok(decoded.payment_hash);
+    assert.ok(decoded.description);
+    assert.equal(+decoded.num_satoshis, 0);
+
+    await l2.checkRouteInvoice(invoice);
+
+    let start = +new Date();
+    await l2.payInvoice(invoice, 3);
+    let end = +new Date();
+    if ((end - start) / 1000 > 9) {
+      console.warn('payInvoice took', (end - start) / 1000, 'sec');
+    }
+
+    await l2.fetchTransactions();
+    assert.equal(l2.transactions_raw.length, txLen + 1);
+    // transactions became more after paying an invoice
+
+    await l2.fetchBalance();
+    assert.equal(oldBalance - l2.balance, 3);
+  });
 });
