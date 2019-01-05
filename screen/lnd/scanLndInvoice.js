@@ -95,7 +95,7 @@ export default class ScanLndInvoice extends React.Component {
       decoded = await w.decodeInvoice(data);
       let freeAmount = 0;
       while (+decoded.num_satoshis === 0) {
-        freeAmount = await prompt('This is free amount invoice', 'How many satoshis do you want to tip?', false, 'numeric');
+        freeAmount = await prompt('This is free amount invoice', 'How many satoshis do you want to tip?', false, 'plain-text');
         freeAmount = parseInt(freeAmount);
         if (!isNaN(freeAmount) && freeAmount > 0) {
           decoded.num_satoshis = freeAmount;
@@ -184,7 +184,7 @@ export default class ScanLndInvoice extends React.Component {
         onPress={async () => {
           if (this.state.freeAmount) {
             // must ask user again about the amount
-            let freeAmount = await prompt('This is free amount invoice', 'How many satoshis do you want to tip?', false, 'numeric');
+            let freeAmount = await prompt('This is free amount invoice', 'How many satoshis do you want to tip?', false, 'plain-text');
             freeAmount = parseInt(freeAmount);
             if (!isNaN(freeAmount) && freeAmount > 0) {
               let decoded = this.state.decoded;
