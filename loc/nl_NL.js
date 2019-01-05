@@ -18,7 +18,7 @@ module.exports = {
       header: 'Een portemonnee vertegenwoordigt een geheime (privésleutel) en een adres' + 'dat u kunt delen om munten te ontvangen.',
       add: 'Portemonnee toevoegen',
       create_a_wallet: 'Portemonnee aanmaken',
-      create_a_wallet1: "Het is gratis en u kunt er",
+      create_a_wallet1: 'Het is gratis en u kunt er',
       create_a_wallet2: 'zoveel maken als u wilt',
       latest_transaction: 'laatste transactie',
       empty_txs1: 'Uw transacties verschijnen hier,',
@@ -72,7 +72,7 @@ module.exports = {
     import: {
       title: 'importeren',
       explanation:
-        "Schrijf hier uw ezelsbruggetje, privésleutel, WIF, of een ander formaat. BlueWallet zal zijn best doen om het juiste formaat te raden en uw portemonnee te importeren",
+        'Schrijf hier uw ezelsbruggetje, privésleutel, WIF, of een ander formaat. BlueWallet zal zijn best doen om het juiste formaat te raden en uw portemonnee te importeren',
       imported: 'Geïmporteerd',
       error: 'Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.',
       success: 'Succes',
@@ -86,7 +86,7 @@ module.exports = {
       input_password: 'Voer wachtwoord in',
       password_explain: 'Dit is een BIP38-gecodeerde privésleutel',
       bad_password: 'Verkeerd wachtwoord',
-      wallet_already_exists: 'Zo\'n portemonnee bestaat al',
+      wallet_already_exists: "Zo'n portemonnee bestaat al",
       bad_wif: 'Verkeerde WIF',
       imported_wif: 'WIF geïmporteerd ',
       with_address: ' met adres ',
@@ -193,7 +193,8 @@ module.exports = {
       "nep'-opslagruimte worden ontgrendeld. Dit lijkt legitiem voor de " +
       'derde partij, maar zal uw hoofdopslag met munten niet bekend maken ' +
       'aan de derde partij',
-    help2: 'De nieuwe opslag zal volledig functioneel zijn en u kunt er ' + 'een minimum aantal munten opslaan zodat het geloofwaardig lijkt.',
+    help2:
+      'De nieuwe opslag zal volledig functioneel zijn en u kunt er ' + 'een minimum aantal munten opslaan zodat het geloofwaardig lijkt.',
     create_fake_storage: 'Nep versleutelde opslag aanmaken',
     go_back: 'Ga terug',
     create_password: 'Wachtwoord aanmaken',

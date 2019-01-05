@@ -194,8 +194,8 @@ module.exports = {
       'invés da senha principal. Quando inserida na BlueWallet, esta abrirá ' +
       'uma interface falsa, que parecerá legítima a um terceiro, enquanto ' +
       'suas carteiras originais continuarão à salvo em segredo.',
-    help2: 'Essa nova interface é completamente funcional e você pode inclusive ' +
-      'manter nele um valor minímo para que pareça mais real.',
+    help2:
+      'Essa nova interface é completamente funcional e você pode inclusive ' + 'manter nele um valor minímo para que pareça mais real.',
     create_fake_storage: 'Criar armazenamento criptografada falsa',
     go_back: 'Voltar',
     create_password: 'Criar senha',
