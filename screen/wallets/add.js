@@ -199,7 +199,7 @@ for (let t of BlueApp.getWallets()) {
                             if (t.type === LightningCustodianWallet.type) {
                               // already exist
                               this.setState({ isLoading: false });
-                              return alert('Only 1 Ligthning wallet allowed for now');
+                              return alert('Only 1 Lightning wallet allowed for now');
                             }
                           }
 
