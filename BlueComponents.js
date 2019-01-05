@@ -717,28 +717,26 @@ export class BlueReceiveButtonIcon extends Component {
   render() {
     return (
       <TouchableOpacity {...this.props}>
-        <View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              minWidth: 110,
-              minHeight: 40,
-              position: 'relative',
-              backgroundColor: '#ccddf9',
-              alignItems: 'center',
-            }}
-          >
+        <View
+          style={{
+            flex: 1,
+            minWidth: 168,
+            backgroundColor: '#ccddf9',
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View
               style={{
                 minWidth: 30,
                 minHeight: 30,
+                left: 5,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '-45deg' }],
                 alignItems: 'center',
+                marginBottom: -11,
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 5, top: 12 }} />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" />
             </View>
             <Text
               style={{
@@ -749,7 +747,7 @@ export class BlueReceiveButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.receive.header.toLowerCase()}
+              {loc.receive.header}
             </Text>
           </View>
         </View>
@@ -762,28 +760,26 @@ export class BlueSendButtonIcon extends Component {
   render() {
     return (
       <TouchableOpacity {...this.props}>
-        <View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              width: 110,
-              height: 40,
-              backgroundColor: '#ccddf9',
-              alignItems: 'center',
-              paddingLeft: 15,
-            }}
-          >
+        <View
+          style={{
+            flex: 1,
+            minWidth: 168,
+            backgroundColor: '#ccddf9',
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View
               style={{
                 minWidth: 30,
                 minHeight: 30,
                 left: 5,
                 backgroundColor: 'transparent',
+                alignItems: 'center',
                 transform: [{ rotate: '225deg' }],
+                marginBottom: 11,
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 2, top: 6 }} />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" />
             </View>
             <Text
               style={{
@@ -793,7 +789,7 @@ export class BlueSendButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.send.header.toLowerCase()}
+              {loc.send.header}
             </Text>
           </View>
         </View>
@@ -806,22 +802,21 @@ export class ManageFundsBigButton extends Component {
   render() {
     return (
       <TouchableOpacity {...this.props}>
-        <View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              minWidth: 160,
-              minHeight: 40,
-              backgroundColor: '#ccddf9',
-              alignItems: 'center',
-            }}
-          >
+        <View
+          style={{
+            flex: 1,
+            width: 168,
+            backgroundColor: '#ccddf9',
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View
               style={{
+                minWidth: 30,
+                minHeight: 30,
+                right: 5,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '90deg' }],
-                marginHorizontal: 10,
               }}
             >
               <Icon {...this.props} name="link" size={16} type="font-awesome" color="#2f5fb3" />

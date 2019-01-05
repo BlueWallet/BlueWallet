@@ -549,7 +549,8 @@ export default class WalletTransactions extends Component {
             backgroundColor: 'transparent',
             position: 'absolute',
             bottom: 30,
-            borderRadius: 15,
+            borderRadius: 30,
+            minHeight: 48,
             overflow: 'hidden',
           }}
         >
