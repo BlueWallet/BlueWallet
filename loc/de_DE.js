@@ -210,5 +210,6 @@ module.exports = {
     refill_lnd_balance: 'Fülle deine Lightning Wallet auf',
     refill: 'Auffüllen',
     withdraw: 'Abheben',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
 };

@@ -212,5 +212,6 @@ module.exports = {
     refill: 'Поповнити',
     withdraw: 'Вивести',
     expired: 'Expired',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
 };

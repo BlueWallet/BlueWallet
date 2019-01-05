@@ -117,36 +117,47 @@ export default class ScanLndInvoice extends React.Component {
     if (!this.state.hasOwnProperty('decoded')) {
       return null;
     }
-    let decoded = this.state.decoded;
 
-    /** @type {LightningCustodianWallet} */
-    let fromWallet = this.state.fromWallet;
+    this.setState(
+      {
+        isPayingInProgress: true,
+      },
+      async () => {
+        let decoded = this.state.decoded;
 
-    let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
-    if (+new Date() > expiresIn) {
-      return alert('Invoice expired');
-    }
+        /** @type {LightningCustodianWallet} */
+        let fromWallet = this.state.fromWallet;
 
-    this.setState({
-      isPayingInProgress: true,
-    });
+        let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+        if (+new Date() > expiresIn) {
+          this.setState({ isPayingInProgress: false });
+          return alert('Invoice expired');
+        }
 
-    let start = +new Date();
-    let end;
-    try {
-      await fromWallet.payInvoice(this.state.invoice);
-      end = +new Date();
-    } catch (Err) {
-      console.log(Err.message);
-      this.props.navigation.goBack();
-      return alert('Error');
-    }
+        const currentUserInvoices = await fromWallet.getUserInvoices();
+        if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
+          this.setState({ isPayingInProgress: false });
+          return alert(loc.lnd.sameWalletAsInvoiceError);
+        }
 
-    console.log('payInvoice took', (end - start) / 1000, 'sec');
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+        let start = +new Date();
+        let end;
+        try {
+          await fromWallet.payInvoice(this.state.invoice);
+          end = +new Date();
+        } catch (Err) {
+          console.log(Err.message);
+          this.props.navigation.goBack();
+          return alert('Error');
+        }
 
-    alert('Success');
-    this.props.navigation.goBack();
+        console.log('payInvoice took', (end - start) / 1000, 'sec');
+        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+
+        alert('Success');
+        this.props.navigation.goBack();
+      },
+    );
   }
 
   processTextForInvoice = text => {

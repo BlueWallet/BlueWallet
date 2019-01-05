@@ -208,5 +208,6 @@ module.exports = {
     refill: 'Doplnit',
     withdraw: 'Vybrat',
     expired: 'Expirováno',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
 };
