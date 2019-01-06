@@ -11,6 +11,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { SegwitBech32Wallet } from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 
@@ -39,13 +40,20 @@ export default class RBF extends Component {
     }
 
     let destinationAddress;
+
     for (let o of sourceTx.outputs) {
-      if (o.addresses[0] === sourceWallet.getAddress()) {
+      if (!o.addresses && o.script) {
+        // probably bech32 output, so we need to decode address
+        o.addresses = [SegwitBech32Wallet.scriptPubKeyToAddress(o.script)];
+      }
+
+      if (o.addresses && o.addresses[0] === sourceWallet.getAddress()) {
         // change
         // nop
       } else {
         // DESTINATION address
-        destinationAddress = o.addresses[0];
+
+        destinationAddress = (o.addresses && o.addresses[0]) || '';
         console.log('dest = ', destinationAddress);
       }
     }

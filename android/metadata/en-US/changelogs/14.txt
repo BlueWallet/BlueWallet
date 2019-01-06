@@ -1,0 +1,10 @@
+v3.5.0
+------
+
+ADD: Create LND invoice
+ADD: Ability to show wallet XPUB in options
+ADD: translations for german (DE)
+ADD: Set receive amount & label
+ADD: Added more Fiat currencies
+ADD: help text in lighning settings
+ADD: CZ locale

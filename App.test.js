@@ -6,6 +6,7 @@ import Settings from './screen/settings/settings';
 import Selftest from './screen/selftest';
 import { BlueHeader } from './BlueComponents';
 import MockStorage from './MockStorage';
+import { FiatUnit } from './models/fiatUnit';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 jest.mock('react-native-custom-qr-codes', () => 'Video');
@@ -74,7 +75,7 @@ it('BlueHeader works', () => {
   expect(rendered).toBeTruthy();
 });
 
-it.skip('Settings work', () => {
+it('Settings work', () => {
   const rendered = TestRenderer.create(<Settings />).toJSON();
   expect(rendered).toBeTruthy();
 });
@@ -302,10 +303,24 @@ describe('currency', () => {
     AsyncStorage.storageCache = {}; // cleanup from other tests
     let currency = require('./currency');
     await currency.startUpdater();
-    let cur = AsyncStorage.storageCache[AppStorage.CURRENCY];
+    let cur = AsyncStorage.storageCache[AppStorage.EXCHANGE_RATES];
     cur = JSON.parse(cur);
     assert.ok(Number.isInteger(cur[currency.STRUCT.LAST_UPDATED]));
     assert.ok(cur[currency.STRUCT.LAST_UPDATED] > 0);
-    assert.ok(cur[currency.STRUCT.BTC_USD] > 0);
+    assert.ok(cur['BTC_USD'] > 0);
+
+    // now, setting other currency as default
+    AsyncStorage.storageCache[AppStorage.PREFERRED_CURRENCY] = JSON.stringify(FiatUnit.JPY);
+    await currency.startUpdater();
+    cur = JSON.parse(AsyncStorage.storageCache[AppStorage.EXCHANGE_RATES]);
+    assert.ok(cur['BTC_JPY'] > 0);
+
+    // now setting with a proper setter
+    await currency.setPrefferedCurrency(FiatUnit.EUR);
+    await currency.startUpdater();
+    let preferred = await currency.getPreferredCurrency();
+    assert.equal(preferred.endPointKey, 'EUR');
+    cur = JSON.parse(AsyncStorage.storageCache[AppStorage.EXCHANGE_RATES]);
+    assert.ok(cur['BTC_EUR'] > 0);
   });
 });

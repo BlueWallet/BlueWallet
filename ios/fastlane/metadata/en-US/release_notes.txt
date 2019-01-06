@@ -1,11 +1,25 @@
-ADD: Persist the preferred unit per wallet.
-ADD: Deeplinking for bitcoin, lightning
-ADD: Added fee in tx details
-ADD: Fiat Currency in settings panel
-ADD: Select Wallet on Send screen
-ADD: Currency settings panel (eur,  usd)
-FIX: Disabled autocorrect when importing wallet (security issue)
-FIX: amount display bug
-ADD: spend bip44 (legacy HD wallets)
-FIX: BIP44 mnemonic QR correctly imported
-ADD: haptic feedback when the user only has 1 wallet
+v3.5.5
+------
+
+ADD: pay zero-amount (tip) invoices
+ADD: lightning withdrawal through zigzag
+ADD: Thai translation
+ADD: Dutch translation
+ADD: Added Singapore Dollars
+ADD: Added AUD, VEF, and ZAR fiats.
+FIX: Loading indicator when creating a wallet
+FIX: Changelly link
+Fix and improve pt-BR translation
+FIX: Cannot click on Lightning transactions #196
+FIX: Fixed a clipping issue in lightning settings
+FIX: fixed a margin issue in about that caused clipping
+FIX: Changed invoice description field to label
+FIX: Updated transaction buttons maximum width
+FIX: Main Buttons layout #204
+FIX: Add topup indication on wallet selection #207
+FIX: Invoice QR code wrong scale #203
+FIX: Don't allow user to pay for an invoice created with the same wallet.
+FIX: If. balance was not a string, app would crash.
+FIX: Changed language selection screen to FlatList
+FIX: Made amount tap area larger
+FIX: Fixed an issue in currency settings where the checkmark wouldn't be in the correct preference

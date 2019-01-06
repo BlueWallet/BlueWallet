@@ -17,7 +17,7 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueSpacing20,
-  BlueHeaderDefaultSub,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -30,11 +30,10 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class WalletsImport extends Component {
-  static navigationOptions = {
-    header: ({ navigation }) => {
-      return <BlueHeaderDefaultSub leftText={loc.wallets.import.title} onClose={() => navigation.goBack(null)} />;
-    },
-  };
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(),
+    title: loc.wallets.import.title,
+  });
 
   constructor(props) {
     super(props);
@@ -43,7 +42,7 @@ export default class WalletsImport extends Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.setState({
       isLoading: false,
       label: '',
@@ -51,14 +50,18 @@ export default class WalletsImport extends Component {
   }
 
   async _saveWallet(w) {
-    alert(loc.wallets.import.success);
-    ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-    w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
-    BlueApp.wallets.push(w);
-    await BlueApp.saveToDisk();
-    EV(EV.enum.WALLETS_COUNT_CHANGED);
-    A(A.ENUM.CREATED_WALLET);
-    this.props.navigation.dismiss();
+    if (BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret)) {
+      alert('This wallet has been previously imported.');
+    } else {
+      alert(loc.wallets.import.success);
+      ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+      w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
+      BlueApp.wallets.push(w);
+      await BlueApp.saveToDisk();
+      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      A(A.ENUM.CREATED_WALLET);
+      this.props.navigation.dismiss();
+    }
   }
 
   async importMnemonic(text) {
@@ -227,6 +230,7 @@ export default class WalletsImport extends Component {
               }}
             >
               <BlueButton
+                disabled={!this.state.label}
                 title={loc.wallets.import.do_import}
                 buttonStyle={{
                   width: width / 1.5,
@@ -259,7 +263,7 @@ export default class WalletsImport extends Component {
 WalletsImport.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    dismiss: PropTypes.func,
     goBack: PropTypes.func,
+    dismiss: PropTypes.func,
   }),
 };

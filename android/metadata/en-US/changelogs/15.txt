@@ -1,0 +1,9 @@
+v3.5.5
+------
+
+ADD: pay zero-amount (tip) invoices
+ADD: lightning withdrawal through zigzag
+ADD: Thai translation
+ADD: Dutch translation
+ADD: Added Singapore Dollars
+ADD: Added AUD, VEF, and ZAR fiats.

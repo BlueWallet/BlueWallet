@@ -10,6 +10,9 @@ it('can convert witness to address', () => {
 
   address = SegwitBech32Wallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
   assert.equal(address, 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
+
+  address = SegwitBech32Wallet.scriptPubKeyToAddress('00144d757460da5fcaf84cc22f3847faaa1078e84f6a');
+  assert.equal(address, 'bc1qf46hgcx6tl90snxz9uuy0742zpuwsnm27ysdh7');
 });
 
 it('can create a Segwit HD (BIP49)', async function() {

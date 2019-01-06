@@ -21,7 +21,19 @@ let strings;
       locale = locale.split('-');
       locale = locale[0];
       console.log('current locale:', locale);
-      if (locale === 'en' || locale === 'ru' || locale === 'ua' || locale === 'es' || locale === 'pt-br' || locale === 'pt-pt' || locale === 'de-de') {
+      if (
+        locale === 'en' ||
+        locale === 'ru' ||
+        locale === 'ua' ||
+        locale === 'es' ||
+        locale === 'fr-fr' ||
+        locale === 'pt-br' ||
+        locale === 'pt-pt' ||
+        locale === 'de-de' ||
+        locale === 'cs-cz' ||
+        locale === 'th-th' ||
+        locale === 'nl-nl'
+      ) {
         locale = locale.replace('-', '_');
         strings.setLanguage(locale);
       } else {
@@ -38,7 +50,11 @@ strings = new Localization({
   pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   ua: require('./ua.js'),
-  de_de: require('.de_DE.js')
+  de_de: require('./de_DE.js'),
+  cs_cz: require('./cs_CZ.js'),
+  th_th: require('./th_TH.js'),
+  nl_nl: require('./nl_NL.js'),
+  fr_fr: require('./fr_FR.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
@@ -90,7 +106,7 @@ strings.formatBalance = (balance, toUnit) => {
     return balance + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     const value = new BigNumber(balance).multipliedBy(100000000);
-    return value.toString() + ' ' + BitcoinUnit.SATS;
+    return new Intl.NumberFormat().format(value.toString()) + ' ' + BitcoinUnit.SATS;
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.BTCToLocalCurrency(balance);
   }
@@ -111,12 +127,12 @@ strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return balance;
+      return new Intl.NumberFormat().format(balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(balance);
     }
   }
-  return balance;
+  return balance.toString();
 };
 
 module.exports = strings;

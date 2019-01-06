@@ -14,9 +14,9 @@ let encryption = require('../encryption');
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LANG = 'lang';
-  static CURRENCY = 'currency';
+  static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
-  static PREFERREDCURRENCY = 'preferredCurrency';
+  static PREFERRED_CURRENCY = 'preferredCurrency';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -174,8 +174,10 @@ export class AppStorage {
               break;
           }
           // done
-          this.wallets.push(unserializedWallet);
-          this.tx_metadata = data.tx_metadata;
+          if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
+            this.wallets.push(unserializedWallet);
+            this.tx_metadata = data.tx_metadata;
+          }
         }
         return true;
       } else {
@@ -290,11 +292,23 @@ export class AppStorage {
       for (let wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchTransactions();
+          if (wallet.fetchPendingTransactions) {
+            await wallet.fetchPendingTransactions();
+          }
+          if (wallet.fetchUserInvoices) {
+            await wallet.fetchUserInvoices();
+          }
         }
       }
     } else {
       for (let wallet of this.wallets) {
         await wallet.fetchTransactions();
+        if (wallet.fetchPendingTransactions) {
+          await wallet.fetchPendingTransactions();
+        }
+        if (wallet.fetchUserInvoices) {
+          await wallet.fetchUserInvoices();
+        }
       }
     }
   }

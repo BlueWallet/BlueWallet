@@ -15,10 +15,11 @@ module.exports = {
     list: {
       app_name: 'Blue Wallet',
       title: 'Wallets',
-      header: 'Eine Wallet (Brieftasche) spiegelt ein Paar von kryptographischen Schlüssel wider. Einen geheimen und eine Adresse als öffentlichen Schlüssel. Letztern kann man zum Erhalt von Bitcoin teilen.',
+      header:
+        'Eine Wallet (Brieftasche) spiegelt ein Paar von kryptographischen Schlüssel wider. Einen geheimen und eine Adresse als öffentlichen Schlüssel. Letztern kann man zum Erhalt von Bitcoin teilen.',
       add: 'Wallet hinzufügen',
       create_a_wallet: 'Wallet erstellen',
-      create_a_wallet1: "Es ist kostenlos und du kannst",
+      create_a_wallet1: 'Es ist kostenlos und du kannst',
       create_a_wallet2: 'so viele erstellen, wie du möchtest',
       latest_transaction: 'Lezte Transaktion',
       empty_txs1: 'Deine Transaktionen erscheinen hier',
@@ -72,7 +73,7 @@ module.exports = {
     import: {
       title: 'Importieren',
       explanation:
-        "Gib hier deine mnemonische Phrase, deinen privaten Schlüssel, WIF oder worüber du auch immer verfügst ein. BlueWallet wird bestmöglich dein Format interpretieren und die Wallet importieren",
+        'Gib hier deine mnemonische Phrase, deinen privaten Schlüssel, WIF oder worüber du auch immer verfügst ein. BlueWallet wird bestmöglich dein Format interpretieren und die Wallet importieren',
       imported: 'Importiert',
       error: 'Fehler beim Import. Ist die Eingabe korrekt?',
       success: 'Erfolg',
@@ -209,5 +210,6 @@ module.exports = {
     refill_lnd_balance: 'Fülle deine Lightning Wallet auf',
     refill: 'Auffüllen',
     withdraw: 'Abheben',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
 };

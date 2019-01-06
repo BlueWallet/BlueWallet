@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
+import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20 } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { WatchOnlyWallet, LegacyWallet } from '../../class';
@@ -157,11 +157,23 @@ export default class SelectWallet extends Component {
   };
 
   render() {
-    if (this.state.isLoading || this.state.data.length <= 0) {
+    if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center', paddingTop: 20 }}>
           <ActivityIndicator />
         </View>
+      );
+    } else if (this.state.data.length <= 0) {
+      return (
+        <SafeBlueArea style={{ flex: 1 }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
+            <BlueText style={{ textAlign: 'center' }}>There are currently no Bitcoin wallets available.</BlueText>
+            <BlueSpacing20 />
+            <BlueText style={{ textAlign: 'center' }}>
+              A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.
+            </BlueText>
+          </View>
+        </SafeBlueArea>
       );
     }
 

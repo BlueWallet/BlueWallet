@@ -1,8 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueHeader, BlueSpacing20 } from '../BlueComponents';
+import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../BlueApp');
@@ -12,10 +11,8 @@ let loc = require('../loc');
 
 export default class PlausibleDeniability extends Component {
   static navigationOptions = {
-    tabBarLabel: loc.plausibledeniability.title,
-    tabBarIcon: ({ tintColor, focused }) => (
-      <Ionicons name={focused ? 'ios-settings' : 'ios-settings-outline'} size={26} style={{ color: tintColor }} />
-    ),
+    ...BlueNavigationStyle(),
+    title: loc.plausibledeniability.title,
   };
 
   constructor(props) {
@@ -38,14 +35,6 @@ export default class PlausibleDeniability extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeader
-          backgroundColor={BlueApp.settings.brandingColor}
-          centerComponent={{
-            text: loc.plausibledeniability.title,
-            style: { color: BlueApp.settings.foregroundColor, fontSize: 23 },
-          }}
-        />
-
         <BlueCard>
           <ScrollView maxHeight={450}>
             <BlueText>{loc.plausibledeniability.help}</BlueText>
@@ -83,20 +72,6 @@ export default class PlausibleDeniability extends Component {
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                 alert(loc.plausibledeniability.success);
                 this.props.navigation.navigate('Wallets');
-              }}
-            />
-
-            <BlueSpacing20 />
-
-            <BlueButton
-              icon={{
-                name: 'arrow-left',
-                type: 'octicon',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              title={loc.plausibledeniability.go_back}
-              onPress={() => {
-                this.props.navigation.goBack();
               }}
             />
           </ScrollView>

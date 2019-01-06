@@ -35,6 +35,9 @@ import Success from './screen/send/success';
 
 import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
+import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
+import LNDViewInvoice from './screen/lnd/lndViewInvoice';
+import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -130,6 +133,55 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
 });
 
+const ManageFundsStackNavigator = createStackNavigator({
+  ManageFunds: {
+    screen: ManageFunds,
+  },
+  SelectWallet: {
+    screen: SelectWallet,
+  },
+  SendDetails: {
+    screen: CreateTransactionStackNavigator,
+    navigationOptions: {
+      header: null,
+    },
+  },
+});
+
+const LNDViewInvoiceStackNavigator = createStackNavigator({
+  LNDViewInvoice: {
+    screen: LNDViewInvoice,
+    swipeEnabled: false,
+    gesturesEnabled: false,
+  },
+  LNDViewAdditionalInvoiceInformation: {
+    screen: LNDViewAdditionalInvoiceInformation,
+  },
+});
+
+const LNDCreateInvoiceStackNavigator = createStackNavigator({
+  LNDCreateInvoice: {
+    screen: LNDCreateInvoice,
+  },
+  LNDViewInvoice: {
+    screen: LNDViewInvoice,
+    swipeEnabled: false,
+    gesturesEnabled: false,
+  },
+  LNDViewAdditionalInvoiceInformation: {
+    screen: LNDViewAdditionalInvoiceInformation,
+  },
+});
+
+const CreateWalletStackNavigator = createStackNavigator({
+  AddWallet: {
+    screen: AddWallet,
+  },
+  ImportWallet: {
+    screen: ImportWallet,
+  },
+});
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -140,10 +192,10 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     AddWallet: {
-      screen: AddWallet,
-    },
-    ImportWallet: {
-      screen: ImportWallet,
+      screen: CreateWalletStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     ScanQrWif: {
       screen: scanQrWif,
@@ -180,7 +232,10 @@ const MainBottomTabs = createStackNavigator(
     // LND:
 
     ManageFunds: {
-      screen: ManageFunds,
+      screen: ManageFundsStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     ScanLndInvoice: {
       screen: ScanLndInvoice,
@@ -194,11 +249,17 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
-
-    // Select Wallet. Mostly for deeplinking
-
-    SelectWallet: {
-      screen: SelectWallet,
+    LNDCreateInvoice: {
+      screen: LNDCreateInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    LNDViewExistingInvoice: {
+      screen: LNDViewInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
   },
   {

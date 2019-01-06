@@ -50,64 +50,65 @@ export default class About extends Component {
 
             <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
             <BlueSpacing20 />
+          </BlueCard>
 
-            <BlueButton
-              icon={{
-                name: 'mark-github',
-                type: 'octicon',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => {
-                Linking.openURL('https://github.com/BlueWallet/BlueWallet');
-              }}
-              title="github.com/BlueWallet/BlueWallet"
-            />
-            <BlueSpacing20 />
+          <BlueButton
+            icon={{
+              name: 'mark-github',
+              type: 'octicon',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={() => {
+              Linking.openURL('https://github.com/BlueWallet/BlueWallet');
+            }}
+            title="github.com/BlueWallet/BlueWallet"
+          />
+          <BlueSpacing20 />
 
-            <BlueButton
-              icon={{
-                name: 'twitter',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => {
-                Linking.openURL('https://twitter.com/bluewalletio');
-              }}
-              title="Follow us on Twitter"
-            />
-            <BlueSpacing20 />
+          <BlueButton
+            icon={{
+              name: 'twitter',
+              type: 'font-awesome',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={() => {
+              Linking.openURL('https://twitter.com/bluewalletio');
+            }}
+            title="Follow us on Twitter"
+          />
+          <BlueSpacing20 />
 
-            <BlueButton
-              icon={{
-                name: 'telegram',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => {
-                Linking.openURL('https://t.me/bluewallet');
-              }}
-              title="Join Telegram chat"
-            />
-            <BlueSpacing20 />
+          <BlueButton
+            icon={{
+              name: 'telegram',
+              type: 'font-awesome',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={() => {
+              Linking.openURL('https://t.me/bluewallet');
+            }}
+            title="Join Telegram chat"
+          />
+          <BlueSpacing20 />
 
-            <BlueButton
-              icon={{
-                name: 'thumbsup',
-                type: 'octicon',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => {
-                if (Platform.OS === 'ios') {
-                  Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
-                } else {
-                  Linking.openURL('https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet');
-                }
-              }}
-              title="Leave us a review on Appstore"
-            />
+          <BlueButton
+            icon={{
+              name: 'thumbsup',
+              type: 'octicon',
+              color: BlueApp.settings.buttonTextColor,
+            }}
+            onPress={() => {
+              if (Platform.OS === 'ios') {
+                Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
+              } else {
+                Linking.openURL('https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet');
+              }
+            }}
+            title="Leave us a review on Appstore"
+          />
 
-            <BlueSpacing20 />
-
+          <BlueSpacing20 />
+          <BlueCard>
             <BlueText h3>Built with awesome:</BlueText>
             <BlueSpacing20 />
             <BlueText h4>* React Native</BlueText>

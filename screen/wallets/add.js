@@ -180,65 +180,72 @@ export default class WalletsAdd extends Component {
                 alignItems: 'center',
               }}
             >
-              <BlueButton
-                title={loc.wallets.add.create}
-                buttonStyle={{
-                  width: width / 1.5,
-                }}
-                onPress={() => {
-                  this.props.navigation.goBack();
-                  setTimeout(async () => {
-                    let w;
+              {!this.state.isLoading ? (
+                <BlueButton
+                  title={loc.wallets.add.create}
+                  buttonStyle={{
+                    width: width / 1.5,
+                  }}
+                  onPress={() => {
+                    this.setState(
+                      { isLoading: true },
+                      async () => {
+                        let w;
 
-                    if (this.state.activeLightning) {
-                      // lightning was selected
+                        if (this.state.activeLightning) {
+                          // lightning was selected
+                          // eslint-disable-next-line
+for (let t of BlueApp.getWallets()) {
+                            if (t.type === LightningCustodianWallet.type) {
+                              // already exist
+                              this.setState({ isLoading: false });
+                              return alert('Only 1 Lightning wallet allowed for now');
+                            }
+                          }
 
-                      global.lightning_create_try = global.lightning_create_try || 1;
-                      if (global.lightning_create_try++ < 9 && +new Date() < 1545264000000) return alert('Coming soon');
-                      // eslint-disable-next-line
-                    for (let t of BlueApp.getWallets()) {
-                        if (t.type === LightningCustodianWallet.type) {
-                          // already exist
-                          return alert('Only 1 Ligthning wallet allowed for now');
+                          w = new LightningCustodianWallet();
+                          w.setLabel(this.state.label || w.typeReadable);
+
+                          try {
+                            let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                            if (lndhub) {
+                              w.setBaseURI(lndhub);
+                              w.init();
+                            }
+                            await w.createAccount();
+                            await w.authorize();
+                          } catch (Err) {
+                            this.setState({ isLoading: false });
+                            console.warn('lnd create failure', Err);
+                            // giving app, not adding anything
+                          }
+                          A(A.ENUM.CREATED_LIGHTNING_WALLET);
+                        } else if (this.state.selectedIndex === 1) {
+                          // btc was selected
+                          // index 1 radio - segwit single address
+                          w = new SegwitP2SHWallet();
+                          w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
+                        } else {
+                          // zero index radio - HD segwit
+                          w = new HDSegwitP2SHWallet();
+                          w.setLabel((this.state.label || loc.wallets.add.label_new_segwit) + ' HD');
                         }
-                      }
 
-                      w = new LightningCustodianWallet();
-                      w.setLabel(this.state.label || w.typeReadable);
-
-                      try {
-                        let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
-                        if (lndhub) {
-                          w.setBaseURI(lndhub);
-                          w.init();
-                        }
-                        await w.createAccount();
-                        await w.authorize();
-                      } catch (Err) {
-                        console.warn('lnd create failure', Err);
-                        // giving app, not adding anything
-                      }
-                      A(A.ENUM.CREATED_LIGHTNING_WALLET);
-                    } else if (this.state.selectedIndex === 1) {
-                      // btc was selected
-                      // index 1 radio - segwit single address
-                      w = new SegwitP2SHWallet();
-                      w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
-                    } else {
-                      // zero index radio - HD segwit
-                      w = new HDSegwitP2SHWallet();
-                      w.setLabel((this.state.label || loc.wallets.add.label_new_segwit) + ' HD');
-                    }
-
-                    await w.generate();
-                    BlueApp.wallets.push(w);
-                    await BlueApp.saveToDisk();
-                    EV(EV.enum.WALLETS_COUNT_CHANGED);
-                    A(A.ENUM.CREATED_WALLET);
-                    ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-                  }, 1);
-                }}
-              />
+                        await w.generate();
+                        BlueApp.wallets.push(w);
+                        await BlueApp.saveToDisk();
+                        EV(EV.enum.WALLETS_COUNT_CHANGED);
+                        A(A.ENUM.CREATED_WALLET);
+                        ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                        this.props.navigation.dismiss();
+                      },
+                      1,
+                    );
+                  }}
+                />
+              ) : (
+                <ActivityIndicator />
+              )}
 
               <BlueButtonLink
                 title={loc.wallets.add.import_wallet}
@@ -258,5 +265,6 @@ WalletsAdd.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+    dismiss: PropTypes.func,
   }),
 };

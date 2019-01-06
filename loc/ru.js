@@ -211,5 +211,7 @@ module.exports = {
     refill_lnd_balance: 'Пополнить баланс Lightning кошелька',
     refill: 'Пополнить',
     withdraw: 'Вывести',
+    expired: 'Expired',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
 };

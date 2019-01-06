@@ -1,0 +1,37 @@
+Guardar, enviar e receber bitcoin com uma carteira focada na segurança e simplicidade.
+
+Na Blue Wallet você possui as suas chaves privadas. Uma carteira Bitcoin focada nos usuários.
+
+Você pode instantaneamente transacionar com qualquer pessoa no mundo e transformar o sistema financeiro diretamente do seu bolso.
+
+Crie carteiras Bitcoin ilimitadas e gratuitamente, ou acesse as suas carteiras existentes através do seu dispositivo iOS. É simples e rápido.
+
+As funcionalidades disponíveis:
+
+1 - Segurança por design
+
+Open Source
+Este aplicativo tem licença MIT, pode construir e lança-lo você mesmo! Feito em ReactNative
+
+Negação plausível
+Senha falsa que decripta wallets falsas. Para casos especias onde possa ser obrigado a revelar a sua senha, pode revelar a senha falsa, mantenha as suas bitcoin protegidas
+
+Encriptação completa
+Construída em cima da multi-camada de encritação do iOS, A BlueWallet encripta tudo com uma adicional senha de usuário
+
+Carteiras SegWit e HD
+SegWit suportado (Ajuda a diminuir os fees ainda mais) e carteiras HD activadas
+
+2 - Focada na sua experiência
+
+Esteja em control
+As chaves privadas nunca saiem do celular, você controla as suas chaves privadas
+
+Fees flexíveis
+A começar em 1 Satoshi. Não page a mais por transações
+
+Substituição de Fee (RBF)
+Acelere as suas transações aumentendo o fee (BIP125). Pode também alterar o endereço de destinatário em transações não confirmadas
+
+Carteira Sentinela
+Carteira de "assitir apenas", observe o seu armazenamento externo de Bitcoin sem ter de lhe tocar

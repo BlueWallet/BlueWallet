@@ -536,6 +536,12 @@ const stylesBlueIcon = StyleSheet.create({
     backgroundColor: '#d2f8d6',
     transform: [{ rotate: '-45deg' }],
   },
+  ballIncommingWithoutRotate: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#d2f8d6',
+  },
   ballReceive: {
     width: 30,
     height: 30,
@@ -549,6 +555,12 @@ const stylesBlueIcon = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#f8d2d2',
     transform: [{ rotate: '225deg' }],
+  },
+  ballOutgoingWithoutRotate: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f8d2d2',
   },
   ballTransparrent: {
     width: 30,
@@ -622,6 +634,20 @@ export class BlueTransactionPendingIcon extends Component {
   }
 }
 
+export class BlueTransactionExpiredIcon extends Component {
+  render() {
+    return (
+      <View {...this.props}>
+        <View style={stylesBlueIcon.boxIncomming}>
+          <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
+            <Icon {...this.props} name="hourglass-end" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 6 }} />
+          </View>
+        </View>
+      </View>
+    );
+  }
+}
+
 export class BlueTransactionOnchainIcon extends Component {
   render() {
     return (
@@ -648,15 +674,8 @@ export class BlueTransactionOffchainIcon extends Component {
     return (
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
-          <View style={stylesBlueIcon.ballOutgoing}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color="#d0021b"
-              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '155deg' }] }}
-            />
+          <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
       </View>
@@ -669,15 +688,8 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
     return (
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncomming}>
-          <View style={stylesBlueIcon.ballIncomming}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color="#37c0a1"
-              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '45deg' }] }}
-            />
+          <View style={stylesBlueIcon.ballIncommingWithoutRotate}>
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
       </View>
@@ -705,28 +717,26 @@ export class BlueReceiveButtonIcon extends Component {
   render() {
     return (
       <TouchableOpacity {...this.props}>
-        <View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              minWidth: 110,
-              minHeight: 40,
-              position: 'relative',
-              backgroundColor: '#ccddf9',
-              alignItems: 'center',
-            }}
-          >
+        <View
+          style={{
+            flex: 1,
+            minWidth: 130,
+            backgroundColor: '#ccddf9',
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View
               style={{
                 minWidth: 30,
                 minHeight: 30,
+                left: 5,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '-45deg' }],
                 alignItems: 'center',
+                marginBottom: -11,
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 5, top: 12 }} />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" />
             </View>
             <Text
               style={{
@@ -737,7 +747,7 @@ export class BlueReceiveButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.receive.header.toLowerCase()}
+              {loc.receive.header}
             </Text>
           </View>
         </View>
@@ -750,18 +760,15 @@ export class BlueSendButtonIcon extends Component {
   render() {
     return (
       <TouchableOpacity {...this.props}>
-        <View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              width: 110,
-              height: 40,
-              backgroundColor: '#ccddf9',
-              alignItems: 'center',
-              paddingLeft: 15,
-            }}
-          >
+        <View
+          style={{
+            flex: 1,
+            minWidth: 130,
+            backgroundColor: '#ccddf9',
+            alignItems: 'center',
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             <View
               style={{
                 minWidth: 30,
@@ -769,9 +776,10 @@ export class BlueSendButtonIcon extends Component {
                 left: 5,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '225deg' }],
+                marginBottom: 11,
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" iconStyle={{ left: 2, top: 6 }} />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" />
             </View>
             <Text
               style={{
@@ -781,7 +789,7 @@ export class BlueSendButtonIcon extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.send.header.toLowerCase()}
+              {loc.send.header}
             </Text>
           </View>
         </View>
@@ -794,22 +802,21 @@ export class ManageFundsBigButton extends Component {
   render() {
     return (
       <TouchableOpacity {...this.props}>
-        <View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              minWidth: 160,
-              minHeight: 40,
-              backgroundColor: '#ccddf9',
-              alignItems: 'center',
-            }}
-          >
+        <View
+          style={{
+            flex: 1,
+            width: 168,
+            backgroundColor: '#ccddf9',
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View
               style={{
+                minWidth: 30,
+                minHeight: 30,
+                right: 5,
                 backgroundColor: 'transparent',
                 transform: [{ rotate: '90deg' }],
-                marginHorizontal: 10,
               }}
             >
               <Icon {...this.props} name="link" size={16} type="font-awesome" color="#2f5fb3" />
@@ -1109,47 +1116,65 @@ export class BlueBitcoinAmount extends Component {
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onChangeText: PropTypes.func,
     disabled: PropTypes.bool,
+    unit: PropTypes.string,
+  };
+
+  static defaultProps = {
+    unit: BitcoinUnit.BTC,
   };
 
   render() {
     const amount = typeof this.props.amount === 'number' ? this.props.amount.toString() : this.props.amount;
 
     return (
-      <View>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
-          <TextInput
-            keyboardType="numeric"
-            onChangeText={text => this.props.onChangeText(text.replace(',', '.'))}
-            placeholder="0"
-            maxLength={10}
-            editable={!this.props.isLoading && !this.props.disabled}
-            value={amount}
-            placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
-            style={{
-              color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
-              fontSize: 36,
-              fontWeight: '600',
-            }}
-          />
-          <Text
-            style={{
-              color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
-              fontSize: 16,
-              marginHorizontal: 4,
-              paddingBottom: 6,
-              fontWeight: '600',
-              alignSelf: 'flex-end',
-            }}
-          >
-            {' ' + BitcoinUnit.BTC}
-          </Text>
+      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
+        <View>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
+            <TextInput
+              keyboardType="numeric"
+              onChangeText={text =>
+                this.props.onChangeText(
+                  this.props.unit === BitcoinUnit.BTC
+                    ? text.replace(new RegExp('[^0-9.]'), '', '.')
+                    : text.replace(new RegExp('[^0-9]'), ''),
+                )
+              }
+              placeholder="0"
+              maxLength={10}
+              ref={textInput => (this.textInput = textInput)}
+              editable={!this.props.isLoading && !this.props.disabled}
+              value={amount}
+              placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
+              style={{
+                color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
+                fontSize: 36,
+                fontWeight: '600',
+              }}
+              {...this.props}
+            />
+            <Text
+              style={{
+                color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
+                fontSize: 16,
+                marginHorizontal: 4,
+                paddingBottom: 6,
+                fontWeight: '600',
+                alignSelf: 'flex-end',
+              }}
+            >
+              {' ' + this.props.unit}
+            </Text>
+          </View>
+          <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
+            <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
+              {loc.formatBalance(
+                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC),
+                BitcoinUnit.LOCAL_CURRENCY,
+              )}
+            </Text>
+          </View>
         </View>
-        <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-          <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-            {loc.formatBalance(amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
-          </Text>
-        </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }
