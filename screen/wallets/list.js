@@ -232,8 +232,8 @@ export default class WalletsList extends Component {
 
   rowTitle = item => {
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
-        if (isNaN(item.value)) {
-          item.value = "0"
+      if (isNaN(item.value)) {
+        item.value = '0';
       }
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0;

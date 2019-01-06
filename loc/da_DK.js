@@ -18,7 +18,7 @@ module.exports = {
       header: 'En wallet består af par af hemmelige (private nøgler) og en adresse' + 'som du kan dele med andre for at modtage coins.',
       add: 'Tilføj Wallet',
       create_a_wallet: 'Opret en  wallet',
-      create_a_wallet1: "Det er helt gratis og du kan oprette",
+      create_a_wallet1: 'Det er helt gratis og du kan oprette',
       create_a_wallet2: 'lige så mange du vil',
       latest_transaction: 'seneste transaktion',
       empty_txs1: 'Dine transaktioner vil blive vist her,',
@@ -72,7 +72,7 @@ module.exports = {
     import: {
       title: 'importer',
       explanation:
-        "Indtast din huskeregel, private nøgle, WIF, eller hvad du end har. BlueWallet vil forsøge at gætte det rigtige format og importere din wallet",
+        'Indtast din huskeregel, private nøgle, WIF, eller hvad du end har. BlueWallet vil forsøge at gætte det rigtige format og importere din wallet',
       imported: 'Importeret',
       error: 'Importen lykkedes ikke. Er det en gyldig nøgle?',
       success: 'Succes',
@@ -189,7 +189,7 @@ module.exports = {
       'adgangskode. For at beskytte dine coins kan du med Bluewallet lave ' +
       'et falsk krypteret lager, med en anden kode. I en presset situation, ' +
       'kan du give denne adgangskode istedet. Hvis denne kode indtastes i ' +
-      "BlueWallet, vil brugeren se den alternative wallet. Det vil se helt" +
+      'BlueWallet, vil brugeren se den alternative wallet. Det vil se helt' +
       'legitimt ud for andre, og dermed beskytte din originale wallet og ' +
       'dine coins.',
     help2: 'Det nye lager vil være fuldt funktionsdygtigt, og du kan evt have nogle ' + 'småbeløb så det ser troværdigt ud.',
