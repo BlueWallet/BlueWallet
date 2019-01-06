@@ -109,7 +109,6 @@ export default class ScanLndInvoice extends React.Component {
         isAmountInitiallyEmpty: decoded.num_satoshis === '0',
       });
     } catch (Err) {
-      this.setState({ destination: '' });
       alert(Err.message);
     }
   }

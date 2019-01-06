@@ -229,7 +229,7 @@ export default class SendDetails extends Component {
               })
               .catch(error => {
                 alert(error.errorMessage);
-                this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null, amount: 0 });
+                this.setState({ isLoading: false, bip70TransactionExpiration: null });
               });
           },
         );
