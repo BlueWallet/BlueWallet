@@ -1168,8 +1168,9 @@ export class BlueBitcoinAmount extends Component {
           <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
             <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
               {loc.formatBalance(
-                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC),
+                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC, false),
                 BitcoinUnit.LOCAL_CURRENCY,
+                false,
               )}
             </Text>
           </View>

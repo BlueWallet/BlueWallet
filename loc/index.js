@@ -100,7 +100,7 @@ function removeTrailingZeros(value) {
  * @param toUnit {String} Value from models/bitcoinUnits.js
  * @returns {string}
  */
-strings.formatBalance = (balance, toUnit) => {
+strings.formatBalance = (balance, toUnit, withFormatting = false) => {
   if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
   }
@@ -108,7 +108,7 @@ strings.formatBalance = (balance, toUnit) => {
     return balance + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     const value = new BigNumber(balance).multipliedBy(100000000);
-    return new Intl.NumberFormat().format(value.toString()) + ' ' + BitcoinUnit.SATS;
+    return withFormatting ? new Intl.NumberFormat().format(value.toString()) : balance + ' ' + BitcoinUnit.SATS;
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.BTCToLocalCurrency(balance);
   }
@@ -120,7 +120,7 @@ strings.formatBalance = (balance, toUnit) => {
  * @param toUnit {String} Value from models/bitcoinUnits.js
  * @returns {string}
  */
-strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
+strings.formatBalanceWithoutSuffix = (balance, toUnit, withFormatting = false) => {
   if (toUnit === undefined) {
     return balance;
   }
@@ -129,7 +129,7 @@ strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return new Intl.NumberFormat().format(balance);
+      return withFormatting ? new Intl.NumberFormat().format(balance) : balance;
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(balance);
     }

@@ -220,7 +220,7 @@ export default class SendDetails extends Component {
               .then(response => {
                 this.setState({
                   address: response.address,
-                  amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC),
+                  amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
                   memo: response.memo,
                   fee: response.fee,
                   bip70TransactionExpiration: response.expires,
