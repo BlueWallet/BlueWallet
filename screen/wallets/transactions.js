@@ -236,7 +236,7 @@ export default class WalletTransactions extends Component {
               color: '#fff',
             }}
           >
-            {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString()}
+            {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
           </Text>
         </TouchableOpacity>
         <Text style={{ backgroundColor: 'transparent' }} />
