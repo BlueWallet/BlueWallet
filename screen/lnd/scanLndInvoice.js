@@ -147,7 +147,7 @@ export default class ScanLndInvoice extends React.Component {
         let start = +new Date();
         let end;
         try {
-          await fromWallet.payInvoice(this.state.invoice, this.state.invoice.num_satoshis);
+          await fromWallet.payInvoice(this.state.invoice, this.state.decoded.num_satoshis);
           end = +new Date();
         } catch (Err) {
           console.log(Err.message);
