@@ -90,9 +90,7 @@ export default class BuyBitcoin extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL(
-                  'https://payments.changelly.com/?crypto=USD&fiat=USD&ref_id=rtagfcvnwiwvhm99&address=' + this.state.address,
-                );
+                Linking.openURL('https://old.changelly.com/?ref_id=rtagfcvnwiwvhm99');
               }}
               title="Buy from Changelly"
             />

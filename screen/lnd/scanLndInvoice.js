@@ -3,11 +3,11 @@ import React from 'react';
 import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TouchableWithoutFeedback, TextInput, Keyboard } from 'react-native';
 import { Icon } from 'react-native-elements';
 import PropTypes from 'prop-types';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueBitcoinAmount } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
-let currency = require('../../currency');
 let EV = require('../../events');
 let loc = require('../../loc');
 const { width } = Dimensions.get('window');
@@ -101,7 +101,6 @@ export default class ScanLndInvoice extends React.Component {
       }
       Keyboard.dismiss();
       this.setState({
-        isPaying: true,
         invoice: data,
         decoded,
         expiresIn,
@@ -120,7 +119,7 @@ export default class ScanLndInvoice extends React.Component {
 
     this.setState(
       {
-        isPayingInProgress: true,
+        isLoading: true,
       },
       async () => {
         let decoded = this.state.decoded;
@@ -130,23 +129,24 @@ export default class ScanLndInvoice extends React.Component {
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          this.setState({ isPayingInProgress: false });
+          this.setState({ isLoading: false });
           return alert('Invoice expired');
         }
 
         const currentUserInvoices = await fromWallet.getUserInvoices();
         if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
-          this.setState({ isPayingInProgress: false });
+          this.setState({ isLoading: false });
           return alert(loc.lnd.sameWalletAsInvoiceError);
         }
 
         let start = +new Date();
         let end;
         try {
-          await fromWallet.payInvoice(this.state.invoice);
+          await fromWallet.payInvoice(this.state.invoice, this.state.invoice.num_satoshis);
           end = +new Date();
         } catch (Err) {
           console.log(Err.message);
+          this.setState({ isLoading: false });
           this.props.navigation.goBack();
           return alert('Error');
         }
@@ -168,20 +168,35 @@ export default class ScanLndInvoice extends React.Component {
     }
   };
 
+  shouldDisablePayButton = () => {
+    if (typeof this.state.decoded !== 'object') {
+      return true;
+    } else {
+      if (!this.state.decoded.hasOwnProperty('num_satoshis')) {
+        return true;
+      }
+    }
+    return this.state.decoded.num_satoshis <= 0 || this.state.isLoading;
+  };
+
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <Text style={{ textAlign: 'center', fontSize: 50, fontWeight: '700', color: '#2f5fb3' }}>
-            {this.state.hasOwnProperty('decoded') &&
-              this.state.decoded !== undefined &&
-              currency.satoshiToLocalCurrency(this.state.decoded.num_satoshis)}
-          </Text>
-          <Text style={{ textAlign: 'center', fontSize: 25, fontWeight: '600', color: '#d4d4d4' }}>
-            {this.state.hasOwnProperty('decoded') &&
-              this.state.decoded !== undefined &&
-              currency.satoshiToBTC(this.state.decoded.num_satoshis)}
-          </Text>
+          <BlueBitcoinAmount
+            isLoading={this.state.isLoading}
+            amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
+            onChangeText={text => {
+              if (typeof this.state.decoded === 'object') {
+                text = parseInt(text);
+                let decoded = this.state.decoded;
+                decoded.num_satoshis = text;
+                this.setState({ decoded: decoded });
+              }
+            }}
+            disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
+            unit={BitcoinUnit.SATS}
+          />
           <BlueSpacing20 />
           <BlueCard>
             <View
@@ -249,7 +264,7 @@ export default class ScanLndInvoice extends React.Component {
             )}
           </BlueCard>
           <BlueSpacing20 />
-          {this.state.isPayingInProgress ? (
+          {this.state.isLoading ? (
             <View>
               <ActivityIndicator />
             </View>
@@ -265,7 +280,7 @@ export default class ScanLndInvoice extends React.Component {
               onPress={() => {
                 this.pay();
               }}
-              disabled={!this.state.decoded}
+              disabled={this.shouldDisablePayButton()}
             />
           )}
         </SafeBlueArea>

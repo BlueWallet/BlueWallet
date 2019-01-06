@@ -1,6 +1,6 @@
 import prompt from 'react-native-prompt-android';
 
-module.exports = (title, text, isCancelable = true) => {
+module.exports = (title, text, isCancelable = true, type = 'secure-text') => {
   return new Promise((resolve, reject) => {
     const buttons = isCancelable
       ? [
@@ -30,7 +30,7 @@ module.exports = (title, text, isCancelable = true) => {
         ];
 
     prompt(title, text, buttons, {
-      type: 'secure-text',
+      type: type,
       cancelable: isCancelable,
     });
   });
