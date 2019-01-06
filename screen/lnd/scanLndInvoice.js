@@ -21,6 +21,7 @@ export default class ScanLndInvoice extends React.Component {
 
   state = {
     isLoading: false,
+    isAmountInitiallyEmpty: false,
   };
 
   constructor(props) {
@@ -105,6 +106,7 @@ export default class ScanLndInvoice extends React.Component {
         decoded,
         expiresIn,
         destination: data,
+        isAmountInitiallyEmpty: decoded.num_satoshis === '0',
       });
     } catch (Err) {
       this.setState({ destination: '' });
@@ -176,7 +178,7 @@ export default class ScanLndInvoice extends React.Component {
         return true;
       }
     }
-    return this.state.decoded.num_satoshis <= 0 || this.state.isLoading;
+    return this.state.decoded.num_satoshis <= 0 || this.state.isLoading || isNaN(this.state.decoded.num_satoshis);
   };
 
   render() {
@@ -184,6 +186,7 @@ export default class ScanLndInvoice extends React.Component {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
           <BlueBitcoinAmount
+            pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
             isLoading={this.state.isLoading}
             amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
             onChangeText={text => {

@@ -1,6 +1,7 @@
+/* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Text } from 'react-native';
-import { BlueNavigationStyle, BlueButton } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -20,25 +21,26 @@ export default class LNDCreateInvoice extends Component {
     const fromWallet = props.navigation.getParam('fromWallet');
     this.state = {
       fromWallet,
-      memo: '',
+      description: '',
       isLoading: false,
     };
   }
 
   async createInvoice() {
     this.setState({ isLoading: true }, async () => {
-      const invoiceRequest = await this.state.fromWallet.addInvoice(this.state.amount, this.state.memo);
-      if (invoiceRequest === null) {
-        ReactNativeHapticFeedback.trigger('notificationError', false);
-      } else {
+      try {
+        const invoiceRequest = await this.state.fromWallet.addInvoice(this.state.amount, this.state.description);
         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', false);
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
           fromWallet: this.state.fromWallet,
         });
+      } catch (_error) {
+        ReactNativeHapticFeedback.trigger('notificationError', false);
+        this.setState({ isLoading: false });
+        alert('Error');
       }
-      this.setState({ isLoading: false });
     });
   }
 
@@ -49,7 +51,7 @@ export default class LNDCreateInvoice extends Component {
           <ActivityIndicator />
         ) : (
           <BlueButton
-            disabled={!(this.state.amount > 0 && this.state.memo.length > 0)}
+            disabled={!(this.state.description.length > 0 && this.state.amount > 0)}
             onPress={() => this.createInvoice()}
             title={loc.send.details.create}
           />
@@ -72,44 +74,16 @@ export default class LNDCreateInvoice extends Component {
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
             <KeyboardAvoidingView behavior="position">
-              <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
-                <TextInput
-                  keyboardType="numeric"
-                  onChangeText={text => this.setState({ amount: text.replace(',', '').replace('.', '') })}
-                  placeholder="0"
-                  maxLength={10}
-                  editable={!this.state.isLoading}
-                  value={this.state.amount}
-                  placeholderTextColor="#0f5cc0"
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 36,
-                    fontWeight: '600',
-                  }}
-                />
-                <Text
-                  style={{
-                    color: '#0f5cc0',
-                    fontSize: 16,
-                    marginHorizontal: 4,
-                    paddingBottom: 6,
-                    fontWeight: '600',
-                    alignSelf: 'flex-end',
-                  }}
-                >
-                  {' ' + 'satoshis'}
-                </Text>
-              </View>
-              <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-                <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-                  {loc.formatBalance(
-                    loc.formatBalanceWithoutSuffix(this.state.amount || 0, BitcoinUnit.BTC) || 0,
-                    BitcoinUnit.LOCAL_CURRENCY,
-                  )}
-                </Text>
-              </View>
+              <BlueBitcoinAmount
+                isLoading={this.state.isLoading}
+                amount={this.state.amount}
+                onChangeText={text => {
+                  this.setState({ amount: text });
+                }}
+                disabled={this.state.isLoading}
+                unit={BitcoinUnit.SATS}
+              />
               <View
-                hide={!this.state.showMemoRow}
                 style={{
                   flexDirection: 'row',
                   borderColor: '#d2d2d2',
@@ -126,9 +100,9 @@ export default class LNDCreateInvoice extends Component {
                 }}
               >
                 <TextInput
-                  onChangeText={text => this.setState({ memo: text })}
+                  onChangeText={text => this.setState({ description: text })}
                   placeholder={loc.receive.details.label}
-                  value={this.state.memo}
+                  value={this.state.description}
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}

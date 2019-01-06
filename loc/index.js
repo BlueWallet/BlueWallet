@@ -104,7 +104,7 @@ strings.formatBalance = (balance, toUnit) => {
     return balance + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     const value = new BigNumber(balance).multipliedBy(100000000);
-    return value.toString() + ' ' + BitcoinUnit.SATS;
+    return new Intl.NumberFormat().format(value.toString()) + ' ' + BitcoinUnit.SATS;
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.BTCToLocalCurrency(balance);
   }
@@ -125,7 +125,7 @@ strings.formatBalanceWithoutSuffix = (balance, toUnit) => {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return balance;
+      return new Intl.NumberFormat().format(balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(balance);
     }
