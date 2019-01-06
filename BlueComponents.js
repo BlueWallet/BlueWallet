@@ -1131,14 +1131,12 @@ export class BlueBitcoinAmount extends Component {
         <View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <TextInput
+              {...this.props}
               keyboardType="numeric"
-              onChangeText={text =>
-                this.props.onChangeText(
-                  this.props.unit === BitcoinUnit.BTC
-                    ? text.replace(new RegExp('[^0-9.]'), '', '.')
-                    : text.replace(new RegExp('[^0-9]'), ''),
-                )
-              }
+              onChangeText={text => {
+                text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
+                this.props.onChangeText(text);
+              }}
               placeholder="0"
               maxLength={10}
               ref={textInput => (this.textInput = textInput)}
@@ -1150,7 +1148,6 @@ export class BlueBitcoinAmount extends Component {
                 fontSize: 36,
                 fontWeight: '600',
               }}
-              {...this.props}
             />
             <Text
               style={{
