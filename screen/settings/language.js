@@ -27,6 +27,7 @@ export default class Language extends Component {
         { label: 'Česky (CZ)', value: 'cs_cz' },
         { label: 'Thai (TH)', value: 'th_th' },
         { label: 'Dutch (NL)', value: 'nl_nl' },
+        { label: 'Français (FR)', value: 'fr_fr' },
       ],
     };
   }

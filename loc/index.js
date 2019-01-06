@@ -26,6 +26,7 @@ let strings;
         locale === 'ru' ||
         locale === 'ua' ||
         locale === 'es' ||
+        locale === 'fr-fr' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
         locale === 'de-de' ||
@@ -53,6 +54,7 @@ strings = new Localization({
   cs_cz: require('./cs_CZ.js'),
   th_th: require('./th_TH.js'),
   nl_nl: require('./nl_NL.js'),
+  fr_fr: require('./fr_FR.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
