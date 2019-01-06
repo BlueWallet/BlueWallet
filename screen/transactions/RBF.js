@@ -53,7 +53,7 @@ export default class RBF extends Component {
       } else {
         // DESTINATION address
 
-        destinationAddress = o.addresses && o.addresses[0] || '';
+        destinationAddress = (o.addresses && o.addresses[0]) || '';
         console.log('dest = ', destinationAddress);
       }
     }
