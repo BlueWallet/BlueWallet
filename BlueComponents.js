@@ -1136,6 +1136,7 @@ export class BlueBitcoinAmount extends Component {
               onChangeText={text => {
                 text = text.replace(',', '.');
                 text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
+                text = text.replace(/(\..*)\./g, '$1')
                 this.props.onChangeText(text);
               }}
               placeholder="0"
