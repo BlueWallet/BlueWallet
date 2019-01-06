@@ -1116,18 +1116,29 @@ export class BlueBitcoinAmount extends Component {
     amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onChangeText: PropTypes.func,
     disabled: PropTypes.bool,
+    unit: PropTypes.string,
+  };
+
+  static defaultProps = {
+    unit: BitcoinUnit.BTC,
   };
 
   render() {
     const amount = typeof this.props.amount === 'number' ? this.props.amount.toString() : this.props.amount;
 
     return (
-      <TouchableWithoutFeedback onPress={() => this.textInput.focus()}>
+      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <TextInput
               keyboardType="numeric"
-              onChangeText={text => this.props.onChangeText(text.replace(',', '.'))}
+              onChangeText={text =>
+                this.props.onChangeText(
+                  this.props.unit === BitcoinUnit.BTC
+                    ? text.replace(new RegExp('[^0-9.]'), '', '.')
+                    : text.replace(new RegExp('[^0-9]'), ''),
+                )
+              }
               placeholder="0"
               maxLength={10}
               ref={textInput => (this.textInput = textInput)}
@@ -1139,6 +1150,7 @@ export class BlueBitcoinAmount extends Component {
                 fontSize: 36,
                 fontWeight: '600',
               }}
+              {...this.props}
             />
             <Text
               style={{
@@ -1150,12 +1162,15 @@ export class BlueBitcoinAmount extends Component {
                 alignSelf: 'flex-end',
               }}
             >
-              {' ' + BitcoinUnit.BTC}
+              {' ' + this.props.unit}
             </Text>
           </View>
           <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
             <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-              {loc.formatBalance(amount || 0, BitcoinUnit.LOCAL_CURRENCY)}
+              {loc.formatBalance(
+                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC),
+                BitcoinUnit.LOCAL_CURRENCY,
+              )}
             </Text>
           </View>
         </View>
