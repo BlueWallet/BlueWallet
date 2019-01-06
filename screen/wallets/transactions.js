@@ -303,10 +303,13 @@ export default class WalletTransactions extends Component {
 
   rowTitle = item => {
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      if (isNaN(item.value)) {
+        item.value = 0
+      }
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0;
       const invoiceExpiration = item.timestamp + item.expire_time;
-
+      
       if (invoiceExpiration > now) {
         return loc.formatBalanceWithoutSuffix(item.value && item.value, this.state.wallet.getPreferredBalanceUnit()).toString();
       } else if (invoiceExpiration < now) {

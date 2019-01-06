@@ -51,7 +51,7 @@ export default class LNDCreateInvoice extends Component {
           <ActivityIndicator />
         ) : (
           <BlueButton
-            disabled={!(this.state.description.length > 0)}
+            disabled={!(this.state.description.length > 0 && this.state.amount > 0)}
             onPress={() => this.createInvoice()}
             title={loc.send.details.create}
           />
