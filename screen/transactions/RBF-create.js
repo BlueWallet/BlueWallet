@@ -222,8 +222,8 @@ export default class SendCreate extends Component {
           <BlueSpacing20 />
 
           <BlueText style={{ paddingTop: 20 }}>To: {this.state.newDestinationAddress}</BlueText>
-          <BlueText>Amount: {this.state.amount} BTC</BlueText>
-          <BlueText>Fee: {this.state.fee} BTC</BlueText>
+          <BlueText>Amount: {this.state.amount} DBD</BlueText>
+          <BlueText>Fee: {this.state.fee} DBD</BlueText>
           <BlueText>TX size: {this.state.size} Bytes</BlueText>
           <BlueText>satoshiPerByte: {this.state.satoshiPerByte} Sat/B</BlueText>
         </BlueCard>

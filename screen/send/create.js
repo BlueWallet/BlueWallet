@@ -70,10 +70,10 @@ export default class SendCreate extends Component {
               <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
 
               <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
-              <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} BTC</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} DBD</Text>
 
               <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
-              <Text style={styles.transactionDetailsSubtitle}>{this.state.fee} BTC</Text>
+              <Text style={styles.transactionDetailsSubtitle}>{this.state.fee} DBD</Text>
 
               <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
               <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
