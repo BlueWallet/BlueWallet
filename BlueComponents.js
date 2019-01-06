@@ -1127,7 +1127,7 @@ export class BlueBitcoinAmount extends Component {
     const amount = typeof this.props.amount === 'number' ? this.props.amount.toString() : this.props.amount;
 
     return (
-      <TouchableWithoutFeedback onPress={() => this.textInput.focus()}>
+      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <TextInput
@@ -1150,6 +1150,7 @@ export class BlueBitcoinAmount extends Component {
                 fontSize: 36,
                 fontWeight: '600',
               }}
+              {...this.props}
             />
             <Text
               style={{

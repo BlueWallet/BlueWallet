@@ -78,10 +78,6 @@ export default class LNDCreateInvoice extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onChangeText={text => {
-                  if (text.length === 0) {
-                    text = '0';
-                  }
-                  text = parseInt(text);
                   this.setState({ amount: text });
                 }}
                 disabled={this.state.isLoading}
