@@ -19,7 +19,6 @@ import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -240,16 +239,16 @@ export default class WalletsList extends Component {
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC).toString();
+        return loc.formatBalanceWithoutSuffix(item.value && item.value, item.walletPreferredBalanceUnit, true).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC).toString();
+          return loc.formatBalanceWithoutSuffix(item.value && item.value, item.walletPreferredBalanceUnit, true).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, BitcoinUnit.BTC).toString();
+      return loc.formatBalanceWithoutSuffix(item.value && item.value, item.walletPreferredBalanceUnit, true).toString();
     }
   };
 

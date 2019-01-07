@@ -33,8 +33,7 @@ export default class WalletTransactions extends Component {
           style={{ marginHorizontal: 8, minWidth: 150 }}
           onPress={() =>
             navigation.navigate('WalletDetails', {
-              address: navigation.state.params.wallet.getAddress(),
-              secret: navigation.state.params.wallet.getSecret(),
+              wallet: navigation.state.params.wallet,
             })
           }
         >

@@ -342,7 +342,11 @@ export class AppStorage {
 
     let txs = [];
     for (let wallet of this.wallets) {
-      txs = txs.concat(wallet.getTransactions());
+      let walletTransactions = wallet.getTransactions();
+      for (let t of walletTransactions) {
+        t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
+      }
+      txs = txs.concat(walletTransactions);
     }
 
     for (let t of txs) {

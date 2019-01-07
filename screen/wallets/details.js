@@ -32,18 +32,8 @@ export default class WalletDetails extends Component {
   constructor(props) {
     super(props);
 
-    let address = props.navigation.state.params.address;
-    let secret = props.navigation.state.params.secret;
-
-    /**  @type {AbstractWallet}   */
-    let wallet;
-
-    for (let w of BlueApp.getWallets()) {
-      if ((address && w.getAddress() === address) || w.getSecret() === secret) {
-        // found our wallet
-        wallet = w;
-      }
-    }
+    const wallet = props.navigation.getParam('wallet');
+    const address = wallet.getAddress();
 
     this.state = {
       isLoading: true,
@@ -54,18 +44,19 @@ export default class WalletDetails extends Component {
     this.props.navigation.setParams({ saveAction: () => this.setLabel() });
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.setState({
       isLoading: false,
     });
   }
 
-  async setLabel() {
-    this.state.wallet.setLabel(this.state.walletName);
-    BlueApp.saveToDisk();
-    alert('Wallet updated.');
-
-    this.props.navigation.goBack(null);
+  setLabel() {
+    this.setState({ isLoading: true }, () => {
+      this.state.wallet.setLabel(this.state.walletName);
+      BlueApp.saveToDisk();
+      alert('Wallet updated.');
+      this.props.navigation.goBack(null);
+    });
   }
 
   render() {
@@ -187,12 +178,14 @@ export default class WalletDetails extends Component {
                       {
                         text: loc.wallets.details.yes_delete,
                         onPress: async () => {
-                          BlueApp.deleteWallet(this.state.wallet);
-                          ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-                          await BlueApp.saveToDisk();
-                          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                          EV(EV.enum.WALLETS_COUNT_CHANGED);
-                          this.props.navigation.navigate('Wallets');
+                          this.setState({ isLoading: true }, async () => {
+                            BlueApp.deleteWallet(this.state.wallet);
+                            ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                            await BlueApp.saveToDisk();
+                            EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                            EV(EV.enum.WALLETS_COUNT_CHANGED);
+                            this.props.navigation.navigate('Wallets');
+                          });
                         },
                         style: 'destructive',
                       },
@@ -222,6 +215,7 @@ WalletDetails.propTypes = {
     }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+    getParam: PropTypes.func,
     setParams: PropTypes.func,
   }),
 };
