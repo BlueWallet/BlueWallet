@@ -302,7 +302,7 @@ describe('LightningCustodianWallet', () => {
     let gotError = false;
     try {
       await l2.payInvoice(invoice);
-    } catch(_) {
+    } catch (_) {
       gotError = true;
     }
     assert.ok(gotError);
