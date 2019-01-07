@@ -8,10 +8,13 @@ module.exports = {
     hours_ago: 'timer siden',
     minutes_ago: 'minutter siden',
     never: 'aldrig',
+    continue: 'Continue',
+    ok: 'OK',
   },
   wallets: {
     select_wallet: 'Vælg wallet',
     options: 'valgmuligheder',
+    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
     list: {
       app_name: 'Blue Wallet',
       title: 'wallets',
