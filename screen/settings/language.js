@@ -18,15 +18,17 @@ export default class Language extends Component {
       language: loc.getLanguage(),
       availableLanguages: [
         { label: 'English', value: 'en' },
-        { label: 'Русский', value: 'ru' },
-        { label: 'Українська', value: 'ua' },
-        { label: 'Spanish', value: 'es' },
+        { label: 'Česky (CZ)', value: 'cs_cz' },
+        { label: 'Danish (DK)', value: 'da_dk' },
+        { label: 'Deutsch (DE)', value: 'de_de' },
+        { label: 'Dutch (NL)', value: 'nl_nl' },
+        { label: 'Français (FR)', value: 'fr_fr' },
         { label: 'Portuguese (BR)', value: 'pt_br' },
         { label: 'Portuguese (PT)', value: 'pt_pt' },
-        { label: 'Deutsch (DE)', value: 'de_de' },
-        { label: 'Česky (CZ)', value: 'cs_cz' },
+        { label: 'Русский', value: 'ru' },
+        { label: 'Spanish', value: 'es' },
         { label: 'Thai (TH)', value: 'th_th' },
-        { label: 'Dutch (NL)', value: 'nl_nl' },
+        { label: 'Українська', value: 'ua' },
       ],
     };
   }

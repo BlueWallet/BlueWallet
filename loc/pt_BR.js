@@ -8,10 +8,14 @@ module.exports = {
     hours_ago: 'horas atrás',
     minutes_ago: 'minutos atrás',
     never: 'nunca',
+    continue: 'Continue',
+    ok: 'OK',
   },
   wallets: {
     options: 'opções',
     select_wallet: 'Escolher carteira',
+    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+
     list: {
       tabBarLabel: 'Carteiras',
       app_name: 'Blue Wallet',

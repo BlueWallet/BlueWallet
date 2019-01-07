@@ -8,10 +8,14 @@ module.exports = {
     hours_ago: 'ชั่วโมงที่แล้ว',
     minutes_ago: 'นาทีที่แล้ว',
     never: 'ไม่เคย',
+    continue: 'Continue',
+    ok: 'OK',
   },
   wallets: {
     select_wallet: 'เลือกกระเป๋าสตางค์',
     options: 'ทางเลือก',
+    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+
     list: {
       app_name: 'บูลวอลเล็ต',
       title: 'กระเป๋าสตางค์',

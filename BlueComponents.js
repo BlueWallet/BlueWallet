@@ -106,6 +106,7 @@ export class LightningButton extends Component {
   render() {
     return (
       <TouchableOpacity
+        disabled={this.props.disabled}
         onPress={() => {
           // eslint-disable-next-line
           if (this.props.onPress) this.props.onPress();
@@ -135,6 +136,10 @@ export class LightningButton extends Component {
     );
   }
 }
+
+LightningButton.propTypes = {
+  disabled: PropTypes.bool,
+};
 
 export class BlueButtonLink extends Component {
   render() {
@@ -1055,7 +1060,7 @@ export class WalletsCarousel extends Component {
                 color: '#fff',
               }}
             >
-              {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit())}
+              {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
             </Text>
             <Text style={{ backgroundColor: 'transparent' }} />
             <Text
@@ -1131,14 +1136,17 @@ export class BlueBitcoinAmount extends Component {
         <View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <TextInput
+              {...this.props}
               keyboardType="numeric"
-              onChangeText={text =>
-                this.props.onChangeText(
-                  this.props.unit === BitcoinUnit.BTC
-                    ? text.replace(new RegExp('[^0-9.]'), '', '.')
-                    : text.replace(new RegExp('[^0-9]'), ''),
-                )
-              }
+              onChangeText={text => {
+                text = text.replace(',', '.');
+                text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
+                text = text.replace(/(\..*)\./g, '$1');
+                if (text.startsWith('.')) {
+                  text = '0.';
+                }
+                this.props.onChangeText(text);
+              }}
               placeholder="0"
               maxLength={10}
               ref={textInput => (this.textInput = textInput)}
@@ -1150,7 +1158,6 @@ export class BlueBitcoinAmount extends Component {
                 fontSize: 36,
                 fontWeight: '600',
               }}
-              {...this.props}
             />
             <Text
               style={{
@@ -1168,8 +1175,9 @@ export class BlueBitcoinAmount extends Component {
           <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
             <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
               {loc.formatBalance(
-                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC),
+                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC, false),
                 BitcoinUnit.LOCAL_CURRENCY,
+                false,
               )}
             </Text>
           </View>
