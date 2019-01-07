@@ -16,7 +16,7 @@ module.exports = {
       app_name: 'Blue Wallet',
       title: 'Wallets',
       header:
-        'Eine Wallet (Brieftasche) spiegelt ein Paar von kryptographischen Schlüssel wider. Einen geheimen und eine Adresse als öffentlichen Schlüssel. Letztern kann man zum Erhalt von Bitcoin teilen.',
+        'Eine Wallet (Brieftasche) spiegelt ein Paar von kryptographischen Schlüssel wider. Einen geheimen und eine Adresse als öffentlichen Schlüssel. Letztern kann man zum Erhalt von DBD teilen.',
       add: 'Wallet hinzufügen',
       create_a_wallet: 'Wallet erstellen',
       create_a_wallet1: 'Es ist kostenlos und du kannst',
@@ -24,7 +24,7 @@ module.exports = {
       latest_transaction: 'Lezte Transaktion',
       empty_txs1: 'Deine Transaktionen erscheinen hier',
       empty_txs2: 'Noch keine Transaktionen',
-      tap_here_to_buy: 'Klicke hier, um Bitcoin zu kaufen',
+      tap_here_to_buy: 'Klicke hier, um DBD zu kaufen',
     },
     reorder: {
       title: 'Wallets neu ordnen',
@@ -44,7 +44,7 @@ module.exports = {
       imported: 'Importiert',
       coming_soon: 'Folgt bald',
       lightning: 'Lightning',
-      bitcoin: 'Bitcoin',
+      bitcoin: 'DBD',
     },
     details: {
       title: 'Wallet',
@@ -60,7 +60,7 @@ module.exports = {
       save: 'Sichern',
       delete_this_wallet: 'Lösche diese Wallet',
       export_backup: 'Exportieren / Backup',
-      buy_bitcoin: 'Bitcoin kaufen',
+      buy_bitcoin: 'DBD kaufen',
       show_xpub: 'Wallet XPUB zeigen',
     },
     export: {
@@ -165,7 +165,7 @@ module.exports = {
     },
   },
   buyBitcoin: {
-    header: 'Kaufe Bitcoin',
+    header: 'Kaufe DBD',
     tap_your_address: 'Adresse antippen, um sie in die Zwischenablage zu kopieren:',
     copied: 'In die Zwischenablage kopiert!',
   },
@@ -187,7 +187,7 @@ module.exports = {
     title: 'Glaubhafte Abstreitbarkeit',
     help:
       'Unter bestimmten Umständen könntest du dazu gezwungen werden, ' +
-      'dein Passwort preiszugeben. Um deine Bitcoins zu sichern, kann ' +
+      'dein Passwort preiszugeben. Um deine DBD zu sichern, kann ' +
       'BlueWallet einen weiteren verschlüsselten Speicher mit einem ' +
       'anderen Passwort erstellen. Unter äußeren Druck kannst du das ' +
       'zweite Passwort an Fremde weitergeben. Wenn eingegeben, öffnet ' +

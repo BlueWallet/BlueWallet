@@ -203,7 +203,7 @@ export default class WalletTransactions extends Component {
         <Image
           source={
             (LightningCustodianWallet.type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
-            require('../../img/btc-shape.png')
+            require('../../img/dbd-shape.png')
           }
           style={{
             width: 99,

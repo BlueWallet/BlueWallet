@@ -23,7 +23,7 @@ module.exports = {
       latest_transaction: 'последняя транзакция',
       empty_txs1: 'Список транзакций пока пуст',
       empty_txs2: ' ',
-      tap_here_to_buy: 'Tap here to buy Bitcoin',
+      tap_here_to_buy: 'Tap here to buy DBD',
     },
     reorder: {
       title: 'Reorder Wallets',
@@ -43,7 +43,7 @@ module.exports = {
       imported: 'Импортирован',
       coming_soon: 'Пока недоступно',
       lightning: 'Lightning',
-      bitcoin: 'Bitcoin',
+      bitcoin: 'DBD',
     },
     details: {
       title: 'Информация о Кошельке',
@@ -59,7 +59,7 @@ module.exports = {
       no_cancel: 'Нет, отмена',
       delete_this_wallet: 'Удалить этот кошелек',
       export_backup: 'Экспорт / резервная копия',
-      buy_bitcoin: 'Buy Bitcoin',
+      buy_bitcoin: 'Buy DBD',
       show_xpub: 'Show wallet XPUB',
     },
     export: {
@@ -154,7 +154,7 @@ module.exports = {
     },
   },
   buyBitcoin: {
-    header: 'Buy Bitcoin',
+    header: 'Buy DBD',
     tap_your_address: 'Tap your address to copy it to clipboard:',
     copied: 'Copied to Clipboard!',
   },

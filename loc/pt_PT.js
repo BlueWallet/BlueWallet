@@ -15,7 +15,7 @@ module.exports = {
     list: {
       app_name: 'Blue Wallet',
       title: 'wallets',
-      header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
+      header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber DBD.',
       add: 'adicionar wallet',
       create_a_wallet: 'Adicionar uma wallet',
       create_a_wallet1: 'É gratuito e pode',
@@ -23,7 +23,7 @@ module.exports = {
       latest_transaction: 'últimas transacções',
       empty_txs1: 'As suas transacções aparecerão aqui,',
       empty_txs2: 'nenhuma de momento',
-      tap_here_to_buy: 'Tap here to buy Bitcoin',
+      tap_here_to_buy: 'Tap here to buy DBD',
     },
     reorder: {
       title: 'Reorder Wallets',
@@ -43,7 +43,7 @@ module.exports = {
       imported: 'Importada',
       coming_soon: 'Brevemente',
       lightning: 'Lightning',
-      bitcoin: 'Bitcoin',
+      bitcoin: 'DBD',
     },
     details: {
       title: 'wallet',
@@ -59,7 +59,7 @@ module.exports = {
       no_cancel: 'Não, cancelar',
       delete_this_wallet: 'Apagar esta wallet',
       export_backup: 'Exportar / backup',
-      buy_bitcoin: 'Buy Bitcoin',
+      buy_bitcoin: 'Buy DBD',
       show_xpub: 'Show wallet XPUB',
     },
     export: {
@@ -155,7 +155,7 @@ module.exports = {
     },
   },
   buyBitcoin: {
-    header: 'Buy Bitcoin',
+    header: 'Buy DBD',
     tap_your_address: 'Tap your address to copy it to clipboard:',
     copied: 'Copied to Clipboard!',
   },

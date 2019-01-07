@@ -23,7 +23,7 @@ module.exports = {
       latest_transaction: 'остання транзакція',
       empty_txs1: "Транзакціі з'являться тут,",
       empty_txs2: 'поки що жодноі',
-      tap_here_to_buy: 'Tap here to buy Bitcoin',
+      tap_here_to_buy: 'Tap here to buy DBD',
     },
     reorder: {
       title: 'Reorder Wallets',
@@ -43,7 +43,7 @@ module.exports = {
       imported: 'імпортовано',
       coming_soon: 'Буде скоро',
       lightning: 'Lightning',
-      bitcoin: 'Bitcoin',
+      bitcoin: 'DBD',
     },
     details: {
       title: 'Інформація про Гаманець',
@@ -59,7 +59,7 @@ module.exports = {
       no_cancel: 'Ні, відміна',
       delete_this_wallet: 'Видалити цей гаманець',
       export_backup: 'Експорт / резервна копія',
-      buy_bitcoin: 'Buy Bitcoin',
+      buy_bitcoin: 'Buy DBD',
       show_xpub: 'Show wallet XPUB',
     },
     export: {
@@ -164,7 +164,7 @@ module.exports = {
     },
   },
   buyBitcoin: {
-    header: 'Buy Bitcoin',
+    header: 'Buy DBD',
     tap_your_address: 'Tap your address to copy it to clipboard:',
     copied: 'Copied to Clipboard!',
   },

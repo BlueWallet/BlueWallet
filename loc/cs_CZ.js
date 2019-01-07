@@ -23,7 +23,7 @@ module.exports = {
       latest_transaction: 'poslední transakce',
       empty_txs1: 'Zde budou zobrazeny vaše transakce,',
       empty_txs2: 'zatím žádné',
-      tap_here_to_buy: 'Klikněte zde pro zakoupení Bitcoinu',
+      tap_here_to_buy: 'Klikněte zde pro zakoupení DBD',
     },
     reorder: {
       title: 'Seřadit peěženky',
@@ -43,7 +43,7 @@ module.exports = {
       imported: 'Importována',
       coming_soon: 'Již brzy',
       lightning: 'Lightning',
-      bitcoin: 'Bitcoin',
+      bitcoin: 'DBD',
     },
     details: {
       title: 'Peněženka',
@@ -59,7 +59,7 @@ module.exports = {
       save: 'Uložit',
       delete_this_wallet: 'Smazat peněženku',
       export_backup: 'Exportovat / zálohovat',
-      buy_bitcoin: 'Koupit Bitcoin',
+      buy_bitcoin: 'Koupit DBD',
       show_xpub: 'Ukázat XPUB',
     },
     export: {
@@ -164,7 +164,7 @@ module.exports = {
     },
   },
   buyBitcoin: {
-    header: 'Koupit Bitcoin',
+    header: 'Koupit DBD',
     tap_your_address: 'Klikněte na svojí adresu pro zkopírování do schránky:',
     copied: 'Zkopírováno do schránky.',
   },
