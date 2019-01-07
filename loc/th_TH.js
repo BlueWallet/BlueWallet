@@ -9,7 +9,7 @@ module.exports = {
     minutes_ago: 'นาทีที่แล้ว',
     never: 'ไม่เคย',
     continue: 'ต่อไป',
-    ok: 'OK',
+    ok: 'ตกลง',
   },
   wallets: {
     select_wallet: 'เลือกกระเป๋าสตางค์',
