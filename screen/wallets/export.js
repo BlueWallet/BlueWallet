@@ -1,20 +1,13 @@
 import React, { Component } from 'react';
 import { Dimensions, Platform, ActivityIndicator, View } from 'react-native';
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
-import { BlueSpacing40, SafeBlueArea, BlueNavigationStyle, BlueCard, BlueText } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const QRFast = require('react-native-qrcode');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
-const aspectRatio = height / width;
-let isIpad;
-if (aspectRatio > 1.6) {
-  isIpad = false;
-} else {
-  isIpad = true;
-}
 
 export default class WalletExport extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -38,11 +31,12 @@ export default class WalletExport extends Component {
 
     this.state = {
       isLoading: true,
+      qrCodeHeight: height > width ? height / 2.5 : width / 2,
       wallet,
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.setState({
       isLoading: false,
       showQr: false,
@@ -54,17 +48,15 @@ export default class WalletExport extends Component {
     }, 1000);
   }
 
-  determineSize = () => {
-    if (width > 312) {
-      return width - 48;
-    }
-    return 312;
+  onLayout = () => {
+    const { height } = Dimensions.get('window');
+    this.setState({ qrCodeHeight: height > width ? height / 2.5 : width / 2 });
   };
 
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{ flex: 1, paddingTop: 20 }} onLayout={this.onLayout}>
           <ActivityIndicator />
         </View>
       );
@@ -82,12 +74,7 @@ export default class WalletExport extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        {(() => {
-          if (isIpad) {
-            return <BlueSpacing40 />;
-          }
-        })()}
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', paddingHorizontal: 0 }} onLayout={this.onLayout}>
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
@@ -101,14 +88,14 @@ export default class WalletExport extends Component {
               );
             }
           })()}
-
+          <BlueSpacing20 />
           {(() => {
             if (this.state.showQr) {
               if (Platform.OS === 'ios' || this.state.wallet.getSecret().length < 54) {
                 return (
                   <QRSlow
                     content={this.state.wallet.getSecret()}
-                    size={this.determineSize()}
+                    size={this.state.qrCodeHeight}
                     color={BlueApp.settings.foregroundColor}
                     backgroundColor={BlueApp.settings.brandingColor}
                     logo={require('../../img/qr-code.png')}
@@ -119,7 +106,7 @@ export default class WalletExport extends Component {
                 return (
                   <QRFast
                     value={this.state.wallet.getSecret()}
-                    size={this.determineSize()}
+                    size={this.state.qrCodeHeight}
                     fgColor={BlueApp.settings.brandingColor}
                     bgColor={BlueApp.settings.foregroundColor}
                   />
@@ -133,9 +120,10 @@ export default class WalletExport extends Component {
               );
             }
           })()}
+          <BlueSpacing20 />
 
-          <BlueText style={{ marginVertical: 8 }}>{this.state.wallet.getSecret()}</BlueText>
-        </BlueCard>
+          <BlueText style={{ alignItems: 'center', paddingHorizontal: 8 }}>{this.state.wallet.getSecret()}</BlueText>
+        </View>
       </SafeBlueArea>
     );
   }

@@ -71,47 +71,50 @@ export default class ScanLndInvoice extends React.Component {
     }
   }
 
-  async processInvoice(data) {
-    if (this.ignoreRead) return;
-    this.ignoreRead = true;
-    setTimeout(() => {
-      this.ignoreRead = false;
-    }, 6000);
+  processInvoice(data) {
+    this.setState({ isLoading: true }, async () => {
+      if (this.ignoreRead) return;
+      this.ignoreRead = true;
+      setTimeout(() => {
+        this.ignoreRead = false;
+      }, 6000);
 
-    if (!this.state.fromWallet) {
-      alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
-      return this.props.navigation.goBack();
-    }
-
-    data = data.replace('LIGHTNING:', '').replace('lightning:', '');
-    console.log(data);
-
-    /**
-     * @type {LightningCustodianWallet}
-     */
-    let w = this.state.fromWallet;
-    let decoded;
-    try {
-      decoded = await w.decodeInvoice(data);
-
-      let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
-      if (+new Date() > expiresIn) {
-        expiresIn = 'expired';
-      } else {
-        expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
+      if (!this.state.fromWallet) {
+        alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+        return this.props.navigation.goBack();
       }
-      Keyboard.dismiss();
-      this.setState({
-        invoice: data,
-        decoded,
-        expiresIn,
-        destination: data,
-        isAmountInitiallyEmpty: decoded.num_satoshis === '0',
-      });
-    } catch (Err) {
-      this.setState({ destination: '' });
-      alert(Err.message);
-    }
+
+      data = data.replace('LIGHTNING:', '').replace('lightning:', '');
+      console.log(data);
+
+      /**
+       * @type {LightningCustodianWallet}
+       */
+      let w = this.state.fromWallet;
+      let decoded;
+      try {
+        decoded = await w.decodeInvoice(data);
+
+        let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+        if (+new Date() > expiresIn) {
+          expiresIn = 'expired';
+        } else {
+          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
+        }
+        Keyboard.dismiss();
+        this.setState({
+          invoice: data,
+          decoded,
+          expiresIn,
+          destination: data,
+          isAmountInitiallyEmpty: decoded.num_satoshis === '0',
+          isLoading: false,
+        });
+      } catch (Err) {
+        this.setState({ isLoading: false });
+        alert(Err.message);
+      }
+    });
   }
 
   async pay() {
@@ -144,7 +147,7 @@ export default class ScanLndInvoice extends React.Component {
         let start = +new Date();
         let end;
         try {
-          await fromWallet.payInvoice(this.state.invoice, this.state.invoice.num_satoshis);
+          await fromWallet.payInvoice(this.state.invoice, this.state.decoded.num_satoshis);
           end = +new Date();
         } catch (Err) {
           console.log(Err.message);
@@ -191,7 +194,7 @@ export default class ScanLndInvoice extends React.Component {
             amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
             onChangeText={text => {
               if (typeof this.state.decoded === 'object') {
-                text = parseInt(text);
+                text = parseInt(text || 0);
                 let decoded = this.state.decoded;
                 decoded.num_satoshis = text;
                 this.setState({ decoded: decoded });
