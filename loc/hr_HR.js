@@ -18,7 +18,7 @@ module.exports = {
       header: 'Volet je par privatnog ključa (tajna!) i javne adrese' + 'koju slobodno možete dijeliti kada primate novce.',
       add: 'Dodaj volet',
       create_a_wallet: 'Stvori novi volet',
-      create_a_wallet1: "Ne košta ništa i možete",
+      create_a_wallet1: 'Ne košta ništa i možete',
       create_a_wallet2: 'ih stvoriti moliko želite',
       latest_transaction: 'posljednja transakcija',
       empty_txs1: 'Vaše transakcije će se pojaviti ovdje',
@@ -30,8 +30,7 @@ module.exports = {
     },
     add: {
       title: 'Dodaj volet',
-      description:
-        'Možete ili skenirati bekap papirnati volet (u WIF - Wallet Import Format), ili stvoriti novi volet. Segwit je podržan.',
+      description: 'Možete ili skenirati bekap papirnati volet (u WIF - Wallet Import Format), ili stvoriti novi volet. Segwit je podržan.',
       scan: 'Skeniraj',
       create: 'Stvori',
       label_new_segwit: 'Novi SegWit',
@@ -72,7 +71,7 @@ module.exports = {
     import: {
       title: 'unesi',
       explanation:
-        "Ovdje upiši svoj mnemonik slijed riječi, privatni ključ, WIF, ili što već imaš. BlueWallet će pokušati porocijeniti format i unesti tvoj volet.",
+        'Ovdje upiši svoj mnemonik slijed riječi, privatni ključ, WIF, ili što već imaš. BlueWallet će pokušati porocijeniti format i unesti tvoj volet.',
       imported: 'Uneseno',
       error: 'Neuspješan unos. Molimo pažljivo provjerite ispravnost unesenih podataka.',
       success: 'Uspjeh',
@@ -190,7 +189,7 @@ module.exports = {
       'BlueWallet ti čuva leđa buraz. Nemaš brige. Gledaj.' +
       'Stvoriti ćemo dupli volet sa drugačijom lozinkom. Haha, žišku?' +
       'Pa kad se ovaj počne pjeniti a ti vidiš da je vrag odnio šalu' +
-      'ti mu podvali ovaj drugi volet. Eto mu ga. Nek si cucla.' ,
+      'ti mu podvali ovaj drugi volet. Eto mu ga. Nek si cucla.',
     help2: 'Novi spremnik će biti posve funkcionalan, možeš pohraniti koliko' + 'misliš da je potrebno da izgleda uvjerljivo.',
     create_fake_storage: 'Stvori fejk enkriptirani spremnik',
     go_back: 'Povratak',
