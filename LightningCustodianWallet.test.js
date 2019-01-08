@@ -298,6 +298,17 @@ describe('LightningCustodianWallet', () => {
 
     await l2.checkRouteInvoice(invoice);
 
+    // first, tip invoice without amount should not work:
+    let gotError = false;
+    try {
+      await l2.payInvoice(invoice);
+    } catch (_) {
+      gotError = true;
+    }
+    assert.ok(gotError);
+
+    // then, pay:
+
     let start = +new Date();
     await l2.payInvoice(invoice, 3);
     let end = +new Date();
