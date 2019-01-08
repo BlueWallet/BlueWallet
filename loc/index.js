@@ -33,7 +33,8 @@ let strings;
         locale === 'cs-cz' ||
         locale === 'th-th' ||
         locale === 'da-dk' ||
-        locale === 'nl-nl'
+        locale === 'nl-nl' ||
+        locale === 'hr-hr'
       ) {
         locale = locale.replace('-', '_');
         strings.setLanguage(locale);
@@ -57,6 +58,7 @@ strings = new Localization({
   th_th: require('./th_TH.js'),
   nl_nl: require('./nl_NL.js'),
   fr_fr: require('./fr_FR.js'),
+  hr_hr: require('./hr_HR.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);

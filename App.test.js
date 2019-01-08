@@ -294,6 +294,8 @@ it('Wallet can fetch TXs', async () => {
 
   delete tx0.confirmations;
   delete txExpected.confirmations;
+  delete tx0.preference; // that bs is not always the same
+  delete txExpected.preference;
   assert.deepEqual(tx0, txExpected);
 });
 

@@ -1,3 +1,19 @@
+v.3.5.6
+-------
+
+ADD: Loading indicator for wallet name change and wallet delete
+ADD: Added CZK fiat
+ADD: Alert user if they are trying to create a lightning wallet without a bitcoin wallet
+ADD: French
+ADD: DK - Danish Language Support
+ADD: Thai locale
+ADD: Dutch translation
+FIX: Main wallet list shows transaction unit that is preferred by wallet
+FIX: Export QRCode was too big on iPad
+FIX: Don't override existing tx information when scanning invalid QR
+FIX: Satoshis are now human-readable
+FIX: crash when RBF
+
 v3.5.5
 ------
 
@@ -22,4 +38,4 @@ FIX: Don't allow user to pay for an invoice created with the same wallet.
 FIX: If. balance was not a string, app would crash.
 FIX: Changed language selection screen to FlatList
 FIX: Made amount tap area larger
-FIX: Fixed an issue in currency settings where the checkmark wouldn't be in the correct preference
+FIX: Fixed an issue in currency settings where the checkmark wouldn't be in the correct preference* Merge branch 'master' of github.com:BlueWallet/BlueWallet 
