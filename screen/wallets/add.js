@@ -140,7 +140,6 @@ export default class WalletsAdd extends Component {
                     height: (width - 60) / 3,
                   }}
                   title={loc.wallets.add.create}
-                  disabled={BlueApp.getWallets().some(wallet => wallet.type === LightningCustodianWallet.type)}
                 />
               </View>
             </View>
