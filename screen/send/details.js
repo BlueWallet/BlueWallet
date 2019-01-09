@@ -87,6 +87,7 @@ export default class SendDetails extends Component {
       this.setState(
         { isLoading: false },
         () => {
+          data = data.replace('bitcoin:', '');
           if (btcAddressRx.test(data) || data.indexOf('bc1') === 0) {
             this.setState({
               address: data,
