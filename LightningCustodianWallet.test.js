@@ -246,6 +246,23 @@ describe('LightningCustodianWallet', () => {
     await lNew.fetchBalance();
     assert.equal(lOld.balance - oldBalance, 1);
     assert.equal(lNew.balance, 0);
+
+    // now, paying same internal invoice. should fail:
+
+    let coughtError = false;
+    await lOld.fetchTransactions();
+    txLen = lOld.transactions_raw.length;
+    let invLen = (await lNew.getUserInvoices()).length;
+    try {
+      await lOld.payInvoice(invoice);
+    } catch (Err) {
+      coughtError = true;
+    }
+    assert.ok(coughtError);
+
+    await lOld.fetchTransactions();
+    assert.equal(txLen, lOld.transactions_raw.length, 'tx count should not be changed');
+    assert.equal(invLen, (await lNew.getUserInvoices()).length, 'invoices count should not be changed');
   });
 
   it('can pay free amount (tip) invoice', async function() {
