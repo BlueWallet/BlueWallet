@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import { Alert, AsyncStorage, ActivityIndicator, Keyboard, Dimensions, View, TextInput, TouchableWithoutFeedback } from 'react-native';
 import {
@@ -194,16 +193,6 @@ export default class WalletsAdd extends Component {
 
                         if (this.state.activeLightning) {
                           // eslint-disable-next-line
-                          let hasBitcoinWallet = false;
-                          for (let t of BlueApp.getWallets()) {
-                            if (t.type === LightningCustodianWallet.type) {
-                              // already exist
-                              this.setState({ isLoading: false });
-                              return alert('Only 1 Lightning wallet allowed for now');
-                            } else if (t.type !== LightningCustodianWallet.type) {
-                              hasBitcoinWallet = true;
-                            }
-                          }
 
                           this.createLightningWallet = async () => {
                             w = new LightningCustodianWallet();
@@ -232,7 +221,7 @@ export default class WalletsAdd extends Component {
                             this.props.navigation.dismiss();
                           };
 
-                          if (!hasBitcoinWallet) {
+                          if (!BlueApp.getWallets().some(wallet => wallet.type !== LightningCustodianWallet.type)) {
                             Alert.alert(
                               loc.wallets.add.lightning,
                               loc.wallets.createBitcoinWallet,
