@@ -14,7 +14,7 @@
     "metro-react-native-babel-preset": "^0.49.1",
     "prettier-eslint-cli": "^4.7.1",
     "react-test-renderer": "^16.7.0",
-    "rn-nodeify": "github:mvayngrib/rn-nodeify"
+    "rn-nodeify": "github:tradle/rn-nodeify"
   },
   "scripts": {
     "prepare": "./patches/fix_mangle.sh; git apply patches/minifier.js.patch; git apply patches/minify.js.patch; git apply patches/transaction_builder.js.patch; git apply ./patches/transaction.js.patch; test -f sentry.sh && ./sentry.sh || true",
