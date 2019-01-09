@@ -144,7 +144,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (json && json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
-
     this.user_invoices_raw = json;
 
     return json;
@@ -323,6 +322,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
+      tx.fromWallet = this.secret;
       if (tx.amount) {
         // pending tx
         tx.amt = tx.amount * -100000000;

@@ -19,7 +19,6 @@ import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -421,15 +420,17 @@ export default class WalletsList extends Component {
                         rowData.item.type === 'payment_request' ||
                         rowData.item.type === 'paid_invoice'
                       ) {
-                        const lightningWallet = this.state.wallets.filter(wallet => wallet.type === LightningCustodianWallet.type);
-                        if (typeof lightningWallet === 'object') {
-                          if (lightningWallet.length === 1) {
-                            this.props.navigation.navigate('LNDViewInvoice', {
-                              invoice: rowData.item,
-                              fromWallet: lightningWallet[0],
-                            });
+                        const lightningWallet = this.state.wallets.filter(wallet => {
+                          if (typeof wallet === 'object') {
+                            if (wallet.hasOwnProperty('secret')) {
+                              return wallet.getSecret() === rowData.item.fromWallet;
+                            }
                           }
-                        }
+                        });
+                        this.props.navigation.navigate('LNDViewInvoice', {
+                          invoice: rowData.item,
+                          fromWallet: lightningWallet[0],
+                        });
                       }
                     }}
                     badge={{
