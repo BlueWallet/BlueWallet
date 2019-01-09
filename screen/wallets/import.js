@@ -68,14 +68,6 @@ export default class WalletsImport extends Component {
     try {
       // is it lightning custodian?
       if (text.indexOf('blitzhub://') !== -1 || text.indexOf('lndhub://') !== -1) {
-        // yep its lnd
-        for (let t of BlueApp.getWallets()) {
-          if (t.type === LightningCustodianWallet.type) {
-            // already exist
-            return alert('Only 1 Ligthning wallet allowed for now');
-          }
-        }
-
         let lnd = new LightningCustodianWallet();
         lnd.setSecret(text);
         await lnd.authorize();
