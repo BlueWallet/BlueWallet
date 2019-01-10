@@ -1,12 +1,41 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
 import { NativeModules } from 'react-native';
+import bitcoin from 'bitcoinjs-lib';
+import bip39 from 'bip39';
+import BigNumber from 'bignumber.js';
+import b58 from 'bs58check';
+import signer from '../models/signer';
+
 const { RNRandomBytes } = NativeModules;
-const bitcoin = require('bitcoinjs-lib');
-const bip39 = require('bip39');
-const BigNumber = require('bignumber.js');
-const b58 = require('bs58check');
-const signer = require('../models/signer');
+
+/**
+ * Converts ypub to xpub
+ * @param {String} ypub - wallet ypub
+ * @returns {*}
+ */
+function ypubToXpub(ypub) {
+  let data = b58.decode(ypub);
+  data = data.slice(4);
+  data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+  return b58.encode(data);
+}
+
+/**
+ * Creates Segwit P2SH Bitcoin address
+ * @param hdNode
+ * @returns {String}
+ */
+function nodeToP2shSegwitAddress(hdNode) {
+  const pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
+  const hash = bitcoin.crypto.hash160(pubkeyBuf);
+  const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(hash);
+  const hash2 = bitcoin.crypto.hash160(redeemScript);
+  const scriptPubkey = bitcoin.script.scriptHash.output.encode(hash2);
+
+  return bitcoin.address.fromOutputScript(scriptPubkey);
+}
 
 /**
  * HD Wallet (BIP39).
@@ -45,108 +74,50 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   _getExternalWIFByIndex(index) {
-    index = index * 1; // cast to int
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = "m/49'/0'/0'/0/" + index;
-    let child = root.derivePath(path);
-    return child.keyPair.toWIF();
+    return this._getWIFByIndex(false, index);
   }
 
   _getInternalWIFByIndex(index) {
-    index = index * 1; // cast to int
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = "m/49'/0'/0'/1/" + index;
-    let child = root.derivePath(path);
+    return this._getWIFByIndex(true, index);
+  }
+
+  /**
+   * Get internal/external WIF by wallet index
+   * @param {Boolean} internal
+   * @param {Number} index
+   * @returns {*}
+   * @private
+   */
+  _getWIFByIndex(internal, index) {
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const path = `m/49'/0'/0'/${internal ? 1 : 0}/${index}`;
+    const child = root.derivePath(path);
+
     return child.keyPair.toWIF();
   }
 
   _getExternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-    if (!this._xpub) {
-      let mnemonic = this.secret;
-      let seed = bip39.mnemonicToSeed(mnemonic);
-      let root = bitcoin.HDNode.fromSeedBuffer(seed);
-      let path = "m/49'/0'/0'/0/" + index;
-      let child = root.derivePath(path);
 
-      let keyhash = bitcoin.crypto.hash160(child.getPublicKeyBuffer());
-      let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
-      let addressBytes = bitcoin.crypto.hash160(scriptSig);
-      let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-      let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
-      this._address_to_wif_cache[address] = child.keyPair.toWIF();
-      return (this.external_addresses_cache[index] = address);
-    } else {
-      let b58 = require('bs58check');
-      // eslint-disable-next-line
-      function ypubToXpub(ypub) {
-        var data = b58.decode(ypub);
-        data = data.slice(4);
-        data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
-        return b58.encode(data);
-      }
-      // eslint-disable-next-line
-      function nodeToP2shSegwitAddress(hdNode) {
-        let pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
-        let hash = bitcoin.crypto.hash160(pubkeyBuf);
-        let redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(hash);
-        let hash2 = bitcoin.crypto.hash160(redeemScript);
-        let scriptPubkey = bitcoin.script.scriptHash.output.encode(hash2);
-        return bitcoin.address.fromOutputScript(scriptPubkey);
-      }
-      let xpub = ypubToXpub(this._xpub);
-      let hdNode = bitcoin.HDNode.fromBase58(xpub);
-      let address = nodeToP2shSegwitAddress(hdNode.derive(0).derive(index));
-      return (this.external_addresses_cache[index] = address);
-    }
+    const xpub = ypubToXpub(this.getXpub());
+    const hdNode = bitcoin.HDNode.fromBase58(xpub);
+    const address = nodeToP2shSegwitAddress(hdNode.derive(0).derive(index));
+
+    return (this.external_addresses_cache[index] = address);
   }
 
   _getInternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-    if (!this._xpub) {
-      let mnemonic = this.secret;
-      let seed = bip39.mnemonicToSeed(mnemonic);
-      let root = bitcoin.HDNode.fromSeedBuffer(seed);
 
-      let path = "m/49'/0'/0'/1/" + index;
-      let child = root.derivePath(path);
+    const xpub = ypubToXpub(this.getXpub());
+    const hdNode = bitcoin.HDNode.fromBase58(xpub);
+    const address = nodeToP2shSegwitAddress(hdNode.derive(1).derive(index));
 
-      let keyhash = bitcoin.crypto.hash160(child.getPublicKeyBuffer());
-      let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
-      let addressBytes = bitcoin.crypto.hash160(scriptSig);
-      let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-      let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
-      this._address_to_wif_cache[address] = child.keyPair.toWIF();
-      return (this.internal_addresses_cache[index] = address);
-    } else {
-      let b58 = require('bs58check');
-      // eslint-disable-next-line
-      function ypubToXpub(ypub) {
-        var data = b58.decode(ypub);
-        data = data.slice(4);
-        data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
-        return b58.encode(data);
-      }
-      // eslint-disable-next-line
-      function nodeToP2shSegwitAddress(hdNode) {
-        let pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
-        let hash = bitcoin.crypto.hash160(pubkeyBuf);
-        let redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(hash);
-        let hash2 = bitcoin.crypto.hash160(redeemScript);
-        let scriptPubkey = bitcoin.script.scriptHash.output.encode(hash2);
-        return bitcoin.address.fromOutputScript(scriptPubkey);
-      }
-      let xpub = ypubToXpub(this._xpub);
-      let hdNode = bitcoin.HDNode.fromBase58(xpub);
-      let address = nodeToP2shSegwitAddress(hdNode.derive(1).derive(index));
-      return (this.internal_addresses_cache[index] = address);
-    }
+    return (this.internal_addresses_cache[index] = address);
   }
 
   /**
@@ -160,19 +131,20 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       return this._xpub; // cache hit
     }
     // first, getting xpub
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.HDNode.fromSeedBuffer(seed);
 
-    let path = "m/49'/0'/0'";
-    let child = root.derivePath(path).neutered();
-    let xpub = child.toBase58();
+    const path = "m/49'/0'/0'";
+    const child = root.derivePath(path).neutered();
+    const xpub = child.toBase58();
 
     // bitcoinjs does not support ypub yet, so we just convert it from xpub
     let data = b58.decode(xpub);
     data = data.slice(4);
     data = Buffer.concat([Buffer.from('049d7cb2', 'hex'), data]);
     this._xpub = b58.encode(data);
+
     return this._xpub;
   }
 

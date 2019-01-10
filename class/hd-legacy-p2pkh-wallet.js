@@ -1,9 +1,8 @@
-import { LegacyWallet } from './';
 import { AbstractHDWallet } from './abstract-hd-wallet';
-const bitcoin = require('bitcoinjs-lib');
-const bip39 = require('bip39');
-const BigNumber = require('bignumber.js');
-const signer = require('../models/signer');
+import bitcoin from 'bitcoinjs-lib';
+import bip39 from 'bip39';
+import BigNumber from 'bignumber.js';
+import signer from '../models/signer';
 
 /**
  * HD Wallet (BIP39).
@@ -22,82 +21,66 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.HDNode.fromSeedBuffer(seed);
 
-    let path = "m/44'/0'/0'";
-    let child = root.derivePath(path).neutered();
+    const path = "m/44'/0'/0'";
+    const child = root.derivePath(path).neutered();
     this._xpub = child.toBase58();
+
     return this._xpub;
   }
 
   _getExternalWIFByIndex(index) {
-    index = index * 1; // cast to int
-    if (index < 0) return '';
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = "m/44'/0'/0'/0/" + index;
-    let child = root.derivePath(path);
-    return child.keyPair.toWIF();
+    return this._getWIFByIndex(false, index);
   }
 
   _getInternalWIFByIndex(index) {
-    index = index * 1; // cast to int
-    let mnemonic = this.secret;
-    let seed = bip39.mnemonicToSeed(mnemonic);
-    let root = bitcoin.HDNode.fromSeedBuffer(seed);
-    let path = "m/44'/0'/0'/1/" + index;
-    let child = root.derivePath(path);
+    return this._getWIFByIndex(true, index);
+  }
+
+  /**
+   * Get internal/external WIF by wallet index
+   * @param {Boolean} internal
+   * @param {Number} index
+   * @returns {*}
+   * @private
+   */
+  _getWIFByIndex(internal, index) {
+    const mnemonic = this.secret;
+    const seed = bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
+    const child = root.derivePath(path);
+
     return child.keyPair.toWIF();
   }
 
   _getExternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-    if (!this._xpub) {
-      let mnemonic = this.secret;
-      let seed = bip39.mnemonicToSeed(mnemonic);
-      let root = bitcoin.HDNode.fromSeedBuffer(seed);
-      let path = "m/44'/0'/0'/0/" + index;
-      let child = root.derivePath(path);
 
-      let w = new LegacyWallet();
-      w.setSecret(child.keyPair.toWIF());
-      return (this.external_addresses_cache[index] = w.getAddress());
-    } else {
-      let node = bitcoin.HDNode.fromBase58(this._xpub);
-      let address = node
-        .derive(0)
-        .derive(index)
-        .getAddress();
-      return (this.external_addresses_cache[index] = address);
-    }
+    const node = bitcoin.HDNode.fromBase58(this.getXpub());
+    const address = node
+      .derive(0)
+      .derive(index)
+      .getAddress();
+
+    return (this.external_addresses_cache[index] = address);
   }
 
   _getInternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-    if (!this._xpub) {
-      let mnemonic = this.secret;
-      let seed = bip39.mnemonicToSeed(mnemonic);
-      let root = bitcoin.HDNode.fromSeedBuffer(seed);
 
-      let path = "m/44'/0'/0'/1/" + index;
-      let child = root.derivePath(path);
+    const node = bitcoin.HDNode.fromBase58(this.getXpub());
+    const address = node
+      .derive(1)
+      .derive(index)
+      .getAddress();
 
-      let w = new LegacyWallet();
-      w.setSecret(child.keyPair.toWIF());
-      return (this.internal_addresses_cache[index] = w.getAddress());
-    } else {
-      let node = bitcoin.HDNode.fromBase58(this._xpub);
-      let address = node
-        .derive(1)
-        .derive(index)
-        .getAddress();
-      return (this.internal_addresses_cache[index] = address);
-    }
+    return (this.internal_addresses_cache[index] = address);
   }
 
   createTx(utxos, amount, fee, address) {
