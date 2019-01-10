@@ -38,8 +38,11 @@ export default class LNDViewInvoice extends Component {
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {
-          const userInvoices = JSON.stringify(await this.state.fromWallet.getUserInvoices());
-          const updatedUserInvoice = JSON.parse(userInvoices).filter(invoice =>
+          const userInvoices = await this.state.fromWallet.getUserInvoices(20);
+          // fetching only last 20 invoices
+          // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
+          // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
+          const updatedUserInvoice = userInvoices.filter(invoice =>
             typeof this.state.invoice === 'object'
               ? invoice.payment_request === this.state.invoice.payment_request
               : invoice.payment_request === this.state.invoice,
