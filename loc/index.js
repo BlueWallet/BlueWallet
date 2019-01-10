@@ -29,6 +29,7 @@ let strings;
         locale === 'fr-fr' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
+        locale === 'jp-JP' ||
         locale === 'de-de' ||
         locale === 'cs-cz' ||
         locale === 'th-th' ||
@@ -52,6 +53,7 @@ strings = new Localization({
   pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   ua: require('./ua.js'),
+  jp_jp: require('./jp_JP.js'),
   de_de: require('./de_DE.js'),
   da_dk: require('./da_DK.js'),
   cs_cz: require('./cs_CZ.js'),
