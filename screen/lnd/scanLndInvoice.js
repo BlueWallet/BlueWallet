@@ -138,7 +138,7 @@ export default class ScanLndInvoice extends React.Component {
           return alert('Invoice expired');
         }
 
-        const currentUserInvoices = await fromWallet.getUserInvoices();
+        const currentUserInvoices = fromWallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
         if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
           this.setState({ isLoading: false });
           return alert(loc.lnd.sameWalletAsInvoiceError);
