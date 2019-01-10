@@ -1,0 +1,1 @@
+../../../../AppCenterReactNativeShared/AppCenterReactNativeShared/AppCenterReactNativeShared.framework/Headers/AppCenterReactNativeShared.h

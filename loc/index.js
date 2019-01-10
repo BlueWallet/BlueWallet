@@ -29,6 +29,7 @@ let strings;
         locale === 'fr-fr' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
+        locale === 'jp-JP' ||
         locale === 'de-de' ||
         locale === 'cs-cz' ||
         locale === 'th-th' ||
@@ -52,6 +53,7 @@ strings = new Localization({
   pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   ua: require('./ua.js'),
+  jp_jp: require('./jp_JP.js'),
   de_de: require('./de_DE.js'),
   da_dk: require('./da_DK.js'),
   cs_cz: require('./cs_CZ.js'),
@@ -110,7 +112,7 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
     return balance + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     const value = new BigNumber(balance).multipliedBy(100000000);
-    return (withFormatting ? new Intl.NumberFormat().format(value.toString()).replace(',', ' ') : value) + ' ' + BitcoinUnit.SATS;
+    return (withFormatting ? new Intl.NumberFormat().format(value.toString()).replace(/[^0-9]/g, ' ') : value) + ' ' + BitcoinUnit.SATS;
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.BTCToLocalCurrency(balance);
   }
@@ -131,7 +133,7 @@ strings.formatBalanceWithoutSuffix = (balance, toUnit, withFormatting = false) =
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return withFormatting ? new Intl.NumberFormat().format(balance).replace(',', ' ') : balance;
+      return withFormatting ? new Intl.NumberFormat().format(balance).replace(/[^0-9]/g, ' ') : balance;
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
       return currency.satoshiToLocalCurrency(balance);
     }

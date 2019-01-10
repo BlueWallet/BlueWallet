@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import { Alert, AsyncStorage, ActivityIndicator, Keyboard, Dimensions, View, TextInput, TouchableWithoutFeedback } from 'react-native';
 import {
@@ -21,7 +20,6 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 import { AppStorage, SegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
-let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -140,7 +138,6 @@ export default class WalletsAdd extends Component {
                     height: (width - 60) / 3,
                   }}
                   title={loc.wallets.add.create}
-                  disabled={BlueApp.getWallets().some(wallet => wallet.type === LightningCustodianWallet.type)}
                 />
               </View>
             </View>
@@ -195,16 +192,6 @@ export default class WalletsAdd extends Component {
 
                         if (this.state.activeLightning) {
                           // eslint-disable-next-line
-                          let hasBitcoinWallet = false;
-                          for (let t of BlueApp.getWallets()) {
-                            if (t.type === LightningCustodianWallet.type) {
-                              // already exist
-                              this.setState({ isLoading: false });
-                              return alert('Only 1 Lightning wallet allowed for now');
-                            } else if (t.type !== LightningCustodianWallet.type) {
-                              hasBitcoinWallet = true;
-                            }
-                          }
 
                           this.createLightningWallet = async () => {
                             w = new LightningCustodianWallet();
@@ -223,17 +210,17 @@ export default class WalletsAdd extends Component {
                               console.warn('lnd create failure', Err);
                               // giving app, not adding anything
                             }
-                            A(A.ENUM.CREATED_LIGHTNING_WALLET);
+                            // A(A.ENUM.CREATED_LIGHTNING_WALLET);
                             await w.generate();
                             BlueApp.wallets.push(w);
                             await BlueApp.saveToDisk();
                             EV(EV.enum.WALLETS_COUNT_CHANGED);
-                            A(A.ENUM.CREATED_WALLET);
+                            // A(A.ENUM.CREATED_WALLET);
                             ReactNativeHapticFeedback.trigger('notificationSuccess', false);
                             this.props.navigation.dismiss();
                           };
 
-                          if (!hasBitcoinWallet) {
+                          if (!BlueApp.getWallets().some(wallet => wallet.type !== LightningCustodianWallet.type)) {
                             Alert.alert(
                               loc.wallets.add.lightning,
                               loc.wallets.createBitcoinWallet,
@@ -273,7 +260,7 @@ export default class WalletsAdd extends Component {
                           BlueApp.wallets.push(w);
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
-                          A(A.ENUM.CREATED_WALLET);
+                          // A(A.ENUM.CREATED_WALLET);
                           ReactNativeHapticFeedback.trigger('notificationSuccess', false);
                           this.props.navigation.dismiss();
                         }

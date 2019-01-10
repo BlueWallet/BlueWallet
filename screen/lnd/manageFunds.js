@@ -68,7 +68,7 @@ export default class ManageFunds extends Component {
             titleStyle={{ color: BlueApp.settings.foregroundColor }}
             component={TouchableOpacity}
             onPress={a => {
-              Linking.openURL('https://zigzag.io');
+              Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
             }}
             title={loc.lnd.withdraw}
           />

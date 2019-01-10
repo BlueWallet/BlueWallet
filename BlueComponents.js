@@ -1,3 +1,4 @@
+/* eslint react/prop-types: 0 */
 /** @type {AppStorage} */
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -106,7 +107,6 @@ export class LightningButton extends Component {
   render() {
     return (
       <TouchableOpacity
-        disabled={this.props.disabled}
         onPress={() => {
           // eslint-disable-next-line
           if (this.props.onPress) this.props.onPress();
@@ -136,10 +136,6 @@ export class LightningButton extends Component {
     );
   }
 }
-
-LightningButton.propTypes = {
-  disabled: PropTypes.bool,
-};
 
 export class BlueButtonLink extends Component {
   render() {

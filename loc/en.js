@@ -14,7 +14,8 @@ module.exports = {
   wallets: {
     select_wallet: 'Select Wallet',
     options: 'options',
-    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+    createBitcoinWallet:
+      'You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?',
     list: {
       app_name: 'Blue Wallet',
       title: 'wallets',

@@ -77,7 +77,6 @@ project.ext.react = [
 ]
 
 apply from: "../../node_modules/react-native/react.gradle"
-apply from: "../../node_modules/react-native-sentry/sentry.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -149,17 +148,18 @@ android {
 }
 
 dependencies {
+    compile project(':appcenter-crashes')
+    compile project(':appcenter-analytics')
+    compile project(':appcenter')
     compile project(':react-native-camera')
     compile project(':react-native-fs')
     compile project(':react-native-gesture-handler')
     compile project(':react-native-vector-icons')
     compile project(':react-native-svg')
-    compile project(':react-native-sentry')
     compile project(':react-native-randombytes')
     compile project(':react-native-prompt-android')
     compile project(':react-native-linear-gradient')
     compile project(':react-native-haptic-feedback')
-    compile project(':react-native-google-analytics-bridge')
     compile project(':react-native-device-info')
     implementation (project(':react-native-camera')) {
         exclude group: "com.android.support"
