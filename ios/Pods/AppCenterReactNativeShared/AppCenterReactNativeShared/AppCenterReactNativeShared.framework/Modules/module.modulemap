@@ -1,8 +1,0 @@
-framework module AppCenterReactNativeShared {
-  umbrella header "AppCenterReactNativeShared.h"
-  
-  export *
-  module * { export * }
-  
-  link framework "Foundation"
-}

@@ -20,6 +20,7 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 import { AppStorage, SegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
+let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -210,12 +211,12 @@ export default class WalletsAdd extends Component {
                               console.warn('lnd create failure', Err);
                               // giving app, not adding anything
                             }
-                            // A(A.ENUM.CREATED_LIGHTNING_WALLET);
+                            A(A.ENUM.CREATED_LIGHTNING_WALLET);
                             await w.generate();
                             BlueApp.wallets.push(w);
                             await BlueApp.saveToDisk();
                             EV(EV.enum.WALLETS_COUNT_CHANGED);
-                            // A(A.ENUM.CREATED_WALLET);
+                            A(A.ENUM.CREATED_WALLET);
                             ReactNativeHapticFeedback.trigger('notificationSuccess', false);
                             this.props.navigation.dismiss();
                           };
@@ -260,7 +261,7 @@ export default class WalletsAdd extends Component {
                           BlueApp.wallets.push(w);
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
-                          // A(A.ENUM.CREATED_WALLET);
+                          A(A.ENUM.CREATED_WALLET);
                           ReactNativeHapticFeedback.trigger('notificationSuccess', false);
                           this.props.navigation.dismiss();
                         }

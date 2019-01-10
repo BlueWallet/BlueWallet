@@ -1,1 +1,0 @@
-../../../../AppCenter/AppCenter-SDK-Apple/iOS/AppCenter.framework/Headers/MSChannelGroupProtocol.h
