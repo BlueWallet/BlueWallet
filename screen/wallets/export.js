@@ -31,7 +31,7 @@ export default class WalletExport extends Component {
 
     this.state = {
       isLoading: true,
-      qrCodeHeight: height > width ? height / 2.5 : width / 2,
+      qrCodeHeight: height > width ? width - 40 : width / 2,
       wallet,
     };
   }
@@ -50,7 +50,7 @@ export default class WalletExport extends Component {
 
   onLayout = () => {
     const { height } = Dimensions.get('window');
-    this.setState({ qrCodeHeight: height > width ? height / 2.5 : width / 2 });
+    this.setState({ qrCodeHeight: height > width ? width - 40 : width / 2 });
   };
 
   render() {
@@ -61,16 +61,6 @@ export default class WalletExport extends Component {
         </View>
       );
     }
-
-    /*
-
-          <BlueText style={{marginBottom: 10}}>
-            WIF stands for Wallet Import Format. Backup your WIF (also shown on QR) in a safe place.
-          </BlueText>
-
-          <Divider style={{ backgroundColor: '#ebebeb', marginBottom:20, }} />
-
-    */
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
@@ -99,7 +89,7 @@ export default class WalletExport extends Component {
                     color={BlueApp.settings.foregroundColor}
                     backgroundColor={BlueApp.settings.brandingColor}
                     logo={require('../../img/qr-code.png')}
-                    ecl={'Q'}
+                    ecl={'H'}
                   />
                 );
               } else {
