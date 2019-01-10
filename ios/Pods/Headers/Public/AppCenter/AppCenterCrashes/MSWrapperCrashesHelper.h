@@ -1,0 +1,1 @@
+../../../../AppCenter/AppCenter-SDK-Apple/iOS/AppCenterCrashes.framework/Headers/MSWrapperCrashesHelper.h

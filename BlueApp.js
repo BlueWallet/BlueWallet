@@ -6,7 +6,6 @@ let prompt = require('./prompt');
 let EV = require('./events');
 let currency = require('./currency');
 let loc = require('./loc');
-let A = require('./analytics');
 
 /** @type {AppStorage} */
 let BlueApp = new AppStorage();
@@ -66,7 +65,6 @@ async function startAndDecrypt(retry) {
   }
 }
 
-A(A.ENUM.INIT);
 BlueApp.startAndDecrypt = startAndDecrypt;
 currency.startUpdater();
 

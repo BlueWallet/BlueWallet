@@ -20,7 +20,6 @@ import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 let EV = require('../../events');
-let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -102,9 +101,9 @@ export default class WalletsList extends Component {
    * Redraws the screen
    */
   refreshFunction() {
-    if (BlueApp.getBalance() !== 0) {
-      A(A.ENUM.GOT_NONZERO_BALANCE);
-    }
+    // if (BlueApp.getBalance() !== 0) {
+    //   A(A.ENUM.GOT_NONZERO_BALANCE);
+    // }
 
     this.setState({
       isLoading: false,

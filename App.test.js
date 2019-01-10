@@ -41,12 +41,12 @@ jest.mock('ScrollView', () => {
   return ScrollView;
 });
 
-jest.mock('react-native-google-analytics-bridge', () => ({
-  GoogleAnalyticsTracker: () => {
-    this.trackEvent = jest.fn();
-    return this;
-  },
-}));
+// jest.mock('react-native-google-analytics-bridge', () => ({
+//   GoogleAnalyticsTracker: () => {
+//     this.trackEvent = jest.fn();
+//     return this;
+//   },
+// }));
 
 describe('unit - LegacyWallet', function() {
   it('serialize and unserialize work correctly', () => {

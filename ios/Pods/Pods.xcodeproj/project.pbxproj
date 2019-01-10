@@ -1,0 +1,823 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3CD8884F80FCA0B0BD7E259B420D16C1 /* Pods-BlueWallet-tvOSTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DFDF2FCA9137F5C1A7E45F740DD0D2C5 /* Pods-BlueWallet-tvOSTests-dummy.m */; };
+		7AECE6D70D2460C9E0669C4E669C18C3 /* Pods-BlueWallet-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = CDB9F1A20BB8A570D43FA53BC5480F2E /* Pods-BlueWallet-dummy.m */; };
+		88A6B0D197141212A579226C891E6C6F /* Pods-BlueWalletTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = B158062164593A2FA160EFD71EE3DCA4 /* Pods-BlueWalletTests-dummy.m */; };
+		8BE7155D9E4AD9415C45F77CDC0FF524 /* Pods-BlueWallet-tvOS-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = B265AA7D1C76C0B0FAC1ADA23B502EF4 /* Pods-BlueWallet-tvOS-dummy.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		44C6B41FA9554D8B913D49C0F01969DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 13FB0A35574748CC0319B8AB2F1AA437;
+			remoteInfo = "Pods-BlueWallet-tvOS";
+		};
+		BF76F9CFEDBA14912354BF6EFFF8B1DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 17C83112142C39595A14F5717C7F2899;
+			remoteInfo = "Pods-BlueWallet";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0ECA8651CF0FE8BD50590E65552F798C /* Pods-BlueWallet-tvOSTests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWallet-tvOSTests-acknowledgements.plist"; sourceTree = "<group>"; };
+		1186F6F03BA672100D07A548C2C41B55 /* Pods-BlueWallet-tvOSTests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWallet-tvOSTests-acknowledgements.markdown"; sourceTree = "<group>"; };
+		1FF8CBE3D70C3B5EE02BF7F1402952A2 /* AppCenterCrashes.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenterCrashes.framework; path = "AppCenter-SDK-Apple/iOS/AppCenterCrashes.framework"; sourceTree = "<group>"; };
+		2A50790F518451E495C413A86A4D4756 /* Pods-BlueWallet-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWallet-acknowledgements.plist"; sourceTree = "<group>"; };
+		2E280B58529AEBA76B5F11C0705D0856 /* AppCenterReactNativeShared.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenterReactNativeShared.framework; path = AppCenterReactNativeShared/AppCenterReactNativeShared.framework; sourceTree = "<group>"; };
+		58484A1841FA6D31ABF218F73C9657A6 /* Pods-BlueWalletTests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWalletTests-acknowledgements.plist"; sourceTree = "<group>"; };
+		605C5AE07817DBA304B16A382DD3A9D2 /* Pods-BlueWalletTests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletTests-resources.sh"; sourceTree = "<group>"; };
+		697057EB6F6A315777E7EA941A2AAF3B /* AppCenterAnalytics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenterAnalytics.framework; path = "AppCenter-SDK-Apple/iOS/AppCenterAnalytics.framework"; sourceTree = "<group>"; };
+		6C38D16E0A562C92D77910841EFDD27F /* Pods-BlueWallet-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWallet-acknowledgements.markdown"; sourceTree = "<group>"; };
+		77703283D39D8B6C2F5533D58F444AD9 /* Pods-BlueWallet-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		791FFC7E9F2382266F6E6E5CB88A705B /* Pods-BlueWallet-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		7D8A159BA7689764FE208C3B2132E56D /* Pods-BlueWallet-tvOS-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWallet-tvOS-acknowledgements.plist"; sourceTree = "<group>"; };
+		7E7674BD139C8BAFDB5EF3410E133309 /* libPods-BlueWalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-BlueWalletTests.a"; path = "libPods-BlueWalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9435C95FCCDE276F9C308E37BB8CFEE3 /* Pods-BlueWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet.release.xcconfig"; sourceTree = "<group>"; };
+		A567F9665445FDE75034C93038486FB8 /* Pods-BlueWallet-tvOSTests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-tvOSTests-resources.sh"; sourceTree = "<group>"; };
+		ADABA583E7541E8BCAA2B842D02A7A82 /* Pods-BlueWallet-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
+		AE719E6C89618F5EE195E17852961F34 /* Pods-BlueWallet-tvOS-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWallet-tvOS-acknowledgements.markdown"; sourceTree = "<group>"; };
+		B158062164593A2FA160EFD71EE3DCA4 /* Pods-BlueWalletTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWalletTests-dummy.m"; sourceTree = "<group>"; };
+		B265AA7D1C76C0B0FAC1ADA23B502EF4 /* Pods-BlueWallet-tvOS-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWallet-tvOS-dummy.m"; sourceTree = "<group>"; };
+		B368DCDB00E6A39DBE20128551DB2875 /* Pods-BlueWalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletTests.release.xcconfig"; sourceTree = "<group>"; };
+		B605D7936F19BAE86427576AF935A322 /* Pods-BlueWallet-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-frameworks.sh"; sourceTree = "<group>"; };
+		BA8EECF63EC5707C7C5455AB18E14F6F /* Pods-BlueWallet-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C2062CD1CF3A38ABDB362745DB14D579 /* Pods-BlueWallet-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-resources.sh"; sourceTree = "<group>"; };
+		CC9EE9EFC144611190EE9121DD8B66E0 /* Pods-BlueWallet-tvOS-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-tvOS-resources.sh"; sourceTree = "<group>"; };
+		CDB9F1A20BB8A570D43FA53BC5480F2E /* Pods-BlueWallet-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWallet-dummy.m"; sourceTree = "<group>"; };
+		CEAFE739AB36D34F782EAD05C773C2C1 /* Pods-BlueWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
+		D0AAA1AB06723FC58B88C164A7B87899 /* libPods-BlueWallet-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-BlueWallet-tvOSTests.a"; path = "libPods-BlueWallet-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D86BEFFAAFC396AA5BF772DA47B46FCC /* libPods-BlueWallet-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-BlueWallet-tvOS.a"; path = "libPods-BlueWallet-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC65AFFB7964130E42157D207BE3A6DE /* AppCenter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppCenter.framework; path = "AppCenter-SDK-Apple/iOS/AppCenter.framework"; sourceTree = "<group>"; };
+		DFDF2FCA9137F5C1A7E45F740DD0D2C5 /* Pods-BlueWallet-tvOSTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWallet-tvOSTests-dummy.m"; sourceTree = "<group>"; };
+		E1D09CC0AEDF877FC06BC909472B17D4 /* Pods-BlueWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet.debug.xcconfig"; sourceTree = "<group>"; };
+		F1FDD9CF3925E5C368BDEEA859EEC115 /* libPods-BlueWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-BlueWallet.a"; path = "libPods-BlueWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F3EEA81748ABC0B5737EAD0D590E1324 /* Pods-BlueWallet-tvOS-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-tvOS-frameworks.sh"; sourceTree = "<group>"; };
+		F4536E7EDF47A46C1E4F05C7B68C51FB /* Pods-BlueWalletTests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletTests-frameworks.sh"; sourceTree = "<group>"; };
+		F704DE47A1D9999A50348F0FCA706725 /* Pods-BlueWallet-tvOSTests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-tvOSTests-frameworks.sh"; sourceTree = "<group>"; };
+		FA9A26164BE3851E6237EDB573CC0B62 /* Pods-BlueWalletTests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWalletTests-acknowledgements.markdown"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		401EBB2577AD8535BAD81510855BE180 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C358A909FBD06CF3927A42801AF5C9E9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C44A806989AFD7A623AE323C1569961C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB1AB9B5BA146C51438EC40C6197A4E2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		06500D32BC31E797237E0D6398BEBB04 /* Pods-BlueWallet */ = {
+			isa = PBXGroup;
+			children = (
+				6C38D16E0A562C92D77910841EFDD27F /* Pods-BlueWallet-acknowledgements.markdown */,
+				2A50790F518451E495C413A86A4D4756 /* Pods-BlueWallet-acknowledgements.plist */,
+				CDB9F1A20BB8A570D43FA53BC5480F2E /* Pods-BlueWallet-dummy.m */,
+				B605D7936F19BAE86427576AF935A322 /* Pods-BlueWallet-frameworks.sh */,
+				C2062CD1CF3A38ABDB362745DB14D579 /* Pods-BlueWallet-resources.sh */,
+				E1D09CC0AEDF877FC06BC909472B17D4 /* Pods-BlueWallet.debug.xcconfig */,
+				9435C95FCCDE276F9C308E37BB8CFEE3 /* Pods-BlueWallet.release.xcconfig */,
+			);
+			name = "Pods-BlueWallet";
+			path = "Target Support Files/Pods-BlueWallet";
+			sourceTree = "<group>";
+		};
+		0C0416FA3744ECAB6C76E95960896084 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DC65AFFB7964130E42157D207BE3A6DE /* AppCenter.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		0F8D2E47FE03D3B91B51069F7C273AF4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2299AF501E253B95F2AE1FAD00A3B182 /* Crashes */ = {
+			isa = PBXGroup;
+			children = (
+				4789B2888C9F3A64D9BB98A64504484B /* Frameworks */,
+			);
+			name = Crashes;
+			sourceTree = "<group>";
+		};
+		260E672E181DB8BDAC7A2999772A7AE4 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				8E2C96EA6162ABA11EBE8E8817909062 /* Frameworks */,
+			);
+			name = Analytics;
+			sourceTree = "<group>";
+		};
+		2D20FC01AE47C04E62202F456C8DC21D /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				0C0416FA3744ECAB6C76E95960896084 /* Frameworks */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		4789B2888C9F3A64D9BB98A64504484B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1FF8CBE3D70C3B5EE02BF7F1402952A2 /* AppCenterCrashes.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7BF7839DBF6FE2038733E2DC6BBBB4DB /* Pods-BlueWalletTests */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A26164BE3851E6237EDB573CC0B62 /* Pods-BlueWalletTests-acknowledgements.markdown */,
+				58484A1841FA6D31ABF218F73C9657A6 /* Pods-BlueWalletTests-acknowledgements.plist */,
+				B158062164593A2FA160EFD71EE3DCA4 /* Pods-BlueWalletTests-dummy.m */,
+				F4536E7EDF47A46C1E4F05C7B68C51FB /* Pods-BlueWalletTests-frameworks.sh */,
+				605C5AE07817DBA304B16A382DD3A9D2 /* Pods-BlueWalletTests-resources.sh */,
+				CEAFE739AB36D34F782EAD05C773C2C1 /* Pods-BlueWalletTests.debug.xcconfig */,
+				B368DCDB00E6A39DBE20128551DB2875 /* Pods-BlueWalletTests.release.xcconfig */,
+			);
+			name = "Pods-BlueWalletTests";
+			path = "Target Support Files/Pods-BlueWalletTests";
+			sourceTree = "<group>";
+		};
+		7DB346D0F39D3F0E887471402A8071AB = {
+			isa = PBXGroup;
+			children = (
+				93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */,
+				0F8D2E47FE03D3B91B51069F7C273AF4 /* Frameworks */,
+				B1C0FD4C526B54B6F7B5EA76C32A7B4C /* Pods */,
+				C31B4D4AB30CAB94560F8E2F419C6758 /* Products */,
+				D7C82463DCE1DE409C5E510ABC03EC65 /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		8E2C96EA6162ABA11EBE8E8817909062 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				697057EB6F6A315777E7EA941A2AAF3B /* AppCenterAnalytics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		933049011F8911B2F30AA1CDF2746CEC /* Pods-BlueWallet-tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				AE719E6C89618F5EE195E17852961F34 /* Pods-BlueWallet-tvOS-acknowledgements.markdown */,
+				7D8A159BA7689764FE208C3B2132E56D /* Pods-BlueWallet-tvOS-acknowledgements.plist */,
+				B265AA7D1C76C0B0FAC1ADA23B502EF4 /* Pods-BlueWallet-tvOS-dummy.m */,
+				F3EEA81748ABC0B5737EAD0D590E1324 /* Pods-BlueWallet-tvOS-frameworks.sh */,
+				CC9EE9EFC144611190EE9121DD8B66E0 /* Pods-BlueWallet-tvOS-resources.sh */,
+				791FFC7E9F2382266F6E6E5CB88A705B /* Pods-BlueWallet-tvOS.debug.xcconfig */,
+				77703283D39D8B6C2F5533D58F444AD9 /* Pods-BlueWallet-tvOS.release.xcconfig */,
+			);
+			name = "Pods-BlueWallet-tvOS";
+			path = "Target Support Files/Pods-BlueWallet-tvOS";
+			sourceTree = "<group>";
+		};
+		A0B57144304D780AFD502F83B44BE8C1 /* Pods-BlueWallet-tvOSTests */ = {
+			isa = PBXGroup;
+			children = (
+				1186F6F03BA672100D07A548C2C41B55 /* Pods-BlueWallet-tvOSTests-acknowledgements.markdown */,
+				0ECA8651CF0FE8BD50590E65552F798C /* Pods-BlueWallet-tvOSTests-acknowledgements.plist */,
+				DFDF2FCA9137F5C1A7E45F740DD0D2C5 /* Pods-BlueWallet-tvOSTests-dummy.m */,
+				F704DE47A1D9999A50348F0FCA706725 /* Pods-BlueWallet-tvOSTests-frameworks.sh */,
+				A567F9665445FDE75034C93038486FB8 /* Pods-BlueWallet-tvOSTests-resources.sh */,
+				BA8EECF63EC5707C7C5455AB18E14F6F /* Pods-BlueWallet-tvOSTests.debug.xcconfig */,
+				ADABA583E7541E8BCAA2B842D02A7A82 /* Pods-BlueWallet-tvOSTests.release.xcconfig */,
+			);
+			name = "Pods-BlueWallet-tvOSTests";
+			path = "Target Support Files/Pods-BlueWallet-tvOSTests";
+			sourceTree = "<group>";
+		};
+		B1C0FD4C526B54B6F7B5EA76C32A7B4C /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D6F4E16E170AFF42D929EF8FFF92078F /* AppCenter */,
+				FDE42022E7C36FE2A980950DD051F732 /* AppCenterReactNativeShared */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		C31B4D4AB30CAB94560F8E2F419C6758 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F1FDD9CF3925E5C368BDEEA859EEC115 /* libPods-BlueWallet.a */,
+				D86BEFFAAFC396AA5BF772DA47B46FCC /* libPods-BlueWallet-tvOS.a */,
+				D0AAA1AB06723FC58B88C164A7B87899 /* libPods-BlueWallet-tvOSTests.a */,
+				7E7674BD139C8BAFDB5EF3410E133309 /* libPods-BlueWalletTests.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D6F4E16E170AFF42D929EF8FFF92078F /* AppCenter */ = {
+			isa = PBXGroup;
+			children = (
+				260E672E181DB8BDAC7A2999772A7AE4 /* Analytics */,
+				2D20FC01AE47C04E62202F456C8DC21D /* Core */,
+				2299AF501E253B95F2AE1FAD00A3B182 /* Crashes */,
+			);
+			name = AppCenter;
+			path = AppCenter;
+			sourceTree = "<group>";
+		};
+		D7C82463DCE1DE409C5E510ABC03EC65 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				06500D32BC31E797237E0D6398BEBB04 /* Pods-BlueWallet */,
+				933049011F8911B2F30AA1CDF2746CEC /* Pods-BlueWallet-tvOS */,
+				A0B57144304D780AFD502F83B44BE8C1 /* Pods-BlueWallet-tvOSTests */,
+				7BF7839DBF6FE2038733E2DC6BBBB4DB /* Pods-BlueWalletTests */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		F84ACEF4E4D3666C3A595115D01D3868 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2E280B58529AEBA76B5F11C0705D0856 /* AppCenterReactNativeShared.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FDE42022E7C36FE2A980950DD051F732 /* AppCenterReactNativeShared */ = {
+			isa = PBXGroup;
+			children = (
+				F84ACEF4E4D3666C3A595115D01D3868 /* Frameworks */,
+			);
+			name = AppCenterReactNativeShared;
+			path = AppCenterReactNativeShared;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		37C8D3EA5BDCDBBB1F558F63C6A14F75 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A328109F936A988E6D70C43BE979E762 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C0F0DF5500137F0F0A49220C2517573F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA499A9149CB5AF96C33CFAE2DF85303 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		13FB0A35574748CC0319B8AB2F1AA437 /* Pods-BlueWallet-tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D2CAEE89CF245B135FB336AA15831580 /* Build configuration list for PBXNativeTarget "Pods-BlueWallet-tvOS" */;
+			buildPhases = (
+				37C8D3EA5BDCDBBB1F558F63C6A14F75 /* Headers */,
+				D6D7246ED2BCAD666A802BDDD93821FB /* Sources */,
+				C358A909FBD06CF3927A42801AF5C9E9 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-BlueWallet-tvOS";
+			productName = "Pods-BlueWallet-tvOS";
+			productReference = D86BEFFAAFC396AA5BF772DA47B46FCC /* libPods-BlueWallet-tvOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		17C83112142C39595A14F5717C7F2899 /* Pods-BlueWallet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D33D365A0B7ED2A01D8DB555EE8F1D45 /* Build configuration list for PBXNativeTarget "Pods-BlueWallet" */;
+			buildPhases = (
+				DA499A9149CB5AF96C33CFAE2DF85303 /* Headers */,
+				D8CD2D5125899BC3F4BE85F8580FE288 /* Sources */,
+				401EBB2577AD8535BAD81510855BE180 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-BlueWallet";
+			productName = "Pods-BlueWallet";
+			productReference = F1FDD9CF3925E5C368BDEEA859EEC115 /* libPods-BlueWallet.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		9DE70AB75A5771D0A7E9A3D72F406327 /* Pods-BlueWallet-tvOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6994EEE76F77178EA5072B8FE87578E /* Build configuration list for PBXNativeTarget "Pods-BlueWallet-tvOSTests" */;
+			buildPhases = (
+				C0F0DF5500137F0F0A49220C2517573F /* Headers */,
+				6E78AC179D437369048C68A82AAA0685 /* Sources */,
+				C44A806989AFD7A623AE323C1569961C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5D13916A9C08E0AF45CC5279DFAB5F1A /* PBXTargetDependency */,
+			);
+			name = "Pods-BlueWallet-tvOSTests";
+			productName = "Pods-BlueWallet-tvOSTests";
+			productReference = D0AAA1AB06723FC58B88C164A7B87899 /* libPods-BlueWallet-tvOSTests.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		E86CD54EE95DB9E61E88F07276EE61AA /* Pods-BlueWalletTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6C042E2A594983B490E0B8E9F3FFAF1 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletTests" */;
+			buildPhases = (
+				A328109F936A988E6D70C43BE979E762 /* Headers */,
+				5C7340D861DD08422DC03372A7E98D14 /* Sources */,
+				EB1AB9B5BA146C51438EC40C6197A4E2 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3034CFD295E562FADF9B3E0F70BD8135 /* PBXTargetDependency */,
+			);
+			name = "Pods-BlueWalletTests";
+			productName = "Pods-BlueWalletTests";
+			productReference = 7E7674BD139C8BAFDB5EF3410E133309 /* libPods-BlueWalletTests.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D41D8CD98F00B204E9800998ECF8427E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0930;
+				LastUpgradeCheck = 0930;
+			};
+			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
+			productRefGroup = C31B4D4AB30CAB94560F8E2F419C6758 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				17C83112142C39595A14F5717C7F2899 /* Pods-BlueWallet */,
+				13FB0A35574748CC0319B8AB2F1AA437 /* Pods-BlueWallet-tvOS */,
+				9DE70AB75A5771D0A7E9A3D72F406327 /* Pods-BlueWallet-tvOSTests */,
+				E86CD54EE95DB9E61E88F07276EE61AA /* Pods-BlueWalletTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5C7340D861DD08422DC03372A7E98D14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88A6B0D197141212A579226C891E6C6F /* Pods-BlueWalletTests-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6E78AC179D437369048C68A82AAA0685 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3CD8884F80FCA0B0BD7E259B420D16C1 /* Pods-BlueWallet-tvOSTests-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D6D7246ED2BCAD666A802BDDD93821FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8BE7155D9E4AD9415C45F77CDC0FF524 /* Pods-BlueWallet-tvOS-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8CD2D5125899BC3F4BE85F8580FE288 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7AECE6D70D2460C9E0669C4E669C18C3 /* Pods-BlueWallet-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3034CFD295E562FADF9B3E0F70BD8135 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Pods-BlueWallet";
+			target = 17C83112142C39595A14F5717C7F2899 /* Pods-BlueWallet */;
+			targetProxy = BF76F9CFEDBA14912354BF6EFFF8B1DC /* PBXContainerItemProxy */;
+		};
+		5D13916A9C08E0AF45CC5279DFAB5F1A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Pods-BlueWallet-tvOS";
+			target = 13FB0A35574748CC0319B8AB2F1AA437 /* Pods-BlueWallet-tvOS */;
+			targetProxy = 44C6B41FA9554D8B913D49C0F01969DC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1EBF8818DFF68F606D0C32CA95D123BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B368DCDB00E6A39DBE20128551DB2875 /* Pods-BlueWalletTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2FF9DA86BB2AA1A0362C784CE6FBDE68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 77703283D39D8B6C2F5533D58F444AD9 /* Pods-BlueWallet-tvOS.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3A063BD799BA1F04B9BF2121D553BCDC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = BA8EECF63EC5707C7C5455AB18E14F6F /* Pods-BlueWallet-tvOSTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+		5291E01E8562FE6BC9626963AFC26CCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 791FFC7E9F2382266F6E6E5CB88A705B /* Pods-BlueWallet-tvOS.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+		66CC91A72EC0C7A2C7D29E442EE8B80C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9435C95FCCDE276F9C308E37BB8CFEE3 /* Pods-BlueWallet.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8EA35C7B08269ABFFA9BA54C431841E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E1D09CC0AEDF877FC06BC909472B17D4 /* Pods-BlueWallet.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9F5B25E6B07CE596BCF1C0F90BFDCA9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CEAFE739AB36D34F782EAD05C773C2C1 /* Pods-BlueWalletTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A5030901B458F18B3375DBE96BF29476 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = ADABA583E7541E8BCAA2B842D02A7A82 /* Pods-BlueWallet-tvOSTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		DB48309E884004A4C46D3728C655CA9B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 4.2;
+				SYMROOT = "${SRCROOT}/../build";
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Release;
+		};
+		E15A7E3A689DE318D27B4B0C0FDF0B25 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
+				SYMROOT = "${SRCROOT}/../build";
+				TVOS_DEPLOYMENT_TARGET = 9.2;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E15A7E3A689DE318D27B4B0C0FDF0B25 /* Debug */,
+				DB48309E884004A4C46D3728C655CA9B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6994EEE76F77178EA5072B8FE87578E /* Build configuration list for PBXNativeTarget "Pods-BlueWallet-tvOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3A063BD799BA1F04B9BF2121D553BCDC /* Debug */,
+				A5030901B458F18B3375DBE96BF29476 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6C042E2A594983B490E0B8E9F3FFAF1 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9F5B25E6B07CE596BCF1C0F90BFDCA9B /* Debug */,
+				1EBF8818DFF68F606D0C32CA95D123BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D2CAEE89CF245B135FB336AA15831580 /* Build configuration list for PBXNativeTarget "Pods-BlueWallet-tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5291E01E8562FE6BC9626963AFC26CCF /* Debug */,
+				2FF9DA86BB2AA1A0362C784CE6FBDE68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D33D365A0B7ED2A01D8DB555EE8F1D45 /* Build configuration list for PBXNativeTarget "Pods-BlueWallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8EA35C7B08269ABFFA9BA54C431841E8 /* Debug */,
+				66CC91A72EC0C7A2C7D29E442EE8B80C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+}
