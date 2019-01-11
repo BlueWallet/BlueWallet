@@ -159,6 +159,7 @@ module.exports = {
       share: 'del',
       copiedToClipboard: 'Kopieret til udklipsholder.',
       label: 'Beskrivelse',
+      create: 'Create',
       setAmount: 'Modtag med beløb',
     },
   },
@@ -177,6 +178,11 @@ module.exports = {
     retype_password: 'Gentag adgangskoden',
     passwords_do_not_match: 'Adgangskoden er ikke den samme',
     encrypt_storage: 'Krypter lager',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain: 'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'Andet',
     language: 'Sprog',
     currency: 'Valuta',

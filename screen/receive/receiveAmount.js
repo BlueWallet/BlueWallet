@@ -95,7 +95,7 @@ export default class ReceiveAmount extends Component {
           />
         </View>
         <BlueButton
-          title="Create"
+          title={loc.receive.create}
           onPress={() => {
             this.setState({
               amountSet: true,

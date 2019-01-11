@@ -166,6 +166,7 @@ module.exports = {
       share: 'partilhar',
       copiedToClipboard: 'copiado para clip board',
       label: 'Description',
+      create: 'Create',
       setAmount: 'Receive with amount',
     },
   },
@@ -180,6 +181,11 @@ module.exports = {
     retype_password: 'Inserir password novamente',
     passwords_do_not_match: 'Passwords não coincidem',
     encrypt_storage: 'Encriptar',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain: 'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'Sobre',
     language: 'Idioma',
     currency: 'Moeda',

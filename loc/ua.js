@@ -160,6 +160,7 @@ module.exports = {
       share: 'Відправити',
       copiedToClipboard: 'Зкопіювано',
       label: 'Description',
+      create: 'Create',
       setAmount: 'Receive with amount',
     },
   },
@@ -179,6 +180,11 @@ module.exports = {
     retype_password: 'Наберіть пароль ще раз',
     passwords_do_not_match: 'Паролі не збігаються',
     encrypt_storage: 'Зашифрувати сховище',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain: 'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'Про програму',
     language: 'Мова',
     currency: 'Валюта',
