@@ -121,7 +121,6 @@ android {
             signingConfig signingConfigs.releaseSigningConfig
         }
     }
-    }
     splits {
         abi {
             reset()
