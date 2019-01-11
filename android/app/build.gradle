@@ -117,7 +117,7 @@ android {
             }
         }
     buildTypes {
-        release {
+        releaseSigningConfig {
             signingConfig signingConfigs.releaseSigningConfig
         }
     }
