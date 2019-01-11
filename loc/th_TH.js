@@ -159,6 +159,7 @@ module.exports = {
       share: 'แชร์',
       copiedToClipboard: 'ก๊อปปี้ไปที่คลิปบอร์ดแล้ว.',
       label: 'คำอธิบาย',
+      create: 'Create',
       setAmount: 'รับด้วยจำนวน',
     },
   },
@@ -177,6 +178,11 @@ module.exports = {
     retype_password: 'ใส่รหัสผ่านอีกครั้ง',
     passwords_do_not_match: 'รหัสผ่านไม่ตรงกัน',
     encrypt_storage: 'เข้ารหัสที่เก็บข้อมูล',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain: 'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'เกี่ยวกับ',
     language: 'ภาษา',
     currency: 'เงินตรา',

@@ -159,6 +159,7 @@ module.exports = {
       share: 'sdílet',
       copiedToClipboard: 'Zkopírováno do schránky.',
       label: 'Popis',
+      create: 'Create',
       setAmount: 'Přijmout částku...',
     },
   },
@@ -177,6 +178,11 @@ module.exports = {
     retype_password: 'Heslo znovu',
     passwords_do_not_match: 'Hesla se neshodují',
     encrypt_storage: 'Zašifrovat úložiště',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain: 'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'O BlueWallet',
     language: 'Jazyk',
     currency: 'Měna',

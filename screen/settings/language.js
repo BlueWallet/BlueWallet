@@ -22,7 +22,7 @@ export default class Language extends Component {
         { label: 'Croatian (HR)', value: 'hr_hr' },
         { label: 'Danish (DK)', value: 'da_dk' },
         { label: 'Deutsch (DE)', value: 'de_de' },
-        { label: 'Dutch (NL)', value: 'nl_nl' },
+        { label: 'Nederlands (NL)', value: 'nl_nl' },
         { label: 'Français (FR)', value: 'fr_fr' },
         { label: '日本語 (JP)', value: 'jp_jp' },
         { label: 'Portuguese (BR)', value: 'pt_br' },
