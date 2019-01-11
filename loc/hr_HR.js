@@ -3,11 +3,9 @@ module.exports = {
     storage_is_encrypted: 'Vaš spremnik je kriptiran. Za dekripcoju je potrebna lozinka.',
     enter_password: 'Unesi lozinku',
     bad_password: 'Kriva lozinka, pokušaj ponovo',
-    months_ago: 'mjesecima unazad',
-    days_ago: 'danima unazad',
-    hours_ago: 'satima unazad',
-    minutes_ago: 'minutama unazad',
     never: 'nikad',
+    continue: 'Continue',
+    ok: 'OK',
   },
   wallets: {
     select_wallet: 'Odaberi volet',

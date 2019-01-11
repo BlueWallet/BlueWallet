@@ -109,8 +109,8 @@ android {
         }
     }
     signingConfigs {
-        release {
-            storeFile file("../keystores/bluewallet-release-key.keystore")
+        releaseSigningConfig {
+            storeFile rootProject.file("keystores/bluewallet-release-key.keystore")
             storePassword System.getProperty("APPCENTER_KEYSTORE_PASSWORD")
             keyAlias System.getProperty("APPCENTER_KEY_ALIAS")
             keyPassword System.getProperty("APPCENTER_KEY_PASSWORD")
@@ -118,7 +118,7 @@ android {
         }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.releaseSigningConfig
         }
     }
     splits {
