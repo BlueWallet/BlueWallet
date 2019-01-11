@@ -15,14 +15,57 @@ dayjs.extend(relativeTime);
   let lang = await AsyncStorage.getItem(AppStorage.LANG);
   if (lang) {
     strings.setLanguage(lang);
+    let localeForDayJSAvailable = true;
+    switch (lang) {
+      case 'ru':
+        require('dayjs/locale/ru');
+        break;
+      case 'es':
+        require('dayjs/locale/es');
+        break;
+      case 'fr_fr':
+        require('dayjs/locale/fr');
+        break;
+      case 'pt_br':
+        lang = 'pt-br';
+        require('dayjs/locale/pt-br');
+        break;
+      case 'pt_pt':
+        lang = 'pt';
+        require('dayjs/locale/pt');
+        break;
+      case 'jp_jp':
+        lang = 'ja';
+        require('dayjs/locale/ja');
+        break;
+      case 'de_de':
+        require('dayjs/locale/de');
+        break;
+      case 'th_th':
+        require('dayjs/locale/th');
+        break;
+      case 'da_dk':
+        require('dayjs/locale/da');
+        break;
+      case 'nl_nl':
+        require('dayjs/locale/nl');
+        break;
+      case 'hr_hr':
+        require('dayjs/locale/hr');
+        break;
+      default:
+        localeForDayJSAvailable = false;
+        break;
+    }
+    if (localeForDayJSAvailable) {
+      dayjs.locale(lang.split('_')[0]);
+    }
     return;
   }
 
   if (Localization.getCurrentLocaleAsync) {
     let locale = await Localization.getCurrentLocaleAsync();
     if (locale) {
-      locale = locale.split('-');
-      locale = locale[0];
       console.log('current locale:', locale);
       if (
         locale === 'en' ||
@@ -40,6 +83,44 @@ dayjs.extend(relativeTime);
         locale === 'nl-nl' ||
         locale === 'hr-hr'
       ) {
+        switch (locale) {
+          case 'ru':
+            require('dayjs/locale/ru');
+            break;
+          case 'es':
+            require('dayjs/locale/es');
+            break;
+          case 'fr-fr':
+            require('dayjs/locale/fr');
+            break;
+          case 'pt-br':
+            require('dayjs/locale/pt-br');
+            break;
+          case 'pt-pt':
+            require('dayjs/locale/pt');
+            break;
+          case 'jp-JP':
+            require('dayjs/locale/ja');
+            break;
+          case 'de-de':
+            require('dayjs/locale/de');
+            break;
+          case 'th-th':
+            require('dayjs/locale/th');
+            break;
+          case 'da-dk':
+            require('dayjs/locale/da');
+            break;
+          case 'nl-nl':
+            require('dayjs/locale/nl');
+            break;
+          case 'hr-hr':
+            require('dayjs/locale/hr');
+            break;
+          default:
+            break;
+        }
+        dayjs.locale(locale.split('-')[0]);
         locale = locale.replace('-', '_');
         strings.setLanguage(locale);
       } else {
