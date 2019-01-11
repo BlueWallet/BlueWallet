@@ -53,7 +53,7 @@ export default class LightningSettings extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueCard>
-          <BlueText {loc.settings.lightning_settings_explain} />
+          <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
         </BlueCard>
 
         <BlueButton
