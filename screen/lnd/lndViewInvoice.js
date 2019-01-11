@@ -1,6 +1,5 @@
-/* global alert */
 import React, { Component } from 'react';
-import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Dimensions, Share, ScrollView } from 'react-native';
+import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Dimensions, Share, ScrollView, BackHandler } from 'react-native';
 import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -32,6 +31,7 @@ export default class LNDViewInvoice extends Component {
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
     this.fetchInvoiceInterval = undefined;
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   async componentDidMount() {
@@ -81,6 +81,11 @@ export default class LNDViewInvoice extends Component {
   componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+  }
+
+  handleBackButton() {
+    return true;
   }
 
   copyToClipboard = () => {
