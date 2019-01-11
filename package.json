@@ -80,6 +80,7 @@
     "react-native-prompt-android": "^0.3.4",
     "react-native-qrcode": "^0.2.7",
     "react-native-randombytes": "^3.5.1",
+    "react-native-rate": "^1.1.6",
     "react-native-sentry": "^0.39.1",
     "react-native-snap-carousel": "^3.7.4",
     "react-native-sortable-list": "0.0.22",

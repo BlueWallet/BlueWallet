@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, Linking, Dimensions, Platform } from 'react-native';
+import { ScrollView, Linking, Dimensions } from 'react-native';
 import {
   BlueTextCentered,
   BlueLoading,
@@ -12,6 +12,7 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import DeviceInfo from 'react-native-device-info';
+import Rate, { AndroidMarket } from 'react-native-rate';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
@@ -98,13 +99,21 @@ export default class About extends Component {
               color: BlueApp.settings.buttonTextColor,
             }}
             onPress={() => {
-              if (Platform.OS === 'ios') {
-                Linking.openURL('https://itunes.apple.com/us/app/bluewallet-bitcoin-wallet/id1376878040?l=ru&ls=1&mt=8');
-              } else {
-                Linking.openURL('https://play.google.com/store/apps/details?id=io.bluewallet.bluewallet');
-              }
+              let options = {
+                AppleAppID: '1376878040',
+                GooglePackageName: 'io.bluewallet.bluewallet',
+                preferredAndroidMarket: AndroidMarket.Google,
+                preferInApp: true,
+                openAppStoreIfInAppFails: true,
+                fallbackPlatformURL: 'https://bluewallet.io',
+              };
+              Rate.rate(options, success => {
+                if (success) {
+                  console.warn('User Rated.');
+                }
+              });
             }}
-            title="Leave us a review on Appstore"
+            title="Rate Blue Wallet"
           />
 
           <BlueSpacing20 />
