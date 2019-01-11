@@ -2,9 +2,12 @@ import Localization from 'react-localization';
 import { AsyncStorage } from 'react-native';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import relativeTime from 'dayjs/plugin/relativeTime';
+const dayjs = require('dayjs');
 const currency = require('../currency');
 const BigNumber = require('bignumber.js');
 let strings;
+dayjs.extend(relativeTime);
 
 // first-time loading sequence
 (async () => {
@@ -65,25 +68,11 @@ strings = new Localization({
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
 
-strings.transactionTimeToReadable = function(time) {
+strings.transactionTimeToReadable = time => {
   if (time === 0) {
     return strings._.never;
   }
-
-  let ago = (Date.now() - Date.parse(time)) / 1000; // seconds
-  if (ago / (3600 * 24) >= 30) {
-    ago = Math.round(ago / (3600 * 24 * 30));
-    return ago + ' ' + strings._.months_ago;
-  } else if (ago / (3600 * 24) >= 1) {
-    ago = Math.round(ago / (3600 * 24));
-    return ago + ' ' + strings._.days_ago;
-  } else if (ago > 3600) {
-    ago = Math.round(ago / 3600);
-    return ago + ' ' + strings._.hours_ago;
-  } else {
-    ago = Math.round(ago / 60);
-    return ago + ' ' + strings._.minutes_ago;
-  }
+  return dayjs(time).fromNow();
 };
 
 function removeTrailingZeros(value) {
