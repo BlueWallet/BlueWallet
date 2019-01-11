@@ -182,7 +182,8 @@ module.exports = {
     passwords_do_not_match: 'Contraseñas deben ser iguales',
     encrypt_storage: 'Cifrar almacenamiento',
     lightning_settings: 'Lightning settings',
-    lightning_settings_explain: 'To connect to your own LND node please install LndHub' +
+    lightning_settings_explain:
+      'To connect to your own LND node please install LndHub' +
       ' and put its URL here in settings. Leave blank to use default ' +
       'ndHub\n (lndhub.io)',
     save: 'save',

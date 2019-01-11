@@ -10,7 +10,8 @@ module.exports = {
   wallets: {
     select_wallet: 'Selecteer portemonnee',
     options: 'opties',
-    createBitcoinWallet: 'Om een Lightning-portemonnee te kunnen gebruiken, is een Bitcoin-portemonnee nodig om deze te financieren. Wil je toch doorgaan?',
+    createBitcoinWallet:
+      'Om een Lightning-portemonnee te kunnen gebruiken, is een Bitcoin-portemonnee nodig om deze te financieren. Wil je toch doorgaan?',
     list: {
       app_name: 'Blue Wallet',
       title: 'portemonnees',
@@ -179,7 +180,8 @@ module.exports = {
     passwords_do_not_match: 'Wachtwoorden komen niet overeen',
     encrypt_storage: 'Versleutel opslag',
     lightning_settings: 'Lightning instellingen',
-    lightning_settings_explain: 'Om verbinding te maken met uw eigen LND-knooppunt' +
+    lightning_settings_explain:
+      'Om verbinding te maken met uw eigen LND-knooppunt' +
       ' installeert u LndHub en zet u de URL hier in de instellingen. ' +
       'Laat dit leeg om de standaard lndHub (lndhub.io) te gebruiken.',
     save: 'Opslaan',
