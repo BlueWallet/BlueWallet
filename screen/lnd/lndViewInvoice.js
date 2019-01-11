@@ -72,11 +72,7 @@ export default class LNDViewInvoice extends Component {
             }
           }
         } catch (error) {
-          clearInterval(this.fetchInvoiceInterval);
-          this.fetchInvoiceInterval = undefined;
           console.log(error);
-          alert(error);
-          this.props.navigation.dismiss();
         }
       }
     }, 3000);
