@@ -17,6 +17,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this._access_token_created_ts = 0;
     this.refill_addressess = [];
     this.pending_transactions_raw = [];
+    this.user_invoices_raw = [];
     this.info_raw = false;
     this.preferredBalanceUnit = BitcoinUnit.SATS;
   }
@@ -128,8 +129,10 @@ export class LightningCustodianWallet extends LegacyWallet {
    *
    * @return {Promise.<Array>}
    */
-  async getUserInvoices() {
-    let response = await this._api.get('/getuserinvoices', {
+  async getUserInvoices(limit = false) {
+    let limitString = '';
+    if (limit) limitString = '?limit=' + parseInt(limit);
+    let response = await this._api.get('/getuserinvoices' + limitString, {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -144,9 +147,31 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (json && json.error) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
-    this.user_invoices_raw = json;
 
-    return json;
+    if (limit) {
+      // need to merge existing invoices with the ones that arrived
+      // but the ones received later should overwrite older ones
+
+      for (let oldInvoice of this.user_invoices_raw) {
+        // iterate all OLD invoices
+        let found = false;
+        for (let newInvoice of json) {
+          // iterate all NEW invoices
+          if (newInvoice.payment_request === oldInvoice.payment_request) found = true;
+        }
+
+        if (!found) {
+          // if old invoice is not found in NEW array, we simply add it:
+          json.push(oldInvoice);
+        }
+      }
+    }
+
+    this.user_invoices_raw = json.sort(function(a, b) {
+      return a.timestamp - b.timestamp;
+    });
+
+    return this.user_invoices_raw;
   }
 
   /**
