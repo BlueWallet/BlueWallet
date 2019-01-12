@@ -3,6 +3,7 @@
   "version": "3.6.0",
   "devDependencies": {
     "@types/bitcoinjs-lib": "^4.0.0",
+    "@types/jest": "^23.3.12",
     "@types/react": "^16.7.18",
     "@types/react-native": "^0.57.27",
     "babel-eslint": "^8.2.6",
@@ -19,6 +20,7 @@
     "react-native-typescript-transformer": "^1.2.11",
     "react-test-renderer": "^16.7.0",
     "rn-nodeify": "github:tradle/rn-nodeify",
+    "ts-jest": "^23.10.5",
     "typescript": "^3.2.2"
   },
   "scripts": {
@@ -35,9 +37,21 @@
   },
   "jest": {
     "preset": "react-native",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
     "transform": {
-      "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
-    }
+      "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js",
+      "\\.(ts|tsx)$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "testPathIgnorePatterns": [
+      "\\.snap$",
+      "<rootDir>/node_modules/"
+    ],
+    "cacheDirectory": ".jest/cache"
   },
   "dependencies": {
     "@babel/preset-env": "^7.2.3",

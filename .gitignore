@@ -16,6 +16,9 @@ yarn-error.log*
 
 class/constants.js
 
+# Jest
+.jest/
+
 # OSX# OSX
 #
 .DS_Store
