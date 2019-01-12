@@ -35,6 +35,7 @@ import Success from './screen/send/success';
 
 import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
+import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
@@ -243,6 +244,10 @@ const MainBottomTabs = createStackNavigator(
     ScanQrAddress: {
       screen: sendScanQrAddress,
     },
+    LappBrowser: {
+      screen: LappBrowser,
+    },
+
     ReorderWallets: {
       screen: ReorderWalletsStackNavigator,
       navigationOptions: {
