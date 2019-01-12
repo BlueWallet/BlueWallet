@@ -18,6 +18,7 @@ export default class ManageFunds extends Component {
   constructor(props) {
     super(props);
     this.onWalletSelect = this.onWalletSelect.bind(this);
+    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
 
     this.state = { fromWallet: props.navigation.getParam('fromWallet') };
   }

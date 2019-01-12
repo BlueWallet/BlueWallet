@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle } from '../../BlueComponents';
 import { FormInput } from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
+const { width } = Dimensions.get('window');
 
 export default class Browser extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -15,6 +16,8 @@ export default class Browser extends Component {
 
   constructor(props) {
     super(props);
+    if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
+
     this.state = { url: '' };
   }
 
@@ -31,16 +34,15 @@ export default class Browser extends Component {
             style={{
               color: 'red',
               backgroundColor: 'transparent',
-              minWidth:36,
-              paddingLeft:10,
               left: 8,
               top: 1,
             }}
           />
 
           <FormInput
-            inputStyle={{ color: '#0c2550', maxWidth: 300, fontSize: 16 }}
+            inputStyle={{ color: '#0c2550', fontSize: 16 }}
             containerStyle={{
+              maxWidth: width - 100,
               borderColor: '#d2d2d2',
               borderWidth: 0.5,
               backgroundColor: '#f5f5f5',
@@ -170,6 +172,7 @@ export default class Browser extends Component {
 
 Browser.propTypes = {
   navigation: PropTypes.shape({
+    getParam: PropTypes.function,
     navigate: PropTypes.func,
   }),
 };

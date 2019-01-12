@@ -390,7 +390,7 @@ export default class WalletTransactions extends Component {
                     style={{ alignSelf: 'flex-end', right: 10, top: -5, flexDirection: 'row' }}
                     onPress={() => {
                       console.log('navigating to', this.state.wallet.getLabel());
-                      navigate('ManageFunds', { fromSecret: this.state.wallet.getSecret() });
+                      navigate('ManageFunds', { fromWallet: this.state.wallet });
                     }}
                   >
                     <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
