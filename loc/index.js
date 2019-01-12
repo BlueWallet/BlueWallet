@@ -182,7 +182,12 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
     return balance + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     const value = new BigNumber(balance).multipliedBy(100000000);
-    return (balance < 0 ? '-' : '') +  (withFormatting ? new Intl.NumberFormat().format(value.toString()).replace(/[^0-9]/g, ' ') : value) + ' ' + BitcoinUnit.SATS;
+    return (
+      (balance < 0 ? '-' : '') +
+      (withFormatting ? new Intl.NumberFormat().format(value.toString()).replace(/[^0-9]/g, ' ') : value) +
+      ' ' +
+      BitcoinUnit.SATS
+    );
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.BTCToLocalCurrency(balance);
   }
