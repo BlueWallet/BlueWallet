@@ -19,11 +19,11 @@ export default class WalletXpub extends Component {
   constructor(props) {
     super(props);
 
-    let secret = props.navigation.state.params.secret;
+    let xpub = props.navigation.state.params.xpub;
     let wallet;
 
     for (let w of BlueApp.getWallets()) {
-      if (w.getSecret() === secret) {
+      if (w.getXpub && w.getXpub() === xpub) {
         // found our wallet
         wallet = w;
       }
@@ -32,8 +32,8 @@ export default class WalletXpub extends Component {
     this.state = {
       isLoading: true,
       wallet,
-      xpub: wallet.getXpub(),
-      xpubText: wallet.getXpub(),
+      xpub: xpub,
+      xpubText: xpub,
       qrCodeHeight: height > width ? width - 40 : width / 2,
     };
   }
@@ -125,7 +125,7 @@ WalletXpub.propTypes = {
   navigation: PropTypes.shape({
     state: PropTypes.shape({
       params: PropTypes.shape({
-        secret: PropTypes.string,
+        xpub: PropTypes.string,
       }),
     }),
     navigate: PropTypes.func,

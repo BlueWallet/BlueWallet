@@ -19,7 +19,7 @@ import {
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { WatchOnlyWallet, LegacyWallet } from './class';
+import { WatchOnlyWallet, LegacyWallet, WatchOnlyHDWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import DeviceInfo from 'react-native-device-info';
 import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
@@ -970,6 +970,11 @@ export class WalletsCarousel extends Component {
     if (WatchOnlyWallet.type === item.type) {
       gradient1 = '#7d7d7d';
       gradient2 = '#4a4a4a';
+    }
+
+    if (WatchOnlyHDWallet.type === item.type) {
+      gradient1 = '#c6c6c6';
+      gradient2 = '#656565';
     }
 
     if (LegacyWallet.type === item.type) {

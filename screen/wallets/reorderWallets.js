@@ -9,6 +9,7 @@ import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { WatchOnlyHDWallet } from '../../class/watch-only-hd-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 /** @type {AppStorage} */
@@ -73,6 +74,11 @@ export default class ReorderWallets extends Component {
     if (WatchOnlyWallet.type === item.type) {
       gradient1 = '#7d7d7d';
       gradient2 = '#4a4a4a';
+    }
+
+    if (WatchOnlyHDWallet.type === item.type) {
+      gradient1 = '#c6c6c6';
+      gradient2 = '#656565';
     }
 
     if (LegacyWallet.type === item.type) {

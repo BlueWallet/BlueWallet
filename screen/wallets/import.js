@@ -6,6 +6,7 @@ import {
   HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
+  WatchOnlyHDWallet,
 } from '../../class';
 import React, { Component } from 'react';
 import { KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
@@ -167,6 +168,16 @@ export default class WalletsImport extends Component {
         return this._saveWallet(watchOnly);
       }
 
+      // is it XPUB?
+      const watchOnlyHDWallet = new WatchOnlyHDWallet();
+      try {
+        watchOnlyHDWallet.setSecret(text);
+        await watchOnlyHDWallet.fetchTransactions();
+        await watchOnlyHDWallet.fetchBalance();
+
+        return this._saveWallet(watchOnlyHDWallet);
+      } catch (e) {}
+
       // nope?
 
       // TODO: try a raw private key
@@ -183,8 +194,9 @@ export default class WalletsImport extends Component {
     // 4. check if its Segwit WIF (P2SH)
     // 5. check if its Legacy WIF
     // 6. check if its address (watch-only wallet)
-    // 7. check if its private key (segwit address P2SH) TODO
-    // 7. check if its private key (legacy address) TODO
+    // 7. check if its XPUB (watch-only HD wallet)
+    // 8. check if its private key (segwit address P2SH) TODO
+    // 9. check if its private key (legacy address) TODO
   }
 
   setLabel(text) {

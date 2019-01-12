@@ -14,7 +14,7 @@ const { RNRandomBytes } = NativeModules;
  * @param {String} ypub - wallet ypub
  * @returns {*}
  */
-function ypubToXpub(ypub) {
+export function ypubToXpub(ypub) {
   let data = b58.decode(ypub);
   data = data.slice(4);
   data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
@@ -27,7 +27,7 @@ function ypubToXpub(ypub) {
  * @param hdNode
  * @returns {String}
  */
-function nodeToP2shSegwitAddress(hdNode) {
+export function nodeToP2shSegwitAddress(hdNode) {
   const pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
   const hash = bitcoin.crypto.hash160(pubkeyBuf);
   const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(hash);

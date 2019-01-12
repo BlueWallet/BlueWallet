@@ -3,7 +3,7 @@ import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from
 import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20 } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { WatchOnlyWallet, LegacyWallet } from '../../class';
+import { WatchOnlyWallet, LegacyWallet, WatchOnlyHDWallet } from '../../class'
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
@@ -42,6 +42,11 @@ export default class SelectWallet extends Component {
     if (WatchOnlyWallet.type === item.type) {
       gradient1 = '#7d7d7d';
       gradient2 = '#4a4a4a';
+    }
+
+    if (WatchOnlyHDWallet.type === item.type) {
+      gradient1 = '#c6c6c6';
+      gradient2 = '#656565';
     }
 
     if (LegacyWallet.type === item.type) {

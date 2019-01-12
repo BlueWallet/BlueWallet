@@ -1,5 +1,31 @@
 import { LegacyWallet } from './legacy-wallet';
-const bitcoin = require('bitcoinjs-lib');
+import bitcoin from 'bitcoinjs-lib';
+import b58 from 'bs58check';
+
+/**
+ * Converts zpub to xpub
+ * @param {String} zpub - wallet zpub
+ * @returns {*}
+ */
+export function zpubToXpub(zpub) {
+  let data = b58.decode(zpub);
+  data = data.slice(4);
+  data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+  return b58.encode(data);
+}
+
+/**
+ * Creates Segwit P2WPKH Bitcoin address (Bech32)
+ * @param hdNode
+ * @returns {String}
+ */
+export function nodeToP2wpkhSegwitAddress(hdNode) {
+  var pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
+  var hash = bitcoin.crypto.hash160(pubkeyBuf);
+  var scriptPubkey = bitcoin.script.witnessPubKeyHash.output.encode(hash);
+
+  return bitcoin.address.fromOutputScript(scriptPubkey);
+}
 
 export class SegwitBech32Wallet extends LegacyWallet {
   static type = 'segwitBech32';
