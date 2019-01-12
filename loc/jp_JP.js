@@ -1,6 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'ストレージが暗号化されています。復号にはパスワードが必要です。',
+    storage_is_encrypted: 'ウォレットは暗号化されています。復号にはパスワードが必要です。',
     enter_password: 'パスワードを入力',
     bad_password: 'パスワードが間違っています。',
     never: 'データなし',
@@ -13,7 +13,7 @@ module.exports = {
     createBitcoinWallet:
       'Bitcoin ウォレットを持っていません。Lightning ウォレットへ課金する場合は Bitcoin ウォレットを新規作成するかインポートする必要があります。続行しますか?',
     list: {
-      app_name: 'Blue Wallet',
+      app_name: 'BlueWallet',
       title: 'ウォレット',
       header: 'ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。' + 'コインを受信するために共有できます。',
       add: 'ウォレットの追加',
@@ -32,7 +32,7 @@ module.exports = {
       title: 'ウォレットの追加',
       description:
         'ペーパーウォレット(WIF 形式- Wallet Import Format)をスキャンするかウォレットを新規作成できます。既定で Segwit ウォレットが作成されます。',
-      scan: 'スキャン',
+      scan: '読取り',
       create: '作成',
       label_new_segwit: '新規 SegWit',
       label_new_lightning: '新規 Lightning',
@@ -77,7 +77,7 @@ module.exports = {
       error: 'インポートに失敗しました。入力したデータが有効か確認してください。',
       success: '成功',
       do_import: 'インポート',
-      scan_qr: '代わりに QR コードをスキャンしますか?',
+      scan_qr: 'QR コードの読み取り',
     },
     scanQrWif: {
       go_back: '戻る',
@@ -125,7 +125,7 @@ module.exports = {
       fee_placeholder: '取引手数料 (BTC)',
       note_placeholder: 'ラベル',
       cancel: '中止',
-      scan: 'スキャン',
+      scan: '読取り',
       send: '送金',
       create: '作成',
       remaining_balance: '残高',
@@ -160,7 +160,7 @@ module.exports = {
       share: '共有',
       copiedToClipboard: 'クリップボードにコピーしました。',
       label: '概要',
-      create: 'Create',
+      create: '作成',
       setAmount: '入金額',
     },
   },
@@ -172,13 +172,13 @@ module.exports = {
   settings: {
     header: '設定',
     plausible_deniability: '隠匿設定...',
-    storage_not_encrypted: 'ストレージ: 暗号化されていません',
-    storage_encrypted: 'ストレージ: 暗号化されています',
+    storage_not_encrypted: 'ウォレット: 暗号化されていません',
+    storage_encrypted: 'ウォレット: 暗号化されています',
     password: 'パスワード',
-    password_explain: 'ストレージの復号に使用するパスワードを作成',
+    password_explain: 'ウォレットの復号に使用するパスワードを作成',
     retype_password: 'パスワードの再入力',
     passwords_do_not_match: 'パスワードが一致しません',
-    encrypt_storage: 'ストレージの暗号化',
+    encrypt_storage: 'ウォレットの暗号化',
     lightning_settings: 'Lightning 設定',
     lightning_settings_explain:
       '他の LND ノードへ接続するには LndHub をインストール後、' +
@@ -192,18 +192,18 @@ module.exports = {
   plausibledeniability: {
     title: '隠匿設定',
     help:
-      'このウォレットの復号に必要なパスワードを第三者に強要される場合、' +
-      'コインを安全に保護するために BlueWallet はメインとは異なるパスワードで' +
-      '暗号化されたダミーのストレージを作成します。' +
-      '第三者へこのパスワードを提供することで、第三者が BlueWallet のダミーの' +
-      '暗号化ストレージを復号することで、メインのストレージを隠匿することが可能となり' +
+      'BuleWallet のウォレットの復号に必要なパスワードを第三者に強要される場合、' +
+      'コインを安全に保護するためにメインのウォレットとは異なるパスワードで' +
+      '暗号化されたダミーのウォレットを作成することが可能です。' +
+      '第三者へ異なるパスワードを提供すれば、BlueWallet のダミーの' +
+      '暗号化ウォレットを復号することとなり、メインのウォレットは隠匿され' +
       'コインは安全に保護されます。',
-    help2: 'この新規ダミーのストレージは完全に機能します。少額のコインを保管することで' + 'ダミーと疑われないようにすることが可能です。',
-    create_fake_storage: 'ダミーの暗号化ストレージの作成',
+    help2: '新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことで' + 'ダミーと疑われないようにすることが可能です。',
+    create_fake_storage: 'ダミーの暗号化ウォレットの作成',
     go_back: '戻る',
     create_password: 'パスワードの作成',
-    create_password_explanation: 'ダミーの暗号化ストレージのパスワードはメインのストレージのパスワードと異なる必要があります。',
-    password_should_not_match: 'ダミーのストレージのパスワードはメインのストレージのパスワードと異なる必要があります。',
+    create_password_explanation: 'ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。',
+    password_should_not_match: 'ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。',
     retype_password: 'パスワードの再入力',
     passwords_do_not_match: 'パスワードが一致しません',
     success: '成功',
