@@ -93,10 +93,9 @@ export default class WalletTransactions extends Component {
         showSend = wallet.allowSend();
         showReceive = wallet.allowReceive();
       }
-
       let showManageFundsBigButton = false;
       let showManageFundsSmallButton = false;
-      if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() * 1 === 0) {
+      if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() * 1 <= 0) {
         showManageFundsBigButton = true;
         showManageFundsSmallButton = false;
       } else if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() > 0) {
