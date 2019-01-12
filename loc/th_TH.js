@@ -159,7 +159,7 @@ module.exports = {
       share: 'แชร์',
       copiedToClipboard: 'ก๊อปปี้ไปที่คลิปบอร์ดแล้ว.',
       label: 'คำอธิบาย',
-      create: 'Create',
+      create: 'สร้าง',
       setAmount: 'รับด้วยจำนวน',
     },
   },
@@ -183,7 +183,7 @@ module.exports = {
       'To connect to your own LND node please install LndHub' +
       ' and put its URL here in settings. Leave blank to use default ' +
       'ndHub\n (lndhub.io)',
-    save: 'save',
+    save: 'บันทึก',
     about: 'เกี่ยวกับ',
     language: 'ภาษา',
     currency: 'เงินตรา',
@@ -206,7 +206,7 @@ module.exports = {
     password_should_not_match: 'รหัสผ่านสำหรับที่เก็บข้อมูลเทียมไม่ควรตรงกับรหัสผ่านที่ใช้กับที่เก็บข้อมูลเทียมจริง',
     retype_password: 'ใส่รหัสผ่านอีกครั้ง ใส่รหัสผ่านอีกครั้ง',
     passwords_do_not_match: 'รหัสผ่านไม่ตรงกัน ',
-    success: 'Success',
+    success: 'สำเร็จ',
   },
   lnd: {
     title: 'จัดการเงิน',
