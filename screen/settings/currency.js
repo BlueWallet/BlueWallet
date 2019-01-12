@@ -42,7 +42,7 @@ export default class Currency extends Component {
         }}
       >
         <BlueListItem
-          title={item.symbol + ' ' + item.endPointKey}
+          title={item.endPointKey + ' (' + item.symbol + ')'}
           {...(this.state.selectedCurrency.endPointKey === item.endPointKey
             ? {
                 rightIcon: this.state.selectedNewCurrency ? (

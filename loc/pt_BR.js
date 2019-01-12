@@ -3,10 +3,6 @@ module.exports = {
     storage_is_encrypted: 'Os arquivos estão criptografados, é necessária uma senha',
     enter_password: 'Inserir senha',
     bad_password: 'Senha errada, tente outra vez',
-    months_ago: 'meses atrás',
-    days_ago: 'dias atrás',
-    hours_ago: 'horas atrás',
-    minutes_ago: 'minutos atrás',
     never: 'nunca',
     continue: 'Continue',
     ok: 'OK',
@@ -166,6 +162,7 @@ module.exports = {
       share: 'Compartilhar',
       copiedToClipboard: 'Copiado para a área de trabalho',
       label: 'Descrição',
+      create: 'Create',
       setAmount: 'Valor a receber',
     },
   },
@@ -185,6 +182,12 @@ module.exports = {
     retype_password: 'Inserir senha novamente',
     passwords_do_not_match: 'Senhas não coincidem',
     encrypt_storage: 'Criptografar',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain:
+      'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'Sobre',
     language: 'Idioma',
     currency: 'Moeda',

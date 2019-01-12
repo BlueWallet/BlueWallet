@@ -19,6 +19,7 @@ export default class WalletDetails extends Component {
     title: loc.wallets.details.title,
     headerRight: (
       <TouchableOpacity
+        disabled={navigation.getParam('isLoading') === true}
         style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
           navigation.getParam('saveAction')();
@@ -34,23 +35,25 @@ export default class WalletDetails extends Component {
 
     const wallet = props.navigation.getParam('wallet');
     const address = wallet.getAddress();
-
+    const isLoading = true;
     this.state = {
-      isLoading: true,
+      isLoading,
       walletName: wallet.getLabel(),
       wallet,
       address,
     };
-    this.props.navigation.setParams({ saveAction: () => this.setLabel() });
+    this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
   }
 
   componentDidMount() {
     this.setState({
       isLoading: false,
     });
+    this.props.navigation.setParams({ isLoading: false, saveAction: () => this.setLabel() });
   }
 
   setLabel() {
+    this.props.navigation.setParams({ isLoading: true });
     this.setState({ isLoading: true }, () => {
       this.state.wallet.setLabel(this.state.walletName);
       BlueApp.saveToDisk();
@@ -178,6 +181,7 @@ export default class WalletDetails extends Component {
                       {
                         text: loc.wallets.details.yes_delete,
                         onPress: async () => {
+                          this.props.navigation.setParams({ isLoading: true });
                           this.setState({ isLoading: true }, async () => {
                             BlueApp.deleteWallet(this.state.wallet);
                             ReactNativeHapticFeedback.trigger('notificationSuccess', false);
@@ -207,6 +211,7 @@ export default class WalletDetails extends Component {
 
 WalletDetails.propTypes = {
   navigation: PropTypes.shape({
+    getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
@@ -215,7 +220,6 @@ WalletDetails.propTypes = {
     }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     setParams: PropTypes.func,
   }),
 };

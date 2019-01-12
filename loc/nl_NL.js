@@ -3,10 +3,6 @@ module.exports = {
     storage_is_encrypted: 'Uw opslag is versleuteld. Wachtwoord is vereist om het te ontcijferen',
     enter_password: 'Voer wachtwoord in',
     bad_password: 'Verkeerd wachtwoord, probeer opnieuw',
-    months_ago: 'maanden geleden',
-    days_ago: 'dagen geleden',
-    hours_ago: 'uur geleden',
-    minutes_ago: 'minuten geleden',
     never: 'nooit',
     continue: 'Continue',
     ok: 'OK',
@@ -14,7 +10,8 @@ module.exports = {
   wallets: {
     select_wallet: 'Selecteer portemonnee',
     options: 'opties',
-    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+    createBitcoinWallet:
+      'Om een Lightning-portemonnee te kunnen gebruiken, is een Bitcoin-portemonnee nodig om deze te financieren. Wil je toch doorgaan?',
     list: {
       app_name: 'Blue Wallet',
       title: 'portemonnees',
@@ -35,7 +32,7 @@ module.exports = {
       title: 'portemonnee toevoegen',
       description:
         'U kunt een back-up papieren portemonnee scannen (in WIF - Wallet Import Format) of een nieuwe portemonnee maken. Segwit-wallets worden standaard ondersteund.',
-      scan: 'Scannen',
+      scan: 'Scan',
       create: 'Aanmaken',
       label_new_segwit: 'Nieuwe SegWit',
       label_new_lightning: 'Nieuwe Lightning',
@@ -163,6 +160,7 @@ module.exports = {
       share: 'delen',
       copiedToClipboard: 'Gekopieerd naar het klembord.',
       label: 'Omschrijving',
+      create: 'Create',
       setAmount: 'Ontvang met bedrag',
     },
   },
@@ -181,6 +179,12 @@ module.exports = {
     retype_password: 'Geef nogmaals het wachtwoord',
     passwords_do_not_match: 'Wachtwoorden komen niet overeen',
     encrypt_storage: 'Versleutel opslag',
+    lightning_settings: 'Lightning instellingen',
+    lightning_settings_explain:
+      'Om verbinding te maken met uw eigen LND-knooppunt' +
+      ' installeert u LndHub en zet u de URL hier in de instellingen. ' +
+      'Laat dit leeg om de standaard lndHub (lndhub.io) te gebruiken.',
+    save: 'Opslaan',
     about: 'Over',
     language: 'Taal',
     currency: 'Valuta',

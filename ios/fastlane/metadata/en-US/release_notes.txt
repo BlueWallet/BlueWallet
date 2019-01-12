@@ -1,41 +1,29 @@
-v.3.5.6
--------
-
-ADD: Loading indicator for wallet name change and wallet delete
-ADD: Added CZK fiat
-ADD: Alert user if they are trying to create a lightning wallet without a bitcoin wallet
-ADD: French
-ADD: DK - Danish Language Support
-ADD: Thai locale
-ADD: Dutch translation
-FIX: Main wallet list shows transaction unit that is preferred by wallet
-FIX: Export QRCode was too big on iPad
-FIX: Don't override existing tx information when scanning invalid QR
-FIX: Satoshis are now human-readable
-FIX: crash when RBF
-
-v3.5.5
+v3.5.7
 ------
 
-ADD: pay zero-amount (tip) invoices
-ADD: lightning withdrawal through zigzag
-ADD: Thai translation
-ADD: Dutch translation
-ADD: Added Singapore Dollars
-ADD: Added AUD, VEF, and ZAR fiats.
-FIX: Loading indicator when creating a wallet
-FIX: Changelly link
-Fix and improve pt-BR translation
-FIX: Cannot click on Lightning transactions #196
-FIX: Fixed a clipping issue in lightning settings
-FIX: fixed a margin issue in about that caused clipping
-FIX: Changed invoice description field to label
-FIX: Updated transaction buttons maximum width
-FIX: Main Buttons layout #204
-FIX: Add topup indication on wallet selection #207
-FIX: Invoice QR code wrong scale #203
-FIX: Don't allow user to pay for an invoice created with the same wallet.
-FIX: If. balance was not a string, app would crash.
-FIX: Changed language selection screen to FlatList
-FIX: Made amount tap area larger
-FIX: Fixed an issue in currency settings where the checkmark wouldn't be in the correct preference* Merge branch 'master' of github.com:BlueWallet/BlueWallet 
+* FIX: Source wallet not found #239
+* FIX: Changed the way currencies are shown in order to avoid indentation issue. FIX: Lint
+* FIX: Reordered the language list by alphabetical order
+* FIX: Localization fixes - Fix some dutch translation
+* FIX: Do not dismiss modal on error, allow for network retry.
+* FIX: Use DayJS locale for formatting dates
+* FIX: too small QR on ln receive invoice (closes #235)
+* FIX: send amount in satoshi wasnt with minus in tx list
+* FIX: Date/time specifications #186
+* ADD: Use platform's rating UI in-app
+* FIX: limit number of userinvoices feetched per polling request
+* REF: less remote fetches
+* FIX: sometimes export QR is unreadable
+* REF: HD wallets address derivation
+* ADD: Added 日本語 in settings
+* FIX: When having multiple wallets, I was unable to see my transactions description from the main screen
+* FIX: Writing numbers standards #194
+* FIX: Remove Lightning wallet creation limitation
+* FIX: Can't create a Lightning Wallet 3.5.6 (223) #224
+* FIX: zigzag link
+* FIX: Lightning balance/fees don't add up (closes #225)
+* ADD: THB fiat
+* FIX: Thai translation
+* FIX: Can't scan Bech32 addresses (closes #222)
+* ADD: Croatian language into Settings.
+* ADD: HRK Fiat in currency settings

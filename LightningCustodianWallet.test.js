@@ -263,6 +263,14 @@ describe('LightningCustodianWallet', () => {
     await lOld.fetchTransactions();
     assert.equal(txLen, lOld.transactions_raw.length, 'tx count should not be changed');
     assert.equal(invLen, (await lNew.getUserInvoices()).length, 'invoices count should not be changed');
+
+    // testing how limiting works:
+    assert.equal(lNew.user_invoices_raw.length, 1);
+    await lNew.addInvoice(666, 'test memo 2');
+    invoices = await lNew.getUserInvoices(1);
+    assert.equal(invoices.length, 2);
+    assert.equal(invoices[0].amt, 1);
+    assert.equal(invoices[1].amt, 666);
   });
 
   it('can pay free amount (tip) invoice', async function() {

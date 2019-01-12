@@ -16,7 +16,7 @@
 		050943495F6A45DF961C7596 /* libRNReactNativeHapticFeedback.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C979953B425248FEA80F4F78 /* libRNReactNativeHapticFeedback.a */; };
 		06C80B90852E417F941BB03C /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F01CC934C46A40A19F1F8861 /* MaterialCommunityIcons.ttf */; };
 		071C1519F81B4BE29915C533 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CF6354B616F54426BCA4AF79 /* MaterialIcons.ttf */; };
-		0BFC5AFB9C3D1C2C0A5653DB /* libPods-BlueWallet-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE83CA8CED219A29F6864355 /* libPods-BlueWallet-tvOSTests.a */; };
+		0E9157D251334CFC800750D9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29112C2F0D8340B3A3196DED /* CoreData.framework */; };
 		105C71E7736A4F20905497E3 /* FontAwesome5_Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9079CACA902E4AAA91711414 /* FontAwesome5_Regular.ttf */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
@@ -27,8 +27,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		140ED2AC1D01E1AD002B40FF /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
-		1714C74EDAA34B00AAB6D7F2 /* libAppCenterReactNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 50855FE1659D4439858065F4 /* libAppCenterReactNative.a */; };
 		1EF9306F31DC4D469F615F52 /* libReactNativePermissions.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FF3B2695A6A43B39CE4D2AF /* libReactNativePermissions.a */; };
+		228DCD6BAF1B4DF181C5A307 /* libRNRate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED0418953CCE4F4FA0E0E60F /* libRNRate.a */; };
 		22F536E307DB4FBCB00DC76B /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2ADB5553EACB44579700D6D4 /* libRNDeviceInfo.a */; };
 		2804B7DB54084F54A1C28DC6 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 51A88773DE2A456AA13E1814 /* Feather.ttf */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
@@ -42,34 +42,34 @@
 		2D02E4C71E0B4AEC006451C7 /* libRCTText-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3E941DF850E9000B6D8A /* libRCTText-tvOS.a */; };
 		2D02E4C81E0B4AEC006451C7 /* libRCTWebSocket-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3E991DF850E9000B6D8A /* libRCTWebSocket-tvOS.a */; };
 		2D16E6881FA4F8E400B85C8A /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D16E6891FA4F8E400B85C8A /* libReact.a */; };
+		2DA69FD4D6264094A3ABE0F4 /* libRCTGoogleAnalyticsBridge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8CF3D00F82534DE796D11610 /* libRCTGoogleAnalyticsBridge.a */; };
 		2DCD954D1E0B4F2C00145EB5 /* BlueWalletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BlueWalletTests.m */; };
 		2DF0FFEE2056DD460020B375 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3EA31DF850E9000B6D8A /* libReact.a */; };
 		3ED26B1105834E44AECC99CE /* libRNRandomBytes-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B0661D5EE994C5887A656CC /* libRNRandomBytes-tvOS.a */; };
 		4A9494D3A1E04115B6F7D0D4 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1B3AD816E1A646799CA4E452 /* Ionicons.ttf */; };
-		4E87DA0AC29845D2B3812DCB /* libAppCenterReactNativeCrashes.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F90CF19F5052445E93C8B9CB /* libAppCenterReactNativeCrashes.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		6A95349CF0194548A175076B /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B5DED491BF6C49AE8AC4F530 /* Entypo.ttf */; };
-		6D27AC46F2BF97BDA08EC5E2 /* libPods-BlueWalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 72A206D136132C728B56B386 /* libPods-BlueWalletTests.a */; };
-		6EA05940A2828EC8AEE272AC /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 062B8D3A9CA7AB2730616686 /* libPods-BlueWallet.a */; };
 		6FEBC8E7AA7D4744A2EEE87B /* libRNGestureHandler.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01B7B7DF17B84765BE45F7F1 /* libRNGestureHandler.a */; };
 		79A0163DC7B34D1D8E4B6944 /* libRNSVG-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6553F26980BC47409FFB0F7C /* libRNSVG-tvOS.a */; };
 		7C1B264BF28B44C29BA00262 /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5ED20A6C018043AE8185DD19 /* EvilIcons.ttf */; };
 		7C76B2A54AF3405FB041001E /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9BD18677AAD543C79A7CB577 /* FontAwesome.ttf */; };
 		7C83851C74EC41958D6AE8C6 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D914576230A34EF598917FA9 /* Zocial.ttf */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		845BFAB7A8994B68AC4D560A /* libAppCenterReactNativeAnalytics.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 055B354A7D6548BF97CDE89A /* libAppCenterReactNativeAnalytics.a */; };
 		96CC4BF79B174A478DF9C378 /* libRNVectorIcons-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FCEA18F7E4033B6EF3D70 /* libRNVectorIcons-tvOS.a */; };
-		9F6093B8C27FBA6195475380 /* libPods-BlueWallet-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 99E45B9E7D63DAE7C86347F7 /* libPods-BlueWallet-tvOS.a */; };
+		9F810B06D93D45B983F70B74 /* libRNSentry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B5A6242DF4B645AAB539D2E4 /* libRNSentry.a */; };
 		A00EA31D54E74AB4BABF8755 /* FontAwesome5_Brands.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4C1AD00A4FDD42BEB62AFCF5 /* FontAwesome5_Brands.ttf */; };
+		A2C00245B747440ABEB7D316 /* libRNCWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 81EDDF247D484BC38EBCE565 /* libRNCWebView.a */; };
 		A89DFA8A97B642D0AFD63AA2 /* libRNDeviceInfo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 96C3F4E26841456EBF625D82 /* libRNDeviceInfo-tvOS.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		B86E02D094DF455C990432D2 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BD7B6C6FFF1E4646860703CA /* Foundation.ttf */; };
-		BFF4FF9FC7C84CABAACDF656 /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = C5CCC6B3A6694C22BB26F593 /* AppCenter-Config.plist */; };
 		C031BDE1E9544216A73A4321 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6037CD1CCED34A7E980149E6 /* libRNSVG.a */; };
 		CB65331B95F8467390AC8BF0 /* libRNVectorIcons.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F84697F33A394B419D56ED30 /* libRNVectorIcons.a */; };
 		D37B51DB221D47B7996BE00D /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F9FC88F4A85F40E9ABACACB9 /* Octicons.ttf */; };
+		E276BE46B82249E1B88A99C8 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DD69D8473C341528160682A /* libsqlite3.0.tbd */; };
 		E4BBBC2D6D394E89B99A5C16 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D124361914C041219D903C3D /* SimpleLineIcons.ttf */; };
 		E98E21D32735429C8E630B54 /* AntDesign.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 97EF095ACCA1462FA6012B97 /* AntDesign.ttf */; };
+		EA537EBFD04A4EEBA3D7166F /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CCDBD1516FF4AD492C1226C /* SystemConfiguration.framework */; };
+		EDC6FF8621D64E31924EDC57 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C2433A8567374E78ACA76F08 /* libz.tbd */; };
 		F0182C8D1F194D66AA25FCFC /* libBVLinearGradient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B2AB1C624E24C1BA95FBFED /* libBVLinearGradient.a */; };
 		F439E4EEAE42446B8AE33E3F /* libRNCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F5B1CA51964493093282D8E /* libRNCamera.a */; };
 		F6AA297664414342AC23B529 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F9F01E9C22C243A9AB48A90A /* libRNFS.a */; };
@@ -351,26 +351,12 @@
 			remoteGlobalIDString = 358F4ED71D1E81A9004DF814;
 			remoteInfo = RCTBlob;
 		};
-		B40E0A5121E6E36D00B4F55D /* PBXContainerItemProxy */ = {
+		B48F20F5219E8A0800BA10A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = CB4F1DC1459C4538811BA043 /* AppCenterReactNative.xcodeproj */;
+			containerPortal = 87703C68A1014D0A8FDBAD00 /* RCTGoogleAnalyticsBridge.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = C35AEC211EF91F9300931F0C;
-			remoteInfo = AppCenterReactNative;
-		};
-		B40E0AED21E6E62200B4F55D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = AA10DA39CCDA4BD588EF1FB2 /* AppCenterReactNativeAnalytics.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 548694001D8384E600E6685A;
-			remoteInfo = AppCenterReactNativeAnalytics;
-		};
-		B40E0B4321E6E64600B4F55D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 8986771F8EEB4113AE537363 /* AppCenterReactNativeCrashes.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 5419C2701D824AA700DDF3A1;
-			remoteInfo = AppCenterReactNativeCrashes;
+			remoteGlobalIDString = A79185C61C30694E001236A6;
+			remoteInfo = RCTGoogleAnalyticsBridge;
 		};
 		B48F20F8219E8A0800BA10A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -399,6 +385,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 134814201AA4EA6300B7C361;
 			remoteInfo = RNReactNativeHapticFeedback;
+		};
+		B48F210A219E8A0800BA10A8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DDABC336B13E47398005736D /* RNSentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RNSentry;
 		};
 		B48F210E219E8A0800BA10A8 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -484,6 +477,27 @@
 			remoteGlobalIDString = 4107012F1ACB723B00C6AA39;
 			remoteInfo = RNCamera;
 		};
+		B4F7F05921E8449B00AFD87C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D6051C6440444360BD29AFE4 /* RNRate.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RNRate;
+		};
+		B4F7F0AB21E9991000AFD87C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DDABC336B13E47398005736D /* RNSentry.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 274692C321B4414400BF91A8;
+			remoteInfo = "RNSentry-tvOS";
+		};
+		B4F7F0B421E99B5B00AFD87C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 642C144246BF4C3EB350442F /* RNCWebView.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RNCWebView;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -497,8 +511,6 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* BlueWalletTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BlueWalletTests.m; sourceTree = "<group>"; };
 		01B7B7DF17B84765BE45F7F1 /* libRNGestureHandler.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNGestureHandler.a; sourceTree = "<group>"; };
-		055B354A7D6548BF97CDE89A /* libAppCenterReactNativeAnalytics.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libAppCenterReactNativeAnalytics.a; sourceTree = "<group>"; };
-		062B8D3A9CA7AB2730616686 /* libPods-BlueWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A6C0341E36446BE93133B26 /* libRNSensors.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSensors.a; sourceTree = "<group>"; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
 		139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "../node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
@@ -510,70 +522,65 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = BlueWallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = BlueWallet/main.m; sourceTree = "<group>"; };
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
-		149DCEB64A1A5352B8786117 /* Pods-BlueWalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWalletTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWalletTests/Pods-BlueWalletTests.release.xcconfig"; sourceTree = "<group>"; };
 		1B3AD816E1A646799CA4E452 /* Ionicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Ionicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Ionicons.ttf"; sourceTree = "<group>"; };
+		29112C2F0D8340B3A3196DED /* CoreData.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		2ADB5553EACB44579700D6D4 /* libRNDeviceInfo.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNDeviceInfo.a; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* BlueWallet-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "BlueWallet-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* BlueWallet-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "BlueWallet-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2DD69D8473C341528160682A /* libsqlite3.0.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
 		3B2AB1C624E24C1BA95FBFED /* libBVLinearGradient.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libBVLinearGradient.a; sourceTree = "<group>"; };
 		3F5B1CA51964493093282D8E /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCamera.a; sourceTree = "<group>"; };
 		4B0661D5EE994C5887A656CC /* libRNRandomBytes-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNRandomBytes-tvOS.a"; sourceTree = "<group>"; };
 		4C1AD00A4FDD42BEB62AFCF5 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
-		50855FE1659D4439858065F4 /* libAppCenterReactNative.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libAppCenterReactNative.a; sourceTree = "<group>"; };
 		51A88773DE2A456AA13E1814 /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		5863F2E7B71740E3940BABD9 /* BVLinearGradient.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = BVLinearGradient.xcodeproj; path = "../node_modules/react-native-linear-gradient/BVLinearGradient.xcodeproj"; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		5ED20A6C018043AE8185DD19 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		6037CD1CCED34A7E980149E6 /* libRNSVG.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSVG.a; sourceTree = "<group>"; };
+		642C144246BF4C3EB350442F /* RNCWebView.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCWebView.xcodeproj; path = "../node_modules/react-native-webview/ios/RNCWebView.xcodeproj"; sourceTree = "<group>"; };
 		6553F26980BC47409FFB0F7C /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; };
-		72A206D136132C728B56B386 /* libPods-BlueWalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CCDBD1516FF4AD492C1226C /* SystemConfiguration.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		7F7225A9F01C4785B27FF490 /* RNCamera.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCamera.xcodeproj; path = "../node_modules/react-native-camera/ios/RNCamera.xcodeproj"; sourceTree = "<group>"; };
+		81EDDF247D484BC38EBCE565 /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
-		8986771F8EEB4113AE537363 /* AppCenterReactNativeCrashes.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = AppCenterReactNativeCrashes.xcodeproj; path = "../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes.xcodeproj"; sourceTree = "<group>"; };
+		87703C68A1014D0A8FDBAD00 /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
 		8C242FC657494F7FB41321D9 /* libRNAmplitudeSDK.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNAmplitudeSDK.a; sourceTree = "<group>"; };
+		8CF3D00F82534DE796D11610 /* libRCTGoogleAnalyticsBridge.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTGoogleAnalyticsBridge.a; sourceTree = "<group>"; };
 		9079CACA902E4AAA91711414 /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Regular.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Regular.ttf"; sourceTree = "<group>"; };
 		907C87020BD04956A5253DEB /* libRNRandomBytes.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRandomBytes.a; sourceTree = "<group>"; };
 		917199AF101244F5A9119C8C /* RNDeviceInfo.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNDeviceInfo.xcodeproj; path = "../node_modules/react-native-device-info/ios/RNDeviceInfo.xcodeproj"; sourceTree = "<group>"; };
 		96C3F4E26841456EBF625D82 /* libRNDeviceInfo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNDeviceInfo-tvOS.a"; sourceTree = "<group>"; };
 		97EF095ACCA1462FA6012B97 /* AntDesign.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AntDesign.ttf; path = "../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf"; sourceTree = "<group>"; };
-		99E45B9E7D63DAE7C86347F7 /* libPods-BlueWallet-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWallet-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BD18677AAD543C79A7CB577 /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		9FF3B2695A6A43B39CE4D2AF /* libReactNativePermissions.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativePermissions.a; sourceTree = "<group>"; };
-		AA10DA39CCDA4BD588EF1FB2 /* AppCenterReactNativeAnalytics.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = AppCenterReactNativeAnalytics.xcodeproj; path = "../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics.xcodeproj"; sourceTree = "<group>"; };
-		ADA08E3818393099127F3255 /* Pods-BlueWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet.release.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWallet/Pods-BlueWallet.release.xcconfig"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
+		B5A6242DF4B645AAB539D2E4 /* libRNSentry.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSentry.a; sourceTree = "<group>"; };
 		B5DED491BF6C49AE8AC4F530 /* Entypo.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Entypo.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Entypo.ttf"; sourceTree = "<group>"; };
-		B699DD5307CF9AA6DF159629 /* Pods-BlueWallet-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet-tvOSTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWallet-tvOSTests/Pods-BlueWallet-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
-		B80EDFDBBC80B12AC2C4094C /* Pods-BlueWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWalletTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWalletTests/Pods-BlueWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
-		BB5DE2086531B68BBF99F71D /* Pods-BlueWallet-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet-tvOSTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWallet-tvOSTests/Pods-BlueWallet-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BD7B6C6FFF1E4646860703CA /* Foundation.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Foundation.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Foundation.ttf"; sourceTree = "<group>"; };
 		C0708F2D346B415C84383510 /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Solid.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Solid.ttf"; sourceTree = "<group>"; };
 		C0B6F9440F69425886845061 /* RNFS.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
-		C5CCC6B3A6694C22BB26F593 /* AppCenter-Config.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = "AppCenter-Config.plist"; path = "BlueWallet/AppCenter-Config.plist"; sourceTree = "<group>"; };
+		C2433A8567374E78ACA76F08 /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		C88A48E1C11140418478EC7F /* RNSVG.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNSVG.xcodeproj; path = "../node_modules/react-native-svg/ios/RNSVG.xcodeproj"; sourceTree = "<group>"; };
-		C8C2BF6162140D1BB145D950 /* Pods-BlueWallet-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet-tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWallet-tvOS/Pods-BlueWallet-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		C979953B425248FEA80F4F78 /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
 		CA35307CBA624D81A15815D2 /* RNReactNativeHapticFeedback.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNReactNativeHapticFeedback.xcodeproj; path = "../node_modules/react-native-haptic-feedback/ios/RNReactNativeHapticFeedback.xcodeproj"; sourceTree = "<group>"; };
-		CB4F1DC1459C4538811BA043 /* AppCenterReactNative.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = AppCenterReactNative.xcodeproj; path = ../node_modules/appcenter/ios/AppCenterReactNative.xcodeproj; sourceTree = "<group>"; };
 		CC4FCEA18F7E4033B6EF3D70 /* libRNVectorIcons-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNVectorIcons-tvOS.a"; sourceTree = "<group>"; };
 		CF14D1AA406D4EDC85D3A61F /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
-		CF451AC4BFDB46A7596F3400 /* Pods-BlueWallet-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet-tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWallet-tvOS/Pods-BlueWallet-tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		CF6354B616F54426BCA4AF79 /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
 		D124361914C041219D903C3D /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
+		D6051C6440444360BD29AFE4 /* RNRate.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNRate.xcodeproj; path = "../node_modules/react-native-rate/ios/RNRate.xcodeproj"; sourceTree = "<group>"; };
 		D914576230A34EF598917FA9 /* Zocial.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Zocial.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; };
 		DAC908621D184867839621FE /* RNGestureHandler.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNGestureHandler.xcodeproj; path = "../node_modules/react-native-gesture-handler/ios/RNGestureHandler.xcodeproj"; sourceTree = "<group>"; };
 		DB512F57589B4F8A89CBE2AB /* RNRandomBytes.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNRandomBytes.xcodeproj; path = "../node_modules/react-native-randombytes/RNRandomBytes.xcodeproj"; sourceTree = "<group>"; };
+		DDABC336B13E47398005736D /* RNSentry.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNSentry.xcodeproj; path = "../node_modules/react-native-sentry/ios/RNSentry.xcodeproj"; sourceTree = "<group>"; };
+		ED0418953CCE4F4FA0E0E60F /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
 		F01CC934C46A40A19F1F8861 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
 		F13B02B9DD2A4068B8201EAB /* libRCTCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTCamera.a; sourceTree = "<group>"; };
-		F1AC5E5A4D124256223753EB /* Pods-BlueWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWallet.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWallet/Pods-BlueWallet.debug.xcconfig"; sourceTree = "<group>"; };
 		F84697F33A394B419D56ED30 /* libRNVectorIcons.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNVectorIcons.a; sourceTree = "<group>"; };
-		F90CF19F5052445E93C8B9CB /* libAppCenterReactNativeCrashes.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libAppCenterReactNativeCrashes.a; sourceTree = "<group>"; };
 		F9F01E9C22C243A9AB48A90A /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
 		F9FC88F4A85F40E9ABACACB9 /* Octicons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		FDDDD64DF1014CDE82A5D7D9 /* ReactNativePermissions.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = ReactNativePermissions.xcodeproj; path = "../node_modules/react-native-permissions/ios/ReactNativePermissions.xcodeproj"; sourceTree = "<group>"; };
-		FE83CA8CED219A29F6864355 /* libPods-BlueWallet-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-BlueWallet-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -582,7 +589,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				140ED2AC1D01E1AD002B40FF /* libReact.a in Frameworks */,
-				6D27AC46F2BF97BDA08EC5E2 /* libPods-BlueWalletTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -603,7 +609,13 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
+				9F810B06D93D45B983F70B74 /* libRNSentry.a in Frameworks */,
+				EDC6FF8621D64E31924EDC57 /* libz.tbd in Frameworks */,
 				22F536E307DB4FBCB00DC76B /* libRNDeviceInfo.a in Frameworks */,
+				2DA69FD4D6264094A3ABE0F4 /* libRCTGoogleAnalyticsBridge.a in Frameworks */,
+				0E9157D251334CFC800750D9 /* CoreData.framework in Frameworks */,
+				EA537EBFD04A4EEBA3D7166F /* SystemConfiguration.framework in Frameworks */,
+				E276BE46B82249E1B88A99C8 /* libsqlite3.0.tbd in Frameworks */,
 				050943495F6A45DF961C7596 /* libRNReactNativeHapticFeedback.a in Frameworks */,
 				1EF9306F31DC4D469F615F52 /* libReactNativePermissions.a in Frameworks */,
 				C031BDE1E9544216A73A4321 /* libRNSVG.a in Frameworks */,
@@ -613,10 +625,8 @@
 				6FEBC8E7AA7D4744A2EEE87B /* libRNGestureHandler.a in Frameworks */,
 				F439E4EEAE42446B8AE33E3F /* libRNCamera.a in Frameworks */,
 				F6AA297664414342AC23B529 /* libRNFS.a in Frameworks */,
-				1714C74EDAA34B00AAB6D7F2 /* libAppCenterReactNative.a in Frameworks */,
-				845BFAB7A8994B68AC4D560A /* libAppCenterReactNativeAnalytics.a in Frameworks */,
-				4E87DA0AC29845D2B3812DCB /* libAppCenterReactNativeCrashes.a in Frameworks */,
-				6EA05940A2828EC8AEE272AC /* libPods-BlueWallet.a in Frameworks */,
+				A2C00245B747440ABEB7D316 /* libRNCWebView.a in Frameworks */,
+				228DCD6BAF1B4DF181C5A307 /* libRNRate.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -636,7 +646,6 @@
 				79A0163DC7B34D1D8E4B6944 /* libRNSVG-tvOS.a in Frameworks */,
 				96CC4BF79B174A478DF9C378 /* libRNVectorIcons-tvOS.a in Frameworks */,
 				3ED26B1105834E44AECC99CE /* libRNRandomBytes-tvOS.a in Frameworks */,
-				9F6093B8C27FBA6195475380 /* libPods-BlueWallet-tvOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -645,7 +654,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2DF0FFEE2056DD460020B375 /* libReact.a in Frameworks */,
-				0BFC5AFB9C3D1C2C0A5653DB /* libPods-BlueWallet-tvOSTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -772,10 +780,10 @@
 			isa = PBXGroup;
 			children = (
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
-				062B8D3A9CA7AB2730616686 /* libPods-BlueWallet.a */,
-				99E45B9E7D63DAE7C86347F7 /* libPods-BlueWallet-tvOS.a */,
-				FE83CA8CED219A29F6864355 /* libPods-BlueWallet-tvOSTests.a */,
-				72A206D136132C728B56B386 /* libPods-BlueWalletTests.a */,
+				C2433A8567374E78ACA76F08 /* libz.tbd */,
+				29112C2F0D8340B3A3196DED /* CoreData.framework */,
+				6CCDBD1516FF4AD492C1226C /* SystemConfiguration.framework */,
+				2DD69D8473C341528160682A /* libsqlite3.0.tbd */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -835,7 +843,9 @@
 				832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */,
 				00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */,
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
+				DDABC336B13E47398005736D /* RNSentry.xcodeproj */,
 				917199AF101244F5A9119C8C /* RNDeviceInfo.xcodeproj */,
+				87703C68A1014D0A8FDBAD00 /* RCTGoogleAnalyticsBridge.xcodeproj */,
 				CA35307CBA624D81A15815D2 /* RNReactNativeHapticFeedback.xcodeproj */,
 				FDDDD64DF1014CDE82A5D7D9 /* ReactNativePermissions.xcodeproj */,
 				C88A48E1C11140418478EC7F /* RNSVG.xcodeproj */,
@@ -845,9 +855,8 @@
 				DAC908621D184867839621FE /* RNGestureHandler.xcodeproj */,
 				7F7225A9F01C4785B27FF490 /* RNCamera.xcodeproj */,
 				C0B6F9440F69425886845061 /* RNFS.xcodeproj */,
-				CB4F1DC1459C4538811BA043 /* AppCenterReactNative.xcodeproj */,
-				AA10DA39CCDA4BD588EF1FB2 /* AppCenterReactNativeAnalytics.xcodeproj */,
-				8986771F8EEB4113AE537363 /* AppCenterReactNativeCrashes.xcodeproj */,
+				642C144246BF4C3EB350442F /* RNCWebView.xcodeproj */,
+				D6051C6440444360BD29AFE4 /* RNRate.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -871,8 +880,6 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				B48F20B6219E8A0300BA10A8 /* Recovered References */,
 				5EFA168FDA4541DA9896D9C8 /* Resources */,
-				C5CCC6B3A6694C22BB26F593 /* AppCenter-Config.plist */,
-				F9944774B876ED926C8A5844 /* Pods */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -899,33 +906,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B40E0A4E21E6E36D00B4F55D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B40E0A5221E6E36D00B4F55D /* libAppCenterReactNative.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		B40E0AEA21E6E62200B4F55D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B40E0AEE21E6E62200B4F55D /* libAppCenterReactNativeAnalytics.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		B40E0B4021E6E64600B4F55D /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B40E0B4421E6E64600B4F55D /* libAppCenterReactNativeCrashes.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		B48F20B6219E8A0300BA10A8 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
+				B5A6242DF4B645AAB539D2E4 /* libRNSentry.a */,
 				8C242FC657494F7FB41321D9 /* libRNAmplitudeSDK.a */,
 				F13B02B9DD2A4068B8201EAB /* libRCTCamera.a */,
 				2ADB5553EACB44579700D6D4 /* libRNDeviceInfo.a */,
@@ -943,11 +927,19 @@
 				01B7B7DF17B84765BE45F7F1 /* libRNGestureHandler.a */,
 				3F5B1CA51964493093282D8E /* libRNCamera.a */,
 				F9F01E9C22C243A9AB48A90A /* libRNFS.a */,
-				50855FE1659D4439858065F4 /* libAppCenterReactNative.a */,
-				055B354A7D6548BF97CDE89A /* libAppCenterReactNativeAnalytics.a */,
-				F90CF19F5052445E93C8B9CB /* libAppCenterReactNativeCrashes.a */,
+				8CF3D00F82534DE796D11610 /* libRCTGoogleAnalyticsBridge.a */,
+				ED0418953CCE4F4FA0E0E60F /* libRNRate.a */,
+				81EDDF247D484BC38EBCE565 /* libRNCWebView.a */,
 			);
 			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		B48F20DD219E8A0700BA10A8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B48F20F6219E8A0800BA10A8 /* libRCTGoogleAnalyticsBridge.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		B48F20DF219E8A0700BA10A8 /* Products */ = {
@@ -962,6 +954,15 @@
 			isa = PBXGroup;
 			children = (
 				B48F2105219E8A0800BA10A8 /* libRNReactNativeHapticFeedback.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B48F20E5219E8A0700BA10A8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B48F210B219E8A0800BA10A8 /* libRNSentry.a */,
+				B4F7F0AC21E9991000AFD87C /* libRNSentry-tvOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1036,19 +1037,20 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		F9944774B876ED926C8A5844 /* Pods */ = {
+		B4F7F05621E8449B00AFD87C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F1AC5E5A4D124256223753EB /* Pods-BlueWallet.debug.xcconfig */,
-				ADA08E3818393099127F3255 /* Pods-BlueWallet.release.xcconfig */,
-				C8C2BF6162140D1BB145D950 /* Pods-BlueWallet-tvOS.debug.xcconfig */,
-				CF451AC4BFDB46A7596F3400 /* Pods-BlueWallet-tvOS.release.xcconfig */,
-				BB5DE2086531B68BBF99F71D /* Pods-BlueWallet-tvOSTests.debug.xcconfig */,
-				B699DD5307CF9AA6DF159629 /* Pods-BlueWallet-tvOSTests.release.xcconfig */,
-				B80EDFDBBC80B12AC2C4094C /* Pods-BlueWalletTests.debug.xcconfig */,
-				149DCEB64A1A5352B8786117 /* Pods-BlueWalletTests.release.xcconfig */,
+				B4F7F05A21E8449B00AFD87C /* libRNRate.a */,
 			);
-			name = Pods;
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B4F7F0B121E99B5B00AFD87C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B4F7F0B521E99B5B00AFD87C /* libRNCWebView.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1058,7 +1060,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "BlueWalletTests" */;
 			buildPhases = (
-				A3B2836BB85BFD839830E91C /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
@@ -1077,11 +1078,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "BlueWallet" */;
 			buildPhases = (
-				6D17E8F6638613E9FB7F02DB /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				97FBF98104AA4C6EBADC06F0 /* Upload Debug Symbols to Sentry */,
 			);
 			buildRules = (
 			);
@@ -1096,7 +1097,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2D02E4BA1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "BlueWallet-tvOS" */;
 			buildPhases = (
-				05E361ECD2EF54D415C87492 /* [CP] Check Pods Manifest.lock */,
 				2D02E4771E0B4A5D006451C7 /* Sources */,
 				2D02E4781E0B4A5D006451C7 /* Frameworks */,
 				2D02E4791E0B4A5D006451C7 /* Resources */,
@@ -1115,7 +1115,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2D02E4BB1E0B4A5E006451C7 /* Build configuration list for PBXNativeTarget "BlueWallet-tvOSTests" */;
 			buildPhases = (
-				368291632D18A00CC1E0849F /* [CP] Check Pods Manifest.lock */,
 				2D02E48C1E0B4A5D006451C7 /* Sources */,
 				2D02E48D1E0B4A5D006451C7 /* Frameworks */,
 				2D02E48E1E0B4A5D006451C7 /* Resources */,
@@ -1171,18 +1170,6 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = B40E0A4E21E6E36D00B4F55D /* Products */;
-					ProjectRef = CB4F1DC1459C4538811BA043 /* AppCenterReactNative.xcodeproj */;
-				},
-				{
-					ProductGroup = B40E0AEA21E6E62200B4F55D /* Products */;
-					ProjectRef = AA10DA39CCDA4BD588EF1FB2 /* AppCenterReactNativeAnalytics.xcodeproj */;
-				},
-				{
-					ProductGroup = B40E0B4021E6E64600B4F55D /* Products */;
-					ProjectRef = 8986771F8EEB4113AE537363 /* AppCenterReactNativeCrashes.xcodeproj */;
-				},
-				{
 					ProductGroup = B48F215D219E918C00BA10A8 /* Products */;
 					ProjectRef = 5863F2E7B71740E3940BABD9 /* BVLinearGradient.xcodeproj */;
 				},
@@ -1201,6 +1188,10 @@
 				{
 					ProductGroup = 00C302B61ABCB90400DB3ED1 /* Products */;
 					ProjectRef = 00C302B51ABCB90400DB3ED1 /* RCTGeolocation.xcodeproj */;
+				},
+				{
+					ProductGroup = B48F20DD219E8A0700BA10A8 /* Products */;
+					ProjectRef = 87703C68A1014D0A8FDBAD00 /* RCTGoogleAnalyticsBridge.xcodeproj */;
 				},
 				{
 					ProductGroup = 00C302BC1ABCB91800DB3ED1 /* Products */;
@@ -1243,6 +1234,10 @@
 					ProjectRef = 7F7225A9F01C4785B27FF490 /* RNCamera.xcodeproj */;
 				},
 				{
+					ProductGroup = B4F7F0B121E99B5B00AFD87C /* Products */;
+					ProjectRef = 642C144246BF4C3EB350442F /* RNCWebView.xcodeproj */;
+				},
+				{
 					ProductGroup = B48F20ED219E8A0800BA10A8 /* Products */;
 					ProjectRef = 917199AF101244F5A9119C8C /* RNDeviceInfo.xcodeproj */;
 				},
@@ -1259,8 +1254,16 @@
 					ProjectRef = DB512F57589B4F8A89CBE2AB /* RNRandomBytes.xcodeproj */;
 				},
 				{
+					ProductGroup = B4F7F05621E8449B00AFD87C /* Products */;
+					ProjectRef = D6051C6440444360BD29AFE4 /* RNRate.xcodeproj */;
+				},
+				{
 					ProductGroup = B48F20E3219E8A0700BA10A8 /* Products */;
 					ProjectRef = CA35307CBA624D81A15815D2 /* RNReactNativeHapticFeedback.xcodeproj */;
+				},
+				{
+					ProductGroup = B48F20E5219E8A0700BA10A8 /* Products */;
+					ProjectRef = DDABC336B13E47398005736D /* RNSentry.xcodeproj */;
 				},
 				{
 					ProductGroup = B48F20EF219E8A0800BA10A8 /* Products */;
@@ -1541,25 +1544,11 @@
 			remoteRef = ADBDB9261DFEBF0700ED6528 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		B40E0A5221E6E36D00B4F55D /* libAppCenterReactNative.a */ = {
+		B48F20F6219E8A0800BA10A8 /* libRCTGoogleAnalyticsBridge.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libAppCenterReactNative.a;
-			remoteRef = B40E0A5121E6E36D00B4F55D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		B40E0AEE21E6E62200B4F55D /* libAppCenterReactNativeAnalytics.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libAppCenterReactNativeAnalytics.a;
-			remoteRef = B40E0AED21E6E62200B4F55D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		B40E0B4421E6E64600B4F55D /* libAppCenterReactNativeCrashes.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libAppCenterReactNativeCrashes.a;
-			remoteRef = B40E0B4321E6E64600B4F55D /* PBXContainerItemProxy */;
+			path = libRCTGoogleAnalyticsBridge.a;
+			remoteRef = B48F20F5219E8A0800BA10A8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		B48F20F9219E8A0800BA10A8 /* libReactNativePermissions.a */ = {
@@ -1588,6 +1577,13 @@
 			fileType = archive.ar;
 			path = libRNReactNativeHapticFeedback.a;
 			remoteRef = B48F2104219E8A0800BA10A8 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B48F210B219E8A0800BA10A8 /* libRNSentry.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNSentry.a;
+			remoteRef = B48F210A219E8A0800BA10A8 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		B48F210F219E8A0800BA10A8 /* libRNSVG.a */ = {
@@ -1674,6 +1670,27 @@
 			remoteRef = B4F3B4F421A906D000548A69 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		B4F7F05A21E8449B00AFD87C /* libRNRate.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNRate.a;
+			remoteRef = B4F7F05921E8449B00AFD87C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B4F7F0AC21E9991000AFD87C /* libRNSentry-tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libRNSentry-tvOS.a";
+			remoteRef = B4F7F0AB21E9991000AFD87C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B4F7F0B521E99B5B00AFD87C /* libRNCWebView.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNCWebView.a;
+			remoteRef = B4F7F0B421E99B5B00AFD87C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -1705,7 +1722,6 @@
 				D37B51DB221D47B7996BE00D /* Octicons.ttf in Resources */,
 				E4BBBC2D6D394E89B99A5C16 /* SimpleLineIcons.ttf in Resources */,
 				7C83851C74EC41958D6AE8C6 /* Zocial.ttf in Resources */,
-				BFF4FF9FC7C84CABAACDF656 /* AppCenter-Config.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1739,29 +1755,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
-		};
-		05E361ECD2EF54D415C87492 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-BlueWallet-tvOS-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "export SENTRY_PROPERTIES=sentry.properties\nexport NODE_BINARY=node\n../node_modules/@sentry/cli/bin/sentry-cli react-native xcode ../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1775,73 +1769,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
+			shellScript = "export SENTRY_PROPERTIES=sentry.properties\nexport NODE_BINARY=node\n../node_modules/@sentry/cli/bin/sentry-cli react-native xcode ../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		368291632D18A00CC1E0849F /* [CP] Check Pods Manifest.lock */ = {
+		97FBF98104AA4C6EBADC06F0 /* Upload Debug Symbols to Sentry */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
 			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
+			name = "Upload Debug Symbols to Sentry";
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-BlueWallet-tvOSTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6D17E8F6638613E9FB7F02DB /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-BlueWallet-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A3B2836BB85BFD839830E91C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-BlueWalletTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
+			shellScript = "export SENTRY_PROPERTIES=sentry.properties\n../node_modules/@sentry/cli/bin/sentry-cli upload-dsym\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1910,7 +1852,6 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B80EDFDBBC80B12AC2C4094C /* Pods-BlueWalletTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
@@ -1920,8 +1861,10 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -1931,14 +1874,16 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = BlueWalletTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1950,15 +1895,16 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 149DCEB64A1A5352B8786117 /* Pods-BlueWalletTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -1968,14 +1914,16 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = BlueWalletTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1987,7 +1935,6 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = F1AC5E5A4D124256223753EB /* Pods-BlueWallet.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1995,8 +1942,10 @@
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -2006,12 +1955,11 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = BlueWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -2027,15 +1975,16 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = ADA08E3818393099127F3255 /* Pods-BlueWallet.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -2045,12 +1994,11 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = BlueWallet/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -2066,7 +2014,6 @@
 		};
 		2D02E4971E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C8C2BF6162140D1BB145D950 /* Pods-BlueWallet-tvOS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2079,8 +2026,10 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -2090,13 +2039,15 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -2111,7 +2062,6 @@
 		};
 		2D02E4981E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CF451AC4BFDB46A7596F3400 /* Pods-BlueWallet-tvOS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -2124,8 +2074,10 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -2135,13 +2087,15 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -2156,7 +2110,6 @@
 		};
 		2D02E4991E0B4A5E006451C7 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BB5DE2086531B68BBF99F71D /* Pods-BlueWallet-tvOSTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2168,8 +2121,10 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -2179,13 +2134,15 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -2200,7 +2157,6 @@
 		};
 		2D02E49A1E0B4A5E006451C7 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B699DD5307CF9AA6DF159629 /* Pods-BlueWallet-tvOSTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2212,8 +2168,10 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../node_modules/react-native-sentry/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios",
 					"$(SRCROOT)/../node_modules/react-native-device-info/ios/RNDeviceInfo",
+					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-haptic-feedback/ios",
 					"$(SRCROOT)/../node_modules/react-native-permissions/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-svg/ios/**",
@@ -2223,13 +2181,15 @@
 					"$(SRCROOT)/../node_modules/react-native-gesture-handler/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-camera/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
-					"$(SRCROOT)/../node_modules/appcenter/ios/AppCenterReactNative",
-					"$(SRCROOT)/../node_modules/appcenter-analytics/ios/AppCenterReactNativeAnalytics",
-					"$(SRCROOT)/../node_modules/appcenter-crashes/ios/AppCenterReactNativeCrashes",
+					"$(SRCROOT)/../node_modules/react-native-webview/ios",
+					"$(SRCROOT)/../node_modules/react-native-rate/ios",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",

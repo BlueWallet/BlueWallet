@@ -3,10 +3,6 @@ module.exports = {
     storage_is_encrypted: 'ที่เก็บข้อมูลของคุณถูกเข้ารหัส. ต้องการรหัสผ่านเพื่อถอดรหัส',
     enter_password: 'กรุณาใส่รหัสผ่าน',
     bad_password: 'รหัสผ่านไม่ถูกต้อง กรุณาใส่รหัสผ่านอีกครั้ง',
-    months_ago: 'เดือนที่แล้ว',
-    days_ago: 'วันที่แล้ว',
-    hours_ago: 'ชั่วโมงที่แล้ว',
-    minutes_ago: 'นาทีที่แล้ว',
     never: 'ไม่เคย',
     continue: 'ต่อไป',
     ok: 'ตกลง',
@@ -163,6 +159,7 @@ module.exports = {
       share: 'แชร์',
       copiedToClipboard: 'ก๊อปปี้ไปที่คลิปบอร์ดแล้ว.',
       label: 'คำอธิบาย',
+      create: 'Create',
       setAmount: 'รับด้วยจำนวน',
     },
   },
@@ -181,6 +178,12 @@ module.exports = {
     retype_password: 'ใส่รหัสผ่านอีกครั้ง',
     passwords_do_not_match: 'รหัสผ่านไม่ตรงกัน',
     encrypt_storage: 'เข้ารหัสที่เก็บข้อมูล',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain:
+      'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'เกี่ยวกับ',
     language: 'ภาษา',
     currency: 'เงินตรา',

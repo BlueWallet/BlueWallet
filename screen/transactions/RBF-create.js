@@ -1,7 +1,8 @@
 /** @type {AppStorage}  */
+/* global alert */
 import React, { Component } from 'react';
-import { TextInput } from 'react-native';
-import { Text, FormValidationMessage } from 'react-native-elements';
+import { TextInput, View, ActivtyIndicator } from 'react-native';
+import { FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
   BlueSpacing20,
@@ -147,23 +148,21 @@ export default class SendCreate extends Component {
   }
 
   async broadcast() {
-    console.log('broadcasting', this.state.tx);
-    let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-    console.log('broadcast result = ', result);
-    if (typeof result === 'string') {
-      result = JSON.parse(result);
-    }
-    if (result && result.error) {
-      this.setState({
-        broadcastErrorMessage: JSON.stringify(result.error),
-        broadcastSuccessMessage: '',
-      });
-    } else {
-      this.setState({ broadcastErrorMessage: '' });
-      this.setState({
-        broadcastSuccessMessage: 'Success! TXID: ' + JSON.stringify(result.result || result.txid),
-      });
-    }
+    this.setState({ isLoading: true }, async () => {
+      console.log('broadcasting', this.state.tx);
+      let result = await this.state.fromWallet.broadcastTx(this.state.tx);
+      console.log('broadcast result = ', result);
+      if (typeof result === 'string') {
+        result = JSON.parse(result);
+      }
+      if (result && result.error) {
+        alert(JSON.stringify(result.error));
+        this.setState({ isLoading: false });
+      } else {
+        alert(JSON.stringify(result.result || result.txid));
+        this.props.navigation.navigate('TransactionDetails');
+      }
+    });
   }
 
   render() {
@@ -187,15 +186,11 @@ export default class SendCreate extends Component {
     if (this.state.nonReplaceable) {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-
-          <BlueText h4>This transaction is not replaceable</BlueText>
-
-          <BlueButton onPress={() => this.props.navigation.goBack()} title="Back" />
+          <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center' }}>
+            <BlueText h4 style={{ textAlign: 'center' }}>
+              This transaction is not replaceable
+            </BlueText>
+          </View>
         </SafeBlueArea>
       );
     }
@@ -227,13 +222,11 @@ export default class SendCreate extends Component {
           <BlueText>TX size: {this.state.size} Bytes</BlueText>
           <BlueText>satoshiPerByte: {this.state.satoshiPerByte} Sat/B</BlueText>
         </BlueCard>
-
-        <BlueButton icon={{ name: 'megaphone', type: 'octicon' }} onPress={() => this.broadcast()} title="Broadcast" />
-
-        <BlueButton icon={{ name: 'arrow-left', type: 'octicon' }} onPress={() => this.props.navigation.goBack()} title="Go back" />
-
-        <FormValidationMessage>{this.state.broadcastErrorMessage}</FormValidationMessage>
-        <Text style={{ padding: 20, color: '#080' }}>{this.state.broadcastSuccessMessage}</Text>
+        {this.state.isLoading ? (
+          <ActivtyIndicator />
+        ) : (
+          <BlueButton icon={{ name: 'megaphone', type: 'octicon' }} onPress={() => this.broadcast()} title="Broadcast" />
+        )}
       </SafeBlueArea>
     );
   }
@@ -242,6 +235,7 @@ export default class SendCreate extends Component {
 SendCreate.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.function,
+    navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,

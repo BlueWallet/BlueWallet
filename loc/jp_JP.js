@@ -3,10 +3,6 @@ module.exports = {
     storage_is_encrypted: 'ストレージが暗号化されています。復号にはパスワードが必要です。',
     enter_password: 'パスワードを入力',
     bad_password: 'パスワードが間違っています。',
-    months_ago: 'ヵ月前',
-    days_ago: '日前',
-    hours_ago: '時間前',
-    minutes_ago: '分前',
     never: 'データなし',
     continue: '続行',
     ok: 'OK',
@@ -164,6 +160,7 @@ module.exports = {
       share: '共有',
       copiedToClipboard: 'クリップボードにコピーしました。',
       label: '概要',
+      create: 'Create',
       setAmount: '入金額',
     },
   },
@@ -182,6 +179,12 @@ module.exports = {
     retype_password: 'パスワードの再入力',
     passwords_do_not_match: 'パスワードが一致しません',
     encrypt_storage: 'ストレージの暗号化',
+    lightning_settings: 'Lightning 設定',
+    lightning_settings_explain:
+      '他の LND ノードへ接続するには LndHub をインストール後、' +
+      'URL を入力してください。既定の設定を使用するには空欄にします' +
+      'ndHub\n (lndhub.io)',
+    save: '保存',
     about: 'BlueWallet について',
     language: '言語',
     currency: '通貨',

@@ -6,11 +6,12 @@ import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+let loc = require('../../loc');
 
 export default class LightningSettings extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: 'Lightning Settings',
+    title: loc.settings.lightning_settings,
   });
 
   constructor(props) {
@@ -52,10 +53,7 @@ export default class LightningSettings extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueCard>
-          <BlueText>
-            To connect to your own LND node please install LndHub and put its URL here in settings. Leave blank to use default LndHub
-            (lndhub.io)
-          </BlueText>
+          <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
         </BlueCard>
 
         <BlueButton
@@ -105,7 +103,7 @@ export default class LightningSettings extends Component {
             onPress={() => {
               this.save();
             }}
-            title={'Save'}
+            title={loc.settings.save}
           />
         </BlueCard>
       </SafeBlueArea>

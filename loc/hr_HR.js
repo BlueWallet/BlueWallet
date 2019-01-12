@@ -3,11 +3,9 @@ module.exports = {
     storage_is_encrypted: 'Vaš spremnik je kriptiran. Za dekripcoju je potrebna lozinka.',
     enter_password: 'Unesi lozinku',
     bad_password: 'Kriva lozinka, pokušaj ponovo',
-    months_ago: 'mjesecima unazad',
-    days_ago: 'danima unazad',
-    hours_ago: 'satima unazad',
-    minutes_ago: 'minutama unazad',
     never: 'nikad',
+    continue: 'Continue',
+    ok: 'OK',
   },
   wallets: {
     select_wallet: 'Odaberi volet',
@@ -159,6 +157,7 @@ module.exports = {
       share: 'pokaži',
       copiedToClipboard: 'Kopirano u međuspremnik.',
       label: 'Opis',
+      create: 'Create',
       setAmount: 'Odredi iznos za primiti',
     },
   },
@@ -177,6 +176,12 @@ module.exports = {
     retype_password: 'Ponovi lozinku',
     passwords_do_not_match: 'Lozinke su različite',
     encrypt_storage: 'Kriptiraj spremnik',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain:
+      'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'Iznos',
     language: 'Jezik',
     currency: 'Valuta',

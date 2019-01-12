@@ -34,7 +34,7 @@ export default class WalletXpub extends Component {
       wallet,
       xpub: wallet.getXpub(),
       xpubText: wallet.getXpub(),
-      qrCodeHeight: height > width ? height / 2.5 : width / 2,
+      qrCodeHeight: height > width ? width - 40 : width / 2,
     };
   }
 
@@ -58,7 +58,7 @@ export default class WalletXpub extends Component {
 
   onLayout = () => {
     const { height } = Dimensions.get('window');
-    this.setState({ qrCodeHeight: height > width ? height / 2.5 : width / 2 });
+    this.setState({ qrCodeHeight: height > width ? width - 40 : width / 2 });
   };
 
   render() {
@@ -88,7 +88,7 @@ export default class WalletXpub extends Component {
                     backgroundColor={BlueApp.settings.brandingColor}
                     logo={require('../../img/qr-code.png')}
                     size={this.state.qrCodeHeight}
-                    ecl={'Q'}
+                    ecl={'H'}
                   />
                 );
               } else {

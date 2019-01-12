@@ -3,10 +3,6 @@ module.exports = {
     storage_is_encrypted: 'Ваше хранилище зашифровано. Введите пароль для расшифровки',
     enter_password: 'Введите пароль',
     bad_password: 'Неверный пароль, попробуйте еще раз',
-    months_ago: 'месяцев назад',
-    days_ago: 'дней назад',
-    hours_ago: 'часов назад',
-    minutes_ago: 'минут назад',
     never: 'никогда',
     continue: 'Continue',
     ok: 'OK',
@@ -169,6 +165,7 @@ module.exports = {
       share: 'Отправить',
       copiedToClipboard: 'скопировано',
       label: 'Description',
+      create: 'Create',
       setAmount: 'Receive with amount',
     },
   },
@@ -183,6 +180,12 @@ module.exports = {
     retype_password: 'Наберите пароль повторно',
     passwords_do_not_match: 'Пароли не совпадают',
     encrypt_storage: 'Зашифровать хранилище',
+    lightning_settings: 'Lightning settings',
+    lightning_settings_explain:
+      'To connect to your own LND node please install LndHub' +
+      ' and put its URL here in settings. Leave blank to use default ' +
+      'ndHub\n (lndhub.io)',
+    save: 'save',
     about: 'О программе',
     language: 'Язык',
     currency: 'Валюта',

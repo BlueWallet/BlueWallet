@@ -93,10 +93,9 @@ export default class WalletTransactions extends Component {
         showSend = wallet.allowSend();
         showReceive = wallet.allowReceive();
       }
-
       let showManageFundsBigButton = false;
       let showManageFundsSmallButton = false;
-      if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() * 1 === 0) {
+      if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() * 1 <= 0) {
         showManageFundsBigButton = true;
         showManageFundsSmallButton = false;
       } else if (wallet && wallet.type === LightningCustodianWallet.type && wallet.getBalance() > 0) {
@@ -367,23 +366,43 @@ export default class WalletTransactions extends Component {
           {(() => {
             if (this.state.showManageFundsSmallButton) {
               return (
-                <TouchableOpacity
-                  style={{ alignSelf: 'flex-end', right: 10, flexDirection: 'row' }}
-                  onPress={() => {
-                    console.log('navigating to', this.state.wallet.getLabel());
-                    navigate('ManageFunds', { fromWallet: this.state.wallet });
-                  }}
-                >
-                  <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
-                  <Icon
-                    style={{ position: 'relative' }}
-                    name="link"
-                    type="font-awesome"
-                    size={14}
-                    color={BlueApp.settings.foregroundColor}
-                    iconStyle={{ left: 5, transform: [{ rotate: '90deg' }] }}
-                  />
-                </TouchableOpacity>
+                <React.Fragment>
+                  <TouchableOpacity
+                    style={{ alignSelf: 'flex-start', left: 10, top: 15, flexDirection: 'row' }}
+                    onPress={() => {
+                      console.log('navigating to LappBrowser');
+                      navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret() });
+                    }}
+                  >
+                    <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{'marketplace'}</BlueText>
+                    <Icon
+                      style={{ position: 'relative' }}
+                      name="shopping-cart"
+                      type="font-awesome"
+                      size={14}
+                      color={BlueApp.settings.foregroundColor}
+                      iconStyle={{ left: 5 }}
+                    />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={{ alignSelf: 'flex-end', right: 10, top: -5, flexDirection: 'row' }}
+                    onPress={() => {
+                      console.log('navigating to', this.state.wallet.getLabel());
+                      navigate('ManageFunds', { fromWallet: this.state.wallet });
+                    }}
+                  >
+                    <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
+                    <Icon
+                      style={{ position: 'relative' }}
+                      name="link"
+                      type="font-awesome"
+                      size={14}
+                      color={BlueApp.settings.foregroundColor}
+                      iconStyle={{ left: 5, transform: [{ rotate: '90deg' }] }}
+                    />
+                  </TouchableOpacity>
+                </React.Fragment>
               );
             }
           })()}

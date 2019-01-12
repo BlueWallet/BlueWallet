@@ -1,15 +1,6 @@
 import React, { Component } from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import {
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueText,
-  BlueFormInput,
-  BlueSpacing,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
+import { ActivityIndicator, View, TextInput } from 'react-native';
+import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitBech32Wallet } from '../../class';
 /** @type {AppStorage} */
@@ -143,29 +134,56 @@ export default class RBF extends Component {
           </BlueText>
           <BlueSpacing20 />
 
-          <BlueFormInput
-            onChangeText={text => this.setState({ newDestinationAddress: text })}
-            placeholder={'receiver address here'}
-            value={this.state.newDestinationAddress}
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              alignItems: 'center',
+              marginVertical: 8,
+              borderRadius: 4,
+            }}
+          >
+            <TextInput
+              onChangeText={text => this.setState({ newDestinationAddress: text })}
+              placeholder={'receiver address here'}
+              value={this.state.newDestinationAddress}
+              style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
+            />
+          </View>
 
-          <BlueFormInput
-            onChangeText={text => this.setState({ feeDelta: text })}
-            keyboardType={'numeric'}
-            placeholder={'fee to add (in BTC)'}
-            value={this.state.feeDelta + ''}
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              alignItems: 'center',
+              marginVertical: 8,
+              borderRadius: 4,
+            }}
+          >
+            <TextInput
+              onChangeText={text => this.setState({ feeDelta: text })}
+              keyboardType={'numeric'}
+              placeholder={'fee to add (in BTC)'}
+              value={this.state.feeDelta + ''}
+              style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
+            />
+          </View>
         </BlueCard>
+        <BlueSpacing />
 
-        <View style={{ flex: 1, flexDirection: 'row', paddingTop: 20 }}>
-          <View style={{ flex: 0.33 }}>
-            <BlueButton onPress={() => this.props.navigation.goBack()} title="Cancel" />
-          </View>
-          <View style={{ flex: 0.33 }} />
-          <View style={{ flex: 0.33 }}>
-            <BlueButton onPress={() => this.createTransaction()} title="Create" />
-          </View>
-        </View>
+        <BlueButton onPress={() => this.createTransaction()} title="Create" />
       </SafeBlueArea>
     );
   }
