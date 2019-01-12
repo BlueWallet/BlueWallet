@@ -179,12 +179,12 @@ module.exports = {
     retype_password: 'パスワードの再入力',
     passwords_do_not_match: 'パスワードが一致しません',
     encrypt_storage: 'ストレージの暗号化',
-    lightning_settings: 'Lightning settings',
+    lightning_settings: 'Lightning 設定',
     lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      ' and put its URL here in settings. Leave blank to use default ' +
+      '他の LND ノードへ接続するには LndHub をインストール後、' +
+      'URL を入力してください。既定の設定を使用するには空欄にします' +
       'ndHub\n (lndhub.io)',
-    save: 'save',
+    save: '保存',
     about: 'BlueWallet について',
     language: '言語',
     currency: '通貨',
