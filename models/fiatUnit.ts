@@ -1,4 +1,14 @@
-export const FiatUnit = Object.freeze({
+export interface IUnit {
+  readonly endPointKey: string;
+  readonly symbol: string;
+  readonly locale: string;
+}
+
+interface IFiatUnit {
+  readonly [fiatKey: string]: IUnit;
+}
+
+export const FiatUnit: IFiatUnit = Object.freeze({
   USD: { endPointKey: 'USD', symbol: '$', locale: 'en-US' },
   AUD: { endPointKey: 'AUD', symbol: '$', locale: 'en-AU' },
   CAD: { endPointKey: 'CAD', symbol: '$', locale: 'en-CA' },

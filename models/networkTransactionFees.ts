@@ -1,6 +1,11 @@
+// @ts-ignore
 import Frisbee from 'frisbee';
 
 export class NetworkTransactionFee {
+  fastestFee: number;
+  halfHourFee: number;
+  hourFee: number;
+
   constructor(fastestFee = 1, halfHourFee = 1, hourFee = 1) {
     this.fastestFee = fastestFee;
     this.halfHourFee = halfHourFee;
@@ -9,11 +14,12 @@ export class NetworkTransactionFee {
 }
 
 export default class NetworkTransactionFees {
-  static recommendedFees() {
+  static recommendedFees(): Promise<NetworkTransactionFee> {
     return new Promise(async (resolve, reject) => {
       try {
         const api = new Frisbee({ baseURI: 'https://bitcoinfees.earn.com' });
-        let response = await api.get('/api/v1/fees/recommended');
+        const response = await api.get('/api/v1/fees/recommended');
+
         if (response && response.body) {
           const networkFee = new NetworkTransactionFee(response.body.fastestFee, response.body.halfHourFee, response.body.hourFee);
           resolve(networkFee);
