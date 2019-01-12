@@ -7,6 +7,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 const { width } = Dimensions.get('window');
 
+let processedInvoices = {};
+let lastTimeTriedToPay = 0;
+
 export default class Browser extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
@@ -40,7 +43,7 @@ export default class Browser extends Component {
           />
 
           <FormInput
-            inputStyle={{ color: '#0c2550', fontSize: 16 }}
+            inputStyle={{ color: '#0c2550', maxWidth: width - 100, fontSize: 16 }}
             containerStyle={{
               maxWidth: width - 100,
               borderColor: '#d2d2d2',
@@ -76,9 +79,22 @@ export default class Browser extends Component {
             } catch (_) {}
             // message from browser has ln invoice
             if (json && json.pay) {
+              // checking that we do not trigger alert too often:
+              if (+new Date() - lastTimeTriedToPay < 3000) {
+                return;
+              }
+              lastTimeTriedToPay = +new Date();
+
+              // checking that already asked about this invoice:
+              if (processedInvoices[json.pay]) {
+                return;
+              } else {
+                processedInvoices[json.pay] = 1;
+              }
+
               Alert.alert(
                 'Page',
-                'This page asks for permission to pay this invoice',
+                'This page asks for permission to pay an invoice',
                 [
                   { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
                   {
@@ -103,12 +119,8 @@ export default class Browser extends Component {
 
             this.webview.injectJavaScript(`
 
-            lastTimeTriedToPay = 0;
             function tryToPay(invoice) {
-              if (+new Date() - lastTimeTriedToPay >= 3000) {
-                window.postMessage(JSON.stringify({pay:invoice}));
-                lastTimeTriedToPay = +new Date();
-              }
+              window.postMessage(JSON.stringify({pay:invoice}));
             }
 
 
@@ -121,8 +133,6 @@ export default class Browser extends Component {
 							for (var i = 0; i < aTags.length; i++) {
 							  if (aTags[i].textContent.indexOf(searchText) === 0) {
 							    tryToPay(aTags[i].textContent);
-							    aTags[i].replaceWith('Invoice intercepted by BlueWallet');
-							    break;
 							  }
 							}
 
@@ -137,8 +147,6 @@ export default class Browser extends Component {
 							for (var i = 0; i < aTags.length; i++) {
 							  if (aTags[i].value.indexOf(searchText) === 0) {
 							    tryToPay(aTags[i].value);
-							    aTags[i].replaceWith('Invoice intercepted by BlueWallet');
-							    break;
 							  }
 							}
 
@@ -156,8 +164,6 @@ export default class Browser extends Component {
 							  let href = aTags[i].getAttribute('href') + '';
 							  if (href.indexOf(searchText) === 0) {
 							    tryToPay(href.replace('lightning:', ''));
-							    aTags[i].replaceWith('Invoice intercepted by BlueWallet');
-							    break;
 							  }
 							}
 
