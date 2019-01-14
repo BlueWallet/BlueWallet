@@ -105,6 +105,14 @@ const WalletsStackNavigator = createStackNavigator(
       screen: LightningSettings,
       path: 'LightningSettings',
     },
+    LNDViewInvoice: {
+      screen: LNDViewInvoice,
+      swipeEnabled: false,
+      gesturesEnabled: false,
+    },
+    LNDViewAdditionalInvoiceInformation: {
+      screen: LNDViewAdditionalInvoiceInformation,
+    },
   },
   { headerBackTitleVisible: false },
 );
@@ -146,17 +154,6 @@ const ManageFundsStackNavigator = createStackNavigator({
     navigationOptions: {
       header: null,
     },
-  },
-});
-
-const LNDViewInvoiceStackNavigator = createStackNavigator({
-  LNDViewInvoice: {
-    screen: LNDViewInvoice,
-    swipeEnabled: false,
-    gesturesEnabled: false,
-  },
-  LNDViewAdditionalInvoiceInformation: {
-    screen: LNDViewAdditionalInvoiceInformation,
   },
 });
 
@@ -256,12 +253,6 @@ const MainBottomTabs = createStackNavigator(
     },
     LNDCreateInvoice: {
       screen: LNDCreateInvoiceStackNavigator,
-      navigationOptions: {
-        header: null,
-      },
-    },
-    LNDViewExistingInvoice: {
-      screen: LNDViewInvoiceStackNavigator,
       navigationOptions: {
         header: null,
       },

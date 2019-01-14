@@ -544,9 +544,10 @@ export default class WalletTransactions extends Component {
                       rowData.item.type === 'payment_request' ||
                       rowData.item.type === 'paid_invoice'
                     ) {
-                      this.props.navigation.navigate('LNDViewExistingInvoice', {
+                      this.props.navigation.navigate('LNDViewInvoice', {
                         invoice: rowData.item,
                         fromWallet: this.state.wallet,
+                        isModal: false,
                       });
                     }
                   }}

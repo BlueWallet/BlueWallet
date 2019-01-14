@@ -35,6 +35,7 @@ export default class LNDCreateInvoice extends Component {
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
           fromWallet: this.state.fromWallet,
+          isModal: true,
         });
       } catch (_error) {
         ReactNativeHapticFeedback.trigger('notificationError', false);
