@@ -21,7 +21,7 @@ export default class Browser extends Component {
     super(props);
     if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
 
-    this.state = { url: '' };
+    this.state = { url: '', fromSecret: props.navigation.getParam('fromSecret') };
   }
 
   render() {
@@ -105,6 +105,7 @@ export default class Browser extends Component {
                         routeName: 'ScanLndInvoice',
                         params: {
                           uri: json.pay,
+                          fromSecret: this.state.fromSecret,
                         },
                       });
                     },
