@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Alert, Dimensions } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View, Alert, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle } from '../../BlueComponents';
 import { FormInput } from 'react-native-elements';
@@ -21,31 +21,33 @@ export default class Browser extends Component {
     super(props);
     if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
 
-    this.state = { url: '', fromSecret: props.navigation.getParam('fromSecret') };
+    this.state = { url: 'https://bluewallet.io/marketplace/', pageIsLoading: false, fromSecret: props.navigation.getParam('fromSecret') };
   }
 
   render() {
     return (
       <React.Fragment>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Ionicons
+          <TouchableOpacity
             onPress={() => {
               this.webview.goBack();
             }}
-            name={'ios-arrow-round-back'}
-            size={26}
-            style={{
-              color: 'red',
-              backgroundColor: 'transparent',
-              left: 8,
-              top: 1,
-            }}
-          />
+          >
+            <Ionicons
+              name={'ios-arrow-round-back'}
+              size={36}
+              style={{
+                color: 'red',
+                backgroundColor: 'transparent',
+                paddingLeft: 10,
+              }}
+            />
+          </TouchableOpacity>
 
           <FormInput
-            inputStyle={{ color: '#0c2550', maxWidth: width - 100, fontSize: 16 }}
+            inputStyle={{ color: '#0c2550', maxWidth: width - 150, fontSize: 16 }}
             containerStyle={{
-              maxWidth: width - 100,
+              maxWidth: width - 150,
               borderColor: '#d2d2d2',
               borderWidth: 0.5,
               backgroundColor: '#f5f5f5',
@@ -53,24 +55,47 @@ export default class Browser extends Component {
             value={this.state.url}
           />
 
-          <Ionicons
+          <TouchableOpacity
+            onPress={() => {
+              this.setState({ url: 'https://bluewallet.io/marketplace/' });
+            }}
+          >
+            <Ionicons
+              name={'ios-home'}
+              size={36}
+              style={{
+                color: 'red',
+                backgroundColor: 'transparent',
+              }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             onPress={() => {
               this.webview.reload();
             }}
-            name={'ios-sync'}
-            size={26}
-            style={{
-              color: 'red',
-              backgroundColor: 'transparent',
-              left: 8,
-              top: 1,
-            }}
-          />
+          >
+            {(!this.state.pageIsLoading && (
+              <Ionicons
+                name={'ios-sync'}
+                size={36}
+                style={{
+                  color: 'red',
+                  backgroundColor: 'transparent',
+                  paddingLeft: 15,
+                }}
+              />
+            )) || (
+              <View style={{ paddingLeft: 20 }}>
+                <ActivityIndicator />
+              </View>
+            )}
+          </TouchableOpacity>
         </View>
 
         <WebView
           ref={ref => (this.webview = ref)}
-          source={{ uri: 'https://bluewallet.io/marketplace/' }}
+          source={{ uri: this.state.url }}
           onMessage={e => {
             // this is a handler which receives messages sent from within the browser
             let json = false;
@@ -115,8 +140,11 @@ export default class Browser extends Component {
               );
             }
           }}
+          onLoadStart={e => {
+            this.setState({ pageIsLoading: true });
+          }}
           onLoadEnd={e => {
-            this.setState({ url: e.nativeEvent.url });
+            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
 
             this.webview.injectJavaScript(`
 
