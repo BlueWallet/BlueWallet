@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { TouchableOpacity, ActivityIndicator, View, Alert, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { BlueNavigationStyle } from '../../BlueComponents';
+import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import { FormInput } from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -90,7 +90,7 @@ export default class Browser extends Component {
 
   render() {
     return (
-      <React.Fragment>
+      <SafeBlueArea>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <TouchableOpacity
             onPress={() => {
@@ -360,7 +360,7 @@ document.addEventListener("message", function(event) {
 	         `);
           }}
         />
-      </React.Fragment>
+      </SafeBlueArea>
     );
   }
 }
