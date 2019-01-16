@@ -371,7 +371,7 @@ export default class WalletTransactions extends Component {
                     style={{ alignSelf: 'flex-start', left: 10, top: 15, flexDirection: 'row' }}
                     onPress={() => {
                       console.log('navigating to LappBrowser');
-                      navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret() });
+                      navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
                     }}
                   >
                     <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{'marketplace'}</BlueText>

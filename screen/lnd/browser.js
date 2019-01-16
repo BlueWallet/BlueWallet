@@ -10,6 +10,67 @@ const { width } = Dimensions.get('window');
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
 
+/// ///////////////////////////////////////////////////////////////////////
+// this code has no use in RN, it gets copypasted in webview injected code
+//
+let bluewalletResponses = {};
+// eslint-disable-next-line
+let webln = {
+  enable: function() {
+    window.postMessage('enable');
+    return new Promise(function(resolve, reject) {
+      resolve(true);
+    });
+  },
+
+  getInfo: function() {
+    window.postMessage('getInfo');
+    return new Promise(function(resolve, reject) {
+      reject(new Error('not implemented'));
+    });
+  },
+
+  sendPayment: function(paymentRequest) {
+    window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+    return new Promise(function(resolve, reject) {
+      // nop. intentionally, forever hang promise.
+      // lapp page usually asynchroniously checks payment itself, via ajax,
+      // so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+      // might change in future
+    });
+  },
+
+  makeInvoice: function(RequestInvoiceArgs) {
+    let id = Math.random();
+    window.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
+    return new Promise(function(resolve, reject) {
+      let interval = setInterval(() => {
+        if (bluewalletResponses[id]) {
+          clearInterval(interval);
+          resolve(bluewalletResponses[id]);
+        }
+      }, 1000);
+    });
+  },
+
+  signMessage: function() {
+    window.postMessage('signMessage');
+    return new Promise(function(resolve, reject) {
+      reject(new Error('not implemented'));
+    });
+  },
+
+  verifyMessage: function() {
+    window.postMessage('verifyMessage');
+    return new Promise(function(resolve, reject) {
+      reject(new Error('not implemented'));
+    });
+  },
+};
+// end injected code
+/// /////////////////
+/// /////////////////
+
 export default class Browser extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
@@ -20,8 +81,14 @@ export default class Browser extends Component {
   constructor(props) {
     super(props);
     if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
+    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
 
-    this.state = { url: 'https://bluewallet.io/marketplace/', pageIsLoading: false, fromSecret: props.navigation.getParam('fromSecret') };
+    this.state = {
+      url: 'https://bluewallet.io/marketplace/',
+      pageIsLoading: false,
+      fromSecret: props.navigation.getParam('fromSecret'),
+      fromWallet: props.navigation.getParam('fromWallet'),
+    };
   }
 
   render() {
@@ -98,12 +165,13 @@ export default class Browser extends Component {
           source={{ uri: this.state.url }}
           onMessage={e => {
             // this is a handler which receives messages sent from within the browser
+            console.log('---- message from the bus:', e.nativeEvent.data);
             let json = false;
             try {
               json = JSON.parse(e.nativeEvent.data);
             } catch (_) {}
             // message from browser has ln invoice
-            if (json && json.pay) {
+            if (json && json.sendPayment) {
               // checking that we do not trigger alert too often:
               if (+new Date() - lastTimeTriedToPay < 3000) {
                 return;
@@ -111,10 +179,10 @@ export default class Browser extends Component {
               lastTimeTriedToPay = +new Date();
 
               // checking that already asked about this invoice:
-              if (processedInvoices[json.pay]) {
+              if (processedInvoices[json.sendPayment]) {
                 return;
               } else {
-                processedInvoices[json.pay] = 1;
+                processedInvoices[json.sendPayment] = 1;
               }
 
               Alert.alert(
@@ -129,7 +197,7 @@ export default class Browser extends Component {
                       this.props.navigation.navigate({
                         routeName: 'ScanLndInvoice',
                         params: {
-                          uri: json.pay,
+                          uri: json.sendPayment,
                           fromSecret: this.state.fromSecret,
                         },
                       });
@@ -138,6 +206,22 @@ export default class Browser extends Component {
                 ],
                 { cancelable: false },
               );
+            }
+
+            if (json && json.makeInvoice) {
+              let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
+              Alert.alert('Page', 'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')', [
+                { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                {
+                  text: 'Accept',
+                  onPress: async () => {
+                    /** @type {LightningCustodianWallet} */
+                    const fromWallet = this.state.fromWallet;
+                    const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
+                    this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+                  },
+                },
+              ]);
             }
           }}
           onLoadStart={e => {
@@ -148,13 +232,104 @@ export default class Browser extends Component {
 
             this.webview.injectJavaScript(`
 
+// this is a storage of responses from OUTER code (react native)
+// it gets written by message bus handler callback:
+// webview makes a call through bus to RN, each request with a unique ID.
+// RN processes the request from the bus, and posts response to the bus, with the same ID.
+// webview callback handler writes it in this hashmap. Then, some other code that patiently
+// waits for a response will see that the answer with such ID is present, and will fulfill a promise
+
+bluewalletResponses = {};
+
+
+// this is injected WEBLN provider
+
+
+webln = {
+
+  enable : function () {
+    window.postMessage('enable');
+    return new Promise(function(resolve, reject){
+      resolve(true);
+    })
+  },
+
+  getInfo : function () {
+    window.postMessage('getInfo');
+    return new Promise(function(resolve, reject){
+      reject('not implemented');
+    })
+  },
+
+  sendPayment: function(paymentRequest) {
+    window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+    return new Promise(function(resolve, reject) {
+      // nop. intentionally, forever hang promise.
+      // lapp page usually asynchroniously checks payment itself, via ajax,
+      // so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+      // might change in future
+    });
+  },
+
+  makeInvoice: function (RequestInvoiceArgs) {
+    let id = Math.random();
+    window.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
+    return new Promise(function(resolve, reject) {
+      let interval = setInterval(() => {
+        if (bluewalletResponses[id]) {
+          clearInterval(interval);
+          resolve(bluewalletResponses[id]);
+        }
+      }, 1000);
+    });
+  },
+
+  signMessage: function () {
+    window.postMessage('signMessage');
+    return new Promise(function(resolve, reject){
+      reject('not implemented');
+    })
+  },
+
+  verifyMessage: function () {
+    window.postMessage('verifyMessage');
+    return new Promise(function(resolve, reject){
+      reject('not implemented');
+    })
+  },
+};
+
+
+// end WEBLN
+
+// listening to events that might come from RN:
+document.addEventListener("message", function(event) {
+    window.postMessage("inside webview, received post message: " + event.data);
+    let json;
+    try {
+      json = JSON.parse(event.data);
+    } catch (_) {}
+
+    if (json && json.bluewalletResponse) {
+      // this is an answer to one of our inside-webview calls.
+      // we store it in answers hashmap for someone who cares about it
+      bluewalletResponses[json.id] = json.bluewalletResponse
+    }
+
+    logMessage(event.data);
+}, false);
+
+
+
+
             function tryToPay(invoice) {
-              window.postMessage(JSON.stringify({pay:invoice}));
+              window.postMessage(JSON.stringify({sendPayment:invoice}));
             }
 
+            // for non-webln compatible pages we do it oldschool,
+            // searching for all bolt11 manually
 
-
-	          setInterval(function(){
+	          setInterval(function() {
 
 	            var searchText = "lnbc";
 
@@ -165,11 +340,7 @@ export default class Browser extends Component {
 							  }
 							}
 
-
 							//////////////////////////////////
-							//////////////////////////////////
-							//////////////////////////////////
-
 
 							var aTags = document.getElementsByTagName("input");
 
@@ -179,12 +350,7 @@ export default class Browser extends Component {
 							  }
 							}
 
-
-
 							//////////////////////////////////
-							//////////////////////////////////
-							//////////////////////////////////
-
 
 							var aTags = document.getElementsByTagName("a");
 							var searchText = "lightning:lnbc";
