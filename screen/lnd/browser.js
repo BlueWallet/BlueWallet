@@ -168,7 +168,7 @@ export default class Browser extends Component {
               json = JSON.parse(e.nativeEvent.data);
             } catch (_) {}
             // message from browser has ln invoice
-            if (json && json.pay) {
+            if (json && json.sendPayment) {
               // checking that we do not trigger alert too often:
               if (+new Date() - lastTimeTriedToPay < 3000) {
                 return;
@@ -176,10 +176,10 @@ export default class Browser extends Component {
               lastTimeTriedToPay = +new Date();
 
               // checking that already asked about this invoice:
-              if (processedInvoices[json.pay]) {
+              if (processedInvoices[json.sendPayment]) {
                 return;
               } else {
-                processedInvoices[json.pay] = 1;
+                processedInvoices[json.sendPayment] = 1;
               }
 
               Alert.alert(
@@ -194,7 +194,7 @@ export default class Browser extends Component {
                       this.props.navigation.navigate({
                         routeName: 'ScanLndInvoice',
                         params: {
-                          uri: json.pay,
+                          uri: json.sendPayment,
                           fromSecret: this.state.fromSecret,
                         },
                       });
@@ -317,7 +317,7 @@ document.addEventListener("message", function(event) {
 
 
             function tryToPay(invoice) {
-              window.postMessage(JSON.stringify({pay:invoice}));
+              window.postMessage(JSON.stringify({sendPayment:invoice}));
             }
 
             // for non-webln compatible pages we do it oldschool,
