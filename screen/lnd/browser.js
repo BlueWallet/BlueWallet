@@ -33,7 +33,10 @@ let webln = {
   sendPayment: function(paymentRequest) {
     window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
     return new Promise(function(resolve, reject) {
-      resolve({ hello: 'world' });
+      // nop. intentionally, forever hang promise.
+      // lapp page usually asynchroniously checks payment itself, via ajax,
+      // so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+      // might change in future
     });
   },
 
@@ -258,11 +261,14 @@ webln = {
     })
   },
 
-  sendPayment: function (paymentRequest) {
-    window.postMessage(JSON.stringify({sendPayment: paymentRequest}));
-    return new Promise(function(resolve, reject){
-      resolve({"hello": "world"});
-    })
+  sendPayment: function(paymentRequest) {
+    window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+    return new Promise(function(resolve, reject) {
+      // nop. intentionally, forever hang promise.
+      // lapp page usually asynchroniously checks payment itself, via ajax,
+      // so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+      // might change in future
+    });
   },
 
   makeInvoice: function (RequestInvoiceArgs) {
