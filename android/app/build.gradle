@@ -108,16 +108,10 @@ android {
             abiFilters "armeabi-v7a", "x86"
         }
     }
-  //  signingConfigs {
-   //     release {
-   //         if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-    //            storeFile file(MYAPP_RELEASE_STORE_FILE)
-    //            storePassword MYAPP_RELEASE_STORE_PASSWORD
-    //            keyAlias MYAPP_RELEASE_KEY_ALIAS
-   //             keyPassword MYAPP_RELEASE_KEY_PASSWORD
-   //         }
-  //      }
- //   }
+//    signingConfigs {
+//        release {
+//        }
+//    }
     splits {
         abi {
             reset()
@@ -126,13 +120,13 @@ android {
             include "armeabi-v7a", "x86"
         }
     }
- //   buildTypes {
-    //    release {
-   //         minifyEnabled enableProguardInReleaseBuilds
-   //         proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-    //        signingConfig signingConfigs.release
-    //    }
-  //  }
+//    buildTypes {
+//        release {
+//            minifyEnabled enableProguardInReleaseBuilds
+//            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+//            signingConfig signingConfigs.release
+//        }
+//    }
     // applicationVariants are e.g. debug, release
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -149,19 +143,19 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-webview')
-    compile project(':react-native-camera')
-    compile project(':react-native-fs')
-    compile project(':react-native-gesture-handler')
-    compile project(':react-native-vector-icons')
-    compile project(':react-native-svg')
-    compile project(':react-native-sentry')
-    compile project(':react-native-randombytes')
-    compile project(':react-native-prompt-android')
-    compile project(':react-native-linear-gradient')
-    compile project(':react-native-haptic-feedback')
-    compile project(':react-native-google-analytics-bridge')
-    compile project(':react-native-device-info')
+    implementation project(':react-native-webview')
+    implementation project(':react-native-camera')
+    implementation project(':react-native-fs')
+    implementation project(':react-native-gesture-handler')
+    implementation project(':react-native-vector-icons')
+    implementation project(':react-native-svg')
+    implementation project(':react-native-sentry')
+    implementation project(':react-native-randombytes')
+    implementation project(':react-native-prompt-android')
+    implementation project(':react-native-linear-gradient')
+    implementation project(':react-native-haptic-feedback')
+    implementation project(':react-native-google-analytics-bridge')
+    implementation project(':react-native-device-info')
     implementation (project(':react-native-camera')) {
         exclude group: "com.android.support"
     }
@@ -173,6 +167,6 @@ dependencies {
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use
 task copyDownloadableDepsToLibs(type: Copy) {
-    from configurations.compile
+    from configurations.implementation
     into 'libs'
 }
