@@ -102,8 +102,8 @@ android {
         applicationId "io.bluewallet.bluewallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 17
-        versionName "3.5.7"
+        versionCode 18
+        versionName "3.6.0"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
