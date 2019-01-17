@@ -109,7 +109,7 @@ export default class About extends Component {
               };
               Rate.rate(options, success => {
                 if (success) {
-                  console.warn('User Rated.');
+                  console.log('User Rated.');
                 }
               });
             }}
