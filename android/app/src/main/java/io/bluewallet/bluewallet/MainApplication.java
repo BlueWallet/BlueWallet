@@ -1,9 +1,14 @@
-package com.bluewallet;
+package io.bluewallet.bluewallet;
 
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.facebook.react.BuildConfig;
+import io.sentry.RNSentryPackage;
+import com.bitgo.randombytes.RandomBytesPackage;
+import im.shimo.react.prompt.RNPromptPackage;
+import com.BV.LinearGradient.LinearGradientPackage;
+import com.mkuczera.RNReactNativeHapticFeedbackPackage;
+import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.horcrux.svg.SvgPackage;
@@ -25,7 +30,7 @@ import com.rnfs.RNFSPackage;
 import java.util.Arrays;
 import java.util.List;
 
-public  class MainApplication extends Application implements ReactApplication {
+public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -37,6 +42,12 @@ public  class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNSentryPackage(),
+            new RandomBytesPackage(),
+            new RNPromptPackage(),
+            new LinearGradientPackage(),
+            new RNReactNativeHapticFeedbackPackage(),
+            new GoogleAnalyticsBridgePackage(),
             new RNCWebViewPackage(),
             new RNFSPackage() ,
             new VectorIconsPackage(),
