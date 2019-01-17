@@ -224,13 +224,7 @@ export default class Browser extends Component {
               ]);
             }
           }}
-          onLoadStart={e => {
-            this.setState({ pageIsLoading: true });
-          }}
-          onLoadEnd={e => {
-            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
-
-            this.webview.injectJavaScript(`
+          injectedJavaScript={`
 
 // this is a storage of responses from OUTER code (react native)
 // it gets written by message bus handler callback:
@@ -363,7 +357,12 @@ document.addEventListener("message", function(event) {
 							}
 
 	          }, 1000);
-	         `);
+	         `}
+          onLoadStart={e => {
+            this.setState({ pageIsLoading: true });
+          }}
+          onLoadEnd={e => {
+            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
           }}
         />
       </SafeBlueArea>
