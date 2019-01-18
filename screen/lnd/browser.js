@@ -17,7 +17,7 @@ let bluewalletResponses = {};
 // eslint-disable-next-line
 var webln = {
   enable: function() {
-    window.postMessage('enable');
+    window.postMessage(JSON.stringify({ enable: true }));
     return new Promise(function(resolve, reject) {
       resolve(true);
     });
@@ -65,6 +65,147 @@ var webln = {
 // end injected code
 /// /////////////////
 /// /////////////////
+
+let alreadyInjected = false;
+const injectedParadise = `
+
+/* rules:
+     no 'let', only 'var'
+     no arrow functions
+     globals without 'var'
+     should work if compressed to single line
+*/
+
+
+
+/* this is a storage of responses from OUTER code (react native)
+   it gets written by message bus handler callback:
+   webview makes a call through bus to RN, each request with a unique ID.
+   RN processes the request from the bus, and posts response to the bus, with the same ID.
+   webview callback handler writes it in this hashmap. Then, some other code that patiently
+   waits for a response will see that the answer with such ID is present, and will fulfill a promise */
+
+bluewalletResponses = {};
+
+
+/* this is injected WEBLN provider */
+
+
+webln = {
+	enable : function () {
+		window.postMessage(JSON.stringify({'enable': true}));
+		return new Promise(function(resolve, reject){
+			resolve(true);
+		})
+	},
+	getInfo : function () {
+		window.postMessage('getInfo');
+		return new Promise(function(resolve, reject){
+			reject('not implemented');
+		})
+	},
+	sendPayment: function(paymentRequest) {
+		window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+		return new Promise(function(resolve, reject) {
+			/* nop. intentionally, forever hang promise.
+				 lapp page usually asynchroniously checks payment itself, via ajax,
+				 so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+				 might change in future */
+		});
+	},
+	makeInvoice: function (RequestInvoiceArgs) {
+		var id = Math.random();
+		window.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
+		return new Promise(function(resolve, reject) {
+			var interval = setInterval(function () {
+				if (bluewalletResponses[id]) {
+					clearInterval(interval);
+					resolve(bluewalletResponses[id]);
+				}
+			}, 1000);
+		});
+	},
+	signMessage: function () {
+		window.postMessage('signMessage');
+		return new Promise(function(resolve, reject){
+			reject('not implemented');
+		})
+	},
+	verifyMessage: function () {
+		window.postMessage('verifyMessage');
+		return new Promise(function(resolve, reject){
+			reject('not implemented');
+		})
+	},
+};
+
+
+/* end WEBLN */
+
+/* listening to events that might come from RN: */
+document.addEventListener("message", function(event) {
+	window.postMessage("inside webview, received post message: " + event.data);
+	var json;
+	try {
+		json = JSON.parse(event.data);
+	} catch (_) {}
+
+	if (json && json.bluewalletResponse) {
+		/* this is an answer to one of our inside-webview calls.
+			 we store it in answers hashmap for someone who cares about it */
+		bluewalletResponses[json.id] = json.bluewalletResponse
+	}
+
+}, false);
+
+
+
+
+function tryToPay(invoice) {
+	window.postMessage(JSON.stringify({sendPayment:invoice}));
+}
+
+/* for non-webln compatible pages we do it oldschool,
+	 searching for all bolt11 manually */
+
+setInterval(function() {
+window.postMessage('interval');
+
+	var searchText = "lnbc";
+
+	var aTags = document.getElementsByTagName("span");
+	var i;
+	for (i = 0; i < aTags.length; i++) {
+		if (aTags[i].textContent.indexOf(searchText) === 0) {
+			tryToPay(aTags[i].textContent);
+		}
+	}
+
+	/* ------------------------- */
+
+	aTags = document.getElementsByTagName("input");
+	for (i = 0; i < aTags.length; i++) {
+		if (aTags[i].value.indexOf(searchText) === 0) {
+			tryToPay(aTags[i].value);
+		}
+	}
+
+	/* ------------------------- */
+
+	aTags = document.getElementsByTagName("a");
+	searchText = "lightning:lnbc";
+
+
+	for (i = 0; i < aTags.length; i++) {
+		var href = aTags[i].getAttribute('href') + '';
+		if (href.indexOf(searchText) === 0) {
+			tryToPay(href.replace('lightning:', ''));
+		}
+	}
+
+}, 1000);
+
+	         `;
 
 export default class Browser extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -119,6 +260,7 @@ export default class Browser extends Component {
 
           <TouchableOpacity
             onPress={() => {
+              processedInvoices = {};
               this.setState({ url: 'https://bluewallet.io/marketplace/' });
             }}
           >
@@ -126,7 +268,7 @@ export default class Browser extends Component {
               name={'ios-home'}
               size={36}
               style={{
-                color: 'red',
+                color: this.state.weblnEnabled ? 'green' : 'red',
                 backgroundColor: 'transparent',
               }}
             />
@@ -134,7 +276,11 @@ export default class Browser extends Component {
 
           <TouchableOpacity
             onPress={() => {
-              this.webview.reload();
+              let reloadUrl = this.state.url;
+              this.setState({ url: 'about:blank' });
+              processedInvoices = {};
+              setTimeout(() => this.setState({ url: reloadUrl }), 500);
+              // this.webview.reload();
             }}
           >
             {(!this.state.pageIsLoading && (
@@ -224,150 +370,28 @@ export default class Browser extends Component {
                 { cancelable: false },
               );
             }
+
+            if (json && json.enable) {
+              console.log('webln enabled');
+              this.setState({ weblnEnabled: true });
+            }
           }}
-          injectedJavaScript={`
-
-/* rules:
-     no 'let', only 'var'
-     no arrow functions
-     globals without 'var'
-     should work if compressed to single line
-*/
-
-
-
-/* this is a storage of responses from OUTER code (react native)
-   it gets written by message bus handler callback:
-   webview makes a call through bus to RN, each request with a unique ID.
-   RN processes the request from the bus, and posts response to the bus, with the same ID.
-   webview callback handler writes it in this hashmap. Then, some other code that patiently
-   waits for a response will see that the answer with such ID is present, and will fulfill a promise */
-
-bluewalletResponses = {};
-
-
-/* this is injected WEBLN provider */
-
-
-webln = {
-	enable : function () {
-		window.postMessage('enable');
-		return new Promise(function(resolve, reject){
-			resolve(true);
-		})
-	},
-	getInfo : function () {
-		window.postMessage('getInfo');
-		return new Promise(function(resolve, reject){
-			reject('not implemented');
-		})
-	},
-	sendPayment: function(paymentRequest) {
-		window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
-		return new Promise(function(resolve, reject) {
-			/* nop. intentionally, forever hang promise.
-				 lapp page usually asynchroniously checks payment itself, via ajax,
-				 so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
-				 might change in future */
-		});
-	},
-	makeInvoice: function (RequestInvoiceArgs) {
-		var id = Math.random();
-		window.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
-		return new Promise(function(resolve, reject) {
-			var interval = setInterval(function () {
-				if (bluewalletResponses[id]) {
-					clearInterval(interval);
-					resolve(bluewalletResponses[id]);
-				}
-			}, 1000);
-		});
-	},
-	signMessage: function () {
-		window.postMessage('signMessage');
-		return new Promise(function(resolve, reject){
-			reject('not implemented');
-		})
-	},
-	verifyMessage: function () {
-		window.postMessage('verifyMessage');
-		return new Promise(function(resolve, reject){
-			reject('not implemented');
-		})
-	},
-};
-
-
-/* end WEBLN */
-
-/* listening to events that might come from RN: */
-document.addEventListener("message", function(event) {
-	window.postMessage("inside webview, received post message: " + event.data);
-	var json;
-	try {
-		json = JSON.parse(event.data);
-	} catch (_) {}
-
-	if (json && json.bluewalletResponse) {
-		/* this is an answer to one of our inside-webview calls.
-			 we store it in answers hashmap for someone who cares about it */
-		bluewalletResponses[json.id] = json.bluewalletResponse
-	}
-
-}, false);
-
-
-
-
-function tryToPay(invoice) {
-	window.postMessage(JSON.stringify({sendPayment:invoice}));
-}
-
-/* for non-webln compatible pages we do it oldschool,
-	 searching for all bolt11 manually */
-
-setInterval(function() {
-
-	var searchText = "lnbc";
-
-	var aTags = document.getElementsByTagName("span");
-	var i;
-	for (i = 0; i < aTags.length; i++) {
-		if (aTags[i].textContent.indexOf(searchText) === 0) {
-			tryToPay(aTags[i].textContent);
-		}
-	}
-
-	/* ------------------------- */
-
-	aTags = document.getElementsByTagName("input");
-	for (i = 0; i < aTags.length; i++) {
-		if (aTags[i].value.indexOf(searchText) === 0) {
-			tryToPay(aTags[i].value);
-		}
-	}
-
-	/* ------------------------- */
-
-	aTags = document.getElementsByTagName("a");
-	searchText = "lightning:lnbc";
-
-
-	for (i = 0; i < aTags.length; i++) {
-		var href = aTags[i].getAttribute('href') + '';
-		if (href.indexOf(searchText) === 0) {
-			tryToPay(href.replace('lightning:', ''));
-		}
-	}
-
-}, 1000);
-
-	         `}
           onLoadStart={e => {
-            this.setState({ pageIsLoading: true });
+            alreadyInjected = false;
+            console.log('load start');
+            this.setState({ pageIsLoading: true, weblnEnabled: false });
           }}
           onLoadEnd={e => {
+            console.log('load end');
             this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
+          }}
+          onLoadProgress={e => {
+            console.log('progress:', e.nativeEvent.progress);
+            if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
+              this.webview.injectJavaScript(injectedParadise);
+              alreadyInjected = true;
+              console.log('injected');
+            }
           }}
         />
       </SafeBlueArea>
