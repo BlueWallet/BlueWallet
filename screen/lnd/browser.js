@@ -304,7 +304,8 @@ export default class Browser extends Component {
         <WebView
           ref={ref => (this.webview = ref)}
           source={{ uri: this.state.url }}
-          mixedContentMode={'compatibility'}
+          originWhitelist={['*']}
+          injectedJavaScript={injectedParadise}
           onMessage={e => {
             // this is a handler which receives messages sent from within the browser
             console.log('---- message from the bus:', e.nativeEvent.data);
@@ -385,12 +386,11 @@ export default class Browser extends Component {
             console.log('load end');
             this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
           }}
-          injectJavaScript={injectedParadise}
           onLoadProgress={e => {
             console.log('progress:', e.nativeEvent.progress);
             if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
               // this.webview.injectJavaScript(injectedParadise);
-              alreadyInjected = true;
+              // alreadyInjected = true;
               console.log('injected');
             }
           }}
