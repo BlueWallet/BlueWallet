@@ -243,16 +243,16 @@ export default class Browser extends Component {
             } catch (_) {}
             // message from browser has ln invoice
             if (json && json.sendPayment) {
-              // checking that we do not trigger alert too often:
-              if (+new Date() - lastTimeTriedToPay < 3000) {
-                return;
-              }
-              lastTimeTriedToPay = +new Date();
-
               // checking that already asked about this invoice:
               if (processedInvoices[json.sendPayment]) {
                 return;
               } else {
+                // checking that we do not trigger alert too often:
+                if (+new Date() - lastTimeTriedToPay < 3000) {
+                  return;
+                }
+                lastTimeTriedToPay = +new Date();
+                //
                 processedInvoices[json.sendPayment] = 1;
               }
 
