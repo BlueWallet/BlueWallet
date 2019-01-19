@@ -304,9 +304,7 @@ export default class Browser extends Component {
         <WebView
           ref={ref => (this.webview = ref)}
           source={{ uri: this.state.url }}
-          useWebKit={true}
           mixedContentMode={'compatibility'}
-	  javaScriptEnabled
           onMessage={e => {
             // this is a handler which receives messages sent from within the browser
             console.log('---- message from the bus:', e.nativeEvent.data);
