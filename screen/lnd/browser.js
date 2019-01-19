@@ -385,6 +385,7 @@ export default class Browser extends Component {
             console.log('load end');
             this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
           }}
+          injectJavaScript={injectedParadise}
           onLoadProgress={e => {
             console.log('progress:', e.nativeEvent.progress);
             if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
@@ -393,6 +394,7 @@ export default class Browser extends Component {
               console.log('injected');
             }
           }}
+          
         />
       </SafeBlueArea>
     );

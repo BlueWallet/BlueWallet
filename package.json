@@ -62,7 +62,7 @@
     "react-native": "^0.57.8",
     "react-native-camera": "^1.8.0",
     "react-native-custom-qr-codes": "^2.0.0",
-    "react-native-device-info": "^0.24.3",
+    "react-native-device-info": "^0.25.0",
     "react-native-elements": "^0.19.0",
     "react-native-flexi-radio-button": "^0.2.2",
     "react-native-fs": "^2.13.3",
@@ -89,7 +89,6 @@
     "request-promise-native": "^1.0.5",
     "secure-random": "^1.1.1",
     "stream-browserify": "^1.0.0",
-    "util": "^0.10.4",
     "wif": "^2.0.1"
   },
   "react-native": {

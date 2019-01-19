@@ -3,9 +3,10 @@ package io.bluewallet.bluewallet;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.horcrux.svg.SvgPackage;
+import org.reactnative.camera.RNCameraPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
-import com.horcrux.svg.SvgPackage;
 import io.sentry.RNSentryPackage;
 import com.bitgo.randombytes.RandomBytesPackage;
 import im.shimo.react.prompt.RNPromptPackage;
@@ -17,7 +18,6 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import org.reactnative.camera.RNCameraPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.rnfs.RNFSPackage;
 
@@ -36,10 +36,11 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new SvgPackage(),
+            new RNCameraPackage(),
             new RNCWebViewPackage(),
             new RNFSPackage() ,
             new VectorIconsPackage(),
-            new SvgPackage(),
             new RNSentryPackage(),
             new RandomBytesPackage(),
             new RNPromptPackage(),

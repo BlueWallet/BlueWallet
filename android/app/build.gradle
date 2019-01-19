@@ -149,12 +149,12 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-webview')
+    compile project(':react-native-svg')
     compile project(':react-native-camera')
+    compile project(':react-native-webview')
     compile project(':react-native-fs')
     compile project(':react-native-gesture-handler')
     compile project(':react-native-vector-icons')
-    compile project(':react-native-svg')
     compile project(':react-native-sentry')
     compile project(':react-native-randombytes')
     compile project(':react-native-prompt-android')
