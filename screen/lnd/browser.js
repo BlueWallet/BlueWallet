@@ -389,7 +389,7 @@ export default class Browser extends Component {
           onLoadProgress={e => {
             console.log('progress:', e.nativeEvent.progress);
             if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
-              this.webview.injectJavaScript(injectedParadise);
+              // this.webview.injectJavaScript(injectedParadise);
               alreadyInjected = true;
               console.log('injected');
             }
