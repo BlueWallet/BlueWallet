@@ -1,7 +1,4 @@
 {
-  "displayName": "Blue Wallet",
   "name": "BlueWallet",
-  "ios": {
-    "buildNumber": "118"
-  }
+  "displayName": "BlueWallet"
 }

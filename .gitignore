@@ -1,29 +1,10 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-node_modules/
-# misc
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.idea/
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-class/constants.js
-
-# OSX# OSX
+# OSX
 #
 .DS_Store
 
 # Xcode
 #
 build/
-ios/build/*
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -39,13 +20,37 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
-#
+project.xcworkspace
 
-# Android
+# Android/IntelliJ
 #
-android/local.properties
-android/app/bluewallet-release-key.keystore
+build/
 .idea
 .gradle
+local.properties
 *.iml
-build/
+
+# node.js
+#
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+
+# fastlane
+#
+# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# screenshots whenever they are needed.
+# For more information about the recommended setup visit:
+# https://docs.fastlane.tools/best-practices/source-control/
+
+*/fastlane/report.xml
+*/fastlane/Preview.html
+*/fastlane/screenshots
+
+# Bundle artifact
+*.jsbundle
