@@ -12,11 +12,14 @@ const QRFast = require('react-native-qrcode');
 const { width, height } = Dimensions.get('window');
 
 export default class LNDViewInvoice extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
-    title: 'Lightning Invoice',
-    headerLeft: null,
-  });
+  static navigationOptions = ({ navigation }) =>
+    navigation.getParam('isModal') === true
+      ? {
+          ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
+          title: 'Lightning Invoice',
+          headerLeft: null,
+        }
+      : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
 
   constructor(props) {
     super(props);

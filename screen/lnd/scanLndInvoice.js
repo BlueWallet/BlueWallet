@@ -39,6 +39,7 @@ export default class ScanLndInvoice extends React.Component {
         const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
         if (lightningWallets.length > 0) {
           fromSecret = lightningWallets[0].getSecret();
+          console.warn('warning: using ln wallet index 0');
         }
       }
 

@@ -430,6 +430,7 @@ export default class WalletsList extends Component {
                         this.props.navigation.navigate('LNDViewInvoice', {
                           invoice: rowData.item,
                           fromWallet: lightningWallet[0],
+                          isModal: false,
                         });
                       }
                     }}
