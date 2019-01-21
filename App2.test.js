@@ -14,10 +14,7 @@ it('bip38 decodes', async () => {
     { N: 1, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
   );
 
-  assert.strictEqual(
-    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR',
-  );
+  assert.equal(wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed), '5KN7MzqK5wt2TP1fQCYyHBtDrXdJuXbUzm4A9rKAteGu3Qi5CVR');
 });
 
 it('bip38 decodes slow', async () => {
@@ -32,10 +29,7 @@ it('bip38 decodes slow', async () => {
   let encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let decryptedKey = await bip38.decrypt(encryptedKey, 'qwerty', status => process.stdout.write(parseInt(status.percent) + '%\r'));
 
-  assert.strictEqual(
-    wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
-    'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
-  );
+  assert.equal(wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed), 'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc');
 });
 
 describe('Watch only wallet', () => {
@@ -52,16 +46,16 @@ describe('Watch only wallet', () => {
 
     w.setSecret('167zK5iZrs1U6piDqubD3FjRqUTM2CZnb8');
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 233);
+    assert.equal(w.getTransactions().length, 233);
 
     w = new WatchOnlyWallet();
     w.setSecret('1BiJW1jyUaxcJp2JWwbPLPzB1toPNWTFJV');
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 2);
+    assert.equal(w.getTransactions().length, 2);
 
     // fetch again and make sure no duplicates
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 2);
+    assert.equal(w.getTransactions().length, 2);
   });
 
   it('can fetch complex TXs', async () => {
