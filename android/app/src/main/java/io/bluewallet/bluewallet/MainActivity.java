@@ -1,4 +1,4 @@
-package com.bluewallet;
+package io.bluewallet.bluewallet;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

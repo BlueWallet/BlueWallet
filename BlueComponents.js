@@ -16,7 +16,6 @@ import {
   SafeAreaView,
   Clipboard,
   Platform,
-  LayoutAnimation,
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -193,55 +192,6 @@ export const BlueCopyToClipboardButton = ({ stringToCopy }) => {
     </TouchableOpacity>
   );
 };
-
-export class BlueCopyTextToClipboard extends Component {
-  static propTypes = {
-    text: PropTypes.string,
-  };
-
-  static defaultProps = {
-    text: '',
-  };
-
-  state = { hasTappedText: false };
-
-  copyToClipboard = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring, () => {
-      Clipboard.setString(this.props.text);
-      setTimeout(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-        this.setState({ hasTappedText: false });
-      }, 1000);
-    });
-    this.setState({ hasTappedText: true });
-  };
-
-  render() {
-    return (
-      <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText}>
-          <Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
-            {this.props.text}
-          </Text>
-          {this.state.hasTappedText && (
-            <Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
-              {loc.wallets.xpub.copiedToClipboard}
-            </Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  }
-}
-
-const styleCopyTextToClipboard = StyleSheet.create({
-  address: {
-    marginVertical: 32,
-    fontSize: 15,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-});
 
 export class SafeBlueArea extends Component {
   render() {

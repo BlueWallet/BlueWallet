@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Dimensions, Platform, ActivityIndicator, View } from 'react-native';
+import { Dimensions, Platform, ActivityIndicator, View, Clipboard, Animated, TouchableOpacity } from 'react-native';
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const QRFast = require('react-native-qrcode');
 /** @type {AppStorage} */
@@ -48,6 +48,13 @@ export default class WalletXpub extends Component {
       this.setState({ showQr: true });
     }, 1000);
   }
+
+  copyToClipboard = () => {
+    this.setState({ xpubText: loc.wallets.xpub.copiedToClipboard }, () => {
+      Clipboard.setString(this.state.xpub);
+      setTimeout(() => this.setState({ xpubText: this.state.xpub }), 1000);
+    });
+  };
 
   onLayout = () => {
     const { height } = Dimensions.get('window');
@@ -103,7 +110,11 @@ export default class WalletXpub extends Component {
             }
           })()}
           <BlueSpacing20 />
-          <BlueCopyTextToClipboard text={this.state.xpubText} />
+          <TouchableOpacity onPress={this.copyToClipboard}>
+            <Animated.Text style={{ paddingHorizontal: 8, textAlign: 'center' }} numberOfLines={0}>
+              {this.state.xpubText}
+            </Animated.Text>
+          </TouchableOpacity>
         </View>
       </SafeBlueArea>
     );

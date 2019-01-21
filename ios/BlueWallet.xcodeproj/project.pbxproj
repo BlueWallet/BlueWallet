@@ -499,13 +499,6 @@
 			remoteGlobalIDString = 0974579A1D2A440A000D9368;
 			remoteInfo = RCTWKWebView;
 		};
-		B4DA894521F6056C00A3CB6C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 5F3DCC24027F4B1EAACBAE3C /* RNCWebView.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 134814201AA4EA6300B7C361;
-			remoteInfo = RNCWebView;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -1039,14 +1032,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B4DA891821F6056C00A3CB6C /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				B4DA894621F6056C00A3CB6C /* libRNCWebView.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		FC7D399B1A1043C49023DC79 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -1251,10 +1236,6 @@
 				{
 					ProductGroup = B4C5B8E121F2DF3000A845C4 /* Products */;
 					ProjectRef = 3853DFD4C6D44BB8B17AEDF0 /* RNCamera.xcodeproj */;
-				},
-				{
-					ProductGroup = B4DA891821F6056C00A3CB6C /* Products */;
-					ProjectRef = 5F3DCC24027F4B1EAACBAE3C /* RNCWebView.xcodeproj */;
 				},
 				{
 					ProductGroup = B4C5B8E521F2DF3000A845C4 /* Products */;
@@ -1708,13 +1689,6 @@
 			fileType = archive.ar;
 			path = libRCTWKWebView.a;
 			remoteRef = B4C5BAB521F3708C00A845C4 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		B4DA894621F6056C00A3CB6C /* libRNCWebView.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRNCWebView.a;
-			remoteRef = B4DA894521F6056C00A3CB6C /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
