@@ -15,36 +15,33 @@ let lastTimeTriedToPay = 0;
 //
 let bluewalletResponses = {};
 // eslint-disable-next-line
-let webln = {
+var webln = {
   enable: function() {
     window.postMessage('enable');
     return new Promise(function(resolve, reject) {
       resolve(true);
     });
   },
-
   getInfo: function() {
     window.postMessage('getInfo');
     return new Promise(function(resolve, reject) {
       reject(new Error('not implemented'));
     });
   },
-
   sendPayment: function(paymentRequest) {
     window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
     return new Promise(function(resolve, reject) {
-      // nop. intentionally, forever hang promise.
-      // lapp page usually asynchroniously checks payment itself, via ajax,
-      // so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
-      // might change in future
+      /* nop. intentionally, forever hang promise.
+				 lapp page usually asynchroniously checks payment itself, via ajax,
+				 so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+				 might change in future */
     });
   },
-
   makeInvoice: function(RequestInvoiceArgs) {
-    let id = Math.random();
+    var id = Math.random();
     window.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
     return new Promise(function(resolve, reject) {
-      let interval = setInterval(() => {
+      var interval = setInterval(function() {
         if (bluewalletResponses[id]) {
           clearInterval(interval);
           resolve(bluewalletResponses[id]);
@@ -52,14 +49,12 @@ let webln = {
       }, 1000);
     });
   },
-
   signMessage: function() {
     window.postMessage('signMessage');
     return new Promise(function(resolve, reject) {
       reject(new Error('not implemented'));
     });
   },
-
   verifyMessage: function() {
     window.postMessage('verifyMessage');
     return new Promise(function(resolve, reject) {
@@ -163,6 +158,7 @@ export default class Browser extends Component {
         <WebView
           ref={ref => (this.webview = ref)}
           source={{ uri: this.state.url }}
+          mixedContentMode={'compatibility'}
           onMessage={e => {
             // this is a handler which receives messages sent from within the browser
             console.log('---- message from the bus:', e.nativeEvent.data);
@@ -210,160 +206,168 @@ export default class Browser extends Component {
 
             if (json && json.makeInvoice) {
               let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
-              Alert.alert('Page', 'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')', [
-                { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                {
-                  text: 'Accept',
-                  onPress: async () => {
-                    /** @type {LightningCustodianWallet} */
-                    const fromWallet = this.state.fromWallet;
-                    const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
-                    this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+              Alert.alert(
+                'Page',
+                'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
+                [
+                  { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                  {
+                    text: 'Accept',
+                    onPress: async () => {
+                      /** @type {LightningCustodianWallet} */
+                      const fromWallet = this.state.fromWallet;
+                      const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
+                      this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+                    },
                   },
-                },
-              ]);
+                ],
+                { cancelable: false },
+              );
             }
           }}
-          onLoadStart={e => {
-            this.setState({ pageIsLoading: true });
-          }}
-          onLoadEnd={e => {
-            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
+          injectedJavaScript={`
 
-            this.webview.injectJavaScript(`
+/* rules:
+     no 'let', only 'var'
+     no arrow functions
+     globals without 'var'
+     should work if compressed to single line
+*/
 
-// this is a storage of responses from OUTER code (react native)
-// it gets written by message bus handler callback:
-// webview makes a call through bus to RN, each request with a unique ID.
-// RN processes the request from the bus, and posts response to the bus, with the same ID.
-// webview callback handler writes it in this hashmap. Then, some other code that patiently
-// waits for a response will see that the answer with such ID is present, and will fulfill a promise
+
+
+/* this is a storage of responses from OUTER code (react native)
+   it gets written by message bus handler callback:
+   webview makes a call through bus to RN, each request with a unique ID.
+   RN processes the request from the bus, and posts response to the bus, with the same ID.
+   webview callback handler writes it in this hashmap. Then, some other code that patiently
+   waits for a response will see that the answer with such ID is present, and will fulfill a promise */
 
 bluewalletResponses = {};
 
 
-// this is injected WEBLN provider
+/* this is injected WEBLN provider */
 
 
 webln = {
-
-  enable : function () {
-    window.postMessage('enable');
-    return new Promise(function(resolve, reject){
-      resolve(true);
-    })
-  },
-
-  getInfo : function () {
-    window.postMessage('getInfo');
-    return new Promise(function(resolve, reject){
-      reject('not implemented');
-    })
-  },
-
-  sendPayment: function(paymentRequest) {
-    window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
-    return new Promise(function(resolve, reject) {
-      // nop. intentionally, forever hang promise.
-      // lapp page usually asynchroniously checks payment itself, via ajax,
-      // so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
-      // might change in future
-    });
-  },
-
-  makeInvoice: function (RequestInvoiceArgs) {
-    let id = Math.random();
-    window.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
-    return new Promise(function(resolve, reject) {
-      let interval = setInterval(() => {
-        if (bluewalletResponses[id]) {
-          clearInterval(interval);
-          resolve(bluewalletResponses[id]);
-        }
-      }, 1000);
-    });
-  },
-
-  signMessage: function () {
-    window.postMessage('signMessage');
-    return new Promise(function(resolve, reject){
-      reject('not implemented');
-    })
-  },
-
-  verifyMessage: function () {
-    window.postMessage('verifyMessage');
-    return new Promise(function(resolve, reject){
-      reject('not implemented');
-    })
-  },
+	enable : function () {
+		window.postMessage('enable');
+		return new Promise(function(resolve, reject){
+			resolve(true);
+		})
+	},
+	getInfo : function () {
+		window.postMessage('getInfo');
+		return new Promise(function(resolve, reject){
+			reject('not implemented');
+		})
+	},
+	sendPayment: function(paymentRequest) {
+		window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+		return new Promise(function(resolve, reject) {
+			/* nop. intentionally, forever hang promise.
+				 lapp page usually asynchroniously checks payment itself, via ajax,
+				 so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+				 might change in future */
+		});
+	},
+	makeInvoice: function (RequestInvoiceArgs) {
+		var id = Math.random();
+		window.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
+		return new Promise(function(resolve, reject) {
+			var interval = setInterval(function () {
+				if (bluewalletResponses[id]) {
+					clearInterval(interval);
+					resolve(bluewalletResponses[id]);
+				}
+			}, 1000);
+		});
+	},
+	signMessage: function () {
+		window.postMessage('signMessage');
+		return new Promise(function(resolve, reject){
+			reject('not implemented');
+		})
+	},
+	verifyMessage: function () {
+		window.postMessage('verifyMessage');
+		return new Promise(function(resolve, reject){
+			reject('not implemented');
+		})
+	},
 };
 
 
-// end WEBLN
+/* end WEBLN */
 
-// listening to events that might come from RN:
+/* listening to events that might come from RN: */
 document.addEventListener("message", function(event) {
-    window.postMessage("inside webview, received post message: " + event.data);
-    let json;
-    try {
-      json = JSON.parse(event.data);
-    } catch (_) {}
+	window.postMessage("inside webview, received post message: " + event.data);
+	var json;
+	try {
+		json = JSON.parse(event.data);
+	} catch (_) {}
 
-    if (json && json.bluewalletResponse) {
-      // this is an answer to one of our inside-webview calls.
-      // we store it in answers hashmap for someone who cares about it
-      bluewalletResponses[json.id] = json.bluewalletResponse
-    }
+	if (json && json.bluewalletResponse) {
+		/* this is an answer to one of our inside-webview calls.
+			 we store it in answers hashmap for someone who cares about it */
+		bluewalletResponses[json.id] = json.bluewalletResponse
+	}
 
-    logMessage(event.data);
 }, false);
 
 
 
 
-            function tryToPay(invoice) {
-              window.postMessage(JSON.stringify({sendPayment:invoice}));
-            }
+function tryToPay(invoice) {
+	window.postMessage(JSON.stringify({sendPayment:invoice}));
+}
 
-            // for non-webln compatible pages we do it oldschool,
-            // searching for all bolt11 manually
+/* for non-webln compatible pages we do it oldschool,
+	 searching for all bolt11 manually */
 
-	          setInterval(function() {
+setInterval(function() {
 
-	            var searchText = "lnbc";
+	var searchText = "lnbc";
 
-	            var aTags = document.getElementsByTagName("span");
-							for (var i = 0; i < aTags.length; i++) {
-							  if (aTags[i].textContent.indexOf(searchText) === 0) {
-							    tryToPay(aTags[i].textContent);
-							  }
-							}
+	var aTags = document.getElementsByTagName("span");
+	var i;
+	for (i = 0; i < aTags.length; i++) {
+		if (aTags[i].textContent.indexOf(searchText) === 0) {
+			tryToPay(aTags[i].textContent);
+		}
+	}
 
-							//////////////////////////////////
+	/* ------------------------- */
 
-							var aTags = document.getElementsByTagName("input");
+	aTags = document.getElementsByTagName("input");
+	for (i = 0; i < aTags.length; i++) {
+		if (aTags[i].value.indexOf(searchText) === 0) {
+			tryToPay(aTags[i].value);
+		}
+	}
 
-							for (var i = 0; i < aTags.length; i++) {
-							  if (aTags[i].value.indexOf(searchText) === 0) {
-							    tryToPay(aTags[i].value);
-							  }
-							}
+	/* ------------------------- */
 
-							//////////////////////////////////
+	aTags = document.getElementsByTagName("a");
+	searchText = "lightning:lnbc";
 
-							var aTags = document.getElementsByTagName("a");
-							var searchText = "lightning:lnbc";
 
-							for (var i = 0; i < aTags.length; i++) {
-							  let href = aTags[i].getAttribute('href') + '';
-							  if (href.indexOf(searchText) === 0) {
-							    tryToPay(href.replace('lightning:', ''));
-							  }
-							}
+	for (i = 0; i < aTags.length; i++) {
+		var href = aTags[i].getAttribute('href') + '';
+		if (href.indexOf(searchText) === 0) {
+			tryToPay(href.replace('lightning:', ''));
+		}
+	}
 
-	          }, 1000);
-	         `);
+}, 1000);
+
+	         `}
+          onLoadStart={e => {
+            this.setState({ pageIsLoading: true });
+          }}
+          onLoadEnd={e => {
+            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
           }}
         />
       </SafeBlueArea>
