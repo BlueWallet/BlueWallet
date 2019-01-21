@@ -152,7 +152,7 @@ describe('LightningCustodianWallet', () => {
     }
 
     await l2.fetchTransactions();
-    assert.equal(l2.transactions_raw.length, txLen + 1);
+    assert.strictEqual(l2.transactions_raw.length, txLen + 1);
     // transactions became more after paying an invoice
 
     // now, trying to pay duplicate invoice
@@ -165,7 +165,7 @@ describe('LightningCustodianWallet', () => {
     }
     assert.ok(caughtError);
     await l2.fetchTransactions();
-    assert.equal(l2.transactions_raw.length, txLen + 1);
+    assert.strictEqual(l2.transactions_raw.length, txLen + 1);
     // havent changed since last time
     end = +new Date();
     if ((end - start) / 1000 > 9) {
@@ -191,21 +191,21 @@ describe('LightningCustodianWallet', () => {
     await lNew.createAccount(true);
     await lNew.authorize();
     await lNew.fetchBalance();
-    assert.equal(lNew.balance, 0);
+    assert.strictEqual(lNew.balance, 0);
 
     let invoices = await lNew.getUserInvoices();
     let invoice = await lNew.addInvoice(1, 'test memo');
     let invoices2 = await lNew.getUserInvoices();
-    assert.equal(invoices2.length, invoices.length + 1);
+    assert.strictEqual(invoices2.length, invoices.length + 1);
     assert.ok(invoices2[0].ispaid === false);
     assert.ok(invoices2[0].description);
-    assert.equal(invoices2[0].description, 'test memo');
+    assert.strictEqual(invoices2[0].description, 'test memo');
     assert.ok(invoices2[0].payment_request);
     assert.ok(invoices2[0].timestamp);
     assert.ok(invoices2[0].expire_time);
-    assert.equal(invoices2[0].amt, 1);
+    assert.strictEqual(invoices2[0].amt, 1);
     for (let inv of invoices2) {
-      assert.equal(inv.type, 'user_invoice');
+      assert.strictEqual(inv.type, 'user_invoice');
     }
 
     await lOld.fetchBalance();
@@ -225,11 +225,11 @@ describe('LightningCustodianWallet', () => {
 
     await lOld.fetchBalance();
     await lNew.fetchBalance();
-    assert.equal(oldBalance - lOld.balance, 1);
-    assert.equal(lNew.balance, 1);
+    assert.strictEqual(oldBalance - lOld.balance, 1);
+    assert.strictEqual(lNew.balance, 1);
 
     await lOld.fetchTransactions();
-    assert.equal(lOld.transactions_raw.length, txLen + 1, 'internal invoice should also produce record in payer`s tx list');
+    assert.strictEqual(lOld.transactions_raw.length, txLen + 1, 'internal invoice should also produce record in payer`s tx list');
     let newTx = lOld.transactions_raw.slice().pop();
     assert.ok(typeof newTx.fee !== 'undefined');
     assert.ok(newTx.value);
@@ -244,8 +244,8 @@ describe('LightningCustodianWallet', () => {
     await lNew.payInvoice(invoice);
     await lOld.fetchBalance();
     await lNew.fetchBalance();
-    assert.equal(lOld.balance - oldBalance, 1);
-    assert.equal(lNew.balance, 0);
+    assert.strictEqual(lOld.balance - oldBalance, 1);
+    assert.strictEqual(lNew.balance, 0);
 
     // now, paying same internal invoice. should fail:
 
@@ -261,16 +261,16 @@ describe('LightningCustodianWallet', () => {
     assert.ok(coughtError);
 
     await lOld.fetchTransactions();
-    assert.equal(txLen, lOld.transactions_raw.length, 'tx count should not be changed');
-    assert.equal(invLen, (await lNew.getUserInvoices()).length, 'invoices count should not be changed');
+    assert.strictEqual(txLen, lOld.transactions_raw.length, 'tx count should not be changed');
+    assert.strictEqual(invLen, (await lNew.getUserInvoices()).length, 'invoices count should not be changed');
 
     // testing how limiting works:
-    assert.equal(lNew.user_invoices_raw.length, 1);
+    assert.strictEqual(lNew.user_invoices_raw.length, 1);
     await lNew.addInvoice(666, 'test memo 2');
     invoices = await lNew.getUserInvoices(1);
-    assert.equal(invoices.length, 2);
-    assert.equal(invoices[0].amt, 1);
-    assert.equal(invoices[1].amt, 666);
+    assert.strictEqual(invoices.length, 2);
+    assert.strictEqual(invoices[0].amt, 1);
+    assert.strictEqual(invoices[1].amt, 666);
   });
 
   it('can pay free amount (tip) invoice', async function() {
@@ -319,7 +319,7 @@ describe('LightningCustodianWallet', () => {
     let decoded = await l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
-    assert.equal(+decoded.num_satoshis, 0);
+    assert.strictEqual(+decoded.num_satoshis, 0);
 
     await l2.checkRouteInvoice(invoice);
 
@@ -342,10 +342,10 @@ describe('LightningCustodianWallet', () => {
     }
 
     await l2.fetchTransactions();
-    assert.equal(l2.transactions_raw.length, txLen + 1);
+    assert.strictEqual(l2.transactions_raw.length, txLen + 1);
     // transactions became more after paying an invoice
 
     await l2.fetchBalance();
-    assert.equal(oldBalance - l2.balance, 3);
+    assert.strictEqual(oldBalance - l2.balance, 3);
   });
 });
