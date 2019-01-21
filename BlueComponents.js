@@ -10,6 +10,7 @@ import {
   Animated,
   ActivityIndicator,
   View,
+  UIManager,
   StyleSheet,
   Dimensions,
   Image,
@@ -204,6 +205,11 @@ export class BlueCopyTextToClipboard extends Component {
   };
 
   state = { hasTappedText: false };
+
+  constructor() {
+    super();
+    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
 
   copyToClipboard = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring, () => {

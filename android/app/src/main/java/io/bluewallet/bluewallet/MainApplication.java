@@ -52,12 +52,7 @@ public class MainApplication extends Application implements ReactApplication {
             new RNFSPackage() ,
             new VectorIconsPackage(),
             new SvgPackage(),
-            new RNSentryPackage(),
-            new RandomBytesPackage(),
-            new RNPromptPackage(),
             new LinearGradientPackage(),
-            new RNReactNativeHapticFeedbackPackage(),
-            new GoogleAnalyticsBridgePackage(),
             new RNDeviceInfo(),
               new RNCameraPackage(),
             new RNGestureHandlerPackage()
