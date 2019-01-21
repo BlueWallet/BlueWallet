@@ -1,21 +1,9 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  View,
-  Share,
-  TextInput,
-  KeyboardAvoidingView,
-  Clipboard,
-  Animated,
-  TouchableOpacity,
-  Platform,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
+import { View, Share, TextInput, KeyboardAvoidingView, Platform, Dimensions, ScrollView } from 'react-native';
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
 import QRFast from 'react-native-qrcode';
 import bip21 from 'bip21';
-import { SafeBlueArea, BlueButton, BlueNavigationStyle, BlueBitcoinAmount, BlueText } from '../../BlueComponents';
+import { SafeBlueArea, BlueButton, BlueNavigationStyle, BlueBitcoinAmount, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -51,13 +39,6 @@ export default class ReceiveAmount extends Component {
       amountSet: false,
     };
   }
-
-  copyToClipboard = () => {
-    this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(this.state.bip21);
-      setTimeout(() => this.setState({ addressText: this.state.address }), 1000);
-    });
-  };
 
   determineSize = () => {
     if (width > 312) {
@@ -133,11 +114,7 @@ export default class ReceiveAmount extends Component {
           )}
         </View>
         <View style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
-          <TouchableOpacity onPress={this.copyToClipboard}>
-            <Animated.Text style={styles.address} numberOfLines={0}>
-              {this.state.bip21}
-            </Animated.Text>
-          </TouchableOpacity>
+          <BlueCopyTextToClipboard text={this.state.bip21} />
         </View>
       </View>
     );
@@ -181,12 +158,3 @@ export default class ReceiveAmount extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  address: {
-    marginVertical: 32,
-    fontSize: 15,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-});
