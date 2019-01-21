@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, View, Alert, Dimensions } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View, Platform, Alert, Dimensions } from 'react-native';
 import { WebView } from 'react-native-webview';
+import WKWebView from 'react-native-wkwebview-reborn';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import { FormInput } from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -17,7 +18,7 @@ let bluewalletResponses = {};
 // eslint-disable-next-line
 var webln = {
   enable: function() {
-    window.postMessage('enable');
+    window.postMessage(JSON.stringify({ enable: true }));
     return new Promise(function(resolve, reject) {
       resolve(true);
     });
@@ -66,166 +67,8 @@ var webln = {
 /// /////////////////
 /// /////////////////
 
-export default class Browser extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'Lapp Browser',
-    headerLeft: null,
-  });
-
-  constructor(props) {
-    super(props);
-    if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
-    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
-
-    this.state = {
-      url: 'https://bluewallet.io/marketplace/',
-      pageIsLoading: false,
-      fromSecret: props.navigation.getParam('fromSecret'),
-      fromWallet: props.navigation.getParam('fromWallet'),
-    };
-  }
-
-  render() {
-    return (
-      <SafeBlueArea>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <TouchableOpacity
-            onPress={() => {
-              this.webview.goBack();
-            }}
-          >
-            <Ionicons
-              name={'ios-arrow-round-back'}
-              size={36}
-              style={{
-                color: 'red',
-                backgroundColor: 'transparent',
-                paddingLeft: 10,
-              }}
-            />
-          </TouchableOpacity>
-
-          <FormInput
-            inputStyle={{ color: '#0c2550', maxWidth: width - 150, fontSize: 16 }}
-            containerStyle={{
-              maxWidth: width - 150,
-              borderColor: '#d2d2d2',
-              borderWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-            }}
-            value={this.state.url}
-          />
-
-          <TouchableOpacity
-            onPress={() => {
-              this.setState({ url: 'https://bluewallet.io/marketplace/' });
-            }}
-          >
-            <Ionicons
-              name={'ios-home'}
-              size={36}
-              style={{
-                color: 'red',
-                backgroundColor: 'transparent',
-              }}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              this.webview.reload();
-            }}
-          >
-            {(!this.state.pageIsLoading && (
-              <Ionicons
-                name={'ios-sync'}
-                size={36}
-                style={{
-                  color: 'red',
-                  backgroundColor: 'transparent',
-                  paddingLeft: 15,
-                }}
-              />
-            )) || (
-              <View style={{ paddingLeft: 20 }}>
-                <ActivityIndicator />
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
-
-        <WebView
-          ref={ref => (this.webview = ref)}
-          source={{ uri: this.state.url }}
-          mixedContentMode={'compatibility'}
-          onMessage={e => {
-            // this is a handler which receives messages sent from within the browser
-            console.log('---- message from the bus:', e.nativeEvent.data);
-            let json = false;
-            try {
-              json = JSON.parse(e.nativeEvent.data);
-            } catch (_) {}
-            // message from browser has ln invoice
-            if (json && json.sendPayment) {
-              // checking that we do not trigger alert too often:
-              if (+new Date() - lastTimeTriedToPay < 3000) {
-                return;
-              }
-              lastTimeTriedToPay = +new Date();
-
-              // checking that already asked about this invoice:
-              if (processedInvoices[json.sendPayment]) {
-                return;
-              } else {
-                processedInvoices[json.sendPayment] = 1;
-              }
-
-              Alert.alert(
-                'Page',
-                'This page asks for permission to pay an invoice',
-                [
-                  { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                  {
-                    text: 'Pay',
-                    onPress: () => {
-                      console.log('OK Pressed');
-                      this.props.navigation.navigate({
-                        routeName: 'ScanLndInvoice',
-                        params: {
-                          uri: json.sendPayment,
-                          fromSecret: this.state.fromSecret,
-                        },
-                      });
-                    },
-                  },
-                ],
-                { cancelable: false },
-              );
-            }
-
-            if (json && json.makeInvoice) {
-              let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
-              Alert.alert(
-                'Page',
-                'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
-                [
-                  { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                  {
-                    text: 'Accept',
-                    onPress: async () => {
-                      /** @type {LightningCustodianWallet} */
-                      const fromWallet = this.state.fromWallet;
-                      const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
-                      this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
-                    },
-                  },
-                ],
-                { cancelable: false },
-              );
-            }
-          }}
-          injectedJavaScript={`
+let alreadyInjected = false;
+const injectedParadise = `
 
 /* rules:
      no 'let', only 'var'
@@ -251,7 +94,7 @@ bluewalletResponses = {};
 
 webln = {
 	enable : function () {
-		window.postMessage('enable');
+		window.postMessage(JSON.stringify({'enable': true}));
 		return new Promise(function(resolve, reject){
 			resolve(true);
 		})
@@ -327,6 +170,7 @@ function tryToPay(invoice) {
 	 searching for all bolt11 manually */
 
 setInterval(function() {
+window.postMessage('interval');
 
 	var searchText = "lnbc";
 
@@ -362,14 +206,288 @@ setInterval(function() {
 
 }, 1000);
 
-	         `}
+	         `;
+
+export default class Browser extends Component {
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true),
+    title: 'Lapp Browser',
+    headerLeft: null,
+  });
+
+  constructor(props) {
+    super(props);
+    if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
+    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
+
+    this.state = {
+      url: 'https://bluewallet.io/marketplace/',
+      pageIsLoading: false,
+      fromSecret: props.navigation.getParam('fromSecret'),
+      fromWallet: props.navigation.getParam('fromWallet'),
+    };
+  }
+
+  renderWebView = () => {
+    if (Platform.OS === 'android') {
+      return (
+        <WebView
+          ref={ref => (this.webview = ref)}
+          source={{ uri: this.state.url }}
+          onMessage={e => {
+            // this is a handler which receives messages sent from within the browser
+            console.log('---- message from the bus:', e.nativeEvent.data);
+            let json = false;
+            try {
+              json = JSON.parse(e.nativeEvent.data);
+            } catch (_) {}
+            // message from browser has ln invoice
+            if (json && json.sendPayment) {
+              // checking that already asked about this invoice:
+              if (processedInvoices[json.sendPayment]) {
+                return;
+              } else {
+                // checking that we do not trigger alert too often:
+                if (+new Date() - lastTimeTriedToPay < 3000) {
+                  return;
+                }
+                lastTimeTriedToPay = +new Date();
+                //
+                processedInvoices[json.sendPayment] = 1;
+              }
+
+              Alert.alert(
+                'Page',
+                'This page asks for permission to pay an invoice',
+                [
+                  { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                  {
+                    text: 'Pay',
+                    onPress: () => {
+                      console.log('OK Pressed');
+                      this.props.navigation.navigate({
+                        routeName: 'ScanLndInvoice',
+                        params: {
+                          uri: json.sendPayment,
+                          fromSecret: this.state.fromSecret,
+                        },
+                      });
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
+            }
+
+            if (json && json.makeInvoice) {
+              let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
+              Alert.alert(
+                'Page',
+                'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
+                [
+                  { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                  {
+                    text: 'Accept',
+                    onPress: async () => {
+                      /** @type {LightningCustodianWallet} */
+                      const fromWallet = this.state.fromWallet;
+                      const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
+                      this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
+            }
+
+            if (json && json.enable) {
+              console.log('webln enabled');
+              this.setState({ weblnEnabled: true });
+            }
+          }}
           onLoadStart={e => {
-            this.setState({ pageIsLoading: true });
+            alreadyInjected = false;
+            console.log('load start');
+            this.setState({ pageIsLoading: true, weblnEnabled: false });
           }}
           onLoadEnd={e => {
+            console.log('load end');
+            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
+          }}
+          onLoadProgress={e => {
+            console.log('progress:', e.nativeEvent.progress);
+            if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
+              this.webview.injectJavaScript(injectedParadise);
+              alreadyInjected = true;
+              console.log('injected');
+            }
+          }}
+        />
+      );
+    } else if (Platform.OS === 'ios') {
+      return (
+        <WKWebView
+          ref={ref => (this.webview = ref)}
+          source={{ uri: this.state.url }}
+          injectJavaScript={injectedParadise}
+          onMessage={e => {
+            // this is a handler which receives messages sent from within the browser
+            console.log('---- message from the bus:', e.nativeEvent.data);
+            let json = false;
+            try {
+              json = JSON.parse(e.nativeEvent.data);
+            } catch (_) {}
+            // message from browser has ln invoice
+            if (json && json.sendPayment) {
+              // checking that we do not trigger alert too often:
+              if (+new Date() - lastTimeTriedToPay < 3000) {
+                return;
+              }
+              lastTimeTriedToPay = +new Date();
+
+              // checking that already asked about this invoice:
+              if (processedInvoices[json.sendPayment]) {
+                return;
+              } else {
+                processedInvoices[json.sendPayment] = 1;
+              }
+
+              Alert.alert(
+                'Page',
+                'This page asks for permission to pay an invoice',
+                [
+                  { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                  {
+                    text: 'Pay',
+                    onPress: () => {
+                      console.log('OK Pressed');
+                      this.props.navigation.navigate({
+                        routeName: 'ScanLndInvoice',
+                        params: {
+                          uri: json.sendPayment,
+                          fromSecret: this.state.fromSecret,
+                        },
+                      });
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
+            }
+
+            if (json && json.makeInvoice) {
+              let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
+              Alert.alert(
+                'Page',
+                'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
+                [
+                  { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                  {
+                    text: 'Accept',
+                    onPress: async () => {
+                      /** @type {LightningCustodianWallet} */
+                      const fromWallet = this.state.fromWallet;
+                      const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
+                      this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+                    },
+                  },
+                ],
+                { cancelable: false },
+              );
+            }
+
+            if (json && json.enable) {
+              console.log('webln enabled');
+              this.setState({ weblnEnabled: true });
+            }
+          }}
+          onLoadStart={e => {
+            alreadyInjected = false;
+            console.log('load start');
+            this.setState({ pageIsLoading: true, weblnEnabled: false });
+          }}
+          onLoadEnd={e => {
+            console.log('load end');
             this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
           }}
         />
+      );
+    }
+  };
+  render() {
+    return (
+      <SafeBlueArea>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            onPress={() => {
+              this.webview.goBack();
+            }}
+          >
+            <Ionicons
+              name={'ios-arrow-round-back'}
+              size={36}
+              style={{
+                color: 'red',
+                backgroundColor: 'transparent',
+                paddingLeft: 10,
+              }}
+            />
+          </TouchableOpacity>
+
+          <FormInput
+            inputStyle={{ color: '#0c2550', maxWidth: width - 150, fontSize: 16 }}
+            containerStyle={{
+              maxWidth: width - 150,
+              borderColor: '#d2d2d2',
+              borderWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+            }}
+            value={this.state.url}
+          />
+
+          <TouchableOpacity
+            onPress={() => {
+              processedInvoices = {};
+              this.setState({ url: 'https://bluewallet.io/marketplace/' });
+            }}
+          >
+            <Ionicons
+              name={'ios-home'}
+              size={36}
+              style={{
+                color: this.state.weblnEnabled ? 'green' : 'red',
+                backgroundColor: 'transparent',
+              }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              let reloadUrl = this.state.url;
+              this.setState({ url: 'about:blank' });
+              processedInvoices = {};
+              setTimeout(() => this.setState({ url: reloadUrl }), 500);
+              // this.webview.reload();
+            }}
+          >
+            {(!this.state.pageIsLoading && (
+              <Ionicons
+                name={'ios-sync'}
+                size={36}
+                style={{
+                  color: 'red',
+                  backgroundColor: 'transparent',
+                  paddingLeft: 15,
+                }}
+              />
+            )) || (
+              <View style={{ paddingLeft: 20 }}>
+                <ActivityIndicator />
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+        {this.renderWebView()}
       </SafeBlueArea>
     );
   }
