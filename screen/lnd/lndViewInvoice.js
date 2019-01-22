@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
-import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Dimensions, Share, ScrollView, BackHandler } from 'react-native';
-import { BlueLoading, BlueText, SafeBlueArea, BlueButton, BlueNavigationStyle, BlueSpacing20 } from '../../BlueComponents';
+import { View, Dimensions, Share, ScrollView, BackHandler } from 'react-native';
+import {
+  BlueLoading,
+  BlueText,
+  SafeBlueArea,
+  BlueButton,
+  BlueCopyTextToClipboard,
+  BlueNavigationStyle,
+  BlueSpacing20,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -88,15 +96,9 @@ export default class LNDViewInvoice extends Component {
   }
 
   handleBackButton() {
+    this.props.navigation.dismiss();
     return true;
   }
-
-  copyToClipboard = () => {
-    this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(this.state.invoice.payment_request);
-      setTimeout(() => this.setState({ addressText: this.state.invoice.payment_request }), 1000);
-    });
-  };
 
   onLayout = () => {
     const { height } = Dimensions.get('window');
@@ -181,12 +183,11 @@ export default class LNDViewInvoice extends Component {
               flex: 1,
               alignItems: 'center',
               marginTop: 8,
-              paddingHorizontal: 16,
               justifyContent: 'space-between',
             }}
             onLayout={this.onLayout}
           >
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
               <QRFast
                 value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
                 fgColor={BlueApp.settings.brandingColor}
@@ -198,11 +199,7 @@ export default class LNDViewInvoice extends Component {
             <BlueSpacing20 />
             {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
             {invoice && invoice.description && <BlueText>For: {invoice.description}</BlueText>}
-            <TouchableOpacity onPress={this.copyToClipboard}>
-              <Animated.Text style={styles.address} numberOfLines={0}>
-                {this.state.addressText}
-              </Animated.Text>
-            </TouchableOpacity>
+            <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
 
             <BlueButton
               icon={{
@@ -234,15 +231,6 @@ export default class LNDViewInvoice extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  address: {
-    marginVertical: 32,
-    fontSize: 15,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-});
 
 LNDViewInvoice.propTypes = {
   navigation: PropTypes.shape({

@@ -57,7 +57,7 @@ describe('unit - LegacyWallet', function() {
     let b = LegacyWallet.fromJson(key);
     assert(key === JSON.stringify(b));
 
-    assert.equal(key, JSON.stringify(b));
+    assert.strictEqual(key, JSON.stringify(b));
   });
 
   it('can validate addresses', () => {
@@ -118,8 +118,8 @@ it('Appstorage - loadFromDisk works', async () => {
 
   let Storage2 = new AppStorage();
   await Storage2.loadFromDisk();
-  assert.equal(Storage2.wallets.length, 1);
-  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
+  assert.strictEqual(Storage2.wallets.length, 1);
+  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
   let isEncrypted = await Storage2.storageIsEncrypted();
   assert.ok(!isEncrypted);
 
@@ -146,7 +146,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.ok(!isEncrypted);
   await Storage.encryptStorage('password');
   isEncrypted = await Storage.storageIsEncrypted();
-  assert.equal(Storage.cachedPassword, 'password');
+  assert.strictEqual(Storage.cachedPassword, 'password');
   assert.ok(isEncrypted);
 
   // saved, now trying to load, using good password
@@ -156,8 +156,8 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.ok(isEncrypted);
   let loadResult = await Storage2.loadFromDisk('password');
   assert.ok(loadResult);
-  assert.equal(Storage2.wallets.length, 1);
-  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
+  assert.strictEqual(Storage2.wallets.length, 1);
+  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
 
   // now trying to load, using bad password
 
@@ -166,7 +166,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('passwordBAD');
   assert.ok(!loadResult);
-  assert.equal(Storage2.wallets.length, 0);
+  assert.strictEqual(Storage2.wallets.length, 0);
 
   // now, trying case with adding data after decrypt.
   // saveToDisk should be handled correctly
@@ -176,14 +176,14 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('password');
   assert.ok(loadResult);
-  assert.equal(Storage2.wallets.length, 1);
-  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
+  assert.strictEqual(Storage2.wallets.length, 1);
+  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
   w = new SegwitP2SHWallet();
   w.setLabel('testlabel2');
   await w.generate();
   Storage2.wallets.push(w);
-  assert.equal(Storage2.wallets.length, 2);
-  assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
+  assert.strictEqual(Storage2.wallets.length, 2);
+  assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
   await Storage2.saveToDisk();
   // saved to encrypted storage after load. next load should be successfull
   Storage2 = new AppStorage();
@@ -191,15 +191,15 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.ok(isEncrypted);
   loadResult = await Storage2.loadFromDisk('password');
   assert.ok(loadResult);
-  assert.equal(Storage2.wallets.length, 2);
-  assert.equal(Storage2.wallets[0].getLabel(), 'testlabel');
-  assert.equal(Storage2.wallets[1].getLabel(), 'testlabel2');
+  assert.strictEqual(Storage2.wallets.length, 2);
+  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
   let createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
   assert.ok(createFakeStorageResult);
-  assert.equal(Storage2.wallets.length, 0);
-  assert.equal(Storage2.cachedPassword, 'fakePassword');
+  assert.strictEqual(Storage2.wallets.length, 0);
+  assert.strictEqual(Storage2.cachedPassword, 'fakePassword');
   w = new SegwitP2SHWallet();
   w.setLabel('fakewallet');
   await w.generate();
@@ -210,14 +210,14 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   let Storage3 = new AppStorage();
   loadResult = await Storage3.loadFromDisk('password');
   assert.ok(loadResult);
-  assert.equal(Storage3.wallets.length, 2);
-  assert.equal(Storage3.wallets[0].getLabel(), 'testlabel');
+  assert.strictEqual(Storage3.wallets.length, 2);
+  assert.strictEqual(Storage3.wallets[0].getLabel(), 'testlabel');
   // fake:
   Storage3 = new AppStorage();
   loadResult = await Storage3.loadFromDisk('fakePassword');
   assert.ok(loadResult);
-  assert.equal(Storage3.wallets.length, 1);
-  assert.equal(Storage3.wallets[0].getLabel(), 'fakewallet');
+  assert.strictEqual(Storage3.wallets.length, 1);
+  assert.strictEqual(Storage3.wallets[0].getLabel(), 'fakewallet');
 });
 
 it('Wallet can fetch UTXO', async () => {
@@ -245,7 +245,7 @@ it('Wallet can fetch TXs', async () => {
   let w = new LegacyWallet();
   w._address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
   await w.fetchTransactions();
-  assert.equal(w.getTransactions().length, 2);
+  assert.strictEqual(w.getTransactions().length, 2);
 
   let tx0 = w.getTransactions()[0];
   let txExpected = {
@@ -296,7 +296,7 @@ it('Wallet can fetch TXs', async () => {
   delete txExpected.confirmations;
   delete tx0.preference; // that bs is not always the same
   delete txExpected.preference;
-  assert.deepEqual(tx0, txExpected);
+  assert.deepStrictEqual(tx0, txExpected);
 });
 
 describe('currency', () => {
@@ -321,7 +321,7 @@ describe('currency', () => {
     await currency.setPrefferedCurrency(FiatUnit.EUR);
     await currency.startUpdater();
     let preferred = await currency.getPreferredCurrency();
-    assert.equal(preferred.endPointKey, 'EUR');
+    assert.strictEqual(preferred.endPointKey, 'EUR');
     cur = JSON.parse(AsyncStorage.storageCache[AppStorage.EXCHANGE_RATES]);
     assert.ok(cur['BTC_EUR'] > 0);
   });

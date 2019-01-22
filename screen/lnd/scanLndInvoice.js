@@ -85,6 +85,12 @@ export default class ScanLndInvoice extends React.Component {
         return this.props.navigation.goBack();
       }
 
+      // handling BIP21 w/BOLT11 support
+      let ind = data.indexOf('lightning=');
+      if (ind !== -1) {
+        data = data.substring(ind + 10).split('&')[0];
+      }
+
       data = data.replace('LIGHTNING:', '').replace('lightning:', '');
       console.log(data);
 
