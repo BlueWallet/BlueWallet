@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
-import { Animated, StyleSheet, View, TouchableOpacity, Clipboard, Share } from 'react-native';
+import { View, Share } from 'react-native';
 import { QRCode } from 'react-native-custom-qr-codes';
 import bip21 from 'bip21';
-import { BlueLoading, SafeBlueArea, BlueButton, BlueButtonLink, BlueNavigationStyle, is } from '../../BlueComponents';
+import {
+  BlueLoading,
+  SafeBlueArea,
+  BlueCopyTextToClipboard,
+  BlueButton,
+  BlueButtonLink,
+  BlueNavigationStyle,
+  is,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -70,13 +78,6 @@ export default class ReceiveDetails extends Component {
     }
   }
 
-  copyToClipboard = () => {
-    this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(this.state.address);
-      setTimeout(() => this.setState({ addressText: this.state.address }), 1000);
-    });
-  };
-
   render() {
     console.log('render() receive/details, address,secret=', this.state.address, ',', this.state.secret);
     if (this.state.isLoading) {
@@ -94,11 +95,7 @@ export default class ReceiveDetails extends Component {
               backgroundColor={BlueApp.settings.brandingColor}
               logo={require('../../img/qr-code.png')}
             />
-            <TouchableOpacity onPress={this.copyToClipboard}>
-              <Animated.Text style={styles.address} numberOfLines={0}>
-                {this.state.addressText}
-              </Animated.Text>
-            </TouchableOpacity>
+            <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>
           <View style={{ marginBottom: 24, alignItems: 'center' }}>
             <BlueButtonLink
@@ -128,15 +125,6 @@ export default class ReceiveDetails extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  address: {
-    marginVertical: 32,
-    fontSize: 15,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-});
 
 ReceiveDetails.propTypes = {
   navigation: PropTypes.shape({
