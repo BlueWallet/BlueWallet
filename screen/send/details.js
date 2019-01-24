@@ -511,6 +511,7 @@ export default class SendDetails extends Component {
                 }}
                 onBarScanned={this.processAddressData}
                 address={this.state.address}
+                isLoading={this.state.isLoading}
               />
               <View
                 hide={!this.state.showMemoRow}

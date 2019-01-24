@@ -219,6 +219,7 @@ export default class ScanLndInvoice extends React.Component {
               }}
               onBarScanned={this.processInvoice}
               address={this.state.destination}
+              isLoading={this.state.isLoading}
             />
             <View
               style={{
