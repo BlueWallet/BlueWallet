@@ -16,7 +16,7 @@ export default class CameraExample extends React.Component {
     hasCameraPermission: null,
   };
 
-  async onBarCodeScanned(ret) {
+  onBarCodeScanned(ret) {
     if (this.ignoreRead) return;
     this.ignoreRead = true;
     setTimeout(() => {
@@ -32,11 +32,6 @@ export default class CameraExample extends React.Component {
       // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       this.setState({ hasCameraPermission: response === 'authorized' });
     });
-
-    // For testing in Simulator
-    // const onBarScanned = this.props.navigation.getParam('onBarScanned');
-    // onBarScanned('lnbc4223u1pwyj632pp5f2m0rpyflj9dx4a3kljkts6xadjfeuplcfkqz8lecnmjfpl75wyqdphgf5hgun9ve5kcmpqx43ngwfkvyexzwf3xcurvvpsxqcrgefcx3nxgdqcqzysxqr8pqfppjec6wr6uvxqz2dc75f8c9x2u0h6a88f9jzn04eyg7v73at8r8q4h0649h97xr8ukq858xnhumfdw8gecqgr7jac6znpjhdpe6lgymjrwvjwr0ns38ptd5lssvqja2knmlpuz2kssp8v3cst');
-    //
   }
 
   render() {

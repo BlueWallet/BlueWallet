@@ -51,7 +51,6 @@ export class BlueButton extends Component {
       <Button
         activeOpacity={0.1}
         delayPressIn={0}
-        {...this.props}
         style={{
           borderWidth: 0.7,
           borderColor: 'transparent',
@@ -67,6 +66,7 @@ export class BlueButton extends Component {
           this.props.buttonStyle,
         )}
         color="#0c2550"
+        {...this.props}
       />
     );
   }

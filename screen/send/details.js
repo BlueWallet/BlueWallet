@@ -86,12 +86,11 @@ export default class SendDetails extends Component {
     this.setState(
       { isLoading: true },
       () => {
-        console.warn(data);
         if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
           this.processBIP70Invoice(data);
         } else {
-          data = data.replace('bitcoin:', '');
-          if (btcAddressRx.test(data) || data.indexOf('bc1') === 0) {
+          const dataWithoutSchema = data.replace('bitcoin:', '');
+          if (btcAddressRx.test(dataWithoutSchema) || dataWithoutSchema.indexOf('bc1') === 0) {
             this.setState({
               address: data,
               bip70TransactionExpiration: null,
@@ -100,11 +99,15 @@ export default class SendDetails extends Component {
           } else {
             let address, options;
             try {
+              if (!data.toLowerCase().startsWith('bitcoin:')) {
+                data = `bitcoin:${data}`;
+              }
               const decoded = bip21.decode(data);
               address = decoded.address;
               options = decoded.options;
-            } catch (Err) {
-              console.log(Err);
+            } catch (error) {
+              console.log(error);
+              this.setState({ isLoading: false });
             }
             console.log(options);
             if (btcAddressRx.test(address)) {
