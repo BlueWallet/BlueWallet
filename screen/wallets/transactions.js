@@ -366,27 +366,26 @@ export default class WalletTransactions extends Component {
           {(() => {
             if (this.state.showManageFundsSmallButton) {
               return (
-                <React.Fragment>
+                <View style={{ flex: 1, justifyContent: 'space-between', minHeight: 40, alignContent: 'center', flexDirection: 'row' }}>
                   <TouchableOpacity
-                    style={{ alignSelf: 'flex-start', left: 10, top: 15, flexDirection: 'row' }}
+                    style={{ left: 10, flexDirection: 'row', flex: 1, alignItems: 'center' }}
                     onPress={() => {
                       console.log('navigating to LappBrowser');
                       navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
                     }}
                   >
-                    <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{'marketplace'}</BlueText>
+                    <BlueText style={{ fontWeight: '600', fontSize: 16 }}>marketplace</BlueText>
                     <Icon
-                      style={{ position: 'relative' }}
                       name="shopping-cart"
                       type="font-awesome"
                       size={14}
                       color={BlueApp.settings.foregroundColor}
-                      iconStyle={{ left: 5 }}
+                      iconStyle={{ left: 5, top: 2 }}
                     />
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={{ alignSelf: 'flex-end', right: 10, top: -5, flexDirection: 'row' }}
+                    style={{ marginRight: 10, flexDirection: 'row', alignItems: 'center' }}
                     onPress={() => {
                       console.log('navigating to', this.state.wallet.getLabel());
                       navigate('ManageFunds', { fromWallet: this.state.wallet });
@@ -394,15 +393,14 @@ export default class WalletTransactions extends Component {
                   >
                     <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
                     <Icon
-                      style={{ position: 'relative' }}
                       name="link"
                       type="font-awesome"
                       size={14}
                       color={BlueApp.settings.foregroundColor}
-                      iconStyle={{ left: 5, transform: [{ rotate: '90deg' }] }}
+                      iconStyle={{ left: 5, top: 2, transform: [{ rotate: '90deg' }] }}
                     />
                   </TouchableOpacity>
-                </React.Fragment>
+                </View>
               );
             }
           })()}

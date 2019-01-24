@@ -269,13 +269,12 @@ export class BlueText extends Component {
   render() {
     return (
       <Text
-        style={Object.assign(
-          {
-            color: BlueApp.settings.foregroundColor,
-          },
+        style={{
+          color: BlueApp.settings.foregroundColor,
+
           // eslint-disable-next-line
-          this.props.style,
-        )}
+          ...this.props.style,
+        }}
         {...this.props}
       />
     );
