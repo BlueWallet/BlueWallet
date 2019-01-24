@@ -29,6 +29,7 @@ import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet'
 import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from './class/lightning-custodian-wallet';
 import { BitcoinUnit } from './models/bitcoinUnits';
+import NavigationService from './NavigationService';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -1163,6 +1164,71 @@ export class WalletsCarousel extends Component {
           console.log('snapped to card #', index);
         }}
       />
+    );
+  }
+}
+
+export class BlueAddressInput extends Component {
+  static propTypes = {
+    isLoading: PropTypes.bool,
+    onChangeText: PropTypes.func,
+    onBarScanned: PropTypes.func,
+    address: PropTypes.string,
+  };
+
+  static defaultProps = {
+    isLoading: false,
+    address: '',
+  };
+
+  render() {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          borderColor: '#d2d2d2',
+          borderBottomColor: '#d2d2d2',
+          borderWidth: 1.0,
+          borderBottomWidth: 0.5,
+          backgroundColor: '#f5f5f5',
+          minHeight: 44,
+          height: 44,
+          marginHorizontal: 20,
+          alignItems: 'center',
+          marginVertical: 8,
+          borderRadius: 4,
+        }}
+      >
+        <TextInput
+          onChangeText={text => {
+            this.props.onChangeText(text);
+          }}
+          placeholder={loc.send.details.address}
+          numberOfLines={1}
+          value={this.props.address}
+          style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+          editable={!this.props.isLoading}
+        />
+        <TouchableOpacity
+          disabled={this.props.isLoading}
+          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned })}
+          style={{
+            width: 75,
+            height: 36,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#bebebe',
+            borderRadius: 4,
+            paddingVertical: 4,
+            paddingHorizontal: 8,
+            marginHorizontal: 4,
+          }}
+        >
+          <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+          <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 }

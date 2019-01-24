@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import Camera from 'react-native-camera';
 import Permissions from 'react-native-permissions';
 import { SafeBlueArea } from '../../BlueComponents';
-let EV = require('../../events');
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
@@ -24,15 +23,20 @@ export default class CameraExample extends React.Component {
       this.ignoreRead = false;
     }, 2000);
 
-    this.props.navigation.goBack();
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, ret.data);
+    const onBarScanned = this.props.navigation.getParam('onBarScanned');
+    onBarScanned(ret.data);
   } // end
 
-  async componentDidMount() {
+  componentDidMount() {
     Permissions.request('camera').then(response => {
       // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       this.setState({ hasCameraPermission: response === 'authorized' });
     });
+
+    // For testing in Simulator
+    // const onBarScanned = this.props.navigation.getParam('onBarScanned');
+    // onBarScanned('lnbc4223u1pwyj632pp5f2m0rpyflj9dx4a3kljkts6xadjfeuplcfkqz8lecnmjfpl75wyqdphgf5hgun9ve5kcmpqx43ngwfkvyexzwf3xcurvvpsxqcrgefcx3nxgdqcqzysxqr8pqfppjec6wr6uvxqz2dc75f8c9x2u0h6a88f9jzn04eyg7v73at8r8q4h0649h97xr8ukq858xnhumfdw8gecqgr7jac6znpjhdpe6lgymjrwvjwr0ns38ptd5lssvqja2knmlpuz2kssp8v3cst');
+    //
   }
 
   render() {
@@ -70,7 +74,8 @@ export default class CameraExample extends React.Component {
 
 CameraExample.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    dismiss: PropTypes.function,
+    goBack: PropTypes.func,
+    dismiss: PropTypes.func,
+    getParam: PropTypes.func,
   }),
 };

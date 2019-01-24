@@ -36,10 +36,6 @@ EV.enum = {
   // changed (usually for current wallet)
   REMOTE_TRANSACTIONS_COUNT_CHANGED: 'REMOTE_TRANSACTIONS_COUNT_CHANGED',
 
-  // emitted when QR scanner scanned address that should be used in CREATE TRANSACTION screen
-  // thus, previous screen (CREATE TRANSACTION screen) will update it's input content
-  CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS: 'CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS',
-
   // RECEIVE_ADDRESS_CHANGED: 'RECEIVE_ADDRESS_CHANGED',
 };
 

@@ -1,9 +1,16 @@
 /* global alert */
 import React from 'react';
-import { Text, Dimensions, ActivityIndicator, View, TouchableOpacity, TouchableWithoutFeedback, TextInput, Keyboard } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Text, Dimensions, ActivityIndicator, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import PropTypes from 'prop-types';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueBitcoinAmount } from '../../BlueComponents';
+import {
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueNavigationStyle,
+  BlueAddressInput,
+  BlueBitcoinAmount,
+} from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
@@ -59,20 +66,13 @@ export default class ScanLndInvoice extends React.Component {
   }
 
   async componentDidMount() {
-    EV(
-      EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS,
-      data => {
-        this.processInvoice(data);
-      },
-      true,
-    );
-
     if (this.props.navigation.state.params.uri) {
       this.processTextForInvoice(this.props.navigation.getParam('uri'));
     }
   }
 
-  processInvoice(data) {
+  processInvoice = data => {
+    this.props.navigation.goBack(null);
     this.setState({ isLoading: true }, async () => {
       if (this.ignoreRead) return;
       this.ignoreRead = true;
@@ -122,7 +122,7 @@ export default class ScanLndInvoice extends React.Component {
         alert(Err.message);
       }
     });
-  }
+  };
 
   async pay() {
     if (!this.state.hasOwnProperty('decoded')) {
@@ -212,53 +212,14 @@ export default class ScanLndInvoice extends React.Component {
           />
           <BlueSpacing20 />
           <BlueCard>
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 8,
-                borderRadius: 4,
+            <BlueAddressInput
+              onChangeText={text => {
+                this.setState({ destination: text });
+                this.processTextForInvoice(text);
               }}
-            >
-              <TextInput
-                onChangeText={text => {
-                  this.setState({ destination: text });
-                  this.processTextForInvoice(text);
-                }}
-                placeholder={loc.wallets.details.destination}
-                numberOfLines={1}
-                value={this.state.destination}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
-                editable={!this.state.isLoading}
-              />
-              <TouchableOpacity
-                disabled={this.state.isLoading}
-                onPress={() => this.props.navigation.navigate('ScanQrAddress')}
-                style={{
-                  width: 75,
-                  height: 36,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: '#bebebe',
-                  borderRadius: 4,
-                  paddingVertical: 4,
-                  paddingHorizontal: 8,
-                  marginHorizontal: 4,
-                }}
-              >
-                <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
-                <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
-              </TouchableOpacity>
-            </View>
+              onBarScanned={this.processInvoice}
+              address={this.state.destination}
+            />
             <View
               style={{
                 flexDirection: 'row',
