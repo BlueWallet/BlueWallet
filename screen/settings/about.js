@@ -112,7 +112,7 @@ export default class About extends Component {
                   }
                 });
               }}
-              title="Rate Blue Wallet"
+              title="Rate BlueWallet"
             />
 
             <BlueSpacing20 />
