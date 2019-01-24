@@ -44,30 +44,27 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    // eslint-disable-next-line
-    this.props.buttonStyle = this.props.buttonStyle || {};
-
     return (
-      <Button
-        activeOpacity={0.1}
-        delayPressIn={0}
+      <TouchableOpacity
         style={{
+          flex: 1,
           borderWidth: 0.7,
           borderColor: 'transparent',
+          backgroundColor: '#ccddf9',
+          minHeight: 45,
+          height: 45,
+          borderRadius: 25,
+          minWidth: width / 1.5,
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
-        buttonStyle={Object.assign(
-          {
-            backgroundColor: '#ccddf9',
-            minHeight: 45,
-            height: 45,
-            borderWidth: 0,
-            borderRadius: 25,
-          },
-          this.props.buttonStyle,
-        )}
-        color="#0c2550"
         {...this.props}
-      />
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+          {this.props.icon && <Icon name={this.props.icon.name} type={this.props.icon.type} color={this.props.icon.color} />}
+          <Text style={{ marginHorizontal: 8, fontSize: 16, color: '#0c2550' }}>{this.props.title}</Text>
+        </View>
+      </TouchableOpacity>
     );
   }
 }
