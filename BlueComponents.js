@@ -21,15 +21,12 @@ import {
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { WatchOnlyWallet, LegacyWallet } from './class';
+import { LightningCustodianWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import DeviceInfo from 'react-native-device-info';
-import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
-import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
-import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from './class/lightning-custodian-wallet';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
+import WalletGradient from './class/walletGradient';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -936,7 +933,7 @@ export class NewWalletPanel extends Component {
         style={{ marginVertical: 17 }}
       >
         <LinearGradient
-          colors={['#eef0f4', '#eef0f4']}
+          colors={WalletGradient.createWallet}
           style={{
             padding: 15,
             borderRadius: 10,
@@ -1017,39 +1014,6 @@ export class WalletsCarousel extends Component {
       );
     }
 
-    let gradient1 = '#65ceef';
-    let gradient2 = '#68bbe1';
-
-    if (WatchOnlyWallet.type === item.type) {
-      gradient1 = '#7d7d7d';
-      gradient2 = '#4a4a4a';
-    }
-
-    if (LegacyWallet.type === item.type) {
-      gradient1 = '#40fad1';
-      gradient2 = '#15be98';
-    }
-
-    if (HDLegacyP2PKHWallet.type === item.type) {
-      gradient1 = '#e36dfa';
-      gradient2 = '#bd10e0';
-    }
-
-    if (HDLegacyBreadwalletWallet.type === item.type) {
-      gradient1 = '#fe6381';
-      gradient2 = '#f99c42';
-    }
-
-    if (HDSegwitP2SHWallet.type === item.type) {
-      gradient1 = '#c65afb';
-      gradient2 = '#9053fe';
-    }
-
-    if (LightningCustodianWallet.type === item.type) {
-      gradient1 = '#f1be07';
-      gradient2 = '#f79056';
-    }
-
     return (
       <Animated.View
         style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
@@ -1063,13 +1027,13 @@ export class WalletsCarousel extends Component {
           onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
-              WalletsCarousel.handleClick(index, [gradient1, gradient2]);
+              WalletsCarousel.handleClick(index);
             }
           }}
         >
           <LinearGradient
             shadowColor="#000000"
-            colors={[gradient1, gradient2]}
+            colors={WalletGradient.gradientsFor(item.type)}
             style={{
               padding: 15,
               borderRadius: 10,

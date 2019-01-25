@@ -7,8 +7,8 @@ export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.setBaseURI(); // no args to init with default value
     this.init();
     this.refresh_token = '';

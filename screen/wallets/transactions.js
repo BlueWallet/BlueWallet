@@ -20,6 +20,7 @@ import {
 import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
+import WalletGradient from '../../class/walletGradient';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -41,7 +42,7 @@ export default class WalletTransactions extends Component {
         </TouchableOpacity>
       ),
       headerStyle: {
-        backgroundColor: navigation.getParam('gradients')[0] || '#65ceef',
+        backgroundColor: navigation.getParam('headerColor'),
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
@@ -195,9 +196,8 @@ export default class WalletTransactions extends Component {
   }
 
   renderWalletHeader = () => {
-    const gradients = this.props.navigation.getParam('gradients') || ['#65ceef', '#68bbe1'];
     return (
-      <LinearGradient colors={[gradients[0], gradients[1]]} style={{ padding: 15, minHeight: 164 }}>
+      <LinearGradient colors={WalletGradient.gradientsFor(this.state.wallet.type)} style={{ padding: 15, minHeight: 164 }}>
         <Image
           source={
             (LightningCustodianWallet.type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
