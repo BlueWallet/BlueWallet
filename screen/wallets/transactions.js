@@ -148,7 +148,10 @@ export default class WalletTransactions extends Component {
           try {
             /** @type {LegacyWallet} */
             let wallet = that.state.wallet;
+            let balanceStart = +new Date();
             await wallet.fetchBalance();
+            let balanceEnd = +new Date();
+            console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
             await wallet.fetchTransactions();
             if (wallet.fetchPendingTransactions) {

@@ -3,6 +3,7 @@ package io.bluewallet.bluewallet;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.peel.react.TcpSocketsModule;
 import io.sentry.RNSentryPackage;
 import com.bitgo.randombytes.RandomBytesPackage;
 import im.shimo.react.prompt.RNPromptPackage;
@@ -42,6 +43,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new TcpSocketsModule(),
             new RNSentryPackage(),
             new RandomBytesPackage(),
             new RNPromptPackage(),
