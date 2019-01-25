@@ -41,13 +41,14 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
+    const backgroundColor = this.props.disabled ? '#99a0ab' : '#ccddf9';
     return (
       <TouchableOpacity
         style={{
           flex: 1,
           borderWidth: 0.7,
           borderColor: 'transparent',
-          backgroundColor: '#ccddf9',
+          backgroundColor: backgroundColor,
           minHeight: 45,
           height: 45,
           borderRadius: 25,
@@ -59,7 +60,7 @@ export class BlueButton extends Component {
       >
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           {this.props.icon && <Icon name={this.props.icon.name} type={this.props.icon.type} color={this.props.icon.color} />}
-          <Text style={{ marginHorizontal: 8, fontSize: 16, color: '#0c2550' }}>{this.props.title}</Text>
+          {this.props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: '#0c2550' }}>{this.props.title}</Text>}
         </View>
       </TouchableOpacity>
     );
@@ -203,7 +204,7 @@ export class BlueCopyTextToClipboard extends Component {
 
   constructor() {
     super();
-    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    if (Platform.OS === 'android') UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
   copyToClipboard = () => {
@@ -1230,6 +1231,7 @@ export class BlueBitcoinAmount extends Component {
               ref={textInput => (this.textInput = textInput)}
               editable={!this.props.isLoading && !this.props.disabled}
               value={amount}
+              autoFocus={this.props.pointerEvents !== 'none'}
               placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
               style={{
                 color: this.props.disabled ? '#99a0ab' : '#0f5cc0',

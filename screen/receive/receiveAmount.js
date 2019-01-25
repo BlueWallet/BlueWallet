@@ -3,7 +3,15 @@ import { View, Share, TextInput, KeyboardAvoidingView, Platform, Dimensions, Scr
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
 import QRFast from 'react-native-qrcode';
 import bip21 from 'bip21';
-import { SafeBlueArea, BlueButton, BlueNavigationStyle, BlueBitcoinAmount, BlueText, BlueCopyTextToClipboard } from '../../BlueComponents';
+import {
+  SafeBlueArea,
+  BlueCard,
+  BlueButton,
+  BlueNavigationStyle,
+  BlueBitcoinAmount,
+  BlueText,
+  BlueCopyTextToClipboard,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -75,15 +83,17 @@ export default class ReceiveAmount extends Component {
             editable={!this.state.isLoading}
           />
         </View>
-        <BlueButton
-          title={loc.receive.create}
-          onPress={() => {
-            this.setState({
-              amountSet: true,
-              bip21: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
-            });
-          }}
-        />
+        <BlueCard>
+          <BlueButton
+            title={loc.receive.details.create}
+            onPress={() => {
+              this.setState({
+                amountSet: true,
+                bip21: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
+              });
+            }}
+          />
+        </BlueCard>
       </View>
     );
   }
@@ -113,7 +123,7 @@ export default class ReceiveAmount extends Component {
             />
           )}
         </View>
-        <View style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <BlueCopyTextToClipboard text={this.state.bip21} />
         </View>
       </View>
@@ -134,23 +144,21 @@ export default class ReceiveAmount extends Component {
               {this.state.amountSet ? this.renderWithSetAmount() : this.renderDefault()}
             </KeyboardAvoidingView>
             {this.state.amountSet && (
-              <BlueButton
-                buttonStyle={{
-                  alignSelf: 'center',
-                  marginBottom: 24,
-                }}
-                icon={{
-                  name: 'share-alternative',
-                  type: 'entypo',
-                  color: BlueApp.settings.buttonTextColor,
-                }}
-                onPress={async () => {
-                  Share.share({
-                    message: this.state.bip21,
-                  });
-                }}
-                title={loc.receive.details.share}
-              />
+              <BlueCard>
+                <BlueButton
+                  icon={{
+                    name: 'share-alternative',
+                    type: 'entypo',
+                    color: BlueApp.settings.buttonTextColor,
+                  }}
+                  onPress={async () => {
+                    Share.share({
+                      message: this.state.bip21,
+                    });
+                  }}
+                  title={loc.receive.details.share}
+                />
+              </BlueCard>
             )}
           </View>
         </ScrollView>

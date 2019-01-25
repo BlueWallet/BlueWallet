@@ -1,6 +1,6 @@
 /* global alert */
 import React from 'react';
-import { Text, Dimensions, ActivityIndicator, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Text, ActivityIndicator, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueSpacing20,
@@ -17,7 +17,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let loc = require('../../loc');
-const { width } = Dimensions.get('window');
 
 export default class ScanLndInvoice extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -36,7 +35,7 @@ export default class ScanLndInvoice extends React.Component {
 
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
-      props.navigation.dismiss();
+      // props.navigation.dismiss();
     } else {
       let fromSecret;
       if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
@@ -72,7 +71,6 @@ export default class ScanLndInvoice extends React.Component {
   }
 
   processInvoice = data => {
-    this.props.navigation.goBack(null);
     this.setState({ isLoading: true }, async () => {
       if (this.ignoreRead) return;
       this.ignoreRead = true;
@@ -237,27 +235,26 @@ export default class ScanLndInvoice extends React.Component {
             {this.state.expiresIn !== undefined && (
               <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
             )}
+            <BlueSpacing20 />
+            {this.state.isLoading ? (
+              <View>
+                <ActivityIndicator />
+              </View>
+            ) : (
+              <BlueButton
+                icon={{
+                  name: 'bolt',
+                  type: 'font-awesome',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                title={'Pay'}
+                onPress={() => {
+                  this.pay();
+                }}
+                disabled={this.shouldDisablePayButton()}
+              />
+            )}
           </BlueCard>
-          <BlueSpacing20 />
-          {this.state.isLoading ? (
-            <View>
-              <ActivityIndicator />
-            </View>
-          ) : (
-            <BlueButton
-              icon={{
-                name: 'bolt',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              title={'Pay'}
-              buttonStyle={{ width: 150, left: (width - 150) / 2 - 20 }}
-              onPress={() => {
-                this.pay();
-              }}
-              disabled={this.shouldDisablePayButton()}
-            />
-          )}
         </SafeBlueArea>
       </TouchableWithoutFeedback>
     );

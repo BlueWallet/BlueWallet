@@ -3,6 +3,17 @@ package io.bluewallet.bluewallet;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.webview.RNCWebViewPackage;
+import io.sentry.RNSentryPackage;
+import com.bitgo.randombytes.RandomBytesPackage;
+import im.shimo.react.prompt.RNPromptPackage;
+import com.BV.LinearGradient.LinearGradientPackage;
+import com.mkuczera.RNReactNativeHapticFeedbackPackage;
+import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
+import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
+import com.rnfs.RNFSPackage;
+import com.learnium.RNDeviceInfo.RNDeviceInfo;
+import org.reactnative.camera.RNCameraPackage;
 import io.sentry.RNSentryPackage;
 import com.bitgo.randombytes.RandomBytesPackage;
 import im.shimo.react.prompt.RNPromptPackage;
@@ -42,19 +53,18 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNCWebViewPackage(),
             new RNSentryPackage(),
             new RandomBytesPackage(),
             new RNPromptPackage(),
-            new LinearGradientPackage(),
             new RNReactNativeHapticFeedbackPackage(),
             new GoogleAnalyticsBridgePackage(),
-            new RNCWebViewPackage(),
+            new RNDeviceInfo(),
+            new LinearGradientPackage(),
             new RNFSPackage() ,
             new VectorIconsPackage(),
             new SvgPackage(),
-            new LinearGradientPackage(),
-            new RNDeviceInfo(),
-              new RNCameraPackage(),
+            new RNCameraPackage(),
             new RNGestureHandlerPackage()
       );
     }

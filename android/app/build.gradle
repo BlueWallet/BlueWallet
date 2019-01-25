@@ -126,7 +126,7 @@ android {
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a":1, "x86":2]
+            def versionCodes = ["armeabi-v7a":1, "x86":2, "arm64-v8a": 3]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -137,22 +137,19 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-webview')
-    compile project(':react-native-vector-icons')
-    compile project(':react-native-svg')
-    compile project(':react-native-camera')
-    compile project(':react-native-sentry')
-    compile project(':react-native-randombytes')
-    compile project(':react-native-prompt-android')
-    compile project(':react-native-linear-gradient')
-    compile project(':react-native-haptic-feedback')
-    compile project(':react-native-google-analytics-bridge')
-    compile project(':react-native-gesture-handler')
-    compile project(':react-native-fs')
-    compile project(':react-native-device-info')
-    implementation "com.android.support:exifinterface:+"
-    implementation "com.android.support:support-annotations:+"
-    implementation "com.android.support:support-v4:27.1.1"
+    implementation project(':react-native-webview')
+    implementation project(':react-native-svg')
+    implementation project(':react-native-vector-icons')
+    implementation project(':react-native-sentry')
+    implementation project(':react-native-randombytes')
+    implementation project(':react-native-prompt-android')
+    implementation project(':react-native-linear-gradient')
+    implementation project(':react-native-haptic-feedback')
+    implementation project(':react-native-google-analytics-bridge')
+    implementation project(':react-native-gesture-handler')
+    implementation project(':react-native-fs')
+    implementation project(':react-native-device-info')
+    implementation project(':react-native-camera')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
