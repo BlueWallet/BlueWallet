@@ -20,6 +20,7 @@ import {
 import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
+import WalletGradient from '../../class/walletGradient';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -41,7 +42,7 @@ export default class WalletTransactions extends Component {
         </TouchableOpacity>
       ),
       headerStyle: {
-        backgroundColor: navigation.getParam('gradients')[0] || '#65ceef',
+        backgroundColor: navigation.getParam('headerColor'),
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
@@ -201,9 +202,8 @@ export default class WalletTransactions extends Component {
   }
 
   renderWalletHeader = () => {
-    const gradients = this.props.navigation.getParam('gradients') || ['#65ceef', '#68bbe1'];
     return (
-      <LinearGradient colors={[gradients[0], gradients[1]]} style={{ padding: 15, minHeight: 164 }}>
+      <LinearGradient colors={WalletGradient.gradientsFor(this.state.wallet.type)} style={{ padding: 15, minHeight: 164 }}>
         <Image
           source={
             (LightningCustodianWallet.type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
@@ -372,27 +372,26 @@ export default class WalletTransactions extends Component {
           {(() => {
             if (this.state.showManageFundsSmallButton) {
               return (
-                <React.Fragment>
+                <View style={{ justifyContent: 'space-between', alignContent: 'center', flexDirection: 'row', marginVertical: 8 }}>
                   <TouchableOpacity
-                    style={{ alignSelf: 'flex-start', left: 10, top: 15, flexDirection: 'row' }}
+                    style={{ left: 10, flexDirection: 'row', flex: 1, alignItems: 'center' }}
                     onPress={() => {
                       console.log('navigating to LappBrowser');
                       navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
                     }}
                   >
-                    <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{'marketplace'}</BlueText>
+                    <BlueText style={{ fontWeight: '600', fontSize: 16 }}>marketplace</BlueText>
                     <Icon
-                      style={{ position: 'relative' }}
                       name="shopping-cart"
                       type="font-awesome"
                       size={14}
                       color={BlueApp.settings.foregroundColor}
-                      iconStyle={{ left: 5 }}
+                      iconStyle={{ left: 5, top: 2 }}
                     />
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={{ alignSelf: 'flex-end', right: 10, top: -5, flexDirection: 'row' }}
+                    style={{ marginRight: 10, flexDirection: 'row', alignItems: 'center' }}
                     onPress={() => {
                       console.log('navigating to', this.state.wallet.getLabel());
                       navigate('ManageFunds', { fromWallet: this.state.wallet });
@@ -400,15 +399,14 @@ export default class WalletTransactions extends Component {
                   >
                     <BlueText style={{ fontWeight: '600', fontSize: 16 }}>{loc.lnd.title}</BlueText>
                     <Icon
-                      style={{ position: 'relative' }}
                       name="link"
                       type="font-awesome"
                       size={14}
                       color={BlueApp.settings.foregroundColor}
-                      iconStyle={{ left: 5, transform: [{ rotate: '90deg' }] }}
+                      iconStyle={{ left: 5, top: 2, transform: [{ rotate: '90deg' }] }}
                     />
                   </TouchableOpacity>
-                </React.Fragment>
+                </View>
               );
             }
           })()}

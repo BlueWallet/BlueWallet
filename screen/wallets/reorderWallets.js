@@ -4,12 +4,9 @@ import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { WatchOnlyWallet, LegacyWallet } from '../../class';
-import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
-import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import WalletGradient from '../../class/walletGradient';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -67,39 +64,6 @@ export default class ReorderWallets extends Component {
     }
     item = item.data;
 
-    let gradient1 = '#65ceef';
-    let gradient2 = '#68bbe1';
-
-    if (WatchOnlyWallet.type === item.type) {
-      gradient1 = '#7d7d7d';
-      gradient2 = '#4a4a4a';
-    }
-
-    if (LegacyWallet.type === item.type) {
-      gradient1 = '#40fad1';
-      gradient2 = '#15be98';
-    }
-
-    if (HDLegacyP2PKHWallet.type === item.type) {
-      gradient1 = '#e36dfa';
-      gradient2 = '#bd10e0';
-    }
-
-    if (HDLegacyBreadwalletWallet.type === item.type) {
-      gradient1 = '#fe6381';
-      gradient2 = '#f99c42';
-    }
-
-    if (HDSegwitP2SHWallet.type === item.type) {
-      gradient1 = '#c65afb';
-      gradient2 = '#9053fe';
-    }
-
-    if (LightningCustodianWallet.type === item.type) {
-      gradient1 = '#f1be07';
-      gradient2 = '#f79056';
-    }
-
     return (
       <View
         shadowOpacity={40 / 100}
@@ -109,7 +73,7 @@ export default class ReorderWallets extends Component {
       >
         <LinearGradient
           shadowColor="#000000"
-          colors={[gradient1, gradient2]}
+          colors={WalletGradient.gradientsFor(item.type)}
           style={{
             padding: 15,
             borderRadius: 10,

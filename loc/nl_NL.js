@@ -13,7 +13,7 @@ module.exports = {
     createBitcoinWallet:
       'Om een Lightning-portemonnee te kunnen gebruiken, is een Bitcoin-portemonnee nodig om deze te financieren. Wil je toch doorgaan?',
     list: {
-      app_name: 'Blue Wallet',
+      app_name: 'BlueWallet',
       title: 'portemonnees',
       header: 'Een portemonnee vertegenwoordigt een geheime (privésleutel) en een adres' + 'dat u kunt delen om munten te ontvangen.',
       add: 'Portemonnee toevoegen',

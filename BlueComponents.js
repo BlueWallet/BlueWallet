@@ -21,14 +21,12 @@ import {
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { WatchOnlyWallet, LegacyWallet } from './class';
+import { LightningCustodianWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import DeviceInfo from 'react-native-device-info';
-import { HDLegacyP2PKHWallet } from './class/hd-legacy-p2pkh-wallet';
-import { HDLegacyBreadwalletWallet } from './class/hd-legacy-breadwallet-wallet';
-import { HDSegwitP2SHWallet } from './class/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from './class/lightning-custodian-wallet';
 import { BitcoinUnit } from './models/bitcoinUnits';
+import NavigationService from './NavigationService';
+import WalletGradient from './class/walletGradient';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -43,30 +41,29 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    // eslint-disable-next-line
-    this.props.buttonStyle = this.props.buttonStyle || {};
-
+    const backgroundColor = this.props.disabled ? '#99a0ab' : '#ccddf9';
     return (
-      <Button
-        activeOpacity={0.1}
-        delayPressIn={0}
-        {...this.props}
+      <TouchableOpacity
         style={{
+          flex: 1,
           borderWidth: 0.7,
           borderColor: 'transparent',
+          backgroundColor: this.props.hasOwnProperty('backgroundColor') ? this.props.backgroundColor : backgroundColor,
+          minHeight: 45,
+          height: 45,
+          maxHeight: 45,
+          borderRadius: 25,
+          minWidth: width / 1.5,
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
-        buttonStyle={Object.assign(
-          {
-            backgroundColor: '#ccddf9',
-            minHeight: 45,
-            height: 45,
-            borderWidth: 0,
-            borderRadius: 25,
-          },
-          this.props.buttonStyle,
-        )}
-        color="#0c2550"
-      />
+        {...this.props}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+          {this.props.icon && <Icon name={this.props.icon.name} type={this.props.icon.type} color={this.props.icon.color} />}
+          {this.props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: '#0c2550' }}>{this.props.title}</Text>}
+        </View>
+      </TouchableOpacity>
     );
   }
 }
@@ -208,7 +205,7 @@ export class BlueCopyTextToClipboard extends Component {
 
   constructor() {
     super();
-    UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    if (Platform.OS === 'android') UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
   }
 
   copyToClipboard = () => {
@@ -271,13 +268,12 @@ export class BlueText extends Component {
   render() {
     return (
       <Text
-        style={Object.assign(
-          {
-            color: BlueApp.settings.foregroundColor,
-          },
+        style={{
+          color: BlueApp.settings.foregroundColor,
+
           // eslint-disable-next-line
-          this.props.style,
-        )}
+          ...this.props.style,
+        }}
         {...this.props}
       />
     );
@@ -939,7 +935,7 @@ export class NewWalletPanel extends Component {
         style={{ marginVertical: 17 }}
       >
         <LinearGradient
-          colors={['#eef0f4', '#eef0f4']}
+          colors={WalletGradient.createWallet}
           style={{
             padding: 15,
             borderRadius: 10,
@@ -1020,39 +1016,6 @@ export class WalletsCarousel extends Component {
       );
     }
 
-    let gradient1 = '#65ceef';
-    let gradient2 = '#68bbe1';
-
-    if (WatchOnlyWallet.type === item.type) {
-      gradient1 = '#7d7d7d';
-      gradient2 = '#4a4a4a';
-    }
-
-    if (LegacyWallet.type === item.type) {
-      gradient1 = '#40fad1';
-      gradient2 = '#15be98';
-    }
-
-    if (HDLegacyP2PKHWallet.type === item.type) {
-      gradient1 = '#e36dfa';
-      gradient2 = '#bd10e0';
-    }
-
-    if (HDLegacyBreadwalletWallet.type === item.type) {
-      gradient1 = '#fe6381';
-      gradient2 = '#f99c42';
-    }
-
-    if (HDSegwitP2SHWallet.type === item.type) {
-      gradient1 = '#c65afb';
-      gradient2 = '#9053fe';
-    }
-
-    if (LightningCustodianWallet.type === item.type) {
-      gradient1 = '#f1be07';
-      gradient2 = '#f79056';
-    }
-
     return (
       <Animated.View
         style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
@@ -1066,13 +1029,13 @@ export class WalletsCarousel extends Component {
           onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
-              WalletsCarousel.handleClick(index, [gradient1, gradient2]);
+              WalletsCarousel.handleClick(index);
             }
           }}
         >
           <LinearGradient
             shadowColor="#000000"
-            colors={[gradient1, gradient2]}
+            colors={WalletGradient.gradientsFor(item.type)}
             style={{
               padding: 15,
               borderRadius: 10,
@@ -1167,6 +1130,71 @@ export class WalletsCarousel extends Component {
   }
 }
 
+export class BlueAddressInput extends Component {
+  static propTypes = {
+    isLoading: PropTypes.bool,
+    onChangeText: PropTypes.func,
+    onBarScanned: PropTypes.func,
+    address: PropTypes.string,
+  };
+
+  static defaultProps = {
+    isLoading: false,
+    address: '',
+  };
+
+  render() {
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          borderColor: '#d2d2d2',
+          borderBottomColor: '#d2d2d2',
+          borderWidth: 1.0,
+          borderBottomWidth: 0.5,
+          backgroundColor: '#f5f5f5',
+          minHeight: 44,
+          height: 44,
+          marginHorizontal: 20,
+          alignItems: 'center',
+          marginVertical: 8,
+          borderRadius: 4,
+        }}
+      >
+        <TextInput
+          onChangeText={text => {
+            this.props.onChangeText(text);
+          }}
+          placeholder={loc.send.details.address}
+          numberOfLines={1}
+          value={this.props.address}
+          style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+          editable={!this.props.isLoading}
+        />
+        <TouchableOpacity
+          disabled={this.props.isLoading}
+          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned })}
+          style={{
+            width: 75,
+            height: 36,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#bebebe',
+            borderRadius: 4,
+            paddingVertical: 4,
+            paddingHorizontal: 8,
+            marginHorizontal: 4,
+          }}
+        >
+          <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
+          <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+}
+
 export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
@@ -1204,6 +1232,7 @@ export class BlueBitcoinAmount extends Component {
               ref={textInput => (this.textInput = textInput)}
               editable={!this.props.isLoading && !this.props.disabled}
               value={amount}
+              autoFocus={this.props.pointerEvents !== 'none'}
               placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
               style={{
                 color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
