@@ -59,7 +59,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
             <BlueText>Open direct channel with this node:</BlueText>
             <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           </View>
-          <View style={{ marginBottom: 24 }}>
+          <View style={{ marginBottom: 25 }}>
             <BlueButton
               icon={{
                 name: 'share-alternative',

@@ -173,7 +173,6 @@ export default class LNDViewInvoice extends Component {
         }
       }
     }
-
     // Invoice has not expired, nor has it been paid for.
     return (
       <SafeBlueArea>
@@ -198,7 +197,9 @@ export default class LNDViewInvoice extends Component {
 
             <BlueSpacing20 />
             {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
-            {invoice && invoice.description && <BlueText>For: {invoice.description}</BlueText>}
+            {invoice && invoice.hasOwnProperty('description') && invoice.description.length > 0 && (
+              <BlueText>For: {invoice.description}</BlueText>
+            )}
             <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
 
             <BlueButton
@@ -214,8 +215,9 @@ export default class LNDViewInvoice extends Component {
               }}
               title={loc.receive.details.share}
             />
+            <BlueSpacing20 />
             <BlueButton
-              buttonStyle={{ backgroundColor: 'white' }}
+              backgroundColor="#FFFFFF"
               icon={{
                 name: 'info',
                 type: 'entypo',
