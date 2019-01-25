@@ -49,13 +49,13 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   timeToRefreshBalance() {
-    // lndhub calls are cheap, so why not refresh constantly
-    return true;
+    // only manual refresh for now
+    return false;
   }
 
   timeToRefreshTransaction() {
-    // lndhub calls are cheap, so why not refresh the list constantly
-    return true;
+    // only manual refresh for now
+    return false;
   }
 
   static fromJson(param) {
