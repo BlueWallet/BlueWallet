@@ -32,6 +32,10 @@ export default class CameraExample extends React.Component {
     Permissions.request('camera').then(response => {
       // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       this.setState({ hasCameraPermission: response === 'authorized' });
+      if (response !== 'authorized') {
+        alert('BlueWallet does not have permission to use your camera.');
+        this.props.navigation.goBack(null);
+      }
     });
   }
 
@@ -48,8 +52,6 @@ export default class CameraExample extends React.Component {
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
-      alert('BlueWallet does not have permission to use your camera.');
-      this.props.navigation.goBack(null);
       return <View />;
     } else {
       return (

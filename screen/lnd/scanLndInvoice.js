@@ -236,6 +236,7 @@ export default class ScanLndInvoice extends React.Component {
               <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
             )}
             <BlueSpacing20 />
+            <BlueSpacing20 />
             {this.state.isLoading ? (
               <View>
                 <ActivityIndicator />

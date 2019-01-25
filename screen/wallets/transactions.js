@@ -366,7 +366,7 @@ export default class WalletTransactions extends Component {
           {(() => {
             if (this.state.showManageFundsSmallButton) {
               return (
-                <View style={{ flex: 1, justifyContent: 'space-between', minHeight: 40, alignContent: 'center', flexDirection: 'row' }}>
+                <View style={{ justifyContent: 'space-between', alignContent: 'center', flexDirection: 'row', marginVertical: 8 }}>
                   <TouchableOpacity
                     style={{ left: 10, flexDirection: 'row', flex: 1, alignItems: 'center' }}
                     onPress={() => {

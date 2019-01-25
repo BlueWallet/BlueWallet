@@ -82,7 +82,6 @@ export default class SendDetails extends Component {
   }
 
   processAddressData = data => {
-    this.props.navigation.goBack(null);
     this.setState(
       { isLoading: true },
       () => {
