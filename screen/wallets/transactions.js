@@ -145,12 +145,17 @@ export default class WalletTransactions extends Component {
         setTimeout(async function() {
           // more responsive
           let noErr = true;
+          let smthChanged = false;
           try {
             /** @type {LegacyWallet} */
             let wallet = that.state.wallet;
+            const oldBalance = wallet.getBalance();
             await wallet.fetchBalance();
+            if (oldBalance !== wallet.getBalance()) smthChanged = true;
             let start = +new Date();
+            const oldTxLen = wallet.getTransactions().length;
             await wallet.fetchTransactions();
+            if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
             if (wallet.fetchPendingTransactions) {
               await wallet.fetchPendingTransactions();
             }
@@ -163,7 +168,8 @@ export default class WalletTransactions extends Component {
             noErr = false;
             console.warn(err);
           }
-          if (noErr) {
+          if (noErr && smthChanged) {
+            console.log('saving to disk');
             await BlueApp.saveToDisk(); // caching
             EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
           }

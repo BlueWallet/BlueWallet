@@ -67,7 +67,7 @@ export default class LNDViewInvoice extends Component {
               ReactNativeHapticFeedback.trigger('notificationSuccess', false);
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
-              EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+              EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // remote because we want to refetch from server tx list and balance
             } else {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
