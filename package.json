@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "@babel/preset-env": "^7.3.1",
+    "@remobile/react-native-qrcode-local-image": "^1.0.4",
     "bignumber.js": "^8.0.2",
     "bip21": "^2.0.2",
     "bip39": "^2.5.0",
@@ -69,6 +70,7 @@
     "react-native-gesture-handler": "^1.0.15",
     "react-native-google-analytics-bridge": "^7.0.0",
     "react-native-haptic-feedback": "^1.4.2",
+    "react-native-image-picker": "^0.28.0",
     "react-native-level-fs": "^3.0.1",
     "react-native-linear-gradient": "^2.5.3",
     "react-native-modal": "^7.0.2",

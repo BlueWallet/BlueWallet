@@ -1,4 +1,5 @@
 /* eslint react/prop-types: 0 */
+/* global alert */
 /** @type {AppStorage} */
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -26,7 +27,9 @@ import Carousel from 'react-native-snap-carousel';
 import DeviceInfo from 'react-native-device-info';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
+import ImagePicker from 'react-native-image-picker';
 import WalletGradient from './class/walletGradient';
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -1173,7 +1176,30 @@ export class BlueAddressInput extends Component {
         />
         <TouchableOpacity
           disabled={this.props.isLoading}
-          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned })}
+          onPress={() => {
+            ImagePicker.showImagePicker(
+              {
+                title: null,
+                mediaType: 'photo',
+                takePhotoButtonTitle: null,
+                customButtons: [{ name: 'navigatetoQRScan', title: 'Use Camera' }],
+              },
+              response => {
+                if (response.customButton) {
+                  NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned });
+                } else if (response.uri) {
+                  const uri = response.uri.toString().replace('file://', '');
+                  LocalQRCode.decode(uri, (error, result) => {
+                    if (!error) {
+                      this.props.onBarScanned(result);
+                    } else {
+                      alert('The selected image does not contain a QR Code.');
+                    }
+                  });
+                }
+              },
+            );
+          }}
           style={{
             width: 75,
             height: 36,

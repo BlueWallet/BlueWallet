@@ -137,6 +137,8 @@ android {
 }
 
 dependencies {
+    implementation project(':@remobile_react-native-qrcode-local-image')
+    implementation project(':react-native-image-picker')
     implementation project(':react-native-webview')
     implementation project(':react-native-svg')
     implementation project(':react-native-vector-icons')
