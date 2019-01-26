@@ -3,6 +3,8 @@ package io.bluewallet.bluewallet;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.remobile.qrcodeLocalImage.RCTQRCodeLocalImagePackage;
+import com.imagepicker.ImagePickerPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 import io.sentry.RNSentryPackage;
 import com.bitgo.randombytes.RandomBytesPackage;
@@ -53,6 +55,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RCTQRCodeLocalImagePackage(),
+            new ImagePickerPackage(),
             new RNCWebViewPackage(),
             new RNSentryPackage(),
             new RandomBytesPackage(),

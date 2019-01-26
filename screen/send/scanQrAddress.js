@@ -1,4 +1,3 @@
-/* global alert */
 import React from 'react';
 import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
@@ -17,12 +16,7 @@ export default class CameraExample extends React.Component {
   };
 
   onBarCodeScanned(ret) {
-    if (this.ignoreRead) return;
-    this.ignoreRead = true;
-    setTimeout(() => {
-      this.ignoreRead = false;
-    }, 2000);
-
+    console.warn(ret);
     const onBarScanned = this.props.navigation.getParam('onBarScanned');
     onBarScanned(ret.data);
     this.props.navigation.goBack(null);
@@ -32,10 +26,6 @@ export default class CameraExample extends React.Component {
     Permissions.request('camera').then(response => {
       // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       this.setState({ hasCameraPermission: response === 'authorized' });
-      if (response !== 'authorized') {
-        alert('BlueWallet does not have permission to use your camera.');
-        this.props.navigation.goBack(null);
-      }
     });
   }
 
@@ -56,7 +46,7 @@ export default class CameraExample extends React.Component {
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
+          <Camera style={{ flex: 1, justifyContent: 'space-between' }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
             <TouchableOpacity
               style={{ width: 40, height: 80, padding: 14, marginTop: 32 }}
               onPress={() => this.props.navigation.goBack(null)}

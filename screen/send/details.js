@@ -506,9 +506,17 @@ export default class SendDetails extends Component {
               <BlueAddressInput
                 onChangeText={text => {
                   if (!this.processBIP70Invoice(text)) {
-                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                    this.setState({
+                      address: text.replace(' ', '').replace('bitcoin:', ''),
+                      isLoading: false,
+                      bip70TransactionExpiration: null,
+                    });
                   } else {
-                    this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+                    this.setState({
+                      address: text.replace(' ', '').replace('bitcoin:', ''),
+                      isLoading: false,
+                      bip70TransactionExpiration: null,
+                    });
                   }
                 }}
                 onBarScanned={this.processAddressData}
