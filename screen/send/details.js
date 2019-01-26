@@ -147,21 +147,7 @@ export default class SendDetails extends Component {
           this.processBIP70Invoice(this.props.navigation.state.params.uri);
         } else {
           try {
-            let amount = '';
-            let parsedBitcoinUri = null;
-            let address = '';
-            let memo = '';
-
-            parsedBitcoinUri = bip21.decode(this.props.navigation.state.params.uri);
-            address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
-            if (parsedBitcoinUri.hasOwnProperty('options')) {
-              if (parsedBitcoinUri.options.hasOwnProperty('amount')) {
-                amount = parsedBitcoinUri.options.amount.toString();
-              }
-              if (parsedBitcoinUri.options.hasOwnProperty('label')) {
-                memo = parsedBitcoinUri.options.label || memo;
-              }
-            }
+            const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
             this.setState({ address, amount, memo });
           } catch (error) {
             console.log(error);
@@ -169,6 +155,28 @@ export default class SendDetails extends Component {
           }
         }
       }
+    }
+  }
+
+  decodeBitcoinUri(uri) {
+    try {
+      let amount = '';
+      let parsedBitcoinUri = null;
+      let address = '';
+      let memo = '';
+      parsedBitcoinUri = bip21.decode(uri);
+      address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
+      if (parsedBitcoinUri.hasOwnProperty('options')) {
+        if (parsedBitcoinUri.options.hasOwnProperty('amount')) {
+          amount = parsedBitcoinUri.options.amount.toString();
+        }
+        if (parsedBitcoinUri.options.hasOwnProperty('label')) {
+          memo = parsedBitcoinUri.options.label || memo;
+        }
+      }
+      return { address, amount, memo };
+    } catch (_) {
+      return undefined;
     }
   }
 
@@ -507,16 +515,17 @@ export default class SendDetails extends Component {
                 onChangeText={text => {
                   if (!this.processBIP70Invoice(text)) {
                     this.setState({
-                      address: text.replace(' ', '').replace('bitcoin:', ''),
+                      address: text.trim().replace('bitcoin:', ''),
                       isLoading: false,
                       bip70TransactionExpiration: null,
                     });
                   } else {
-                    this.setState({
-                      address: text.replace(' ', '').replace('bitcoin:', ''),
-                      isLoading: false,
-                      bip70TransactionExpiration: null,
-                    });
+                    try {
+                      const { address, amount, memo } = this.decodeBitcoinUri(text);
+                      this.setState({ address, amount, memo, isLoading: false, bip70TransactionExpiration: null });
+                    } catch (_) {
+                      this.setState({ address: text.trim(), isLoading: false, bip70TransactionExpiration: null });
+                    }
                   }
                 }}
                 onBarScanned={this.processAddressData}
@@ -611,8 +620,9 @@ const styles = StyleSheet.create({
 
 SendDetails.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
+    goBack: PropTypes.func,
     navigate: PropTypes.func,
+    getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
