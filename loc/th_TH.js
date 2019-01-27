@@ -178,11 +178,11 @@ module.exports = {
     retype_password: 'ใส่รหัสผ่านอีกครั้ง',
     passwords_do_not_match: 'รหัสผ่านไม่ตรงกัน',
     encrypt_storage: 'เข้ารหัสที่เก็บข้อมูล',
-    lightning_settings: 'Lightning settings',
+    lightning_settings: 'การตั้งค่าไลท์นิง',
     lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      ' and put its URL here in settings. Leave blank to use default ' +
-      'ndHub\n (lndhub.io)',
+      'กรณีที่ต้องการต่อเชื่อมไปยังไลท์นิงโนดของท่านเอง กรุณาติดตั้ง LndHub ของท่าน' +
+      ' และไส่ URL ที่นี่. ระบบจะใช้ LndHub ของ lndhub.io ในกรณืที่ท่าน ' +
+      ' ไม่ตั้งค่าใดๆ',
     save: 'บันทึก',
     about: 'เกี่ยวกับ',
     language: 'ภาษา',
