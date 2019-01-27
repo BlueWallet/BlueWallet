@@ -111,7 +111,6 @@ export default class Confirm extends Component {
             <BlueButton
               onPress={() => this.broadcast()}
               title={loc.send.confirm.sendNow}
-              style={{ maxWidth: 263, paddingHorizontal: 56 }}
             />
           )}
           <TouchableOpacity

@@ -11,7 +11,7 @@ module.exports = {
     select_wallet: 'Odaberi volet',
     options: 'opcije',
     list: {
-      app_name: 'Blue Wallet',
+      app_name: 'BlueWallet',
       title: 'Voleti',
       header: 'Volet je par privatnog ključa (tajna!) i javne adrese ' + 'koju slobodno možete dijeliti kada primate novce.',
       add: 'Dodaj volet',

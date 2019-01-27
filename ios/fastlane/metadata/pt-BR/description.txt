@@ -1,6 +1,6 @@
 Guardar, enviar e receber bitcoin com uma carteira focada na segurança e simplicidade.
 
-Na Blue Wallet você possui as suas chaves privadas. Uma carteira Bitcoin focada nos usuários.
+Na BlueWallet você possui as suas chaves privadas. Uma carteira Bitcoin focada nos usuários.
 
 Você pode instantaneamente transacionar com qualquer pessoa no mundo e transformar o sistema financeiro diretamente do seu bolso.
 

@@ -10,6 +10,7 @@ import {
   BlueButtonLink,
   BlueNavigationStyle,
   is,
+  BlueSpacing20,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -97,7 +98,7 @@ export default class ReceiveDetails extends Component {
             />
             <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>
-          <View style={{ marginBottom: 24, alignItems: 'center' }}>
+          <View style={{ flex: 0.2, marginBottom: 24, alignItems: 'center' }}>
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
@@ -106,6 +107,7 @@ export default class ReceiveDetails extends Component {
                 });
               }}
             />
+            <BlueSpacing20 />
             <BlueButton
               icon={{
                 name: 'share-alternative',

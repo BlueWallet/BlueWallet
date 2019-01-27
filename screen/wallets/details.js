@@ -120,88 +120,88 @@ export default class WalletDetails extends Component {
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
               <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
-            </BlueCard>
-            <View>
-              <BlueSpacing20 />
-              <BlueButton
-                onPress={() =>
-                  this.props.navigation.navigate('WalletExport', {
-                    address: this.state.wallet.getAddress(),
-                    secret: this.state.wallet.getSecret(),
-                  })
-                }
-                title={loc.wallets.details.export_backup}
-              />
-
-              <BlueSpacing20 />
-
-              {(this.state.wallet.type === HDLegacyBreadwalletWallet.type ||
-                this.state.wallet.type === HDLegacyP2PKHWallet.type ||
-                this.state.wallet.type === HDSegwitP2SHWallet.type) && (
-                <React.Fragment>
-                  <BlueButton
-                    onPress={() =>
-                      this.props.navigation.navigate('WalletXpub', {
-                        secret: this.state.wallet.getSecret(),
-                      })
-                    }
-                    title={loc.wallets.details.show_xpub}
-                  />
-
-                  <BlueSpacing20 />
-                </React.Fragment>
-              )}
-
-              {this.state.wallet.type !== LightningCustodianWallet.type && (
+              <View>
+                <BlueSpacing20 />
                 <BlueButton
-                  icon={{
-                    name: 'shopping-cart',
-                    type: 'font-awesome',
-                    color: BlueApp.settings.buttonTextColor,
-                  }}
                   onPress={() =>
-                    this.props.navigation.navigate('BuyBitcoin', {
+                    this.props.navigation.navigate('WalletExport', {
                       address: this.state.wallet.getAddress(),
                       secret: this.state.wallet.getSecret(),
                     })
                   }
-                  title={loc.wallets.details.buy_bitcoin}
+                  title={loc.wallets.details.export_backup}
                 />
-              )}
-              <BlueSpacing20 />
 
-              <TouchableOpacity
-                style={{ alignItems: 'center' }}
-                onPress={() => {
-                  ReactNativeHapticFeedback.trigger('notificationWarning', false);
-                  Alert.alert(
-                    loc.wallets.details.delete + ' ' + loc.wallets.details.title,
-                    loc.wallets.details.are_you_sure,
-                    [
-                      {
-                        text: loc.wallets.details.yes_delete,
-                        onPress: async () => {
-                          this.props.navigation.setParams({ isLoading: true });
-                          this.setState({ isLoading: true }, async () => {
-                            BlueApp.deleteWallet(this.state.wallet);
-                            ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-                            await BlueApp.saveToDisk();
-                            EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                            EV(EV.enum.WALLETS_COUNT_CHANGED);
-                            this.props.navigation.navigate('Wallets');
-                          });
+                <BlueSpacing20 />
+
+                {(this.state.wallet.type === HDLegacyBreadwalletWallet.type ||
+                  this.state.wallet.type === HDLegacyP2PKHWallet.type ||
+                  this.state.wallet.type === HDSegwitP2SHWallet.type) && (
+                  <React.Fragment>
+                    <BlueButton
+                      onPress={() =>
+                        this.props.navigation.navigate('WalletXpub', {
+                          secret: this.state.wallet.getSecret(),
+                        })
+                      }
+                      title={loc.wallets.details.show_xpub}
+                    />
+
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                )}
+
+                {this.state.wallet.type !== LightningCustodianWallet.type && (
+                  <BlueButton
+                    icon={{
+                      name: 'shopping-cart',
+                      type: 'font-awesome',
+                      color: BlueApp.settings.buttonTextColor,
+                    }}
+                    onPress={() =>
+                      this.props.navigation.navigate('BuyBitcoin', {
+                        address: this.state.wallet.getAddress(),
+                        secret: this.state.wallet.getSecret(),
+                      })
+                    }
+                    title={loc.wallets.details.buy_bitcoin}
+                  />
+                )}
+                <BlueSpacing20 />
+
+                <TouchableOpacity
+                  style={{ alignItems: 'center' }}
+                  onPress={() => {
+                    ReactNativeHapticFeedback.trigger('notificationWarning', false);
+                    Alert.alert(
+                      loc.wallets.details.delete + ' ' + loc.wallets.details.title,
+                      loc.wallets.details.are_you_sure,
+                      [
+                        {
+                          text: loc.wallets.details.yes_delete,
+                          onPress: async () => {
+                            this.props.navigation.setParams({ isLoading: true });
+                            this.setState({ isLoading: true }, async () => {
+                              BlueApp.deleteWallet(this.state.wallet);
+                              ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                              await BlueApp.saveToDisk();
+                              EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                              EV(EV.enum.WALLETS_COUNT_CHANGED);
+                              this.props.navigation.navigate('Wallets');
+                            });
+                          },
+                          style: 'destructive',
                         },
-                        style: 'destructive',
-                      },
-                      { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
-                    ],
-                    { cancelable: false },
-                  );
-                }}
-              >
-                <Text style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}>{loc.wallets.details.delete}</Text>
-              </TouchableOpacity>
-            </View>
+                        { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
+                      ],
+                      { cancelable: false },
+                    );
+                  }}
+                >
+                  <Text style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}>{loc.wallets.details.delete}</Text>
+                </TouchableOpacity>
+              </View>
+            </BlueCard>
           </View>
         </TouchableWithoutFeedback>
       </SafeBlueArea>

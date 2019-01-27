@@ -182,9 +182,6 @@ export default class WalletsAdd extends Component {
               {!this.state.isLoading ? (
                 <BlueButton
                   title={loc.wallets.add.create}
-                  buttonStyle={{
-                    width: width / 1.5,
-                  }}
                   onPress={() => {
                     this.setState(
                       { isLoading: true },
