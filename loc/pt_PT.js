@@ -13,7 +13,7 @@ module.exports = {
     createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
 
     list: {
-      app_name: 'Blue Wallet',
+      app_name: 'BlueWallet',
       title: 'wallets',
       header: 'Uma wallet representa um par entre um segredo (chave privada) e um endereço' + 'que pode partilhar para receber Bitcoin.',
       add: 'adicionar wallet',

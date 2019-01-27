@@ -1,21 +1,17 @@
 import React, { Component } from 'react';
-import {
-  StyleSheet,
-  View,
-  Share,
-  TextInput,
-  KeyboardAvoidingView,
-  Clipboard,
-  Animated,
-  TouchableOpacity,
-  Platform,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
+import { View, Share, TextInput, KeyboardAvoidingView, Platform, Dimensions, ScrollView } from 'react-native';
 import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
 import QRFast from 'react-native-qrcode';
 import bip21 from 'bip21';
-import { SafeBlueArea, BlueButton, BlueNavigationStyle, BlueBitcoinAmount, BlueText } from '../../BlueComponents';
+import {
+  SafeBlueArea,
+  BlueCard,
+  BlueButton,
+  BlueNavigationStyle,
+  BlueBitcoinAmount,
+  BlueText,
+  BlueCopyTextToClipboard,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -52,13 +48,6 @@ export default class ReceiveAmount extends Component {
     };
   }
 
-  copyToClipboard = () => {
-    this.setState({ addressText: loc.receive.details.copiedToClipboard }, () => {
-      Clipboard.setString(this.state.bip21);
-      setTimeout(() => this.setState({ addressText: this.state.address }), 1000);
-    });
-  };
-
   determineSize = () => {
     if (width > 312) {
       return width - 48;
@@ -94,15 +83,17 @@ export default class ReceiveAmount extends Component {
             editable={!this.state.isLoading}
           />
         </View>
-        <BlueButton
-          title={loc.receive.create}
-          onPress={() => {
-            this.setState({
-              amountSet: true,
-              bip21: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
-            });
-          }}
-        />
+        <BlueCard>
+          <BlueButton
+            title={loc.receive.details.create}
+            onPress={() => {
+              this.setState({
+                amountSet: true,
+                bip21: bip21.encode(this.state.address, { amount: this.state.amount, label: this.state.label }),
+              });
+            }}
+          />
+        </BlueCard>
       </View>
     );
   }
@@ -132,12 +123,8 @@ export default class ReceiveAmount extends Component {
             />
           )}
         </View>
-        <View style={{ marginBottom: 24, alignItems: 'center', justifyContent: 'space-between' }}>
-          <TouchableOpacity onPress={this.copyToClipboard}>
-            <Animated.Text style={styles.address} numberOfLines={0}>
-              {this.state.bip21}
-            </Animated.Text>
-          </TouchableOpacity>
+        <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+          <BlueCopyTextToClipboard text={this.state.bip21} />
         </View>
       </View>
     );
@@ -157,23 +144,21 @@ export default class ReceiveAmount extends Component {
               {this.state.amountSet ? this.renderWithSetAmount() : this.renderDefault()}
             </KeyboardAvoidingView>
             {this.state.amountSet && (
-              <BlueButton
-                buttonStyle={{
-                  alignSelf: 'center',
-                  marginBottom: 24,
-                }}
-                icon={{
-                  name: 'share-alternative',
-                  type: 'entypo',
-                  color: BlueApp.settings.buttonTextColor,
-                }}
-                onPress={async () => {
-                  Share.share({
-                    message: this.state.bip21,
-                  });
-                }}
-                title={loc.receive.details.share}
-              />
+              <BlueCard>
+                <BlueButton
+                  icon={{
+                    name: 'share-alternative',
+                    type: 'entypo',
+                    color: BlueApp.settings.buttonTextColor,
+                  }}
+                  onPress={async () => {
+                    Share.share({
+                      message: this.state.bip21,
+                    });
+                  }}
+                  title={loc.receive.details.share}
+                />
+              </BlueCard>
             )}
           </View>
         </ScrollView>
@@ -181,12 +166,3 @@ export default class ReceiveAmount extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  address: {
-    marginVertical: 32,
-    fontSize: 15,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-});

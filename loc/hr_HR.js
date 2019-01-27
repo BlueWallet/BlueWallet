@@ -4,16 +4,16 @@ module.exports = {
     enter_password: 'Unesi lozinku',
     bad_password: 'Kriva lozinka, pokušaj ponovo',
     never: 'nikad',
-    continue: 'Continue',
-    ok: 'OK',
+    continue: 'Nastavi',
+    ok: 'U redu',
   },
   wallets: {
     select_wallet: 'Odaberi volet',
     options: 'opcije',
     list: {
-      app_name: 'Blue Wallet',
+      app_name: 'BlueWallet',
       title: 'Voleti',
-      header: 'Volet je par privatnog ključa (tajna!) i javne adrese' + 'koju slobodno možete dijeliti kada primate novce.',
+      header: 'Volet je par privatnog ključa (tajna!) i javne adrese ' + 'koju slobodno možete dijeliti kada primate novce.',
       add: 'Dodaj volet',
       create_a_wallet: 'Stvori novi volet',
       create_a_wallet1: 'Ne košta ništa i možete',
@@ -33,10 +33,10 @@ module.exports = {
       create: 'Stvori',
       label_new_segwit: 'Novi SegWit',
       label_new_lightning: 'Novi Lightning',
-      wallet_name: 'ime voleta',
-      wallet_type: 'tip',
+      wallet_name: 'ime voleta:',
+      wallet_type: 'tip:',
       or: 'ili',
-      import_wallet: 'Unesi volet',
+      import_wallet: 'Unesi vanjski volet',
       imported: 'Unešeno',
       coming_soon: 'Dolazi uskoro',
       lightning: 'Lightning',
@@ -53,10 +53,10 @@ module.exports = {
       yes_delete: 'Da, briši',
       no_cancel: 'Ne, otiaži',
       delete: 'Obriši',
-      save: 'Pohrani',
+      save: 'Spremi',
       delete_this_wallet: 'Obriši ovaj volet',
       export_backup: 'Izvoz / bekap',
-      buy_bitcoin: 'Kupi Bitcoin',
+      buy_bitcoin: 'Kupovina Bitcoina',
       show_xpub: 'Prikaži voletov XPUB',
     },
     export: {
@@ -147,22 +147,22 @@ module.exports = {
       satoshi_per_byte: 'Satoshi / byte',
       memo: 'Bilješka',
       broadcast: 'Objavi',
-      not_enough_fee: 'Trošak slanja je premal. Povećaj ga.',
+      not_enough_fee: 'Trošak slanja je premalen. Povećaj ga.',
     },
   },
   receive: {
-    header: 'Primanje',
+    header: 'Primi',
     details: {
       title: 'Pokaži ovu adresu platitelju',
-      share: 'pokaži',
+      share: 'podijeli',
       copiedToClipboard: 'Kopirano u međuspremnik.',
       label: 'Opis',
-      create: 'Create',
+      create: 'Stvori',
       setAmount: 'Odredi iznos za primiti',
     },
   },
   buyBitcoin: {
-    header: 'Kupi Bitcoin',
+    header: 'Kupovina Bitcoina',
     tap_your_address: 'Klikni na adresu za spremanje u međuspremnik:',
     copied: 'Spremljeno u međuspremnik!',
   },
@@ -176,26 +176,26 @@ module.exports = {
     retype_password: 'Ponovi lozinku',
     passwords_do_not_match: 'Lozinke su različite',
     encrypt_storage: 'Kriptiraj spremnik',
-    lightning_settings: 'Lightning settings',
+    lightning_settings: 'Lightning postavke',
     lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      ' and put its URL here in settings. Leave blank to use default ' +
+      'Za spajanje na tvoj vlastiti LND čvor trebaš instalirati LndHub' +
+      ' i upisati njegov URL ovdje. Ostavi prazno za standardni ' +
       'ndHub\n (lndhub.io)',
-    save: 'save',
-    about: 'Iznos',
+    save: 'Spremi',
+    about: 'Informacije',
     language: 'Jezik',
     currency: 'Valuta',
   },
   plausibledeniability: {
     title: 'Fejk volet',
     help:
-      'U iznimnim okolnostima netko gadan (pa još ako drži oklagiju) te' +
-      'može neljubazno pritisnuti da mu otkriješ lozinku za ovaj volet.' +
-      'BlueWallet ti čuva leđa buraz. Nemaš brige. Gledaj.' +
-      'Stvoriti ćemo dupli volet sa drugačijom lozinkom. Haha, žišku?' +
-      'Pa kad se ovaj počne pjeniti a ti vidiš da je vrag odnio šalu' +
-      'ti mu podvali ovaj drugi volet. Eto mu ga. Nek si cucla.',
-    help2: 'Novi spremnik će biti posve funkcionalan, možeš pohraniti koliko' + 'misliš da je potrebno da izgleda uvjerljivo.',
+      'Pazi. Netko gadan te može u iznimnim okolnostima (pljačka, prijevremeni izbori, itd.) ' +
+      'brutalno pritisnuti da mu otkriješ lozinku za svoj volet. ' +
+      'BlueWallet ti čuva leđa buraz. Nemaš brige. Gledaj, ' +
+      'stvoriti ćemo fejk volet sa drugačijom lozinkom. Haha, žišku? ' +
+      'Pa kad se ovaj počne pjeniti, a ti vidiš da je vrag odnio šalu, ' +
+      'samo mu podvali lozinku za ovaj drugi volet. Eto mu ga. Nek si cucla. ',
+    help2: 'Novi spremnik će biti posve funkcionalan, možeš pohraniti koliko ' + 'misliš da je potrebno da izgleda uvjerljivo.',
     create_fake_storage: 'Stvori fejk enkriptirani spremnik',
     go_back: 'Povratak',
     create_password: 'Unesi lozinku',
@@ -212,6 +212,6 @@ module.exports = {
     refill: 'Dopuni',
     withdraw: 'Isprazni',
     expired: 'Isteklo',
-    sameWalletAsInvoiceError: 'Ne možeš platiti račun s istim voletom s kojim si račun stvorio, ono.',
+    sameWalletAsInvoiceError: 'Buraz! Ne možeš platiti račun s istim voletom s kojim si račun stvorio, ono.',
   },
 };

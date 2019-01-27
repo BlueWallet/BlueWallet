@@ -156,6 +156,13 @@ strings.transactionTimeToReadable = time => {
   return dayjs(time).fromNow();
 };
 
+strings.transactionTimeToReadableToFuture = time => {
+  if (time === 0) {
+    return strings._.never;
+  }
+  return dayjs(time).toNow();
+};
+
 function removeTrailingZeros(value) {
   value = value.toString();
 

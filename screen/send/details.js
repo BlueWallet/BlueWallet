@@ -14,7 +14,7 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueAddressInput } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -23,7 +23,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
-let EV = require('../../events');
 let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -82,13 +81,15 @@ export default class SendDetails extends Component {
     };
   }
 
-  async componentDidMount() {
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, data => {
-      this.setState(
-        { isLoading: false },
-        () => {
-          data = data.replace('bitcoin:', '');
-          if (btcAddressRx.test(data) || data.indexOf('bc1') === 0) {
+  processAddressData = data => {
+    this.setState(
+      { isLoading: true },
+      () => {
+        if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
+          this.processBIP70Invoice(data);
+        } else {
+          const dataWithoutSchema = data.replace('bitcoin:', '');
+          if (btcAddressRx.test(dataWithoutSchema) || dataWithoutSchema.indexOf('bc1') === 0) {
             this.setState({
               address: data,
               bip70TransactionExpiration: null,
@@ -97,11 +98,15 @@ export default class SendDetails extends Component {
           } else {
             let address, options;
             try {
+              if (!data.toLowerCase().startsWith('bitcoin:')) {
+                data = `bitcoin:${data}`;
+              }
               const decoded = bip21.decode(data);
               address = decoded.address;
               options = decoded.options;
-            } catch (Err) {
-              console.log(Err);
+            } catch (error) {
+              console.log(error);
+              this.setState({ isLoading: false });
             }
             console.log(options);
             if (btcAddressRx.test(address)) {
@@ -112,14 +117,15 @@ export default class SendDetails extends Component {
                 bip70TransactionExpiration: null,
                 isLoading: false,
               });
-            } else if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
-              this.processBIP70Invoice(data);
             }
           }
-        },
-        true,
-      );
-    });
+        }
+      },
+      true,
+    );
+  };
+
+  async componentDidMount() {
     let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
       this.setState({
         fee: response.halfHourFee,
@@ -141,21 +147,7 @@ export default class SendDetails extends Component {
           this.processBIP70Invoice(this.props.navigation.state.params.uri);
         } else {
           try {
-            let amount = '';
-            let parsedBitcoinUri = null;
-            let address = '';
-            let memo = '';
-
-            parsedBitcoinUri = bip21.decode(this.props.navigation.state.params.uri);
-            address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
-            if (parsedBitcoinUri.hasOwnProperty('options')) {
-              if (parsedBitcoinUri.options.hasOwnProperty('amount')) {
-                amount = parsedBitcoinUri.options.amount.toString();
-              }
-              if (parsedBitcoinUri.options.hasOwnProperty('label')) {
-                memo = parsedBitcoinUri.options.label || memo;
-              }
-            }
+            const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
             this.setState({ address, amount, memo });
           } catch (error) {
             console.log(error);
@@ -163,6 +155,28 @@ export default class SendDetails extends Component {
           }
         }
       }
+    }
+  }
+
+  decodeBitcoinUri(uri) {
+    try {
+      let amount = '';
+      let parsedBitcoinUri = null;
+      let address = '';
+      let memo = '';
+      parsedBitcoinUri = bip21.decode(uri);
+      address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
+      if (parsedBitcoinUri.hasOwnProperty('options')) {
+        if (parsedBitcoinUri.options.hasOwnProperty('amount')) {
+          amount = parsedBitcoinUri.options.amount.toString();
+        }
+        if (parsedBitcoinUri.options.hasOwnProperty('label')) {
+          memo = parsedBitcoinUri.options.label || memo;
+        }
+      }
+      return { address, amount, memo };
+    } catch (_) {
+      return undefined;
     }
   }
 
@@ -497,56 +511,27 @@ export default class SendDetails extends Component {
                 amount={this.state.amount}
                 onChangeText={text => this.setState({ amount: text })}
               />
-              <View
-                style={{
-                  flexDirection: 'row',
-                  borderColor: '#d2d2d2',
-                  borderBottomColor: '#d2d2d2',
-                  borderWidth: 1.0,
-                  borderBottomWidth: 0.5,
-                  backgroundColor: '#f5f5f5',
-                  minHeight: 44,
-                  height: 44,
-                  marginHorizontal: 20,
-                  alignItems: 'center',
-                  marginVertical: 8,
-                  borderRadius: 4,
-                }}
-              >
-                <TextInput
-                  onChangeText={text => {
-                    if (!this.processBIP70Invoice(text)) {
-                      this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
-                    } else {
-                      this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null });
+              <BlueAddressInput
+                onChangeText={text => {
+                  if (!this.processBIP70Invoice(text)) {
+                    this.setState({
+                      address: text.trim().replace('bitcoin:', ''),
+                      isLoading: false,
+                      bip70TransactionExpiration: null,
+                    });
+                  } else {
+                    try {
+                      const { address, amount, memo } = this.decodeBitcoinUri(text);
+                      this.setState({ address, amount, memo, isLoading: false, bip70TransactionExpiration: null });
+                    } catch (_) {
+                      this.setState({ address: text.trim(), isLoading: false, bip70TransactionExpiration: null });
                     }
-                  }}
-                  placeholder={loc.send.details.address}
-                  numberOfLines={1}
-                  value={this.state.address}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
-                  editable={!this.state.isLoading}
-                />
-                <TouchableOpacity
-                  disabled={this.state.isLoading}
-                  onPress={() => this.props.navigation.navigate('ScanQrAddress')}
-                  style={{
-                    width: 75,
-                    height: 36,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    backgroundColor: '#bebebe',
-                    borderRadius: 4,
-                    paddingVertical: 4,
-                    paddingHorizontal: 8,
-                    marginHorizontal: 4,
-                  }}
-                >
-                  <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
-                  <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
-                </TouchableOpacity>
-              </View>
+                  }
+                }}
+                onBarScanned={this.processAddressData}
+                address={this.state.address}
+                isLoading={this.state.isLoading}
+              />
               <View
                 hide={!this.state.showMemoRow}
                 style={{
@@ -635,8 +620,9 @@ const styles = StyleSheet.create({
 
 SendDetails.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
+    goBack: PropTypes.func,
     navigate: PropTypes.func,
+    getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,
