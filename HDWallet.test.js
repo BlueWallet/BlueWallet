@@ -168,15 +168,15 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   let start = +new Date();
   await hd.fetchBalance();
   let end = +new Date();
-  const took = (end-start)/1000;
-  took > 15 && console.warn('took', took, 'sec to fetch huge HD wallet\'s balance');
+  const took = (end - start) / 1000;
+  took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
   assert.strictEqual(hd.getBalance(), 0.00051432);
 
   await hd.fetchUtxo();
   assert.ok(hd.utxo.length > 0);
 
   await hd.fetchTransactions();
-  assert.strictEqual(hd.getTransactions().length, 107)
+  assert.strictEqual(hd.getTransactions().length, 107);
 });
 
 it('can work with malformed mnemonic', () => {
