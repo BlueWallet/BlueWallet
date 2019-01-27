@@ -1,6 +1,6 @@
 Store, send and receive bitcoin with the wallet focus on security and simplicity.
 
-On Blue Wallet you own you private keys.
+On BlueWallet you own you private keys.
 
 You can instantly transact with anyone in the world and transform the financial system right from your pocket.
 

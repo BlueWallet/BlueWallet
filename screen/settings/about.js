@@ -51,73 +51,71 @@ export default class About extends Component {
 
             <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
             <BlueSpacing20 />
-          </BlueCard>
 
-          <BlueButton
-            icon={{
-              name: 'mark-github',
-              type: 'octicon',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={() => {
-              Linking.openURL('https://github.com/BlueWallet/BlueWallet');
-            }}
-            title="github.com/BlueWallet/BlueWallet"
-          />
-          <BlueSpacing20 />
+            <BlueButton
+              icon={{
+                name: 'mark-github',
+                type: 'octicon',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() => {
+                Linking.openURL('https://github.com/BlueWallet/BlueWallet');
+              }}
+              title="github.com/BlueWallet/BlueWallet"
+            />
+            <BlueSpacing20 />
 
-          <BlueButton
-            icon={{
-              name: 'twitter',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={() => {
-              Linking.openURL('https://twitter.com/bluewalletio');
-            }}
-            title="Follow us on Twitter"
-          />
-          <BlueSpacing20 />
+            <BlueButton
+              icon={{
+                name: 'twitter',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() => {
+                Linking.openURL('https://twitter.com/bluewalletio');
+              }}
+              title="Follow us on Twitter"
+            />
+            <BlueSpacing20 />
 
-          <BlueButton
-            icon={{
-              name: 'telegram',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={() => {
-              Linking.openURL('https://t.me/bluewallet');
-            }}
-            title="Join Telegram chat"
-          />
-          <BlueSpacing20 />
+            <BlueButton
+              icon={{
+                name: 'telegram',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() => {
+                Linking.openURL('https://t.me/bluewallet');
+              }}
+              title="Join Telegram chat"
+            />
+            <BlueSpacing20 />
 
-          <BlueButton
-            icon={{
-              name: 'thumbsup',
-              type: 'octicon',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={() => {
-              let options = {
-                AppleAppID: '1376878040',
-                GooglePackageName: 'io.bluewallet.bluewallet',
-                preferredAndroidMarket: AndroidMarket.Google,
-                preferInApp: true,
-                openAppStoreIfInAppFails: true,
-                fallbackPlatformURL: 'https://bluewallet.io',
-              };
-              Rate.rate(options, success => {
-                if (success) {
-                  console.warn('User Rated.');
-                }
-              });
-            }}
-            title="Rate Blue Wallet"
-          />
+            <BlueButton
+              icon={{
+                name: 'thumbsup',
+                type: 'octicon',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={() => {
+                let options = {
+                  AppleAppID: '1376878040',
+                  GooglePackageName: 'io.bluewallet.bluewallet',
+                  preferredAndroidMarket: AndroidMarket.Google,
+                  preferInApp: true,
+                  openAppStoreIfInAppFails: true,
+                  fallbackPlatformURL: 'https://bluewallet.io',
+                };
+                Rate.rate(options, success => {
+                  if (success) {
+                    console.log('User Rated.');
+                  }
+                });
+              }}
+              title="Rate BlueWallet"
+            />
 
-          <BlueSpacing20 />
-          <BlueCard>
+            <BlueSpacing20 />
             <BlueText h3>Built with awesome:</BlueText>
             <BlueSpacing20 />
             <BlueText h4>* React Native</BlueText>

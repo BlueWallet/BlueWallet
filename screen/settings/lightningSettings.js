@@ -3,6 +3,7 @@ import { AsyncStorage, View, TextInput, Linking } from 'react-native';
 import { AppStorage } from '../../class';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { Button } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -56,7 +57,7 @@ export default class LightningSettings extends Component {
           <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
         </BlueCard>
 
-        <BlueButton
+        <Button
           icon={{
             name: 'mark-github',
             type: 'octicon',
@@ -67,6 +68,7 @@ export default class LightningSettings extends Component {
             Linking.openURL('https://github.com/BlueWallet/LndHub');
           }}
           title="github.com/BlueWallet/LndHub"
+          color={BlueApp.settings.buttonTextColor}
           buttonStyle={{
             backgroundColor: '#FFFFFF',
           }}
@@ -92,7 +94,7 @@ export default class LightningSettings extends Component {
               value={this.state.URI}
               onChangeText={text => this.setState({ URI: text })}
               numberOfLines={1}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 33, height: 33 }}
+              style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
             />

@@ -176,7 +176,7 @@ export default class TransactionsDetails extends Component {
               </React.Fragment>
             )}
 
-            {this.state.tx.hasOwnProperty('block_height') && (
+            {this.state.tx.hasOwnProperty('block_height') && this.state.block_height > 0 && (
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.block_height}</BlueText>

@@ -1,11 +1,9 @@
-/* global alert */
 import React from 'react';
 import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import Camera from 'react-native-camera';
 import Permissions from 'react-native-permissions';
 import { SafeBlueArea } from '../../BlueComponents';
-let EV = require('../../events');
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
@@ -17,18 +15,14 @@ export default class CameraExample extends React.Component {
     hasCameraPermission: null,
   };
 
-  async onBarCodeScanned(ret) {
-    if (this.ignoreRead) return;
-    this.ignoreRead = true;
-    setTimeout(() => {
-      this.ignoreRead = false;
-    }, 2000);
-
-    this.props.navigation.goBack();
-    EV(EV.enum.CREATE_TRANSACTION_NEW_DESTINATION_ADDRESS, ret.data);
+  onBarCodeScanned(ret) {
+    console.warn(ret);
+    const onBarScanned = this.props.navigation.getParam('onBarScanned');
+    onBarScanned(ret.data);
+    this.props.navigation.goBack(null);
   } // end
 
-  async componentDidMount() {
+  componentDidMount() {
     Permissions.request('camera').then(response => {
       // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
       this.setState({ hasCameraPermission: response === 'authorized' });
@@ -48,13 +42,11 @@ export default class CameraExample extends React.Component {
     if (hasCameraPermission === null) {
       return <View />;
     } else if (hasCameraPermission === false) {
-      alert('BlueWallet does not have permission to use your camera.');
-      this.props.navigation.goBack(null);
       return <View />;
     } else {
       return (
         <SafeBlueArea style={{ flex: 1 }}>
-          <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
+          <Camera style={{ flex: 1, justifyContent: 'space-between' }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
             <TouchableOpacity
               style={{ width: 40, height: 80, padding: 14, marginTop: 32 }}
               onPress={() => this.props.navigation.goBack(null)}
@@ -70,7 +62,8 @@ export default class CameraExample extends React.Component {
 
 CameraExample.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    dismiss: PropTypes.function,
+    goBack: PropTypes.func,
+    dismiss: PropTypes.func,
+    getParam: PropTypes.func,
   }),
 };

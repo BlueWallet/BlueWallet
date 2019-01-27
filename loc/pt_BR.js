@@ -14,7 +14,7 @@ module.exports = {
 
     list: {
       tabBarLabel: 'Carteiras',
-      app_name: 'Blue Wallet',
+      app_name: 'BlueWallet',
       title: 'carteiras',
       header: 'Uma carteira representa um par composto de uma chave privada e um endereço que você pode .',
       add: 'adicionar wallet',
