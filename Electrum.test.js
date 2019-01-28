@@ -30,12 +30,12 @@ describe('Electrum', () => {
     let balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
     assert.ok(balance.confirmed > 0);
 
-    addr4elect = '1BWwXJH3q6PRsizBkSGm2Uw4Sz1urZ5sCj';
+    addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
     script = bitcoin.address.toOutputScript(addr4elect);
     hash = bitcoin.crypto.sha256(script);
     reversedHash = Buffer.from(hash.reverse());
     balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
-    assert.ok(balance.confirmed > 0);
+    assert.ok(balance.confirmed === 51432);
 
     // let peers = await mainClient.serverPeers_subscribe();
     // console.log(peers);
@@ -46,14 +46,14 @@ describe('Electrum', () => {
   });
 
   it('BlueElectrum works', async function() {
-    let address = '1BWwXJH3q6PRsizBkSGm2Uw4Sz1urZ5sCj';
+    let address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
     let balance = await BlueElectrum.getBalanceByAddress(address);
-    assert.strictEqual(balance.confirmed, 27268);
+    assert.strictEqual(balance.confirmed, 51432);
     assert.strictEqual(balance.unconfirmed, 0);
     assert.strictEqual(balance.addr, address);
 
     let txs = await BlueElectrum.getTransactionsByAddress(address);
-    assert.strictEqual(txs.length, 13);
+    assert.strictEqual(txs.length, 1);
     for (let tx of txs) {
       assert.ok(tx.tx_hash);
       assert.ok(tx.height);

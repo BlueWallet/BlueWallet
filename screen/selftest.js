@@ -45,13 +45,13 @@ export default class Selftest extends Component {
       //
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-        let addr4elect = '1BWwXJH3q6PRsizBkSGm2Uw4Sz1urZ5sCj';
+        let addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
         let electrumBalance = await BlueElectrum.getBalanceByAddress(addr4elect);
-        if (electrumBalance.confirmed !== 27268) throw new Error('BlueElectrum getBalanceByAddress failure');
+        if (electrumBalance.confirmed !== 51432)
+          throw new Error('BlueElectrum getBalanceByAddress failure, got ' + JSON.stringify(electrumBalance));
 
         let electrumTxs = await BlueElectrum.getTransactionsByAddress(addr4elect);
-        if (electrumTxs.length !== 13)
-          throw new Error('BlueElectrum getTransactionsByAddress failure, expected 13 got ' + electrumTxs.length);
+        if (electrumTxs.length !== 1) throw new Error('BlueElectrum getTransactionsByAddress failure, got ' + JSON.stringify(electrumTxs));
       } else {
         console.warn('skipping RN-specific test');
       }
