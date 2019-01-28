@@ -4,23 +4,23 @@ module.exports = {
     enter_password: 'Gib das Passwort ein',
     bad_password: 'Fasches Passwort, nächster Versuch',
     never: 'nie',
-    continue: 'Continue',
+    continue: 'Weiter',
     ok: 'OK',
   },
   wallets: {
-    select_wallet: 'Wähle Wallet',
+    select_wallet: 'Wähle eine Wallet',
     options: 'Einstellungen',
     createBitcoinWallet:
-      'In order to use a Lightning wallet, a Bitcoin wallet is needed in order to fund it. Please, create or import a Bitcoin wallet.',
+      'Um eine Lightning wallet zu verwenden, muss erstmal eine Bitcoin Wallet eingerichtet werden. Bitte erstell oder importier eine Bitcoin Wallet.',
     list: {
       app_name: 'BlueWallet',
       title: 'Wallets',
       header:
-        'Eine Wallet (Brieftasche) spiegelt ein Paar von kryptographischen Schlüssel wider. Einen geheimen und eine Adresse als öffentlichen Schlüssel. Letztern kann man zum Erhalt von Bitcoin teilen.',
+        'Eine Wallet spiegelt ein Paar kryptographische Schlüssel wider. Einen geheimen Schlüseel und eine Adresse als öffentlichen Schlüssel. Den öffentlichen Schlüssel kann man zum Empfang von Bitcoin teilen.',
       add: 'Wallet hinzufügen',
       create_a_wallet: 'Wallet erstellen',
       create_a_wallet1: 'Es ist kostenlos und du kannst',
-      create_a_wallet2: 'so viele erstellen, wie du möchtest',
+      create_a_wallet2: 'so viele Wallets erstellen, wie du möchtest',
       latest_transaction: 'Lezte Transaktion',
       empty_txs1: 'Deine Transaktionen erscheinen hier',
       empty_txs2: 'Noch keine Transaktionen',
@@ -42,7 +42,7 @@ module.exports = {
       or: 'oder',
       import_wallet: 'Wallet importieren',
       imported: 'Importiert',
-      coming_soon: 'Folgt bald',
+      coming_soon: 'Demnächst verfügbar',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
     },
@@ -77,15 +77,15 @@ module.exports = {
       imported: 'Importiert',
       error: 'Fehler beim Import. Ist die Eingabe korrekt?',
       success: 'Erfolg',
-      do_import: 'Importiere',
+      do_import: 'Importieren',
       scan_qr: 'oder QR-Code scannen?',
     },
     scanQrWif: {
       go_back: 'Zurück',
       cancel: 'Abbrechen',
-      decoding: 'Decodieren',
+      decoding: 'Entschlüsseln',
       input_password: 'Passwort eingeben',
-      password_explain: 'Das ist ein BIP38 verschlüsselter geheimer Schlüssel',
+      password_explain: 'Das ist ein mit BIP38 verschlüsselter geheimer Schlüssel',
       bad_password: 'Falsches Passwort',
       wallet_already_exists: 'Diese Wallet existiert bereits',
       bad_wif: 'Falsches WIF',
@@ -116,11 +116,11 @@ module.exports = {
     header: 'Senden',
     details: {
       title: 'Transaktion erstellen',
-      amount_field_is_not_valid: 'Betrageingabe ist nicht valide',
-      fee_field_is_not_valid: 'Gebühreingabe ist nicht valide',
-      address_field_is_not_valid: 'Adresseingabe ist nicht valide',
+      amount_field_is_not_valid: 'Betrageingabe ist nicht korrekt',
+      fee_field_is_not_valid: 'Gebühreingabe ist nicht korrekt',
+      address_field_is_not_valid: 'Adresseingabe ist nicht korrekt',
       total_exceeds_balance: 'Der zu sendende Betrag ist größer als der verfügbare Betrag.',
-      create_tx_error: 'Fehler beim Erstellen der Transaktion. Bitte stelle sicher, dass die Adresse valide ist.',
+      create_tx_error: 'Fehler beim Erstellen der Transaktion. Bitte stelle sicher, dass die Adresse korrekt ist.',
       address: 'Adresse',
       amount_placeholder: 'Betrag (in BTC)',
       fee_placeholder: 'plus Gebühr (in BTC)',
@@ -172,36 +172,36 @@ module.exports = {
   },
   settings: {
     header: 'Einstellungen',
-    plausible_deniability: 'Glaubhafte Abstreitbarkeit...',
-    storage_not_encrypted: 'Speicher: nicht verschlüsselt',
-    storage_encrypted: 'Speicher: verschlüsselt',
+    plausible_deniability: 'Glaubhafte Täuschung...',
+    storage_not_encrypted: 'Speicher nicht verschlüsselt',
+    storage_encrypted: 'Speicher verschlüsselt',
     password: 'Passwort',
     password_explain: 'Erstelle das Passwort zum Entschlüsseln des Speichers',
     retype_password: 'Passwort wiederholen',
     passwords_do_not_match: 'Passwörter stimmen nicht überein',
     encrypt_storage: 'Speicher verschlüsseln',
-    lightning_settings: 'Lightning settings',
+    lightning_settings: 'Lightning Einstellungen',
     lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      ' and put its URL here in settings. Leave blank to use default ' +
-      'ndHub\n (lndhub.io)',
-    save: 'save',
+      'Bitte installier Lndhub, um mit deiner eigenen LND Node zu verbinden' +
+      ' und setz seine URL hier in den Einstellungen. Lass das Feld leer, um Standard- ' +
+      'LndHub\n (lndhub.io) zu verwenden',
+    save: 'Speichern',
     about: 'Über',
     language: 'Sprache',
     currency: 'Währung',
   },
   plausibledeniability: {
-    title: 'Glaubhafte Abstreitbarkeit',
+    title: 'Glaubhafte Täuschung',
     help:
       'Unter bestimmten Umständen könntest du dazu gezwungen werden, ' +
       'dein Passwort preiszugeben. Um deine Bitcoins zu sichern, kann ' +
       'BlueWallet einen weiteren verschlüsselten Speicher mit einem ' +
-      'anderen Passwort erstellen. Unter äußeren Druck kannst du das ' +
+      'anderen Passwort erstellen. Unter Druck kannst du das ' +
       'zweite Passwort an Fremde weitergeben. Wenn eingegeben, öffnet ' +
       'BlueWallet einen anderen Speicher zur Täuschung. Dies wirkt ' +
-      'auf Fremde täuschen echt und dein Hauptspeicher bleibt geheim ' +
+      'auf Fremde täuschend echt und dein Hauptspeicher bleibt geheim ' +
       'und sicher.',
-    help2: 'Der weitere Speicher ist voll funktional und man kann einen Minimalbetrag für die Glaubhaftigkeit hinterlegen.',
+    help2: 'Der andere Speicher ist voll funktional und man kann einen Minimalbetrag für die Glaubhaftigkeit hinterlegen.',
     create_fake_storage: 'Erstelle verschlüsselten Speicher zur Täuschung',
     go_back: 'Zurück',
     create_password: 'Erstelle ein Passwort',
@@ -209,14 +209,14 @@ module.exports = {
     password_should_not_match: 'Das Passwort für den täuschenden Speicher darf nicht mit dem deines Hauptspeichers übereinstimmen',
     retype_password: 'Passwort wiederholen',
     passwords_do_not_match: 'Passwörter stimmen nicht überein. Neuer Versuch',
-    success: 'Erfolg',
+    success: 'Erfolg!',
   },
   lnd: {
     title: 'Beträge verwalten',
-    choose_source_wallet: 'Wähle eine Wallet als Quelle',
-    refill_lnd_balance: 'Fülle deine Lightning Wallet auf',
-    refill: 'Auffüllen',
+    choose_source_wallet: 'Wähle eine Wallet als Zahlungsquelle',
+    refill_lnd_balance: 'Lade deine Lightning Wallet auf',
+    refill: 'Aufladen',
     withdraw: 'Abheben',
-    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
+    sameWalletAsInvoiceError: 'Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.',
   },
 };
