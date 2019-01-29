@@ -4,6 +4,7 @@ import { WatchOnlyWallet } from './watch-only-wallet';
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
+const BlueElectrum = require('../BlueElectrum');
 
 export class AbstractHDWallet extends LegacyWallet {
   static type = 'abstract';
@@ -346,24 +347,69 @@ export class AbstractHDWallet extends LegacyWallet {
 
   async fetchBalance() {
     try {
-      const api = new Frisbee({ baseURI: 'https://www.blockonomics.co' });
-      let response = await api.post('/api/balance', { body: JSON.stringify({ addr: this.getXpub() }) });
+      // doing binary search for last used externa address
 
-      if (response && response.body && response.body.response) {
-        this.balance = 0;
-        this.unconfirmed_balance = 0;
-        this.usedAddresses = [];
-        for (let addr of response.body.response) {
-          this.balance += addr.confirmed;
-          this.unconfirmed_balance += addr.unconfirmed;
-          this.usedAddresses.push(addr.addr);
+      let that = this;
+
+      // refactor me
+      // eslint-disable-next-line
+      async function binarySearchIterationForInternalAddress(index, maxUsedIndex = 0, minUnusedIndex = 100500100, depth = 0) {
+        if (depth >= 20) return maxUsedIndex + 1; // fail
+        let txs = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(index));
+        if (txs.length === 0) {
+          minUnusedIndex = Math.min(minUnusedIndex, index); // set
+          index = Math.round((index - maxUsedIndex) / 2 + maxUsedIndex);
+        } else {
+          maxUsedIndex = Math.max(maxUsedIndex, index); // set
+          let txs2 = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(index + 1));
+          if (txs2.length === 0) return index + 1; // thats our next free address
+
+          index = Math.round((minUnusedIndex - index) / 2 + index);
         }
-        this.balance = new BigNumber(this.balance).dividedBy(100000000).toString() * 1;
-        this.unconfirmed_balance = new BigNumber(this.unconfirmed_balance).dividedBy(100000000).toString() * 1;
-        this._lastBalanceFetch = +new Date();
-      } else {
-        throw new Error('Could not fetch balance from API: ' + response.err);
+
+        return binarySearchIterationForInternalAddress(index, maxUsedIndex, minUnusedIndex, depth + 1);
       }
+
+      this.next_free_change_address_index = await binarySearchIterationForInternalAddress(100);
+
+      // refactor me
+      // eslint-disable-next-line
+      async function binarySearchIterationForExternalAddress(index, maxUsedIndex = 0, minUnusedIndex = 100500100, depth = 0) {
+        if (depth >= 20) return maxUsedIndex + 1; // fail
+        let txs = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(index));
+        if (txs.length === 0) {
+          minUnusedIndex = Math.min(minUnusedIndex, index); // set
+          index = Math.round((index - maxUsedIndex) / 2 + maxUsedIndex);
+        } else {
+          maxUsedIndex = Math.max(maxUsedIndex, index); // set
+          let txs2 = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(index + 1));
+          if (txs2.length === 0) return index + 1; // thats our next free address
+
+          index = Math.round((minUnusedIndex - index) / 2 + index);
+        }
+
+        return binarySearchIterationForExternalAddress(index, maxUsedIndex, minUnusedIndex, depth + 1);
+      }
+
+      this.next_free_address_index = await binarySearchIterationForExternalAddress(100);
+
+      this.balance = 0;
+      this.unconfirmed_balance = 0;
+      this.usedAddresses = [];
+
+      // generating all involved addresses:
+      for (let c = 0; c < this.next_free_address_index; c++) {
+        this.usedAddresses.push(this._getExternalAddressByIndex(c));
+      }
+      for (let c = 0; c < this.next_free_change_address_index; c++) {
+        this.usedAddresses.push(this._getInternalAddressByIndex(c));
+      }
+
+      // finally fetching balance
+      let balance = await BlueElectrum.multiGetBalanceByAddress(this.usedAddresses);
+      this.balance = new BigNumber(balance.balance).dividedBy(100000000).toNumber();
+      this.unconfirmed_balance = new BigNumber(balance.unconfirmed_balance).dividedBy(100000000).toNumber();
+      this._lastBalanceFetch = +new Date();
     } catch (err) {
       console.warn(err);
     }
