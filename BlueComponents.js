@@ -44,7 +44,11 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    const backgroundColor = this.props.disabled ? '#99a0ab' : '#ccddf9';
+    const disabled = this.props.hasOwnProperty('disabled');
+    let backgroundColor = '#ccddf9';
+    if (disabled === true) {
+      backgroundColor = '#99a0ab';
+    }
     return (
       <TouchableOpacity
         style={{
