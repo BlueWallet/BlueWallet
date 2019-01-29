@@ -10,6 +10,7 @@ import {
   BlueButtonLink,
   BlueNavigationStyle,
   is,
+  BlueSpacing20,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
@@ -106,6 +107,7 @@ export default class ReceiveDetails extends Component {
                 });
               }}
             />
+            <BlueSpacing20 />
             <BlueButton
               icon={{
                 name: 'share-alternative',
