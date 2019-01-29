@@ -82,7 +82,10 @@ export default class WalletsList extends Component {
           // more responsive
           let noErr = true;
           try {
+            let balanceStart = +new Date();
             await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
+            let balanceEnd = +new Date();
+            console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
             await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
             let end = +new Date();
