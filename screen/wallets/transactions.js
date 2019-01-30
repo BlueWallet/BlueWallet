@@ -349,8 +349,9 @@ export default class WalletTransactions extends Component {
           <FlatList
             ListHeaderComponent={this.renderListHeaderComponent}
             ListEmptyComponent={
-              <View style={{ top: 50, minHeight: 200 }}>
+              <View style={{ top: 50, minHeight: 200, paddingHorizontal: 16 }}>
                 <Text
+                                    numberOfLines={0}
                   style={{
                     fontSize: 18,
                     color: '#9aa0aa',
@@ -358,7 +359,7 @@ export default class WalletTransactions extends Component {
                   }}
                 >
                   {(this.isLightning() &&
-                    'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
+                    'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.') ||
                     loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
@@ -368,7 +369,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
+                  {(this.isLightning() && '\nTo start using it tap on "manage funds" and topup your balance') ||
                     loc.wallets.list.empty_txs2}
                 </Text>
 
