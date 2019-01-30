@@ -392,7 +392,12 @@ export default class SendDetails extends Component {
       <Modal
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
+        onBackdropPress={() => {
+          if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
+            this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+          }
+          this.setState({ isFeeSelectionModalVisible: false });
+        }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -403,12 +408,14 @@ export default class SendDetails extends Component {
                   this.textInput = ref;
                 }}
                 value={this.state.fee.toString()}
+                onEndEditing={() => {
+                  if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
+                    this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+                  }
+                }}
                 onChangeText={value => {
                   let newValue = value.replace(/\D/g, '');
-                  if (newValue.length === 0) {
-                    newValue = 1;
-                  }
-                  this.setState({ fee: newValue, feeSliderValue: newValue });
+                  this.setState({ fee: Number(newValue), feeSliderValue: Number(newValue) });
                 }}
                 maxLength={9}
                 editable={!this.state.isLoading}

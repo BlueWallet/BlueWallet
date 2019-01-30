@@ -98,6 +98,7 @@ export default class WalletsAdd extends Component {
                 onChangeText={text => {
                   this.setLabel(text);
                 }}
+                autoFocus
                 style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
                 editable={!this.state.isLoading}
                 underlineColorAndroid="transparent"
