@@ -71,13 +71,14 @@ export default class SendDetails extends Component {
       fromAddress,
       fromWallet,
       fromSecret,
-      isLoading: true,
+      isLoading: false,
       address,
       memo,
       fee: 1,
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
       feeSliderValue: 1,
       bip70TransactionExpiration: null,
+      renderWalletSelectionButtonHidden: false,
     };
   }
 
@@ -126,6 +127,8 @@ export default class SendDetails extends Component {
   };
 
   async componentDidMount() {
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
       this.setState({
         fee: response.halfHourFee,
@@ -157,6 +160,19 @@ export default class SendDetails extends Component {
       }
     }
   }
+
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  _keyboardDidShow = () => {
+    this.setState({ renderWalletSelectionButtonHidden: true });
+  };
+
+  _keyboardDidHide = () => {
+    this.setState({ renderWalletSelectionButtonHidden: false });
+  };
 
   decodeBitcoinUri(uri) {
     try {
@@ -392,12 +408,7 @@ export default class SendDetails extends Component {
       <Modal
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-            this.setState({ fee: Number(1), feeSliderValue: Number(1) });
-          }
-          this.setState({ isFeeSelectionModalVisible: false });
-        }}
+        onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -408,14 +419,12 @@ export default class SendDetails extends Component {
                   this.textInput = ref;
                 }}
                 value={this.state.fee.toString()}
-                onEndEditing={() => {
-                  if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-                    this.setState({ fee: Number(1), feeSliderValue: Number(1) });
-                  }
-                }}
                 onChangeText={value => {
                   let newValue = value.replace(/\D/g, '');
-                  this.setState({ fee: Number(newValue), feeSliderValue: Number(newValue) });
+                  if (newValue.length === 0) {
+                    newValue = 1;
+                  }
+                  this.setState({ fee: newValue, feeSliderValue: newValue });
                 }}
                 maxLength={9}
                 editable={!this.state.isLoading}
@@ -473,6 +482,7 @@ export default class SendDetails extends Component {
   };
 
   renderWalletSelectionButton = () => {
+    if (this.state.renderWalletSelectionButtonHidden) return;
     return (
       <View style={{ marginBottom: 24, alignItems: 'center' }}>
         {!this.state.isLoading && (
