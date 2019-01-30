@@ -44,14 +44,19 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    const backgroundColor = this.props.disabled ? '#99a0ab' : '#ccddf9';
+    let backgroundColor = '#ccddf9';
+    let fontColor = '#0c2550';
+    if (this.props.hasOwnProperty('disabled') && this.props.disabled === true) {
+      backgroundColor = '#eef0f4';
+      fontColor = '#9aa0aa';
+    }
     return (
       <TouchableOpacity
         style={{
           flex: 1,
           borderWidth: 0.7,
           borderColor: 'transparent',
-          backgroundColor: this.props.hasOwnProperty('backgroundColor') ? this.props.backgroundColor : backgroundColor,
+          backgroundColor: backgroundColor,
           minHeight: 45,
           height: 45,
           maxHeight: 45,
@@ -64,7 +69,7 @@ export class BlueButton extends Component {
       >
         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
           {this.props.icon && <Icon name={this.props.icon.name} type={this.props.icon.type} color={this.props.icon.color} />}
-          {this.props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: '#0c2550' }}>{this.props.title}</Text>}
+          {this.props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor }}>{this.props.title}</Text>}
         </View>
       </TouchableOpacity>
     );

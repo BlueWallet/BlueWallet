@@ -105,15 +105,7 @@ export default class Confirm extends Component {
           <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
           <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
           <BlueSpacing40 />
-          {this.state.isLoading ? (
-            <ActivityIndicator />
-          ) : (
-            <BlueButton
-              onPress={() => this.broadcast()}
-              title={loc.send.confirm.sendNow}
-              style={{ maxWidth: 263, paddingHorizontal: 56 }}
-            />
-          )}
+          {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />}
           <TouchableOpacity
             style={{ marginVertical: 24 }}
             onPress={() =>

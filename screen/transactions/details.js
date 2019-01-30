@@ -89,22 +89,25 @@ export default class TransactionsDetails extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
         <ScrollView style={{ flex: 1 }}>
-          {(() => {
-            if (this.state.tx.confirmations === 0 && this.state.wallet && this.state.wallet.allowRBF()) {
-              return (
-                <BlueButton
-                  onPress={() =>
-                    this.props.navigation.navigate('RBF', {
-                      txid: this.state.tx.hash,
-                    })
-                  }
-                  title="Replace-By-Fee (RBF)"
-                />
-              );
-            }
-          })()}
-
           <BlueCard>
+            {(() => {
+              if (this.state.tx.confirmations === 0 && this.state.wallet && this.state.wallet.allowRBF()) {
+                return (
+                  <React.Fragment>
+                    <BlueButton
+                      onPress={() =>
+                        this.props.navigation.navigate('RBF', {
+                          txid: this.state.tx.hash,
+                        })
+                      }
+                      title="Replace-By-Fee (RBF)"
+                    />
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                );
+              }
+            })()}
+
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
                 if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
@@ -176,7 +179,7 @@ export default class TransactionsDetails extends Component {
               </React.Fragment>
             )}
 
-            {this.state.tx.hasOwnProperty('block_height') && this.state.block_height > 0 && (
+            {this.state.tx.hasOwnProperty('block_height') && this.state.tx.block_height > 0 && (
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.block_height}</BlueText>
