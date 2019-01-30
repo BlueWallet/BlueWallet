@@ -351,7 +351,7 @@ export default class WalletTransactions extends Component {
             ListEmptyComponent={
               <View style={{ top: 50, minHeight: 200, paddingHorizontal: 16 }}>
                 <Text
-                                    numberOfLines={0}
+                  numberOfLines={0}
                   style={{
                     fontSize: 18,
                     color: '#9aa0aa',

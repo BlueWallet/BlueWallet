@@ -1142,7 +1142,7 @@ export class BlueTransactionListItem extends Component {
       this.props.item.type === 'payment_request' ||
       this.props.item.type === 'paid_invoice'
     ) {
-      const lightningWallet = BlueAddressInput.getWallets().filter(wallet => {
+      const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
           if (wallet.hasOwnProperty('secret')) {
             return wallet.getSecret() === this.props.item.fromWallet;
