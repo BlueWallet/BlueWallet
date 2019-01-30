@@ -988,6 +988,195 @@ export class NewWalletPanel extends Component {
   }
 }
 
+export class BlueTransactionListItem extends Component {
+  static propTypes = {
+    item: PropTypes.shape().isRequired,
+    itemPriceUnit: PropTypes.string,
+  };
+
+  static defaultProps = {
+    itemPriceUnit: BitcoinUnit.BTC,
+  };
+
+  txMemo = () => {
+    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
+      return BlueApp.tx_metadata[this.props.item.hash]['memo'];
+    }
+    return '';
+  };
+
+  rowTitle = () => {
+    const item = this.props.item;
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      if (isNaN(item.value)) {
+        item.value = '0';
+      }
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+        } else {
+          return loc.lnd.expired;
+        }
+      }
+    } else {
+      return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+    }
+  };
+
+  rowTitleStyle = () => {
+    const item = this.props.item;
+    let color = '#37c0a1';
+
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        color = '#37c0a1';
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          color = '#37c0a1';
+        } else {
+          color = '#FF0000';
+        }
+      }
+    } else if (item.value / 100000000 < 0) {
+      color = BlueApp.settings.foregroundColor;
+    }
+
+    return {
+      fontWeight: '600',
+      fontSize: 16,
+      color: color,
+    };
+  };
+
+  avatar = () => {
+    // is it lightning refill tx?
+    if (this.props.item.category === 'receive' && this.props.item.confirmations < 3) {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionPendingIcon />
+        </View>
+      );
+    }
+
+    if (this.props.item.type && this.props.item.type === 'bitcoind_tx') {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionOnchainIcon />
+        </View>
+      );
+    }
+    if (this.props.item.type === 'paid_invoice') {
+      // is it lightning offchain payment?
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionOffchainIcon />
+        </View>
+      );
+    }
+
+    if (this.props.item.type === 'user_invoice' || this.props.item.type === 'payment_request') {
+      if (!this.props.item.ispaid) {
+        const currentDate = new Date();
+        const now = (currentDate.getTime() / 1000) | 0;
+        const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
+        if (invoiceExpiration < now) {
+          return (
+            <View style={{ width: 25 }}>
+              <BlueTransactionExpiredIcon />
+            </View>
+          );
+        }
+      } else {
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionOffchainIncomingIcon />
+          </View>
+        );
+      }
+    }
+
+    if (!this.props.item.confirmations) {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionPendingIcon />
+        </View>
+      );
+    } else if (this.props.item.value < 0) {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionOutgoingIcon />
+        </View>
+      );
+    } else {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionIncommingIcon />
+        </View>
+      );
+    }
+  };
+
+  subtitle = () => {
+    return (
+      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
+      this.txMemo() +
+      (this.props.item.memo || '')
+    );
+  };
+
+  onPress = () => {
+    if (this.props.item.hash) {
+      NavigationService.navigate('TransactionDetails', { hash: this.props.item.hash });
+    } else if (
+      this.props.item.type === 'user_invoice' ||
+      this.props.item.type === 'payment_request' ||
+      this.props.item.type === 'paid_invoice'
+    ) {
+      const lightningWallet = BlueAddressInput.getWallets().filter(wallet => {
+        if (typeof wallet === 'object') {
+          if (wallet.hasOwnProperty('secret')) {
+            return wallet.getSecret() === this.props.item.fromWallet;
+          }
+        }
+      });
+      NavigationService.navigate('LNDViewInvoice', {
+        invoice: this.props.item,
+        fromWallet: lightningWallet[0],
+        isModal: false,
+      });
+    }
+  };
+
+  render() {
+    return (
+      <BlueListItem
+        avatar={this.avatar()}
+        title={loc.transactionTimeToReadable(this.props.item.received)}
+        subtitle={this.subtitle()}
+        onPress={this.onPress}
+        badge={{
+          value: 3,
+          textStyle: { color: 'orange' },
+          containerStyle: { marginTop: 0 },
+        }}
+        hideChevron
+        rightTitle={this.rowTitle()}
+        rightTitleStyle={this.rowTitleStyle()}
+      />
+    );
+  }
+}
+
 const sliderWidth = width * 1;
 const itemWidth = width * 0.82;
 const sliderHeight = 190;
@@ -1004,12 +1193,17 @@ export class WalletsCarousel extends Component {
 
   _renderItem({ item, index }) {
     let scaleValue = new Animated.Value(1.0);
-
+    let props = { toValue: 0.9, duration: 100 };
+    if (Platform.OS === 'android') {
+      props.push({ useNativeDriver: true });
+    }
     this.onPressedIn = () => {
-      Animated.spring(scaleValue, { toValue: 0.9, duration: 100, useNativeDriver: Platform.OS === 'android' }).start();
+      scaleValue.toValue = 0.9;
+      Animated.spring(scaleValue, props).start();
     };
     this.onPressedOut = () => {
-      Animated.spring(scaleValue, { toValue: 1.0, duration: 100, useNativeDriver: Platform.OS === 'android' }).start();
+      scaleValue.toValue = 1.0;
+      Animated.spring(scaleValue, props).start();
     };
 
     if (!item) {
