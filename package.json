@@ -19,10 +19,11 @@
   "scripts": {
     "prepare": "./patches/fix_mangle.sh; git apply patches/minifier.js.patch; git apply patches/minify.js.patch; git apply patches/transaction_builder.js.patch; git apply ./patches/transaction.js.patch",
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i; npm start -- --reset-cache",
+    "releasenotes2json": "./release-notes.sh > release-notes.txt; node -e 'console.log(JSON.stringify(require(\"fs\").readFileSync(\"release-notes.txt\", \"utf8\")));' > release-notes.json",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack",
+    "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npm run releasenotes2json",
     "test": "npm run unit && npm run jest && npm run lint",
     "jest": "node node_modules/jest/bin/jest.js",
     "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ --fix",

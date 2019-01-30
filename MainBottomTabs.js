@@ -2,6 +2,7 @@ import { createStackNavigator, createAppContainer } from 'react-navigation';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
+import Releasenotes from './screen/settings/releasenotes';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
 import Currency from './screen/settings/currency';
@@ -85,6 +86,10 @@ const WalletsStackNavigator = createStackNavigator(
     About: {
       screen: About,
       path: 'About',
+    },
+    Releasenotes: {
+      screen: Releasenotes,
+      path: 'Releasenotes',
     },
     Selftest: {
       screen: Selftest,
