@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet } from '../class';
 let BigNumber = require('bignumber.js');
 let encryption = require('../encryption');
+let bitcoin = require('bitcoinjs-lib');
+let BlueElectrum = require('../BlueElectrum');
 
 export default class Selftest extends Component {
   static navigationOptions = () => ({
@@ -36,6 +38,20 @@ export default class Selftest extends Component {
           }
           uniqs[w.getSecret()] = 1;
         }
+      } else {
+        console.warn('skipping RN-specific test');
+      }
+
+      //
+
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        let addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
+        let electrumBalance = await BlueElectrum.getBalanceByAddress(addr4elect);
+        if (electrumBalance.confirmed !== 51432)
+          throw new Error('BlueElectrum getBalanceByAddress failure, got ' + JSON.stringify(electrumBalance));
+
+        let electrumTxs = await BlueElectrum.getTransactionsByAddress(addr4elect);
+        if (electrumTxs.length !== 1) throw new Error('BlueElectrum getTransactionsByAddress failure, got ' + JSON.stringify(electrumTxs));
       } else {
         console.warn('skipping RN-specific test');
       }
@@ -158,7 +174,6 @@ export default class Selftest extends Component {
       ];
 
       let tx = l.createTx(utxo, 0.001, 0.0001, '1QHf8Gp3wfmFiSdEX4FtrssCGR68diN1cj');
-      let bitcoin = require('bitcoinjs-lib');
       let txDecoded = bitcoin.Transaction.fromHex(tx);
       let txid = txDecoded.getId();
 

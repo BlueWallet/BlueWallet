@@ -7,6 +7,7 @@ let EV = require('./events');
 let currency = require('./currency');
 let loc = require('./loc');
 let A = require('./analytics');
+let BlueElectrum = require('./BlueElectrum'); // eslint-disable-line
 
 /** @type {AppStorage} */
 let BlueApp = new AppStorage();
