@@ -16,6 +16,7 @@ import {
   Dimensions,
   Image,
   SafeAreaView,
+  InputAccessoryView,
   Clipboard,
   Platform,
   LayoutAnimation,
@@ -156,7 +157,7 @@ export class BlueButtonLink extends Component {
         }}
         {...this.props}
       >
-        <Text style={{ color: '#0c2550', textAlign: 'center', fontSize: 18 }}>{this.props.title}</Text>
+        <Text style={{ color: '#0c2550', textAlign: 'center', fontSize: 16 }}>{this.props.title}</Text>
       </TouchableOpacity>
     );
   }
@@ -205,7 +206,9 @@ export class BlueCopyTextToClipboard extends Component {
 
   constructor() {
     super();
-    if (Platform.OS === 'android') UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    if (Platform.OS === 'android') {
+      UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
   }
 
   copyToClipboard = () => {
@@ -548,6 +551,27 @@ export class BlueList extends Component {
   }
 }
 
+export class BlueUseAllFundsButton extends Component {
+  static InputAccessoryViewID = 'useMaxInputAccessoryViewID';
+  static propTypes = {
+    wallet: PropTypes.shape().isRequired,
+    onUseAllPressed: PropTypes.func.isRequired,
+  };
+
+  render() {
+    return (
+      <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ color: '#9aa0aa', fontSize: 16, marginHorizontal: 8 }}>
+            Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
+          </Text>
+          <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />
+        </View>
+      </InputAccessoryView>
+    );
+  }
+}
+
 export class BlueLoading extends Component {
   render() {
     return (
@@ -573,7 +597,7 @@ const stylesBlueIcon = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 8,
   },
-  boxIncomming: {
+  boxIncoming: {
     position: 'relative',
   },
   ball: {
@@ -582,14 +606,14 @@ const stylesBlueIcon = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#ccddf9',
   },
-  ballIncomming: {
+  ballIncoming: {
     width: 30,
     height: 30,
     borderRadius: 15,
     backgroundColor: '#d2f8d6',
     transform: [{ rotate: '-45deg' }],
   },
-  ballIncommingWithoutRotate: {
+  ballIncomingWithoutRotate: {
     width: 30,
     height: 30,
     borderRadius: 15,
@@ -652,12 +676,12 @@ export class BluePlusIcon extends Component {
   }
 }
 
-export class BlueTransactionIncommingIcon extends Component {
+export class BlueTransactionIncomingIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncomming}>
-          <View style={stylesBlueIcon.ballIncomming}>
+        <View style={stylesBlueIcon.boxIncoming}>
+          <View style={stylesBlueIcon.ballIncoming}>
             <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 8 }} />
           </View>
         </View>
@@ -670,7 +694,7 @@ export class BlueTransactionPendingIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncomming}>
+        <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ball}>
             <Icon
               {...this.props}
@@ -691,7 +715,7 @@ export class BlueTransactionExpiredIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncomming}>
+        <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
             <Icon {...this.props} name="hourglass-end" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 6 }} />
           </View>
@@ -705,8 +729,8 @@ export class BlueTransactionOnchainIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncomming}>
-          <View style={stylesBlueIcon.ballIncomming}>
+        <View style={stylesBlueIcon.boxIncoming}>
+          <View style={stylesBlueIcon.ballIncoming}>
             <Icon
               {...this.props}
               name="link"
@@ -726,7 +750,7 @@ export class BlueTransactionOffchainIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncomming}>
+        <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
             <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 7 }} />
           </View>
@@ -740,8 +764,8 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncomming}>
-          <View style={stylesBlueIcon.ballIncommingWithoutRotate}>
+        <View style={stylesBlueIcon.boxIncoming}>
+          <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
             <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
@@ -754,7 +778,7 @@ export class BlueTransactionOutgoingIcon extends Component {
   render() {
     return (
       <View {...this.props}>
-        <View style={stylesBlueIcon.boxIncomming}>
+        <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoing}>
             <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 8 }} />
           </View>
@@ -1112,7 +1136,7 @@ export class BlueTransactionListItem extends Component {
     } else {
       return (
         <View style={{ width: 25 }}>
-          <BlueTransactionIncommingIcon />
+          <BlueTransactionIncomingIcon />
         </View>
       );
     }
@@ -1148,6 +1172,195 @@ export class BlueTransactionListItem extends Component {
           isModal: false,
         });
       }
+    }
+  };
+
+  render() {
+    return (
+      <BlueListItem
+        avatar={this.avatar()}
+        title={loc.transactionTimeToReadable(this.props.item.received)}
+        subtitle={this.subtitle()}
+        onPress={this.onPress}
+        badge={{
+          value: 3,
+          textStyle: { color: 'orange' },
+          containerStyle: { marginTop: 0 },
+        }}
+        hideChevron
+        rightTitle={this.rowTitle()}
+        rightTitleStyle={this.rowTitleStyle()}
+      />
+    );
+  }
+}
+
+export class BlueListTransactionItem extends Component {
+  static propTypes = {
+    item: PropTypes.shape().isRequired,
+    itemPriceUnit: PropTypes.string,
+  };
+
+  static defaultProps = {
+    itemPriceUnit: BitcoinUnit.BTC,
+  };
+
+  txMemo = () => {
+    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
+      return BlueApp.tx_metadata[this.props.item.hash]['memo'];
+    }
+    return '';
+  };
+
+  rowTitle = () => {
+    const item = this.props.item;
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      if (isNaN(item.value)) {
+        item.value = '0';
+      }
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+        } else {
+          return loc.lnd.expired;
+        }
+      }
+    } else {
+      return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+    }
+  };
+
+  rowTitleStyle = () => {
+    const item = this.props.item;
+    let color = '#37c0a1';
+
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      const currentDate = new Date();
+      const now = (currentDate.getTime() / 1000) | 0;
+      const invoiceExpiration = item.timestamp + item.expire_time;
+
+      if (invoiceExpiration > now) {
+        color = '#37c0a1';
+      } else if (invoiceExpiration < now) {
+        if (item.ispaid) {
+          color = '#37c0a1';
+        } else {
+          color = '#FF0000';
+        }
+      }
+    } else if (item.value / 100000000 < 0) {
+      color = BlueApp.settings.foregroundColor;
+    }
+
+    return {
+      fontWeight: '600',
+      fontSize: 16,
+      color: color,
+    };
+  };
+
+  avatar = () => {
+    // is it lightning refill tx?
+    if (this.props.item.category === 'receive' && this.props.item.confirmations < 3) {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionPendingIcon />
+        </View>
+      );
+    }
+
+    if (this.props.item.type && this.props.item.type === 'bitcoind_tx') {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionOnchainIcon />
+        </View>
+      );
+    }
+    if (this.props.item.type === 'paid_invoice') {
+      // is it lightning offchain payment?
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionOffchainIcon />
+        </View>
+      );
+    }
+
+    if (this.props.item.type === 'user_invoice' || this.props.item.type === 'payment_request') {
+      if (!this.props.item.ispaid) {
+        const currentDate = new Date();
+        const now = (currentDate.getTime() / 1000) | 0;
+        const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
+        if (invoiceExpiration < now) {
+          return (
+            <View style={{ width: 25 }}>
+              <BlueTransactionExpiredIcon />
+            </View>
+          );
+        }
+      } else {
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionOffchainIncomingIcon />
+          </View>
+        );
+      }
+    }
+
+    if (!this.props.item.confirmations) {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionPendingIcon />
+        </View>
+      );
+    } else if (this.props.item.value < 0) {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionOutgoingIcon />
+        </View>
+      );
+    } else {
+      return (
+        <View style={{ width: 25 }}>
+          <BlueTransactionIncomingIcon />
+        </View>
+      );
+    }
+  };
+
+  subtitle = () => {
+    return (
+      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
+      this.txMemo() +
+      (this.props.item.memo || '')
+    );
+  };
+
+  onPress = () => {
+    if (this.props.item.hash) {
+      NavigationService.navigate('TransactionDetails', { hash: this.props.item.hash });
+    } else if (
+      this.props.item.type === 'user_invoice' ||
+      this.props.item.type === 'payment_request' ||
+      this.props.item.type === 'paid_invoice'
+    ) {
+      const lightningWallet = BlueApp.getWallets().filter(wallet => {
+        if (typeof wallet === 'object') {
+          if (wallet.hasOwnProperty('secret')) {
+            return wallet.getSecret() === this.props.item.fromWallet;
+          }
+        }
+      });
+      NavigationService.navigate('LNDViewInvoice', {
+        invoice: this.props.item,
+        fromWallet: lightningWallet[0],
+        isModal: false,
+      });
     }
   };
 
@@ -1451,7 +1664,6 @@ export class BlueBitcoinAmount extends Component {
               ref={textInput => (this.textInput = textInput)}
               editable={!this.props.isLoading && !this.props.disabled}
               value={amount}
-              autoFocus={this.props.pointerEvents !== 'none'}
               placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
               style={{
                 color: this.props.disabled ? '#99a0ab' : '#0f5cc0',

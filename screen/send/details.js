@@ -14,7 +14,7 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueAddressInput } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueUseAllFundsButton, BlueBitcoinAmount, BlueAddressInput } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -30,7 +30,6 @@ let loc = require('../../loc');
 let bitcoin = require('bitcoinjs-lib');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
-
 export default class SendDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
@@ -399,8 +398,15 @@ export default class SendDetails extends Component {
 
   onWalletSelect = wallet => {
     this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () =>
-      this.props.navigation.goBack(null),
+      this.props.navigation.goBack(),
     );
+  };
+
+  useAllFundsPressed = async () => {
+    const total = 0;
+    const fee = 0;
+    this.setState({ amount: total - fee });
+    Keyboard.dismiss();
   };
 
   renderFeeSelectionModal = () => {
@@ -525,7 +531,6 @@ export default class SendDetails extends Component {
         </View>
       );
     }
-
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
@@ -535,6 +540,7 @@ export default class SendDetails extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onChangeText={text => this.setState({ amount: text })}
+                inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
               />
               <BlueAddressInput
                 onChangeText={text => {
@@ -610,6 +616,7 @@ export default class SendDetails extends Component {
             </KeyboardAvoidingView>
           </View>
           {this.renderWalletSelectionButton()}
+          <BlueUseAllFundsButton wallet={this.state.fromWallet} onUseAllPressed={this.useAllFundsPressed} />
         </View>
       </TouchableWithoutFeedback>
     );

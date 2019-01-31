@@ -1,20 +1,6 @@
 import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
-import {
-  BlueTransactionOnchainIcon,
-  BlueLoading,
-  SafeBlueArea,
-  WalletsCarousel,
-  BlueTransactionIncommingIcon,
-  BlueTransactionOutgoingIcon,
-  BlueTransactionPendingIcon,
-  BlueTransactionOffchainIcon,
-  BlueTransactionExpiredIcon,
-  BlueList,
-  BlueListItem,
-  BlueHeaderDefaultMain,
-  BlueTransactionOffchainIncomingIcon,
-} from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueListTransactionItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -232,60 +218,9 @@ export default class WalletsList extends Component {
     }
   };
 
-  rowTitle = item => {
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      if (isNaN(item.value)) {
-        item.value = '0';
-      }
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
-      const invoiceExpiration = item.timestamp + item.expire_time;
-
-      if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, item.walletPreferredBalanceUnit, true).toString();
-      } else if (invoiceExpiration < now) {
-        if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, item.walletPreferredBalanceUnit, true).toString();
-        } else {
-          return loc.lnd.expired;
-        }
-      }
-    } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, item.walletPreferredBalanceUnit, true).toString();
-    }
-  };
-
-  rowTitleStyle = item => {
-    let color = '#37c0a1';
-
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
-      const invoiceExpiration = item.timestamp + item.expire_time;
-
-      if (invoiceExpiration > now) {
-        color = '#37c0a1';
-      } else if (invoiceExpiration < now) {
-        if (item.ispaid) {
-          color = '#37c0a1';
-        } else {
-          color = '#FF0000';
-        }
-      }
-    } else if (item.value / 100000000 < 0) {
-      color = BlueApp.settings.foregroundColor;
-    }
-
-    return {
-      fontWeight: '600',
-      fontSize: 16,
-      color: color,
-    };
-  };
+  _renderItem = data => <BlueListTransactionItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
 
   render() {
-    const { navigate } = this.props.navigation;
-
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
@@ -338,117 +273,7 @@ export default class WalletsList extends Component {
               data={this.state.dataSource}
               extraData={this.state.dataSource}
               keyExtractor={this._keyExtractor}
-              renderItem={rowData => {
-                return (
-                  <BlueListItem
-                    avatar={(() => {
-                      // is it lightning refill tx?
-                      if (rowData.item.category === 'receive' && rowData.item.confirmations < 3) {
-                        return (
-                          <View style={{ width: 25 }}>
-                            <BlueTransactionPendingIcon />
-                          </View>
-                        );
-                      }
-
-                      if (rowData.item.type && rowData.item.type === 'bitcoind_tx') {
-                        return (
-                          <View style={{ width: 25 }}>
-                            <BlueTransactionOnchainIcon />
-                          </View>
-                        );
-                      }
-                      if (rowData.item.type === 'paid_invoice') {
-                        // is it lightning offchain payment?
-                        return (
-                          <View style={{ width: 25 }}>
-                            <BlueTransactionOffchainIcon />
-                          </View>
-                        );
-                      }
-
-                      if (rowData.item.type === 'user_invoice' || rowData.item.type === 'payment_request') {
-                        if (!rowData.item.ispaid) {
-                          const currentDate = new Date();
-                          const now = (currentDate.getTime() / 1000) | 0;
-                          const invoiceExpiration = rowData.item.timestamp + rowData.item.expire_time;
-                          if (invoiceExpiration < now) {
-                            return (
-                              <View style={{ width: 25 }}>
-                                <BlueTransactionExpiredIcon />
-                              </View>
-                            );
-                          }
-                        } else {
-                          return (
-                            <View style={{ width: 25 }}>
-                              <BlueTransactionOffchainIncomingIcon />
-                            </View>
-                          );
-                        }
-                      }
-
-                      if (!rowData.item.confirmations) {
-                        return (
-                          <View style={{ width: 25 }}>
-                            <BlueTransactionPendingIcon />
-                          </View>
-                        );
-                      } else if (rowData.item.value < 0) {
-                        return (
-                          <View style={{ width: 25 }}>
-                            <BlueTransactionOutgoingIcon />
-                          </View>
-                        );
-                      } else {
-                        return (
-                          <View style={{ width: 25 }}>
-                            <BlueTransactionIncommingIcon />
-                          </View>
-                        );
-                      }
-                    })()}
-                    title={loc.transactionTimeToReadable(rowData.item.received)}
-                    subtitle={
-                      (rowData.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + rowData.item.confirmations + ' ' : '') +
-                      this.txMemo(rowData.item.hash) +
-                      (rowData.item.memo || '')
-                    }
-                    onPress={() => {
-                      if (rowData.item.hash) {
-                        navigate('TransactionDetails', {
-                          hash: rowData.item.hash,
-                        });
-                      } else if (
-                        rowData.item.type === 'user_invoice' ||
-                        rowData.item.type === 'payment_request' ||
-                        rowData.item.type === 'paid_invoice'
-                      ) {
-                        const lightningWallet = this.state.wallets.filter(wallet => {
-                          if (typeof wallet === 'object') {
-                            if (wallet.hasOwnProperty('secret')) {
-                              return wallet.getSecret() === rowData.item.fromWallet;
-                            }
-                          }
-                        });
-                        this.props.navigation.navigate('LNDViewInvoice', {
-                          invoice: rowData.item,
-                          fromWallet: lightningWallet[0],
-                          isModal: false,
-                        });
-                      }
-                    }}
-                    badge={{
-                      value: 3,
-                      textStyle: { color: 'orange' },
-                      containerStyle: { marginTop: 0 },
-                    }}
-                    hideChevron
-                    rightTitle={this.rowTitle(rowData.item)}
-                    rightTitleStyle={this.rowTitleStyle(rowData.item)}
-                  />
-                );
-              }}
+              renderItem={this._renderItem}
             />
           </BlueList>
         </ScrollView>
