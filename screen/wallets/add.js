@@ -72,7 +72,7 @@ export default class WalletsAdd extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false} style={{ flex: 1 }}>
           <BlueCard>
             <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
             <View
@@ -98,7 +98,6 @@ export default class WalletsAdd extends Component {
                 onChangeText={text => {
                   this.setLabel(text);
                 }}
-                autoFocus
                 style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
                 editable={!this.state.isLoading}
                 underlineColorAndroid="transparent"

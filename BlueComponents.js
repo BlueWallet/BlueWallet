@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import { Icon, Button, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
+import { Icon, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -146,26 +146,18 @@ export class LightningButton extends Component {
 
 export class BlueButtonLink extends Component {
   render() {
-    // eslint-disable-next-line
-    this.props.buttonStyle = this.props.buttonStyle || {};
-
     return (
-      <Button
-        activeOpacity={0.1}
-        delayPressIn={0}
-        {...this.props}
+      <TouchableOpacity
         style={{
-          marginTop: 20,
-          borderWidth: 0.7,
-          borderColor: 'transparent',
+          minHeight: 60,
+          minWidth: 100,
+          height: 60,
+          justifyContent: 'center',
         }}
-        buttonStyle={{
-          height: 45,
-          width: width / 1.5,
-        }}
-        backgroundColor="transparent"
-        color="#0c2550"
-      />
+        {...this.props}
+      >
+        <Text style={{ color: '#0c2550', textAlign: 'center', fontSize: 18 }}>{this.props.title}</Text>
+      </TouchableOpacity>
     );
   }
 }
@@ -1149,11 +1141,13 @@ export class BlueTransactionListItem extends Component {
           }
         }
       });
-      NavigationService.navigate('LNDViewInvoice', {
-        invoice: this.props.item,
-        fromWallet: lightningWallet[0],
-        isModal: false,
-      });
+      if (lightningWallet.length === 1) {
+        NavigationService.navigate('LNDViewInvoice', {
+          invoice: this.props.item,
+          fromWallet: lightningWallet[0],
+          isModal: false,
+        });
+      }
     }
   };
 
@@ -1195,7 +1189,7 @@ export class WalletsCarousel extends Component {
     let scaleValue = new Animated.Value(1.0);
     let props = { duration: 50 };
     if (Platform.OS === 'android') {
-      props.push({ useNativeDriver: true });
+      props['useNativeDriver'] = true;
     }
     this.onPressedIn = () => {
       props.toValue = 0.9;
