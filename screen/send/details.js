@@ -540,7 +540,7 @@ export default class SendDetails extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onChangeText={text => this.setState({ amount: text })}
-                inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
+                // inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
               />
               <BlueAddressInput
                 onChangeText={text => {

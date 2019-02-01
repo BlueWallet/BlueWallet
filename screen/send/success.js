@@ -87,7 +87,6 @@ export default class Success extends Component {
               this.props.navigation.dismiss();
             }}
             title={loc.send.success.done}
-            style={{ maxWidth: 263, paddingHorizontal: 56 }}
           />
         </BlueCard>
       </SafeBlueArea>
