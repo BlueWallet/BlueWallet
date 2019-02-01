@@ -200,7 +200,7 @@ export default class TransactionsDetails extends Component {
               </React.Fragment>
             )}
 
-            {this.state.tx.hasOwnProperty('outputs') && (
+            {this.state.tx.hasOwnProperty('outputs') && this.state.tx.outputs.length > 0 && (
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Outputs</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>

@@ -1,0 +1,133 @@
+* Merge branch 'master' of github.com:BlueWallet/BlueWallet into fixes 
+* Update README.md 
+* ADD: release notes in about screen 
+* TST: ln wallet vuln 
+* FIX: Change propType to correct type. Fixed an issue where goBack wouldnt pop the stack navigation 
+* ADD: Show invoice description on success screen 
+* FIX: Place caching mechanism in a try catch 
+* OPS: Additional upgrades 
+* ADD: Cache network fees 
+* ADD: Same success screen from onchain tx now used for offchain 
+* Upgraded dependencies. 
+* ADD: use all UI 
+* Recovered fixes lost during last pull 
+* FIX: Crash on opening ln tx detail screen #284 
+* FIX: No padding on empty wallet #288 
+* Merge branch 'master' of github.com:BlueWallet/BlueWallet into fixes # Conflicts:
+#	BlueComponents.js
+#	package.json
+#	screen/wallets/list.js
+
+* REF: lint 
+* REF: start transition to Electrum server 
+* ADD: MYR fiat FIX: Scanning QR would dismiss screen 
+* FIX: If slider value < 1, force it to 1. 
+* ADD: Create BlueTransactionListItem 
+* Lint 
+* FIX: Fixed spacing for RBF button FIX: Show blockheight if, and only there is at least 1. 
+* Merge pull request #275 from sansegkh/master updated th_TH.js
+* Update ru.js 
+* Update de_DE.js Additional German translations, corrected wrong ones
+* Merge pull request #12 from sansegkh/Thai-translation updated th_TH.js
+* Update th_TH.js 
+* Merge pull request #11 from sansegkh/master merged from master
+* Merge pull request #10 from BlueWallet/master merged from original repo
+* ADD: Parse a pasted uri 
+* ADD: https://github.com/BlueWallet/BlueWallet/issues/220 - Import a photo for QR Code scan 
+* OPS: fixed patch for latest react 
+* OPS: dep 
+* FIX project file for universal app 
+* Merge branch 'master' of github.com:BlueWallet/BlueWallet into blueaddressinput 
+* ADD: Created BlueAddressInput (#270) REF: Created BlueAddressInput
+FIX: Invalid bip21
+REF: Change Blue Wallet strings to BlueWallet
+FIX: Many layout bug fixes.
+ADD: Autofocus on number inputs
+OPS: Upgraded to React Native 0.58
+FIX: Fixes for LND view
+* REL: ver bump 
+* REL 
+* REF: better balance refresh strategy; FIX: performance issue with many ln transactions 
+* FIX: Fixed total dismiss of create tx screen. 
+* Update scanLndInvoice.js 
+* Fixes for LND view 
+* FIX: Many layout bug fixes. ADD: Autofocus on number inputs OPS: Upgraded to React Native 0.58 
+* ADD: WalletGradients class 
+* Change Blue Wallet strings to BlueWallet 
+* Fixed transaction layout 
+* Removed comments 
+* FIX: Multiple android layout issues 
+* FIX: Invalid bip21 
+* Attach   isLoading={this.state.isLoading} 
+* ADD: Created BlueAddressInput 
+* Merge remote-tracking branch 'origin/experimental' 
+* Updates 
+* Merge branch 'experimental' of github.com:BlueWallet/BlueWallet into experimental # Conflicts:
+#	android/app/app.iml
+#	android/app/build.gradle
+#	android/app/src/main/AndroidManifest.xml
+#	android/app/src/main/java/io/bluewallet/bluewallet/MainApplication.java
+#	android/gradle/wrapper/gradle-wrapper.properties
+#	android/settings.gradle
+#	ios/BlueWallet.xcodeproj/project.pbxproj
+#	ios/BlueWallet/Info.plist
+#	package-lock.json
+#	package.json
+
+* REL: ver bump 
+* Merge remote-tracking branch 'origin/bugfixes' 
+* Experimental (#268) * OPS: build maitenance
+* ADD: Created BlueCopyTextToClipboard
+* ADD: NSMicrophoneUsageDescription in info.plist
+* ADD: NSMicrophoneUsageDescription in info.plist 
+* Merge branch 'master' of github.com:BlueWallet/BlueWallet into bugfixes # Conflicts:
+#	package-lock.json
+#	package.json
+
+* ADD: support for bip11-lightning (closes #257) 
+* REL: bump ver 
+* Revert "REF: bugfixes" (#265) This reverts commit d762ab543b289f5c4eac537bcc1b5f2a0ad09e66.
+* REF: bugfixes 
+* FIX: Restored wkwebview 
+* ADD: Created BlueCopyTextToClipboard 
+* Merge branch 'master' of github.com:BlueWallet/BlueWallet into bugfixes # Conflicts:
+#	android/app/app.iml
+#	android/app/build.gradle
+#	android/app/src/main/java/com/bluewallet/MainApplication.java
+#	android/app/src/main/java/io/bluewallet/bluewallet/MainApplication.java
+#	android/gradle/wrapper/gradle-wrapper.properties
+#	ios/BlueWallet.xcodeproj/project.pbxproj
+
+* REF: lapp-browser; OPS: build refactor 
+* Merge branch 'master' of github.com:BlueWallet/BlueWallet into bugfixes 
+* Merge pull request #255 from tukac/patch-2 Update hr_HR.js
+* Merge pull request #256 from pablocastellanos/add_mxn_currency added Mexican Peso (MXN) as new fiatUnit
+* Merge pull request #261 from BrunoSette/add-BRL-currency added Brazilian Real (BRL) as new fiatUnit
+* Merge branch 'master' of github.com:BlueWallet/BlueWallet into bugfixes # Conflicts:
+#	android/app/build.gradle
+
+* Merge pull request #9 from sansegkh/master merged from master
+* Merge pull request #8 from BlueWallet/master merged from original repo
+* added Brazilian Real (BRL) as new fiatUnit 
+* REF: browser 
+* FIX: Updated Info.plist 
+* android version name 
+* webview 2.8.0 for android 
+* Use react-native-wkwebview for iOS 
+* ...Android... 
+* WEIRD SHIT 
+* FIX: inject 
+* Fixed crash 
+* Use webview fork 
+* useWebKit={true} 
+* Added javaScriptEnabled prop for android devices. 
+* Update package.json Updated webview version for testing.
+* REL: ios ver bump 
+* REF: lapp browser; ADD: indicator whether webln is enabled 
+* added Mexican Peso (MXN) as new fiatUnit 
+* Update hr_HR.js 
+* Fixes for android build 
+* OPS: Lowered iOS minimum target version 
+* REL: andr ver bump 
+* Merge pull request #254 from BlueWallet/androidbuild Fixed files in order to have a successful android build
+* Fixed files in order to have a successful android build 
