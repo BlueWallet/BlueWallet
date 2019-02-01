@@ -64,3 +64,8 @@ MIT
 Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you.
 
 Join us at our [telegram group](https://t.me/bluewallet) where we hangout :+1:
+
+## Responsible disclosure
+
+Found critical bugs/vulnerabilities? Please email them bluewallet@bluewallet.io
+Thanks!
