@@ -156,7 +156,7 @@ export default class ScanLndInvoice extends React.Component {
         this.props.navigation.navigate('Success', {
           amount: this.state.decoded.num_satoshis,
           amountUnit: BitcoinUnit.SATS,
-          dismissModal: () => this.props.navigation.dismiss(),
+          invoiceDescription: this.state.decoded.description,
         });
       },
     );

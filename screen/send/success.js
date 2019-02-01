@@ -20,6 +20,7 @@ export default class Success extends Component {
       amount: props.navigation.getParam('amount'),
       fee: props.navigation.getParam('fee') || 0,
       amountUnit: props.navigation.getParam('amountUnit') || BitcoinUnit.BTC,
+      invoiceDescription: props.navigation.getParam('invoiceDescription') || '',
     };
   }
 
@@ -67,6 +68,21 @@ export default class Success extends Component {
               }}
             >
               {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
+            </Text>
+          )}
+          {this.state.fee <= 0 && (
+            <Text
+              numberOfLines={0}
+              style={{
+                color: '#37c0a1',
+                fontSize: 14,
+                marginHorizontal: 4,
+                paddingBottom: 6,
+                fontWeight: '500',
+                alignSelf: 'center',
+              }}
+            >
+              {this.state.invoiceDescription}
             </Text>
           )}
         </BlueCard>
