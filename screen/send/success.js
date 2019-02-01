@@ -18,7 +18,8 @@ export default class Success extends Component {
 
     this.state = {
       amount: props.navigation.getParam('amount'),
-      fee: props.navigation.getParam('fee'),
+      fee: props.navigation.getParam('fee') || 0,
+      amountUnit: props.navigation.getParam('amountUnit') || BitcoinUnit.BTC,
     };
   }
 
@@ -51,21 +52,23 @@ export default class Success extends Component {
                 alignSelf: 'flex-end',
               }}
             >
-              {' ' + BitcoinUnit.BTC}
+              {' ' + this.state.amountUnit}
             </Text>
           </View>
-          <Text
-            style={{
-              color: '#37c0a1',
-              fontSize: 14,
-              marginHorizontal: 4,
-              paddingBottom: 6,
-              fontWeight: '500',
-              alignSelf: 'center',
-            }}
-          >
-            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
-          </Text>
+          {this.state.fee > 0 && (
+            <Text
+              style={{
+                color: '#37c0a1',
+                fontSize: 14,
+                marginHorizontal: 4,
+                paddingBottom: 6,
+                fontWeight: '500',
+                alignSelf: 'center',
+              }}
+            >
+              {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
+            </Text>
+          )}
         </BlueCard>
         <View
           style={{

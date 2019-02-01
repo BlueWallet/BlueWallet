@@ -180,6 +180,15 @@ const CreateWalletStackNavigator = createStackNavigator({
   },
 });
 
+const LightningScanInvoiceStackNavigator = createStackNavigator({
+  ScanLndInvoice: {
+    screen: ScanLndInvoice,
+  },
+  Success: {
+    screen: Success,
+  },
+});
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -236,7 +245,10 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     ScanLndInvoice: {
-      screen: ScanLndInvoice,
+      screen: LightningScanInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     ScanQrAddress: {
       screen: sendScanQrAddress,
