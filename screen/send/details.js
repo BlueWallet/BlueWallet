@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Platform,
   Slider,
+  AsyncStorage,
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -128,20 +129,24 @@ export default class SendDetails extends Component {
   async componentDidMount() {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-    let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
+
+    const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
+
+    if (cachedNetworkTransactionFees.halfHourFee) {
       this.setState({
-        fee: response.halfHourFee,
-        networkTransactionFees: response,
-        feeSliderValue: response.halfHourFee,
-        isLoading: false,
+        fee: cachedNetworkTransactionFees.halfHourFee,
+        networkTransactionFees: cachedNetworkTransactionFees,
+        feeSliderValue: cachedNetworkTransactionFees.halfHourFee,
       });
-    });
-    if (recommendedFees) {
+    }
+
+    const recommendedFees = await NetworkTransactionFees.recommendedFees();
+    if (recommendedFees.hasOwnProperty('halfHourFee')) {
+      await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
       this.setState({
         fee: recommendedFees.halfHourFee,
         networkTransactionFees: recommendedFees,
         feeSliderValue: recommendedFees.halfHourFee,
-        isLoading: false,
       });
 
       if (this.props.navigation.state.params.uri) {
@@ -150,13 +155,18 @@ export default class SendDetails extends Component {
         } else {
           try {
             const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
-            this.setState({ address, amount, memo });
+            this.setState({ address, amount, memo, isLoading: false });
           } catch (error) {
             console.log(error);
+            this.setState({ isLoading: false });
             alert('Error: Unable to decode Bitcoin address');
           }
         }
+      } else {
+        this.setState({ isLoading: false });
       }
+    } else {
+      this.setState({ isLoading: false });
     }
   }
 
