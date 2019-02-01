@@ -146,10 +146,10 @@ const styles = StyleSheet.create({
 
 Confirm.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    getParam: PropTypes.function,
-    navigate: PropTypes.function,
-    dismiss: PropTypes.function,
+    goBack: PropTypes.func,
+    getParam: PropTypes.func,
+    navigate: PropTypes.func,
+    dismiss: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,

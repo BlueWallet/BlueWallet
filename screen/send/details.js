@@ -132,7 +132,7 @@ export default class SendDetails extends Component {
     try {
       const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
 
-      if (cachedNetworkTransactionFees.halfHourFee) {
+      if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
         this.setState({
           fee: cachedNetworkTransactionFees.halfHourFee,
           networkTransactionFees: cachedNetworkTransactionFees,
@@ -142,7 +142,7 @@ export default class SendDetails extends Component {
     } catch (_) {}
 
     let recommendedFees = await NetworkTransactionFees.recommendedFees();
-    if (recommendedFees.halfHourFee) {
+    if (recommendedFees && recommendedFees.hasOwnProperty('halfHourFee')) {
       await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
       this.setState({
         fee: recommendedFees.halfHourFee,
@@ -408,9 +408,9 @@ export default class SendDetails extends Component {
   }
 
   onWalletSelect = wallet => {
-    this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () =>
-      this.props.navigation.goBack(),
-    );
+    this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
+      this.props.navigation.pop();
+    });
   };
 
   useAllFundsPressed = async () => {
@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
 
 SendDetails.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.func,
+    pop: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
     state: PropTypes.shape({
