@@ -129,19 +129,20 @@ export default class SendDetails extends Component {
   async componentDidMount() {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+    try {
+      const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
 
-    const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
+      if (cachedNetworkTransactionFees.halfHourFee) {
+        this.setState({
+          fee: cachedNetworkTransactionFees.halfHourFee,
+          networkTransactionFees: cachedNetworkTransactionFees,
+          feeSliderValue: cachedNetworkTransactionFees.halfHourFee,
+        });
+      }
+    } catch (_) {}
 
-    if (cachedNetworkTransactionFees.halfHourFee) {
-      this.setState({
-        fee: cachedNetworkTransactionFees.halfHourFee,
-        networkTransactionFees: cachedNetworkTransactionFees,
-        feeSliderValue: cachedNetworkTransactionFees.halfHourFee,
-      });
-    }
-
-    const recommendedFees = await NetworkTransactionFees.recommendedFees();
-    if (recommendedFees.hasOwnProperty('halfHourFee')) {
+    let recommendedFees = await NetworkTransactionFees.recommendedFees();
+    if (recommendedFees.halfHourFee) {
       await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
       this.setState({
         fee: recommendedFees.halfHourFee,
