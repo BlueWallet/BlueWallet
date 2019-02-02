@@ -556,9 +556,15 @@ export default class SendDetails extends Component {
                   } else {
                     try {
                       const { address, amount, memo } = this.decodeBitcoinUri(text);
-                      this.setState({ address, amount, memo, isLoading: false, bip70TransactionExpiration: null });
+                      this.setState({
+                        address: address.replace('bitcoin:', ''),
+                        amount,
+                        memo,
+                        isLoading: false,
+                        bip70TransactionExpiration: null,
+                      });
                     } catch (_) {
-                      this.setState({ address: text.trim(), isLoading: false, bip70TransactionExpiration: null });
+                      this.setState({ address: text.trim().replace('bitcoin:', ''), isLoading: false, bip70TransactionExpiration: null });
                     }
                   }
                 }}
