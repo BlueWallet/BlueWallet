@@ -15,7 +15,7 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton, BlueUseAllFundsButton, BlueBitcoinAmount, BlueAddressInput } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueAddressInput } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -413,13 +413,6 @@ export default class SendDetails extends Component {
     });
   };
 
-  useAllFundsPressed = async () => {
-    const total = 0;
-    const fee = 0;
-    this.setState({ amount: total - fee });
-    Keyboard.dismiss();
-  };
-
   renderFeeSelectionModal = () => {
     return (
       <Modal
@@ -551,7 +544,6 @@ export default class SendDetails extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onChangeText={text => this.setState({ amount: text })}
-                // inputAccessoryViewID={BlueUseAllFundsButton.InputAccessoryViewID}
               />
               <BlueAddressInput
                 onChangeText={text => {
@@ -627,7 +619,6 @@ export default class SendDetails extends Component {
             </KeyboardAvoidingView>
           </View>
           {this.renderWalletSelectionButton()}
-          <BlueUseAllFundsButton wallet={this.state.fromWallet} onUseAllPressed={this.useAllFundsPressed} />
         </View>
       </TouchableWithoutFeedback>
     );

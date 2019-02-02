@@ -19,7 +19,6 @@ import {
   InputAccessoryView,
   Clipboard,
   Platform,
-  LayoutAnimation,
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -202,38 +201,32 @@ export class BlueCopyTextToClipboard extends Component {
     text: '',
   };
 
-  state = { hasTappedText: false };
-
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
     }
+    this.state = { hasTappedText: false, address: props.text };
   }
 
   copyToClipboard = () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.spring, () => {
+    this.setState({ hasTappedText: true }, () => {
       Clipboard.setString(this.props.text);
-      setTimeout(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-        this.setState({ hasTappedText: false });
-      }, 1000);
+      this.setState({ address: loc.wallets.xpub.copiedToClipboard }, () => {
+        setTimeout(() => {
+          this.setState({ hasTappedText: false, address: this.props.text });
+        }, 1000);
+      });
     });
-    this.setState({ hasTappedText: true });
   };
 
   render() {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
         <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText}>
-          <Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
-            {this.props.text}
-          </Text>
-          {this.state.hasTappedText && (
-            <Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
-              {loc.wallets.xpub.copiedToClipboard}
-            </Text>
-          )}
+          <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
+            {this.state.address}
+          </Animated.Text>
         </TouchableOpacity>
       </View>
     );
