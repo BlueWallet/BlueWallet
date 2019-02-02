@@ -107,7 +107,6 @@ export default class ReceiveDetails extends Component {
                 });
               }}
             />
-            <BlueSpacing20 />
             <BlueButton
               icon={{
                 name: 'share-alternative',
@@ -121,7 +120,6 @@ export default class ReceiveDetails extends Component {
               }}
               title={loc.receive.details.share}
             />
-            <BlueSpacing20 />
           </View>
         </View>
       </SafeBlueArea>
