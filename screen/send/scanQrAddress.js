@@ -16,9 +16,12 @@ export default class CameraExample extends React.Component {
   };
 
   onBarCodeScanned(ret) {
-    const onBarScanned = this.props.navigation.getParam('onBarScanned');
-    this.props.navigation.goBack();
-    onBarScanned(ret.data);
+    if (this.state.isLoading) return;
+    this.setState({ isLoading: true }, () => {
+      const onBarScanned = this.props.navigation.getParam('onBarScanned');
+      this.props.navigation.goBack();
+      onBarScanned(ret.data);
+    });
   } // end
 
   componentDidMount() {
