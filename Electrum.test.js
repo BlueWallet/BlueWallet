@@ -47,6 +47,7 @@ describe('Electrum', () => {
 
   it('BlueElectrum works', async function() {
     let address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
+    await BlueElectrum.waitTillConnected();
     let balance = await BlueElectrum.getBalanceByAddress(address);
     assert.strictEqual(balance.confirmed, 51432);
     assert.strictEqual(balance.unconfirmed, 0);

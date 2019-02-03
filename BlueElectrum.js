@@ -18,7 +18,6 @@ async function connectMain() {
     const ver = await mainClient.server_version('2.7.11', '1.2');
     console.log('connected to ', ver);
     let peers = await mainClient.serverPeers_subscribe();
-    console.log('peers', peers);
     if (peers && peers.length > 0) {
       mainConnected = true;
       AsyncStorage.setItem(storageKey, JSON.stringify(peers));
@@ -93,6 +92,7 @@ async function getRandomDynamicPeer() {
  * @returns {Promise<Object>}
  */
 async function getBalanceByAddress(address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
   let script = bitcoin.address.toOutputScript(address);
   let hash = bitcoin.crypto.sha256(script);
   let reversedHash = Buffer.from(reverse(hash));
@@ -107,6 +107,7 @@ async function getBalanceByAddress(address) {
  * @returns {Promise<Array>}
  */
 async function getTransactionsByAddress(address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
   let script = bitcoin.address.toOutputScript(address);
   let hash = bitcoin.crypto.sha256(script);
   let reversedHash = Buffer.from(reverse(hash));
@@ -120,6 +121,7 @@ async function getTransactionsByAddress(address) {
  * @returns {Promise<{balance: number, unconfirmed_balance: number}>}
  */
 async function multiGetBalanceByAddress(addresses) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
   let balance = 0;
   let unconfirmedBalance = 0;
   for (let addr of addresses) {
@@ -132,9 +134,34 @@ async function multiGetBalanceByAddress(addresses) {
   return { balance, unconfirmed_balance: unconfirmedBalance };
 }
 
+/**
+ * Simple waiter till `mainConnected` becomes true (which means
+ * it Electrum was connected in other function), or timeout 30 sec.
+ *
+ *
+ * @returns {Promise<Promise<*> | Promise<*>>}
+ */
+async function waitTillConnected() {
+  let waitTillConnectedInterval = false;
+  let retriesCounter = 0;
+  return new Promise(function(resolve, reject) {
+    waitTillConnectedInterval = setInterval(() => {
+      if (mainConnected) {
+        clearInterval(waitTillConnectedInterval);
+        resolve(true);
+      }
+      if (retriesCounter++ >= 30) {
+        clearInterval(waitTillConnectedInterval);
+        reject(new Error('Waiting for Electrum connection timeout'));
+      }
+    }, 1000);
+  });
+}
+
 module.exports.getBalanceByAddress = getBalanceByAddress;
 module.exports.getTransactionsByAddress = getTransactionsByAddress;
 module.exports.multiGetBalanceByAddress = multiGetBalanceByAddress;
+module.exports.waitTillConnected = waitTillConnected;
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
