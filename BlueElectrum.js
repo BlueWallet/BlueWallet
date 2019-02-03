@@ -3,26 +3,88 @@ const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
 
-const defaultPeer = { host: 'electrum.coinucopia.io', ssl: 50002, tcp: 50001, pruning: null, http: null, https: null };
-console.log('begin connection:', JSON.stringify(defaultPeer));
+const storageKey = 'ELECTRUM_PEERS';
+const defaultPeer = { host: 'electrum.coinucopia.io', tcp: 50001 };
 
-let mainClient = new ElectrumClient(defaultPeer.tcp, defaultPeer.host, 'tcp');
+let mainClient = false;
+let mainConnected = false;
 
-(async () => {
+async function connectMain() {
+  let usingPeer = await getRandomHardcodedPeer();
   try {
+    console.log('begin connection:', JSON.stringify(usingPeer));
+    mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
     await mainClient.connect();
     const ver = await mainClient.server_version('2.7.11', '1.2');
     console.log('connected to ', ver);
     let peers = await mainClient.serverPeers_subscribe();
-    // console.log('peers', peers);
     if (peers && peers.length > 0) {
-      AsyncStorage.setItem('ELECTRUM_PEERS', JSON.stringify(peers));
+      mainConnected = true;
+      AsyncStorage.setItem(storageKey, JSON.stringify(peers));
     }
   } catch (e) {
-    console.log('bad connection:', JSON.stringify(defaultPeer));
-    throw new Error();
+    mainConnected = false;
+    console.log('bad connection:', JSON.stringify(usingPeer));
   }
-})();
+
+  if (!mainConnected) {
+    console.log('retry');
+    setTimeout(connectMain, 5000);
+  }
+}
+
+connectMain();
+
+/**
+ * Returns random hardcoded electrum server guaranteed to work
+ * at the time of writing.
+ *
+ * @returns {Promise<{tcp, host}|*>}
+ */
+async function getRandomHardcodedPeer() {
+  let hardcodedPeers = [
+    { host: 'node.ispol.sk', tcp: '50001' },
+    { host: 'electrum.vom-stausee.de', tcp: '50001' },
+    { host: 'orannis.com', tcp: '50001' },
+    { host: '139.162.14.142', tcp: '50001' },
+    { host: 'daedalus.bauerj.eu', tcp: '50001' },
+    { host: 'electrum.eff.ro', tcp: '50001' },
+    { host: 'electrum.anduck.net', tcp: '50001' },
+    { host: 'mooo.not.fyi', tcp: '50011' },
+    { host: 'electrum.coinucopia.io', tcp: '50001' },
+  ];
+  return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
+}
+
+/**
+ * Returns random electrum server out of list of servers
+ * previous electrum server told us. Nearly half of them is
+ * usually offline.
+ * Not used for now.
+ *
+ * @returns {Promise<{tcp: number, host: string}>}
+ */
+// eslint-disable-next-line
+async function getRandomDynamicPeer() {
+  try {
+    let peers = JSON.parse(await AsyncStorage.getItem(storageKey));
+    peers = peers.sort(() => Math.random() - 0.5); // shuffle
+    for (let peer of peers) {
+      let ret = {};
+      ret.host = peer[1];
+      for (let item of peer[2]) {
+        if (item.startsWith('t')) {
+          ret.tcp = item.replace('t', '');
+        }
+      }
+      if (ret.host && ret.tcp) return ret;
+    }
+
+    return defaultPeer; // failed to find random client, using default
+  } catch (_) {
+    return defaultPeer; // smth went wrong, using default
+  }
+}
 
 /**
  *
@@ -30,6 +92,7 @@ let mainClient = new ElectrumClient(defaultPeer.tcp, defaultPeer.host, 'tcp');
  * @returns {Promise<Object>}
  */
 async function getBalanceByAddress(address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
   let script = bitcoin.address.toOutputScript(address);
   let hash = bitcoin.crypto.sha256(script);
   let reversedHash = Buffer.from(reverse(hash));
@@ -44,6 +107,7 @@ async function getBalanceByAddress(address) {
  * @returns {Promise<Array>}
  */
 async function getTransactionsByAddress(address) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
   let script = bitcoin.address.toOutputScript(address);
   let hash = bitcoin.crypto.sha256(script);
   let reversedHash = Buffer.from(reverse(hash));
@@ -57,6 +121,7 @@ async function getTransactionsByAddress(address) {
  * @returns {Promise<{balance: number, unconfirmed_balance: number}>}
  */
 async function multiGetBalanceByAddress(addresses) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
   let balance = 0;
   let unconfirmedBalance = 0;
   for (let addr of addresses) {
@@ -69,9 +134,34 @@ async function multiGetBalanceByAddress(addresses) {
   return { balance, unconfirmed_balance: unconfirmedBalance };
 }
 
+/**
+ * Simple waiter till `mainConnected` becomes true (which means
+ * it Electrum was connected in other function), or timeout 30 sec.
+ *
+ *
+ * @returns {Promise<Promise<*> | Promise<*>>}
+ */
+async function waitTillConnected() {
+  let waitTillConnectedInterval = false;
+  let retriesCounter = 0;
+  return new Promise(function(resolve, reject) {
+    waitTillConnectedInterval = setInterval(() => {
+      if (mainConnected) {
+        clearInterval(waitTillConnectedInterval);
+        resolve(true);
+      }
+      if (retriesCounter++ >= 30) {
+        clearInterval(waitTillConnectedInterval);
+        reject(new Error('Waiting for Electrum connection timeout'));
+      }
+    }, 1000);
+  });
+}
+
 module.exports.getBalanceByAddress = getBalanceByAddress;
 module.exports.getTransactionsByAddress = getTransactionsByAddress;
 module.exports.multiGetBalanceByAddress = multiGetBalanceByAddress;
+module.exports.waitTillConnected = waitTillConnected;
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
