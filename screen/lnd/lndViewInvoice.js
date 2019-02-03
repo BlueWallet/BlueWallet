@@ -236,9 +236,9 @@ export default class LNDViewInvoice extends Component {
 
 LNDViewInvoice.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    navigate: PropTypes.function,
-    getParam: PropTypes.function,
-    dismiss: PropTypes.function,
+    goBack: PropTypes.func,
+    navigate: PropTypes.func,
+    getParam: PropTypes.func,
+    dismiss: PropTypes.func,
   }),
 };

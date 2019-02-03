@@ -234,7 +234,7 @@ export default class SendCreate extends Component {
 
 SendCreate.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
+    goBack: PropTypes.func,
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({

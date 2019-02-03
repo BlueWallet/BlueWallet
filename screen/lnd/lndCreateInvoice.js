@@ -116,7 +116,7 @@ export default class LNDCreateInvoice extends Component {
 
 LNDCreateInvoice.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
+    goBack: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
   }),

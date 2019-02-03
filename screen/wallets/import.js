@@ -215,38 +215,39 @@ export default class WalletsImport extends Component {
                 this.setLabel(text);
               }}
             />
-            <BlueSpacing20 />
-            <View
-              style={{
-                alignItems: 'center',
-              }}
-            >
-              <BlueButton
-                disabled={!this.state.label}
-                title={loc.wallets.import.do_import}
-                buttonStyle={{
-                  width: width / 1.5,
-                }}
-                onPress={async () => {
-                  if (!this.state.label) {
-                    return;
-                  }
-                  this.setState({ isLoading: true });
-                  setTimeout(async () => {
-                    await this.importMnemonic(this.state.label.trim());
-                    this.setState({ isLoading: false });
-                  }, 1);
-                }}
-              />
-              <BlueButtonLink
-                title={loc.wallets.import.scan_qr}
-                onPress={() => {
-                  this.props.navigation.navigate('ScanQrWif');
-                }}
-              />
-            </View>
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
+
+        <BlueSpacing20 />
+        <View
+          style={{
+            alignItems: 'center',
+          }}
+        >
+          <BlueButton
+            disabled={!this.state.label}
+            title={loc.wallets.import.do_import}
+            buttonStyle={{
+              width: width / 1.5,
+            }}
+            onPress={async () => {
+              if (!this.state.label) {
+                return;
+              }
+              this.setState({ isLoading: true });
+              setTimeout(async () => {
+                await this.importMnemonic(this.state.label.trim());
+                this.setState({ isLoading: false });
+              }, 1);
+            }}
+          />
+          <BlueButtonLink
+            title={loc.wallets.import.scan_qr}
+            onPress={() => {
+              this.props.navigation.navigate('ScanQrWif');
+            }}
+          />
+        </View>
       </SafeBlueArea>
     );
   }
