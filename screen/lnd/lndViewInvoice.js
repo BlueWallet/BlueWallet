@@ -12,6 +12,7 @@ import {
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import { ACINQStrikeLightningWallet } from '../../class/';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -49,19 +50,25 @@ export default class LNDViewInvoice extends Component {
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {
-          const userInvoices = await this.state.fromWallet.getUserInvoices(20);
-          // fetching only last 20 invoices
-          // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
-          // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
-          const updatedUserInvoice = userInvoices.filter(invoice =>
-            typeof this.state.invoice === 'object'
-              ? invoice.payment_request === this.state.invoice.payment_request
-              : invoice.payment_request === this.state.invoice,
-          )[0];
+          let updatedUserInvoice;
+          if (this.state.fromWallet.type === ACINQStrikeLightningWallet.type) {
+            updatedUserInvoice = await this.state.fromWallet.getCharge(this.state.invoice.id);
+            console.warn(updatedUserInvoice);
+          } else {
+            const userInvoices = await this.state.fromWallet.getUserInvoices(20);
+            // fetching only last 20 invoices
+            // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
+            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
+            updatedUserInvoice = userInvoices.filter(invoice =>
+              typeof this.state.invoice === 'object'
+                ? invoice.payment_request === this.state.invoice.payment_request
+                : invoice.payment_request === this.state.invoice,
+            )[0];
+          }
 
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
-            if (updatedUserInvoice.ispaid) {
+            if (updatedUserInvoice.ispaid || updatedUserInvoice.paid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
               ReactNativeHapticFeedback.trigger('notificationSuccess', false);
@@ -116,7 +123,7 @@ export default class LNDViewInvoice extends Component {
       const now = (currentDate.getTime() / 1000) | 0;
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
 
-      if (invoice.ispaid || invoice.type === 'paid_invoice') {
+      if (invoice.ispaid || invoice.type === 'paid_invoice' || (invoice.paid && invoice.object === 'charge')) {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

@@ -1125,7 +1125,7 @@ export class BlueTransactionListItem extends Component {
       if (this.props.item.paid) {
         return (
           <View style={{ width: 25 }}>
-            <BlueTransactionOffchainIcon />
+            <BlueTransactionOffchainIncomingIcon />
           </View>
         );
       } else {
@@ -1176,7 +1176,8 @@ export class BlueTransactionListItem extends Component {
     } else if (
       this.props.item.type === 'user_invoice' ||
       this.props.item.type === 'payment_request' ||
-      this.props.item.type === 'paid_invoice'
+      this.props.item.type === 'paid_invoice' ||
+      this.props.item.object === 'charge'
     ) {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
