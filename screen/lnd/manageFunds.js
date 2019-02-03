@@ -83,10 +83,10 @@ export default class ManageFunds extends Component {
 
 ManageFunds.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    dismiss: PropTypes.function,
-    navigate: PropTypes.function,
-    getParam: PropTypes.function,
+    goBack: PropTypes.func,
+    dismiss: PropTypes.func,
+    navigate: PropTypes.func,
+    getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         fromSecret: PropTypes.string,

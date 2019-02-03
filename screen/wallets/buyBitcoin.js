@@ -107,7 +107,7 @@ export default class BuyBitcoin extends Component {
 
 BuyBitcoin.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
+    goBack: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,

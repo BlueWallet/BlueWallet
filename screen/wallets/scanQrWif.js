@@ -28,6 +28,7 @@ export default class ScanQrWif extends React.Component {
   };
 
   async onBarCodeScanned(ret) {
+    this.setState({ isLoading: true });
     if (+new Date() - this.lastTimeIveBeenHere < 6000) {
       this.lastTimeIveBeenHere = +new Date();
       return;
@@ -57,16 +58,17 @@ export default class ScanQrWif extends React.Component {
         ret.data = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
       } catch (e) {
         console.log(e.message);
-        this.setState({ message: false });
+        this.setState({ message: false, isLoading: false });
         return alert(loc.wallets.scanQrWif.bad_password);
       }
 
-      this.setState({ message: false });
+      this.setState({ message: false, isLoading: false });
     }
 
     for (let w of BlueApp.wallets) {
       if (w.getSecret() === ret.data) {
         // lookig for duplicates
+        this.setState({ isLoading: false });
         return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
       }
     }
@@ -78,10 +80,10 @@ export default class ScanQrWif extends React.Component {
       for (let w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
+          this.setState({ isLoading: false });
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
-      this.setState({ isLoading: true });
       await hd.fetchTransactions();
       if (hd.getTransactions().length !== 0) {
         await hd.fetchBalance();
@@ -91,6 +93,7 @@ export default class ScanQrWif extends React.Component {
         alert(loc.wallets.import.success);
         this.props.navigation.popToTop();
         setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+        this.setState({ isLoading: false });
         return;
       }
     }
@@ -103,6 +106,7 @@ export default class ScanQrWif extends React.Component {
       for (let w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
+          this.setState({ isLoading: false });
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
@@ -115,6 +119,7 @@ export default class ScanQrWif extends React.Component {
       alert(loc.wallets.import.success);
       this.props.navigation.popToTop();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+      this.setState({ isLoading: false });
       return;
     }
     // nope
@@ -130,6 +135,7 @@ export default class ScanQrWif extends React.Component {
         await lnd.fetchBalance();
       } catch (Err) {
         console.log(Err);
+        this.setState({ isLoading: false });
         return;
       }
 
@@ -138,6 +144,7 @@ export default class ScanQrWif extends React.Component {
       this.props.navigation.popToTop();
       alert(loc.wallets.import.success);
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+      this.setState({ isLoading: false });
       return;
     }
     // nope
@@ -165,6 +172,7 @@ export default class ScanQrWif extends React.Component {
       await watchOnly.fetchTransactions();
       await BlueApp.saveToDisk();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+      this.setState({ isLoading: false });
       return;
     }
     // nope
@@ -176,6 +184,7 @@ export default class ScanQrWif extends React.Component {
 
     if (newWallet.getAddress() === false || newLegacyWallet.getAddress() === false) {
       alert(loc.wallets.scanQrWif.bad_wif);
+      this.setState({ isLoading: false });
       return;
     }
 
@@ -196,7 +205,7 @@ export default class ScanQrWif extends React.Component {
       alert(loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newWallet.getAddress());
     }
     await BlueApp.saveToDisk();
-    this.props.navigation.popToTop();
+    this.props.navigation.dismiss();
     setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
   } // end
 
@@ -210,7 +219,7 @@ export default class ScanQrWif extends React.Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{ flex: 1, paddingTop: 20, justifyContent: 'center', alignContent: 'center' }}>
           <ActivityIndicator />
         </View>
       );
@@ -275,6 +284,7 @@ ScanQrWif.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     popToTop: PropTypes.func,
+    dismiss: PropTypes.func,
     navigate: PropTypes.func,
   }),
 };

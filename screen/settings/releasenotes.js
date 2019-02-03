@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 const notes = require('../../release-notes');
 
-export default class Releasenotes extends Component {
+export default class ReleaseNotes extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
     title: 'Release notes',
@@ -43,7 +43,7 @@ export default class Releasenotes extends Component {
   }
 }
 
-Releasenotes.propTypes = {
+ReleaseNotes.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,

@@ -129,7 +129,7 @@ export default class About extends Component {
 
             <BlueButton
               onPress={() => {
-                this.props.navigation.navigate('Releasenotes');
+                this.props.navigation.navigate('ReleaseNotes');
               }}
               title="Release notes"
             />
