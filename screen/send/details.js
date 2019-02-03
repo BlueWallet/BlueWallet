@@ -31,6 +31,7 @@ let loc = require('../../loc');
 let bitcoin = require('bitcoinjs-lib');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
+
 export default class SendDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
