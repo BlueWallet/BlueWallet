@@ -6,6 +6,7 @@ import {
   HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
+  ACINQStrikeLightningWallet,
 } from '../../class';
 import React, { Component } from 'react';
 import { KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
@@ -74,6 +75,13 @@ export default class WalletsImport extends Component {
         await lnd.fetchTransactions();
         await lnd.fetchBalance();
         return this._saveWallet(lnd);
+      } else if (text.startsWith('sk_')) {
+        // ACINQ Strike
+        const wallet = new ACINQStrikeLightningWallet();
+        wallet.setSecret(text);
+        await wallet.authenticate();
+        await wallet.getUserCharges();
+        return this._saveWallet(wallet);
       }
 
       // trying other wallet types
