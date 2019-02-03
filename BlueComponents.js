@@ -22,7 +22,7 @@ import {
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet } from './class';
+import { LightningCustodianWallet, ACINQStrikeLightningWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import DeviceInfo from 'react-native-device-info';
 import { BitcoinUnit } from './models/bitcoinUnits';
@@ -1033,6 +1033,11 @@ export class BlueTransactionListItem extends Component {
           return loc.lnd.expired;
         }
       }
+    } else if (item.object === 'charge') {
+      if (isNaN(item.amount_satoshi)) {
+        item.amount_satoshi = '0';
+      }
+      return loc.formatBalanceWithoutSuffix(item.amount_satoshi, this.props.itemPriceUnit, true).toString();
     } else {
       return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
     }
@@ -1056,6 +1061,8 @@ export class BlueTransactionListItem extends Component {
           color = '#FF0000';
         }
       }
+    } else if (item.object === 'charge') {
+      color = '#37c0a1';
     } else if (item.value / 100000000 < 0) {
       color = BlueApp.settings.foregroundColor;
     }
@@ -1114,6 +1121,22 @@ export class BlueTransactionListItem extends Component {
       }
     }
 
+    if (this.props.item.object === 'charge') {
+      if (this.props.item.paid) {
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionOffchainIcon />
+          </View>
+        );
+      } else {
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionPendingIcon />
+          </View>
+        );
+      }
+    }
+
     if (!this.props.item.confirmations) {
       return (
         <View style={{ width: 25 }}>
@@ -1136,11 +1159,15 @@ export class BlueTransactionListItem extends Component {
   };
 
   subtitle = () => {
-    return (
-      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
-      this.txMemo() +
-      (this.props.item.memo || '')
-    );
+    if (this.props.item.object === 'charge') {
+      return this.props.item.description;
+    } else {
+      return (
+        (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
+        this.txMemo() +
+        (this.props.item.memo || '')
+      );
+    }
   };
 
   onPress = () => {
@@ -1172,7 +1199,7 @@ export class BlueTransactionListItem extends Component {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={loc.transactionTimeToReadable(this.props.item.received || this.props.item.updated)}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
@@ -1446,7 +1473,11 @@ export class WalletsCarousel extends Component {
             }}
           >
             <Image
-              source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
+              source={
+                LightningCustodianWallet.type === item.type ||
+                (ACINQStrikeLightningWallet.type === item.type && require('./img/lnd-shape.png')) ||
+                require('./img/btc-shape.png')
+              }
               style={{
                 width: 99,
                 height: 94,

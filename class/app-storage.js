@@ -7,6 +7,7 @@ import {
   LegacyWallet,
   SegwitP2SHWallet,
   SegwitBech32Wallet,
+  ACINQStrikeLightningWallet,
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
 let encryption = require('../encryption');
@@ -149,6 +150,9 @@ export class AppStorage {
               break;
             case HDLegacyBreadwalletWallet.type:
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
+              break;
+            case ACINQStrikeLightningWallet.type:
+              unserializedWallet = ACINQStrikeLightningWallet.fromJson(key);
               break;
             case LightningCustodianWallet.type:
               /** @type {LightningCustodianWallet} */

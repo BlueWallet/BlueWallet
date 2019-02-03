@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
-import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueListTransactionItem } from '../../BlueComponents';
+import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -218,8 +218,9 @@ export default class WalletsList extends Component {
     }
   };
 
-  _renderItem = data => <BlueListTransactionItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
-
+  _renderItem = data => {
+    return <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
+  };
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;

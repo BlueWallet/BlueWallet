@@ -1,6 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+let BigNumber = require('bignumber.js');
 
 export class ACINQStrikeLightningWallet extends LegacyWallet {
   static type = 'acinqStrikeLightningWallet';
@@ -12,6 +13,7 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     this.init();
     this.secret = '';
     this.user_charges_raw = [];
+    this.balance = 0;
     this.preferredBalanceUnit = BitcoinUnit.SATS;
   }
 
@@ -60,6 +62,7 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
         'Content-Type': 'application/json',
       },
     });
+    this._api.auth(this.secret);
   }
 
   setSecret(secret) {
@@ -84,10 +87,15 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     }
 
     this.user_charges_raw = json.sort((a, b) => {
-      return a.created - b.created;
+      return a.created < b.created;
     });
 
     return this.user_charges_raw;
+  }
+
+  async fetchTransactions() {
+    const usercharges = await this.getUserCharges();
+    return usercharges;
   }
 
   async getUserCharges() {
@@ -101,7 +109,14 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
     this.user_charges_raw = json.sort((a, b) => {
-      return a.created - b.created;
+      return a.created < b.created;
+    });
+
+    this.balance = 0;
+    this.user_charges_raw.forEach(charge => {
+      if (charge.paid === true) {
+        this.balance += charge.amount_satoshi;
+      }
     });
     return this.user_charges_raw;
   }
@@ -113,14 +128,28 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
    * @returns {Promise<void>}
    */
   getTransactions() {
-    console.warn('heee');
-
     return this.user_charges_raw;
+  }
+
+  getBalance() {
+    return new BigNumber(this.balance).dividedBy(100000000).toString(10);
   }
 
   async authenticate() {
     await this.getUserCharges();
     return true;
+  }
+
+  getLatestTransactionTime() {
+    if (this.getTransactions().length === 0) {
+      return 0;
+    }
+    let max = 0;
+    for (let tx of this.getTransactions()) {
+      max = Math.max(new Date(tx.updated) * 1, max);
+    }
+
+    return new Date(max).toString();
   }
 
   async createCharge(amount, description = 'ACINQ strike Charge') {
@@ -141,6 +170,10 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     }
 
     return json;
+  }
+
+  async addInvoice(amount, description) {
+    return this.createCharge(amount, description);
   }
 
   allowReceive() {

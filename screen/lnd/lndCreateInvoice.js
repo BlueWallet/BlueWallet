@@ -1,10 +1,11 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Text } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueText, BlueSpacing20 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { ACINQStrikeLightningWallet } from '../../class/';
 let EV = require('../../events');
 let loc = require('../../loc');
 
@@ -105,6 +106,13 @@ export default class LNDCreateInvoice extends Component {
                   editable={!this.state.isLoading}
                 />
               </View>
+              {this.state.fromWallet.type === ACINQStrikeLightningWallet.type && (
+                <React.Fragment>
+                  <BlueSpacing20 />
+                  <BlueText style={{ alignSelf: 'center' }}>Strike invoices have a fee of 1.00%</BlueText>
+                  <BlueSpacing20 />
+                </React.Fragment>
+              )}
               {this.renderCreateButton()}
             </KeyboardAvoidingView>
           </View>
