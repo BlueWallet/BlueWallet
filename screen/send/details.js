@@ -92,7 +92,7 @@ export default class SendDetails extends Component {
           const dataWithoutSchema = data.replace('bitcoin:', '');
           if (btcAddressRx.test(dataWithoutSchema) || dataWithoutSchema.indexOf('bc1') === 0) {
             this.setState({
-              address: data,
+              address: dataWithoutSchema,
               bip70TransactionExpiration: null,
               isLoading: false,
             });
