@@ -3,26 +3,89 @@ const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
 
-const defaultPeer = { host: 'electrum.coinucopia.io', ssl: 50002, tcp: 50001, pruning: null, http: null, https: null };
-console.log('begin connection:', JSON.stringify(defaultPeer));
+const storageKey = 'ELECTRUM_PEERS';
+const defaultPeer = { host: 'electrum.coinucopia.io', tcp: 50001 };
 
-let mainClient = new ElectrumClient(defaultPeer.tcp, defaultPeer.host, 'tcp');
+let mainClient = false;
+let mainConnected = false;
 
-(async () => {
+async function connectMain() {
+  let usingPeer = await getRandomHardcodedPeer();
   try {
+    console.log('begin connection:', JSON.stringify(usingPeer));
+    mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
     await mainClient.connect();
     const ver = await mainClient.server_version('2.7.11', '1.2');
     console.log('connected to ', ver);
     let peers = await mainClient.serverPeers_subscribe();
-    // console.log('peers', peers);
+    console.log('peers', peers);
     if (peers && peers.length > 0) {
-      AsyncStorage.setItem('ELECTRUM_PEERS', JSON.stringify(peers));
+      mainConnected = true;
+      AsyncStorage.setItem(storageKey, JSON.stringify(peers));
     }
   } catch (e) {
-    console.log('bad connection:', JSON.stringify(defaultPeer));
-    throw new Error();
+    mainConnected = false;
+    console.log('bad connection:', JSON.stringify(usingPeer));
   }
-})();
+
+  if (!mainConnected) {
+    console.log('retry');
+    setTimeout(connectMain, 5000);
+  }
+}
+
+connectMain();
+
+/**
+ * Returns random hardcoded electrum server guaranteed to work
+ * at the time of writing.
+ *
+ * @returns {Promise<{tcp, host}|*>}
+ */
+async function getRandomHardcodedPeer() {
+  let hardcodedPeers = [
+    { host: 'node.ispol.sk', tcp: '50001' },
+    { host: 'electrum.vom-stausee.de', tcp: '50001' },
+    { host: 'orannis.com', tcp: '50001' },
+    { host: '139.162.14.142', tcp: '50001' },
+    { host: 'daedalus.bauerj.eu', tcp: '50001' },
+    { host: 'electrum.eff.ro', tcp: '50001' },
+    { host: 'electrum.anduck.net', tcp: '50001' },
+    { host: 'mooo.not.fyi', tcp: '50011' },
+    { host: 'electrum.coinucopia.io', tcp: '50001' },
+  ];
+  return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
+}
+
+/**
+ * Returns random electrum server out of list of servers
+ * previous electrum server told us. Nearly half of them is
+ * usually offline.
+ * Not used for now.
+ *
+ * @returns {Promise<{tcp: number, host: string}>}
+ */
+// eslint-disable-next-line
+async function getRandomDynamicPeer() {
+  try {
+    let peers = JSON.parse(await AsyncStorage.getItem(storageKey));
+    peers = peers.sort(() => Math.random() - 0.5); // shuffle
+    for (let peer of peers) {
+      let ret = {};
+      ret.host = peer[1];
+      for (let item of peer[2]) {
+        if (item.startsWith('t')) {
+          ret.tcp = item.replace('t', '');
+        }
+      }
+      if (ret.host && ret.tcp) return ret;
+    }
+
+    return defaultPeer; // failed to find random client, using default
+  } catch (_) {
+    return defaultPeer; // smth went wrong, using default
+  }
+}
 
 /**
  *
