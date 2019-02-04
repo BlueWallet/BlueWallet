@@ -72,7 +72,7 @@ module.exports = {
     import: {
       title: 'importar',
       explanation:
-        'Escriba aquí mnemotécnica, clave privada, WIF o cualquier cosa que tenga. BlueWallet hará todo lo posible para adivinar el formato correcto e importar su billetera.',
+        'Escriba aquí mnemotécnica, clave privada, WIF, clave API de ACINQ Strike, o cualquier cosa que tenga. BlueWallet hará todo lo posible para adivinar el formato correcto e importar su billetera.',
       imported: 'Importado',
       error: 'No se pudo importar. ¿Es valido?',
       success: 'Exito',
