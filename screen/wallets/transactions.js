@@ -196,8 +196,8 @@ export default class WalletTransactions extends Component {
       <LinearGradient colors={WalletGradient.gradientsFor(this.state.wallet.type)} style={{ padding: 15, minHeight: 164 }}>
         <Image
           source={
-            LightningCustodianWallet.type === this.state.wallet.type ||
-            (ACINQStrikeLightningWallet.type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
+            ((LightningCustodianWallet.type === this.state.wallet.type || ACINQStrikeLightningWallet.type === this.state.wallet.type) &&
+              require('../../img/lnd-shape.png')) ||
             require('../../img/btc-shape.png')
           }
           style={{
