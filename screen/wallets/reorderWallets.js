@@ -83,8 +83,8 @@ export default class ReorderWallets extends Component {
         >
           <Image
             source={
-              LightningCustodianWallet.type === item.type ||
-              (ACINQStrikeLightningWallet.type === item.type && require('../../img/lnd-shape.png')) ||
+              ((LightningCustodianWallet.type === item.type || ACINQStrikeLightningWallet.type === item.type) &&
+                require('../../img/lnd-shape.png')) ||
               require('../../img/btc-shape.png')
             }
             style={{
