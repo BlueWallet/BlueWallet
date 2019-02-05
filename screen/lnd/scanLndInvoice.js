@@ -148,8 +148,7 @@ export default class ScanLndInvoice extends React.Component {
         } catch (Err) {
           console.log(Err.message);
           this.setState({ isLoading: false });
-          this.props.navigation.goBack();
-          return alert('Error');
+          return alert(Err.message);
         }
 
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
