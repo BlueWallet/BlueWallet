@@ -40,6 +40,7 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
+import WalletMigrate from './screen/wallets/walletMigrate';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -199,9 +200,6 @@ const MainBottomTabs = createStackNavigator(
     Wallets: {
       screen: WalletsStackNavigator,
       path: 'wallets',
-      navigationOptions: {
-        header: null,
-      },
     },
     AddWallet: {
       screen: CreateWalletStackNavigator,
@@ -277,7 +275,21 @@ const MainBottomTabs = createStackNavigator(
   },
   {
     mode: 'modal',
+    headerMode: 'none',
   },
 );
 
-export default createAppContainer(MainBottomTabs);
+const WalletMigrateStackNavigator = createStackNavigator(
+  {
+    MigrateWallets: {
+      screen: WalletMigrate,
+      path: 'MigrateWallets',
+    },
+    MainBottomTabs: {
+      screen: MainBottomTabs,
+    },
+  },
+  { headerMode: 'none' },
+);
+
+export default createAppContainer(WalletMigrateStackNavigator);

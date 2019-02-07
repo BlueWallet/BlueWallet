@@ -1,8 +1,8 @@
 import React from 'react';
 import { Linking } from 'react-native';
 import { NavigationActions } from 'react-navigation';
-import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
+import WalletMigrateStackNavigator from './MainBottomTabs';
 
 export default class App extends React.Component {
   navigator = null;
@@ -51,7 +51,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <MainBottomTabs
+      <WalletMigrateStackNavigator
         ref={nav => {
           this.navigator = nav;
           NavigationService.setTopLevelNavigator(nav);

@@ -1,18 +1,24 @@
 import React, { Component } from 'react';
 import { View, ActivityIndicator, AsyncStorage } from 'react-native';
-import PropTypes from 'prop-types';
 import RNFS from 'react-native-fs';
-
+import { NavigationActions, StackActions } from 'react-navigation';
+import PropTypes from 'prop-types';
+/** @type {AppStorage} */
+const BlueApp = require('../../BlueApp');
 const expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
-
 export default class WalletMigrate extends Component {
   componentDidMount() {
     this.migrateDataFromExpo();
   }
 
-  migrationComplete() {
+  async migrationComplete() {
     console.log('Migration was successful. Exiting migration...');
-    this.props.onComplete();
+    await BlueApp.startAndDecrypt();
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: 'MainBottomTabs' })],
+    });
+    this.props.navigation.dispatch(resetAction);
   }
 
   // Migrate Document directory from Expo
@@ -90,5 +96,7 @@ export default class WalletMigrate extends Component {
 }
 
 WalletMigrate.propTypes = {
-  onComplete: PropTypes.func,
+  navigation: PropTypes.shape({
+    dispatch: PropTypes.func,
+  }),
 };
