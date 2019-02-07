@@ -14,6 +14,7 @@
     "metro-react-native-babel-preset": "^0.51.1",
     "prettier-eslint-cli": "^4.7.1",
     "react-test-renderer": "^16.7.0",
+    "reactotron-react-native": "^2.1.5",
     "rn-nodeify": "github:tradle/rn-nodeify"
   },
   "scripts": {

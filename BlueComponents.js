@@ -1077,27 +1077,15 @@ export class BlueTransactionListItem extends Component {
   avatar = () => {
     // is it lightning refill tx?
     if (this.props.item.category === 'receive' && this.props.item.confirmations < 3) {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionPendingIcon />
-        </View>
-      );
+      return <BlueTransactionPendingIcon />;
     }
 
     if (this.props.item.type && this.props.item.type === 'bitcoind_tx') {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionOnchainIcon />
-        </View>
-      );
+      return <BlueTransactionOnchainIcon />;
     }
     if (this.props.item.type === 'paid_invoice') {
       // is it lightning offchain payment?
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionOffchainIcon />
-        </View>
-      );
+      return <BlueTransactionOffchainIcon />;
     }
 
     if (this.props.item.type === 'user_invoice' || this.props.item.type === 'payment_request') {
@@ -1106,55 +1094,27 @@ export class BlueTransactionListItem extends Component {
         const now = (currentDate.getTime() / 1000) | 0;
         const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
         if (invoiceExpiration < now) {
-          return (
-            <View style={{ width: 25 }}>
-              <BlueTransactionExpiredIcon />
-            </View>
-          );
+          return <BlueTransactionExpiredIcon />;
         }
       } else {
-        return (
-          <View style={{ width: 25 }}>
-            <BlueTransactionOffchainIncomingIcon />
-          </View>
-        );
+        return <BlueTransactionOffchainIncomingIcon />;
       }
     }
 
     if (this.props.item.object === 'charge') {
       if (this.props.item.paid) {
-        return (
-          <View style={{ width: 25 }}>
-            <BlueTransactionOffchainIncomingIcon />
-          </View>
-        );
+        return <BlueTransactionOffchainIncomingIcon />;
       } else {
-        return (
-          <View style={{ width: 25 }}>
-            <BlueTransactionPendingIcon />
-          </View>
-        );
+        return <BlueTransactionPendingIcon />;
       }
     }
 
     if (!this.props.item.confirmations) {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionPendingIcon />
-        </View>
-      );
+      return <BlueTransactionPendingIcon />;
     } else if (this.props.item.value < 0) {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionOutgoingIcon />
-        </View>
-      );
+      return <BlueTransactionOutgoingIcon />;
     } else {
-      return (
-        <View style={{ width: 25 }}>
-          <BlueTransactionIncomingIcon />
-        </View>
-      );
+      return <BlueTransactionIncomingIcon />;
     }
   };
 
@@ -1196,11 +1156,13 @@ export class BlueTransactionListItem extends Component {
     }
   };
 
+  title = loc.transactionTimeToReadable(this.props.item.received || this.props.item.updated);
+
   render() {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received || this.props.item.updated)}
+        title={this.title}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
