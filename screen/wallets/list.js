@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
+import { View, Linking, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
 import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
-import { NavigationEvents } from 'react-navigation';
+import { NavigationEvents, NavigationActions } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import WalletGradient from '../../class/walletGradient';
@@ -45,7 +45,45 @@ export default class WalletsList extends Component {
 
   componentDidMount() {
     this.refreshFunction();
+    Linking.getInitialURL()
+      .then(url => this.handleOpenURL({ url }))
+      .catch(console.error);
+    Linking.addEventListener('url', this.handleOpenURL);
   }
+
+  componentWillUnmount() {
+    Linking.removeEventListener('url', this.handleOpenURL);
+  }
+
+  handleOpenURL = event => {
+    if (event.url === null) {
+      return;
+    }
+    if (typeof event.url !== 'string') {
+      return;
+    }
+    if (event.url.indexOf('bitcoin:') === 0 || event.url.indexOf('BITCOIN:') === 0) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'SendDetails',
+            params: {
+              uri: event.url,
+            },
+          }),
+        );
+    } else if (event.url.indexOf('lightning:') === 0 || event.url.indexOf('LIGHTNING:') === 0) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'ScanLndInvoice',
+            params: {
+              uri: event.url,
+            },
+          }),
+        );
+    }
+  };
 
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
