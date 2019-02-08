@@ -1,23 +1,30 @@
 import React from 'react';
 import { Linking } from 'react-native';
-import { NavigationActions } from 'react-navigation';
 import NavigationService from './NavigationService';
 import WalletMigrateStackNavigator from './MainBottomTabs';
+import { NavigationActions, StackActions } from 'react-navigation';
 
 export default class App extends React.Component {
   navigator = null;
 
   componentDidMount() {
-    Linking.getInitialURL()
-      .then(url => this.handleOpenURL({ url }))
-      .catch(console.error);
-
     Linking.addEventListener('url', this.handleOpenURL);
   }
 
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
   }
+
+  onComplete = () => {
+    const resetAction = StackActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({ routeName: 'MainBottomTabs' })],
+    });
+    this.navigator.dispatch(resetAction);
+    Linking.getInitialURL()
+      .then(url => this.handleOpenURL({ url }))
+      .catch(console.error);
+  };
 
   handleOpenURL = event => {
     if (event.url === null) {

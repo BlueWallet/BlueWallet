@@ -1008,7 +1008,7 @@ export class BlueTransactionListItem extends Component {
     itemPriceUnit: BitcoinUnit.BTC,
   };
 
-  state = { title: '' };
+  state = { title: '...' };
 
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
@@ -1378,7 +1378,7 @@ export class BlueListTransactionItem extends Component {
 export class WalletsCarouselInformationView extends Component {
   constructor(props) {
     super(props);
-    this.state = { walletLatestTransactionTime: '' };
+    this.state = { walletLatestTransactionTime: '...' };
     if (this.props.onLongPress && this.props.onPress) {
       this.scaleValue = new Animated.Value(1.0);
       let animationProps = { duration: 50 };

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { View, ActivityIndicator, AsyncStorage } from 'react-native';
 import RNFS from 'react-native-fs';
-import { NavigationActions, StackActions } from 'react-navigation';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -14,11 +13,7 @@ export default class WalletMigrate extends Component {
   async migrationComplete() {
     console.log('Migration was successful. Exiting migration...');
     await BlueApp.startAndDecrypt();
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: 'MainBottomTabs' })],
-    });
-    this.props.navigation.dispatch(resetAction);
+    this.props.onComplete();
   }
 
   // Migrate Document directory from Expo
@@ -96,7 +91,5 @@ export default class WalletMigrate extends Component {
 }
 
 WalletMigrate.propTypes = {
-  navigation: PropTypes.shape({
-    dispatch: PropTypes.func,
-  }),
+  onComplete: PropTypes.func,
 };

@@ -282,5 +282,6 @@ export default class WalletsList extends Component {
 WalletsList.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
+    onComplete: PropTypes.func,
   }),
 };
