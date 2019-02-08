@@ -195,6 +195,18 @@ const LightningScanInvoiceStackNavigator = createStackNavigator({
   },
 });
 
+const ReceiveStackNavigator = createStackNavigator(
+  {
+    ReceiveDetails: {
+      screen: receiveDetails,
+    },
+    ReceiveAmount: {
+      screen: setReceiveAmount,
+    },
+  },
+  { mode: 'modal' },
+);
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -203,9 +215,6 @@ const MainBottomTabs = createStackNavigator(
     },
     AddWallet: {
       screen: CreateWalletStackNavigator,
-      navigationOptions: {
-        header: null,
-      },
     },
     ScanQrWif: {
       screen: scanQrWif,
@@ -230,7 +239,7 @@ const MainBottomTabs = createStackNavigator(
     //
 
     ReceiveDetails: {
-      screen: receiveDetails,
+      screen: ReceiveStackNavigator,
     },
 
     ReceiveAmount: {

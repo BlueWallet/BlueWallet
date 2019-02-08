@@ -1496,7 +1496,7 @@ export class WalletsCarouselInformationView extends Component {
           </TouchableWithoutFeedback>
         </Animated.View>
       );
-    } else {
+    } else if (this.props.onPress) {
       return (
         <TouchableWithoutFeedback onPress={this.props.onPress}>
           <View
@@ -1508,6 +1508,17 @@ export class WalletsCarouselInformationView extends Component {
             {this.renderWalletInformation()}
           </View>
         </TouchableWithoutFeedback>
+      );
+    } else {
+      return (
+        <View
+          style={{ paddingHorizontal: 10, marginVertical: 17 }}
+          shadowOpacity={40 / 100}
+          shadowOffset={{ width: 0, height: 0 }}
+          shadowRadius={5}
+        >
+          {this.renderWalletInformation()}
+        </View>
       );
     }
   }
