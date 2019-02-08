@@ -111,7 +111,7 @@ export default class WalletsList extends Component {
     return '';
   }
 
-  handleClick(index) {
+  handleClick = index => {
     console.log('click', index);
     let wallet = BlueApp.wallets[index];
     if (wallet) {
@@ -123,9 +123,9 @@ export default class WalletsList extends Component {
       // if its out of index - this must be last card with incentive to create wallet
       this.props.navigation.navigate('AddWallet');
     }
-  }
+  };
 
-  onSnapToItem(index) {
+  onSnapToItem = index => {
     console.log('onSnapToItem', index);
     this.lastSnappedTo = index;
     this.setState({ lastSnappedTo: index });
@@ -136,7 +136,7 @@ export default class WalletsList extends Component {
 
     // now, lets try to fetch balance and txs for this wallet in case it has changed
     this.lazyRefreshWallet(index);
-  }
+  };
 
   /**
    * Decides whether wallet with such index shoud be refreshed,
@@ -238,13 +238,9 @@ export default class WalletsList extends Component {
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel
             data={this.state.wallets}
-            handleClick={index => {
-              this.handleClick(index);
-            }}
+            handleClick={this.handleClick}
             handleLongPress={this.handleLongPress}
-            onSnapToItem={index => {
-              this.onSnapToItem(index);
-            }}
+            onSnapToItem={this.onSnapToItem}
           />
           <BlueList>
             <FlatList

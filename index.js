@@ -9,10 +9,12 @@ import { name as appName } from './app.json';
 if (process.env.NODE_ENV !== 'development') {
   Sentry.config('https://23377936131848ca8003448a893cb622@sentry.io/1295736').install();
 }
-if(__DEV__) {
-  import('./ReactotronConfig').then(() => console.log('Reactotron Configured'))
+/*eslint-disable */
+if (__DEV__) {
+  import('./ReactotronConfig').then(() => console.log('Reactotron Configured'));
 }
 
+/* eslint-enable */
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
   Error.captureStackTrace = () => {};

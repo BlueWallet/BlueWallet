@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20 } from '../../BlueComponents';
-import LinearGradient from 'react-native-linear-gradient';
+import { View, ActivityIndicator, FlatList } from 'react-native';
+import { SafeBlueArea, BlueNavigationStyle, BlueText, WalletsCarouselInformationView, BlueSpacing20 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import WalletGradient from '../../class/walletGradient';
 import { ACINQStrikeLightningWallet } from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -37,89 +35,13 @@ export default class SelectWallet extends Component {
 
   _renderItem = ({ item }) => {
     return (
-      <TouchableOpacity
+      <WalletsCarouselInformationView
+        wallet={item}
         onPress={() => {
           ReactNativeHapticFeedback.trigger('selection', false);
           this.props.navigation.getParam('onWalletSelect')(item);
         }}
-      >
-        <View
-          shadowOpacity={40 / 100}
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowRadius={5}
-          style={{ backgroundColor: 'transparent', padding: 10, marginVertical: 17 }}
-        >
-          <LinearGradient
-            shadowColor="#000000"
-            colors={WalletGradient.gradientsFor(item.type)}
-            style={{
-              padding: 15,
-              borderRadius: 10,
-              minHeight: 164,
-              elevation: 5,
-            }}
-          >
-            <Image
-              source={
-                (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
-              }
-              style={{
-                width: 99,
-                height: 94,
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-              }}
-            />
-
-            <Text style={{ backgroundColor: 'transparent' }} />
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontSize: 19,
-                color: '#fff',
-              }}
-            >
-              {item.getLabel()}
-            </Text>
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 36,
-                color: '#fff',
-              }}
-            >
-              {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-            </Text>
-            <Text style={{ backgroundColor: 'transparent' }} />
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontSize: 13,
-                color: '#fff',
-              }}
-            >
-              {loc.wallets.list.latest_transaction}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 16,
-                color: '#fff',
-              }}
-            >
-              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
-            </Text>
-          </LinearGradient>
-        </View>
-      </TouchableOpacity>
+      />
     );
   };
 

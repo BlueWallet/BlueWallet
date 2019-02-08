@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import { Text, View, InteractionManager, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -51,11 +51,15 @@ export default class WalletTransactions extends Component {
       wallet: wallet,
       dataSource: wallet.getTransactions(),
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
+      walletHeaderLatestTransaction: '',
     };
   }
 
   componentDidMount() {
     this.refreshFunction();
+    InteractionManager.runAfterInteractions(() => {
+      this.setState({ walletHeaderLatestTransaction: loc.transactionTimeToReadable(this.state.wallet.getLatestTransactionTime()) });
+    });
   }
 
   /**
@@ -72,7 +76,7 @@ export default class WalletTransactions extends Component {
    * Redraws the screen
    */
   refreshFunction() {
-    setTimeout(() => {
+    InteractionManager.runAfterInteractions(() => {
       console.log('wallets/transactions refreshFunction()');
       let showSend = false;
       let showReceive = false;
@@ -108,7 +112,7 @@ export default class WalletTransactions extends Component {
         showManageFundsSmallButton,
         dataSource: txs,
       });
-    }, 1);
+    });
   }
 
   isLightning() {
@@ -254,7 +258,7 @@ export default class WalletTransactions extends Component {
             color: '#fff',
           }}
         >
-          {loc.transactionTimeToReadable(this.state.wallet.getLatestTransactionTime())}
+          {this.state.walletHeaderLatestTransaction}
         </Text>
       </LinearGradient>
     );

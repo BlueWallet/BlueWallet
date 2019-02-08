@@ -19,6 +19,7 @@ import {
   InputAccessoryView,
   Clipboard,
   Platform,
+  InteractionManager,
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -1007,6 +1008,15 @@ export class BlueTransactionListItem extends Component {
     itemPriceUnit: BitcoinUnit.BTC,
   };
 
+  state = { title: '' };
+
+  componentDidMount() {
+    InteractionManager.runAfterInteractions(() => {
+      const title = loc.transactionTimeToReadable(this.props.item.received || this.props.item.updated);
+      this.setState({ title });
+    });
+  }
+
   txMemo = () => {
     if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
       return BlueApp.tx_metadata[this.props.item.hash]['memo'];
@@ -1156,13 +1166,11 @@ export class BlueTransactionListItem extends Component {
     }
   };
 
-  title = loc.transactionTimeToReadable(this.props.item.received || this.props.item.updated);
-
   render() {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={this.title}
+        title={this.state.title}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
@@ -1367,6 +1375,144 @@ export class BlueListTransactionItem extends Component {
   }
 }
 
+export class WalletsCarouselInformationView extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { walletLatestTransactionTime: '' };
+    if (this.props.onLongPress && this.props.onPress) {
+      this.scaleValue = new Animated.Value(1.0);
+      let animationProps = { duration: 50 };
+      if (Platform.OS === 'android') {
+        animationProps['useNativeDriver'] = true;
+      }
+      this.onPressedIn = () => {
+        animationProps.toValue = 0.8;
+        Animated.spring(this.scaleValue, animationProps).start();
+      };
+      this.onPressedOut = () => {
+        animationProps.toValue = 1.0;
+        Animated.spring(this.scaleValue, animationProps).start();
+      };
+    }
+    InteractionManager.runAfterInteractions(() => {
+      const transactionTime = loc.transactionTimeToReadable(props.wallet.getLatestTransactionTime());
+      this.setState({ walletLatestTransactionTime: transactionTime });
+    });
+  }
+
+  renderWalletInformation = () => {
+    const item = this.props.wallet;
+    return (
+      <LinearGradient
+        shadowColor="#000000"
+        colors={WalletGradient.gradientsFor(item.type)}
+        style={{
+          padding: 15,
+          borderRadius: 10,
+          minHeight: 164,
+          elevation: 5,
+        }}
+      >
+        <Image
+          source={
+            ((LightningCustodianWallet.type === item.type || ACINQStrikeLightningWallet.type === item.type) &&
+              require('./img/lnd-shape.png')) ||
+            require('./img/btc-shape.png')
+          }
+          style={{
+            width: 99,
+            height: 94,
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+          }}
+        />
+
+        <Text style={{ backgroundColor: 'transparent' }} />
+        <Text
+          numberOfLines={1}
+          style={{
+            backgroundColor: 'transparent',
+            fontSize: 19,
+            color: '#fff',
+          }}
+        >
+          {item.getLabel()}
+        </Text>
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          style={{
+            backgroundColor: 'transparent',
+            fontWeight: 'bold',
+            fontSize: 36,
+            color: '#fff',
+          }}
+        >
+          {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+        </Text>
+        <Text style={{ backgroundColor: 'transparent' }} />
+        <Text
+          numberOfLines={1}
+          style={{
+            backgroundColor: 'transparent',
+            fontSize: 13,
+            color: '#fff',
+          }}
+        >
+          {loc.wallets.list.latest_transaction}
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={{
+            backgroundColor: 'transparent',
+            fontWeight: 'bold',
+            fontSize: 16,
+            color: '#fff',
+          }}
+        >
+          {this.state.walletLatestTransactionTime}
+        </Text>
+      </LinearGradient>
+    );
+  };
+
+  render() {
+    if (this.onPressedIn && this.onPressedOut) {
+      return (
+        <Animated.View
+          style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: this.scaleValue }] }}
+          shadowOpacity={40 / 100}
+          shadowOffset={{ width: 0, height: 0 }}
+          shadowRadius={5}
+        >
+          <TouchableWithoutFeedback
+            onPressIn={this.onPressedIn}
+            onPressOut={this.onPressedOut}
+            onLongPress={this.props.onLongPress}
+            onPress={this.props.onPress}
+          >
+            {this.renderWalletInformation()}
+          </TouchableWithoutFeedback>
+        </Animated.View>
+      );
+    } else {
+      return (
+        <TouchableWithoutFeedback onPress={this.props.onPress}>
+          <View
+            style={{ paddingHorizontal: 10, marginVertical: 17 }}
+            shadowOpacity={40 / 100}
+            shadowOffset={{ width: 0, height: 0 }}
+            shadowRadius={5}
+          >
+            {this.renderWalletInformation()}
+          </View>
+        </TouchableWithoutFeedback>
+      );
+    }
+  }
+}
+
 const sliderWidth = width * 1;
 const itemWidth = width * 0.82;
 const sliderHeight = 190;
@@ -1375,131 +1521,19 @@ export class WalletsCarousel extends Component {
   constructor(props) {
     super(props);
     // eslint-disable-next-line
-    WalletsCarousel.handleClick = props.handleClick; // because cant access `this` from _renderItem
-    WalletsCarousel.handleLongPress = props.handleLongPress;
     // eslint-disable-next-line
     this.onSnapToItem = props.onSnapToItem;
+    this.onPress = props.handleClick;
   }
 
-  _renderItem({ item, index }) {
-    let scaleValue = new Animated.Value(1.0);
-    let props = { duration: 50 };
-    if (Platform.OS === 'android') {
-      props['useNativeDriver'] = true;
-    }
-    this.onPressedIn = () => {
-      props.toValue = 0.9;
-      Animated.spring(scaleValue, props).start();
-    };
-    this.onPressedOut = () => {
-      props.toValue = 1.0;
-      Animated.spring(scaleValue, props).start();
-    };
+  onWalletPress = index => this.onPress(index);
 
+  _renderItem = ({ item, index }) => {
     if (!item) {
-      return (
-        <NewWalletPanel
-          onPress={() => {
-            if (WalletsCarousel.handleClick) {
-              WalletsCarousel.handleClick(index);
-            }
-          }}
-        />
-      );
+      return <NewWalletPanel onPress={this.onPress} />;
     }
-
-    return (
-      <Animated.View
-        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
-        shadowOpacity={40 / 100}
-        shadowOffset={{ width: 0, height: 0 }}
-        shadowRadius={5}
-      >
-        <TouchableWithoutFeedback
-          onPressIn={this.onPressedIn}
-          onPressOut={this.onPressedOut}
-          onLongPress={WalletsCarousel.handleLongPress}
-          onPress={() => {
-            if (WalletsCarousel.handleClick) {
-              WalletsCarousel.handleClick(index);
-            }
-          }}
-        >
-          <LinearGradient
-            shadowColor="#000000"
-            colors={WalletGradient.gradientsFor(item.type)}
-            style={{
-              padding: 15,
-              borderRadius: 10,
-              minHeight: 164,
-              elevation: 5,
-            }}
-          >
-            <Image
-              source={
-                ((LightningCustodianWallet.type === item.type || ACINQStrikeLightningWallet.type === item.type) &&
-                  require('./img/lnd-shape.png')) ||
-                require('./img/btc-shape.png')
-              }
-              style={{
-                width: 99,
-                height: 94,
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-              }}
-            />
-
-            <Text style={{ backgroundColor: 'transparent' }} />
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontSize: 19,
-                color: '#fff',
-              }}
-            >
-              {item.getLabel()}
-            </Text>
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 36,
-                color: '#fff',
-              }}
-            >
-              {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-            </Text>
-            <Text style={{ backgroundColor: 'transparent' }} />
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontSize: 13,
-                color: '#fff',
-              }}
-            >
-              {loc.wallets.list.latest_transaction}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 16,
-                color: '#fff',
-              }}
-            >
-              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
-            </Text>
-          </LinearGradient>
-        </TouchableWithoutFeedback>
-      </Animated.View>
-    );
-  }
+    return <WalletsCarouselInformationView wallet={item} onPress={() => this.onPress(index)} onLongPress={this.props.handleLongPress} />;
+  };
 
   render() {
     return (
