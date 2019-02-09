@@ -19,6 +19,7 @@ const loc = require('../../loc');
 const EV = require('../../events');
 const QRFast = require('react-native-qrcode');
 const { width, height } = Dimensions.get('window');
+const dayjs = require('dayjs');
 
 export default class LNDViewInvoice extends Component {
   static navigationOptions = ({ navigation }) =>
@@ -146,7 +147,12 @@ export default class LNDViewInvoice extends Component {
           </SafeBlueArea>
         );
       }
-      if (invoiceExpiration < now && !invoice.ispaid) {
+      const expectedExpiration = dayjs(invoice.updated + 86400000);
+      let chargeInvoiceExpired = false;
+      if (expectedExpiration.isBefore(dayjs())) {
+        chargeInvoiceExpired = true;
+      }
+      if ((invoiceExpiration < now && !invoice.ispaid) || chargeInvoiceExpired) {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>

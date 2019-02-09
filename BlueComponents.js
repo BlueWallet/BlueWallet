@@ -29,6 +29,7 @@ import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
 import ImagePicker from 'react-native-image-picker';
 import WalletGradient from './class/walletGradient';
+const dayjs = require('dayjs');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let loc = require('./loc/');
 /** @type {AppStorage} */
@@ -1037,6 +1038,10 @@ export class BlueTransactionListItem extends Component {
       if (isNaN(item.amount_satoshi)) {
         item.amount_satoshi = '0';
       }
+      const expectedExpiration = dayjs(this.props.item.updated + 86400000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        return loc.lnd.expired;
+      }
       return loc.formatBalanceWithoutSuffix(item.amount_satoshi, this.props.itemPriceUnit, true).toString();
     } else {
       return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
@@ -1062,7 +1067,12 @@ export class BlueTransactionListItem extends Component {
         }
       }
     } else if (item.object === 'charge') {
-      color = '#37c0a1';
+      const expectedExpiration = dayjs(this.props.item.updated + 86400000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        color = '#FF0000';
+      } else {
+        color = '#37c0a1';
+      }
     } else if (item.value / 100000000 < 0) {
       color = BlueApp.settings.foregroundColor;
     }
@@ -1129,6 +1139,14 @@ export class BlueTransactionListItem extends Component {
           </View>
         );
       } else {
+        const expectedExpiration = dayjs(this.props.item.updated + 86400000);
+        if (expectedExpiration.isBefore(dayjs())) {
+          return (
+            <View style={{ width: 25 }}>
+              <BlueTransactionExpiredIcon />
+            </View>
+          );
+        }
         return (
           <View style={{ width: 25 }}>
             <BlueTransactionPendingIcon />
@@ -1317,6 +1335,7 @@ export class BlueListTransactionItem extends Component {
         const currentDate = new Date();
         const now = (currentDate.getTime() / 1000) | 0;
         const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
+        console.warn(invoiceExpiration);
         if (invoiceExpiration < now) {
           return (
             <View style={{ width: 25 }}>
