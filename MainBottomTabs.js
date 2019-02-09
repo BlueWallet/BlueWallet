@@ -207,6 +207,12 @@ const ReceiveStackNavigator = createStackNavigator(
   { mode: 'modal' },
 );
 
+const MarketplaceStackNavigator = createStackNavigator({
+  LappBrowser: {
+    screen: LappBrowser,
+  },
+})
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -266,7 +272,7 @@ const MainBottomTabs = createStackNavigator(
       screen: sendScanQrAddress,
     },
     LappBrowser: {
-      screen: LappBrowser,
+      screen: MarketplaceStackNavigator,
     },
 
     ReorderWallets: {
