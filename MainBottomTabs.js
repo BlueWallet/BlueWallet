@@ -253,9 +253,6 @@ const MainBottomTabs = createStackNavigator(
     //
     SendDetails: {
       screen: CreateTransactionStackNavigator,
-      navigationOptions: {
-        header: null,
-      },
     },
 
     //
