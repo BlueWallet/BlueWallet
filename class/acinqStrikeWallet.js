@@ -9,25 +9,12 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
 
   constructor(props) {
     super(props);
-    this.setBaseURI(); // no args to init with default value
+    this.baseURI = 'https://api.strike.acinq.co/api/v1';
     this.init();
     this.secret = '';
     this.user_charges_raw = [];
     this.balance = 0;
     this.preferredBalanceUnit = BitcoinUnit.SATS;
-  }
-
-  /**
-   * requires calling init() after setting
-   *
-   * @param URI
-   */
-  setBaseURI(URI) {
-    if (URI) {
-      this.baseURI = URI;
-    } else {
-      this.baseURI = 'https://api.strike.acinq.co/api/v1';
-    }
   }
 
   getBaseURI() {
@@ -118,12 +105,6 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     return this.user_charges_raw;
   }
 
-  /**
-   * Basically the same as this.getUserInvoices() but saves invoices list
-   * to internal variable
-   *
-   * @returns {Promise<void>}
-   */
   getTransactions() {
     return this.user_charges_raw;
   }
