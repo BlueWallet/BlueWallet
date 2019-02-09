@@ -211,8 +211,19 @@ const MarketplaceStackNavigator = createStackNavigator({
   LappBrowser: {
     screen: LappBrowser,
   },
-})
+});
 
+const WalletExportStackNavigator = createStackNavigator({
+  WalletExport: {
+    screen: WalletExport,
+  },
+});
+
+const WalletXPUBStackNavigator = createStackNavigator({
+  WalletXpub: {
+    screen: WalletXpub,
+  },
+});
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -226,10 +237,10 @@ const MainBottomTabs = createStackNavigator(
       screen: scanQrWif,
     },
     WalletExport: {
-      screen: WalletExport,
+      screen: WalletExportStackNavigator,
     },
     WalletXpub: {
-      screen: WalletXpub,
+      screen: WalletXPUBStackNavigator,
     },
     BuyBitcoin: {
       screen: BuyBitcoin,
