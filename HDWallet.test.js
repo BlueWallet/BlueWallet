@@ -1,4 +1,4 @@
-/* global it, jasmine, afterAll */
+/* global it, jasmine, afterAll, beforeAll */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from './class';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
@@ -9,6 +9,12 @@ let BlueElectrum = require('./BlueElectrum'); // so it connects ASAP
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
   return BlueElectrum.forceDisconnect();
+});
+
+beforeAll(async () => {
+  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
+  // while app starts up, but for tests we need to wait for it
+  await BlueElectrum.waitTillConnected();
 });
 
 it('can convert witness to address', () => {
@@ -24,7 +30,6 @@ it('can convert witness to address', () => {
 
 it('can create a Segwit HD (BIP49)', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-  await BlueElectrum.waitTillConnected();
   let mnemonic =
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
   let hd = new HDSegwitP2SHWallet();
@@ -88,7 +93,6 @@ it('HD (BIP49) can create TX', async () => {
     return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
-  await BlueElectrum.waitTillConnected();
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
@@ -143,7 +147,6 @@ it('HD (BIP49) can create TX', async () => {
 });
 
 it('Segwit HD (BIP49) can fetch UTXO', async function() {
-  await BlueElectrum.waitTillConnected();
   let hd = new HDSegwitP2SHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
@@ -165,7 +168,6 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   }
 
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
-  await BlueElectrum.waitTillConnected();
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
   assert.ok(hd.validateMnemonic());
@@ -214,7 +216,6 @@ it('can create a Legacy HD (BIP44)', async function() {
   }
 
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-  await BlueElectrum.waitTillConnected();
   let mnemonic = process.env.HD_MNEMONIC_BREAD;
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(mnemonic);
@@ -266,7 +267,6 @@ it('Legacy HD (BIP44) can create TX', async () => {
     return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
-  await BlueElectrum.waitTillConnected();
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
@@ -304,7 +304,6 @@ it('Legacy HD (BIP44) can create TX', async () => {
 });
 
 it('Legacy HD (BIP44) can fetch UTXO', async function() {
-  await BlueElectrum.waitTillConnected();
   let hd = new HDLegacyP2PKHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
@@ -325,7 +324,6 @@ it('HD breadwallet works', async function() {
     return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
-  await BlueElectrum.waitTillConnected();
   let hdBread = new HDLegacyBreadwalletWallet();
   hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
 
