@@ -224,6 +224,11 @@ const WalletXPUBStackNavigator = createStackNavigator({
     screen: WalletXpub,
   },
 });
+const BuyBitcoinStackNavigator = createStackNavigator({
+  BuyBitcoin: {
+    screen: BuyBitcoin,
+  },
+});
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -243,7 +248,7 @@ const MainBottomTabs = createStackNavigator(
       screen: WalletXPUBStackNavigator,
     },
     BuyBitcoin: {
-      screen: BuyBitcoin,
+      screen: BuyBitcoinStackNavigator,
     },
     //
     SendDetails: {
