@@ -358,7 +358,8 @@ export class AbstractHDWallet extends LegacyWallet {
         let txs = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(index));
         if (txs.length === 0) {
           minUnusedIndex = Math.min(minUnusedIndex, index); // set
-          index = Math.round((index - maxUsedIndex) / 2 + maxUsedIndex);
+          index = Math.floor((index - maxUsedIndex) / 2 + maxUsedIndex);
+          if (index === 0) return 0;
         } else {
           maxUsedIndex = Math.max(maxUsedIndex, index); // set
           let txs2 = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(index + 1));
@@ -379,7 +380,8 @@ export class AbstractHDWallet extends LegacyWallet {
         let txs = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(index));
         if (txs.length === 0) {
           minUnusedIndex = Math.min(minUnusedIndex, index); // set
-          index = Math.round((index - maxUsedIndex) / 2 + maxUsedIndex);
+          index = Math.floor((index - maxUsedIndex) / 2 + maxUsedIndex);
+          if (index === 0) return 0;
         } else {
           maxUsedIndex = Math.max(maxUsedIndex, index); // set
           let txs2 = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(index + 1));
