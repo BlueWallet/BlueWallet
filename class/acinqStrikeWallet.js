@@ -101,7 +101,7 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
     }
 
-    if (json && json.code && json.code === 401) {
+    if (json && json.code) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
     this.user_charges_raw = json.sort((a, b) => {
