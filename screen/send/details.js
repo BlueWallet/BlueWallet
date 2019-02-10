@@ -591,6 +591,7 @@ export default class SendDetails extends Component {
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}
+                  onSubmitEditing={Keyboard.dismiss}
                 />
               </View>
               <TouchableOpacity

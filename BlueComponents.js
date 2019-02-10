@@ -15,6 +15,7 @@ import {
   StyleSheet,
   Dimensions,
   Image,
+  Keyboard,
   SafeAreaView,
   InputAccessoryView,
   Clipboard,
@@ -1623,6 +1624,7 @@ export class BlueAddressInput extends Component {
           value={this.props.address}
           style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
           editable={!this.props.isLoading}
+          onSubmitEditing={Keyboard.dismiss}
         />
         <TouchableOpacity
           disabled={this.props.isLoading}
