@@ -58,9 +58,9 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
   }
 
   /**
-   * Returns list of LND invoices created by user
+   * Returns a "charge" object of belonging to the provided chargeId
    *
-   * @return {Promise.<Array>}
+   * @return {Promise.<Object>}
    */
   async getCharge(chargeId) {
     let response = await this._api.get('/charges/' + chargeId);
@@ -79,6 +79,11 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
   async fetchTransactions() {
     const usercharges = await this.getUserCharges();
     return usercharges;
+  }
+
+  async fetchBalance() {
+    const transactions = await this.fetchTransactions();
+    return transactions;
   }
 
   async getUserCharges() {

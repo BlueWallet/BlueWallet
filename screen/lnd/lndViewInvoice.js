@@ -12,7 +12,7 @@ import {
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-import { ACINQStrikeLightningWallet } from '../../class/';
+import { ACINQStrikeLightningWallet, LightningCustodianWallet } from '../../class/';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -229,9 +229,8 @@ export default class LNDViewInvoice extends Component {
               title={loc.receive.details.share}
             />
             <BlueSpacing20 />
-            {this.state.fromWallet.info_raw && (
+            {this.state.fromWallet.type === LightningCustodianWallet.type && (
               <BlueButton
-                backgroundColor="#FFFFFF"
                 icon={{
                   name: 'info',
                   type: 'entypo',
@@ -239,6 +238,7 @@ export default class LNDViewInvoice extends Component {
                 }}
                 onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
                 title="Additional Information"
+                style={{ backgroundColor: '#FFFFFF' }}
               />
             )}
           </View>
