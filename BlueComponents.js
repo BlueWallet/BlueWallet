@@ -1039,7 +1039,7 @@ export class BlueTransactionListItem extends Component {
       if (isNaN(item.amount_satoshi)) {
         item.amount_satoshi = '0';
       }
-      const expectedExpiration = dayjs(this.props.item.updated + 86400000);
+      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
       if (expectedExpiration.isBefore(dayjs())) {
         return loc.lnd.expired;
       }
@@ -1068,7 +1068,7 @@ export class BlueTransactionListItem extends Component {
         }
       }
     } else if (item.object === 'charge') {
-      const expectedExpiration = dayjs(this.props.item.updated + 86400000);
+      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
       if (expectedExpiration.isBefore(dayjs())) {
         color = '#FF0000';
       } else {
@@ -1140,7 +1140,7 @@ export class BlueTransactionListItem extends Component {
           </View>
         );
       } else {
-        const expectedExpiration = dayjs(this.props.item.updated + 86400000);
+        const expectedExpiration = dayjs(this.props.item.updated + 3600000);
         if (expectedExpiration.isBefore(dayjs())) {
           return (
             <View style={{ width: 25 }}>
