@@ -49,13 +49,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   timeToRefreshBalance() {
-    // only manual refresh for now
-    return false;
+    return (+new Date() - this._lastBalanceFetch) / 1000 > 3600; // 1hr
   }
 
   timeToRefreshTransaction() {
-    // only manual refresh for now
-    return false;
+    return (+new Date() - this._lastTxFetch) / 1000 > 3600; // 1hr
   }
 
   static fromJson(param) {
@@ -434,6 +432,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
+    this._lastTxFetch = +new Date();
     this.transactions_raw = json;
   }
 
