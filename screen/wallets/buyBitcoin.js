@@ -67,7 +67,6 @@ export default class BuyBitcoin extends Component {
   }
 
   render() {
-    console.log('render() receive/details, address,secret=', this.state.address, ',', this.state.secret);
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
