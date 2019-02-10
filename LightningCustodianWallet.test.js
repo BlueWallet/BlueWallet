@@ -348,4 +348,35 @@ describe('LightningCustodianWallet', () => {
     await l2.fetchBalance();
     assert.strictEqual(oldBalance - l2.balance, 3);
   });
+
+  it('cant pay negative free amount', async () => {
+    let l1 = new LightningCustodianWallet();
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    assert.ok(l1.refill_addressess.length === 0);
+    assert.ok(l1._refresh_token_created_ts === 0);
+    assert.ok(l1._access_token_created_ts === 0);
+    l1.balance = 'FAKE';
+
+    await l1.createAccount(true);
+    await l1.authorize();
+    await l1.fetchBalance();
+
+    assert.ok(l1.access_token);
+    assert.ok(l1.refresh_token);
+    assert.ok(l1._refresh_token_created_ts > 0);
+    assert.ok(l1._access_token_created_ts > 0);
+    assert.ok(l1.balance === 0);
+
+    let invoice = await l1.addInvoice(0, 'zero amt inv');
+
+    let error = false;
+    try {
+      await l1.payInvoice(invoice, -1);
+    } catch (Err) {
+      error = true;
+    }
+    await l1.fetchBalance();
+    assert.strictEqual(l1.balance, 0);
+    assert.ok(error);
+  });
 });

@@ -1,6 +1,8 @@
 import Frisbee from 'frisbee';
 
 export class NetworkTransactionFee {
+  static StorageKey = 'NetworkTransactionFee';
+
   constructor(fastestFee = 1, halfHourFee = 1, hourFee = 1) {
     this.fastestFee = fastestFee;
     this.halfHourFee = halfHourFee;

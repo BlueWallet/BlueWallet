@@ -72,12 +72,6 @@ export default class ScanLndInvoice extends React.Component {
 
   processInvoice = data => {
     this.setState({ isLoading: true }, async () => {
-      if (this.ignoreRead) return;
-      this.ignoreRead = true;
-      setTimeout(() => {
-        this.ignoreRead = false;
-      }, 6000);
-
       if (!this.state.fromWallet) {
         alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
         return this.props.navigation.goBack();
@@ -149,23 +143,20 @@ export default class ScanLndInvoice extends React.Component {
           return alert(loc.lnd.sameWalletAsInvoiceError);
         }
 
-        let start = +new Date();
-        let end;
         try {
           await fromWallet.payInvoice(this.state.invoice, this.state.decoded.num_satoshis);
-          end = +new Date();
         } catch (Err) {
           console.log(Err.message);
           this.setState({ isLoading: false });
-          this.props.navigation.goBack();
-          return alert('Error');
+          return alert(Err.message);
         }
 
-        console.log('payInvoice took', (end - start) / 1000, 'sec');
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-
-        alert('Success');
-        this.props.navigation.goBack();
+        this.props.navigation.navigate('Success', {
+          amount: this.state.decoded.num_satoshis,
+          amountUnit: BitcoinUnit.SATS,
+          invoiceDescription: this.state.decoded.description,
+        });
       },
     );
   }
@@ -237,24 +228,26 @@ export default class ScanLndInvoice extends React.Component {
             )}
             <BlueSpacing20 />
             <BlueSpacing20 />
-            {this.state.isLoading ? (
-              <View>
-                <ActivityIndicator />
-              </View>
-            ) : (
-              <BlueButton
-                icon={{
-                  name: 'bolt',
-                  type: 'font-awesome',
-                  color: BlueApp.settings.buttonTextColor,
-                }}
-                title={'Pay'}
-                onPress={() => {
-                  this.pay();
-                }}
-                disabled={this.shouldDisablePayButton()}
-              />
-            )}
+            <BlueCard>
+              {this.state.isLoading ? (
+                <View>
+                  <ActivityIndicator />
+                </View>
+              ) : (
+                <BlueButton
+                  icon={{
+                    name: 'bolt',
+                    type: 'font-awesome',
+                    color: BlueApp.settings.buttonTextColor,
+                  }}
+                  title={'Pay'}
+                  onPress={() => {
+                    this.pay();
+                  }}
+                  disabled={this.shouldDisablePayButton()}
+                />
+              )}
+            </BlueCard>
           </BlueCard>
         </SafeBlueArea>
       </TouchableWithoutFeedback>
@@ -264,10 +257,10 @@ export default class ScanLndInvoice extends React.Component {
 
 ScanLndInvoice.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    navigate: PropTypes.function,
-    getParam: PropTypes.function,
-    dismiss: PropTypes.function,
+    goBack: PropTypes.func,
+    navigate: PropTypes.func,
+    getParam: PropTypes.func,
+    dismiss: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         uri: PropTypes.string,

@@ -1,4 +1,5 @@
 /* global __DEV__, localStorage */
+global.net = require('react-native-tcp');
 if (typeof __dirname === 'undefined') global.__dirname = '/';
 if (typeof __filename === 'undefined') global.__filename = '';
 if (typeof process === 'undefined') {

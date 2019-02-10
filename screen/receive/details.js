@@ -79,7 +79,6 @@ export default class ReceiveDetails extends Component {
   }
 
   render() {
-    console.log('render() receive/details, address,secret=', this.state.address, ',', this.state.secret);
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
@@ -128,8 +127,8 @@ export default class ReceiveDetails extends Component {
 
 ReceiveDetails.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    navigate: PropTypes.function,
+    goBack: PropTypes.func,
+    navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,

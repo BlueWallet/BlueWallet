@@ -11,6 +11,7 @@ import {
   StyleSheet,
   Platform,
   Slider,
+  AsyncStorage,
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -71,13 +72,14 @@ export default class SendDetails extends Component {
       fromAddress,
       fromWallet,
       fromSecret,
-      isLoading: true,
+      isLoading: false,
       address,
       memo,
       fee: 1,
       networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
       feeSliderValue: 1,
       bip70TransactionExpiration: null,
+      renderWalletSelectionButtonHidden: false,
     };
   }
 
@@ -91,7 +93,7 @@ export default class SendDetails extends Component {
           const dataWithoutSchema = data.replace('bitcoin:', '');
           if (btcAddressRx.test(dataWithoutSchema) || dataWithoutSchema.indexOf('bc1') === 0) {
             this.setState({
-              address: data,
+              address: dataWithoutSchema,
               bip70TransactionExpiration: null,
               isLoading: false,
             });
@@ -126,20 +128,27 @@ export default class SendDetails extends Component {
   };
 
   async componentDidMount() {
-    let recommendedFees = await NetworkTransactionFees.recommendedFees().catch(response => {
-      this.setState({
-        fee: response.halfHourFee,
-        networkTransactionFees: response,
-        feeSliderValue: response.halfHourFee,
-        isLoading: false,
-      });
-    });
-    if (recommendedFees) {
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+    try {
+      const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
+
+      if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
+        this.setState({
+          fee: cachedNetworkTransactionFees.halfHourFee,
+          networkTransactionFees: cachedNetworkTransactionFees,
+          feeSliderValue: cachedNetworkTransactionFees.halfHourFee,
+        });
+      }
+    } catch (_) {}
+
+    let recommendedFees = await NetworkTransactionFees.recommendedFees();
+    if (recommendedFees && recommendedFees.hasOwnProperty('halfHourFee')) {
+      await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
       this.setState({
         fee: recommendedFees.halfHourFee,
         networkTransactionFees: recommendedFees,
         feeSliderValue: recommendedFees.halfHourFee,
-        isLoading: false,
       });
 
       if (this.props.navigation.state.params.uri) {
@@ -148,15 +157,33 @@ export default class SendDetails extends Component {
         } else {
           try {
             const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
-            this.setState({ address, amount, memo });
+            this.setState({ address, amount, memo, isLoading: false });
           } catch (error) {
             console.log(error);
+            this.setState({ isLoading: false });
             alert('Error: Unable to decode Bitcoin address');
           }
         }
+      } else {
+        this.setState({ isLoading: false });
       }
+    } else {
+      this.setState({ isLoading: false });
     }
   }
+
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  _keyboardDidShow = () => {
+    this.setState({ renderWalletSelectionButtonHidden: true });
+  };
+
+  _keyboardDidHide = () => {
+    this.setState({ renderWalletSelectionButtonHidden: false });
+  };
 
   decodeBitcoinUri(uri) {
     try {
@@ -382,9 +409,9 @@ export default class SendDetails extends Component {
   }
 
   onWalletSelect = wallet => {
-    this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () =>
-      this.props.navigation.goBack(null),
-    );
+    this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
+      this.props.navigation.pop();
+    });
   };
 
   renderFeeSelectionModal = () => {
@@ -392,7 +419,13 @@ export default class SendDetails extends Component {
       <Modal
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
+        onBackdropPress={() => {
+          if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
+            this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+          }
+          Keyboard.dismiss();
+          this.setState({ isFeeSelectionModalVisible: false });
+        }}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
@@ -403,12 +436,14 @@ export default class SendDetails extends Component {
                   this.textInput = ref;
                 }}
                 value={this.state.fee.toString()}
+                onEndEditing={() => {
+                  if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
+                    this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+                  }
+                }}
                 onChangeText={value => {
                   let newValue = value.replace(/\D/g, '');
-                  if (newValue.length === 0) {
-                    newValue = 1;
-                  }
-                  this.setState({ fee: newValue, feeSliderValue: newValue });
+                  this.setState({ fee: Number(newValue), feeSliderValue: Number(newValue) });
                 }}
                 maxLength={9}
                 editable={!this.state.isLoading}
@@ -466,6 +501,7 @@ export default class SendDetails extends Component {
   };
 
   renderWalletSelectionButton = () => {
+    if (this.state.renderWalletSelectionButtonHidden) return;
     return (
       <View style={{ marginBottom: 24, alignItems: 'center' }}>
         {!this.state.isLoading && (
@@ -500,7 +536,6 @@ export default class SendDetails extends Component {
         </View>
       );
     }
-
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
@@ -556,6 +591,7 @@ export default class SendDetails extends Component {
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}
+                  onSubmitEditing={Keyboard.dismiss}
                 />
               </View>
               <TouchableOpacity
@@ -620,7 +656,7 @@ const styles = StyleSheet.create({
 
 SendDetails.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.func,
+    pop: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
     state: PropTypes.shape({

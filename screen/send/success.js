@@ -18,7 +18,9 @@ export default class Success extends Component {
 
     this.state = {
       amount: props.navigation.getParam('amount'),
-      fee: props.navigation.getParam('fee'),
+      fee: props.navigation.getParam('fee') || 0,
+      amountUnit: props.navigation.getParam('amountUnit') || BitcoinUnit.BTC,
+      invoiceDescription: props.navigation.getParam('invoiceDescription') || '',
     };
   }
 
@@ -51,21 +53,38 @@ export default class Success extends Component {
                 alignSelf: 'flex-end',
               }}
             >
-              {' ' + BitcoinUnit.BTC}
+              {' ' + this.state.amountUnit}
             </Text>
           </View>
-          <Text
-            style={{
-              color: '#37c0a1',
-              fontSize: 14,
-              marginHorizontal: 4,
-              paddingBottom: 6,
-              fontWeight: '500',
-              alignSelf: 'center',
-            }}
-          >
-            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
-          </Text>
+          {this.state.fee > 0 && (
+            <Text
+              style={{
+                color: '#37c0a1',
+                fontSize: 14,
+                marginHorizontal: 4,
+                paddingBottom: 6,
+                fontWeight: '500',
+                alignSelf: 'center',
+              }}
+            >
+              {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
+            </Text>
+          )}
+          {this.state.fee <= 0 && (
+            <Text
+              numberOfLines={0}
+              style={{
+                color: '#37c0a1',
+                fontSize: 14,
+                marginHorizontal: 4,
+                paddingBottom: 6,
+                fontWeight: '500',
+                alignSelf: 'center',
+              }}
+            >
+              {this.state.invoiceDescription}
+            </Text>
+          )}
         </BlueCard>
         <View
           style={{
@@ -87,7 +106,6 @@ export default class Success extends Component {
               this.props.navigation.dismiss();
             }}
             title={loc.send.success.done}
-            style={{ maxWidth: 263, paddingHorizontal: 56 }}
           />
         </BlueCard>
       </SafeBlueArea>
@@ -97,10 +115,10 @@ export default class Success extends Component {
 
 Success.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
-    getParam: PropTypes.function,
-    navigate: PropTypes.function,
-    dismiss: PropTypes.function,
+    goBack: PropTypes.func,
+    getParam: PropTypes.func,
+    navigate: PropTypes.func,
+    dismiss: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.string,

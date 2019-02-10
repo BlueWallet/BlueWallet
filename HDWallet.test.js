@@ -1,8 +1,21 @@
-/* global it, jasmine */
+/* global it, jasmine, afterAll, beforeAll */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from './class';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 let bitcoin = require('bitcoinjs-lib');
+global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+let BlueElectrum = require('./BlueElectrum'); // so it connects ASAP
+
+afterAll(() => {
+  // after all tests we close socket so the test suite can actually terminate
+  return BlueElectrum.forceDisconnect();
+});
+
+beforeAll(async () => {
+  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
+  // while app starts up, but for tests we need to wait for it
+  await BlueElectrum.waitTillConnected();
+});
 
 it('can convert witness to address', () => {
   let address = SegwitP2SHWallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
@@ -47,7 +60,7 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), freeChangeAddress);
 });
 
-it('Segwit HD (BIP49) can generate addressess only via ypub', async function() {
+it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
   let ypub = 'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp';
   let hd = new HDSegwitP2SHWallet();
   hd._xpub = ypub;
@@ -146,6 +159,30 @@ it('Segwit HD (BIP49) can fetch UTXO', async function() {
     hd.utxo[0].address &&
       (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' || hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
   );
+});
+
+it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function() {
+  if (!process.env.HD_MNEMONIC_BIP49_MANY_TX) {
+    console.error('process.env.HD_MNEMONIC_BIP49_MANY_TX not set, skipped');
+    return;
+  }
+
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
+  assert.ok(hd.validateMnemonic());
+  let start = +new Date();
+  await hd.fetchBalance();
+  let end = +new Date();
+  const took = (end - start) / 1000;
+  took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
+  assert.strictEqual(hd.getBalance(), 0.00051432);
+
+  await hd.fetchUtxo();
+  assert.ok(hd.utxo.length > 0);
+
+  await hd.fetchTransactions();
+  assert.strictEqual(hd.getTransactions().length, 107);
 });
 
 it('can work with malformed mnemonic', () => {
