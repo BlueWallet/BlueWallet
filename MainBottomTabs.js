@@ -1,4 +1,4 @@
-import { createStackNavigator, createAppContainer } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -40,7 +40,6 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
-import WalletMigrate from './screen/wallets/walletMigrate';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -229,7 +228,7 @@ const BuyBitcoinStackNavigator = createStackNavigator({
     screen: BuyBitcoin,
   },
 });
-const MainBottomTabs = createStackNavigator(
+export const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
       screen: WalletsStackNavigator,
@@ -306,18 +305,3 @@ const MainBottomTabs = createStackNavigator(
     headerMode: 'none',
   },
 );
-
-const WalletMigrateStackNavigator = createStackNavigator(
-  {
-    MigrateWallets: {
-      screen: WalletMigrate,
-      path: 'MigrateWallets',
-    },
-    MainBottomTabs: {
-      screen: MainBottomTabs,
-    },
-  },
-  { headerMode: 'none' },
-);
-
-export default createAppContainer(WalletMigrateStackNavigator);

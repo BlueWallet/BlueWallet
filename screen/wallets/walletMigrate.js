@@ -2,24 +2,19 @@ import React, { Component } from 'react';
 import { View, ActivityIndicator, AsyncStorage } from 'react-native';
 import RNFS from 'react-native-fs';
 import PropTypes from 'prop-types';
-import { NavigationActions, StackActions } from 'react-navigation';
 
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
 export default class WalletMigrate extends Component {
-  componentDidMount() {
-    this.migrateDataFromExpo();
+  async migrationComplete() {
+    console.log('migrationComplete called. Exiting migration...');
+    await BlueApp.startAndDecrypt();
+    this.props.onComplete();
   }
 
-  async migrationComplete() {
-    console.log('Migration was successful. Exiting migration...');
-    await BlueApp.startAndDecrypt();
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: 'MainBottomTabs' })],
-    });
-    this.props.navigation.dispatch(resetAction);
+  async componentDidMount() {
+    await this.migrateDataFromExpo();
   }
 
   // Migrate Document directory from Expo
@@ -28,7 +23,7 @@ export default class WalletMigrate extends Component {
 
     if (!expoDirectoryExists) {
       console.log('Expo data was previously migrated. Exiting migration...');
-      this.migrationComplete();
+      await this.migrationComplete();
       return;
     }
     try {
@@ -84,7 +79,7 @@ export default class WalletMigrate extends Component {
       console.log('An error was encountered when trying to delete /ExponentExperienceData. Exiting migration...');
       console.log(error);
     }
-    this.migrationComplete();
+    await this.migrationComplete();
   }
 
   render() {
@@ -97,7 +92,5 @@ export default class WalletMigrate extends Component {
 }
 
 WalletMigrate.propTypes = {
-  navigation: PropTypes.shape({
-    dispatch: PropTypes.func,
-  }),
+  onComplete: PropTypes.func,
 };

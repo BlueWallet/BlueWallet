@@ -1,6 +1,5 @@
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-import React from 'react';
 import './shim.js';
 import App from './App';
 import { Sentry } from 'react-native-sentry';
@@ -20,10 +19,4 @@ if (!Error.captureStackTrace) {
   Error.captureStackTrace = () => {};
 }
 
-class BlueAppComponent extends React.Component {
-  render() {
-    return <App />;
-  }
-}
-
-AppRegistry.registerComponent(appName, () => BlueAppComponent);
+AppRegistry.registerComponent(appName, () => App);
