@@ -3,20 +3,7 @@ import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity, StatusBa
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
-import {
-  BlueText,
-  BlueTransactionOnchainIcon,
-  ManageFundsBigButton,
-  BlueTransactionExpiredIcon,
-  BlueTransactionIncommingIcon,
-  BlueTransactionOutgoingIcon,
-  BlueTransactionPendingIcon,
-  BlueTransactionOffchainIcon,
-  BlueSendButtonIcon,
-  BlueReceiveButtonIcon,
-  BlueListItem,
-  BlueTransactionOffchainIncomingIcon,
-} from '../../BlueComponents';
+import { BlueText, ManageFundsBigButton, BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
@@ -150,9 +137,12 @@ export default class WalletTransactions extends Component {
           try {
             /** @type {LegacyWallet} */
             let wallet = that.state.wallet;
+            let balanceStart = +new Date();
             const oldBalance = wallet.getBalance();
             await wallet.fetchBalance();
             if (oldBalance !== wallet.getBalance()) smthChanged = true;
+            let balanceEnd = +new Date();
+            console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
             const oldTxLen = wallet.getTransactions().length;
             await wallet.fetchTransactions();
@@ -269,13 +259,6 @@ export default class WalletTransactions extends Component {
     );
   };
 
-  txMemo(hash) {
-    if (BlueApp.tx_metadata[hash] && BlueApp.tx_metadata[hash]['memo']) {
-      return BlueApp.tx_metadata[hash]['memo'];
-    }
-    return '';
-  }
-
   _keyExtractor = (_item, index) => index.toString();
 
   renderListHeaderComponent = () => {
@@ -305,55 +288,8 @@ export default class WalletTransactions extends Component {
     this.onWillBlur();
   }
 
-  rowTitle = item => {
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      if (isNaN(item.value)) {
-        item.value = 0;
-      }
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
-      const invoiceExpiration = item.timestamp + item.expire_time;
-
-      if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, this.state.wallet.getPreferredBalanceUnit(), true).toString();
-      } else if (invoiceExpiration < now) {
-        if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, this.state.wallet.getPreferredBalanceUnit(), true).toString();
-        } else {
-          return loc.lnd.expired;
-        }
-      }
-    } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, this.state.wallet.getPreferredBalanceUnit(), true).toString();
-    }
-  };
-
-  rowTitleStyle = item => {
-    let color = '#37c0a1';
-
-    if (item.type === 'user_invoice' || item.type === 'payment_request') {
-      const currentDate = new Date();
-      const now = (currentDate.getTime() / 1000) | 0;
-      const invoiceExpiration = item.timestamp + item.expire_time;
-
-      if (invoiceExpiration > now) {
-        color = '#37c0a1';
-      } else if (invoiceExpiration < now) {
-        if (item.ispaid) {
-          color = '#37c0a1';
-        } else {
-          color = '#FF0000';
-        }
-      }
-    } else if (item.value / 100000000 < 0) {
-      color = BlueApp.settings.foregroundColor;
-    }
-
-    return {
-      fontWeight: '600',
-      fontSize: 16,
-      color: color,
-    };
+  renderItem = item => {
+    return <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()} />;
   };
 
   render() {
@@ -413,8 +349,9 @@ export default class WalletTransactions extends Component {
           <FlatList
             ListHeaderComponent={this.renderListHeaderComponent}
             ListEmptyComponent={
-              <View style={{ top: 50, minHeight: 200 }}>
+              <View style={{ top: 50, minHeight: 200, paddingHorizontal: 16 }}>
                 <Text
+                  numberOfLines={0}
                   style={{
                     fontSize: 18,
                     color: '#9aa0aa',
@@ -422,7 +359,7 @@ export default class WalletTransactions extends Component {
                   }}
                 >
                   {(this.isLightning() &&
-                    'Lightning wallet should be used for your daily\ntransactions. Fees are unfairly cheap and\nspeed is blazing fast.') ||
+                    'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.') ||
                     loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
@@ -432,7 +369,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && '\nTo start using it tap on "manage funds"\nand topup your balance') ||
+                  {(this.isLightning() && '\nTo start using it tap on "manage funds" and topup your balance') ||
                     loc.wallets.list.empty_txs2}
                 </Text>
 
@@ -462,110 +399,8 @@ export default class WalletTransactions extends Component {
             refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
-            renderItem={rowData => {
-              return (
-                <BlueListItem
-                  avatar={(() => {
-                    // is it lightning refill tx?
-                    if (rowData.item.category === 'receive' && rowData.item.confirmations < 3) {
-                      return (
-                        <View style={{ width: 25 }}>
-                          <BlueTransactionPendingIcon />
-                        </View>
-                      );
-                    }
-
-                    if (rowData.item.type && rowData.item.type === 'bitcoind_tx') {
-                      return (
-                        <View style={{ width: 25 }}>
-                          <BlueTransactionOnchainIcon />
-                        </View>
-                      );
-                    }
-                    if (rowData.item.type === 'paid_invoice') {
-                      // is it lightning offchain payment?
-                      return (
-                        <View style={{ width: 25 }}>
-                          <BlueTransactionOffchainIcon />
-                        </View>
-                      );
-                    }
-
-                    if (rowData.item.type === 'user_invoice' || rowData.item.type === 'payment_request') {
-                      if (!rowData.item.ispaid) {
-                        const currentDate = new Date();
-                        const now = (currentDate.getTime() / 1000) | 0;
-                        const invoiceExpiration = rowData.item.timestamp + rowData.item.expire_time;
-                        if (invoiceExpiration < now) {
-                          return (
-                            <View style={{ width: 25 }}>
-                              <BlueTransactionExpiredIcon />
-                            </View>
-                          );
-                        }
-                      } else {
-                        return (
-                          <View style={{ width: 25 }}>
-                            <BlueTransactionOffchainIncomingIcon />
-                          </View>
-                        );
-                      }
-                    }
-
-                    if (!rowData.item.confirmations) {
-                      return (
-                        <View style={{ width: 25 }}>
-                          <BlueTransactionPendingIcon />
-                        </View>
-                      );
-                    } else if (rowData.item.value < 0) {
-                      return (
-                        <View style={{ width: 25 }}>
-                          <BlueTransactionOutgoingIcon />
-                        </View>
-                      );
-                    } else {
-                      return (
-                        <View style={{ width: 25 }}>
-                          <BlueTransactionIncommingIcon />
-                        </View>
-                      );
-                    }
-                  })()}
-                  title={loc.transactionTimeToReadable(rowData.item.received)}
-                  subtitle={
-                    (rowData.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + rowData.item.confirmations + ' ' : '') +
-                    this.txMemo(rowData.item.hash) +
-                    (rowData.item.memo || '')
-                  }
-                  onPress={() => {
-                    if (rowData.item.hash) {
-                      navigate('TransactionDetails', {
-                        hash: rowData.item.hash,
-                      });
-                    } else if (
-                      rowData.item.type === 'user_invoice' ||
-                      rowData.item.type === 'payment_request' ||
-                      rowData.item.type === 'paid_invoice'
-                    ) {
-                      this.props.navigation.navigate('LNDViewInvoice', {
-                        invoice: rowData.item,
-                        fromWallet: this.state.wallet,
-                        isModal: false,
-                      });
-                    }
-                  }}
-                  badge={{
-                    value: 3,
-                    textStyle: { color: 'orange' },
-                    containerStyle: { marginTop: 0 },
-                  }}
-                  hideChevron
-                  rightTitle={this.rowTitle(rowData.item)}
-                  rightTitleStyle={this.rowTitleStyle(rowData.item)}
-                />
-              );
-            }}
+            initialNumToRender={10}
+            renderItem={this.renderItem}
           />
         </View>
         <View

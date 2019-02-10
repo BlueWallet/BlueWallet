@@ -7,6 +7,7 @@ let EV = require('./events');
 let currency = require('./currency');
 let loc = require('./loc');
 let A = require('./analytics');
+let BlueElectrum = require('./BlueElectrum'); // eslint-disable-line
 
 /** @type {AppStorage} */
 let BlueApp = new AppStorage();
@@ -31,7 +32,7 @@ async function startAndDecrypt(retry) {
     let securityAlert = require('./security-alert');
     await securityAlert.start();
     // now, lets try to fetch balance and txs for first wallet if it is time for it
-    let hadToRefresh = false;
+    /* let hadToRefresh = false;
     let noErr = true;
     try {
       let wallets = BlueApp.getWallets();
@@ -57,7 +58,7 @@ async function startAndDecrypt(retry) {
 
     if (hadToRefresh && noErr) {
       await BlueApp.saveToDisk(); // caching
-    }
+    } */
   }
 
   if (!success && password) {

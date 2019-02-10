@@ -67,7 +67,6 @@ export default class BuyBitcoin extends Component {
   }
 
   render() {
-    console.log('render() receive/details, address,secret=', this.state.address, ',', this.state.secret);
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
@@ -107,7 +106,7 @@ export default class BuyBitcoin extends Component {
 
 BuyBitcoin.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.function,
+    goBack: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         address: PropTypes.string,

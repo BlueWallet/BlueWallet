@@ -2,6 +2,7 @@ import { createStackNavigator, createAppContainer } from 'react-navigation';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
+import ReleaseNotes from './screen/settings/releasenotes';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
 import Currency from './screen/settings/currency';
@@ -85,6 +86,10 @@ const WalletsStackNavigator = createStackNavigator(
     About: {
       screen: About,
       path: 'About',
+    },
+    ReleaseNotes: {
+      screen: ReleaseNotes,
+      path: 'ReleaseNotes',
     },
     Selftest: {
       screen: Selftest,
@@ -180,6 +185,15 @@ const CreateWalletStackNavigator = createStackNavigator({
   },
 });
 
+const LightningScanInvoiceStackNavigator = createStackNavigator({
+  ScanLndInvoice: {
+    screen: ScanLndInvoice,
+  },
+  Success: {
+    screen: Success,
+  },
+});
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -236,7 +250,10 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     ScanLndInvoice: {
-      screen: ScanLndInvoice,
+      screen: LightningScanInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     ScanQrAddress: {
       screen: sendScanQrAddress,

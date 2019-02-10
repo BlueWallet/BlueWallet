@@ -495,7 +495,7 @@ export default class Browser extends Component {
 
 Browser.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.function,
+    getParam: PropTypes.func,
     navigate: PropTypes.func,
   }),
 };
