@@ -1578,6 +1578,7 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
+            Keyboard.dismiss();
             ImagePicker.showImagePicker(
               {
                 title: null,
