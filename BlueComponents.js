@@ -177,7 +177,14 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   headerRight: withNavigationCloseButton ? (
     <TouchableOpacity
       style={{ width: 40, height: 40, padding: 14 }}
-      onPress={customCloseButtonFunction === undefined ? () => navigation.goBack(null) : customCloseButtonFunction}
+      onPress={
+        customCloseButtonFunction === undefined
+          ? () => {
+              Keyboard.dismiss();
+              navigation.goBack(null);
+            }
+          : customCloseButtonFunction
+      }
     >
       <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
     </TouchableOpacity>
@@ -1578,6 +1585,7 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
+            Keyboard.dismiss();
             ImagePicker.showImagePicker(
               {
                 title: null,
