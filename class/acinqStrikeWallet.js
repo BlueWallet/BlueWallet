@@ -149,10 +149,12 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     }
     let max = 0;
     for (let tx of this.getTransactions()) {
-      max = Math.max(new Date(tx.updated) * 1, max);
+      if (tx.updated > max) {
+        max = tx.updated;
+      }
     }
 
-    return new Date(max).toString();
+    return new Date(max);
   }
 
   async createCharge(amount, description = 'ACINQ strike Charge') {

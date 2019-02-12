@@ -105,30 +105,26 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
+      let txs = await wallet.fetchTransactions();
       try {
-        let txs = await wallet.fetchTransactions();
         for (let tx of txs) {
           tx.sort_ts = +new Date(tx.received);
         }
         txs = txs.sort(function(a, b) {
           return b.sort_ts - a.sort_ts;
         });
-
-        this.setState({
-          isLoading: false,
-          isTransactionsLoading: false,
-          showReceiveButton: showReceive,
-          showSendButton: showSend,
-          showManageFundsBigButton,
-          showManageFundsSmallButton,
-          dataSource: txs,
-        });
-      } catch (_error) {
-        this.setState({
-          isLoading: false,
-          isTransactionsLoading: false,
-        });
+      } catch (error) {
+        console.log(error);
       }
+      this.setState({
+        isLoading: false,
+        isTransactionsLoading: false,
+        showReceiveButton: showReceive,
+        showSendButton: showSend,
+        showManageFundsBigButton,
+        showManageFundsSmallButton,
+        dataSource: txs,
+      });
     });
   }
 
