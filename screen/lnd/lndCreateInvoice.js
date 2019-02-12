@@ -38,10 +38,10 @@ export default class LNDCreateInvoice extends Component {
           fromWallet: this.state.fromWallet,
           isModal: true,
         });
-      } catch (_error) {
+      } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', false);
         this.setState({ isLoading: false });
-        alert('Error');
+        alert(error);
       }
     });
   }
