@@ -110,6 +110,7 @@ export default class ScanLndInvoice extends React.Component {
           isLoading: false,
         });
       } catch (Err) {
+        Keyboard.dismiss();
         this.setState({ isLoading: false });
         alert(Err.message);
       }

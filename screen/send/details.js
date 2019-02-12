@@ -284,6 +284,7 @@ export default class SendDetails extends Component {
   }
 
   async createTransaction() {
+    Keyboard.dismiss();
     this.setState({ isLoading: true });
     let error = false;
     let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
