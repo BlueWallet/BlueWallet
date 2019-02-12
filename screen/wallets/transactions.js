@@ -78,7 +78,7 @@ export default class WalletTransactions extends Component {
   refreshTransactionsFunction() {
     let that = this;
     setTimeout(function() {
-      that.refreshTransactions();
+      that.refreshTransactions(false);
     }, 4000); // giving a chance to remote server to propagate
   }
 
@@ -86,7 +86,7 @@ export default class WalletTransactions extends Component {
    * Redraws the screen
    */
   refreshFunction() {
-    InteractionManager.runAfterInteractions(() => {
+    InteractionManager.runAfterInteractions(async () => {
       console.log('wallets/transactions refreshFunction()');
       let showSend = false;
       let showReceive = false;
@@ -105,29 +105,36 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
-      let txs = wallet.getTransactions();
-      for (let tx of txs) {
-        tx.sort_ts = +new Date(tx.received);
-      }
-      txs = txs.sort(function(a, b) {
-        return b.sort_ts - a.sort_ts;
-      });
+      try {
+        let txs = await wallet.fetchTransactions();
+        for (let tx of txs) {
+          tx.sort_ts = +new Date(tx.received);
+        }
+        txs = txs.sort(function(a, b) {
+          return b.sort_ts - a.sort_ts;
+        });
 
-      this.setState({
-        isLoading: false,
-        isTransactionsLoading: false,
-        showReceiveButton: showReceive,
-        showSendButton: showSend,
-        showManageFundsBigButton,
-        showManageFundsSmallButton,
-        dataSource: txs,
-      });
+        this.setState({
+          isLoading: false,
+          isTransactionsLoading: false,
+          showReceiveButton: showReceive,
+          showSendButton: showSend,
+          showManageFundsBigButton,
+          showManageFundsSmallButton,
+          dataSource: txs,
+        });
+      } catch (_error) {
+        this.setState({
+          isLoading: false,
+          isTransactionsLoading: false,
+        });
+      }
     });
   }
 
   isLightning() {
     let w = this.state.wallet;
-    if (w && w.type === LightningCustodianWallet.type) {
+    if (w && (w.type === LightningCustodianWallet.type || w.type === ACINQStrikeLightningWallet.type)) {
       return true;
     }
 
@@ -143,45 +150,46 @@ export default class WalletTransactions extends Component {
         isTransactionsLoading: showFlatListRefreshControl,
         isLoading: true,
       },
-      async function() {
-        let that = this;
-        setTimeout(async function() {
-          // more responsive
-          let noErr = true;
-          let smthChanged = false;
-          try {
-            /** @type {LegacyWallet} */
-            let wallet = that.state.wallet;
-            let balanceStart = +new Date();
-            const oldBalance = wallet.getBalance();
-            await wallet.fetchBalance();
-            if (oldBalance !== wallet.getBalance()) smthChanged = true;
-            let balanceEnd = +new Date();
-            console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-            let start = +new Date();
-            const oldTxLen = wallet.getTransactions().length;
-            await wallet.fetchTransactions();
-            if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
-            if (wallet.fetchPendingTransactions) {
-              await wallet.fetchPendingTransactions();
-            }
-            if (wallet.fetchUserInvoices) {
-              await wallet.fetchUserInvoices();
-            }
-            let end = +new Date();
-            console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
-          } catch (err) {
-            noErr = false;
-            console.warn(err);
+      async () => {
+        // more responsive
+        let noErr = true;
+        let smthChanged = false;
+        try {
+          /** @type {LegacyWallet} */
+          let wallet = this.state.wallet;
+          let balanceStart = +new Date();
+          const oldBalance = wallet.getBalance();
+          await wallet.fetchBalance();
+          if (oldBalance !== wallet.getBalance()) smthChanged = true;
+          let balanceEnd = +new Date();
+          console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+          let start = +new Date();
+          const oldTxLen = wallet.getTransactions().length;
+          await wallet.fetchTransactions();
+          if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
+          if (wallet.fetchPendingTransactions) {
+            await wallet.fetchPendingTransactions();
           }
-          if (noErr && smthChanged) {
-            console.log('saving to disk');
-            await BlueApp.saveToDisk(); // caching
-            EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+          if (wallet.fetchUserInvoices) {
+            await wallet.fetchUserInvoices();
           }
+          let end = +new Date();
+          console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
+        } catch (err) {
+          noErr = false;
+          console.warn(err);
+          this.setState({
+            isLoading: false,
+            isTransactionsLoading: false,
+          });
+        }
+        if (noErr && smthChanged) {
+          console.log('saving to disk');
+          await BlueApp.saveToDisk(); // caching
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+        }
 
-          that.refreshFunction(); // Redraws the screen
-        }, 1);
+        this.refreshFunction(); // Redraws the screen
       },
     );
   }
@@ -412,13 +420,15 @@ export default class WalletTransactions extends Component {
                 )}
               </View>
             }
-            refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
+            refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions(false)} refreshing={this.state.isLoading} />}
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
             initialNumToRender={10}
             renderItem={this.renderItem}
             ListFooterComponent={
-              this.state.isLoading && this.state.wallet.allowTransactionsPagination && !this.state.wallet.isReachedPaginationLastPage ? (
+              this.state.isTransactionsLoading &&
+              this.state.wallet.allowTransactionsPagination &&
+              !this.state.wallet.isReachedPaginationLastPage ? (
                 <ActivityIndicator />
               ) : null
             }
