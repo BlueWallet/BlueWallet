@@ -66,6 +66,10 @@ export class AbstractWallet {
     return false;
   }
 
+  allowTransactionsPagination() {
+    return false;
+  }
+
   /**
    * Returns delta of unconfirmed balance. For example, if theres no
    * unconfirmed balance its 0
