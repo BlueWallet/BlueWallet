@@ -1,5 +1,15 @@
 import React, { Component } from 'react';
-import { Text, View, ActivityIndicator, InteractionManager, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  InteractionManager,
+  Image,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -407,9 +417,17 @@ export default class WalletTransactions extends Component {
             keyExtractor={this._keyExtractor}
             initialNumToRender={10}
             renderItem={this.renderItem}
-            ListFooterComponent={this.state.isLoading ? <ActivityIndicator /> : null}
+            ListFooterComponent={
+              this.state.isLoading && this.state.wallet.allowTransactionsPagination && !this.state.wallet.isReachedPaginationLastPage ? (
+                <ActivityIndicator />
+              ) : null
+            }
             onEndReachedThreshold={5}
-            onEndReached={this.state.wallet.allowTransactionsPagination ? () => this.refreshTransactions(false) : null}
+            onEndReached={
+              this.state.wallet.allowTransactionsPagination && !this.state.wallet.isReachedPaginationLastPage
+                ? () => this.refreshTransactions(false)
+                : null
+            }
           />
         </View>
         <View

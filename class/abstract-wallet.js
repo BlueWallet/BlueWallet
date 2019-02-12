@@ -27,6 +27,7 @@ export class AbstractWallet {
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
+    this.isReachedPaginationLastPage = false;
   }
 
   getTransactions() {

@@ -92,7 +92,7 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
 
   async getUserCharges(page = 0) {
     if (page > 0) {
-      page = Math.ceil(this.user_charges_raw.length / 30)
+      page = Math.ceil(this.user_charges_raw.length / 30) - 1;
     }
     let response = await this._api.get('/charges' + '?page=' + page);
     let json = response.body;
@@ -104,7 +104,11 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
 
-    if (page > 0) {
+    if (json.length < 30) {
+      this.isReachedPaginationLastPage = true;
+    }
+
+    if (page > 0 && Math.ceil(this.user_charges_raw.length / 30) - 1 !== page) {
       this.user_charges_raw.concat(json);
     }
 
@@ -123,6 +127,7 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
   }
 
   getTransactions() {
+    this.isReachedPaginationLastPage = true;
     return this.user_charges_raw;
   }
 
@@ -134,7 +139,6 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     await this.getUserCharges();
     return true;
   }
-
 
   getLatestTransactionTime() {
     if (this.getTransactions().length === 0) {
