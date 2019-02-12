@@ -434,7 +434,6 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     this._lastTxFetch = +new Date();
     this.transactions_raw = json;
-    return this.getTransactions();
   }
 
   getBalance() {

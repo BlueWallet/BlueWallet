@@ -105,7 +105,8 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
-      let txs = await wallet.fetchTransactions();
+      await wallet.fetchTransactions();
+      let txs = wallet.getTransactions();
       try {
         for (let tx of txs) {
           tx.sort_ts = +new Date(tx.received);
