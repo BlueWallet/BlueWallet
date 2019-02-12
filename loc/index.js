@@ -52,6 +52,7 @@ dayjs.extend(relativeTime);
         break;
       case 'hr_hr':
         require('dayjs/locale/hr');
+        break;
       case 'id_id':
         require('dayjs/locale/id');
         break;
@@ -119,6 +120,7 @@ dayjs.extend(relativeTime);
             break;
           case 'hr-hr':
             require('dayjs/locale/hr');
+            break;
           case 'id-id':
             require('dayjs/locale/id');
             break;
