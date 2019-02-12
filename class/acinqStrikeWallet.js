@@ -94,7 +94,9 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     if (page > 0) {
       page = Math.ceil(this.user_charges_raw.length / 30) - 1;
     }
-    let response = await this._api.get('/charges' + '?page=' + page);
+
+    let size = this.user_charges_raw > 30 && page === 0 ? this.user_charges_raw.length : 30;
+    let response = await this._api.get('/charges' + '?page=' + page + '&size=' + size);
     let json = response.body;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
@@ -109,6 +111,7 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     }
 
     if (page > 0 && Math.ceil(this.user_charges_raw.length / 30) - 1 !== page) {
+      json = json.filter(e => !this.user_charges_raw.includes(e));
       this.user_charges_raw.concat(json);
     }
 
