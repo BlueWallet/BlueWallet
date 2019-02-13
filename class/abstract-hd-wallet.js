@@ -395,8 +395,8 @@ export class AbstractHDWallet extends LegacyWallet {
 
       this.next_free_address_index = await binarySearchIterationForExternalAddress(100);
 
-      this.balance = 0;
-      this.unconfirmed_balance = 0;
+      // this.balance = 0;
+      // this.unconfirmed_balance = 0;
       this.usedAddresses = [];
 
       // generating all involved addresses:
