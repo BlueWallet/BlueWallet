@@ -111,8 +111,15 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     }
 
     if (page > 0 && Math.ceil(this.user_charges_raw.length / 30) - 1 !== page) {
-      json = json.filter(e => !this.user_charges_raw.includes(e));
-      this.user_charges_raw.concat(json);
+      for (const key of Object.keys(this.user_charges_raw)) {
+        for (const jsonCharge of json) {
+          if (jsonCharge.id === this.user_charges_raw[key].id && jsonCharge !== this.user_charges_raw[key]) {
+            this.user_charges_raw[key] = jsonCharge;
+          } else {
+            this.user_charges_raw.push(jsonCharge);
+          }
+        }
+      }
     }
 
     this.user_charges_raw = json.sort((a, b) => {
@@ -126,7 +133,6 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
         this.balance += charge.amount_satoshi;
       }
     });
-    return this.user_charges_raw;
   }
 
   getTransactions() {

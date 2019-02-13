@@ -62,7 +62,9 @@ export default class WalletTransactions extends Component {
       dataSource: wallet.getTransactions(),
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
       walletHeaderLatestTransaction: '',
-      showSendButton: (wallet.allowSend() && wallet.type === LightningCustodianWallet.type && wallet.balance > 0) || (wallet.allowSend() && wallet.type !== LightningCustodianWallet.type),
+      showSendButton:
+        (wallet.allowSend() && wallet.type === LightningCustodianWallet.type && wallet.balance > 0) ||
+        (wallet.allowSend() && wallet.type !== LightningCustodianWallet.type),
       showReceiveButton: wallet.allowReceive(),
     };
   }
@@ -420,7 +422,9 @@ export default class WalletTransactions extends Component {
                 )}
               </View>
             }
-            refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions(true)} refreshing={this.state.showShowFlatListRefreshControl} />}
+            refreshControl={
+              <RefreshControl onRefresh={() => this.refreshTransactions(true)} refreshing={this.state.showShowFlatListRefreshControl} />
+            }
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
             initialNumToRender={10}
