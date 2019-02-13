@@ -61,7 +61,7 @@ export default class WalletTransactions extends Component {
       wallet: wallet,
       dataSource: wallet.getTransactions(),
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
-      walletHeaderLatestTransaction: '',
+      walletHeaderLatestTransaction: '...',
       showSendButton:
         (wallet.allowSend() && wallet.type === LightningCustodianWallet.type && wallet.balance > 0) ||
         (wallet.allowSend() && wallet.type !== LightningCustodianWallet.type),
@@ -71,9 +71,6 @@ export default class WalletTransactions extends Component {
 
   componentDidMount() {
     this.refreshFunction();
-    InteractionManager.runAfterInteractions(() => {
-      this.setState({ walletHeaderLatestTransaction: loc.transactionTimeToReadable(this.state.wallet.getLatestTransactionTime()) });
-    });
   }
 
   /**
@@ -121,6 +118,7 @@ export default class WalletTransactions extends Component {
       } catch (error) {
         console.log(error);
       }
+      const latestTXTime = loc.transactionTimeToReadable(wallet.getLatestTransactionTime());
       this.setState({
         isLoading: false,
         showShowFlatListRefreshControl: false,
@@ -129,6 +127,7 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton,
         showManageFundsSmallButton,
         dataSource: txs,
+        walletHeaderLatestTransaction: latestTXTime,
       });
     });
   }
