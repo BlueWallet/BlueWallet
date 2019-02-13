@@ -62,7 +62,7 @@ export default class WalletTransactions extends Component {
       dataSource: wallet.getTransactions(),
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
       walletHeaderLatestTransaction: '',
-      showSendButton: wallet.allowSend(),
+      showSendButton: (wallet.allowSend() && wallet.type === LightningCustodianWallet.type && wallet.balance > 0) || (wallet.allowSend() && wallet.type !== LightningCustodianWallet.type),
       showReceiveButton: wallet.allowReceive(),
     };
   }
