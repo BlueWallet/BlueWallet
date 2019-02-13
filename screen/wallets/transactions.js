@@ -62,6 +62,8 @@ export default class WalletTransactions extends Component {
       dataSource: wallet.getTransactions(),
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
       walletHeaderLatestTransaction: '',
+      showSendButton: wallet.allowSend(),
+      showReceiveButton: wallet.allowReceive(),
     };
   }
 
