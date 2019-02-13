@@ -57,7 +57,7 @@ export default class WalletTransactions extends Component {
     this.props.navigation.setParams({ wallet: wallet });
     this.state = {
       isLoading: true,
-      isTransactionsLoading: false,
+      showShowFlatListRefreshControl: false,
       wallet: wallet,
       dataSource: wallet.getTransactions(),
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
@@ -119,7 +119,7 @@ export default class WalletTransactions extends Component {
       }
       this.setState({
         isLoading: false,
-        isTransactionsLoading: false,
+        showShowFlatListRefreshControl: false,
         showReceiveButton: showReceive,
         showSendButton: showSend,
         showManageFundsBigButton,
@@ -141,10 +141,11 @@ export default class WalletTransactions extends Component {
   /**
    * Forcefully fetches TXs and balance for wallet
    */
-  refreshTransactions(showFlatListRefreshControl = true) {
+  refreshTransactions(showShowFlatListRefreshControl = true) {
+    if (this.state.isLoading) return;
     this.setState(
       {
-        isTransactionsLoading: showFlatListRefreshControl,
+        showShowFlatListRefreshControl: showShowFlatListRefreshControl,
         isLoading: true,
       },
       async () => {
@@ -177,7 +178,7 @@ export default class WalletTransactions extends Component {
           console.warn(err);
           this.setState({
             isLoading: false,
-            isTransactionsLoading: false,
+            showShowFlatListRefreshControl: false,
           });
         }
         if (noErr && smthChanged) {
@@ -417,7 +418,7 @@ export default class WalletTransactions extends Component {
                 )}
               </View>
             }
-            refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions(false)} refreshing={this.state.isLoading} />}
+            refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions(true)} refreshing={this.state.showShowFlatListRefreshControl} />}
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
             initialNumToRender={10}
