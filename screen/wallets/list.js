@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
 import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -33,6 +33,7 @@ export default class WalletsList extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
       lastSnappedTo: 0,
     };
@@ -45,20 +46,20 @@ export default class WalletsList extends Component {
 
   componentDidMount() {
     this.refreshFunction();
+    this.refreshTransactions();
   }
 
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
    * Triggered manually by user on pull-to-refresh.
    */
-  refreshTransactions() {
+  refreshTransactions(isFlatListRefreshControlHidden = true) {
     this.setState(
       {
-        isTransactionsLoading: true,
+        isFlatListRefreshControlHidden,
       },
-      async function() {
-        let that = this;
-        setTimeout(async function() {
+      () => {
+        InteractionManager.runAfterInteractions(async () => {
           // more responsive
           let noErr = true;
           try {
@@ -76,8 +77,8 @@ export default class WalletsList extends Component {
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
 
-          that.refreshFunction();
-        }, 1);
+          this.refreshFunction();
+        });
       },
     );
   }
@@ -92,7 +93,7 @@ export default class WalletsList extends Component {
 
     this.setState({
       isLoading: false,
-      isTransactionsLoading: false,
+      isFlatListRefreshControlHidden: true,
       dataSource: BlueApp.getTransactions(),
       wallets: BlueApp.getWallets().concat(false),
     });
@@ -227,7 +228,9 @@ export default class WalletsList extends Component {
           }}
         />
         <ScrollView
-          refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
+          refreshControl={
+            <RefreshControl onRefresh={() => this.refreshTransactions(false)} refreshing={!this.state.isFlatListRefreshControlHidden} />
+          }
         >
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel
