@@ -18,7 +18,7 @@ module.exports = {
       header: 'Sebuah dompet mewakili sepasang kunci rahasia dan sebuah alamat' + 'yang bisa dipilih untuk menerima koin.',
       add: 'Tambah dompet',
       create_a_wallet: 'Buat dompet',
-      create_a_wallet1: "Gratis dan bisa buat",
+      create_a_wallet1: 'Gratis dan bisa buat',
       create_a_wallet2: 'sebanyak yang kamu mau',
       latest_transaction: 'transaksi terbaru',
       empty_txs1: 'Transaksimu akan muncul di sini,',
@@ -71,8 +71,7 @@ module.exports = {
     },
     import: {
       title: 'impor',
-      explanation:
-        "Ketik kata mnemonic, private key, WIF, atau apapun yang kamu punya. BlueWallet akan mencoba mengimpor dompet kamu.",
+      explanation: 'Ketik kata mnemonic, private key, WIF, atau apapun yang kamu punya. BlueWallet akan mencoba mengimpor dompet kamu.',
       imported: 'Diimpor',
       error: 'Gagal mengimpor. Pastikan data yang diketik benar.',
       success: 'Berhasil',
