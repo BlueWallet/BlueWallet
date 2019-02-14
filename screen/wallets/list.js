@@ -52,12 +52,6 @@ export default class WalletsList extends Component {
    * Triggered manually by user on pull-to-refresh.
    */
   refreshTransactions() {
-    if (!(this.lastSnappedTo < BlueApp.getWallets().length)) {
-      // last card, nop
-      console.log('last card, nop');
-      return;
-    }
-
     this.setState(
       {
         isTransactionsLoading: true,
@@ -69,11 +63,11 @@ export default class WalletsList extends Component {
           let noErr = true;
           try {
             let balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances();
             let balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletTransactions();
             let end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
