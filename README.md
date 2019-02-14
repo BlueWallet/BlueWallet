@@ -69,3 +69,19 @@ Join us at our [telegram group](https://t.me/bluewallet) where we hangout :+1:
 
 Found critical bugs/vulnerabilities? Please email them bluewallet@bluewallet.io
 Thanks!
+
+
+
+
+
+debug模式运行
+sudo react-native run-android
+
+release模式运行
+sudo react-native run-android --variant=release
+
+在设备安装release版本
+cd android && sudo ./gradlew installRelease(注意：如果模拟器已经有debug版本需先手动删除才能成功安装)
+
+编译打包apk
+cd android && sudo ./gradlew assembleRelease(注意：第一次打包如果报错删除node_modules目录重新npm i)
