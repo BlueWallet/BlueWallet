@@ -77,7 +77,6 @@
     "react-native-modal": "^7.0.2",
     "react-native-permissions": "^1.1.1",
     "react-native-prompt-android": "^0.3.4",
-    "react-native-qrcode": "^0.2.7",
     "react-native-qrcode-svg": "^5.1.2",
     "react-native-randombytes": "^3.5.2",
     "react-native-rate": "^1.1.6",

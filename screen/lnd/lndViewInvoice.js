@@ -42,7 +42,7 @@ export default class LNDViewInvoice extends Component {
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
     this.fetchInvoiceInterval = undefined;
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
   }
 
   async componentDidMount() {
@@ -92,11 +92,11 @@ export default class LNDViewInvoice extends Component {
   componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
   }
 
   handleBackButton() {
-    this.props.navigation.dismiss();
+    this.props.navigation.popToTop();
     return true;
   }
 
@@ -241,6 +241,6 @@ LNDViewInvoice.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
-    dismiss: PropTypes.func,
+    popToTop: PropTypes.func,
   }),
 };

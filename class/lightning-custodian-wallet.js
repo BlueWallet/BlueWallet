@@ -110,6 +110,17 @@ export class LightningCustodianWallet extends LegacyWallet {
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
+
+    if (response.originalResponse && typeof response.originalResponse === 'string') {
+      try {
+        response.originalResponse = JSON.parse(response.originalResponse);
+      } catch (_) {}
+    }
+
+    if (response.originalResponse && response.originalResponse.status && response.originalResponse.status === 503) {
+      throw new Error('Payment is in transit');
+    }
+
     let json = response.body;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
