@@ -12,11 +12,11 @@ import {
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const EV = require('../../events');
-const QRFast = require('react-native-qrcode');
 const { width, height } = Dimensions.get('window');
 
 export default class LNDViewInvoice extends Component {
@@ -187,11 +187,13 @@ export default class LNDViewInvoice extends Component {
             onLayout={this.onLayout}
           >
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
-              <QRFast
+              <QRCode
                 value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
-                fgColor={BlueApp.settings.brandingColor}
-                bgColor={BlueApp.settings.foregroundColor}
+                logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
+                logoSize={90}
+                color={BlueApp.settings.foregroundColor}
+                logoBackgroundColor={BlueApp.settings.brandingColor}
               />
             </View>
 
