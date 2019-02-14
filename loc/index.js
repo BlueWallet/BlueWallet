@@ -88,7 +88,7 @@ dayjs.extend(relativeTime);
         locale === 'da-dk' ||
         locale === 'nl-nl' ||
         locale === 'hr-hr' ||
-        locale === 'id-id'
+        locale === 'id-id' ||
         locale === 'zh-cn'
       ) {
         switch (locale) {
