@@ -18,10 +18,7 @@ export default class Language extends Component {
       language: loc.getLanguage(),
       availableLanguages: [
         { label: 'English', value: 'en' },
-        { label: 'Česky (CZ)', value: 'cs_cz' },
         { label: 'Chinese', value: 'zh_cn' },
-
-        { label: 'Česky (CZ)', value: 'cs_cz'},
         { label: 'Croatian (HR)', value: 'hr_hr' },
         { label: 'Danish (DK)', value: 'da_dk' },
         { label: 'Deutsch (DE)', value: 'de_de' },
