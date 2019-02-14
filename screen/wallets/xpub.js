@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { Dimensions, Platform, ActivityIndicator, View } from 'react-native';
+import { Dimensions, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-const QRFast = require('react-native-qrcode');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -73,28 +72,17 @@ export default class WalletXpub extends Component {
 
           {(() => {
             if (this.state.showQr) {
-              if (Platform.OS === 'ios' || this.state.xpub.length < 54) {
-                return (
-                  <QRCode
-                    value={this.state.xpub}
-                    logo={require('../../img/qr-code.png')}
-                    size={this.state.qrCodeHeight}
-                    logoSize={90}
-                    color={BlueApp.settings.foregroundColor}
-                    logoBackgroundColor={BlueApp.settings.brandingColor}
-                    ecl={'H'}
-                  />
-                );
-              } else {
-                return (
-                  <QRFast
-                    value={this.state.xpub}
-                    fgColor={BlueApp.settings.brandingColor}
-                    bgColor={BlueApp.settings.foregroundColor}
-                    size={this.state.qrCodeHeight}
-                  />
-                );
-              }
+              return (
+                <QRCode
+                  value={this.state.xpub}
+                  logo={require('../../img/qr-code.png')}
+                  size={this.state.qrCodeHeight}
+                  logoSize={90}
+                  color={BlueApp.settings.foregroundColor}
+                  logoBackgroundColor={BlueApp.settings.brandingColor}
+                  ecl={'H'}
+                />
+              );
             } else {
               return (
                 <View>
