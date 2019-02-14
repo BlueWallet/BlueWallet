@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   View,
   TextInput,
+  StatusBar,
   TouchableOpacity,
   KeyboardAvoidingView,
   Keyboard,
@@ -133,6 +134,7 @@ export default class SendDetails extends Component {
   };
 
   async componentDidMount() {
+    StatusBar.setBarStyle('dark-content');
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     try {

@@ -302,6 +302,7 @@ export default class WalletTransactions extends Component {
             this.refreshFunction();
           }}
           onWillBlur={() => this.onWillBlur()}
+          onDidFocus={() => StatusBar.setBarStyle('light-content')}
         />
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
