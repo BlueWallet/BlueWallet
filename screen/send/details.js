@@ -83,6 +83,11 @@ export default class SendDetails extends Component {
     };
   }
 
+  /**
+   * TODO: refactor this mess, get rid of regexp, use https://github.com/bitcoinjs/bitcoinjs-lib/issues/890 etc etc
+   *
+   * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
+   */
   processAddressData = data => {
     this.setState(
       { isLoading: true },
@@ -91,7 +96,7 @@ export default class SendDetails extends Component {
           this.processBIP70Invoice(data);
         } else {
           const dataWithoutSchema = data.replace('bitcoin:', '');
-          if (btcAddressRx.test(dataWithoutSchema) || dataWithoutSchema.indexOf('bc1') === 0) {
+          if (btcAddressRx.test(dataWithoutSchema) || (dataWithoutSchema.indexOf('bc1') === 0 && dataWithoutSchema.indexOf('?') === -1)) {
             this.setState({
               address: dataWithoutSchema,
               bip70TransactionExpiration: null,
@@ -111,7 +116,7 @@ export default class SendDetails extends Component {
               this.setState({ isLoading: false });
             }
             console.log(options);
-            if (btcAddressRx.test(address)) {
+            if (btcAddressRx.test(address) || address.indexOf('bc1') === 0) {
               this.setState({
                 address,
                 amount: options.amount,
