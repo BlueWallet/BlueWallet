@@ -6,7 +6,7 @@ import { NavigationEvents } from 'react-navigation';
 import { BlueText, ManageFundsBigButton, BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet, ACINQStrikeLightningWallet } from '../../class';
 import WalletGradient from '../../class/walletGradient';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -196,7 +196,8 @@ export default class WalletTransactions extends Component {
       <LinearGradient colors={WalletGradient.gradientsFor(this.state.wallet.type)} style={{ padding: 15, minHeight: 164 }}>
         <Image
           source={
-            (LightningCustodianWallet.type === this.state.wallet.type && require('../../img/lnd-shape.png')) ||
+            ((LightningCustodianWallet.type === this.state.wallet.type || ACINQStrikeLightningWallet.type === this.state.wallet.type) &&
+              require('../../img/lnd-shape.png')) ||
             require('../../img/btc-shape.png')
           }
           style={{
@@ -302,7 +303,6 @@ export default class WalletTransactions extends Component {
             this.refreshFunction();
           }}
           onWillBlur={() => this.onWillBlur()}
-          onDidFocus={() => StatusBar.setBarStyle('light-content')}
         />
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -422,7 +422,10 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
-                    if (this.state.wallet.type === new LightningCustodianWallet().type) {
+                    if (
+                      this.state.wallet.type === LightningCustodianWallet.type ||
+                      this.state.wallet.type === ACINQStrikeLightningWallet.type
+                    ) {
                       navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
                     } else {
                       navigate('ReceiveDetails', { address: this.state.wallet.getAddress(), secret: this.state.wallet.getSecret() });

@@ -12,12 +12,14 @@ import {
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import { ACINQStrikeLightningWallet, LightningCustodianWallet } from '../../class/';
 import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const EV = require('../../events');
 const { width, height } = Dimensions.get('window');
+const dayjs = require('dayjs');
 
 export default class LNDViewInvoice extends Component {
   static navigationOptions = ({ navigation }) =>
@@ -42,26 +44,32 @@ export default class LNDViewInvoice extends Component {
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
     this.fetchInvoiceInterval = undefined;
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   async componentDidMount() {
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {
-          const userInvoices = await this.state.fromWallet.getUserInvoices(20);
-          // fetching only last 20 invoices
-          // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
-          // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
-          const updatedUserInvoice = userInvoices.filter(invoice =>
-            typeof this.state.invoice === 'object'
-              ? invoice.payment_request === this.state.invoice.payment_request
-              : invoice.payment_request === this.state.invoice,
-          )[0];
+          let updatedUserInvoice;
+          if (this.state.fromWallet.type === ACINQStrikeLightningWallet.type) {
+            updatedUserInvoice = await this.state.fromWallet.getCharge(this.state.invoice.id);
+            console.warn(updatedUserInvoice);
+          } else {
+            const userInvoices = await this.state.fromWallet.getUserInvoices(20);
+            // fetching only last 20 invoices
+            // for invoice that was created just now - that should be enough (it is basically the last one, so limit=1 would be sufficient)
+            // but that might not work as intended IF user creates 21 invoices, and then tries to check the status of invoice #0, it just wont be updated
+            updatedUserInvoice = userInvoices.filter(invoice =>
+              typeof this.state.invoice === 'object'
+                ? invoice.payment_request === this.state.invoice.payment_request
+                : invoice.payment_request === this.state.invoice,
+            )[0];
+          }
 
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
-            if (updatedUserInvoice.ispaid) {
+            if (updatedUserInvoice.ispaid || updatedUserInvoice.paid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
               ReactNativeHapticFeedback.trigger('notificationSuccess', false);
@@ -92,11 +100,11 @@ export default class LNDViewInvoice extends Component {
   componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   handleBackButton() {
-    this.props.navigation.popToTop();
+    this.props.navigation.dismiss();
     return true;
   }
 
@@ -116,7 +124,7 @@ export default class LNDViewInvoice extends Component {
       const now = (currentDate.getTime() / 1000) | 0;
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
 
-      if (invoice.ispaid || invoice.type === 'paid_invoice') {
+      if (invoice.ispaid || invoice.type === 'paid_invoice' || (invoice.paid && invoice.object === 'charge')) {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -139,7 +147,12 @@ export default class LNDViewInvoice extends Component {
           </SafeBlueArea>
         );
       }
-      if (invoiceExpiration < now && !invoice.ispaid) {
+      const expectedExpiration = dayjs(invoice.updated + 86400000);
+      let chargeInvoiceExpired = false;
+      if (expectedExpiration.isBefore(dayjs())) {
+        chargeInvoiceExpired = true;
+      }
+      if ((invoiceExpiration < now && !invoice.ispaid) || chargeInvoiceExpired) {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -218,16 +231,18 @@ export default class LNDViewInvoice extends Component {
               title={loc.receive.details.share}
             />
             <BlueSpacing20 />
-            <BlueButton
-              backgroundColor="#FFFFFF"
-              icon={{
-                name: 'info',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
-              title="Additional Information"
-            />
+            {this.state.fromWallet.type === LightningCustodianWallet.type && (
+              <BlueButton
+                icon={{
+                  name: 'info',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
+                title="Additional Information"
+                style={{ backgroundColor: '#FFFFFF' }}
+              />
+            )}
           </View>
           <BlueSpacing20 />
         </ScrollView>
@@ -241,6 +256,6 @@ LNDViewInvoice.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
-    popToTop: PropTypes.func,
+    dismiss: PropTypes.func,
   }),
 };

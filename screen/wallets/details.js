@@ -8,6 +8,7 @@ import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wal
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { ACINQStrikeLightningWallet } from '../../class';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -151,7 +152,7 @@ export default class WalletDetails extends Component {
                   </React.Fragment>
                 )}
 
-                {this.state.wallet.type !== LightningCustodianWallet.type && (
+                {this.state.wallet.type !== LightningCustodianWallet.type && this.state.wallet.type !== ACINQStrikeLightningWallet.type && (
                   <BlueButton
                     icon={{
                       name: 'shopping-cart',
