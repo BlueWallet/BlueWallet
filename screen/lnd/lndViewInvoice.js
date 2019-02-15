@@ -54,7 +54,6 @@ export default class LNDViewInvoice extends Component {
           let updatedUserInvoice;
           if (this.state.fromWallet.type === ACINQStrikeLightningWallet.type) {
             updatedUserInvoice = await this.state.fromWallet.getCharge(this.state.invoice.id);
-            console.warn(updatedUserInvoice);
           } else {
             const userInvoices = await this.state.fromWallet.getUserInvoices(20);
             // fetching only last 20 invoices
@@ -66,15 +65,18 @@ export default class LNDViewInvoice extends Component {
                 : invoice.payment_request === this.state.invoice,
             )[0];
           }
-
+          let shouldNotifyHapticFeedback = true;
+          if (this.state.invoice.ispaid || this.state.invoice.paid) {
+            shouldNotifyHapticFeedback = false;
+          }
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
             if (updatedUserInvoice.ispaid || updatedUserInvoice.paid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
-              ReactNativeHapticFeedback.trigger('notificationSuccess', false);
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
+              if (shouldNotifyHapticFeedback) ReactNativeHapticFeedback.trigger('notificationSuccess', false);
               EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // remote because we want to refetch from server tx list and balance
             } else {
               const currentDate = new Date();
@@ -83,9 +85,9 @@ export default class LNDViewInvoice extends Component {
               if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 // invoice expired :-(
                 this.setState({ isFetchingInvoices: false });
-                ReactNativeHapticFeedback.trigger('notificationError', false);
                 clearInterval(this.fetchInvoiceInterval);
                 this.fetchInvoiceInterval = undefined;
+                if (shouldNotifyHapticFeedback) ReactNativeHapticFeedback.trigger('notificationSuccess', false);
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
               }
             }
