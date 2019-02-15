@@ -23,13 +23,14 @@ import {
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet } from './class';
+import { LightningCustodianWallet, ACINQStrikeLightningWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import DeviceInfo from 'react-native-device-info';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
 import ImagePicker from 'react-native-image-picker';
 import WalletGradient from './class/walletGradient';
+const dayjs = require('dayjs');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let loc = require('./loc/');
 /** @type {AppStorage} */
@@ -1041,6 +1042,15 @@ export class BlueTransactionListItem extends Component {
           return loc.lnd.expired;
         }
       }
+    } else if (item.object === 'charge') {
+      if (isNaN(item.amount_satoshi)) {
+        item.amount_satoshi = '0';
+      }
+      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        return loc.lnd.expired;
+      }
+      return loc.formatBalanceWithoutSuffix(item.amount_satoshi, this.props.itemPriceUnit, true).toString();
     } else {
       return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
     }
@@ -1063,6 +1073,13 @@ export class BlueTransactionListItem extends Component {
         } else {
           color = '#FF0000';
         }
+      }
+    } else if (item.object === 'charge') {
+      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        color = '#FF0000';
+      } else {
+        color = '#37c0a1';
       }
     } else if (item.value / 100000000 < 0) {
       color = BlueApp.settings.foregroundColor;
@@ -1122,6 +1139,30 @@ export class BlueTransactionListItem extends Component {
       }
     }
 
+    if (this.props.item.object === 'charge') {
+      if (this.props.item.paid) {
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionOffchainIncomingIcon />
+          </View>
+        );
+      } else {
+        const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+        if (expectedExpiration.isBefore(dayjs())) {
+          return (
+            <View style={{ width: 25 }}>
+              <BlueTransactionExpiredIcon />
+            </View>
+          );
+        }
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionPendingIcon />
+          </View>
+        );
+      }
+    }
+
     if (!this.props.item.confirmations) {
       return (
         <View style={{ width: 25 }}>
@@ -1144,11 +1185,15 @@ export class BlueTransactionListItem extends Component {
   };
 
   subtitle = () => {
-    return (
-      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
-      this.txMemo() +
-      (this.props.item.memo || '')
-    );
+    if (this.props.item.object === 'charge') {
+      return this.props.item.description;
+    } else {
+      return (
+        (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
+        this.txMemo() +
+        (this.props.item.memo || '')
+      );
+    }
   };
 
   onPress = () => {
@@ -1157,7 +1202,8 @@ export class BlueTransactionListItem extends Component {
     } else if (
       this.props.item.type === 'user_invoice' ||
       this.props.item.type === 'payment_request' ||
-      this.props.item.type === 'paid_invoice'
+      this.props.item.type === 'paid_invoice' ||
+      this.props.item.object === 'charge'
     ) {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
@@ -1180,7 +1226,7 @@ export class BlueTransactionListItem extends Component {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={loc.transactionTimeToReadable(this.props.item.received || this.props.item.updated)}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
@@ -1297,6 +1343,7 @@ export class BlueListTransactionItem extends Component {
         const currentDate = new Date();
         const now = (currentDate.getTime() / 1000) | 0;
         const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
+        console.warn(invoiceExpiration);
         if (invoiceExpiration < now) {
           return (
             <View style={{ width: 25 }}>
@@ -1454,7 +1501,11 @@ export class WalletsCarousel extends Component {
             }}
           >
             <Image
-              source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
+              source={
+                ((LightningCustodianWallet.type === item.type || ACINQStrikeLightningWallet.type === item.type) &&
+                  require('./img/lnd-shape.png')) ||
+                require('./img/btc-shape.png')
+              }
               style={{
                 width: 99,
                 height: 94,
