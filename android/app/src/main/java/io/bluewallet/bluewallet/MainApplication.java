@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.facebook.react.ReactApplication;
 import com.peel.react.TcpSocketsModule;
-import com.remobile.qrcodeLocalImage.RCTQRCodeLocalImagePackage;
+//import com.remobile.qrcodeLocalImage.RCTQRCodeLocalImagePackage;
 import com.imagepicker.ImagePickerPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 import io.sentry.RNSentryPackage;
@@ -57,7 +57,7 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
             new TcpSocketsModule(),
-            new RCTQRCodeLocalImagePackage(),
+            //new RCTQRCodeLocalImagePackage(),
             new ImagePickerPackage(),
             new RNCWebViewPackage(),
             new RNSentryPackage(),
