@@ -60,7 +60,7 @@ export default class WalletTransactions extends Component {
   }
 
   componentDidMount() {
-    this.refreshFunction();
+    // nop
   }
 
   /**
@@ -69,7 +69,7 @@ export default class WalletTransactions extends Component {
   refreshTransactionsFunction() {
     let that = this;
     setTimeout(function() {
-      that.refreshTransactions(false);
+      that.refreshTransactions(true);
     }, 4000); // giving a chance to remote server to propagate
   }
 
@@ -96,18 +96,15 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
-      await wallet.fetchTransactions();
       let txs = wallet.getTransactions();
-      try {
-        for (let tx of txs) {
-          tx.sort_ts = +new Date(tx.received);
-        }
-        txs = txs.sort(function(a, b) {
-          return b.sort_ts - a.sort_ts;
-        });
-      } catch (error) {
-        console.log(error);
+      for (let tx of txs) {
+        tx.sort_ts = +new Date(tx.received);
       }
+      txs = txs.sort(function(a, b) {
+        return b.sort_ts - a.sort_ts;
+      });
+      console.log('txs.length', txs.length);
+
       const latestTXTime = loc.transactionTimeToReadable(wallet.getLatestTransactionTime());
       this.setState({
         isLoading: false,
@@ -118,6 +115,7 @@ export default class WalletTransactions extends Component {
         showManageFundsSmallButton,
         dataSource: txs,
         walletHeaderLatestTransaction: latestTXTime,
+        rand: Math.random(), // wtf, won't redraw without this?
       });
     });
   }
@@ -142,7 +140,6 @@ export default class WalletTransactions extends Component {
         isLoading: true,
       },
       async () => {
-        // more responsive
         let noErr = true;
         let smthChanged = false;
         try {

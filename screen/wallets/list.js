@@ -46,7 +46,6 @@ export default class WalletsList extends Component {
 
   componentDidMount() {
     this.refreshFunction();
-    this.refreshTransactions();
   }
 
   /**
@@ -54,6 +53,11 @@ export default class WalletsList extends Component {
    * Triggered manually by user on pull-to-refresh.
    */
   refreshTransactions(isFlatListRefreshControlHidden = true) {
+    if (!(this.lastSnappedTo < BlueApp.getWallets().length)) {
+      // last card, nop
+      console.log('last card, nop');
+      return;
+    }
     this.setState(
       {
         isFlatListRefreshControlHidden,
@@ -64,11 +68,11 @@ export default class WalletsList extends Component {
           let noErr = true;
           try {
             let balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances();
+            await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
             let balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions();
+            await BlueApp.fetchWalletTransactions(this.lastSnappedTo || 0);
             let end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -87,6 +91,7 @@ export default class WalletsList extends Component {
    * Redraws the screen
    */
   refreshFunction() {
+    console.log('refreshFunction() = redraw the screen');
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     }
