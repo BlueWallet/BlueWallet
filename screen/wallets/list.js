@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
-import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueListTransactionItem } from '../../BlueComponents';
+import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
+import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -33,6 +33,7 @@ export default class WalletsList extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
       lastSnappedTo: 0,
     };
@@ -45,35 +46,29 @@ export default class WalletsList extends Component {
 
   componentDidMount() {
     this.refreshFunction();
+    this.refreshTransactions();
   }
 
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
    * Triggered manually by user on pull-to-refresh.
    */
-  refreshTransactions() {
-    if (!(this.lastSnappedTo < BlueApp.getWallets().length)) {
-      // last card, nop
-      console.log('last card, nop');
-      return;
-    }
-
+  refreshTransactions(isFlatListRefreshControlHidden = true) {
     this.setState(
       {
-        isTransactionsLoading: true,
+        isFlatListRefreshControlHidden,
       },
-      async function() {
-        let that = this;
-        setTimeout(async function() {
+      () => {
+        InteractionManager.runAfterInteractions(async () => {
           // more responsive
           let noErr = true;
           try {
             let balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances();
             let balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletTransactions();
             let end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -82,8 +77,8 @@ export default class WalletsList extends Component {
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
 
-          that.refreshFunction();
-        }, 1);
+          this.refreshFunction();
+        });
       },
     );
   }
@@ -98,7 +93,7 @@ export default class WalletsList extends Component {
 
     this.setState({
       isLoading: false,
-      isTransactionsLoading: false,
+      isFlatListRefreshControlHidden: true,
       dataSource: BlueApp.getTransactions(),
       wallets: BlueApp.getWallets().concat(false),
     });
@@ -218,8 +213,9 @@ export default class WalletsList extends Component {
     }
   };
 
-  _renderItem = data => <BlueListTransactionItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
-
+  _renderItem = data => {
+    return <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
+  };
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
@@ -232,7 +228,9 @@ export default class WalletsList extends Component {
           }}
         />
         <ScrollView
-          refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
+          refreshControl={
+            <RefreshControl onRefresh={() => this.refreshTransactions(false)} refreshing={!this.state.isFlatListRefreshControlHidden} />
+          }
         >
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import { Text, View, InteractionManager, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -47,10 +47,15 @@ export default class WalletTransactions extends Component {
     this.props.navigation.setParams({ wallet: wallet });
     this.state = {
       isLoading: true,
-      isTransactionsLoading: false,
+      showShowFlatListRefreshControl: false,
       wallet: wallet,
       dataSource: wallet.getTransactions(),
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
+      walletHeaderLatestTransaction: '...',
+      showSendButton:
+        (wallet.allowSend() && wallet.type === LightningCustodianWallet.type && wallet.balance > 0) ||
+        (wallet.allowSend() && wallet.type !== LightningCustodianWallet.type),
+      showReceiveButton: wallet.allowReceive(),
     };
   }
 
@@ -64,7 +69,7 @@ export default class WalletTransactions extends Component {
   refreshTransactionsFunction() {
     let that = this;
     setTimeout(function() {
-      that.refreshTransactions();
+      that.refreshTransactions(false);
     }, 4000); // giving a chance to remote server to propagate
   }
 
@@ -72,7 +77,7 @@ export default class WalletTransactions extends Component {
    * Redraws the screen
    */
   refreshFunction() {
-    setTimeout(() => {
+    InteractionManager.runAfterInteractions(async () => {
       console.log('wallets/transactions refreshFunction()');
       let showSend = false;
       let showReceive = false;
@@ -91,24 +96,30 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
+      await wallet.fetchTransactions();
       let txs = wallet.getTransactions();
-      for (let tx of txs) {
-        tx.sort_ts = +new Date(tx.received);
+      try {
+        for (let tx of txs) {
+          tx.sort_ts = +new Date(tx.received);
+        }
+        txs = txs.sort(function(a, b) {
+          return b.sort_ts - a.sort_ts;
+        });
+      } catch (error) {
+        console.log(error);
       }
-      txs = txs.sort(function(a, b) {
-        return b.sort_ts - a.sort_ts;
-      });
-
+      const latestTXTime = loc.transactionTimeToReadable(wallet.getLatestTransactionTime());
       this.setState({
         isLoading: false,
-        isTransactionsLoading: false,
+        showShowFlatListRefreshControl: false,
         showReceiveButton: showReceive,
         showSendButton: showSend,
         showManageFundsBigButton,
         showManageFundsSmallButton,
         dataSource: txs,
+        walletHeaderLatestTransaction: latestTXTime,
       });
-    }, 1);
+    });
   }
 
   isLightning() {
@@ -123,50 +134,53 @@ export default class WalletTransactions extends Component {
   /**
    * Forcefully fetches TXs and balance for wallet
    */
-  refreshTransactions() {
+  refreshTransactions(showShowFlatListRefreshControl = true) {
+    if (this.state.isLoading) return;
     this.setState(
       {
-        isTransactionsLoading: true,
+        showShowFlatListRefreshControl: showShowFlatListRefreshControl,
+        isLoading: true,
       },
-      async function() {
-        let that = this;
-        setTimeout(async function() {
-          // more responsive
-          let noErr = true;
-          let smthChanged = false;
-          try {
-            /** @type {LegacyWallet} */
-            let wallet = that.state.wallet;
-            let balanceStart = +new Date();
-            const oldBalance = wallet.getBalance();
-            await wallet.fetchBalance();
-            if (oldBalance !== wallet.getBalance()) smthChanged = true;
-            let balanceEnd = +new Date();
-            console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-            let start = +new Date();
-            const oldTxLen = wallet.getTransactions().length;
-            await wallet.fetchTransactions();
-            if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
-            if (wallet.fetchPendingTransactions) {
-              await wallet.fetchPendingTransactions();
-            }
-            if (wallet.fetchUserInvoices) {
-              await wallet.fetchUserInvoices();
-            }
-            let end = +new Date();
-            console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
-          } catch (err) {
-            noErr = false;
-            console.warn(err);
+      async () => {
+        // more responsive
+        let noErr = true;
+        let smthChanged = false;
+        try {
+          /** @type {LegacyWallet} */
+          let wallet = this.state.wallet;
+          let balanceStart = +new Date();
+          const oldBalance = wallet.getBalance();
+          await wallet.fetchBalance();
+          if (oldBalance !== wallet.getBalance()) smthChanged = true;
+          let balanceEnd = +new Date();
+          console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+          let start = +new Date();
+          const oldTxLen = wallet.getTransactions().length;
+          await wallet.fetchTransactions();
+          if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
+          if (wallet.fetchPendingTransactions) {
+            await wallet.fetchPendingTransactions();
           }
-          if (noErr && smthChanged) {
-            console.log('saving to disk');
-            await BlueApp.saveToDisk(); // caching
-            EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+          if (wallet.fetchUserInvoices) {
+            await wallet.fetchUserInvoices();
           }
+          let end = +new Date();
+          console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
+        } catch (err) {
+          noErr = false;
+          console.warn(err);
+          this.setState({
+            isLoading: false,
+            showShowFlatListRefreshControl: false,
+          });
+        }
+        if (noErr && smthChanged) {
+          console.log('saving to disk');
+          await BlueApp.saveToDisk(); // caching
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
+        }
 
-          that.refreshFunction(); // Redraws the screen
-        }, 1);
+        this.refreshFunction(); // Redraws the screen
       },
     );
   }
@@ -253,7 +267,7 @@ export default class WalletTransactions extends Component {
             color: '#fff',
           }}
         >
-          {loc.transactionTimeToReadable(this.state.wallet.getLatestTransactionTime())}
+          {this.state.walletHeaderLatestTransaction}
         </Text>
       </LinearGradient>
     );
@@ -302,7 +316,6 @@ export default class WalletTransactions extends Component {
             this.refreshFunction();
           }}
           onWillBlur={() => this.onWillBlur()}
-          onDidFocus={() => StatusBar.setBarStyle('light-content')}
         />
         {this.renderWalletHeader()}
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -397,7 +410,9 @@ export default class WalletTransactions extends Component {
                 )}
               </View>
             }
-            refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
+            refreshControl={
+              <RefreshControl onRefresh={() => this.refreshTransactions(true)} refreshing={this.state.showShowFlatListRefreshControl} />
+            }
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
             initialNumToRender={10}

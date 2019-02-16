@@ -15,6 +15,7 @@ import {
   StyleSheet,
   Dimensions,
   Image,
+  InteractionManager,
   Keyboard,
   SafeAreaView,
   InputAccessoryView,
@@ -1015,6 +1016,18 @@ export class BlueTransactionListItem extends Component {
     itemPriceUnit: BitcoinUnit.BTC,
   };
 
+  constructor(props) {
+    super(props);
+    this.state = { date: '...' };
+  }
+
+  componentDidMount() {
+    InteractionManager.runAfterInteractions(() => {
+      const date = loc.transactionTimeToReadable(this.props.item.received);
+      this.setState({ date });
+    });
+  }
+
   txMemo = () => {
     if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
       return BlueApp.tx_metadata[this.props.item.hash]['memo'];
@@ -1180,7 +1193,7 @@ export class BlueTransactionListItem extends Component {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={this.state.date}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
