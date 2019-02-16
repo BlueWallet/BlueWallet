@@ -73,12 +73,9 @@ export default class WalletTransactions extends Component {
     }, 4000); // giving a chance to remote server to propagate
   }
 
-  /**
-   * Redraws the screen
-   */
-  refreshFunction() {
+  redrawScreen() {
     InteractionManager.runAfterInteractions(async () => {
-      console.log('wallets/transactions refreshFunction()');
+      console.log('wallets/transactions redrawScreen()');
       let showSend = false;
       let showReceive = false;
       const wallet = this.state.wallet;
@@ -176,8 +173,7 @@ export default class WalletTransactions extends Component {
           await BlueApp.saveToDisk(); // caching
           EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
         }
-
-        this.refreshFunction(); // Redraws the screen
+        this.redrawScreen();
       },
     );
   }
@@ -310,7 +306,7 @@ export default class WalletTransactions extends Component {
         <NavigationEvents
           onWillFocus={() => {
             StatusBar.setBarStyle('light-content');
-            this.refreshFunction();
+            this.redrawScreen();
           }}
           onWillBlur={() => this.onWillBlur()}
         />
