@@ -45,7 +45,7 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    let backgroundColor = '#ccddf9';
+    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : '#ccddf9';
     let fontColor = '#0c2550';
     if (this.props.hasOwnProperty('disabled') && this.props.disabled === true) {
       backgroundColor = '#eef0f4';
