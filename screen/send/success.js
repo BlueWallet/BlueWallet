@@ -121,7 +121,7 @@ Success.propTypes = {
     dismiss: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        amount: PropTypes.string,
+        amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         fee: PropTypes.number,
       }),
     }),
