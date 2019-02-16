@@ -305,9 +305,10 @@ export default class WalletTransactions extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flexDirection: 'row', height: 50 }}>
+      <View style={{ flex: 1, flexDirection: 'row', height: 50 }}>
         <Text
           style={{
+            flex: 1,
             paddingLeft: 15,
             paddingTop: 15,
             fontWeight: 'bold',
