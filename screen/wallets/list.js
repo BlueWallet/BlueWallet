@@ -53,11 +53,6 @@ export default class WalletsList extends Component {
    * Triggered manually by user on pull-to-refresh.
    */
   refreshTransactions() {
-    if (!(this.lastSnappedTo < BlueApp.getWallets().length) && this.lastSnappedTo !== undefined) {
-      // last card, nop
-      console.log('last card, nop');
-      return;
-    }
     this.setState(
       {
         isFlatListRefreshControlHidden: true,
@@ -68,11 +63,11 @@ export default class WalletsList extends Component {
           let noErr = true;
           try {
             let balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances();
             let balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(this.lastSnappedTo || 0);
+            await BlueApp.fetchWalletTransactions();
             let end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -80,7 +75,6 @@ export default class WalletsList extends Component {
             console.warn(err);
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
-
           this.redrawScreen();
         });
       },
@@ -119,71 +113,6 @@ export default class WalletsList extends Component {
     } else {
       // if its out of index - this must be last card with incentive to create wallet
       this.props.navigation.navigate('AddWallet');
-    }
-  }
-
-  onSnapToItem(index) {
-    console.log('onSnapToItem', index);
-    this.lastSnappedTo = index;
-    this.setState({ lastSnappedTo: index });
-
-    if (index < BlueApp.getWallets().length) {
-      // not the last
-    }
-
-    // now, lets try to fetch balance and txs for this wallet in case it has changed
-    this.lazyRefreshWallet(index);
-  }
-
-  /**
-   * Decides whether wallet with such index shoud be refreshed,
-   * refreshes if yes and redraws the screen
-   * @param index {Integer} Index of the wallet.
-   * @return {Promise.<void>}
-   */
-  async lazyRefreshWallet(index) {
-    /** @type {Array.<AbstractWallet>} wallets */
-    let wallets = BlueApp.getWallets();
-    if (!wallets[index]) {
-      return;
-    }
-
-    let oldBalance = wallets[index].getBalance();
-    let noErr = true;
-    let didRefresh = false;
-
-    try {
-      if (wallets && wallets[index] && wallets[index].timeToRefreshBalance()) {
-        console.log('snapped to, and now its time to refresh wallet #', index);
-        await wallets[index].fetchBalance();
-        if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
-          console.log('balance changed, thus txs too');
-          // balance changed, thus txs too
-          await wallets[index].fetchTransactions();
-          this.redrawScreen();
-          didRefresh = true;
-        } else if (wallets[index].timeToRefreshTransaction()) {
-          console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
-          await wallets[index].fetchTransactions();
-          if (wallets[index].fetchPendingTransactions) {
-            await wallets[index].fetchPendingTransactions();
-          }
-          if (wallets[index].fetchUserInvoices) {
-            await wallets[index].fetchUserInvoices();
-          }
-          this.redrawScreen();
-          didRefresh = true;
-        } else {
-          console.log('balance not changed');
-        }
-      }
-    } catch (Err) {
-      noErr = false;
-      console.warn(Err);
-    }
-
-    if (noErr && didRefresh) {
-      await BlueApp.saveToDisk(); // caching
     }
   }
 
@@ -241,9 +170,6 @@ export default class WalletsList extends Component {
               this.handleClick(index);
             }}
             handleLongPress={this.handleLongPress}
-            onSnapToItem={index => {
-              this.onSnapToItem(index);
-            }}
           />
           <BlueList>
             <FlatList

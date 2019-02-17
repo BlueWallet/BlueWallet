@@ -1396,7 +1396,6 @@ export class WalletsCarousel extends Component {
     WalletsCarousel.handleClick = props.handleClick; // because cant access `this` from _renderItem
     WalletsCarousel.handleLongPress = props.handleLongPress;
     // eslint-disable-next-line
-    this.onSnapToItem = props.onSnapToItem;
   }
 
   _renderItem({ item, index }) {
@@ -1529,12 +1528,6 @@ export class WalletsCarousel extends Component {
         inactiveSlideScale={1}
         inactiveSlideOpacity={0.7}
         contentContainerCustomStyle={{ left: -20 }}
-        onSnapToItem={index => {
-          if (this.onSnapToItem) {
-            this.onSnapToItem(index);
-          }
-          console.log('snapped to card #', index);
-        }}
       />
     );
   }
