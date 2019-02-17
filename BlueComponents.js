@@ -573,6 +573,29 @@ export class BlueUseAllFundsButton extends Component {
   }
 }
 
+export class BlueDismissKeyboardInputAccessory extends Component {
+  static InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
+
+  render() {
+    return (
+      <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
+        <View
+          style={{
+            backgroundColor: '#eef0f4',
+            height: 44,
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+        >
+          <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
+        </View>
+      </InputAccessoryView>
+    );
+  }
+}
+
 export class BlueLoading extends Component {
   render() {
     return (
@@ -1583,6 +1606,7 @@ export class BlueAddressInput extends Component {
           style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
           editable={!this.props.isLoading}
           onSubmitEditing={Keyboard.dismiss}
+          {...this.props}
         />
         <TouchableOpacity
           disabled={this.props.isLoading}
