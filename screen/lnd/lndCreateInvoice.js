@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Text } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -79,6 +79,7 @@ export default class LNDCreateInvoice extends Component {
                 }}
                 disabled={this.state.isLoading}
                 unit={BitcoinUnit.SATS}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <View
                 style={{
@@ -104,8 +105,10 @@ export default class LNDCreateInvoice extends Component {
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
               </View>
+              <BlueDismissKeyboardInputAccessory />
               {this.renderCreateButton()}
             </KeyboardAvoidingView>
           </View>
