@@ -100,7 +100,6 @@ export default class WalletTransactions extends Component {
       txs = txs.sort(function(a, b) {
         return b.sort_ts - a.sort_ts;
       });
-      console.log('txs.length', txs.length);
 
       const latestTXTime = loc.transactionTimeToReadable(wallet.getLatestTransactionTime());
       this.setState({

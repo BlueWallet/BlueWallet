@@ -15,7 +15,6 @@ import {
   StyleSheet,
   Dimensions,
   Image,
-  InteractionManager,
   Keyboard,
   SafeAreaView,
   InputAccessoryView,
@@ -1021,13 +1020,6 @@ export class BlueTransactionListItem extends Component {
     this.state = { date: '...' };
   }
 
-  componentDidMount() {
-    InteractionManager.runAfterInteractions(() => {
-      const date = loc.transactionTimeToReadable(this.props.item.received);
-      this.setState({ date });
-    });
-  }
-
   txMemo = () => {
     if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
       return BlueApp.tx_metadata[this.props.item.hash]['memo'];
@@ -1193,7 +1185,7 @@ export class BlueTransactionListItem extends Component {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={this.state.date}
+        title={loc.transactionTimeToReadable(this.props.item.received)}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
