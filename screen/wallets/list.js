@@ -37,30 +37,30 @@ export default class WalletsList extends Component {
       wallets: BlueApp.getWallets().concat(false),
       lastSnappedTo: 0,
     };
-    EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
+    EV(EV.enum.WALLETS_COUNT_CHANGED, this.redrawScreen.bind(this));
 
     // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
     // remote server, we just redraw the screen
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshFunction.bind(this));
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.redrawScreen.bind(this));
   }
 
   componentDidMount() {
-    this.refreshFunction();
+    this.redrawScreen();
   }
 
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
    * Triggered manually by user on pull-to-refresh.
    */
-  refreshTransactions(isFlatListRefreshControlHidden = true) {
-    if (!(this.lastSnappedTo < BlueApp.getWallets().length)) {
+  refreshTransactions() {
+    if (!(this.lastSnappedTo < BlueApp.getWallets().length) && this.lastSnappedTo !== undefined) {
       // last card, nop
       console.log('last card, nop');
       return;
     }
     this.setState(
       {
-        isFlatListRefreshControlHidden,
+        isFlatListRefreshControlHidden: true,
       },
       () => {
         InteractionManager.runAfterInteractions(async () => {
@@ -81,17 +81,14 @@ export default class WalletsList extends Component {
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
 
-          this.refreshFunction();
+          this.redrawScreen();
         });
       },
     );
   }
 
-  /**
-   * Redraws the screen
-   */
-  refreshFunction() {
-    console.log('refreshFunction() = redraw the screen');
+  redrawScreen() {
+    console.log('wallets/list redrawScreen()');
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     }
@@ -163,7 +160,7 @@ export default class WalletsList extends Component {
           console.log('balance changed, thus txs too');
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
-          this.refreshFunction();
+          this.redrawScreen();
           didRefresh = true;
         } else if (wallets[index].timeToRefreshTransaction()) {
           console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
@@ -174,7 +171,7 @@ export default class WalletsList extends Component {
           if (wallets[index].fetchUserInvoices) {
             await wallets[index].fetchUserInvoices();
           }
-          this.refreshFunction();
+          this.redrawScreen();
           didRefresh = true;
         } else {
           console.log('balance not changed');
@@ -229,12 +226,12 @@ export default class WalletsList extends Component {
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <NavigationEvents
           onWillFocus={() => {
-            this.refreshFunction();
+            this.redrawScreen();
           }}
         />
         <ScrollView
           refreshControl={
-            <RefreshControl onRefresh={() => this.refreshTransactions(false)} refreshing={!this.state.isFlatListRefreshControlHidden} />
+            <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
           }
         >
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
