@@ -210,6 +210,7 @@ module.exports = {
   },
   lnd: {
     title: 'Administration',
+    placeholder: 'Invoice',
     choose_source_wallet: 'Vælge en wallet',
     refill_lnd_balance: 'Genopfyld Lightning wallet',
     refill: 'Genopfyld',
