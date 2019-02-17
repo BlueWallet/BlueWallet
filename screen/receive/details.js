@@ -36,10 +36,10 @@ export default class ReceiveDetails extends Component {
       addressText: '',
     };
 
-    // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.refreshFunction.bind(this));
+    // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.redrawScreen.bind(this));
   }
 
-  /*  refreshFunction(newAddress) {
+  /*  redrawScreen(newAddress) {
     console.log('newAddress =', newAddress);
     this.setState({
       address: newAddress,

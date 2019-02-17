@@ -205,7 +205,7 @@ export default class ScanQrWif extends React.Component {
       alert(loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newWallet.getAddress());
     }
     await BlueApp.saveToDisk();
-    this.props.navigation.dismiss();
+    this.props.navigation.popToTop();
     setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
   } // end
 
@@ -284,7 +284,6 @@ ScanQrWif.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     popToTop: PropTypes.func,
-    dismiss: PropTypes.func,
     navigate: PropTypes.func,
   }),
 };

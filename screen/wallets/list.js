@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, RefreshControl, ScrollView } from 'react-native';
-import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueListTransactionItem } from '../../BlueComponents';
+import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
+import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -33,18 +33,19 @@ export default class WalletsList extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
       lastSnappedTo: 0,
     };
-    EV(EV.enum.WALLETS_COUNT_CHANGED, this.refreshFunction.bind(this));
+    EV(EV.enum.WALLETS_COUNT_CHANGED, this.redrawScreen.bind(this));
 
     // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
     // remote server, we just redraw the screen
-    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.refreshFunction.bind(this));
+    EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.redrawScreen.bind(this));
   }
 
   componentDidMount() {
-    this.refreshFunction();
+    this.redrawScreen();
   }
 
   /**
@@ -52,28 +53,26 @@ export default class WalletsList extends Component {
    * Triggered manually by user on pull-to-refresh.
    */
   refreshTransactions() {
-    if (!(this.lastSnappedTo < BlueApp.getWallets().length)) {
+    if (!(this.lastSnappedTo < BlueApp.getWallets().length) && this.lastSnappedTo !== undefined) {
       // last card, nop
       console.log('last card, nop');
       return;
     }
-
     this.setState(
       {
-        isTransactionsLoading: true,
+        isFlatListRefreshControlHidden: true,
       },
-      async function() {
-        let that = this;
-        setTimeout(async function() {
+      () => {
+        InteractionManager.runAfterInteractions(async () => {
           // more responsive
           let noErr = true;
           try {
             let balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
             let balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(that.lastSnappedTo || 0);
+            await BlueApp.fetchWalletTransactions(this.lastSnappedTo || 0);
             let end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -82,23 +81,21 @@ export default class WalletsList extends Component {
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
 
-          that.refreshFunction();
-        }, 1);
+          this.redrawScreen();
+        });
       },
     );
   }
 
-  /**
-   * Redraws the screen
-   */
-  refreshFunction() {
+  redrawScreen() {
+    console.log('wallets/list redrawScreen()');
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     }
 
     this.setState({
       isLoading: false,
-      isTransactionsLoading: false,
+      isFlatListRefreshControlHidden: true,
       dataSource: BlueApp.getTransactions(),
       wallets: BlueApp.getWallets().concat(false),
     });
@@ -163,7 +160,7 @@ export default class WalletsList extends Component {
           console.log('balance changed, thus txs too');
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
-          this.refreshFunction();
+          this.redrawScreen();
           didRefresh = true;
         } else if (wallets[index].timeToRefreshTransaction()) {
           console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
@@ -174,7 +171,7 @@ export default class WalletsList extends Component {
           if (wallets[index].fetchUserInvoices) {
             await wallets[index].fetchUserInvoices();
           }
-          this.refreshFunction();
+          this.redrawScreen();
           didRefresh = true;
         } else {
           console.log('balance not changed');
@@ -218,8 +215,9 @@ export default class WalletsList extends Component {
     }
   };
 
-  _renderItem = data => <BlueListTransactionItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
-
+  _renderItem = data => {
+    return <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
+  };
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
@@ -228,11 +226,13 @@ export default class WalletsList extends Component {
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <NavigationEvents
           onWillFocus={() => {
-            this.refreshFunction();
+            this.redrawScreen();
           }}
         />
         <ScrollView
-          refreshControl={<RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.isTransactionsLoading} />}
+          refreshControl={
+            <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
+          }
         >
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel

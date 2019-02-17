@@ -262,6 +262,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletBalances(index) {
+    console.log('fetchWalletBalances for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets) {
@@ -287,6 +288,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletTransactions(index) {
+    console.log('fetchWalletTransactions for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets) {
