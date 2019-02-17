@@ -217,6 +217,7 @@ module.exports = {
     choose_source_wallet: 'Оберіть гаманець с якого слати',
     refill_lnd_balance: 'Збільшити баланс Lightning гаманця',
     refill: 'Поповнити',
+    placeholder: 'Invoice',
     withdraw: 'Вивести',
     expired: 'Expired',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',

@@ -16,7 +16,13 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueAddressInput } from '../../BlueComponents';
+import {
+  BlueNavigationStyle,
+  BlueButton,
+  BlueBitcoinAmount,
+  BlueAddressInput,
+  BlueDismissKeyboardInputAccessory,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -458,6 +464,7 @@ export default class SendDetails extends Component {
                 placeholderTextColor="#37c0a1"
                 placeholder={this.state.networkTransactionFees.halfHourFee.toString()}
                 style={{ fontWeight: '600', color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right', fontSize: 36 }}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <Text
                 style={{
@@ -553,6 +560,7 @@ export default class SendDetails extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onChangeText={text => this.setState({ amount: text })}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <BlueAddressInput
                 onChangeText={text => {
@@ -574,6 +582,7 @@ export default class SendDetails extends Component {
                 onBarScanned={this.processAddressData}
                 address={this.state.address}
                 isLoading={this.state.isLoading}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <View
                 hide={!this.state.showMemoRow}
@@ -600,6 +609,7 @@ export default class SendDetails extends Component {
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
               </View>
               <TouchableOpacity
@@ -628,6 +638,7 @@ export default class SendDetails extends Component {
               {this.renderFeeSelectionModal()}
             </KeyboardAvoidingView>
           </View>
+          <BlueDismissKeyboardInputAccessory />
           {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>

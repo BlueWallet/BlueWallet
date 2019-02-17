@@ -14,7 +14,7 @@ export default class WalletGradient {
   static hdLegacyBreadWallet = ['#fe6381', '#f99c42'];
   static hdSegwitP2SHWallet = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
-  static acinqStrikeWallet = ['#f1be07', '#f79056'];
+  static acinqStrikeWallet = ['#1A63DF', '#0A4873'];
   static createWallet = ['#eef0f4', '#eef0f4'];
 
   static gradientsFor(type) {

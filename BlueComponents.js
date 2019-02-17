@@ -574,6 +574,29 @@ export class BlueUseAllFundsButton extends Component {
   }
 }
 
+export class BlueDismissKeyboardInputAccessory extends Component {
+  static InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
+
+  render() {
+    return (
+      <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
+        <View
+          style={{
+            backgroundColor: '#eef0f4',
+            height: 44,
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+        >
+          <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
+        </View>
+      </InputAccessoryView>
+    );
+  }
+}
+
 export class BlueLoading extends Component {
   render() {
     return (
@@ -1597,11 +1620,13 @@ export class BlueAddressInput extends Component {
     onChangeText: PropTypes.func,
     onBarScanned: PropTypes.func,
     address: PropTypes.string,
+    placeholder: PropTypes.string,
   };
 
   static defaultProps = {
     isLoading: false,
     address: '',
+    placeholder: loc.send.details.address,
   };
 
   render() {
@@ -1626,12 +1651,13 @@ export class BlueAddressInput extends Component {
           onChangeText={text => {
             this.props.onChangeText(text);
           }}
-          placeholder={loc.send.details.address}
+          placeholder={this.props.placeholder}
           numberOfLines={1}
           value={this.props.address}
           style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
           editable={!this.props.isLoading}
           onSubmitEditing={Keyboard.dismiss}
+          {...this.props}
         />
         <TouchableOpacity
           disabled={this.props.isLoading}

@@ -217,6 +217,7 @@ module.exports = {
     refill_lnd_balance: 'Rellenar el balance de la billetera Lightning',
     refill: 'Rellenar',
     withdraw: 'Retirar',
+    placeholder: 'Invoice',
     expired: 'Expirado',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
