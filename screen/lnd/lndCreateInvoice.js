@@ -47,7 +47,7 @@ export default class LNDCreateInvoice extends Component {
 
   renderCreateButton = () => {
     return (
-      <View style={{ paddingHorizontal: 56, paddingVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
+      <View style={{ marginHorizontal: 56, marginVertical: 16, minHeight: 45, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
