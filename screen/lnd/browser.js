@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, BackHandler, View, Platform, Alert } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Platform, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import WKWebView from 'react-native-wkwebview-reborn';
-import { BlueNavigationStyle, SafeBlueArea, BlueText } from '../../BlueComponents';
+import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 
@@ -224,7 +224,7 @@ export default class Browser extends Component {
       fromWallet: props.navigation.getParam('fromWallet'),
       canGoBack: false,
       pageIsLoading: false,
-      title: '',
+      stateURL: 'https://bluewallet.io/marketplace/',
     };
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
   }
@@ -239,7 +239,7 @@ export default class Browser extends Component {
   }
 
   _onNavigationStateChange = webViewState => {
-    this.setState({ canGoBack: webViewState.canGoBack, title: webViewState.title || webViewState.url });
+    this.setState({ canGoBack: webViewState.canGoBack, stateURL: webViewState.url });
   };
 
   renderWebView = () => {
@@ -453,7 +453,30 @@ export default class Browser extends Component {
           </TouchableOpacity>
 
           <View style={{ flex: 1, marginHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}>
-            <BlueText numberOfLines={1}>{this.state.title}</BlueText>
+            <View
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                alignItems: 'center',
+                marginVertical: 8,
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                onChangeText={text => this.setState({ stateURL: text })}
+                value={this.state.stateURL}
+                numberOfLines={1}
+                style={{ flex: 1, marginLeft: 4, minHeight: 33 }}
+                editable={false}
+                onSubmitEditing={Keyboard.dismiss}
+              />
+            </View>
           </View>
           <View style={{ alignContent: 'flex-end', height: 44, flexDirection: 'row', marginHorizontal: 8 }}>
             <TouchableOpacity
