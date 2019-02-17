@@ -213,6 +213,7 @@ module.exports = {
     refill_lnd_balance: 'Isi ulang saldo Lightning',
     refill: 'Isi ulang',
     withdraw: 'Tarik',
+    placeholder: 'Invoice',
     expired: 'Kadaluarsa',
     sameWalletAsInvoiceError: 'Kamu tidak bisa membayar invoice dengan dompet yang sama yang dipakai untuk membuat invoice.',
   },
