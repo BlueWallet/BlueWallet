@@ -69,7 +69,7 @@ export default class WalletTransactions extends Component {
   refreshTransactionsFunction() {
     let that = this;
     setTimeout(function() {
-      that.refreshTransactions(true);
+      that.refreshTransactions();
     }, 4000); // giving a chance to remote server to propagate
   }
 
@@ -111,7 +111,6 @@ export default class WalletTransactions extends Component {
         showManageFundsSmallButton,
         dataSource: txs,
         walletHeaderLatestTransaction: latestTXTime,
-        rand: Math.random(), // wtf, won't redraw without this?
       });
     });
   }
@@ -128,11 +127,11 @@ export default class WalletTransactions extends Component {
   /**
    * Forcefully fetches TXs and balance for wallet
    */
-  refreshTransactions(showShowFlatListRefreshControl = true) {
+  refreshTransactions() {
     if (this.state.isLoading) return;
     this.setState(
       {
-        showShowFlatListRefreshControl: showShowFlatListRefreshControl,
+        showShowFlatListRefreshControl: true,
         isLoading: true,
       },
       async () => {
@@ -403,7 +402,7 @@ export default class WalletTransactions extends Component {
               </View>
             }
             refreshControl={
-              <RefreshControl onRefresh={() => this.refreshTransactions(true)} refreshing={this.state.showShowFlatListRefreshControl} />
+              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
             }
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
