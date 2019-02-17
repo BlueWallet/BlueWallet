@@ -217,6 +217,7 @@ module.exports = {
     choose_source_wallet: 'Escolha a carteira de origem',
     refill_lnd_balance: 'Recarregar a carteira Lightning',
     refill: 'Recarregar',
+    placeholder: 'Invoice',
     withdraw: 'Sacar',
     expired: 'Vencido',
     sameWalletAsInvoiceError: 'Você não pode pagar uma fatura com a mesma carteira que a criou.',

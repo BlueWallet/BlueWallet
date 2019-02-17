@@ -1546,11 +1546,13 @@ export class BlueAddressInput extends Component {
     onChangeText: PropTypes.func,
     onBarScanned: PropTypes.func,
     address: PropTypes.string,
+    placeholder: PropTypes.string,
   };
 
   static defaultProps = {
     isLoading: false,
     address: '',
+    placeholder: loc.send.details.address,
   };
 
   render() {
@@ -1575,7 +1577,7 @@ export class BlueAddressInput extends Component {
           onChangeText={text => {
             this.props.onChangeText(text);
           }}
-          placeholder={loc.send.details.address}
+          placeholder={this.props.placeholder}
           numberOfLines={1}
           value={this.props.address}
           style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}

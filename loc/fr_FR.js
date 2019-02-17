@@ -216,6 +216,7 @@ module.exports = {
     refill_lnd_balance: 'Déposer des fonds dans votre portfeuille Lightning',
     refill: 'Déposer des fonds',
     withdraw: 'Retirer des fonds',
+    placeholder: 'Invoice',
     expired: 'Expiré',
     sameWalletAsInvoiceError: 'Vous ne pouvez pas payer une facture avec le même portefeuille utilisé pour la créer.',
   },
