@@ -183,7 +183,7 @@ module.exports = {
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +
       ' and put its URL here in settings. Leave blank to use default LndHub (lndhub.io)',
-    save: 'save',
+    save: 'Save',
     about: 'About',
     language: 'Language',
     currency: 'Currency',

@@ -6,7 +6,7 @@ let BigNumber = require('bignumber.js');
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
-
+  static defaultBaseUri = 'https://lndhub.herokuapp.com/';
   constructor(props) {
     super(props);
     this.setBaseURI(); // no args to init with default value
@@ -31,7 +31,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (URI) {
       this.baseURI = URI;
     } else {
-      this.baseURI = 'https://lndhub.herokuapp.com/';
+      this.baseURI = LightningCustodianWallet.defaultBaseUri;
     }
   }
 

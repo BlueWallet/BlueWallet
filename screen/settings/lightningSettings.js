@@ -1,13 +1,16 @@
+/* global alert */
 import React, { Component } from 'react';
 import { AsyncStorage, View, TextInput, Linking } from 'react-native';
 import { AppStorage } from '../../class';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Button } from 'react-native-elements';
+import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+const frisbee = new Frisbee();
 
 export default class LightningSettings extends Component {
   static navigationOptions = () => ({
@@ -32,25 +35,27 @@ export default class LightningSettings extends Component {
     });
   }
 
-  async save() {
-    this.state.URI = this.state.URI ? this.state.URI : '';
-    await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
-
-    // set each lnd wallets and re-init api
-    for (/** @type {LightningCustodianWallet} */ let w of BlueApp.getWallets()) {
-      if (w.type === LightningCustodianWallet.type) {
-        w.setBaseURI(this.state.URI);
-        w.init();
-        console.log('inited', w.baseURI);
+  save = () => {
+    this.setState({ isLoading: true }, async () => {
+      this.state.URI = this.state.URI ? this.state.URI : '';
+      if (this.state.URI.trim().length <= 0) {
+        await AsyncStorage.setItem(AppStorage.LNDHUB, '');
+        alert('Your changes have been saved successfully');
+      } else {
+        try {
+          await frisbee.get(this.state.URI).then(console.log);
+          await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
+          alert('Your changes have been saved successfully');
+        } catch (error) {
+          alert(error);
+          console.log(error);
+        }
       }
-    }
-  }
+      this.setState({ isLoading: false });
+    });
+  };
 
   render() {
-    if (this.state.isLoading) {
-      return <BlueLoading />;
-    }
-
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueCard>
@@ -101,12 +106,7 @@ export default class LightningSettings extends Component {
           </View>
 
           <BlueSpacing20 />
-          <BlueButton
-            onPress={() => {
-              this.save();
-            }}
-            title={loc.settings.save}
-          />
+          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
         </BlueCard>
       </SafeBlueArea>
     );

@@ -120,6 +120,16 @@ export default class WalletDetails extends Component {
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
               <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
+              {this.state.wallet.type === LightningCustodianWallet.type && (
+                <React.Fragment>
+                  <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{'connected to'}</Text>
+                  <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
+                    {this.state.wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri
+                      ? 'BlueWallet LNDHub'
+                      : this.state.wallet.getBaseURI()}
+                  </Text>
+                </React.Fragment>
+              )}
               <View>
                 <BlueSpacing20 />
                 <BlueButton
