@@ -49,7 +49,9 @@ export default class WalletTransactions extends Component {
       isLoading: true,
       showShowFlatListRefreshControl: false,
       wallet: wallet,
-      dataSource: wallet.getTransactions(),
+      dataSource: this.getTransactions(15),
+      limit: 15,
+      pageSize: 20,
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
       walletHeaderLatestTransaction: '...',
       showSendButton:
@@ -73,6 +75,25 @@ export default class WalletTransactions extends Component {
     }, 4000); // giving a chance to remote server to propagate
   }
 
+  /**
+   * Simple wrapper for `wallet.getTransactions()`, where `wallet` is current wallet.
+   * Sorts. Provides limiting.
+   *
+   * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
+   * @returns {Array}
+   */
+  getTransactions(limit = Infinity) {
+    let wallet = this.props.navigation.getParam('wallet');
+    let txs = wallet.getTransactions();
+    for (let tx of txs) {
+      tx.sort_ts = +new Date(tx.received);
+    }
+    txs = txs.sort(function(a, b) {
+      return b.sort_ts - a.sort_ts;
+    });
+    return txs.slice(0, limit);
+  }
+
   redrawScreen() {
     InteractionManager.runAfterInteractions(async () => {
       console.log('wallets/transactions redrawScreen()');
@@ -93,14 +114,6 @@ export default class WalletTransactions extends Component {
         showManageFundsBigButton = false;
       }
 
-      let txs = wallet.getTransactions();
-      for (let tx of txs) {
-        tx.sort_ts = +new Date(tx.received);
-      }
-      txs = txs.sort(function(a, b) {
-        return b.sort_ts - a.sort_ts;
-      });
-
       const latestTXTime = loc.transactionTimeToReadable(wallet.getLatestTransactionTime());
       this.setState({
         isLoading: false,
@@ -109,7 +122,7 @@ export default class WalletTransactions extends Component {
         showSendButton: showSend,
         showManageFundsBigButton,
         showManageFundsSmallButton,
-        dataSource: txs,
+        dataSource: this.getTransactions(this.state.limit),
         walletHeaderLatestTransaction: latestTXTime,
       });
     });
@@ -352,6 +365,23 @@ export default class WalletTransactions extends Component {
             }
           })()}
           <FlatList
+            onEndReachedThreshold={0.3}
+            onEndReached={() => {
+              // pagination in works. in this block we will add more txs to flatlist
+              // so as user scrolls closer to bottom it will render mode transactions
+              console.log('end reached. new limit = ', this.state.limit + this.state.pageSize, 'new pageSize = ', this.state.pageSize * 2);
+
+              if (this.getTransactions(Infinity).length < this.state.limit) {
+                console.log('all list rendered. nop');
+                return;
+              }
+
+              this.setState({
+                dataSource: this.getTransactions(this.state.limit + this.state.pageSize),
+                limit: this.state.limit + this.state.pageSize,
+                pageSize: this.state.pageSize * 2,
+              });
+            }}
             ListHeaderComponent={this.renderListHeaderComponent}
             ListEmptyComponent={
               <View style={{ top: 50, minHeight: 200, paddingHorizontal: 16 }}>
@@ -406,7 +436,6 @@ export default class WalletTransactions extends Component {
             }
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
-            initialNumToRender={10}
             renderItem={this.renderItem}
           />
         </View>
