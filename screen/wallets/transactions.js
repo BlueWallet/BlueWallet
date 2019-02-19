@@ -1,5 +1,15 @@
 import React, { Component } from 'react';
-import { Text, View, InteractionManager, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  InteractionManager,
+  Image,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -49,7 +59,9 @@ export default class WalletTransactions extends Component {
       isLoading: true,
       showShowFlatListRefreshControl: false,
       wallet: wallet,
-      dataSource: wallet.getTransactions(),
+      dataSource: this.getTransactions(15),
+      limit: 15,
+      pageSize: 20,
       walletPreviousPreferredUnit: wallet.getPreferredBalanceUnit(),
     };
   }
@@ -68,23 +80,33 @@ export default class WalletTransactions extends Component {
     }, 4000); // giving a chance to remote server to propagate
   }
 
+  /**
+   * Simple wrapper for `wallet.getTransactions()`, where `wallet` is current wallet.
+   * Sorts. Provides limiting.
+   *
+   * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
+   * @returns {Array}
+   */
+  getTransactions(limit = Infinity) {
+    let wallet = this.props.navigation.getParam('wallet');
+    let txs = wallet.getTransactions();
+    for (let tx of txs) {
+      tx.sort_ts = +new Date(tx.received);
+    }
+    txs = txs.sort(function(a, b) {
+      return b.sort_ts - a.sort_ts;
+    });
+    return txs.slice(0, limit);
+  }
+
   redrawScreen() {
     InteractionManager.runAfterInteractions(async () => {
       console.log('wallets/transactions redrawScreen()');
-      const wallet = this.state.wallet;
-
-      let txs = wallet.getTransactions();
-      for (let tx of txs) {
-        tx.sort_ts = +new Date(tx.received);
-      }
-      txs = txs.sort(function(a, b) {
-        return b.sort_ts - a.sort_ts;
-      });
 
       this.setState({
         isLoading: false,
         showShowFlatListRefreshControl: false,
-        dataSource: txs,
+        dataSource: this.getTransactions(this.state.limit),
       });
     });
   }
@@ -248,6 +270,11 @@ export default class WalletTransactions extends Component {
 
   _keyExtractor = (_item, index) => index.toString();
 
+  renderListFooterComponent = () => {
+    // if not all txs rendered - display indicator
+    return (this.getTransactions(Infinity).length > this.state.limit && <ActivityIndicator />) || <View />;
+  };
+
   renderListHeaderComponent = () => {
     return (
       <View style={{ flexDirection: 'row', height: 50 }}>
@@ -319,7 +346,24 @@ export default class WalletTransactions extends Component {
             </TouchableOpacity>
           )}
           <FlatList
+            onEndReachedThreshold={0.3}
+            onEndReached={() => {
+              // pagination in works. in this block we will add more txs to flatlist
+              // so as user scrolls closer to bottom it will render mode transactions
+
+              if (this.getTransactions(Infinity).length < this.state.limit) {
+                // all list rendered. nop
+                return;
+              }
+
+              this.setState({
+                dataSource: this.getTransactions(this.state.limit + this.state.pageSize),
+                limit: this.state.limit + this.state.pageSize,
+                pageSize: this.state.pageSize * 2,
+              });
+            }}
             ListHeaderComponent={this.renderListHeaderComponent}
+            ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
               <View style={{ top: 50, minHeight: 200, paddingHorizontal: 16 }}>
                 <Text
@@ -373,7 +417,6 @@ export default class WalletTransactions extends Component {
             }
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
-            initialNumToRender={10}
             renderItem={this.renderItem}
           />
         </View>
