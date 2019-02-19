@@ -1,5 +1,15 @@
 import React, { Component } from 'react';
-import { Text, View, InteractionManager, Image, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  InteractionManager,
+  Image,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -279,6 +289,11 @@ export default class WalletTransactions extends Component {
 
   _keyExtractor = (_item, index) => index.toString();
 
+  renderListFooterComponent = () => {
+    // if not all txs rendered - display indicator
+    return (this.getTransactions(Infinity).length > this.state.limit && <ActivityIndicator />) || <View />;
+  };
+
   renderListHeaderComponent = () => {
     return (
       <View style={{ flexDirection: 'row', height: 50 }}>
@@ -369,10 +384,9 @@ export default class WalletTransactions extends Component {
             onEndReached={() => {
               // pagination in works. in this block we will add more txs to flatlist
               // so as user scrolls closer to bottom it will render mode transactions
-              console.log('end reached. new limit = ', this.state.limit + this.state.pageSize, 'new pageSize = ', this.state.pageSize * 2);
 
               if (this.getTransactions(Infinity).length < this.state.limit) {
-                console.log('all list rendered. nop');
+                // all list rendered. nop
                 return;
               }
 
@@ -383,6 +397,7 @@ export default class WalletTransactions extends Component {
               });
             }}
             ListHeaderComponent={this.renderListHeaderComponent}
+            ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
               <View style={{ top: 50, minHeight: 200, paddingHorizontal: 16 }}>
                 <Text
