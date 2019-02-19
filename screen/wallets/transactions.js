@@ -18,14 +18,14 @@ export default class WalletTransactions extends Component {
     return {
       headerRight: (
         <TouchableOpacity
-          style={{ marginHorizontal: 8, minWidth: 150 }}
+          style={{ marginHorizontal: 16, minWidth: 150, justifyContent: 'center', alignItems: 'flex-end' }}
           onPress={() =>
             navigation.navigate('WalletDetails', {
               wallet: navigation.state.params.wallet,
             })
           }
         >
-          <Text style={{ color: '#fff', fontSize: 20, fontWeight: '500', textAlign: 'right' }}>{loc.wallets.options}</Text>
+          <Icon name="kebab-horizontal" size={22} type="octicon" color="#FFFFFF" />
         </TouchableOpacity>
       ),
       headerStyle: {
