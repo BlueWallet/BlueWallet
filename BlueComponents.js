@@ -322,18 +322,28 @@ export class BlueFormLabel extends Component {
 export class BlueFormInput extends Component {
   render() {
     return (
-      <FormInput
-        {...this.props}
-        inputStyle={{ color: BlueApp.settings.foregroundColor, maxWidth: width - 105 }}
-        containerStyle={{
-          marginTop: 5,
+      <View
+        style={{
+          flexDirection: 'row',
           borderColor: '#d2d2d2',
           borderBottomColor: '#d2d2d2',
-          borderWidth: 0.5,
+          borderWidth: 1.0,
           borderBottomWidth: 0.5,
           backgroundColor: '#f5f5f5',
+          minHeight: 44,
+          height: 44,
+          alignItems: 'center',
+          marginVertical: 8,
+          borderRadius: 4,
         }}
-      />
+      >
+        <TextInput
+          numberOfLines={1}
+          style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+          onSubmitEditing={Keyboard.dismiss}
+          {...this.props}
+        />
+      </View>
     );
   }
 }

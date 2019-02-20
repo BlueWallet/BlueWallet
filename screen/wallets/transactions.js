@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import {
   Text,
@@ -156,7 +157,7 @@ export default class WalletTransactions extends Component {
           console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
         } catch (err) {
           noErr = false;
-          console.warn(err);
+          alert(err.message);
           this.setState({
             isLoading: false,
             showShowFlatListRefreshControl: false,

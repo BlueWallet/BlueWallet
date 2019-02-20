@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueFormInput, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
@@ -41,6 +41,7 @@ export default class WalletDetails extends Component {
       walletName: wallet.getLabel(),
       wallet,
       address,
+      walletBaseURI: wallet.getBaseURI(),
     };
     this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
   }
@@ -56,6 +57,9 @@ export default class WalletDetails extends Component {
     this.props.navigation.setParams({ isLoading: true });
     this.setState({ isLoading: true }, () => {
       this.state.wallet.setLabel(this.state.walletName);
+      if (this.state.wallet.type === LightningCustodianWallet.type) {
+        this.state.wallet.setBaseURI(this.state.walletBaseURI);
+      }
       BlueApp.saveToDisk();
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
@@ -123,11 +127,16 @@ export default class WalletDetails extends Component {
               {this.state.wallet.type === LightningCustodianWallet.type && (
                 <React.Fragment>
                   <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{'connected to'}</Text>
-                  <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
-                    {this.state.wallet.getBaseURI() === LightningCustodianWallet.defaultBaseUri
-                      ? 'BlueWallet LNDHub'
-                      : this.state.wallet.getBaseURI()}
-                  </Text>
+                  <BlueFormInput
+                    value={this.state.walletBaseURI}
+                    onChangeText={text => {
+                      this.setState({ walletBaseURI: text });
+                    }}
+                    onSubmitEditing={Keyboard.dismiss}
+                    placeholder={LightningCustodianWallet.defaultBaseUri}
+                    clearButtonMode="while-editing"
+                    autoCapitalize="none"
+                  />
                 </React.Fragment>
               )}
               <View>
