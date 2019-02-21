@@ -9,6 +9,7 @@ import {
   RefreshControl,
   TouchableOpacity,
   StatusBar,
+  Platform,
   Clipboard,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -228,11 +229,17 @@ export default class WalletTransactions extends Component {
         >
           {this.state.wallet.getLabel()}
         </Text>
-        <ToolTip
-          ref={tooltip => (this.tooltip = tooltip)}
-          actions={[{ text: loc.transactions.details.copy, onPress: this.handleCopyPress }]}
-        />
-        <TouchableOpacity onPress={() => this.changeWalletBalanceUnit()} onLongPress={() => this.tooltip.showMenu()}>
+        {Platform.OS === 'ios' && (
+          <ToolTip
+            ref={tooltip => (this.tooltip = tooltip)}
+            actions={[{ text: loc.transactions.details.copy, onPress: this.handleCopyPress }]}
+          />
+        )}
+
+        <TouchableOpacity
+          onPress={() => this.changeWalletBalanceUnit()}
+          onLongPress={() => (Platform.OS === 'ios' ? this.tooltip.showMenu() : null)}
+        >
           <Text
             numberOfLines={1}
             adjustsFontSizeToFit
