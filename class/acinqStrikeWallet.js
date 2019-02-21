@@ -1,6 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 let BigNumber = require('bignumber.js');
 
 export class ACINQStrikeLightningWallet extends LegacyWallet {
@@ -15,6 +15,8 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     this.user_charges_raw = [];
     this.balance = 0;
     this.preferredBalanceUnit = BitcoinUnit.SATS;
+    this.chain = Chain.OFFCHAIN;
+    this.optionalDisclosureDetail = 'All ACINQ Strike invoices carry a 1.0% fee.';
   }
 
   getBaseURI() {

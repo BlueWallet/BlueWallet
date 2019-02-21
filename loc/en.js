@@ -72,7 +72,7 @@ module.exports = {
     import: {
       title: 'import',
       explanation:
-        "Write here your mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
+        "Write here your mnemonic, private key, WIF, ACINQ Strike API Key, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
       imported: 'Imported',
       error: 'Failed to import. Please, make sure that the provided data is valid.',
       success: 'Success',

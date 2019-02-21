@@ -1,7 +1,14 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Text } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
+import {
+  BlueNavigationStyle,
+  BlueButton,
+  BlueBitcoinAmount,
+  BlueDismissKeyboardInputAccessory,
+  BlueSpacing20,
+  BlueTextCentered,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -109,6 +116,9 @@ export default class LNDCreateInvoice extends Component {
                 />
               </View>
               <BlueDismissKeyboardInputAccessory />
+              <BlueSpacing20 />
+              <BlueTextCentered>{this.state.fromWallet.optionalDisclosureDetail}</BlueTextCentered>
+              <BlueSpacing20 />
               {this.renderCreateButton()}
             </KeyboardAvoidingView>
           </View>

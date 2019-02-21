@@ -1,6 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 let BigNumber = require('bignumber.js');
 
 export class LightningCustodianWallet extends LegacyWallet {
@@ -20,6 +20,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     this.user_invoices_raw = [];
     this.info_raw = false;
     this.preferredBalanceUnit = BitcoinUnit.SATS;
+    this.chain = Chain.OFFCHAIN;
   }
 
   /**
@@ -40,8 +41,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   allowSend() {
-    console.log(this.getBalance(), this.getBalance() > 0);
-    return this.getBalance() > 0;
+    return true;
   }
 
   getAddress() {
