@@ -9,6 +9,7 @@ import {
   RefreshControl,
   TouchableOpacity,
   StatusBar,
+  Clipboard,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
@@ -18,6 +19,7 @@ import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
 import WalletGradient from '../../class/walletGradient';
+import ToolTip from 'react-native-tooltip';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -192,6 +194,10 @@ export default class WalletTransactions extends Component {
     this.setState({ wallet: wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit });
   }
 
+  handleCopyPress = () => {
+    Clipboard.setString(loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
+  };
+
   renderWalletHeader = () => {
     return (
       <LinearGradient
@@ -222,7 +228,11 @@ export default class WalletTransactions extends Component {
         >
           {this.state.wallet.getLabel()}
         </Text>
-        <TouchableOpacity onPress={() => this.changeWalletBalanceUnit()}>
+        <ToolTip
+          ref={tooltip => (this.tooltip = tooltip)}
+          actions={[{ text: loc.transactions.details.copy, onPress: this.handleCopyPress }]}
+        />
+        <TouchableOpacity onPress={() => this.changeWalletBalanceUnit()} onLongPress={() => this.tooltip.showMenu()}>
           <Text
             numberOfLines={1}
             adjustsFontSizeToFit

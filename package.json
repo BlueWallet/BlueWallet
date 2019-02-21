@@ -85,6 +85,7 @@
     "react-native-sortable-list": "0.0.22",
     "react-native-svg": "9.1.1",
     "react-native-tcp": "3.3.0",
+    "react-native-tooltip": "^5.2.0",
     "react-native-vector-icons": "6.2.0",
     "react-native-webview": "4.1.0",
     "react-native-wkwebview-reborn": "2.0.0",
