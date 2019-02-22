@@ -76,7 +76,7 @@
     "react-native-linear-gradient": "2.5.3",
     "react-native-modal": "7.0.2",
     "react-native-permissions": "1.1.1",
-    "react-native-popup-menu-android": "^1.0.3",
+    "react-native-popup-menu-android": "1.0.3",
     "react-native-prompt-android": "0.3.4",
     "react-native-qrcode-svg": "5.1.2",
     "react-native-randombytes": "3.5.2",
