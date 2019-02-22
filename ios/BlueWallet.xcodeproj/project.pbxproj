@@ -324,6 +324,13 @@
 			remoteGlobalIDString = 58B5119B1A9E6C1200147676;
 			remoteInfo = RCTText;
 		};
+		8D7B002F2220799B00B5E522 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 151034F9C66E464B8A6581DA /* ToolTipMenu.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 4681C0211B05271A004D67D4;
+			remoteInfo = ToolTipMenu;
+		};
 		ADBDB9261DFEBF0700ED6528 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */;
@@ -958,6 +965,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8D7BFFEE2220799B00B5E522 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D7B00302220799B00B5E522 /* libToolTipMenu.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		ADBDB9201DFEBF0600ED6528 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1387,6 +1402,10 @@
 					ProductGroup = B47720622202510900DD0E81 /* Products */;
 					ProjectRef = 910283A2A9EB4D00902DE78E /* TcpSockets.xcodeproj */;
 				},
+				{
+					ProductGroup = 8D7BFFEE2220799B00B5E522 /* Products */;
+					ProjectRef = 151034F9C66E464B8A6581DA /* ToolTipMenu.xcodeproj */;
+				},
 			);
 			projectRoot = "";
 			targets = (
@@ -1621,6 +1640,13 @@
 			fileType = archive.ar;
 			path = libRCTText.a;
 			remoteRef = 832341B41AAA6A8300B99B32 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		8D7B00302220799B00B5E522 /* libToolTipMenu.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libToolTipMenu.a;
+			remoteRef = 8D7B002F2220799B00B5E522 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */ = {
