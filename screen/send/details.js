@@ -283,11 +283,19 @@ export default class SendDetails extends Component {
             Keyboard.dismiss();
             BitcoinBIP70TransactionDecode.decode(text)
               .then(response => {
+                let networkTransactionFees = this.state.networkTransactionFees;
+                if (response.fee > networkTransactionFees.fastestFee) {
+                  networkTransactionFees.fastestFee = response.fee;
+                } else {
+                  networkTransactionFees.halfHourFee = response.fee;
+                }
                 this.setState({
                   address: response.address,
                   amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
                   memo: response.memo,
-                  fee: response.fee,
+                  networkTransactionFees,
+                  fee: networkTransactionFees.fastestFee.toFixed(0),
+                  feeSliderValue: networkTransactionFees.fastestFee.toFixed(0),
                   bip70TransactionExpiration: response.expires,
                   isLoading: false,
                 });
