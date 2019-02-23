@@ -9,6 +9,8 @@ import {
   RefreshControl,
   TouchableOpacity,
   StatusBar,
+  Platform,
+  Clipboard,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
@@ -18,6 +20,8 @@ import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
 import WalletGradient from '../../class/walletGradient';
+import ToolTip from 'react-native-tooltip';
+import showPopupMenu from 'react-native-popup-menu-android';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -47,6 +51,8 @@ export default class WalletTransactions extends Component {
       headerTintColor: '#FFFFFF',
     };
   };
+
+  walletBalanceText = null;
 
   constructor(props) {
     super(props);
@@ -192,6 +198,18 @@ export default class WalletTransactions extends Component {
     this.setState({ wallet: wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit });
   }
 
+  handleCopyPress = _item => {
+    Clipboard.setString(loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
+  };
+
+  showAndroidTooltip = () => {
+    showPopupMenu(
+      [{ id: loc.transactions.details.copy, label: loc.transactions.details.copy }],
+      this.handleCopyPress,
+      this.walletBalanceText,
+    );
+  };
+
   renderWalletHeader = () => {
     return (
       <LinearGradient
@@ -222,7 +240,17 @@ export default class WalletTransactions extends Component {
         >
           {this.state.wallet.getLabel()}
         </Text>
-        <TouchableOpacity onPress={() => this.changeWalletBalanceUnit()}>
+        {Platform.OS === 'ios' && (
+          <ToolTip
+            ref={tooltip => (this.tooltip = tooltip)}
+            actions={[{ text: loc.transactions.details.copy, onPress: this.handleCopyPress }]}
+          />
+        )}
+        <TouchableOpacity
+          onPress={() => this.changeWalletBalanceUnit()}
+          ref={ref => (this.walletBalanceText = ref)}
+          onLongPress={() => (Platform.OS === 'ios' ? this.tooltip.showMenu() : this.showAndroidTooltip())}
+        >
           <Text
             numberOfLines={1}
             adjustsFontSizeToFit
