@@ -1,29 +1,17 @@
-v3.5.7
-------
+v3.7.2
+======
 
-* FIX: Source wallet not found #239
-* FIX: Changed the way currencies are shown in order to avoid indentation issue. FIX: Lint
-* FIX: Reordered the language list by alphabetical order
-* FIX: Localization fixes - Fix some dutch translation
-* FIX: Do not dismiss modal on error, allow for network retry.
-* FIX: Use DayJS locale for formatting dates
-* FIX: too small QR on ln receive invoice (closes #235)
-* FIX: send amount in satoshi wasnt with minus in tx list
-* FIX: Date/time specifications #186
-* ADD: Use platform's rating UI in-app
-* FIX: limit number of userinvoices feetched per polling request
-* REF: less remote fetches
-* FIX: sometimes export QR is unreadable
-* REF: HD wallets address derivation
-* ADD: Added 日本語 in settings
-* FIX: When having multiple wallets, I was unable to see my transactions description from the main screen
-* FIX: Writing numbers standards #194
-* FIX: Remove Lightning wallet creation limitation
-* FIX: Can't create a Lightning Wallet 3.5.6 (223) #224
-* FIX: zigzag link
-* FIX: Lightning balance/fees don't add up (closes #225)
-* ADD: THB fiat
-* FIX: Thai translation
-* FIX: Can't scan Bech32 addresses (closes #222)
-* ADD: Croatian language into Settings.
-* ADD: HRK Fiat in currency settings
+* FIX: status bar disappears #311
+* FIX: faulty back button on viewLndInvoice screen
+* FIX: lnd - create invoice - cant tap bottom half of button #303
+* FIX: Impossible to scan bech32 QR invoice with a specific amount (closes #296) 
+* REF: better lightning error reporting
+* FIX: not redering QR code #302
+* ADD: Indonesian Translation 
+* FIX: better LN wallet auto-refresh strategy 
+* FIX: Dismiss keyboard when pressing return 
+* FIX: HD wallet balance refresh
+* FIX: no wallet refresh upon startup (faster to start app) 
+* FIX: Dismiss keyboard when pressing return 
+* REF: HD wallet getbalance improvements
+* ADD: NZD as a currency

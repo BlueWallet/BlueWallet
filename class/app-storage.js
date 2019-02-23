@@ -262,6 +262,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletBalances(index) {
+    console.log('fetchWalletBalances for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets) {
@@ -287,6 +288,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletTransactions(index) {
+    console.log('fetchWalletTransactions for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets) {
@@ -325,10 +327,11 @@ export class AppStorage {
    * Getter for all transactions in all wallets.
    * But if index is provided - only for wallet with corresponding index
    *
-   * @param index {Integer} Wallet index in this.wallets. Empty for all wallets.
+   * @param index {Integer|null} Wallet index in this.wallets. Empty (or null) for all wallets.
+   * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
    * @return {Array}
    */
-  getTransactions(index) {
+  getTransactions(index, limit = Infinity) {
     if (index || index === 0) {
       let txs = [];
       let c = 0;
@@ -353,9 +356,11 @@ export class AppStorage {
       t.sort_ts = +new Date(t.received);
     }
 
-    return txs.sort(function(a, b) {
-      return b.sort_ts - a.sort_ts;
-    });
+    return txs
+      .sort(function(a, b) {
+        return b.sort_ts - a.sort_ts;
+      })
+      .slice(0, limit);
   }
 
   /**

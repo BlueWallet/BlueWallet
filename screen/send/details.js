@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   View,
   TextInput,
+  StatusBar,
   TouchableOpacity,
   KeyboardAvoidingView,
   Keyboard,
@@ -15,13 +16,20 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueAddressInput } from '../../BlueComponents';
+import {
+  BlueNavigationStyle,
+  BlueButton,
+  BlueBitcoinAmount,
+  BlueAddressInput,
+  BlueDismissKeyboardInputAccessory,
+  BlueLoading,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -38,6 +46,8 @@ export default class SendDetails extends Component {
     title: loc.send.header,
   });
 
+  state = { isLoading: true, fromWallet: undefined };
+
   constructor(props) {
     super(props);
     console.log('props.navigation.state.params=', props.navigation.state.params);
@@ -51,38 +61,50 @@ export default class SendDetails extends Component {
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = null;
 
-    const wallets = BlueApp.getWallets();
+    const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
-    for (let w of wallets) {
-      if (w.getSecret() === fromSecret) {
-        fromWallet = w;
-        break;
+    if (wallets.length === 0) {
+      alert('Before creating a transaction, you must first add a Bitcoin wallet.');
+      return props.navigation.goBack(null);
+    } else {
+      if (!fromWallet && wallets.length > 0) {
+        fromWallet = wallets[0];
+        fromAddress = fromWallet.getAddress();
+        fromSecret = fromWallet.getSecret();
+      }
+      if (fromWallet === null) return props.navigation.goBack(null);
+      for (let w of wallets) {
+        if (w.getSecret() === fromSecret) {
+          fromWallet = w;
+          break;
+        }
+
+        if (w.getAddress() === fromAddress) {
+          fromWallet = w;
+        }
       }
 
-      if (w.getAddress() === fromAddress) {
-        fromWallet = w;
-      }
+      this.state = {
+        isFeeSelectionModalVisible: false,
+        fromAddress,
+        fromWallet,
+        fromSecret,
+        address,
+        memo,
+        fee: 1,
+        networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
+        feeSliderValue: 1,
+        bip70TransactionExpiration: null,
+        renderWalletSelectionButtonHidden: false,
+      };
     }
-
-    // fallback to first wallet if it exists
-    if (!fromWallet && wallets[0]) fromWallet = wallets[0];
-
-    this.state = {
-      isFeeSelectionModalVisible: false,
-      fromAddress,
-      fromWallet,
-      fromSecret,
-      isLoading: false,
-      address,
-      memo,
-      fee: 1,
-      networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
-      feeSliderValue: 1,
-      bip70TransactionExpiration: null,
-      renderWalletSelectionButtonHidden: false,
-    };
   }
 
+  /**
+   * TODO: refactor this mess, get rid of regexp, use https://github.com/bitcoinjs/bitcoinjs-lib/issues/890 etc etc
+   *
+   * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
+   */
   processAddressData = data => {
     this.setState(
       { isLoading: true },
@@ -91,7 +113,7 @@ export default class SendDetails extends Component {
           this.processBIP70Invoice(data);
         } else {
           const dataWithoutSchema = data.replace('bitcoin:', '');
-          if (btcAddressRx.test(dataWithoutSchema) || dataWithoutSchema.indexOf('bc1') === 0) {
+          if (btcAddressRx.test(dataWithoutSchema) || (dataWithoutSchema.indexOf('bc1') === 0 && dataWithoutSchema.indexOf('?') === -1)) {
             this.setState({
               address: dataWithoutSchema,
               bip70TransactionExpiration: null,
@@ -111,7 +133,7 @@ export default class SendDetails extends Component {
               this.setState({ isLoading: false });
             }
             console.log(options);
-            if (btcAddressRx.test(address)) {
+            if (btcAddressRx.test(address) || address.indexOf('bc1') === 0) {
               this.setState({
                 address,
                 amount: options.amount,
@@ -128,6 +150,7 @@ export default class SendDetails extends Component {
   };
 
   async componentDidMount() {
+    StatusBar.setBarStyle('dark-content');
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     try {
@@ -284,6 +307,7 @@ export default class SendDetails extends Component {
   }
 
   async createTransaction() {
+    Keyboard.dismiss();
     this.setState({ isLoading: true });
     let error = false;
     let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
@@ -450,6 +474,7 @@ export default class SendDetails extends Component {
                 placeholderTextColor="#37c0a1"
                 placeholder={this.state.networkTransactionFees.halfHourFee.toString()}
                 style={{ fontWeight: '600', color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right', fontSize: 36 }}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <Text
                 style={{
@@ -529,10 +554,10 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    if (!this.state.fromWallet.getAddress) {
+    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
       return (
         <View style={{ flex: 1, paddingTop: 20 }}>
-          <Text>System error: Source wallet not found (this should never happen)</Text>
+          <BlueLoading />
         </View>
       );
     }
@@ -545,6 +570,7 @@ export default class SendDetails extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onChangeText={text => this.setState({ amount: text })}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <BlueAddressInput
                 onChangeText={text => {
@@ -566,6 +592,7 @@ export default class SendDetails extends Component {
                 onBarScanned={this.processAddressData}
                 address={this.state.address}
                 isLoading={this.state.isLoading}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <View
                 hide={!this.state.showMemoRow}
@@ -592,6 +619,7 @@ export default class SendDetails extends Component {
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
               </View>
               <TouchableOpacity
@@ -620,6 +648,7 @@ export default class SendDetails extends Component {
               {this.renderFeeSelectionModal()}
             </KeyboardAvoidingView>
           </View>
+          <BlueDismissKeyboardInputAccessory />
           {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>
@@ -657,6 +686,7 @@ const styles = StyleSheet.create({
 SendDetails.propTypes = {
   navigation: PropTypes.shape({
     pop: PropTypes.func,
+    goBack: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
     state: PropTypes.shape({

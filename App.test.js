@@ -9,7 +9,7 @@ import MockStorage from './MockStorage';
 import { FiatUnit } from './models/fiatUnit';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
-jest.mock('react-native-custom-qr-codes', () => 'Video');
+jest.mock('react-native-qrcode-svg', () => 'Video');
 const AsyncStorage = new MockStorage();
 jest.setMock('AsyncStorage', AsyncStorage);
 jest.useFakeTimers();

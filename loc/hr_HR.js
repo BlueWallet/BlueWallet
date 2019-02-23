@@ -211,6 +211,7 @@ module.exports = {
     refill_lnd_balance: 'Dopuni Lightning volet saldo',
     refill: 'Dopuni',
     withdraw: 'Isprazni',
+    placeholder: 'Invoice',
     expired: 'Isteklo',
     sameWalletAsInvoiceError: 'Buraz! Ne možeš platiti račun s istim voletom s kojim si račun stvorio, ono.',
   },

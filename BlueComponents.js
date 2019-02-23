@@ -45,7 +45,7 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    let backgroundColor = '#ccddf9';
+    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : '#ccddf9';
     let fontColor = '#0c2550';
     if (this.props.hasOwnProperty('disabled') && this.props.disabled === true) {
       backgroundColor = '#eef0f4';
@@ -177,7 +177,14 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   headerRight: withNavigationCloseButton ? (
     <TouchableOpacity
       style={{ width: 40, height: 40, padding: 14 }}
-      onPress={customCloseButtonFunction === undefined ? () => navigation.goBack(null) : customCloseButtonFunction}
+      onPress={
+        customCloseButtonFunction === undefined
+          ? () => {
+              Keyboard.dismiss();
+              navigation.goBack(null);
+            }
+          : customCloseButtonFunction
+      }
     >
       <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
     </TouchableOpacity>
@@ -560,6 +567,29 @@ export class BlueUseAllFundsButton extends Component {
             Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
           </Text>
           <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />
+        </View>
+      </InputAccessoryView>
+    );
+  }
+}
+
+export class BlueDismissKeyboardInputAccessory extends Component {
+  static InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
+
+  render() {
+    return Platform.OS !== 'ios' ? null : (
+      <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
+        <View
+          style={{
+            backgroundColor: '#eef0f4',
+            height: 44,
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}
+        >
+          <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
         </View>
       </InputAccessoryView>
     );
@@ -1539,11 +1569,13 @@ export class BlueAddressInput extends Component {
     onChangeText: PropTypes.func,
     onBarScanned: PropTypes.func,
     address: PropTypes.string,
+    placeholder: PropTypes.string,
   };
 
   static defaultProps = {
     isLoading: false,
     address: '',
+    placeholder: loc.send.details.address,
   };
 
   render() {
@@ -1568,16 +1600,18 @@ export class BlueAddressInput extends Component {
           onChangeText={text => {
             this.props.onChangeText(text);
           }}
-          placeholder={loc.send.details.address}
+          placeholder={this.props.placeholder}
           numberOfLines={1}
           value={this.props.address}
           style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
           editable={!this.props.isLoading}
           onSubmitEditing={Keyboard.dismiss}
+          {...this.props}
         />
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
+            Keyboard.dismiss();
             ImagePicker.showImagePicker(
               {
                 title: null,

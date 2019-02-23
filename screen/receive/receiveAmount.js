@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { View, Share, TextInput, KeyboardAvoidingView, Platform, Dimensions, ScrollView } from 'react-native';
-import { QRCode as QRSlow } from 'react-native-custom-qr-codes';
-import QRFast from 'react-native-qrcode';
+import { View, Share, TextInput, KeyboardAvoidingView, Dimensions, ScrollView } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
   SafeBlueArea,
@@ -105,23 +104,15 @@ export default class ReceiveAmount extends Component {
           {this.state.label}
         </BlueText>
         <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-          {Platform.OS === 'ios' || this.state.bip21.length < 54 ? (
-            <QRSlow
-              content={this.state.bip21}
-              size={this.determineSize()}
-              color={BlueApp.settings.foregroundColor}
-              backgroundColor={BlueApp.settings.brandingColor}
-              logo={require('../../img/qr-code.png')}
-              ecl={'Q'}
-            />
-          ) : (
-            <QRFast
-              value={this.state.bip21}
-              size={this.determineSize()}
-              fgColor={BlueApp.settings.brandingColor}
-              bgColor={BlueApp.settings.foregroundColor}
-            />
-          )}
+          <QRCode
+            value={this.state.bip21}
+            logo={require('../../img/qr-code.png')}
+            size={this.determineSize()}
+            logoSize={90}
+            color={BlueApp.settings.foregroundColor}
+            logoBackgroundColor={BlueApp.settings.brandingColor}
+            ecl={'Q'}
+          />
         </View>
         <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <BlueCopyTextToClipboard text={this.state.bip21} />
