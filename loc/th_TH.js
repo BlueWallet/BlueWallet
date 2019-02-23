@@ -214,7 +214,7 @@ module.exports = {
     refill_lnd_balance: 'เติมกระเป๋าสตางค์ไลท์นิง',
     refill: 'เติม',
     withdraw: 'ถอน',
-    placeholder: 'Invoice',
+    placeholder: 'ใบวางบิล',
     expired: 'หมดอายุแล้ว',
     sameWalletAsInvoiceError: 'คุณไม่สามารถจ่ายใบแจ้งหนี้นี้ด้วยกระเป๋าสตางค์อันเดียวกันกับที่ใช้สร้างมัน.',
   },
