@@ -216,6 +216,7 @@ module.exports = {
     refill_lnd_balance: 'Lightning ウォレットへ送金',
     refill: '送金',
     withdraw: '引き出し',
+    placeholder: '入金依頼',
     expired: '失効',
     sameWalletAsInvoiceError: '以前作成したウォレットと同じウォレットへの支払いはできません。',
   },

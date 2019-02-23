@@ -216,6 +216,7 @@ module.exports = {
     choose_source_wallet: 'Escolha a wallet',
     refill_lnd_balance: 'Carregar o saldo da Lightning wallet',
     refill: 'Carregar',
+    placeholder: 'Invoice',
     withdraw: 'Transferir',
     expired: 'Expired',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',

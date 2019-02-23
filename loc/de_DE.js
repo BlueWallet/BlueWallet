@@ -217,6 +217,7 @@ module.exports = {
     refill_lnd_balance: 'Lade deine Lightning Wallet auf',
     refill: 'Aufladen',
     withdraw: 'Abheben',
+    placeholder: 'Invoice',
     sameWalletAsInvoiceError:
       'Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.',
   },

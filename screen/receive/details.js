@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Share } from 'react-native';
-import { QRCode } from 'react-native-custom-qr-codes';
+import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
   BlueLoading,
@@ -36,10 +36,10 @@ export default class ReceiveDetails extends Component {
       addressText: '',
     };
 
-    // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.refreshFunction.bind(this));
+    // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.redrawScreen.bind(this));
   }
 
-  /*  refreshFunction(newAddress) {
+  /*  redrawScreen(newAddress) {
     console.log('newAddress =', newAddress);
     this.setState({
       address: newAddress,
@@ -88,11 +88,12 @@ export default class ReceiveDetails extends Component {
         <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
             <QRCode
-              content={bip21.encode(this.state.address)}
-              size={(is.ipad() && 300) || 300}
-              color={BlueApp.settings.foregroundColor}
-              backgroundColor={BlueApp.settings.brandingColor}
+              value={bip21.encode(this.state.address)}
               logo={require('../../img/qr-code.png')}
+              size={(is.ipad() && 300) || 300}
+              logoSize={90}
+              color={BlueApp.settings.foregroundColor}
+              logoBackgroundColor={BlueApp.settings.brandingColor}
             />
             <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>

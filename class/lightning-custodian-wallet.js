@@ -40,8 +40,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   allowSend() {
-    console.log(this.getBalance(), this.getBalance() > 0);
-    return this.getBalance() > 0;
+    return true;
   }
 
   getAddress() {
@@ -49,13 +48,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   timeToRefreshBalance() {
-    // only manual refresh for now
-    return false;
+    return (+new Date() - this._lastBalanceFetch) / 1000 > 3600; // 1hr
   }
 
   timeToRefreshTransaction() {
-    // only manual refresh for now
-    return false;
+    return (+new Date() - this._lastTxFetch) / 1000 > 3600; // 1hr
   }
 
   static fromJson(param) {
@@ -112,6 +109,17 @@ export class LightningCustodianWallet extends LegacyWallet {
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
+
+    if (response.originalResponse && typeof response.originalResponse === 'string') {
+      try {
+        response.originalResponse = JSON.parse(response.originalResponse);
+      } catch (_) {}
+    }
+
+    if (response.originalResponse && response.originalResponse.status && response.originalResponse.status === 503) {
+      throw new Error('Payment is in transit');
+    }
+
     let json = response.body;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
@@ -434,6 +442,7 @@ export class LightningCustodianWallet extends LegacyWallet {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
 
+    this._lastTxFetch = +new Date();
     this.transactions_raw = json;
   }
 
