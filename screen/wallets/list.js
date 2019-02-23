@@ -96,7 +96,7 @@ export default class WalletsList extends Component {
     this.setState({
       isLoading: false,
       isFlatListRefreshControlHidden: true,
-      dataSource: BlueApp.getTransactions(),
+      dataSource: BlueApp.getTransactions(null, 10),
       wallets: BlueApp.getWallets().concat(false),
     });
   }

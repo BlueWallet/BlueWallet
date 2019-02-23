@@ -577,7 +577,7 @@ export class BlueDismissKeyboardInputAccessory extends Component {
   static InputAccessoryViewID = 'BlueDismissKeyboardInputAccessory';
 
   render() {
-    return (
+    return Platform.OS !== 'ios' ? null : (
       <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
         <View
           style={{

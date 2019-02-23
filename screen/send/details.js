@@ -22,13 +22,14 @@ import {
   BlueBitcoinAmount,
   BlueAddressInput,
   BlueDismissKeyboardInputAccessory,
+  BlueLoading,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -45,6 +46,8 @@ export default class SendDetails extends Component {
     title: loc.send.header,
   });
 
+  state = { isLoading: true, fromWallet: undefined };
+
   constructor(props) {
     super(props);
     console.log('props.navigation.state.params=', props.navigation.state.params);
@@ -58,36 +61,43 @@ export default class SendDetails extends Component {
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = null;
 
-    const wallets = BlueApp.getWallets();
+    const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
-    for (let w of wallets) {
-      if (w.getSecret() === fromSecret) {
-        fromWallet = w;
-        break;
+    if (wallets.length === 0) {
+      alert('Before creating a transaction, you must first add a Bitcoin wallet.');
+      return props.navigation.goBack(null);
+    } else {
+      if (!fromWallet && wallets.length > 0) {
+        fromWallet = wallets[0];
+        fromAddress = fromWallet.getAddress();
+        fromSecret = fromWallet.getSecret();
+      }
+      if (fromWallet === null) return props.navigation.goBack(null);
+      for (let w of wallets) {
+        if (w.getSecret() === fromSecret) {
+          fromWallet = w;
+          break;
+        }
+
+        if (w.getAddress() === fromAddress) {
+          fromWallet = w;
+        }
       }
 
-      if (w.getAddress() === fromAddress) {
-        fromWallet = w;
-      }
+      this.state = {
+        isFeeSelectionModalVisible: false,
+        fromAddress,
+        fromWallet,
+        fromSecret,
+        address,
+        memo,
+        fee: 1,
+        networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
+        feeSliderValue: 1,
+        bip70TransactionExpiration: null,
+        renderWalletSelectionButtonHidden: false,
+      };
     }
-
-    // fallback to first wallet if it exists
-    if (!fromWallet && wallets[0]) fromWallet = wallets[0];
-
-    this.state = {
-      isFeeSelectionModalVisible: false,
-      fromAddress,
-      fromWallet,
-      fromSecret,
-      isLoading: false,
-      address,
-      memo,
-      fee: 1,
-      networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
-      feeSliderValue: 1,
-      bip70TransactionExpiration: null,
-      renderWalletSelectionButtonHidden: false,
-    };
   }
 
   /**
@@ -544,10 +554,10 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    if (!this.state.fromWallet.getAddress) {
+    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
       return (
         <View style={{ flex: 1, paddingTop: 20 }}>
-          <Text>System error: Source wallet not found (this should never happen)</Text>
+          <BlueLoading />
         </View>
       );
     }
@@ -676,6 +686,7 @@ const styles = StyleSheet.create({
 SendDetails.propTypes = {
   navigation: PropTypes.shape({
     pop: PropTypes.func,
+    goBack: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
     state: PropTypes.shape({
