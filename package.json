@@ -86,7 +86,7 @@
     "react-native-sortable-list": "0.0.22",
     "react-native-svg": "9.1.1",
     "react-native-tcp": "3.3.0",
-    "react-native-tooltip": "git+https://github.com/BlueWallet/react-native-tooltip.git",
+    "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
     "react-native-vector-icons": "6.2.0",
     "react-native-webview": "4.1.0",
     "react-native-wkwebview-reborn": "2.0.0",
