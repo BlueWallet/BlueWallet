@@ -39,7 +39,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getBaseURI() {
-    return this.baseURI;
+    return this.baseURI === LightningCustodianWallet.defaultBaseUri ? '' : this.baseURI;
   }
 
   allowSend() {
@@ -51,6 +51,9 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getSecret() {
+    if (this.baseURI === LightningCustodianWallet.defaultBaseUri) {
+      return this.secret;
+    }
     return this.secret + '@' + this.baseURI;
   }
 

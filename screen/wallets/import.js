@@ -74,6 +74,7 @@ export default class WalletsImport extends Component {
           lnd.setBaseURI(split[1]);
           lnd.setSecret(split[0]);
         } else {
+          lnd.setBaseURI(LightningCustodianWallet.defaultBaseUri);
           lnd.setSecret(text);
         }
         await lnd.authorize();
