@@ -5,12 +5,10 @@ import { AppStorage } from '../../class';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Button } from 'react-native-elements';
-import Frisbee from 'frisbee';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const frisbee = new Frisbee();
 
 export default class LightningSettings extends Component {
   static navigationOptions = () => ({
@@ -31,25 +29,19 @@ export default class LightningSettings extends Component {
     this.setState({
       isLoading: false,
       URI,
-      defaultURI: new LightningCustodianWallet().getBaseURI(),
     });
   }
 
   save = () => {
     this.setState({ isLoading: true }, async () => {
       this.state.URI = this.state.URI ? this.state.URI : '';
-      if (this.state.URI.trim().length <= 0) {
-        await AsyncStorage.setItem(AppStorage.LNDHUB, '');
+      try {
+        await LightningCustodianWallet.isValidNodeAddress(this.state.URI || LightningCustodianWallet.defaultBaseUri);
+        await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
         alert('Your changes have been saved successfully');
-      } else {
-        try {
-          await frisbee.get(this.state.URI).then(console.log);
-          await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
-          alert('Your changes have been saved successfully');
-        } catch (error) {
-          alert(error);
-          console.log(error);
-        }
+      } catch (error) {
+        alert(error);
+        console.log(error);
       }
       this.setState({ isLoading: false });
     });
@@ -95,7 +87,7 @@ export default class LightningSettings extends Component {
             }}
           >
             <TextInput
-              placeholder={this.state.defaultURI}
+              placeholder={LightningCustodianWallet.defaultBaseUri}
               value={this.state.URI}
               onChangeText={text => this.setState({ URI: text })}
               numberOfLines={1}

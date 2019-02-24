@@ -22,7 +22,9 @@ export default class WalletDetails extends Component {
         disabled={navigation.getParam('isLoading') === true}
         style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
-          navigation.getParam('saveAction')();
+          if (navigation.state.params.saveAction) {
+            navigation.getParam('saveAction')();
+          }
         }}
       >
         <Text style={{ color: '#0c2550' }}>{loc.wallets.details.save}</Text>
@@ -55,10 +57,17 @@ export default class WalletDetails extends Component {
 
   setLabel() {
     this.props.navigation.setParams({ isLoading: true });
-    this.setState({ isLoading: true }, () => {
+    this.setState({ isLoading: true }, async () => {
       this.state.wallet.setLabel(this.state.walletName);
       if (this.state.wallet.type === LightningCustodianWallet.type) {
-        this.state.wallet.setBaseURI(this.state.walletBaseURI);
+        try {
+          await LightningCustodianWallet.isValidNodeAddress(this.state.walletBaseURI || LightningCustodianWallet.defaultBaseUri);
+          this.state.wallet.setBaseURI(this.state.walletBaseURI);
+        } catch (_error) {
+          this.setState({ isLoading: false });
+          this.props.navigation.setParams({ isLoading: false });
+          return alert('The provided node address is not valid LNDHub node.');
+        }
       }
       BlueApp.saveToDisk();
       alert('Wallet updated.');
