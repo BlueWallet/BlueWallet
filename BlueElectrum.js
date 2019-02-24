@@ -163,7 +163,7 @@ async function estimateFees() {
   const fast = await mainClient.blockchainEstimatefee(1);
   const medium = await mainClient.blockchainEstimatefee(6);
   const slow = await mainClient.blockchainEstimatefee(12);
-  return {fast, medium, slow};
+  return { fast, medium, slow };
 }
 
 module.exports.getBalanceByAddress = getBalanceByAddress;

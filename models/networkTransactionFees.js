@@ -19,10 +19,28 @@ export default class NetworkTransactionFees {
       try {
         let response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
-          const fast = loc.formatBalanceWithoutSuffix(new BigNumber(response.fast).multipliedBy(100000).toNumber().toFixed(0), BitcoinUnit.SATS)
-          const medium = loc.formatBalanceWithoutSuffix(new BigNumber(response.medium).multipliedBy(100000).toNumber().toFixed(0), BitcoinUnit.SATS)
-          const slow = loc.formatBalanceWithoutSuffix(new BigNumber(response.slow).multipliedBy(100000).toNumber().toFixed(0), BitcoinUnit.SATS)
-          const networkFee = new NetworkTransactionFee(fast, medium,  slow);
+          const fast = loc.formatBalanceWithoutSuffix(
+            new BigNumber(response.fast)
+              .multipliedBy(100000)
+              .toNumber()
+              .toFixed(0),
+            BitcoinUnit.SATS,
+          );
+          const medium = loc.formatBalanceWithoutSuffix(
+            new BigNumber(response.medium)
+              .multipliedBy(100000)
+              .toNumber()
+              .toFixed(0),
+            BitcoinUnit.SATS,
+          );
+          const slow = loc.formatBalanceWithoutSuffix(
+            new BigNumber(response.slow)
+              .multipliedBy(100000)
+              .toNumber()
+              .toFixed(0),
+            BitcoinUnit.SATS,
+          );
+          const networkFee = new NetworkTransactionFee(fast, medium, slow);
           resolve(networkFee);
         } else {
           const networkFee = new NetworkTransactionFee(1, 1, 1);
