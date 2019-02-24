@@ -1,3 +1,17 @@
+v3.8.0
+======
+
+* ADD: NZD currency
+* FIX: BlueWallet should register to handle the BOLT11 lightning: URI #335
+* ADD: Chinese locale
+* REF: main screen only 15 txs. wallet screen txs lazy-load (better performance)
+* FIX: Update JP translation
+* ADD: CHF Currency
+* REF: Manage funds and marketplace buttons
+* ADD: InputAccesoryView for easy keyboard dismissal
+* FIX: Fixed color on view invoice
+* REF: UI responsiveness improvements
+
 v3.7.2
 ======
 
@@ -14,4 +28,3 @@ v3.7.2
 * FIX: no wallet refresh upon startup (faster to start app) 
 * FIX: Dismiss keyboard when pressing return 
 * REF: HD wallet getbalance improvements
-* ADD: NZD as a currency

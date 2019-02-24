@@ -29,7 +29,7 @@ import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -61,13 +61,17 @@ export default class SendDetails extends Component {
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = null;
 
-    const wallets = BlueApp.getWallets();
+    const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
     if (wallets.length === 0) {
       alert('Before creating a transaction, you must first add a Bitcoin wallet.');
       return props.navigation.goBack(null);
     } else {
-      if (!fromWallet && wallets.length > 0) fromWallet = wallets[0];
+      if (!fromWallet && wallets.length > 0) {
+        fromWallet = wallets[0];
+        fromAddress = fromWallet.getAddress();
+        fromSecret = fromWallet.getSecret();
+      }
       if (fromWallet === null) return props.navigation.goBack(null);
       for (let w of wallets) {
         if (w.getSecret() === fromSecret) {
@@ -279,11 +283,19 @@ export default class SendDetails extends Component {
             Keyboard.dismiss();
             BitcoinBIP70TransactionDecode.decode(text)
               .then(response => {
+                let networkTransactionFees = this.state.networkTransactionFees;
+                if (response.fee > networkTransactionFees.fastestFee) {
+                  networkTransactionFees.fastestFee = response.fee;
+                } else {
+                  networkTransactionFees.halfHourFee = response.fee;
+                }
                 this.setState({
                   address: response.address,
                   amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
                   memo: response.memo,
-                  fee: response.fee,
+                  networkTransactionFees,
+                  fee: networkTransactionFees.fastestFee.toFixed(0),
+                  feeSliderValue: networkTransactionFees.fastestFee.toFixed(0),
                   bip70TransactionExpiration: response.expires,
                   isLoading: false,
                 });

@@ -86,9 +86,9 @@ export default class BuyBitcoin extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL('https://old.changelly.com/?ref_id=rtagfcvnwiwvhm99');
+                Linking.openURL('https://bluewallet.io/buy-bitcoin-redirect.html');
               }}
-              title="Buy from Changelly"
+              title="Buy Bitcoin"
             />
 
             <BlueSpacing40 />
