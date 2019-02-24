@@ -60,6 +60,7 @@ export default class SendDetails extends Component {
     let fromSecret;
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = null;
+    if (props.navigation.state.params) fromWallet = props.navigation.state.params.fromWallet;
 
     const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
@@ -72,18 +73,6 @@ export default class SendDetails extends Component {
         fromAddress = fromWallet.getAddress();
         fromSecret = fromWallet.getSecret();
       }
-      if (fromWallet === null) return props.navigation.goBack(null);
-      for (let w of wallets) {
-        if (w.getSecret() === fromSecret) {
-          fromWallet = w;
-          break;
-        }
-
-        if (w.getAddress() === fromAddress) {
-          fromWallet = w;
-        }
-      }
-
       this.state = {
         isFeeSelectionModalVisible: false,
         fromAddress,
@@ -703,6 +692,7 @@ SendDetails.propTypes = {
         fromAddress: PropTypes.string,
         satoshiPerByte: PropTypes.string,
         fromSecret: PropTypes.fromSecret,
+        fromWallet: PropTypes.fromWallet,
         memo: PropTypes.string,
         uri: PropTypes.string,
       }),
