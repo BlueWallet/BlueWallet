@@ -158,10 +158,19 @@ async function waitTillConnected() {
   });
 }
 
+async function estimateFees() {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  const fast = await mainClient.blockchainEstimatefee(1);
+  const medium = await mainClient.blockchainEstimatefee(6);
+  const slow = await mainClient.blockchainEstimatefee(12);
+  return {fast, medium, slow};
+}
+
 module.exports.getBalanceByAddress = getBalanceByAddress;
 module.exports.getTransactionsByAddress = getTransactionsByAddress;
 module.exports.multiGetBalanceByAddress = multiGetBalanceByAddress;
 module.exports.waitTillConnected = waitTillConnected;
+module.exports.estimateFees = estimateFees;
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting

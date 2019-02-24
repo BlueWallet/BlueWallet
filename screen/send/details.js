@@ -283,8 +283,8 @@ export default class SendDetails extends Component {
                   amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
                   memo: response.memo,
                   networkTransactionFees,
-                  fee: networkTransactionFees.fastestFee.toFixed(0),
-                  feeSliderValue: networkTransactionFees.fastestFee.toFixed(0),
+                  fee: networkTransactionFees.fastestFee,
+                  feeSliderValue: networkTransactionFees.fastestFee,
                   bip70TransactionExpiration: response.expires,
                   isLoading: false,
                 });
@@ -464,7 +464,7 @@ export default class SendDetails extends Component {
                 }}
                 onChangeText={value => {
                   let newValue = value.replace(/\D/g, '');
-                  this.setState({ fee: Number(newValue), feeSliderValue: Number(newValue) });
+                  this.setState({ fee: newValue, feeSliderValue: Number(newValue) });
                 }}
                 maxLength={9}
                 editable={!this.state.isLoading}
@@ -492,7 +492,7 @@ export default class SendDetails extends Component {
                 <Slider
                   onValueChange={value => this.setState({ feeSliderValue: value.toFixed(0), fee: value.toFixed(0) })}
                   minimumValue={1}
-                  maximumValue={this.state.networkTransactionFees.fastestFee}
+                  maximumValue={Number(this.state.networkTransactionFees.fastestFee)}
                   value={Number(this.state.feeSliderValue)}
                   maximumTrackTintColor="#d8d8d8"
                   minimumTrackTintColor="#37c0a1"
