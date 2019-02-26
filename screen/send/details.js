@@ -28,7 +28,7 @@ import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
@@ -327,14 +327,23 @@ export default class SendDetails extends Component {
     } else if (BitcoinBIP70TransactionDecode.isExpired(this.state.bip70TransactionExpiration)) {
       error = 'Transaction has expired.';
       console.log('validation error');
+    } else if (this.state.address) {
+      const address = this.state.address.trim().toLowerCase();
+      if (address.startsWith('lnb') || address.startsWith('lightning:lnb')) {
+        error =
+          'This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.';
+        console.log('validation error');
+      }
     }
 
-    try {
-      bitcoin.address.toOutputScript(this.state.address);
-    } catch (err) {
-      console.log('validation error');
-      console.log(err);
-      error = loc.send.details.address_field_is_not_valid;
+    if (!error) {
+      try {
+        bitcoin.address.toOutputScript(this.state.address);
+      } catch (err) {
+        console.log('validation error');
+        console.log(err);
+        error = loc.send.details.address_field_is_not_valid;
+      }
     }
 
     if (error) {
@@ -529,7 +538,9 @@ export default class SendDetails extends Component {
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}
-            onPress={() => this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect })}
+            onPress={() =>
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
+            }
           >
             <Text style={{ color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center' }}>
               {loc.wallets.select_wallet.toLowerCase()}
