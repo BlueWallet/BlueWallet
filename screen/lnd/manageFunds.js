@@ -44,6 +44,7 @@ export default class ManageFunds extends Component {
           memo: loc.lnd.refill_lnd_balance,
           fromSecret: wallet.getSecret(),
           address: toAddress,
+          fromWallet: wallet,
         });
       }, 100);
     } else {
