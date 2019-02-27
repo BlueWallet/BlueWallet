@@ -60,7 +60,7 @@ export default class WalletsList extends Component {
     }
     this.setState(
       {
-        isFlatListRefreshControlHidden: true,
+        isFlatListRefreshControlHidden: false,
       },
       () => {
         InteractionManager.runAfterInteractions(async () => {

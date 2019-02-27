@@ -305,9 +305,10 @@ export default class WalletTransactions extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flexDirection: 'row', height: 50 }}>
+      <View style={{ flex: 1, flexDirection: 'row', height: 50 }}>
         <Text
           style={{
+            flex: 1,
             paddingLeft: 15,
             paddingTop: 15,
             fontWeight: 'bold',
@@ -485,7 +486,11 @@ export default class WalletTransactions extends Component {
                     if (this.state.wallet.type === LightningCustodianWallet.type) {
                       navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
                     } else {
-                      navigate('SendDetails', { fromAddress: this.state.wallet.getAddress(), fromSecret: this.state.wallet.getSecret() });
+                      navigate('SendDetails', {
+                        fromAddress: this.state.wallet.getAddress(),
+                        fromSecret: this.state.wallet.getSecret(),
+                        fromWallet: this.state.wallet,
+                      });
                     }
                   }}
                 />

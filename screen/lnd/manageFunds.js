@@ -4,6 +4,7 @@ import { TouchableOpacity, Linking, View } from 'react-native';
 import { BlueSpacingVariable, BlueNavigationStyle, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { ListItem } from 'react-native-elements';
 import PropTypes from 'prop-types';
+import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -44,6 +45,7 @@ export default class ManageFunds extends Component {
           memo: loc.lnd.refill_lnd_balance,
           fromSecret: wallet.getSecret(),
           address: toAddress,
+          fromWallet: wallet,
         });
       }, 100);
     } else {
@@ -61,7 +63,7 @@ export default class ManageFunds extends Component {
             titleStyle={{ color: BlueApp.settings.foregroundColor }}
             component={TouchableOpacity}
             onPress={a => {
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect });
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });
             }}
             title={loc.lnd.refill}
           />
