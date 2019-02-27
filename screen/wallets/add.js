@@ -120,6 +120,7 @@ export default class WalletsAdd extends Component {
                 <BitcoinButton
                   active={this.state.activeBitcoin}
                   onPress={() => {
+                    Keyboard.dismiss()
                     this.setState({
                       activeBitcoin: true,
                       activeLightning: false,
@@ -139,6 +140,7 @@ export default class WalletsAdd extends Component {
                 <LightningButton
                   active={this.state.activeLightning}
                   onPress={() => {
+                    Keyboard.dismiss()
                     this.setState({
                       activeBitcoin: false,
                       activeLightning: true,
@@ -228,8 +230,13 @@ export default class WalletsAdd extends Component {
                                   ? this.state.walletBaseURI
                                   : LightningCustodianWallet.defaultBaseUri;
                               if (lndhub) {
-                                w.setBaseURI(lndhub);
-                                w.init();
+                                const isValidNodeAddress = await LightningCustodianWallet.isValidNodeAddress(lndhub);
+                                if (isValidNodeAddress) {
+                                  w.setBaseURI(lndhub);
+                                  w.init();
+                                } else {
+                                  throw new Error('The provided node address is not valid LNDHub node.');
+                                }
                               }
                               await w.createAccount();
                               await w.authorize();
