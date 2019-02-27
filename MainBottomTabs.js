@@ -189,6 +189,9 @@ const LightningScanInvoiceStackNavigator = createStackNavigator({
   ScanLndInvoice: {
     screen: ScanLndInvoice,
   },
+  SelectWallet: {
+    screen: SelectWallet,
+  },
   Success: {
     screen: Success,
   },

@@ -1,4 +1,4 @@
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 export class AbstractWallet {
   static type = 'abstract';
@@ -27,6 +27,7 @@ export class AbstractWallet {
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
+    this.chain = Chain.ONCHAIN;
   }
 
   getTransactions() {

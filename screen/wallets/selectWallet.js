@@ -25,7 +25,7 @@ export default class SelectWallet extends Component {
   }
 
   componentDidMount() {
-    const wallets = BlueApp.getWallets().filter(item => item.type !== LightningCustodianWallet.type);
+    const wallets = BlueApp.getWallets().filter(item => item.chain === this.props.navigation.getParam('chainType') && item.allowSend());
     this.setState({
       data: wallets,
       isLoading: false,
