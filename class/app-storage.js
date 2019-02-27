@@ -159,11 +159,11 @@ export class AppStorage {
               } catch (Error) {
                 console.warn(Error);
               }
-              if (lndhub) {
+              if (lndhub || unserializedWallet.baseURI.length <= 0) {
                 console.log('using', lndhub, 'for lndhub wallet');
                 unserializedWallet.setBaseURI(lndhub);
               } else {
-                unserializedWallet.setBaseURI();
+                unserializedWallet.setBaseURI(unserializedWallet.baseURI);
                 console.log('using default uri for for lndhub wallet:', unserializedWallet.baseURI);
               }
               unserializedWallet.init();

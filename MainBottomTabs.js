@@ -5,6 +5,7 @@ import About from './screen/settings/about';
 import ReleaseNotes from './screen/settings/releasenotes';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
+import AdvancedMode from './screen/settings/advancedMode';
 import Currency from './screen/settings/currency';
 import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
@@ -105,6 +106,10 @@ const WalletsStackNavigator = createStackNavigator(
     PlausibleDeniability: {
       screen: PlausibleDeniability,
       path: 'PlausibleDeniability',
+    },
+    AdvancedMode: {
+      screen: AdvancedMode,
+      path: 'AdvancedMode',
     },
     LightningSettings: {
       screen: LightningSettings,

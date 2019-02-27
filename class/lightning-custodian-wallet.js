@@ -6,11 +6,11 @@ let BigNumber = require('bignumber.js');
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
   static typeReadable = 'Lightning';
-
+  static defaultBaseUri = 'https://lndhub.herokuapp.com/';
   constructor(props) {
     super(props);
-    this.setBaseURI(); // no args to init with default value
     this.init();
+    this.baseURI = LightningCustodianWallet.defaultBaseUri; // no args to init with default value
     this.refresh_token = '';
     this.access_token = '';
     this._refresh_token_created_ts = 0;
@@ -32,12 +32,15 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (URI) {
       this.baseURI = URI;
     } else {
-      this.baseURI = 'https://lndhub.herokuapp.com/';
+      this.baseURI = LightningCustodianWallet.defaultBaseUri;
     }
+    this._api = new Frisbee({
+      baseURI: this.baseURI,
+    });
   }
 
   getBaseURI() {
-    return this.baseURI;
+    return this.baseURI === LightningCustodianWallet.defaultBaseUri ? 'BlueWallet LNDHub' : this.baseURI;
   }
 
   allowSend() {
@@ -46,6 +49,13 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   getAddress() {
     return '';
+  }
+
+  getSecret() {
+    if (this.baseURI === LightningCustodianWallet.defaultBaseUri) {
+      return this.secret;
+    }
+    return this.secret + '@' + this.baseURI;
   }
 
   timeToRefreshBalance() {
@@ -57,8 +67,9 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   static fromJson(param) {
-    let obj = super.fromJson(param);
+    const obj = super.fromJson(param);
     obj.init();
+
     return obj;
   }
 
@@ -429,7 +440,6 @@ export class LightningCustodianWallet extends LegacyWallet {
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
-
     let json = response.body;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
@@ -535,7 +545,6 @@ export class LightningCustodianWallet extends LegacyWallet {
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
-
     let json = response.body;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
@@ -548,8 +557,31 @@ export class LightningCustodianWallet extends LegacyWallet {
     if (!json.identity_pubkey) {
       throw new Error('API unexpected response: ' + JSON.stringify(response.body));
     }
-
     this.info_raw = json;
+  }
+
+  static async isValidNodeAddress(address) {
+    if (address.trim().length <= 0) {
+      address = LightningCustodianWallet.defaultBaseUri;
+    }
+    let apiCall = new Frisbee({
+      baseURI: address,
+    });
+    let response = await apiCall.get('/getinfo', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+    });
+    let json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    }
+
+    if (json && json.code && json.code !== 1) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+    return true;
   }
 
   allowReceive() {
