@@ -40,7 +40,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getBaseURI() {
-    return this.baseURI === LightningCustodianWallet.defaultBaseUri ? '' : this.baseURI;
+    return this.baseURI === LightningCustodianWallet.defaultBaseUri ? 'BlueWallet LNDHub' : this.baseURI;
   }
 
   allowSend() {

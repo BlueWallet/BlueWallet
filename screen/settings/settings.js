@@ -34,18 +34,18 @@ export default class Settings extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
-        <ScrollView maxHeight={450}>
+        <ScrollView>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('EncryptStorage')}>
             <BlueListItem title={loc.settings.encrypt_storage} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('LightningSettings')}>
-            <BlueListItem title={loc.settings.lightning_settings} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('Language')}>
             <BlueListItem title={loc.settings.language} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('Currency')}>
             <BlueListItem title={loc.settings.currency} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('AdvancedMode')}>
+            <BlueListItem title={'Advanced'} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('About')}>
             <BlueListItem title={loc.settings.about} />

@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import { Alert, AsyncStorage, ActivityIndicator, Keyboard, Dimensions, View, TextInput, TouchableWithoutFeedback } from 'react-native';
 import {
@@ -10,6 +11,7 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
+  BlueFormInput,
   BlueNavigationStyle,
   BlueSpacing20,
 } from '../../BlueComponents';
@@ -25,7 +27,7 @@ let A = require('../../analytics');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const { width } = Dimensions.get('window');
-
+const advancedModeKey = 'ADVANCED_MODE';
 export default class WalletsAdd extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
@@ -37,14 +39,22 @@ export default class WalletsAdd extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      isAdvancedOptionsEnabled: false,
+      walletBaseURI: '',
     };
   }
 
   async componentDidMount() {
+    let isAdvancedOptionsEnabled = await AsyncStorage.getItem(advancedModeKey);
+    isAdvancedOptionsEnabled = JSON.parse(isAdvancedOptionsEnabled);
+    let walletBaseURI = await AsyncStorage.getItem(AppStorage.LNDHUB);
+    walletBaseURI = JSON.parse(walletBaseURI) || '';
     this.setState({
       isLoading: false,
       activeBitcoin: true,
       label: '',
+      isAdvancedOptionsEnabled,
+      walletBaseURI,
     });
   }
 
@@ -145,7 +155,7 @@ export default class WalletsAdd extends Component {
 
             <View>
               {(() => {
-                if (this.state.activeBitcoin) {
+                if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
                   return (
                     <View
                       style={{
@@ -164,6 +174,22 @@ export default class WalletsAdd extends Component {
                       </RadioGroup>
                     </View>
                   );
+                } else if (this.state.activeLightning && this.state.isAdvancedOptionsEnabled) {
+                  return (
+                    <View style={{ marginVertical: 40, marginHorizontal: 20, borderWidth: 0 }}>
+                      <BlueText>connect to</BlueText>
+                      <BlueFormInput
+                        value={this.state.walletBaseURI}
+                        onChangeText={text => {
+                          this.setState({ walletBaseURI: text });
+                        }}
+                        onSubmitEditing={Keyboard.dismiss}
+                        placeholder={'BlueWallet LNDHub'}
+                        clearButtonMode="while-editing"
+                        autoCapitalize="none"
+                      />
+                    </View>
+                  );
                 } else {
                   return (
                     <View>
@@ -177,6 +203,7 @@ export default class WalletsAdd extends Component {
             <View
               style={{
                 alignItems: 'center',
+                flex: 1,
               }}
             >
               {!this.state.isLoading ? (
@@ -196,7 +223,10 @@ export default class WalletsAdd extends Component {
                             w.setLabel(this.state.label || w.typeReadable);
 
                             try {
-                              let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                              let lndhub =
+                                this.state.walletBaseURI.trim().length > 0
+                                  ? this.state.walletBaseURI
+                                  : LightningCustodianWallet.defaultBaseUri;
                               if (lndhub) {
                                 w.setBaseURI(lndhub);
                                 w.init();
@@ -206,6 +236,7 @@ export default class WalletsAdd extends Component {
                             } catch (Err) {
                               this.setState({ isLoading: false });
                               console.warn('lnd create failure', Err);
+                              return alert(Err);
                               // giving app, not adding anything
                             }
                             A(A.ENUM.CREATED_LIGHTNING_WALLET);
