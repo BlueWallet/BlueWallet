@@ -40,22 +40,27 @@ export default class Confirm extends Component {
 
   broadcast() {
     this.setState({ isLoading: true }, async () => {
-      let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-      console.log('broadcast result = ', result);
-      if (typeof result === 'string') {
-        result = JSON.parse(result);
-      }
-      this.setState({ isLoading: false });
-      if (result && result.error) {
-        alert(JSON.stringify(result.error));
-      } else {
-        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-        this.props.navigation.navigate('Success', {
-          fee: Number(this.state.fee),
-          amount: this.state.amount,
-          address: this.state.address,
-          dismissModal: () => this.props.navigation.dismiss(),
-        });
+      try {
+        let result = await this.state.fromWallet.broadcastTx(this.state.tx);
+        if (result && result.code) {
+          if (result.code === 1) {
+            const message = result.message.split('\n');
+            console.warn(message);
+            throw new Error(`${message[0]}: ${message[2]}`);
+          }
+        } else {
+          console.log('broadcast result = ', result);
+          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+          this.props.navigation.navigate('Success', {
+            fee: Number(this.state.fee),
+            amount: this.state.amount,
+            address: this.state.address,
+            dismissModal: () => this.props.navigation.dismiss(),
+          });
+        }
+      } catch (error) {
+        this.setState({ isLoading: false });
+        alert(error.message);
       }
     });
   }
