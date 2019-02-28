@@ -5,6 +5,6 @@ export const BitcoinUnit = Object.freeze({
 });
 
 export const Chain = Object.freeze({
-  ONCHAIN: 'OnChain',
-  OFFCHAIN: 'OffChain',
+  ONCHAIN: 'ONCHAIN',
+  OFFCHAIN: 'OFFCHAIN',
 });

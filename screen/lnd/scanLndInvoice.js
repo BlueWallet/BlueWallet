@@ -1,18 +1,20 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Text, ActivityIndicator, View, TouchableWithoutFeedback, TouchableOpacity, Keyboard } from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueSpacing20,
   BlueButton,
   SafeBlueArea,
   BlueCard,
+  BlueDismissKeyboardInputAccessory,
   BlueNavigationStyle,
   BlueAddressInput,
   BlueBitcoinAmount,
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import { Icon } from 'react-native-elements';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
@@ -28,6 +30,7 @@ export default class ScanLndInvoice extends React.Component {
   state = {
     isLoading: false,
     isAmountInitiallyEmpty: false,
+    renderWalletSelectionButtonHidden: false,
   };
 
   constructor(props) {
@@ -65,10 +68,25 @@ export default class ScanLndInvoice extends React.Component {
   }
 
   async componentDidMount() {
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     if (this.props.navigation.state.params.uri) {
       this.processTextForInvoice(this.props.navigation.getParam('uri'));
     }
   }
+
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  _keyboardDidShow = () => {
+    this.setState({ renderWalletSelectionButtonHidden: true });
+  };
+
+  _keyboardDidHide = () => {
+    this.setState({ renderWalletSelectionButtonHidden: false });
+  };
 
   processInvoice = data => {
     this.setState({ isLoading: true }, async () => {
@@ -181,76 +199,120 @@ export default class ScanLndInvoice extends React.Component {
     return this.state.decoded.num_satoshis <= 0 || this.state.isLoading || isNaN(this.state.decoded.num_satoshis);
   };
 
+  renderWalletSelectionButton = () => {
+    if (this.state.renderWalletSelectionButtonHidden) return;
+    return (
+      <View style={{ marginBottom: 24, alignItems: 'center' }}>
+        {!this.state.isLoading && (
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}
+            onPress={() =>
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+            }
+          >
+            <Text style={{ color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center' }}>
+              {loc.wallets.select_wallet.toLowerCase()}
+            </Text>
+            <Icon name="angle-right" size={22} type="font-awesome" color="#9aa0aa" />
+          </TouchableOpacity>
+        )}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+          <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
+          <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+            {this.state.fromWallet.getBalance()}
+          </Text>
+          <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
+            {BitcoinUnit.BTC}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
+  onWalletSelect = wallet => {
+    this.setState({ fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
+      this.props.navigation.pop();
+    });
+  };
+
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <BlueBitcoinAmount
-            pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
-            isLoading={this.state.isLoading}
-            amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
-            onChangeText={text => {
-              if (typeof this.state.decoded === 'object') {
-                text = parseInt(text || 0);
-                let decoded = this.state.decoded;
-                decoded.num_satoshis = text;
-                this.setState({ decoded: decoded });
-              }
-            }}
-            disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
-            unit={BitcoinUnit.SATS}
-          />
-          <BlueSpacing20 />
-          <BlueCard>
-            <BlueAddressInput
-              onChangeText={text => {
-                this.setState({ destination: text });
-                this.processTextForInvoice(text);
-              }}
-              onBarScanned={this.processInvoice}
-              address={this.state.destination}
-              isLoading={this.state.isLoading}
-              placeholder={loc.lnd.placeholder}
-            />
-            <View
-              style={{
-                flexDirection: 'row',
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 8,
-                borderRadius: 4,
-              }}
-            >
-              <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
-                {this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.description : ''}
-              </Text>
-            </View>
-            {this.state.expiresIn !== undefined && (
-              <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
-            )}
-            <BlueSpacing20 />
-            <BlueSpacing20 />
-            <BlueCard>
-              {this.state.isLoading ? (
-                <View>
-                  <ActivityIndicator />
-                </View>
-              ) : (
-                <BlueButton
-                  icon={{
-                    name: 'bolt',
-                    type: 'font-awesome',
-                    color: BlueApp.settings.buttonTextColor,
+          <View style={{ flex: 1 }}>
+            <View style={{ flex: 1 }}>
+              <BlueBitcoinAmount
+                pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
+                isLoading={this.state.isLoading}
+                amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
+                onChangeText={text => {
+                  if (typeof this.state.decoded === 'object') {
+                    text = parseInt(text || 0);
+                    let decoded = this.state.decoded;
+                    decoded.num_satoshis = text;
+                    this.setState({ decoded: decoded });
+                  }
+                }}
+                disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
+                unit={BitcoinUnit.SATS}
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              />
+              <BlueSpacing20 />
+              <BlueCard>
+                <BlueAddressInput
+                  onChangeText={text => {
+                    this.setState({ destination: text });
+                    this.processTextForInvoice(text);
                   }}
-                  title={'Pay'}
-                  onPress={() => {
-                    this.pay();
-                  }}
-                  disabled={this.shouldDisablePayButton()}
+                  onBarScanned={this.processInvoice}
+                  address={this.state.destination}
+                  isLoading={this.state.isLoading}
+                  placeholder={loc.lnd.placeholder}
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
-              )}
-            </BlueCard>
-          </BlueCard>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 20,
+                    alignItems: 'center',
+                    marginVertical: 8,
+                    borderRadius: 4,
+                  }}
+                >
+                  <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
+                    {this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.description : ''}
+                  </Text>
+                </View>
+                {this.state.expiresIn !== undefined && (
+                  <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
+                )}
+                <BlueSpacing20 />
+                <BlueCard>
+                  {this.state.isLoading ? (
+                    <View>
+                      <ActivityIndicator />
+                    </View>
+                  ) : (
+                    <BlueButton
+                      icon={{
+                        name: 'bolt',
+                        type: 'font-awesome',
+                        color: BlueApp.settings.buttonTextColor,
+                      }}
+                      title={'Pay'}
+                      onPress={() => {
+                        this.pay();
+                      }}
+                      disabled={this.shouldDisablePayButton()}
+                    />
+                  )}
+                </BlueCard>
+              </BlueCard>
+            </View>
+
+            {this.renderWalletSelectionButton()}
+          </View>
+          <BlueDismissKeyboardInputAccessory />
         </SafeBlueArea>
       </TouchableWithoutFeedback>
     );
@@ -261,6 +323,7 @@ ScanLndInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     navigate: PropTypes.func,
+    pop: PropTypes.func,
     getParam: PropTypes.func,
     dismiss: PropTypes.func,
     state: PropTypes.shape({
