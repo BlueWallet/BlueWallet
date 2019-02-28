@@ -375,6 +375,7 @@ export class BlueFormMultiInput extends Component {
         onSelectionChange={this.onSelectionChange}
         selection={this.state.selection}
         keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
+        contextMenuHidden
       />
     );
   }
