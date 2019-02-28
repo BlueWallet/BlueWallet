@@ -339,6 +339,17 @@ export class BlueFormInput extends Component {
 }
 
 export class BlueFormMultiInput extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selection: { start: 0, end: 0 },
+    };
+  }
+
+  onSelectionChange = ({ nativeEvent: { selection, text } }) => {
+    this.setState({ selection: { start: selection.end, end: selection.end } });
+  };
+
   render() {
     return (
       <TextInput
@@ -360,6 +371,10 @@ export class BlueFormMultiInput extends Component {
         autoCapitalize="none"
         spellCheck={false}
         {...this.props}
+        selectTextOnFocus={false}
+        onSelectionChange={this.onSelectionChange}
+        selection={this.state.selection}
+        keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
       />
     );
   }
