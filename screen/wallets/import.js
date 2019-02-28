@@ -240,11 +240,10 @@ export default class WalletsImport extends Component {
               if (!this.state.label) {
                 return;
               }
-              this.setState({ isLoading: true });
-              setTimeout(async () => {
+              this.setState({ isLoading: true }, async () => {
                 await this.importMnemonic(this.state.label.trim());
                 this.setState({ isLoading: false });
-              }, 1);
+              });
             }}
           />
           <BlueButtonLink
