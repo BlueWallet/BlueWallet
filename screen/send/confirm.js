@@ -45,7 +45,6 @@ export default class Confirm extends Component {
         if (result && result.code) {
           if (result.code === 1) {
             const message = result.message.split('\n');
-            console.warn(message);
             throw new Error(`${message[0]}: ${message[2]}`);
           }
         } else {
@@ -59,6 +58,7 @@ export default class Confirm extends Component {
           });
         }
       } catch (error) {
+        ReactNativeHapticFeedback.trigger('notificationError', false)
         this.setState({ isLoading: false });
         alert(error.message);
       }
