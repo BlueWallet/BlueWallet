@@ -198,11 +198,11 @@ export default class SendDetails extends Component {
   };
 
   decodeBitcoinUri(uri) {
+    let amount = '';
+    let parsedBitcoinUri = null;
+    let address = uri || '';
+    let memo = '';
     try {
-      let amount = '';
-      let parsedBitcoinUri = null;
-      let address = '';
-      let memo = '';
       parsedBitcoinUri = bip21.decode(uri);
       address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
       if (parsedBitcoinUri.hasOwnProperty('options')) {
@@ -213,10 +213,8 @@ export default class SendDetails extends Component {
           memo = parsedBitcoinUri.options.label || memo;
         }
       }
-      return { address, amount, memo };
-    } catch (_) {
-      return undefined;
-    }
+    } catch (_) {}
+    return { address, amount, memo };
   }
 
   recalculateAvailableBalance(balance, amount, fee) {
@@ -521,7 +519,7 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <View style={{ paddingHorizontal: 56, paddingVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
+      <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (

@@ -51,6 +51,10 @@ export class BlueButton extends Component {
       backgroundColor = '#eef0f4';
       fontColor = '#9aa0aa';
     }
+    let buttonWidth = width / 1.5;
+    if (this.props.hasOwnProperty('noMinWidth')) {
+      buttonWidth = 0;
+    }
     return (
       <TouchableOpacity
         style={{
@@ -62,7 +66,7 @@ export class BlueButton extends Component {
           height: 45,
           maxHeight: 45,
           borderRadius: 25,
-          minWidth: width / 1.5,
+          minWidth: buttonWidth,
           justifyContent: 'center',
           alignItems: 'center',
         }}

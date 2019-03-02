@@ -8,6 +8,6 @@ export default class Privacy {
   }
 
   static disableBlur() {
-    Platform.OS === 'android' ? Obscure.disableBlur() : PrivacySnapshot.enabled(false);
+    Platform.OS === 'android' ? Obscure.deactivateObscure() : PrivacySnapshot.enabled(false);
   }
 }
