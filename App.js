@@ -5,6 +5,7 @@ import { NavigationActions } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -106,6 +107,7 @@ export default class App extends React.Component {
   renderClipboardContentModal = () => {
     return (
       <Modal
+        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', false)}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
