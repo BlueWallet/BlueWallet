@@ -3,6 +3,7 @@ import { Dimensions, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Privacy from '../../Privacy';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -38,6 +39,7 @@ export default class WalletXpub extends Component {
   }
 
   async componentDidMount() {
+    Privacy.enableBlur();
     this.setState({
       isLoading: false,
       showQr: false,
@@ -46,6 +48,10 @@ export default class WalletXpub extends Component {
     setTimeout(() => {
       this.setState({ showQr: true });
     }, 1000);
+  }
+
+  componentWillUnmount() {
+    Privacy.disableBlur();
   }
 
   onLayout = () => {
