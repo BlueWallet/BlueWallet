@@ -4,7 +4,7 @@ import Modal from 'react-native-modal';
 import { NavigationActions } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
-import { SafeBlueArea, BlueTextCentered, BlueButton } from './BlueComponents';
+import { BlueTextCentered, BlueButton } from './BlueComponents';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -143,7 +143,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <MainBottomTabs
           ref={nav => {
             this.navigator = nav;
@@ -151,7 +151,7 @@ export default class App extends React.Component {
           }}
         />
         {this.renderClipboardContentModal()}
-      </SafeBlueArea>
+      </View>
     );
   }
 }
