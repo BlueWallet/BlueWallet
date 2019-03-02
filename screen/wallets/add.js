@@ -21,11 +21,9 @@ import {
   BlueFormLabel,
   BlueButton,
   SafeBlueArea,
-  BlueCard,
   BlueFormInput,
   BlueNavigationStyle,
   BlueButtonLink,
-  BlueSpacing20,
 } from '../../BlueComponents';
 import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
@@ -136,7 +134,8 @@ export default class WalletsAdd extends Component {
                 marginHorizontal: 20,
                 borderWidth: 0,
                 minHeight: 100,
-              }}>
+              }}
+            >
               <BitcoinButton
                 active={this.state.activeBitcoin}
                 onPress={() => {
@@ -171,8 +170,8 @@ export default class WalletsAdd extends Component {
             </View>
 
             <View style={{ alignSelf: 'flex-start', marginLeft: 20, marginVertical: 5 }}>
-              <TouchableOpacity onPress={this.showAdvancedOptions} style={{ marginVertical: 25}}>
-              <Text style={{ color: '#0c2550', fontWeight: '500'}}>Advanced options</Text>
+              <TouchableOpacity onPress={this.showAdvancedOptions} style={{ marginVertical: 25 }}>
+                <Text style={{ color: '#0c2550', fontWeight: '500' }}>Advanced options</Text>
               </TouchableOpacity>
               <View>
                 {(() => {
