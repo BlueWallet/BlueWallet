@@ -6,12 +6,12 @@ import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { WatchOnlyWallet } from './watch-only-wallet';
 
 export default class WalletGradient {
-  static defaultGradients = ['#65ceef', '#68bbe1'];
+  static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];
   static watchOnlyWallet = ['#7d7d7d', '#4a4a4a'];
   static legacyWallet = ['#40fad1', '#15be98'];
   static hdLegacyP2PKHWallet = ['#e36dfa', '#bd10e0'];
   static hdLegacyBreadWallet = ['#fe6381', '#f99c42'];
-  static hdSegwitP2SHWallet = ['#c65afb', '#9053fe'];
+  static defaultGradients = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
   static createWallet = ['#eef0f4', '#eef0f4'];
 
