@@ -166,11 +166,22 @@ async function estimateFees() {
   return { fast, medium, slow };
 }
 
+async function broadcast(hex) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  try {
+    const broadcast = await mainClient.blockchainTransaction_broadcast(hex);
+    return broadcast;
+  } catch (error) {
+    return error;
+  }
+}
+
 module.exports.getBalanceByAddress = getBalanceByAddress;
 module.exports.getTransactionsByAddress = getTransactionsByAddress;
 module.exports.multiGetBalanceByAddress = multiGetBalanceByAddress;
 module.exports.waitTillConnected = waitTillConnected;
 module.exports.estimateFees = estimateFees;
+module.exports.broadcast = broadcast;
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting

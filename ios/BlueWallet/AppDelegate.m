@@ -42,4 +42,8 @@
   return [RCTLinkingManager application:app openURL:url options:options];
 }
 
+- (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier {
+  return NO;
+}
+
 @end
