@@ -102,7 +102,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "3.8.0"
+        versionName "3.8.2"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -138,6 +138,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-obscure')
     implementation project(':react-native-tcp')
     implementation project(':@remobile_react-native-qrcode-local-image')
     implementation project(':react-native-image-picker')

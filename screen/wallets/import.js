@@ -22,6 +22,7 @@ import {
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Privacy from '../../Privacy';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -47,6 +48,11 @@ export default class WalletsImport extends Component {
       isLoading: false,
       label: '',
     });
+    Privacy.enableBlur();
+  }
+
+  componentWillUnmount() {
+    Privacy.disableBlur();
   }
 
   async _saveWallet(w) {
@@ -234,11 +240,10 @@ export default class WalletsImport extends Component {
               if (!this.state.label) {
                 return;
               }
-              this.setState({ isLoading: true });
-              setTimeout(async () => {
+              this.setState({ isLoading: true }, async () => {
                 await this.importMnemonic(this.state.label.trim());
                 this.setState({ isLoading: false });
-              }, 1);
+              });
             }}
           />
           <BlueButtonLink

@@ -1,5 +1,8 @@
-import Frisbee from 'frisbee';
+import { BitcoinUnit } from './bitcoinUnits';
+import BigNumber from 'bignumber.js';
+let loc = require('../loc');
 
+const BlueElectrum = require('../BlueElectrum');
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
@@ -14,10 +17,30 @@ export default class NetworkTransactionFees {
   static recommendedFees() {
     return new Promise(async (resolve, reject) => {
       try {
-        const api = new Frisbee({ baseURI: 'https://bitcoinfees.earn.com' });
-        let response = await api.get('/api/v1/fees/recommended');
-        if (response && response.body) {
-          const networkFee = new NetworkTransactionFee(response.body.fastestFee, response.body.halfHourFee, response.body.hourFee);
+        let response = await BlueElectrum.estimateFees();
+        if (typeof response === 'object') {
+          const fast = loc.formatBalanceWithoutSuffix(
+            new BigNumber(response.fast)
+              .multipliedBy(100000)
+              .toNumber()
+              .toFixed(0),
+            BitcoinUnit.SATS,
+          );
+          const medium = loc.formatBalanceWithoutSuffix(
+            new BigNumber(response.medium)
+              .multipliedBy(100000)
+              .toNumber()
+              .toFixed(0),
+            BitcoinUnit.SATS,
+          );
+          const slow = loc.formatBalanceWithoutSuffix(
+            new BigNumber(response.slow)
+              .multipliedBy(100000)
+              .toNumber()
+              .toFixed(0),
+            BitcoinUnit.SATS,
+          );
+          const networkFee = new NetworkTransactionFee(fast, medium, slow);
           resolve(networkFee);
         } else {
           const networkFee = new NetworkTransactionFee(1, 1, 1);

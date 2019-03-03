@@ -96,7 +96,7 @@ export default class LNDViewInvoice extends Component {
   }
 
   handleBackButton() {
-    this.props.navigation.popToTop();
+    this.props.navigation.goBack(null);
     return true;
   }
 
