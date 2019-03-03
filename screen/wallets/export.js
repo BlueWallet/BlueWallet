@@ -40,13 +40,7 @@ export default class WalletExport extends Component {
     Privacy.enableBlur();
     this.setState({
       isLoading: false,
-      showQr: false,
     });
-
-    let that = this;
-    setTimeout(function() {
-      that.setState({ showQr: true });
-    }, 1000);
   }
 
   componentWillUnmount() {
@@ -84,27 +78,17 @@ export default class WalletExport extends Component {
             }
           })()}
           <BlueSpacing20 />
-          {(() => {
-            if (this.state.showQr) {
-              return (
-                <QRCode
-                  value={this.state.wallet.getSecret()}
-                  logo={require('../../img/qr-code.png')}
-                  size={this.state.qrCodeHeight}
-                  logoSize={90}
-                  color={BlueApp.settings.foregroundColor}
-                  logoBackgroundColor={BlueApp.settings.brandingColor}
-                  ecl={'H'}
-                />
-              );
-            } else {
-              return (
-                <View>
-                  <ActivityIndicator />
-                </View>
-              );
-            }
-          })()}
+
+          <QRCode
+            value={this.state.wallet.getSecret()}
+            logo={require('../../img/qr-code.png')}
+            size={this.state.qrCodeHeight}
+            logoSize={90}
+            color={BlueApp.settings.foregroundColor}
+            logoBackgroundColor={BlueApp.settings.brandingColor}
+            ecl={'H'}
+          />
+
           <BlueSpacing20 />
 
           <BlueText style={{ alignItems: 'center', paddingHorizontal: 8 }}>{this.state.wallet.getSecret()}</BlueText>
