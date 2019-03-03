@@ -12,6 +12,7 @@ import {
   BlueCopyTextToClipboard,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Privacy from '../../Privacy';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -45,6 +46,14 @@ export default class ReceiveAmount extends Component {
       label: undefined,
       amountSet: false,
     };
+  }
+
+  componentDidMount() {
+    Privacy.enableBlur();
+  }
+
+  componentWillUnmount() {
+    Privacy.disableBlur();
   }
 
   determineSize = () => {

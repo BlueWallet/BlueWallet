@@ -1,11 +1,24 @@
 import React from 'react';
-import { Linking } from 'react-native';
+import { Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import Modal from 'react-native-modal';
 import { NavigationActions } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
+import { BlueTextCentered, BlueButton } from './BlueComponents';
+const bitcoin = require('bitcoinjs-lib');
+const bitcoinModalString = 'Bitcoin address';
+const lightningModalString = 'Lightning Invoice';
+let loc = require('./loc');
 
 export default class App extends React.Component {
   navigator = null;
+
+  state = {
+    appState: AppState.currentState,
+    isClipboardContentModalVisible: false,
+    clipboardContentModalAddressType: bitcoinModalString,
+    clipboardContent: '',
+  };
 
   componentDidMount() {
     Linking.getInitialURL()
@@ -13,10 +26,51 @@ export default class App extends React.Component {
       .catch(console.error);
 
     Linking.addEventListener('url', this.handleOpenURL);
+    AppState.addEventListener('change', this._handleAppStateChange);
   }
 
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
+    AppState.removeEventListener('change', this._handleAppStateChange);
+  }
+
+  _handleAppStateChange = async nextAppState => {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+      const clipboard = await Clipboard.getString();
+      if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
+        this.setState({ isClipboardContentModalVisible: true });
+      }
+
+      this.setState({ clipboardContent: clipboard });
+    }
+    this.setState({ appState: nextAppState });
+  };
+
+  isBitcoinAddress(address) {
+    let isValidBitcoinAddress = false;
+    try {
+      bitcoin.address.toOutputScript(address);
+      isValidBitcoinAddress = true;
+      this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+    } catch (err) {
+      isValidBitcoinAddress = false;
+    }
+    if (!isValidBitcoinAddress) {
+      if (address.indexOf('bitcoin:') === 0 || address.indexOf('BITCOIN:') === 0) {
+        isValidBitcoinAddress = true;
+        this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+      }
+    }
+    return isValidBitcoinAddress;
+  }
+
+  isLightningInvoice(invoice) {
+    let isValidLightningInvoice = false;
+    if (invoice.indexOf('lightning:lnb') === 0 || invoice.indexOf('LIGHTNING:lnb') === 0 || invoice.toLowerCase().startsWith('lnb')) {
+      this.setState({ clipboardContentModalAddressType: lightningModalString });
+      isValidLightningInvoice = true;
+    }
+    return isValidLightningInvoice;
   }
 
   handleOpenURL = event => {
@@ -26,7 +80,7 @@ export default class App extends React.Component {
     if (typeof event.url !== 'string') {
       return;
     }
-    if (event.url.indexOf('bitcoin:') === 0 || event.url.indexOf('BITCOIN:') === 0) {
+    if (this.isBitcoinAddress(event.url)) {
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
@@ -36,7 +90,7 @@ export default class App extends React.Component {
             },
           }),
         );
-    } else if (event.url.indexOf('lightning:') === 0 || event.url.indexOf('LIGHTNING:') === 0) {
+    } else if (this.isLightningInvoice(event.url)) {
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
@@ -49,14 +103,79 @@ export default class App extends React.Component {
     }
   };
 
+  renderClipboardContentModal = () => {
+    return (
+      <Modal
+        isVisible={this.state.isClipboardContentModalVisible}
+        style={styles.bottomModal}
+        onBackdropPress={() => {
+          this.setState({ isClipboardContentModalVisible: false });
+        }}
+      >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+          <View style={styles.modalContent}>
+            <BlueTextCentered>
+              You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
+            </BlueTextCentered>
+            <View style={styles.modelContentButtonLayout}>
+              <BlueButton
+                noMinWidth
+                title={loc.send.details.cancel}
+                onPress={() => this.setState({ isClipboardContentModalVisible: false })}
+              />
+              <View style={{ marginHorizontal: 8 }} />
+              <BlueButton
+                noMinWidth
+                title="OK"
+                onPress={() => {
+                  this.setState({ isClipboardContentModalVisible: false }, async () => {
+                    const clipboard = await Clipboard.getString();
+                    setTimeout(() => this.handleOpenURL({ url: clipboard }), 100);
+                  });
+                }}
+              />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    );
+  };
+
   render() {
     return (
-      <MainBottomTabs
-        ref={nav => {
-          this.navigator = nav;
-          NavigationService.setTopLevelNavigator(nav);
-        }}
-      />
+      <View style={{ flex: 1 }}>
+        <MainBottomTabs
+          ref={nav => {
+            this.navigator = nav;
+            NavigationService.setTopLevelNavigator(nav);
+          }}
+        />
+        {this.renderClipboardContentModal()}
+      </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 200,
+    height: 200,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  modelContentButtonLayout: {
+    flexDirection: 'row',
+    margin: 16,
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
+});

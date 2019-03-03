@@ -20,9 +20,14 @@ export default class BitcoinBIP70TransactionDecode {
   static decode(data) {
     return new Promise(async (resolve, reject) => {
       try {
-        const url = data.match(/bitcoin:\?r=https?:\/\/\S+/gi);
+        let url;
+        if (data.match(/bitcoin:\?r=https?:\/\/\S+/gi)) {
+          url = data.toString().split('bitcoin:?r=')[1];
+        } else if (data.startsWith('https://bitpay.com/i/') || data.startsWith('https://www.bitpay.com/i/')) {
+          url = data.toString();
+        }
         const api = new Frisbee({
-          baseURI: url.toString().split('bitcoin:?r=')[1],
+          baseURI: url,
           headers: {
             Accept: 'application/payment-request',
           },
@@ -69,6 +74,6 @@ export default class BitcoinBIP70TransactionDecode {
   }
 
   static matchesPaymentURL(data) {
-    return data !== null && data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null;
+    return data !== null && (data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null || data.startsWith('https://bitpay.com/i/') || data.startsWith('https://www.bitpay.com/i/'));
   }
 }

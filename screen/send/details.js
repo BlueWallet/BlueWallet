@@ -28,7 +28,7 @@ import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
@@ -60,6 +60,7 @@ export default class SendDetails extends Component {
     let fromSecret;
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     let fromWallet = null;
+    if (props.navigation.state.params) fromWallet = props.navigation.state.params.fromWallet;
 
     const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
@@ -72,18 +73,6 @@ export default class SendDetails extends Component {
         fromAddress = fromWallet.getAddress();
         fromSecret = fromWallet.getSecret();
       }
-      if (fromWallet === null) return props.navigation.goBack(null);
-      for (let w of wallets) {
-        if (w.getSecret() === fromSecret) {
-          fromWallet = w;
-          break;
-        }
-
-        if (w.getAddress() === fromAddress) {
-          fromWallet = w;
-        }
-      }
-
       this.state = {
         isFeeSelectionModalVisible: false,
         fromAddress,
@@ -209,11 +198,11 @@ export default class SendDetails extends Component {
   };
 
   decodeBitcoinUri(uri) {
+    let amount = '';
+    let parsedBitcoinUri = null;
+    let address = uri || '';
+    let memo = '';
     try {
-      let amount = '';
-      let parsedBitcoinUri = null;
-      let address = '';
-      let memo = '';
       parsedBitcoinUri = bip21.decode(uri);
       address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
       if (parsedBitcoinUri.hasOwnProperty('options')) {
@@ -224,10 +213,8 @@ export default class SendDetails extends Component {
           memo = parsedBitcoinUri.options.label || memo;
         }
       }
-      return { address, amount, memo };
-    } catch (_) {
-      return undefined;
-    }
+    } catch (_) {}
+    return { address, amount, memo };
   }
 
   recalculateAvailableBalance(balance, amount, fee) {
@@ -283,11 +270,19 @@ export default class SendDetails extends Component {
             Keyboard.dismiss();
             BitcoinBIP70TransactionDecode.decode(text)
               .then(response => {
+                let networkTransactionFees = this.state.networkTransactionFees;
+                if (response.fee > networkTransactionFees.fastestFee) {
+                  networkTransactionFees.fastestFee = response.fee;
+                } else {
+                  networkTransactionFees.halfHourFee = response.fee;
+                }
                 this.setState({
                   address: response.address,
                   amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
                   memo: response.memo,
-                  fee: response.fee,
+                  networkTransactionFees,
+                  fee: networkTransactionFees.fastestFee,
+                  feeSliderValue: networkTransactionFees.fastestFee,
                   bip70TransactionExpiration: response.expires,
                   isLoading: false,
                 });
@@ -330,14 +325,23 @@ export default class SendDetails extends Component {
     } else if (BitcoinBIP70TransactionDecode.isExpired(this.state.bip70TransactionExpiration)) {
       error = 'Transaction has expired.';
       console.log('validation error');
+    } else if (this.state.address) {
+      const address = this.state.address.trim().toLowerCase();
+      if (address.startsWith('lnb') || address.startsWith('lightning:lnb')) {
+        error =
+          'This address appears to be for a Lightning invoice. Please, go to your Lightning wallet in order to make a payment for this invoice.';
+        console.log('validation error');
+      }
     }
 
-    try {
-      bitcoin.address.toOutputScript(this.state.address);
-    } catch (err) {
-      console.log('validation error');
-      console.log(err);
-      error = loc.send.details.address_field_is_not_valid;
+    if (!error) {
+      try {
+        bitcoin.address.toOutputScript(this.state.address);
+      } catch (err) {
+        console.log('validation error');
+        console.log(err);
+        error = loc.send.details.address_field_is_not_valid;
+      }
     }
 
     if (error) {
@@ -467,7 +471,7 @@ export default class SendDetails extends Component {
                 }}
                 onChangeText={value => {
                   let newValue = value.replace(/\D/g, '');
-                  this.setState({ fee: Number(newValue), feeSliderValue: Number(newValue) });
+                  this.setState({ fee: newValue, feeSliderValue: Number(newValue) });
                 }}
                 maxLength={9}
                 editable={!this.state.isLoading}
@@ -495,7 +499,7 @@ export default class SendDetails extends Component {
                 <Slider
                   onValueChange={value => this.setState({ feeSliderValue: value.toFixed(0), fee: value.toFixed(0) })}
                   minimumValue={1}
-                  maximumValue={this.state.networkTransactionFees.fastestFee}
+                  maximumValue={Number(this.state.networkTransactionFees.fastestFee)}
                   value={Number(this.state.feeSliderValue)}
                   maximumTrackTintColor="#d8d8d8"
                   minimumTrackTintColor="#37c0a1"
@@ -515,7 +519,7 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <View style={{ paddingHorizontal: 56, paddingVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
+      <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
@@ -532,7 +536,9 @@ export default class SendDetails extends Component {
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}
-            onPress={() => this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect })}
+            onPress={() =>
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
+            }
           >
             <Text style={{ color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center' }}>
               {loc.wallets.select_wallet.toLowerCase()}
@@ -695,6 +701,7 @@ SendDetails.propTypes = {
         fromAddress: PropTypes.string,
         satoshiPerByte: PropTypes.string,
         fromSecret: PropTypes.fromSecret,
+        fromWallet: PropTypes.fromWallet,
         memo: PropTypes.string,
         uri: PropTypes.string,
       }),

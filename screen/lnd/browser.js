@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, View, Platform, Alert, Dimensions } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Platform, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import WKWebView from 'react-native-wkwebview-reborn';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
-import { FormInput } from 'react-native-elements';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-const { width } = Dimensions.get('window');
 
 let processedInvoices = {};
 let lastTimeTriedToPay = 0;
@@ -222,16 +220,33 @@ export default class Browser extends Component {
 
     this.state = {
       url: 'https://bluewallet.io/marketplace/',
-      pageIsLoading: false,
       fromSecret: props.navigation.getParam('fromSecret'),
       fromWallet: props.navigation.getParam('fromWallet'),
+      canGoBack: false,
+      pageIsLoading: false,
+      stateURL: 'https://bluewallet.io/marketplace/',
     };
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
   }
+
+  componentWillUnmount = () => {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+  };
+
+  handleBackButton() {
+    this.state.canGoBack ? this.webview.goBack() : this.props.navigation.goBack(null);
+    return true;
+  }
+
+  _onNavigationStateChange = webViewState => {
+    this.setState({ canGoBack: webViewState.canGoBack, stateURL: webViewState.url });
+  };
 
   renderWebView = () => {
     if (Platform.OS === 'android') {
       return (
         <WebView
+          onNavigationStateChange={this._onNavigationStateChange}
           ref={ref => (this.webview = ref)}
           source={{ uri: this.state.url }}
           onMessage={e => {
@@ -330,6 +345,7 @@ export default class Browser extends Component {
           ref={ref => (this.webview = ref)}
           source={{ uri: this.state.url }}
           injectJavaScript={injectedParadise}
+          onNavigationStateChange={this._onNavigationStateChange}
           onMessage={e => {
             // this is a handler which receives messages sent from within the browser
             console.log('---- message from the bus:', e.nativeEvent.data);
@@ -417,75 +433,94 @@ export default class Browser extends Component {
   render() {
     return (
       <SafeBlueArea>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}>
           <TouchableOpacity
+            disabled={!this.state.canGoBack}
             onPress={() => {
               this.webview.goBack();
             }}
+            style={{ marginHorizontal: 8 }}
           >
             <Ionicons
               name={'ios-arrow-round-back'}
               size={36}
               style={{
-                color: 'red',
+                color: this.state.canGoBack ? 'red' : 'gray',
                 backgroundColor: 'transparent',
                 paddingLeft: 10,
               }}
             />
           </TouchableOpacity>
 
-          <FormInput
-            inputStyle={{ color: '#0c2550', maxWidth: width - 150, fontSize: 16 }}
-            containerStyle={{
-              maxWidth: width - 150,
-              borderColor: '#d2d2d2',
-              borderWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-            }}
-            value={this.state.url}
-          />
-
-          <TouchableOpacity
-            onPress={() => {
-              processedInvoices = {};
-              this.setState({ url: 'https://bluewallet.io/marketplace/' });
-            }}
-          >
-            <Ionicons
-              name={'ios-home'}
-              size={36}
+          <View style={{ flex: 1, marginHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}>
+            <View
               style={{
-                color: this.state.weblnEnabled ? 'green' : 'red',
-                backgroundColor: 'transparent',
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                alignItems: 'center',
+                marginVertical: 8,
+                borderRadius: 4,
               }}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              let reloadUrl = this.state.url;
-              this.setState({ url: 'about:blank' });
-              processedInvoices = {};
-              setTimeout(() => this.setState({ url: reloadUrl }), 500);
-              // this.webview.reload();
-            }}
-          >
-            {(!this.state.pageIsLoading && (
+            >
+              <TextInput
+                onChangeText={text => this.setState({ stateURL: text })}
+                value={this.state.stateURL}
+                numberOfLines={1}
+                style={{ flex: 1, marginLeft: 4, minHeight: 33 }}
+                editable={false}
+                onSubmitEditing={Keyboard.dismiss}
+              />
+            </View>
+          </View>
+          <View style={{ alignContent: 'flex-end', height: 44, flexDirection: 'row', marginHorizontal: 8 }}>
+            <TouchableOpacity
+              onPress={() => {
+                processedInvoices = {};
+                this.setState({ url: 'https://bluewallet.io/marketplace/' });
+              }}
+            >
               <Ionicons
-                name={'ios-sync'}
+                name={'ios-home'}
                 size={36}
                 style={{
-                  color: 'red',
+                  color: this.state.weblnEnabled ? 'green' : 'red',
                   backgroundColor: 'transparent',
-                  paddingLeft: 15,
                 }}
               />
-            )) || (
-              <View style={{ paddingLeft: 20 }}>
-                <ActivityIndicator />
-              </View>
-            )}
-          </TouchableOpacity>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                let reloadUrl = this.state.url;
+                this.setState({ url: 'about:blank' });
+                processedInvoices = {};
+                setTimeout(() => this.setState({ url: reloadUrl }), 500);
+                // this.webview.reload();
+              }}
+            >
+              {!this.state.pageIsLoading ? (
+                <Ionicons
+                  name={'ios-sync'}
+                  size={36}
+                  style={{
+                    color: 'red',
+                    backgroundColor: 'transparent',
+                    paddingLeft: 15,
+                  }}
+                />
+              ) : (
+                <View style={{ flex: 1, justifyContent: 'center', paddingLeft: 20, alignContent: 'center' }}>
+                  <ActivityIndicator />
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         {this.renderWebView()}
       </SafeBlueArea>
@@ -497,5 +532,6 @@ Browser.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func,
     navigate: PropTypes.func,
+    goBack: PropTypes.func,
   }),
 };

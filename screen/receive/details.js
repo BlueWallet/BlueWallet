@@ -12,6 +12,7 @@ import {
   is,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Privacy from '../../Privacy';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -47,6 +48,7 @@ export default class ReceiveDetails extends Component {
   } */
 
   async componentDidMount() {
+    Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
 
     /**  @type {AbstractWallet}   */
@@ -76,6 +78,10 @@ export default class ReceiveDetails extends Component {
         addressText: address,
       });
     }
+  }
+
+  componentWillUnmount() {
+    Privacy.disableBlur();
   }
 
   render() {

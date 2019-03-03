@@ -3,6 +3,8 @@ import { TextInput, ScrollView, Linking, TouchableOpacity, Clipboard, StyleSheet
 import { Text } from 'react-native-elements';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Privacy from '../../Privacy';
+
 let loc = require('../../loc');
 
 export default class SendCreate extends Component {
@@ -28,8 +30,13 @@ export default class SendCreate extends Component {
   }
 
   async componentDidMount() {
+    Privacy.enableBlur();
     console.log('send/create - componentDidMount');
     console.log('address = ', this.state.address);
+  }
+
+  componentWillUnmount() {
+    Privacy.disableBlur();
   }
 
   render() {

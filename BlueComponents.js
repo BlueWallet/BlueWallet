@@ -51,6 +51,10 @@ export class BlueButton extends Component {
       backgroundColor = '#eef0f4';
       fontColor = '#9aa0aa';
     }
+    let buttonWidth = width / 1.5;
+    if (this.props.hasOwnProperty('noMinWidth')) {
+      buttonWidth = 0;
+    }
     return (
       <TouchableOpacity
         style={{
@@ -62,7 +66,7 @@ export class BlueButton extends Component {
           height: 45,
           maxHeight: 45,
           borderRadius: 25,
-          minWidth: width / 1.5,
+          minWidth: buttonWidth,
           justifyContent: 'center',
           alignItems: 'center',
         }}
@@ -339,6 +343,17 @@ export class BlueFormInput extends Component {
 }
 
 export class BlueFormMultiInput extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selection: { start: 0, end: 0 },
+    };
+  }
+
+  onSelectionChange = ({ nativeEvent: { selection, text } }) => {
+    this.setState({ selection: { start: selection.end, end: selection.end } });
+  };
+
   render() {
     return (
       <TextInput
@@ -360,6 +375,11 @@ export class BlueFormMultiInput extends Component {
         autoCapitalize="none"
         spellCheck={false}
         {...this.props}
+        selectTextOnFocus={false}
+        onSelectionChange={this.onSelectionChange}
+        selection={this.state.selection}
+        keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
+        contextMenuHidden
       />
     );
   }
