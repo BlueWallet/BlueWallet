@@ -115,7 +115,7 @@ export default class WalletsAdd extends Component {
               <TextInput
                 value={this.state.label}
                 placeholderTextColor="#81868e"
-                placeholder="My first wallet"
+                placeholder="my first wallet"
                 onChangeText={text => {
                   this.setLabel(text);
                 }}
@@ -228,7 +228,7 @@ export default class WalletsAdd extends Component {
               {!this.state.isLoading ? (
                 <BlueButton
                   title={loc.wallets.add.create}
-                  disabled={this.state.activeBitcoin === undefined}
+                  disabled={this.state.activeBitcoin === undefined || this.state.label.trim().length <= 0}
                   onPress={() => {
                     this.setState(
                       { isLoading: true },
@@ -240,7 +240,7 @@ export default class WalletsAdd extends Component {
 
                           this.createLightningWallet = async () => {
                             w = new LightningCustodianWallet();
-                            w.setLabel(this.state.label || w.typeReadable);
+                            w.setLabel(this.state.label);
 
                             try {
                               let lndhub =
@@ -303,11 +303,11 @@ export default class WalletsAdd extends Component {
                           // btc was selected
                           // index 1 radio - segwit single address
                           w = new SegwitP2SHWallet();
-                          w.setLabel(this.state.label || loc.wallets.add.label_new_segwit);
+                          w.setLabel(this.state.label);
                         } else {
                           // zero index radio - HD segwit
                           w = new HDSegwitP2SHWallet();
-                          w.setLabel((this.state.label || loc.wallets.add.label_new_segwit) + ' HD');
+                          w.setLabel(this.state.label);
                         }
                         if (this.state.activeBitcoin) {
                           await w.generate();
