@@ -17,7 +17,7 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
   let ourOutputs = {};
   let outputNum = 0;
   for (const unspent of utxos) {
-    if (unspent.confirmations < 2) {
+    if (unspent.confirmations < 1) {
       // using only confirmed outputs
       continue;
     }
@@ -66,7 +66,7 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   let ourOutputs = {};
   let outputNum = 0;
   for (const unspent of utxos) {
-    if (unspent.confirmations < 2) {
+    if (unspent.confirmations < 1) {
       // using only confirmed outputs
       continue;
     }

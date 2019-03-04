@@ -7,6 +7,7 @@ const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
+const BlueElectrum = require('../BlueElectrum');
 
 /**
  *  Has private key and single address like "1ABCD....."
@@ -356,32 +357,11 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async broadcastTx(txhex) {
-    let chainso = await this._broadcastTxChainso(txhex);
-    console.log('chainso = ', chainso);
-
-    if ((chainso && chainso.status && chainso.status === 'fail') || !chainso) {
-      console.log('fallback to blockcypher');
-      let blockcypher = await this._broadcastTxBlockcypher(txhex); // fallback
-      console.log('blockcypher = ', blockcypher);
-
-      if (Object.keys(blockcypher).length === 0 || blockcypher.error) {
-        // error
-        console.log('blockcypher error, fallback to smartbit');
-        let smartbit = await this._broadcastTxSmartbit(txhex);
-        console.log('smartbit = ', smartbit);
-        return smartbit;
-
-        // let btczen =  await this._broadcastTxBtczen(txhex);
-        // console.log(btczen);
-        // return btczen;
-      }
-      return blockcypher;
-    } else {
-      console.log('success');
-      // success
-      return {
-        result: chainso.data.txid,
-      };
+    try {
+      const broadcast = await BlueElectrum.broadcast(txhex);
+      return broadcast;
+    } catch (error) {
+      return error;
     }
   }
 
