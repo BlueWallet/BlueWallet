@@ -312,8 +312,8 @@ export default class WalletTransactions extends Component {
         <Text
           style={{
             flex: 1,
-            paddingLeft: 15,
-            paddingTop: 15,
+            marginLeft: 15,
+            marginTop: 10,
             fontWeight: 'bold',
             fontSize: 24,
             color: BlueApp.settings.foregroundColor,
@@ -362,19 +362,17 @@ export default class WalletTransactions extends Component {
             >
               <View
                 style={{
-                  marginVertical: 16,
+                  margin: 16,
                   backgroundColor: '#f2f2f2',
                   borderRadius: 9,
                   minWidth: 343,
                   minHeight: 49,
-                  width: 343,
-                  height: 49,
                   justifyContent: 'center',
                   alignItems: 'center',
                   alignSelf: 'center',
                 }}
               >
-                <Text>marketplace</Text>
+                <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
               </View>
             </TouchableOpacity>
           )}
