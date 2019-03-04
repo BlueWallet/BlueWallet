@@ -1,30 +1,25 @@
-v3.8.0
+v3.8.2
 ======
 
-* ADD: NZD currency
-* FIX: BlueWallet should register to handle the BOLT11 lightning: URI #335
-* ADD: Chinese locale
-* REF: main screen only 15 txs. wallet screen txs lazy-load (better performance)
-* FIX: Update JP translation
-* ADD: CHF Currency
-* REF: Manage funds and marketplace buttons
-* ADD: InputAccesoryView for easy keyboard dismissal
-* FIX: Fixed color on view invoice
-* REF: UI responsiveness improvements
-
-v3.7.2
-======
-
-* FIX: status bar disappears #311
-* FIX: faulty back button on viewLndInvoice screen
-* FIX: lnd - create invoice - cant tap bottom half of button #303
-* FIX: Impossible to scan bech32 QR invoice with a specific amount (closes #296) 
-* REF: better lightning error reporting
-* FIX: not redering QR code #302
-* ADD: Indonesian Translation 
-* FIX: better LN wallet auto-refresh strategy 
-* FIX: Dismiss keyboard when pressing return 
-* FIX: HD wallet balance refresh
-* FIX: no wallet refresh upon startup (faster to start app) 
-* FIX: Dismiss keyboard when pressing return 
-* REF: HD wallet getbalance improvements
+* FIX: Create button was difficult to press
+* ADD: Clipboard detection on app state change to foreground
+* FIX: Statusbar restored
+* ADD: Broadcast TX using Electrum
+* ADD: Blur sensitive views from visibility on app switcher
+* FIX: Hide context menu
+* FIX: Disable third party keyboard on iOS
+* FIX: Disable suggestions
+* ADD: Switch Lightning wallets on send screen.
+* ADD: If providing an LND address in BTC send screen, throw an error.
+* ADD: Chain type in order to determine what type of wallet has been selected.
+* FIX: Handle BitPay BIP70 scenarios where schema isnt present.
+* ADD: Use Electrum to estimate fee
+* FIX: Wallet selection
+* FIX: wallets/list pull-to-refresh animation duration
+* FIX: Text not displayed correctly #165
+* FIX: back button
+* FIX: Fix transaction fee for BIP70 payments
+* REF: buy bitcoin via redirect
+* FIX: Update th_TS
+* ADD: Tap, and hold, on balance to display a Copy balance option
+* FIX: Send BTC should ignore non-onchain wallets
