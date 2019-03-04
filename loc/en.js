@@ -2,7 +2,7 @@ module.exports = {
   _: {
     storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
     enter_password: 'Enter password',
-    bad_password: 'Bad pasword, try again',
+    bad_password: 'Bad password, try again',
     never: 'never',
     continue: 'Continue',
     ok: 'OK',
