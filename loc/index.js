@@ -20,7 +20,7 @@ dayjs.extend(relativeTime);
       case 'it':
         require('dayjs/locale/it');
         break;
-      case 'it':
+      case 'zh-cn':
         require('dayjs/locale/zh-cn');
         break;
       case 'ru':
