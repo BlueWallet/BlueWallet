@@ -15,7 +15,8 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'Portafogli',
-      header: 'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' + 'puoi condividerlo per ricevere Bitcoin.',
+      header:
+        'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' + 'puoi condividerlo per ricevere Bitcoin.',
       add: 'Aggiungi Portafoglio',
       create_a_wallet: 'Crea un portafoglio',
       create_a_wallet1: 'È gratuito e puoi crearne',
@@ -72,7 +73,7 @@ module.exports = {
     import: {
       title: 'Importa',
       explanation:
-        "Scrivi qui la tua frase mnemonica, chiave privata, WIF, o qualunque altra cosa tu abbia. BlueWallet tenterà di indovinare il formato corretto e importerà il tuo portafoglio",
+        'Scrivi qui la tua frase mnemonica, chiave privata, WIF, o qualunque altra cosa tu abbia. BlueWallet tenterà di indovinare il formato corretto e importerà il tuo portafoglio',
       imported: 'Importato',
       error: 'Importazione fallita. Assicurati che le informazioni fornite siano valide.',
       success: 'Fatto',
@@ -191,13 +192,13 @@ module.exports = {
   plausibledeniability: {
     title: 'Negazione Plausibile',
     help:
-      "In alcune circostanze, potresi essere costretto a rivelare la " +
-      "password. Per mantenere i tuoi Bitcoin al sicuro, BlueWallet può creare un altro " +
-      "archivio criptato, con una password diversa. Se costretto, " +
-      "puoi rivelare questa password alle terze parti. Se inserita in " +
+      'In alcune circostanze, potresi essere costretto a rivelare la ' +
+      'password. Per mantenere i tuoi Bitcoin al sicuro, BlueWallet può creare un altro ' +
+      'archivio criptato, con una password diversa. Se costretto, ' +
+      'puoi rivelare questa password alle terze parti. Se inserita in ' +
       'BlueWallet, questa sbloccherà un "falso" archivio. Esso sembrerà ' +
-      "autentico alle terze parti, ma manterrà segretamente il tuo archivio principale " +
-      "con i Bitcoin al sicuro.",
+      'autentico alle terze parti, ma manterrà segretamente il tuo archivio principale ' +
+      'con i Bitcoin al sicuro.',
     help2: 'Il nuovo archivio sarà completamente funzionante, e puoi conservarci ' + 'piccole quantità così sembrerà più credibile.',
     create_fake_storage: 'Crea archivio falso criptato',
     go_back: 'Indietro',
