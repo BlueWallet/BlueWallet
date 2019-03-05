@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
@@ -22,7 +22,9 @@ export default class WalletDetails extends Component {
         disabled={navigation.getParam('isLoading') === true}
         style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
-          navigation.getParam('saveAction')();
+          if (navigation.state.params.saveAction) {
+            navigation.getParam('saveAction')();
+          }
         }}
       >
         <Text style={{ color: '#0c2550' }}>{loc.wallets.details.save}</Text>
@@ -54,7 +56,7 @@ export default class WalletDetails extends Component {
 
   setLabel() {
     this.props.navigation.setParams({ isLoading: true });
-    this.setState({ isLoading: true }, () => {
+    this.setState({ isLoading: true }, async () => {
       this.state.wallet.setLabel(this.state.walletName);
       BlueApp.saveToDisk();
       alert('Wallet updated.');
@@ -120,6 +122,12 @@ export default class WalletDetails extends Component {
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
               <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
+              {this.state.wallet.type === LightningCustodianWallet.type && (
+                <React.Fragment>
+                  <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{'connected to'}</Text>
+                  <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
+                </React.Fragment>
+              )}
               <View>
                 <BlueSpacing20 />
                 <BlueButton

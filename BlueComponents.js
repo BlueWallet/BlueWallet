@@ -93,22 +93,27 @@ export class BitcoinButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderColor: "#68bbe1",
             borderWidth: 0.5,
-            borderRadius: 5,
-            backgroundColor: '#f5f5f5',
+            borderRadius: 4,
+            backgroundColor: (this.props.active && '#ecf9ff') || '#FFFFFF',
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon name="btc" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              {loc.wallets.add.bitcoin}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16 }}>
+            <Text style={{ color: '#68bbe1', fontWeight: 'bold' }}>{loc.wallets.add.bitcoin}</Text>
           </View>
+          <BlueSpacing10 />
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/bitcoin.png')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -127,22 +132,27 @@ export class LightningButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderColor: "#f7c056",
             borderWidth: 0.5,
-            borderRadius: 5,
-            backgroundColor: '#f5f5f5',
+            borderRadius: 4,
+            backgroundColor: (this.props.active && '#fffaef') || '#FFFFFF',
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              {loc.wallets.add.lightning}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16 }}>
+            <Text style={{ color: '#f7c056', fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
           </View>
+          <BlueSpacing10 />
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/lightning.png')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -326,18 +336,28 @@ export class BlueFormLabel extends Component {
 export class BlueFormInput extends Component {
   render() {
     return (
-      <FormInput
-        {...this.props}
-        inputStyle={{ color: BlueApp.settings.foregroundColor, maxWidth: width - 105 }}
-        containerStyle={{
-          marginTop: 5,
+      <View
+        style={{
+          flexDirection: 'row',
           borderColor: '#d2d2d2',
           borderBottomColor: '#d2d2d2',
-          borderWidth: 0.5,
+          borderWidth: 1.0,
           borderBottomWidth: 0.5,
           backgroundColor: '#f5f5f5',
+          minHeight: 44,
+          height: 44,
+          alignItems: 'center',
+          marginVertical: 8,
+          borderRadius: 4,
         }}
-      />
+      >
+        <TextInput
+          numberOfLines={1}
+          style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+          onSubmitEditing={Keyboard.dismiss}
+          {...this.props}
+        />
+      </View>
     );
   }
 }
@@ -553,6 +573,12 @@ export class is {
 export class BlueSpacing20 extends Component {
   render() {
     return <View {...this.props} style={{ height: 20, opacity: 0 }} />;
+  }
+}
+
+export class BlueSpacing10 extends Component {
+  render() {
+    return <View {...this.props} style={{ height: 10, opacity: 0 }} />;
   }
 }
 
