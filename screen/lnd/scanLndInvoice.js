@@ -15,6 +15,7 @@ import {
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
@@ -37,6 +38,7 @@ export default class ScanLndInvoice extends React.Component {
     super(props);
 
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
+      ReactNativeHapticFeedback.trigger('notificationError', false);
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       props.navigation.dismiss();
     } else {
@@ -91,6 +93,7 @@ export default class ScanLndInvoice extends React.Component {
   processInvoice = data => {
     this.setState({ isLoading: true }, async () => {
       if (!this.state.fromWallet) {
+        ReactNativeHapticFeedback.trigger('notificationError', false);
         alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
         return this.props.navigation.goBack();
       }
@@ -130,6 +133,7 @@ export default class ScanLndInvoice extends React.Component {
       } catch (Err) {
         Keyboard.dismiss();
         this.setState({ isLoading: false });
+        ReactNativeHapticFeedback.trigger('notificationError', false);
         alert(Err.message);
       }
     });
@@ -153,12 +157,14 @@ export default class ScanLndInvoice extends React.Component {
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
           this.setState({ isLoading: false });
+          ReactNativeHapticFeedback.trigger('notificationError', false);
           return alert('Invoice expired');
         }
 
         const currentUserInvoices = fromWallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
         if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
           this.setState({ isLoading: false });
+          ReactNativeHapticFeedback.trigger('notificationError', false);
           return alert(loc.lnd.sameWalletAsInvoiceError);
         }
 
@@ -167,6 +173,7 @@ export default class ScanLndInvoice extends React.Component {
         } catch (Err) {
           console.log(Err.message);
           this.setState({ isLoading: false });
+          ReactNativeHapticFeedback.trigger('notificationError', false);
           return alert(Err.message);
         }
 
