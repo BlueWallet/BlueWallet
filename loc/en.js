@@ -36,7 +36,7 @@ module.exports = {
       create: 'Create',
       label_new_segwit: 'New SegWit',
       label_new_lightning: 'New Lightning',
-      wallet_name: 'wallet name',
+      wallet_name: 'name',
       wallet_type: 'type',
       or: 'or',
       import_wallet: 'Import wallet',
@@ -182,8 +182,8 @@ module.exports = {
     lightning_settings: 'Lightning Settings',
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +
-      ' and put its URL here in settings. Leave blank to use default LndHub (lndhub.io)',
-    save: 'save',
+      " and put its URL here in settings. Leave blank to use BlueWallet's LNDHub (lndhub.io). Wallets created after saving changes will connect to the specified LNDHub.",
+    save: 'Save',
     about: 'About',
     language: 'Language',
     currency: 'Currency',

@@ -5,10 +5,13 @@ import { NavigationActions } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
-let loc = require('./loc');
+const loc = require('./loc');
+/** @type {AppStorage} */
+const BlueApp = require('./BlueApp');
 
 export default class App extends React.Component {
   navigator = null;
@@ -27,6 +30,7 @@ export default class App extends React.Component {
 
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
+    this._handleAppStateChange(this.state.appState, true);
   }
 
   componentWillUnmount() {
@@ -34,16 +38,17 @@ export default class App extends React.Component {
     AppState.removeEventListener('change', this._handleAppStateChange);
   }
 
-  _handleAppStateChange = async nextAppState => {
-    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
-      const clipboard = await Clipboard.getString();
-      if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
-        this.setState({ isClipboardContentModalVisible: true });
+  _handleAppStateChange = async (nextAppState, force = false) => {
+    if (BlueApp.getWallets().length > 0) {
+      if ((this.state.appState.match(/inactive|background/) && nextAppState === 'active') || force) {
+        const clipboard = await Clipboard.getString();
+        if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
+          this.setState({ isClipboardContentModalVisible: true });
+        }
+        this.setState({ clipboardContent: clipboard });
       }
-
-      this.setState({ clipboardContent: clipboard });
+      this.setState({ appState: nextAppState });
     }
-    this.setState({ appState: nextAppState });
   };
 
   isBitcoinAddress(address) {
@@ -106,6 +111,7 @@ export default class App extends React.Component {
   renderClipboardContentModal = () => {
     return (
       <Modal
+        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', false)}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
