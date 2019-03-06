@@ -16,7 +16,7 @@ module.exports = {
       app_name: 'BlueWallet',
       title: 'Portafogli',
       header:
-        'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' + 'puoi condividerlo per ricevere Bitcoin.',
+        'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' + 'che puoi condividere per ricevere Bitcoin.',
       add: 'Aggiungi Portafoglio',
       create_a_wallet: 'Crea un portafoglio',
       create_a_wallet1: 'È gratuito e puoi crearne',
@@ -182,8 +182,8 @@ module.exports = {
     encrypt_storage: 'Cripta archivio',
     lightning_settings: 'Impostazioni Lightning',
     lightning_settings_explain:
-      'Per connetterti al tuo nodo LND personale installa LndHubTob' +
-      ' e inserisci il suo URL qui nelle impostazioni. Lasicalo vuoto per utilizzare LndHub (lndhub.io)',
+      'Per connetterti al tuo nodo LND personale installa LndHub' +
+      ' e inserisci il suo URL qui nelle impostazioni. Lascialo vuoto per utilizzare il nodo LndHub di default (lndhub.io)',
     save: 'Salva',
     about: 'Informazioni',
     language: 'Lingua',
@@ -192,7 +192,7 @@ module.exports = {
   plausibledeniability: {
     title: 'Negazione Plausibile',
     help:
-      'In alcune circostanze, potresi essere costretto a rivelare la ' +
+      'In alcune circostanze, potresti essere costretto a rivelare la ' +
       'password. Per mantenere i tuoi Bitcoin al sicuro, BlueWallet può creare un altro ' +
       'archivio criptato, con una password diversa. Se costretto, ' +
       'puoi rivelare questa password alle terze parti. Se inserita in ' +
@@ -217,6 +217,6 @@ module.exports = {
     withdraw: 'Preleva',
     expired: 'Scaduto',
     placeholder: 'Fattura',
-    sameWalletAsInvoiceError: 'Non puoi pagare una fattura con lo stesso portafoglio utilizzato per crearlo.',
+    sameWalletAsInvoiceError: 'Non puoi pagare una fattura con lo stesso portafoglio utilizzato per crearla.',
   },
 };
