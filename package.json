@@ -90,6 +90,7 @@
     "react-native-tcp": "3.3.0",
     "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
     "react-native-vector-icons": "6.2.0",
+    "react-native-watch-connectivity": "^0.2.0",
     "react-native-webview": "4.1.0",
     "react-native-wkwebview-reborn": "2.0.0",
     "react-navigation": "^3.3.2",
