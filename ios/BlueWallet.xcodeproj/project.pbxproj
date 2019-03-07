@@ -544,6 +544,13 @@
 			remoteGlobalIDString = 32D980DD1BE9F11C00FA27E5;
 			remoteInfo = RCTQRCodeLocalImage;
 		};
+		B439D9FF2230CB5600C85180 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 146833FF1AC3E56700842450 /* React.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 83CBBA2D1A601D0E00E9B192;
+			remoteInfo = React;
+		};
 		B4442B9C22276A3200009CC0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CEF75317A8A047AB85BF0FC9 /* RCTPrivacySnapshot.xcodeproj */;
@@ -1315,6 +1322,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				B439DA002230CB5600C85180 /* PBXTargetDependency */,
 				B4DAAEC52230BFFD0069E388 /* PBXTargetDependency */,
 			);
 			name = BlueWallet;
@@ -2192,6 +2200,11 @@
 			isa = PBXTargetDependency;
 			target = 2D02E47A1E0B4A5D006451C7 /* BlueWallet-tvOS */;
 			targetProxy = 2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */;
+		};
+		B439DA002230CB5600C85180 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = React;
+			targetProxy = B439D9FF2230CB5600C85180 /* PBXContainerItemProxy */;
 		};
 		B4DAAEB62230BFFC0069E388 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
