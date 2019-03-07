@@ -25,12 +25,14 @@ export default class App extends React.Component {
 
   componentDidMount() {
     Linking.getInitialURL()
-      .then(url => this.handleOpenURL({ url }))
+      .then(url => {
+        if (this.hasSchema(url)) {
+          this.handleOpenURL({ url });
+        }
+      })
       .catch(console.error);
-
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-    this._handleAppStateChange(this.state.appState, true);
   }
 
   componentWillUnmount() {
@@ -38,9 +40,9 @@ export default class App extends React.Component {
     AppState.removeEventListener('change', this._handleAppStateChange);
   }
 
-  _handleAppStateChange = async (nextAppState, force = false) => {
+  _handleAppStateChange = async nextAppState => {
     if (BlueApp.getWallets().length > 0) {
-      if ((this.state.appState.match(/inactive|background/) && nextAppState === 'active') || force) {
+      if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
         const clipboard = await Clipboard.getString();
         if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
           this.setState({ isClipboardContentModalVisible: true });
@@ -50,6 +52,11 @@ export default class App extends React.Component {
       this.setState({ appState: nextAppState });
     }
   };
+
+  hasSchema(schemaString) {
+    const lowercaseString = schemaString.trim().toLowerCase();
+    return lowercaseString.startsWith('bitcoin:') || lowercaseString.startsWith('lightning:');
+  }
 
   isBitcoinAddress(address) {
     let isValidBitcoinAddress = false;
