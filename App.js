@@ -54,6 +54,7 @@ export default class App extends React.Component {
   };
 
   hasSchema(schemaString) {
+    if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
     const lowercaseString = schemaString.trim().toLowerCase();
     return lowercaseString.startsWith('bitcoin:') || lowercaseString.startsWith('lightning:');
   }
