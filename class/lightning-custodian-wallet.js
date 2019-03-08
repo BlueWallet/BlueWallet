@@ -9,8 +9,8 @@ export class LightningCustodianWallet extends LegacyWallet {
   static defaultBaseUri = 'https://lndhub.herokuapp.com/';
   constructor(props) {
     super(props);
+    this.setBaseURI();
     this.init();
-    this.baseURI = LightningCustodianWallet.defaultBaseUri; // no args to init with default value
     this.refresh_token = '';
     this.access_token = '';
     this._refresh_token_created_ts = 0;
@@ -40,7 +40,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getBaseURI() {
-    return this.baseURI === LightningCustodianWallet.defaultBaseUri ? 'BlueWallet LNDHub' : this.baseURI;
+    return this.baseURI;
   }
 
   allowSend() {
