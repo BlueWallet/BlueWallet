@@ -159,12 +159,16 @@ export class AppStorage {
               } catch (Error) {
                 console.warn(Error);
               }
-              if (lndhub) {
-                console.log('using', lndhub, 'for lndhub wallet');
+
+              if (unserializedWallet.baseURI) {
+                unserializedWallet.setBaseURI(unserializedWallet.baseURI); // not really necessary, just for the sake of readability
+                console.log('using saved uri for for ln wallet:', unserializedWallet.baseURI);
+              } else if (lndhub) {
+                console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
                 unserializedWallet.setBaseURI(lndhub);
               } else {
-                unserializedWallet.setBaseURI();
-                console.log('using default uri for for lndhub wallet:', unserializedWallet.baseURI);
+                console.log('using default', LightningCustodianWallet.defaultBaseUri, 'for ln wallet');
+                unserializedWallet.setBaseURI(LightningCustodianWallet.defaultBaseUri);
               }
               unserializedWallet.init();
               break;

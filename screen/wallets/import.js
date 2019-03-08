@@ -31,10 +31,10 @@ let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class WalletsImport extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = {
     ...BlueNavigationStyle(),
     title: loc.wallets.import.title,
-  });
+  };
 
   constructor(props) {
     super(props);
@@ -75,7 +75,14 @@ export default class WalletsImport extends Component {
       // is it lightning custodian?
       if (text.indexOf('blitzhub://') !== -1 || text.indexOf('lndhub://') !== -1) {
         let lnd = new LightningCustodianWallet();
-        lnd.setSecret(text);
+        if (text.includes('@')) {
+          const split = text.split('@');
+          lnd.setBaseURI(split[1]);
+          lnd.setSecret(split[0]);
+        } else {
+          lnd.setBaseURI(LightningCustodianWallet.defaultBaseUri);
+          lnd.setSecret(text);
+        }
         await lnd.authorize();
         await lnd.fetchTransactions();
         await lnd.fetchBalance();
