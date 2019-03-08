@@ -36,11 +36,14 @@ export default class LightningSettings extends Component {
     this.setState({ isLoading: true }, async () => {
       this.state.URI = this.state.URI ? this.state.URI : '';
       try {
-        await LightningCustodianWallet.isValidNodeAddress(this.state.URI || LightningCustodianWallet.defaultBaseUri);
+        if (this.state.URI) {
+          await LightningCustodianWallet.isValidNodeAddress(this.state.URI);
+          // validating only if its not empty. empty means use default
+        }
         await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
         alert('Your changes have been saved successfully');
       } catch (error) {
-        alert(error);
+        alert('Not a valid LndHub URI');
         console.log(error);
       }
       this.setState({ isLoading: false });

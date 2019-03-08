@@ -9,7 +9,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   static defaultBaseUri = 'https://lndhub.herokuapp.com/';
   constructor(props) {
     super(props);
-    this.setBaseURI();
+    this.setBaseURI(); // no args to init with default value
     this.init();
     this.refresh_token = '';
     this.access_token = '';
@@ -64,9 +64,8 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   static fromJson(param) {
-    const obj = super.fromJson(param);
+    let obj = super.fromJson(param);
     obj.init();
-
     return obj;
   }
 
@@ -437,6 +436,7 @@ export class LightningCustodianWallet extends LegacyWallet {
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
+
     let json = response.body;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
@@ -542,6 +542,7 @@ export class LightningCustodianWallet extends LegacyWallet {
         Authorization: 'Bearer' + ' ' + this.access_token,
       },
     });
+
     let json = response.body;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
@@ -558,9 +559,6 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   static async isValidNodeAddress(address) {
-    if (address.trim().length <= 0) {
-      address = LightningCustodianWallet.defaultBaseUri;
-    }
     let apiCall = new Frisbee({
       baseURI: address,
     });
