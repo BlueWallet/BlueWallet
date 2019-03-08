@@ -34,9 +34,6 @@ export class LightningCustodianWallet extends LegacyWallet {
     } else {
       this.baseURI = LightningCustodianWallet.defaultBaseUri;
     }
-    this._api = new Frisbee({
-      baseURI: this.baseURI,
-    });
   }
 
   getBaseURI() {
