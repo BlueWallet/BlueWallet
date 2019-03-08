@@ -15,6 +15,7 @@
 #else
 #import "RNSentry.h" // This is used for versions of react < 0.40
 #endif
+#import "WatchBridge.h"
 
 @implementation AppDelegate
 
@@ -35,6 +36,9 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  self.watchBridge = [WatchBridge shared];
+  self.session = self.watchBridge.session;
+  
   return YES;
 }
 

@@ -31,6 +31,7 @@
 		16763847ED654C79A4B4BBD5 /* ToolTipMenuTests.xctest in Frameworks */ = {isa = PBXBuildFile; fileRef = 8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */; };
 		1FE70B15FB724CE3927C7541 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 94565BFC6A0C4235B3EC7B01 /* libRNSVG.a */; };
 		267263A381F944A9AAB0FA0A /* libRNSentry-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F11DD40F6E9A4F13B3410B94 /* libRNSentry-tvOS.a */; };
+		268F32966CEF426C81418377 /* libRNWatch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A7B39E6BF934B5789553639 /* libRNWatch.a */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -551,6 +552,13 @@
 			remoteGlobalIDString = 83CBBA2D1A601D0E00E9B192;
 			remoteInfo = React;
 		};
+		B439DAA222323A6600C85180 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B5E77FEF413646E685D5041B /* RNWatch.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RNWatch;
+		};
 		B4442B9C22276A3200009CC0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CEF75317A8A047AB85BF0FC9 /* RCTPrivacySnapshot.xcodeproj */;
@@ -661,6 +669,7 @@
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = ToolTipMenuTests.xctest; sourceTree = "<group>"; };
 		8637D4B5E14D443A9031DA95 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
+		8A7B39E6BF934B5789553639 /* libRNWatch.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNWatch.a; sourceTree = "<group>"; };
 		90F86BC5194548CA87D729A9 /* libToolTipMenu.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libToolTipMenu.a; sourceTree = "<group>"; };
 		910283A2A9EB4D00902DE78E /* TcpSockets.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = TcpSockets.xcodeproj; path = "../node_modules/react-native-tcp/ios/TcpSockets.xcodeproj"; sourceTree = "<group>"; };
 		94565BFC6A0C4235B3EC7B01 /* libRNSVG.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSVG.a; sourceTree = "<group>"; };
@@ -685,6 +694,7 @@
 		B4DAAEC02230BFFD0069E388 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B4DAAEC22230BFFD0069E388 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B4DAAEC32230BFFD0069E388 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		B5E77FEF413646E685D5041B /* RNWatch.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNWatch.xcodeproj; path = "../node_modules/react-native-watch-connectivity/RNWatch.xcodeproj"; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRate.a; sourceTree = "<group>"; };
@@ -764,6 +774,7 @@
 				C98BD93429374073A736EFBD /* libToolTipMenu.a in Frameworks */,
 				16763847ED654C79A4B4BBD5 /* ToolTipMenuTests.xctest in Frameworks */,
 				01AB943FA0794E91B65F0BFE /* libRCTPrivacySnapshot.a in Frameworks */,
+				268F32966CEF426C81418377 /* libRNWatch.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1011,6 +1022,7 @@
 				910283A2A9EB4D00902DE78E /* TcpSockets.xcodeproj */,
 				151034F9C66E464B8A6581DA /* ToolTipMenu.xcodeproj */,
 				CEF75317A8A047AB85BF0FC9 /* RCTPrivacySnapshot.xcodeproj */,
+				B5E77FEF413646E685D5041B /* RNWatch.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1101,6 +1113,7 @@
 				90F86BC5194548CA87D729A9 /* libToolTipMenu.a */,
 				8448882949434D41A054C0B2 /* ToolTipMenuTests.xctest */,
 				FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */,
+				8A7B39E6BF934B5789553639 /* libRNWatch.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -1244,6 +1257,14 @@
 			isa = PBXGroup;
 			children = (
 				B4327F5121FC1B9300F7ADFA /* libRCTQRCodeLocalImage.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B439DA6222323A6600C85180 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B439DAA322323A6600C85180 /* libRNWatch.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1572,6 +1593,10 @@
 				{
 					ProductGroup = B40FE5CC21FAD27D005D5578 /* Products */;
 					ProjectRef = 9EA3788F4C6643B7B0182587 /* RNVectorIcons.xcodeproj */;
+				},
+				{
+					ProductGroup = B439DA6222323A6600C85180 /* Products */;
+					ProjectRef = B5E77FEF413646E685D5041B /* RNWatch.xcodeproj */;
 				},
 				{
 					ProductGroup = B47720622202510900DD0E81 /* Products */;
@@ -2029,6 +2054,13 @@
 			remoteRef = B4327F5021FC1B9300F7ADFA /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		B439DAA322323A6600C85180 /* libRNWatch.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNWatch.a;
+			remoteRef = B439DAA222323A6600C85180 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		B4442B9D22276A3200009CC0 /* libRCTPrivacySnapshot.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -2270,12 +2302,14 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = BlueWalletTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2318,12 +2352,14 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = BlueWalletTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2367,6 +2403,7 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = BlueWallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -2411,6 +2448,7 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = BlueWallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -2462,11 +2500,13 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2518,11 +2558,13 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2573,11 +2615,13 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2628,11 +2672,13 @@
 					"$(SRCROOT)/../node_modules/react-native-tcp/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-tooltip/ToolTipMenu",
 					"$(SRCROOT)/../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot",
+					"$(SRCROOT)/../node_modules/react-native-watch-connectivity",
 				);
 				INFOPLIST_FILE = "BlueWallet-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
 					"\"$(SRCROOT)/$(TARGET_NAME)\"",
@@ -2765,6 +2811,10 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watchkitapp;
@@ -2797,6 +2847,10 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				IBSC_MODULE = BlueWalletWatch_Extension;
 				INFOPLIST_FILE = BlueWalletWatch/Info.plist;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/$(TARGET_NAME)\"",
+				);
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = io.bluewallet.bluewallet.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";

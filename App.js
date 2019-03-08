@@ -6,6 +6,7 @@ import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import * as watch from 'react-native-watch-connectivity'
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -21,6 +22,8 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
+    watchIsReachable: false,
+    isAppInstalled: false,
   };
 
   componentDidMount() {
@@ -33,6 +36,18 @@ export default class App extends React.Component {
       .catch(console.error);
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
+    watch.subscribeToWatchReachability((err, watchIsReachable) => {
+      if (!err) {
+        this.setState({watchIsReachable})
+        watch.getIsWatchAppInstalled((err, isAppInstalled) => {
+          console.warn(isAppInstalled)
+          if (!err) {
+            this.setState({ isAppInstalled })
+          }
+        })
+      }
+
+    })
   }
 
   componentWillUnmount() {
