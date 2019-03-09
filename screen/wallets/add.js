@@ -7,11 +7,11 @@ import {
   Text,
   ActivityIndicator,
   Keyboard,
-  Dimensions,
   View,
   TextInput,
-  TouchableWithoutFeedback,
   LayoutAnimation,
+  Platform,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {
   BlueTextCentered,
@@ -36,7 +36,6 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { width } = Dimensions.get('window');
 export default class WalletsAdd extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
@@ -78,6 +77,7 @@ export default class WalletsAdd extends Component {
   }
 
   showAdvancedOptions = () => {
+    Keyboard.dismiss();
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
     this.setState({ isAdvancedOptionsEnabled: true });
   };
@@ -93,131 +93,127 @@ export default class WalletsAdd extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false} style={{ flex: 1 }}>
-          <View>
-            <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 16,
-                borderRadius: 4,
+        <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
+          <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
+          <View
+            style={{
+              flexDirection: 'row',
+              borderColor: '#d2d2d2',
+              borderBottomColor: '#d2d2d2',
+              borderWidth: 1.0,
+              borderBottomWidth: 0.5,
+              backgroundColor: '#f5f5f5',
+              minHeight: 44,
+              height: 44,
+              marginHorizontal: 20,
+              alignItems: 'center',
+              marginVertical: 16,
+              borderRadius: 4,
+            }}
+          >
+            <TextInput
+              value={this.state.label}
+              placeholderTextColor="#81868e"
+              placeholder="my first wallet"
+              onChangeText={text => {
+                this.setLabel(text);
               }}
-            >
-              <TextInput
-                value={this.state.label}
-                placeholderTextColor="#81868e"
-                placeholder="my first wallet"
-                onChangeText={text => {
-                  this.setLabel(text);
-                }}
-                style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
-                editable={!this.state.isLoading}
-                underlineColorAndroid="transparent"
-              />
-            </View>
-            <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
+              style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
+              editable={!this.state.isLoading}
+              underlineColorAndroid="transparent"
+            />
+          </View>
+          <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingTop: 10,
-                marginHorizontal: 20,
-                borderWidth: 0,
-                minHeight: 100,
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingTop: 10,
+              marginHorizontal: 20,
+              borderWidth: 0,
+              minHeight: 100,
+            }}
+          >
+            <BitcoinButton
+              active={this.state.activeBitcoin}
+              onPress={() => {
+                Keyboard.dismiss();
+                this.setState({
+                  activeBitcoin: true,
+                  activeLightning: false,
+                });
               }}
-            >
-              <BitcoinButton
-                active={this.state.activeBitcoin}
-                onPress={() => {
-                  Keyboard.dismiss();
-                  this.setState({
-                    activeBitcoin: true,
-                    activeLightning: false,
-                  });
-                }}
-                style={{
-                  width: 141,
-                  height: 88,
-                }}
-              />
-              <View style={{ borderWidth: 0, justifyContent: 'center', marginHorizontal: 8, alignSelf: 'center' }}>
-                <BlueTextCentered style={{ color: '#0c2550' }}>{loc.wallets.add.or}</BlueTextCentered>
-              </View>
-              <LightningButton
-                active={this.state.activeLightning}
-                onPress={() => {
-                  Keyboard.dismiss();
-                  this.setState({
-                    activeBitcoin: false,
-                    activeLightning: true,
-                  });
-                }}
-                style={{
-                  width: 141,
-                  height: 88,
-                }}
-              />
+              style={{
+                width: 141,
+                height: 88,
+              }}
+            />
+            <View style={{ borderWidth: 0, justifyContent: 'center', marginHorizontal: 8, alignSelf: 'center' }}>
+              <BlueTextCentered style={{ color: '#0c2550' }}>{loc.wallets.add.or}</BlueTextCentered>
             </View>
+            <LightningButton
+              active={this.state.activeLightning}
+              onPress={() => {
+                Keyboard.dismiss();
+                this.setState({
+                  activeBitcoin: false,
+                  activeLightning: true,
+                });
+              }}
+              style={{
+                width: 141,
+                height: 88,
+              }}
+            />
+          </View>
 
-            <View style={{ alignSelf: 'flex-start', marginLeft: 20, marginVertical: 5 }}>
-              <TouchableOpacity onPress={this.showAdvancedOptions} style={{ marginVertical: 25 }}>
-                <Text style={{ color: '#0c2550', fontWeight: '500' }}>Advanced options</Text>
-              </TouchableOpacity>
-              <View>
-                {(() => {
-                  if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
-                    return (
-                      <View
-                        style={{
-                          height: 100,
-                        }}
-                      >
-                        <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
-                          <RadioButton value={HDSegwitP2SHWallet.type}>
-                            <BlueText>Multiple addresses</BlueText>
-                          </RadioButton>
-                          <RadioButton value={SegwitP2SHWallet.type}>
-                            <BlueText>Single address</BlueText>
-                          </RadioButton>
-                        </RadioGroup>
-                      </View>
-                    );
-                  } else if (this.state.activeLightning && this.state.isAdvancedOptionsEnabled) {
-                    return (
-                      <View style={{ width: width - 40 }}>
-                        <BlueText>Connect to your LNDHub</BlueText>
-                        <BlueFormInput
-                          value={this.state.walletBaseURI}
-                          onChangeText={text => {
-                            this.setState({ walletBaseURI: text });
-                          }}
-                          onSubmitEditing={Keyboard.dismiss}
-                          placeholder="your node address"
-                          clearButtonMode="while-editing"
-                          autoCapitalize="none"
-                        />
-                      </View>
-                    );
-                  } else if (this.state.activeBitcoin === undefined && this.state.isAdvancedOptionsEnabled) {
-                    return (
-                      <View>
-                        <Text style={{ color: '#81868e' }}>No wallet type selected</Text>
-                      </View>
-                    );
-                  }
-                })()}
-              </View>
-            </View>
+          <View style={{ marginHorizontal: 20 }}>
+            <TouchableOpacity onPress={this.showAdvancedOptions} style={{ marginVertical: 25 }}>
+              <Text style={{ color: '#0c2550', fontWeight: '500' }}>Advanced options</Text>
+            </TouchableOpacity>
+            {(() => {
+              if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
+                return (
+                  <View
+                    style={{
+                      height: 100,
+                    }}
+                  >
+                    <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
+                      <RadioButton value={HDSegwitP2SHWallet.type}>
+                        <BlueText>Multiple addresses</BlueText>
+                      </RadioButton>
+                      <RadioButton value={SegwitP2SHWallet.type}>
+                        <BlueText>Single address</BlueText>
+                      </RadioButton>
+                    </RadioGroup>
+                  </View>
+                );
+              } else if (this.state.activeLightning && this.state.isAdvancedOptionsEnabled) {
+                return (
+                  <React.Fragment>
+                    <BlueText>Connect to your LNDHub</BlueText>
+                    <BlueFormInput
+                      value={this.state.walletBaseURI}
+                      onChangeText={text => {
+                        this.setState({ walletBaseURI: text });
+                      }}
+                      onSubmitEditing={Keyboard.dismiss}
+                      placeholder="your node address"
+                      clearButtonMode="while-editing"
+                      autoCapitalize="none"
+                    />
+                  </React.Fragment>
+                );
+              } else if (this.state.activeBitcoin === undefined && this.state.isAdvancedOptionsEnabled) {
+                return (
+                  <View>
+                    <Text style={{ color: '#81868e' }}>No wallet type selected</Text>
+                  </View>
+                );
+              }
+            })()}
             <View
               style={{
                 alignItems: 'center',
@@ -228,7 +224,7 @@ export default class WalletsAdd extends Component {
               {!this.state.isLoading ? (
                 <BlueButton
                   title={loc.wallets.add.create}
-                  disabled={this.state.activeBitcoin === undefined || this.state.label.trim().length <= 0}
+                  disabled={this.state.activeBitcoin === undefined}
                   onPress={() => {
                     this.setState(
                       { isLoading: true },
@@ -240,7 +236,7 @@ export default class WalletsAdd extends Component {
 
                           this.createLightningWallet = async () => {
                             w = new LightningCustodianWallet();
-                            w.setLabel(this.state.label);
+                            w.setLabel(this.state.label || loc.wallets.details.title);
 
                             try {
                               let lndhub =
@@ -303,11 +299,11 @@ export default class WalletsAdd extends Component {
                           // btc was selected
                           // index 1 radio - segwit single address
                           w = new SegwitP2SHWallet();
-                          w.setLabel(this.state.label);
+                          w.setLabel(this.state.label || loc.wallets.details.title);
                         } else {
                           // zero index radio - HD segwit
                           w = new HDSegwitP2SHWallet();
-                          w.setLabel(this.state.label);
+                          w.setLabel(this.state.label || loc.wallets.details.title);
                         }
                         if (this.state.activeBitcoin) {
                           await w.generate();
@@ -334,7 +330,7 @@ export default class WalletsAdd extends Component {
               />
             </View>
           </View>
-        </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </SafeBlueArea>
     );
   }
