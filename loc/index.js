@@ -17,6 +17,9 @@ dayjs.extend(relativeTime);
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
     switch (lang) {
+      case 'el':
+        require('dayjs/locale/el');
+        break;
       case 'it':
         require('dayjs/locale/it');
         break;
@@ -85,6 +88,7 @@ dayjs.extend(relativeTime);
         locale === 'ua' ||
         locale === 'es' ||
         locale === 'it' ||
+		locale === 'el' ||
         locale === 'fr-fr' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
@@ -100,6 +104,9 @@ dayjs.extend(relativeTime);
         locale === 'zh-cn'
       ) {
         switch (locale) {
+          case 'el':
+            require('dayjs/locale/el');
+            break;
           case 'it':
             require('dayjs/locale/it');
             break;
@@ -165,6 +172,7 @@ strings = new Localization({
   pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   it: require('./it.js'),
+  el: require('./el.js'),
   ua: require('./ua.js'),
   jp_jp: require('./jp_JP.js'),
   de_de: require('./de_DE.js'),
