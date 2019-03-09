@@ -34,6 +34,7 @@ export default class Language extends Component {
         { label: 'Русский', value: 'ru' },
         { label: 'Thai (TH)', value: 'th_th' },
         { label: 'Українська', value: 'ua' },
+        { label: 'Ελληνικά (EL)', value: 'el' },
       ],
     };
   }
