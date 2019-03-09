@@ -18,8 +18,8 @@ module.exports = {
       header: 'En lommebok representerer en hemmelighet (privat nøkkel) og en adresse '+' du kan dele for å motta kryptovaluta.',
       add: 'Legg til lommebok',
       create_a_wallet: 'Lag en lommebok',
-      create_a_wallet1: "It's free and you can create",
-      create_a_wallet2: 'så mange som du vil',
+      create_a_wallet1: 'Det er gratis, og du kan lage',
+      create_a_wallet2: 'så mange du vil',
       latest_transaction: 'siste transaksjonen',
       empty_txs1: 'Dine transaksjoner vil vises her,',
       empty_txs2: 'ingen for øyeblikket',
@@ -181,8 +181,8 @@ module.exports = {
     encrypt_storage: 'Krypter lagring',
     lightning_settings: 'Lightning innstillinger',
     lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      " and put its URL here in settings. Leave blank to use BlueWallet's LNDHub (lndhub.io). Wallets created after saving changes will connect to the specified LNDHub.",
+      'For å koble til din egen LND-node, vennligst installer LndHub' +
+      " og legg URLen her i innstillinger. La feltet være tomt for å bruke BlueWallets LNDHub (lndhub.io). Lommebøker opprettet etter lagring av endringer, vil koble til den angitte LNDHub.",
     save: 'Lagre',
     about: 'Om',
     language: 'Språk',
