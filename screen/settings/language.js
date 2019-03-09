@@ -22,6 +22,7 @@ export default class Language extends Component {
         { label: 'Chinese (ZH)', value: 'zh_cn' },
         { label: 'Croatian (HR)', value: 'hr_hr' },
         { label: 'Danish (DK)', value: 'da_dk' },
+        { label: 'Norsk (NB)', value: 'nb_no' },
         { label: 'Deutsch (DE)', value: 'de_de' },
         { label: 'Español (ES)', value: 'es' },
         { label: 'Italiano (IT)', value: 'it' },
