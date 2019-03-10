@@ -22,7 +22,6 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
-    watchIsReachable: false,
     isAppInstalled: false,
   };
 
@@ -36,18 +35,24 @@ export default class App extends React.Component {
       .catch(console.error);
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-    watch.subscribeToWatchReachability((err, watchIsReachable) => {
-      if (!err) {
-        this.setState({watchIsReachable})
         watch.getIsWatchAppInstalled((err, isAppInstalled) => {
-          console.warn(isAppInstalled)
           if (!err) {
             this.setState({ isAppInstalled })
+            this.sendWalletsToWatch()
           }
         })
-      }
+      
+  }
 
+  sendWalletsToWatch() {
+    if (this.state.isAppInstalled) {
+      const wallets = BlueApp.getWallets()[1]
+      console.warn(wallets)
+      watch.sendMessage({wallets }, (err, replyMessage) => {
+        console.log("Received reply from watch", replyMessage)
     })
+
+    }
   }
 
   componentWillUnmount() {
