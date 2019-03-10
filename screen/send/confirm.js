@@ -5,6 +5,7 @@ import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let loc = require('../../loc');
 let EV = require('../../events');
 let currency = require('../../currency');
@@ -45,7 +46,6 @@ export default class Confirm extends Component {
         if (result && result.code) {
           if (result.code === 1) {
             const message = result.message.split('\n');
-            console.warn(message);
             throw new Error(`${message[0]}: ${message[2]}`);
           }
         } else {
@@ -59,6 +59,7 @@ export default class Confirm extends Component {
           });
         }
       } catch (error) {
+        ReactNativeHapticFeedback.trigger('notificationError', false);
         this.setState({ isLoading: false });
         alert(error.message);
       }
