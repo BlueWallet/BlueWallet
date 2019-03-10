@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import {
   Text,
@@ -32,6 +33,7 @@ export default class WalletTransactions extends Component {
     return {
       headerRight: (
         <TouchableOpacity
+          disabled={navigation.getParam('isLoading') === true}
           style={{ marginHorizontal: 16, minWidth: 150, justifyContent: 'center', alignItems: 'flex-end' }}
           onPress={() =>
             navigation.navigate('WalletDetails', {
@@ -60,7 +62,7 @@ export default class WalletTransactions extends Component {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
     const wallet = props.navigation.getParam('wallet');
-    this.props.navigation.setParams({ wallet: wallet });
+    this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
       isLoading: true,
       showShowFlatListRefreshControl: false,
@@ -74,6 +76,7 @@ export default class WalletTransactions extends Component {
 
   componentDidMount() {
     // nop
+    this.props.navigation.setParams({ isLoading: false });
   }
 
   /**
@@ -162,7 +165,7 @@ export default class WalletTransactions extends Component {
           console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
         } catch (err) {
           noErr = false;
-          console.warn(err);
+          alert(err.message);
           this.setState({
             isLoading: false,
             showShowFlatListRefreshControl: false,
@@ -309,8 +312,8 @@ export default class WalletTransactions extends Component {
         <Text
           style={{
             flex: 1,
-            paddingLeft: 15,
-            paddingTop: 15,
+            marginLeft: 15,
+            marginTop: 10,
             fontWeight: 'bold',
             fontSize: 24,
             color: BlueApp.settings.foregroundColor,
@@ -345,6 +348,7 @@ export default class WalletTransactions extends Component {
             this.redrawScreen();
           }}
           onWillBlur={() => this.onWillBlur()}
+          onDidFocus={() => this.props.navigation.setParams({ isLoading: false })}
         />
         {this.renderWalletHeader()}
 
@@ -358,19 +362,17 @@ export default class WalletTransactions extends Component {
             >
               <View
                 style={{
-                  marginVertical: 16,
+                  margin: 16,
                   backgroundColor: '#f2f2f2',
                   borderRadius: 9,
                   minWidth: 343,
                   minHeight: 49,
-                  width: 343,
-                  height: 49,
                   justifyContent: 'center',
                   alignItems: 'center',
                   alignSelf: 'center',
                 }}
               >
-                <Text>marketplace</Text>
+                <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
               </View>
             </TouchableOpacity>
           )}
