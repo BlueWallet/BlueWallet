@@ -16,24 +16,32 @@
                     <items>
                         <table alignment="left" id="jUH-JS-ccp">
                             <items>
-                                <tableRow id="Rdv-UZ-gaS">
-                                    <group key="rootItem" width="1" height="66.5" alignment="left" id="H28-wi-Sks">
+                                <tableRow identifier="WalletInformation" id="Rdv-UZ-gaS" customClass="WalletInformation" customModule="BlueWalletWatch_Extension">
+                                    <group key="rootItem" width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="H28-wi-Sks">
                                         <items>
                                             <label width="6" alignment="left" id="RJV-QC-scb"/>
-                                            <group width="1" widthAdjustment="3" alignment="center" verticalAlignment="center" layout="vertical" id="UrU-xX-jYW">
+                                            <group width="1" alignment="center" verticalAlignment="center" layout="vertical" id="UrU-xX-jYW">
                                                 <items>
-                                                    <label width="1" alignment="left" text="Balance" minimumScaleFactor="0.5" id="QYx-3e-6zf">
+                                                    <label alignment="left" text="Balance" minimumScaleFactor="0.5" id="QYx-3e-6zf">
                                                         <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
                                                     </label>
-                                                    <label width="1" alignment="left" text="Wallet" id="qpj-I1-cWt"/>
+                                                    <label alignment="left" text="Wallet" id="qpj-I1-cWt"/>
                                                 </items>
                                             </group>
                                         </items>
                                     </group>
+                                    <connections>
+                                        <outlet property="walletBalanceLabel" destination="QYx-3e-6zf" id="cfa-2U-FBQ"/>
+                                        <outlet property="walletGroup" destination="H28-wi-Sks" id="ydq-d4-4eb"/>
+                                        <outlet property="walletNameLabel" destination="qpj-I1-cWt" id="dd9-XB-XMc"/>
+                                    </connections>
                                 </tableRow>
                             </items>
                         </table>
                     </items>
+                    <connections>
+                        <outlet property="walletsTable" destination="jUH-JS-ccp" id="ONe-Gg-EJn"/>
+                    </connections>
                 </controller>
             </objects>
             <point key="canvasLocation" x="220" y="345"/>
@@ -70,4 +78,5 @@
             <point key="canvasLocation" x="468" y="345"/>
         </scene>
     </scenes>
+    <color key="tintColor" red="0.40784313725490196" green="0.73333333333333328" blue="0.88235294117647056" alpha="1" colorSpace="calibratedRGB"/>
 </document>

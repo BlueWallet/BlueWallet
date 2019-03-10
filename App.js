@@ -6,7 +6,7 @@ import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import * as watch from 'react-native-watch-connectivity'
+import * as watch from 'react-native-watch-connectivity';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -35,23 +35,36 @@ export default class App extends React.Component {
       .catch(console.error);
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-        watch.getIsWatchAppInstalled((err, isAppInstalled) => {
-          if (!err) {
-            this.setState({ isAppInstalled })
-            this.sendWalletsToWatch()
-          }
-        })
-      
+    watch.getIsWatchAppInstalled((err, isAppInstalled) => {
+      if (!err) {
+        this.setState({ isAppInstalled });
+        this.sendWalletsToWatch();
+      }
+    });
   }
 
   sendWalletsToWatch() {
     if (this.state.isAppInstalled) {
-      const wallets = BlueApp.getWallets()[1]
-      console.warn(wallets)
-      watch.sendMessage({wallets }, (err, replyMessage) => {
-        console.log("Received reply from watch", replyMessage)
-    })
+      const allWallets = BlueApp.getWallets();
+      let wallets = [];
+      for (const wallet of allWallets) {
+        wallets.push({
+          label: wallet.getLabel(),
+          balance: loc.formatBalance(wallet.balance, wallet.preferredBalanceUnit, true).toString(),
+          type: wallet.type,
+          preferredBalanceUnit: wallet.preferredBalanceUnit,
+        });
+      }
 
+      watch.updateApplicationContext({ wallets });
+      watch.sendUserInfo({ wallets });
+      watch.subscribeToMessages((err, message, _reply) => {
+        if (!err) {
+          if (message.message === 'sendApplicationContext') {
+            watch.sendUserInfo({ wallets });
+          }
+        }
+      });
     }
   }
 

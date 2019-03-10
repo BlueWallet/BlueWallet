@@ -67,6 +67,9 @@
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		B058E2132B704E9E874BDB29 /* libRNRandomBytes-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 253243E162CE4822BF3A3B7D /* libRNRandomBytes-tvOS.a */; };
 		B1102FDCF41C4D008352748B /* libRNReactNativeHapticFeedback.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */; };
+		B439DB392234E59F00C85180 /* WalletInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B439DB382234E59F00C85180 /* WalletInformation.swift */; };
+		B439DB3A2234F56D00C85180 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEC02230BFFD0069E388 /* Assets.xcassets */; };
+		B439DB3C2234FA5A00C85180 /* KeychainSwiftDistrib.swift in Sources */ = {isa = PBXBuildFile; fileRef = B439DB3B2234FA5A00C85180 /* KeychainSwiftDistrib.swift */; };
 		B44D665E562B4F289F09D327 /* libRNSVG-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */; };
 		B4DAAEAB2230BFFA0069E388 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEA92230BFFA0069E388 /* Interface.storyboard */; };
 		B4DAAEAD2230BFFC0069E388 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEAC2230BFFC0069E388 /* Assets.xcassets */; };
@@ -682,6 +685,8 @@
 		A9166D490AEF4938BD6621CF /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
+		B439DB382234E59F00C85180 /* WalletInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformation.swift; sourceTree = "<group>"; };
+		B439DB3B2234FA5A00C85180 /* KeychainSwiftDistrib.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeychainSwiftDistrib.swift; path = ../../../KeychainSwiftDistrib.swift; sourceTree = "<group>"; };
 		B4DAAEA72230BFFA0069E388 /* BlueWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4DAAEAA2230BFFA0069E388 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		B4DAAEAC2230BFFC0069E388 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1269,6 +1274,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B439DAF72234E57D00C85180 /* Objects */ = {
+			isa = PBXGroup;
+			children = (
+				B439DB382234E59F00C85180 /* WalletInformation.swift */,
+			);
+			path = Objects;
+			sourceTree = "<group>";
+		};
 		B4442B9922276A3100009CC0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1298,6 +1311,8 @@
 		B4DAAEB72230BFFC0069E388 /* BlueWalletWatch Extension */ = {
 			isa = PBXGroup;
 			children = (
+				B439DB3B2234FA5A00C85180 /* KeychainSwiftDistrib.swift */,
+				B439DAF72234E57D00C85180 /* Objects */,
 				B4DAAEB82230BFFC0069E388 /* InterfaceController.swift */,
 				B4DAAEBA2230BFFC0069E388 /* ExtensionDelegate.swift */,
 				B4DAAEBC2230BFFC0069E388 /* NotificationController.swift */,
@@ -2129,6 +2144,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B4DAAEAD2230BFFC0069E388 /* Assets.xcassets in Resources */,
+				B439DB3A2234F56D00C85180 /* Assets.xcassets in Resources */,
 				B4DAAEAB2230BFFA0069E388 /* Interface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2213,10 +2229,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B439DB392234E59F00C85180 /* WalletInformation.swift in Sources */,
 				B4DAAEBD2230BFFC0069E388 /* NotificationController.swift in Sources */,
 				B4DAAEBF2230BFFC0069E388 /* ComplicationController.swift in Sources */,
 				B4DAAEBB2230BFFC0069E388 /* ExtensionDelegate.swift in Sources */,
 				B4DAAEB92230BFFC0069E388 /* InterfaceController.swift in Sources */,
+				B439DB3C2234FA5A00C85180 /* KeychainSwiftDistrib.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

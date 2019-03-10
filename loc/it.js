@@ -16,7 +16,8 @@ module.exports = {
       app_name: 'BlueWallet',
       title: 'Portafogli',
       header:
-        'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' + 'che puoi condividere per ricevere Bitcoin.',
+        'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' +
+        'che puoi condividere per ricevere Bitcoin.',
       add: 'Aggiungi Portafoglio',
       create_a_wallet: 'Crea un portafoglio',
       create_a_wallet1: 'È gratuito e puoi crearne',

@@ -17,17 +17,17 @@
 		<key>BlueWalletWatch (Complication).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>70</integer>
+			<integer>8</integer>
 		</dict>
 		<key>BlueWalletWatch (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>69</integer>
+			<integer>7</integer>
 		</dict>
 		<key>BlueWalletWatch.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>68</integer>
+			<integer>6</integer>
 		</dict>
 	</dict>
 </dict>
