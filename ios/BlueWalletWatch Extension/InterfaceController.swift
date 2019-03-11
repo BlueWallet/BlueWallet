@@ -57,8 +57,10 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         controller.name = name
         controller.balance = balance
         controller.type = type
+        
       }
     }
+    
   }
   
   private func processWalletsData(walletsInfo: [String: Any]) {
@@ -87,5 +89,9 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     // Not used
   }
+    
+    override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
+        pushController(withName: WalletDetailsInterfaceController.identifier, context: wallets[rowIndex])
+    }
   
 }

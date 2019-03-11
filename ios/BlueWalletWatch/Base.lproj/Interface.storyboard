@@ -12,7 +12,7 @@
         <!--BlueWallet-->
         <scene sceneID="aou-V4-d1y">
             <objects>
-                <controller title="BlueWallet" id="AgC-eL-Hgc" customClass="InterfaceController" customModule="BlueWalletWatch" customModuleProvider="target">
+                <controller title="BlueWallet" fullBounds="YES" id="AgC-eL-Hgc" customClass="InterfaceController" customModule="BlueWalletWatch" customModuleProvider="target">
                     <items>
                         <table alignment="left" id="jUH-JS-ccp">
                             <items>
@@ -34,6 +34,7 @@
                                         <outlet property="walletBalanceLabel" destination="QYx-3e-6zf" id="cfa-2U-FBQ"/>
                                         <outlet property="walletGroup" destination="H28-wi-Sks" id="ydq-d4-4eb"/>
                                         <outlet property="walletNameLabel" destination="qpj-I1-cWt" id="dd9-XB-XMc"/>
+                                        <segue destination="XWa-4i-Abg" kind="push" identifier="WalletDetailsInterfaceController" id="Qts-pn-15q"/>
                                     </connections>
                                 </tableRow>
                             </items>
@@ -45,6 +46,42 @@
                 </controller>
             </objects>
             <point key="canvasLocation" x="220" y="345"/>
+        </scene>
+        <!--WalletDetailsInterfaceController-->
+        <scene sceneID="KqX-Cy-IJm">
+            <objects>
+                <controller identifier="WalletDetailsInterfaceController" id="XWa-4i-Abg" customClass="WalletDetailsInterfaceController" customModule="BlueWalletWatch_Extension">
+                    <items>
+                        <group width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="275-K7-Qhe">
+                            <items>
+                                <label width="6" alignment="left" id="QMf-Fm-1cw"/>
+                                <group width="1" alignment="center" verticalAlignment="center" layout="vertical" id="jx2-si-OEm">
+                                    <items>
+                                        <label alignment="left" text="Balance" minimumScaleFactor="0.5" id="WTr-jJ-w7L">
+                                            <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
+                                        </label>
+                                        <label alignment="left" text="Wallet" id="PQi-JV-aYW"/>
+                                    </items>
+                                </group>
+                            </items>
+                        </group>
+                        <button width="1" alignment="left" title="Receive" id="bPO-h8-ccD"/>
+                        <table alignment="left" id="yx5-5P-Ss5">
+                            <items>
+                                <tableRow id="Q8b-d6-Fnv">
+                                    <group key="rootItem" width="1" alignment="left" id="w0r-OL-A27"/>
+                                </tableRow>
+                            </items>
+                        </table>
+                    </items>
+                    <connections>
+                        <outlet property="walletBalanceLabel" destination="WTr-jJ-w7L" id="Lx5-4S-D6E"/>
+                        <outlet property="walletBasicsGroup" destination="275-K7-Qhe" id="nvB-rn-8Xn"/>
+                        <outlet property="walletNameLabel" destination="PQi-JV-aYW" id="L7w-Y9-KTv"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="468" y="345"/>
         </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">
@@ -75,7 +112,7 @@
             <objects>
                 <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="BlueWalletWatch" customModuleProvider="target"/>
             </objects>
-            <point key="canvasLocation" x="468" y="345"/>
+            <point key="canvasLocation" x="749" y="345"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.40784313725490196" green="0.73333333333333328" blue="0.88235294117647056" alpha="1" colorSpace="calibratedRGB"/>
