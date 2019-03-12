@@ -65,14 +65,12 @@
                                 </group>
                             </items>
                         </group>
-                        <button width="1" alignment="left" title="Receive" id="bPO-h8-ccD"/>
-                        <table alignment="left" id="yx5-5P-Ss5">
-                            <items>
-                                <tableRow id="Q8b-d6-Fnv">
-                                    <group key="rootItem" width="1" alignment="left" id="w0r-OL-A27"/>
-                                </tableRow>
-                            </items>
-                        </table>
+                        <button width="1" alignment="left" title="Receive" id="bPO-h8-ccD">
+                            <connections>
+                                <segue destination="egq-Yw-qK5" kind="modal" identifier="ReceiveInterfaceController" id="zEG-Xi-Smb"/>
+                            </connections>
+                        </button>
+                        <table alignment="left" id="yx5-5P-Ss5"/>
                     </items>
                     <connections>
                         <outlet property="walletBalanceLabel" destination="WTr-jJ-w7L" id="Lx5-4S-D6E"/>
@@ -107,12 +105,26 @@
             </objects>
             <point key="canvasLocation" x="468" y="643"/>
         </scene>
+        <!--ReceiveInterfaceController-->
+        <scene sceneID="tQ7-Qr-5i4">
+            <objects>
+                <controller identifier="ReceiveInterfaceController" fullBounds="YES" fullScreen="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
+                    <items>
+                        <imageView width="1" height="1" alignment="left" id="Dnb-sM-wdN"/>
+                    </items>
+                    <connections>
+                        <outlet property="imageInterface" destination="Dnb-sM-wdN" id="z1e-zC-anB"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="716" y="345"/>
+        </scene>
         <!--Notification Controller-->
         <scene sceneID="Niz-AI-uX2">
             <objects>
                 <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="BlueWalletWatch" customModuleProvider="target"/>
             </objects>
-            <point key="canvasLocation" x="749" y="345"/>
+            <point key="canvasLocation" x="220" y="1029"/>
         </scene>
     </scenes>
     <color key="tintColor" red="0.40784313725490196" green="0.73333333333333328" blue="0.88235294117647056" alpha="1" colorSpace="calibratedRGB"/>
