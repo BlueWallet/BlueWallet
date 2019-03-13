@@ -15,7 +15,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   
   private let keychain = KeychainSwift()
   var session: WCSession?
-  private var wallets = [[String: Any]]();
+  private var wallets = [Wallet]();
   @IBOutlet weak var walletsTable: WKInterfaceTable!
   
   override func awake(withContext context: Any?) {
@@ -26,7 +26,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
       self.session?.delegate = self
       self.session?.activate()
       
-      if let existingData = keychain.getData(WalletInformation.identifier), let walletData = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [[String: Any]] {
+      if let existingData = keychain.getData(Wallet.identifier), let walletData = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [Wallet] {
         guard let walletData = walletData else { return }
         wallets = walletData
         processWalletsTable()
@@ -52,21 +52,25 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     
     for index in 0..<walletsTable.numberOfRows {
       guard let controller = walletsTable.rowController(at: index) as? WalletInformation else { continue }
-      
-      if let name = wallets[index]["label"] as? String, let balance = wallets[index]["balance"] as? String, let type = wallets[index]["type"] as? String  {
-        controller.name = name
-        controller.balance = balance
-        controller.type = type
-        
-      }
+      let wallet = wallets[index]
+      controller.name = wallet.label
+      controller.balance = wallet.balance
+      controller.type = wallet.type
     }
     
   }
   
   private func processWalletsData(walletsInfo: [String: Any]) {
-    if (!walletsInfo.isEmpty) {
+    if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
       wallets.removeAll();
-      wallets = walletsInfo["wallets"] as! [[String: Any]]
+      for entry in walletsToProcess {
+        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let receiveAddress = entry["receiveAddress"] as? String  else {
+          continue
+        }
+          
+        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress);
+        wallets.append(wallet)
+      }
       if let walletsArchived = try? NSKeyedArchiver.archivedData(withRootObject: wallets, requiringSecureCoding: true) {
         keychain.set(walletsArchived, forKey: WalletInformation.identifier)
       }
@@ -89,9 +93,9 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
     // Not used
   }
-    
-    override func table(_ table: WKInterfaceTable, didSelectRowAt rowIndex: Int) {
-        pushController(withName: WalletDetailsInterfaceController.identifier, context: wallets[rowIndex])
-    }
+  
+  override func contextForSegue(withIdentifier segueIdentifier: String, in table: WKInterfaceTable, rowIndex: Int) -> Any? {
+    return wallets[rowIndex];
+  }
   
 }

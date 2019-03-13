@@ -11,34 +11,28 @@ import Foundation
 import EFQRCode
 
 class ReceiveInterfaceController: WKInterfaceController {
-
-  static let identifier = "ReceiveInterfaceController"
   
+  static let identifier = "ReceiveInterfaceController"
   @IBOutlet weak var imageInterface: WKInterfaceImage!
+  private var wallet: Wallet?
   
   override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-      if let tryImage = EFQRCode.generate(
-        content: "https://github.com/EFPrefix/EFQRCode",
-        watermark: UIImage(named: "qr-code")?.toCGImage()
-        ) {
-        print("Create QRCode image success: \(tryImage)")
-        let image = UIImage(cgImage: tryImage)
-        imageInterface.setImage(image)
-      } else {
-        print("Create QRCode image failed!")
-      }
-        // Configure interface objects here.
+    super.awake(withContext: context)
+    self.wallet = context as? Wallet
+  }
+  
+  override func willActivate() {
+    super.willActivate()
+    guard let walletContext = wallet, !walletContext.receiveAddress.isEmpty, let cgImage = EFQRCode.generate(
+      content: walletContext.receiveAddress
+      ) else {
+        self.dismiss()
+        presentAlert(withTitle: "Error", message: "There was a problem showing the receive address.", preferredStyle: .alert, actions: [])
+        return
     }
-
-    override func willActivate() {
-        // This method is called when watch view controller is about to be visible to user
-        super.willActivate()
-    }
-
-    override func didDeactivate() {
-        // This method is called when watch view controller is no longer visible
-        super.didDeactivate()
-    }
-
+    
+    let image = UIImage(cgImage: cgImage)
+    imageInterface.setImage(image)
+  }
+  
 }

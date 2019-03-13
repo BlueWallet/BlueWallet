@@ -12,25 +12,38 @@ import Foundation
 
 class WalletDetailsInterfaceController: WKInterfaceController {
   
-    static let identifier = "WalletDetailsInterfaceController"
-    @IBOutlet weak var walletBasicsGroup: WKInterfaceGroup!
-    @IBOutlet weak var walletBalanceLabel: WKInterfaceLabel!
-    @IBOutlet weak var walletNameLabel: WKInterfaceLabel!
+  var wallet: Wallet?
+  static let identifier = "WalletDetailsInterfaceController"
+  @IBOutlet weak var walletBasicsGroup: WKInterfaceGroup!
+  @IBOutlet weak var walletBalanceLabel: WKInterfaceLabel!
+  @IBOutlet weak var walletNameLabel: WKInterfaceLabel!
+  
+  override func awake(withContext context: Any?) {
+    super.awake(withContext: context)
+    guard let wallet = context as? Wallet else { return }
+    self.wallet = wallet
+    walletBalanceLabel.setText(wallet.balance)
+    walletNameLabel.setText(wallet.label)
     
-    override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-        
-        // Configure interface objects here.
+    if wallet.type == "HDsegwitP2SH" {
+      walletBasicsGroup.setBackgroundImageNamed("walletHD")
+    } else if wallet.type == "lightningCustodianWallet" {
+      walletBasicsGroup.setBackgroundImageNamed("walletLightningCustodial")
     }
-
-    override func willActivate() {
-        // This method is called when watch view controller is about to be visible to user
-        super.willActivate()
-    }
-
-    override func didDeactivate() {
-        // This method is called when watch view controller is no longer visible
-        super.didDeactivate()
-    }
-
+  }
+  
+  override func willActivate() {
+    // This method is called when watch view controller is about to be visible to user
+    super.willActivate()
+  }
+  
+  override func didDeactivate() {
+    // This method is called when watch view controller is no longer visible
+    super.didDeactivate()
+  }
+  
+  override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
+    return wallet
+  }
+  
 }

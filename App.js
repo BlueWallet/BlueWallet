@@ -53,6 +53,7 @@ export default class App extends React.Component {
           balance: loc.formatBalance(wallet.balance, wallet.preferredBalanceUnit, true).toString(),
           type: wallet.type,
           preferredBalanceUnit: wallet.preferredBalanceUnit,
+          receiveAddress: wallet.getAddress(),
         });
       }
 
