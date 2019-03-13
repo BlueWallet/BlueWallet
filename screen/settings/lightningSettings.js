@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import { AsyncStorage, View, TextInput, Linking } from 'react-native';
 import { AppStorage } from '../../class';
@@ -28,29 +29,28 @@ export default class LightningSettings extends Component {
     this.setState({
       isLoading: false,
       URI,
-      defaultURI: new LightningCustodianWallet().getBaseURI(),
     });
   }
 
-  async save() {
-    this.state.URI = this.state.URI ? this.state.URI : '';
-    await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
-
-    // set each lnd wallets and re-init api
-    for (/** @type {LightningCustodianWallet} */ let w of BlueApp.getWallets()) {
-      if (w.type === LightningCustodianWallet.type) {
-        w.setBaseURI(this.state.URI);
-        w.init();
-        console.log('inited', w.baseURI);
+  save = () => {
+    this.setState({ isLoading: true }, async () => {
+      this.state.URI = this.state.URI ? this.state.URI : '';
+      try {
+        if (this.state.URI) {
+          await LightningCustodianWallet.isValidNodeAddress(this.state.URI);
+          // validating only if its not empty. empty means use default
+        }
+        await AsyncStorage.setItem(AppStorage.LNDHUB, this.state.URI);
+        alert('Your changes have been saved successfully');
+      } catch (error) {
+        alert('Not a valid LndHub URI');
+        console.log(error);
       }
-    }
-  }
+      this.setState({ isLoading: false });
+    });
+  };
 
   render() {
-    if (this.state.isLoading) {
-      return <BlueLoading />;
-    }
-
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueCard>
@@ -90,7 +90,7 @@ export default class LightningSettings extends Component {
             }}
           >
             <TextInput
-              placeholder={this.state.defaultURI}
+              placeholder={LightningCustodianWallet.defaultBaseUri}
               value={this.state.URI}
               onChangeText={text => this.setState({ URI: text })}
               numberOfLines={1}
@@ -101,12 +101,7 @@ export default class LightningSettings extends Component {
           </View>
 
           <BlueSpacing20 />
-          <BlueButton
-            onPress={() => {
-              this.save();
-            }}
-            title={loc.settings.save}
-          />
+          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
         </BlueCard>
       </SafeBlueArea>
     );
