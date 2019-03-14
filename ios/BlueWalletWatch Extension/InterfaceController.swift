@@ -37,14 +37,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   override func willActivate() {
     // This method is called when watch view controller is about to be visible to user
     super.willActivate()
-    if (wallets.isEmpty) {
-      session?.sendMessage(["message" : "sendApplicationContext"], replyHandler: nil, errorHandler: nil)
-    }
-  }
-  
-  override func didDeactivate() {
-    // This method is called when watch view controller is no longer visible
-    super.didDeactivate()
+    session?.sendMessage(["message" : "sendApplicationContext"], replyHandler: nil, errorHandler: nil)
   }
   
   private func processWalletsTable() {
@@ -71,8 +64,9 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
         let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress);
         wallets.append(wallet)
       }
-      if let walletsArchived = try? NSKeyedArchiver.archivedData(withRootObject: wallets, requiringSecureCoding: true) {
-        keychain.set(walletsArchived, forKey: WalletInformation.identifier)
+      
+      if let walletsArchived = try? NSKeyedArchiver.archivedData(withRootObject: wallets, requiringSecureCoding: false) {
+        keychain.set(walletsArchived, forKey: Wallet.identifier)
       }
       processWalletsTable()
     }

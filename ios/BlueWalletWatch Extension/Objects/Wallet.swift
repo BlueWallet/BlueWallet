@@ -8,12 +8,39 @@
 
 import Foundation
 
-struct Wallet: Encodable {
+class Wallet: NSObject, NSCoding {
   static let identifier: String = "Wallet"
 
-  var label: String
-  var balance: String
-  var type: String
-  var preferredBalanceUnit: String
-  var receiveAddress: String
+  let label: String
+  let balance: String
+  let type: String
+  let preferredBalanceUnit: String
+  let receiveAddress: String
+  
+  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String) {
+    self.label = label
+    self.balance = balance
+    self.type = type
+    self.preferredBalanceUnit = preferredBalanceUnit
+    self.receiveAddress = receiveAddress
+  }
+  
+  func encode(with aCoder: NSCoder) {
+    aCoder.encode(label, forKey: "label")
+    aCoder.encode(balance, forKey: "balance")
+    aCoder.encode(type, forKey: "type")
+    aCoder.encode(receiveAddress, forKey: "receiveAddress")
+    aCoder.encode(preferredBalanceUnit, forKey: "preferredBalanceUnit")
+    
+  }
+  
+  required init?(coder aDecoder: NSCoder) {
+    label = aDecoder.decodeObject(forKey: "label") as! String
+    balance = aDecoder.decodeObject(forKey: "balance") as! String
+    type = aDecoder.decodeObject(forKey: "type") as! String
+    preferredBalanceUnit = aDecoder.decodeObject(forKey: "preferredBalanceUnit") as! String
+    receiveAddress = aDecoder.decodeObject(forKey: "receiveAddress") as! String
+  }
+  
+
 }

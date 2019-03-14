@@ -43,17 +43,24 @@ export default class App extends React.Component {
     });
   }
 
-  sendWalletsToWatch() {
+  async sendWalletsToWatch() {
     if (this.state.isAppInstalled) {
       const allWallets = BlueApp.getWallets();
       let wallets = [];
       for (const wallet of allWallets) {
+        let receiveAddress = '';
+        if (wallet.getAddressAsync) {
+          receiveAddress = await wallet.getAddressAsync();
+        } else {
+          receiveAddress = wallet.getAddress();
+        }
+
         wallets.push({
           label: wallet.getLabel(),
           balance: loc.formatBalance(wallet.balance, wallet.preferredBalanceUnit, true).toString(),
           type: wallet.type,
           preferredBalanceUnit: wallet.preferredBalanceUnit,
-          receiveAddress: wallet.getAddress(),
+          receiveAddress: receiveAddress,
         });
       }
 

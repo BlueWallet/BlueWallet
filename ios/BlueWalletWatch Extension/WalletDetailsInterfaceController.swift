@@ -17,6 +17,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   @IBOutlet weak var walletBasicsGroup: WKInterfaceGroup!
   @IBOutlet weak var walletBalanceLabel: WKInterfaceLabel!
   @IBOutlet weak var walletNameLabel: WKInterfaceLabel!
+  @IBOutlet weak var receiveButton: WKInterfaceButton!
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
@@ -24,6 +25,8 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     self.wallet = wallet
     walletBalanceLabel.setText(wallet.balance)
     walletNameLabel.setText(wallet.label)
+    receiveButton.setEnabled(!wallet.receiveAddress.isEmpty)
+    receiveButton.setHidden(wallet.receiveAddress.isEmpty)
     
     if wallet.type == "HDsegwitP2SH" {
       walletBasicsGroup.setBackgroundImageNamed("walletHD")

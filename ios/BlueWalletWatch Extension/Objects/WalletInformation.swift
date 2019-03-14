@@ -8,10 +8,11 @@
 
 import WatchKit
 
-class WalletInformation: WKInterfaceGroup {
+class WalletInformation: NSObject {
   
   @IBOutlet private weak var walletBalanceLabel: WKInterfaceLabel!
   @IBOutlet private weak var walletNameLabel: WKInterfaceLabel!
+  @IBOutlet private weak var walletGroup: WKInterfaceGroup!
   static let identifier: String = "WalletInformation"
   
   var name: String = "" {
@@ -29,9 +30,9 @@ class WalletInformation: WKInterfaceGroup {
   var type: String = "HDsegwitP2SH" {
     willSet {
       if newValue == "HDsegwitP2SH" {
-        setBackgroundImageNamed("walletHD")
+        walletGroup.setBackgroundImageNamed("walletHD")
       } else if newValue == "lightningCustodianWallet" {
-        setBackgroundImageNamed("walletLightningCustodial")
+        walletGroup.setBackgroundImageNamed("walletLightningCustodial")
       }
     }
   }
