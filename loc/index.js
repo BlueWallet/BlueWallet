@@ -17,9 +17,6 @@ dayjs.extend(relativeTime);
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
     switch (lang) {
-      case 'el':
-        require('dayjs/locale/el');
-        break;
       case 'it':
         require('dayjs/locale/it');
         break;
@@ -65,9 +62,9 @@ dayjs.extend(relativeTime);
       case 'id_id':
         require('dayjs/locale/id');
         break;
-      case 'nb_no':
-        require('dayjs/locale/nb');
-        break;
+      case 'tr_tr':
+        require('dayjs/locale/tr');
+        break;        
       default:
         localeForDayJSAvailable = false;
         break;
@@ -88,7 +85,6 @@ dayjs.extend(relativeTime);
         locale === 'ua' ||
         locale === 'es' ||
         locale === 'it' ||
-		locale === 'el' ||
         locale === 'fr-fr' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
@@ -100,13 +96,10 @@ dayjs.extend(relativeTime);
         locale === 'nl-nl' ||
         locale === 'hr-hr' ||
         locale === 'id-id' ||
-        locale === 'nb-no' ||
+        locale === 'tr-tr' ||
         locale === 'zh-cn'
       ) {
         switch (locale) {
-          case 'el':
-            require('dayjs/locale/el');
-            break;
           case 'it':
             require('dayjs/locale/it');
             break;
@@ -149,8 +142,8 @@ dayjs.extend(relativeTime);
           case 'id-id':
             require('dayjs/locale/id');
             break;
-          case 'nb-no':
-            require('dayjs/locale/nb');
+          case 'tr-tr':
+            require('dayjs/locale/tr');
             break;
           default:
             break;
@@ -172,7 +165,6 @@ strings = new Localization({
   pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   it: require('./it.js'),
-  el: require('./el.js'),
   ua: require('./ua.js'),
   jp_jp: require('./jp_JP.js'),
   de_de: require('./de_DE.js'),
@@ -183,8 +175,8 @@ strings = new Localization({
   fr_fr: require('./fr_FR.js'),
   hr_hr: require('./hr_HR.js'),
   id_id: require('./id_ID.js'),
+  tr_tr: require('./tr_TR.js'),
   zh_cn: require('./zh_cn.js'),
-  nb_no: require('./nb_NO.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
