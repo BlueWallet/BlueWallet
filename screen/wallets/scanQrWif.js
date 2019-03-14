@@ -129,6 +129,12 @@ export default class ScanQrWif extends React.Component {
       this.setState({ isLoading: true });
       let lnd = new LightningCustodianWallet();
       lnd.setSecret(ret.data);
+      if (ret.data.includes('@')) {
+        const split = ret.data.split('@');
+        lnd.setBaseURI(split[1]);
+        lnd.setSecret(split[0]);
+      }
+
       try {
         await lnd.authorize();
         await lnd.fetchTransactions();
