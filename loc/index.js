@@ -32,6 +32,9 @@ dayjs.extend(relativeTime);
       case 'es':
         require('dayjs/locale/es');
         break;
+      case 'fi_fi':
+        require('dayjs/locale/fi');
+        break;
       case 'fr_fr':
         require('dayjs/locale/fr');
         break;
@@ -90,6 +93,7 @@ dayjs.extend(relativeTime);
         locale === 'it' ||
 		locale === 'el' ||
         locale === 'fr-fr' ||
+        locale === 'fi-fi' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
         locale === 'jp-JP' ||
@@ -118,6 +122,9 @@ dayjs.extend(relativeTime);
             break;
           case 'es':
             require('dayjs/locale/es');
+            break;
+          case 'fi-fi':
+            require('dayjs/locale/fi');
             break;
           case 'fr-fr':
             require('dayjs/locale/fr');
@@ -180,6 +187,7 @@ strings = new Localization({
   cs_cz: require('./cs_CZ.js'),
   th_th: require('./th_TH.js'),
   nl_nl: require('./nl_NL.js'),
+  fi_fi: require('./fi_FI.js'),
   fr_fr: require('./fr_FR.js'),
   hr_hr: require('./hr_HR.js'),
   id_id: require('./id_ID.js'),

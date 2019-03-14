@@ -26,6 +26,7 @@ export default class Language extends Component {
         { label: 'Deutsch (DE)', value: 'de_de' },
         { label: 'Español (ES)', value: 'es' },
         { label: 'Italiano (IT)', value: 'it' },
+        { label: 'Suomi (FI)', value: 'fi_fi' },
         { label: 'Français (FR)', value: 'fr_fr' },
         { label: 'Indonesia (ID)', value: 'id_id' },
         { label: '日本語 (JP)', value: 'jp_jp' },
