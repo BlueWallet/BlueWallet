@@ -56,11 +56,16 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     if let walletsToProcess = walletsInfo["wallets"] as? [[String: Any]] {
       wallets.removeAll();
       for entry in walletsToProcess {
-        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let receiveAddress = entry["receiveAddress"] as? String  else {
+        guard let label = entry["label"] as? String, let balance = entry["balance"] as? String, let type = entry["type"] as? String, let preferredBalanceUnit = entry["preferredBalanceUnit"] as? String, let receiveAddress = entry["receiveAddress"] as? String, let transactions = entry["transactions"] as? [[String: Any]]  else {
           continue
         }
-          
-        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: entry["transactions"] as? [[String: Any]] ?? [[String: Any]]())
+        var transactionsProcessed = [Transaction]()
+        for transactionEntry in transactions {
+          guard let time = transactionEntry["time"] as? String, let memo = transactionEntry["memo"] as? String, let amount = transactionEntry["amount"] as? String, let type =  transactionEntry["type"] as? String else { continue }
+          let transaction = Transaction(time: time, memo: memo, type: type, amount: amount)
+          transactionsProcessed.append(transaction)
+        }
+        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: transactionsProcessed)
         wallets.append(wallet)
       }
       

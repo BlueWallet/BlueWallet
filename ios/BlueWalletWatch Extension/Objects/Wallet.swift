@@ -16,9 +16,9 @@ class Wallet: NSObject, NSCoding {
   let type: String
   let preferredBalanceUnit: String
   let receiveAddress: String
-  let transactions: [[String: Any]]
+  let transactions: [Transaction]
   
-  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [[String: Any]]) {
+  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [Transaction]) {
     self.label = label
     self.balance = balance
     self.type = type
@@ -43,8 +43,7 @@ class Wallet: NSObject, NSCoding {
     type = aDecoder.decodeObject(forKey: "type") as! String
     preferredBalanceUnit = aDecoder.decodeObject(forKey: "preferredBalanceUnit") as! String
     receiveAddress = aDecoder.decodeObject(forKey: "receiveAddress") as! String
-    transactions = aDecoder.decodeObject(forKey: "transactions") as? [[String: Any]] ?? [[String: Any]]()
-  }
-  
+    transactions = aDecoder.decodeObject(forKey: "transactions") as? [Transaction] ?? [Transaction]()
+  }  
 
 }

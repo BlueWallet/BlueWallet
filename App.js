@@ -61,7 +61,7 @@ export default class App extends React.Component {
           type: wallet.type,
           preferredBalanceUnit: wallet.preferredBalanceUnit,
           receiveAddress: receiveAddress,
-          transactions: wallet.getTransactions(15),
+          transactions: [{type: 'typinf', amount: '333', memo:' my transaction', type: 'received', time:'2hr'}, {type: 'typinf', amount: '333', memo:' my transaction', type: 'received', time:'2hr'}, {type: 'typinf', amount: '333', memo:' my transaction', type: 'received', time:'2hr'}],
         });
       }
 

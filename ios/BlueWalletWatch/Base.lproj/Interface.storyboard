@@ -64,10 +64,6 @@
                                     </items>
                                 </group>
                             </items>
-                            <connections>
-                                <outlet property="walletBalanceLabel" destination="WTr-jJ-w7L" id="5zO-f3-vd0"/>
-                                <outlet property="walletNameLabel" destination="PQi-JV-aYW" id="8wJ-Q5-ttB"/>
-                            </connections>
                         </group>
                         <button width="1" alignment="left" title="Receive" id="bPO-h8-ccD">
                             <connections>
@@ -77,7 +73,7 @@
                         <label alignment="center" verticalAlignment="bottom" text="No Transactions" textAlignment="left" id="pi4-Bk-Jiq"/>
                         <table alignment="left" id="nyQ-lX-DX0">
                             <items>
-                                <tableRow id="HuQ-ep-L9j">
+                                <tableRow identifier="TransactionTableRow" selectable="NO" id="HuQ-ep-L9j" customClass="TransactionTableRow" customModule="BlueWalletWatch_Extension">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="3X8-cc-rOv">
                                         <items>
                                             <group width="1" alignment="left" layout="vertical" spacing="8" id="Tes-g9-rp0">
@@ -96,20 +92,38 @@
                                                             <imageView width="23" height="16" alignment="right" image="pendingConfirmation" contentMode="scaleAspectFit" id="hWs-WA-db1"/>
                                                         </items>
                                                     </group>
+                                                    <separator alignment="left" id="531-nb-Bab"/>
                                                 </items>
                                             </group>
                                         </items>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </group>
+                                    <connections>
+                                        <outlet property="transactionAmountLabel" destination="sAS-LI-RY7" id="TkE-JU-sRF"/>
+                                        <outlet property="transactionMemoLabel" destination="AJ8-p9-ID7" id="9I4-VO-d0H"/>
+                                        <outlet property="transactionTimeLabel" destination="GqE-KB-TRD" id="idk-sO-obD"/>
+                                        <outlet property="transactionTypeImage" destination="hWs-WA-db1" id="n7i-J7-Nsb"/>
+                                    </connections>
                                 </tableRow>
                             </items>
                         </table>
                     </items>
+                    <menu key="menu" id="bbM-p0-Vc7">
+                        <items>
+                            <menuItem title="Receive" image="receiveArrow" id="0Yr-rK-713">
+                                <connections>
+                                    <action selector="receiveMenuItemTapped" destination="XWa-4i-Abg" id="vXP-gD-Ve1"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
                     <connections>
                         <outlet property="noTransactionsLabel" destination="pi4-Bk-Jiq" id="zft-Hw-KuZ"/>
                         <outlet property="receiveButton" destination="bPO-h8-ccD" id="xBq-42-9qP"/>
                         <outlet property="transactionsTable" destination="nyQ-lX-DX0" id="N1x-px-s08"/>
+                        <outlet property="walletBalanceLabel" destination="WTr-jJ-w7L" id="kiU-ZS-2dh"/>
                         <outlet property="walletBasicsGroup" destination="275-K7-Qhe" id="nvB-rn-8Xn"/>
+                        <outlet property="walletNameLabel" destination="PQi-JV-aYW" id="dfi-Ai-rOe"/>
                     </connections>
                 </controller>
             </objects>

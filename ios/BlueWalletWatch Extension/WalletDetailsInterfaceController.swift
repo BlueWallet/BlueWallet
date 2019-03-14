@@ -35,6 +35,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     } else if wallet.type == "lightningCustodianWallet" {
       walletBasicsGroup.setBackgroundImageNamed("walletLightningCustodial")
     }
+    processWalletsTable()
   }
   
   override func willActivate() {
@@ -44,9 +45,20 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
   }
   
-  override func didDeactivate() {
-    // This method is called when watch view controller is no longer visible
-    super.didDeactivate()
+  @IBAction func receiveMenuItemTapped() {
+    presentController(withName: ReceiveInterfaceController.identifier, context: wallet)
+  }
+  private func processWalletsTable() {
+    transactionsTable.setNumberOfRows(wallet?.transactions.count ?? 0, withRowType: TransactionTableRow.identifier)
+    
+    for index in 0..<transactionsTable.numberOfRows {
+      guard let controller = transactionsTable.rowController(at: index) as? TransactionTableRow, let transaction = wallet?.transactions[index] else { continue }
+      
+      controller.amount = transaction.amount
+      controller.type = transaction.type
+      controller.memo = transaction.memo
+      controller.time = transaction.time
+    }
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
