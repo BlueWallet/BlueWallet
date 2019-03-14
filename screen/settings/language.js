@@ -22,9 +22,10 @@ export default class Language extends Component {
         { label: 'Chinese (ZH)', value: 'zh_cn' },
         { label: 'Croatian (HR)', value: 'hr_hr' },
         { label: 'Danish (DK)', value: 'da_dk' },
+        { label: 'Norsk (NB)', value: 'nb_no' },
         { label: 'Deutsch (DE)', value: 'de_de' },
         { label: 'Español (ES)', value: 'es' },
-        { label: 'Italian (IT)', value: 'it' },
+        { label: 'Italiano (IT)', value: 'it' },
         { label: 'Français (FR)', value: 'fr_fr' },
         { label: 'Indonesia (ID)', value: 'id_id' },
         { label: '日本語 (JP)', value: 'jp_jp' },
@@ -34,6 +35,7 @@ export default class Language extends Component {
         { label: 'Русский', value: 'ru' },
         { label: 'Thai (TH)', value: 'th_th' },
         { label: 'Українська', value: 'ua' },
+        { label: 'Ελληνικά (EL)', value: 'el' },
       ],
     };
   }
