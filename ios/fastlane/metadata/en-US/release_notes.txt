@@ -1,3 +1,15 @@
+v3.8.3
+======
+
+* REF: better support for different lndhub uris
+* FIX: Send BTC should ignore non-onchain wallets
+* FIX: Deeplink would fail sometimes on cold start (#382)
+* FIX: Fixed an issue when inserting an address after amount.
+* FIX: UI fixes for  transactions list
+* ADD: Haptic feedbacks on error alerts
+* ADD: Read clipboard for transactions
+* ADD: Italian language
+
 v3.8.2
 ======
 
