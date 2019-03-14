@@ -50,7 +50,6 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
       controller.balance = wallet.balance
       controller.type = wallet.type
     }
-    
   }
   
   private func processWalletsData(walletsInfo: [String: Any]) {
@@ -61,7 +60,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
           continue
         }
           
-        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress);
+        let wallet = Wallet(label: label, balance: balance, type: type, preferredBalanceUnit: preferredBalanceUnit, receiveAddress: receiveAddress, transactions: entry["transactions"] as? [[String: Any]] ?? [[String: Any]]())
         wallets.append(wallet)
       }
       

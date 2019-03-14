@@ -18,6 +18,8 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   @IBOutlet weak var walletBalanceLabel: WKInterfaceLabel!
   @IBOutlet weak var walletNameLabel: WKInterfaceLabel!
   @IBOutlet weak var receiveButton: WKInterfaceButton!
+  @IBOutlet weak var noTransactionsLabel: WKInterfaceLabel!
+  @IBOutlet weak var transactionsTable: WKInterfaceTable!
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
@@ -38,6 +40,8 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   override func willActivate() {
     // This method is called when watch view controller is about to be visible to user
     super.willActivate()
+    transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
+    noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
   }
   
   override func didDeactivate() {

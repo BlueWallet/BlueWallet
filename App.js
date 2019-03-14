@@ -61,6 +61,7 @@ export default class App extends React.Component {
           type: wallet.type,
           preferredBalanceUnit: wallet.preferredBalanceUnit,
           receiveAddress: receiveAddress,
+          transactions: wallet.getTransactions(15),
         });
       }
 

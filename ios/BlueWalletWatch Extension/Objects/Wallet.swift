@@ -16,13 +16,15 @@ class Wallet: NSObject, NSCoding {
   let type: String
   let preferredBalanceUnit: String
   let receiveAddress: String
+  let transactions: [[String: Any]]
   
-  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String) {
+  init(label: String, balance: String, type: String, preferredBalanceUnit: String, receiveAddress: String, transactions: [[String: Any]]) {
     self.label = label
     self.balance = balance
     self.type = type
     self.preferredBalanceUnit = preferredBalanceUnit
     self.receiveAddress = receiveAddress
+    self.transactions = transactions
   }
   
   func encode(with aCoder: NSCoder) {
@@ -31,7 +33,8 @@ class Wallet: NSObject, NSCoding {
     aCoder.encode(type, forKey: "type")
     aCoder.encode(receiveAddress, forKey: "receiveAddress")
     aCoder.encode(preferredBalanceUnit, forKey: "preferredBalanceUnit")
-    
+    aCoder.encode(transactions, forKey: "transactions")
+
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -40,6 +43,7 @@ class Wallet: NSObject, NSCoding {
     type = aDecoder.decodeObject(forKey: "type") as! String
     preferredBalanceUnit = aDecoder.decodeObject(forKey: "preferredBalanceUnit") as! String
     receiveAddress = aDecoder.decodeObject(forKey: "receiveAddress") as! String
+    transactions = aDecoder.decodeObject(forKey: "transactions") as? [[String: Any]] ?? [[String: Any]]()
   }
   
 

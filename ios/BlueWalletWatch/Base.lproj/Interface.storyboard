@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14460.31" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc" pageOrientation="vertical">
-    <device id="watch38" orientation="portrait">
+    <device id="watch44" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
@@ -74,15 +74,46 @@
                                 <segue destination="egq-Yw-qK5" kind="modal" identifier="ReceiveInterfaceController" id="zEG-Xi-Smb"/>
                             </connections>
                         </button>
-                        <table alignment="left" id="yx5-5P-Ss5"/>
+                        <label alignment="center" verticalAlignment="bottom" text="No Transactions" textAlignment="left" id="pi4-Bk-Jiq"/>
+                        <table alignment="left" id="nyQ-lX-DX0">
+                            <items>
+                                <tableRow id="HuQ-ep-L9j">
+                                    <group key="rootItem" width="1" height="0.0" alignment="left" id="3X8-cc-rOv">
+                                        <items>
+                                            <group width="1" alignment="left" layout="vertical" spacing="8" id="Tes-g9-rp0">
+                                                <items>
+                                                    <group width="1" alignment="left" id="skh-kN-5Ey">
+                                                        <items>
+                                                            <label alignment="left" text="Time" id="GqE-KB-TRD"/>
+                                                            <label alignment="right" text="Amount" id="sAS-LI-RY7"/>
+                                                        </items>
+                                                    </group>
+                                                    <group width="1" alignment="left" id="XY3-Vk-IUE">
+                                                        <items>
+                                                            <label alignment="left" text="memo" id="AJ8-p9-ID7">
+                                                                <color key="textColor" red="0.63137254901960782" green="0.63137254901960782" blue="0.63137254901960782" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
+                                                            </label>
+                                                            <imageView width="23" height="16" alignment="right" image="pendingConfirmation" contentMode="scaleAspectFit" id="hWs-WA-db1"/>
+                                                        </items>
+                                                    </group>
+                                                </items>
+                                            </group>
+                                        </items>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </group>
+                                </tableRow>
+                            </items>
+                        </table>
                     </items>
                     <connections>
+                        <outlet property="noTransactionsLabel" destination="pi4-Bk-Jiq" id="zft-Hw-KuZ"/>
                         <outlet property="receiveButton" destination="bPO-h8-ccD" id="xBq-42-9qP"/>
+                        <outlet property="transactionsTable" destination="nyQ-lX-DX0" id="N1x-px-s08"/>
                         <outlet property="walletBasicsGroup" destination="275-K7-Qhe" id="nvB-rn-8Xn"/>
                     </connections>
                 </controller>
             </objects>
-            <point key="canvasLocation" x="468" y="345"/>
+            <point key="canvasLocation" x="467.86956521739125" y="344.55357142857144"/>
         </scene>
         <!--Static Notification Interface Controller-->
         <scene sceneID="AEw-b0-oYE">
