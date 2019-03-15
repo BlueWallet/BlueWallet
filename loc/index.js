@@ -68,6 +68,9 @@ dayjs.extend(relativeTime);
       case 'nb_no':
         require('dayjs/locale/nb');
         break;
+      case 'tr_tr':
+        require('dayjs/locale/tr');
+        break; 
       default:
         localeForDayJSAvailable = false;
         break;
@@ -101,6 +104,7 @@ dayjs.extend(relativeTime);
         locale === 'hr-hr' ||
         locale === 'id-id' ||
         locale === 'nb-no' ||
+        locale === 'tr-tr' ||
         locale === 'zh-cn'
       ) {
         switch (locale) {
@@ -152,6 +156,9 @@ dayjs.extend(relativeTime);
           case 'nb-no':
             require('dayjs/locale/nb');
             break;
+            case 'tr-tr':
+            require('dayjs/locale/tr');
+            break;
           default:
             break;
         }
@@ -185,6 +192,7 @@ strings = new Localization({
   id_id: require('./id_ID.js'),
   zh_cn: require('./zh_cn.js'),
   nb_no: require('./nb_NO.js'),
+  tr_tr: require('./tr_TR.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
