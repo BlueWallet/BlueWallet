@@ -34,7 +34,7 @@ module.exports = {
       title: 'Aggiungi Portafoglio',
       description:
         'Puoi scansionare il Backup di un Paper-Wallet (in WIF - Wallet Import Format), o creare un nuovo portafoglio. I portafogli Segwit sono supportati di default.',
-      scan: 'Scansiona',
+      scan: 'Scan',
       create: 'Crea',
       label_new_segwit: 'Nuovo SegWit',
       label_new_lightning: 'Nuovo Lightning',
