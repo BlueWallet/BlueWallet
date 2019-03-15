@@ -9,7 +9,8 @@ import {
   SegwitBech32Wallet,
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
-let encryption = require('../encryption');
+import WatchConnectivity from '../WatchConnectivity';
+const encryption = require('../encryption');
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -183,6 +184,7 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
+        await WatchConnectivity.shared.sendWalletsToWatch();
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -253,8 +255,8 @@ export class AppStorage {
     } else {
       await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-
-    return AsyncStorage.setItem('data', JSON.stringify(data));
+    await AsyncStorage.setItem('data', JSON.stringify(data))
+    await WatchConnectivity.sendWalletsToWatch();
   }
 
   /**

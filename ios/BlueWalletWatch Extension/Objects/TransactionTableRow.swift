@@ -37,7 +37,15 @@ class TransactionTableRow: NSObject {
   
   var type: String = "" {
     willSet {
-      transactionTypeImage.setImage(UIImage(imageLiteralResourceName: "pendingConfirmation"))
+      if (newValue == "pendingConfirmation") {
+        transactionTypeImage.setImage(UIImage(imageLiteralResourceName: "pendingConfirmation"))
+      } else if (newValue == "received") {
+        transactionTypeImage.setImage(UIImage(imageLiteralResourceName: "receivedArrow"))
+      } else if (newValue == "sent") {
+        transactionTypeImage.setImage(UIImage(imageLiteralResourceName: "sentArrow"))
+      } else {
+        transactionTypeImage.setImage(nil)
+      }
     }
   }
   

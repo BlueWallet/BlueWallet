@@ -6,7 +6,6 @@ import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import * as watch from 'react-native-watch-connectivity';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -22,7 +21,6 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
-    isAppInstalled: false,
   };
 
   componentDidMount() {
@@ -35,46 +33,6 @@ export default class App extends React.Component {
       .catch(console.error);
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-    watch.getIsWatchAppInstalled((err, isAppInstalled) => {
-      if (!err) {
-        this.setState({ isAppInstalled });
-        this.sendWalletsToWatch();
-      }
-    });
-  }
-
-  async sendWalletsToWatch() {
-    if (this.state.isAppInstalled) {
-      const allWallets = BlueApp.getWallets();
-      let wallets = [];
-      for (const wallet of allWallets) {
-        let receiveAddress = '';
-        if (wallet.getAddressAsync) {
-          receiveAddress = await wallet.getAddressAsync();
-        } else {
-          receiveAddress = wallet.getAddress();
-        }
-
-        wallets.push({
-          label: wallet.getLabel(),
-          balance: loc.formatBalance(wallet.balance, wallet.preferredBalanceUnit, true).toString(),
-          type: wallet.type,
-          preferredBalanceUnit: wallet.preferredBalanceUnit,
-          receiveAddress: receiveAddress,
-          transactions: [{type: 'typinf', amount: '333', memo:' my transaction', type: 'received', time:'2hr'}, {type: 'typinf', amount: '333', memo:' my transaction', type: 'received', time:'2hr'}, {type: 'typinf', amount: '333', memo:' my transaction', type: 'received', time:'2hr'}],
-        });
-      }
-
-      watch.updateApplicationContext({ wallets });
-      watch.sendUserInfo({ wallets });
-      watch.subscribeToMessages((err, message, _reply) => {
-        if (!err) {
-          if (message.message === 'sendApplicationContext') {
-            watch.sendUserInfo({ wallets });
-          }
-        }
-      });
-    }
   }
 
   componentWillUnmount() {

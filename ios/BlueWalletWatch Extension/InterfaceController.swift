@@ -15,8 +15,10 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
   
   private let keychain = KeychainSwift()
   var session: WCSession?
-  private var wallets = [Wallet]();
+  private var wallets = [Wallet]()
   @IBOutlet weak var walletsTable: WKInterfaceTable!
+  @IBOutlet weak var loadingIndicatorGroup: WKInterfaceGroup!
+  @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
@@ -50,6 +52,8 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
       controller.balance = wallet.balance
       controller.type = wallet.type
     }
+    loadingIndicatorGroup.setHidden(true)
+    noWalletsAvailableLabel.setHidden(!wallets.isEmpty)
   }
   
   private func processWalletsData(walletsInfo: [String: Any]) {

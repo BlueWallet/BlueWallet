@@ -88,7 +88,7 @@ dayjs.extend(relativeTime);
         locale === 'ua' ||
         locale === 'es' ||
         locale === 'it' ||
-		locale === 'el' ||
+        locale === 'el' ||
         locale === 'fr-fr' ||
         locale === 'pt-br' ||
         locale === 'pt-pt' ||
