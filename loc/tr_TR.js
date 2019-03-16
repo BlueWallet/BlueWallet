@@ -18,7 +18,7 @@ module.exports = {
       header: 'Cüzdan biri gizli, biri halka açık olan bir çift anahtar ve koin almak için' + ' paylaşabileceğiniz bir adrestir.',
       add: 'Cüzdan Ekle',
       create_a_wallet: 'Cüzdan oluştur',
-      create_a_wallet1: "Oluşturması bedava ve",
+      create_a_wallet1: 'Oluşturması bedava ve',
       create_a_wallet2: 'istediğiniz kadar oluşturabilirsiniz',
       latest_transaction: 'en son işlem',
       empty_txs1: 'İşlemleriniz burada görünür,',
@@ -72,7 +72,7 @@ module.exports = {
     import: {
       title: 'içeri yükle',
       explanation:
-        "Buraya cüzdan yedek cümlenizi, gizli anahtarınızı, WIF veya diğer bilginizi yazın. BlueWallet elinden gelen en iyi tahmini yaparak cüzdanınızı içeri aktarmaya çalışacak.",
+        'Buraya cüzdan yedek cümlenizi, gizli anahtarınızı, WIF veya diğer bilginizi yazın. BlueWallet elinden gelen en iyi tahmini yaparak cüzdanınızı içeri aktarmaya çalışacak.',
       imported: 'İçeri aktarıldı',
       error: 'İçeri aktarma başarısız oldu. Lütfen girilen bilginin doğru olduğundan emin olun.',
       success: 'Başarılı',

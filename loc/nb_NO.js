@@ -15,7 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'lommebøker',
-      header: 'En lommebok representerer en hemmelighet (privat nøkkel) og en adresse '+' du kan dele for å motta kryptovaluta.',
+      header: 'En lommebok representerer en hemmelighet (privat nøkkel) og en adresse ' + ' du kan dele for å motta kryptovaluta.',
       add: 'Legg til lommebok',
       create_a_wallet: 'Lag en lommebok',
       create_a_wallet1: 'Det er gratis, og du kan lage',
@@ -72,7 +72,7 @@ module.exports = {
     import: {
       title: 'importer',
       explanation:
-        "Skriv her din mnemonic, private nøkkel, WIF, eller hva som helst annet. BlueWallet vil gjøre sitt beste for å gjette riktig format og importere lommeboken din",
+        'Skriv her din mnemonic, private nøkkel, WIF, eller hva som helst annet. BlueWallet vil gjøre sitt beste for å gjette riktig format og importere lommeboken din',
       imported: 'importert',
       error: 'Kunne ikke importere. Vennligst vær sikker på at de oppgitte dataene er gyldige.',
       success: 'Suksess',
@@ -182,7 +182,7 @@ module.exports = {
     lightning_settings: 'Lightning innstillinger',
     lightning_settings_explain:
       'For å koble til din egen LND-node, vennligst installer LndHub' +
-      " og legg URLen her i innstillinger. La feltet være tomt for å bruke BlueWallets LNDHub (lndhub.io). Lommebøker opprettet etter lagring av endringer, vil koble til den angitte LNDHub.",
+      ' og legg URLen her i innstillinger. La feltet være tomt for å bruke BlueWallets LNDHub (lndhub.io). Lommebøker opprettet etter lagring av endringer, vil koble til den angitte LNDHub.',
     save: 'Lagre',
     about: 'Om',
     language: 'Språk',
@@ -198,7 +198,7 @@ module.exports = {
       'BlueWallet, det vil låse opp ny "falsk" lagring. Dette vil virke' +
       'troverdig overfor en tredje part, men vil i hemmelighet beholde ' +
       'hovedlageret trygt.',
-    help2: 'Ny lagring vil være fullt funksjonell, og du kan lagre en mindre sum der'+' , slik at det ser mer troverdig ut.',
+    help2: 'Ny lagring vil være fullt funksjonell, og du kan lagre en mindre sum der' + ' , slik at det ser mer troverdig ut.',
     create_fake_storage: 'Lag falsk kryptert lagring',
     go_back: 'Gå tilbake',
     create_password: 'Lag et passord',
