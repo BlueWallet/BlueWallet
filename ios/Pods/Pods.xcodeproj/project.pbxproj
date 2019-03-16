@@ -1,0 +1,1344 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		100A5BE29B1F7F7FAD29AE0AB8297811 /* QR8bitByte.swift in Sources */ = {isa = PBXBuildFile; fileRef = A05A547532CDCC6010672A39895EFE68 /* QR8bitByte.swift */; };
+		10D11DE4639464C10F29E6BC9CFE9827 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C027083A93E1A65089B55D1674BDFE4 /* ImageIO.framework */; };
+		1DD314D90D129870C7146882A8758E7C /* EFQRCode-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 14C07FE3416D1DD8D37E5AD797E11255 /* EFQRCode-dummy.m */; };
+		1E7774C29F5CFF398359CAEAEFEEE63C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBFACBF2F77A671183CDCB2C0EA37B8C /* Foundation.framework */; };
+		211CFB0053645AC717E71957BF23666A /* CIImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E182A77B8D78F7DB1F879F2C90D4CD /* CIImage+.swift */; };
+		30799508227406EF49F6A179602E6E95 /* UIImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80D7211B4E5537C5E19103E8E6C89B2B /* UIImage+.swift */; };
+		3349BF737C0A9889D2F534C217D1EA74 /* QRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A85F4C7EAA21B04910D1F168412E63 /* QRCode.swift */; };
+		37225BEF54E53C924DA560A89FDB290F /* QRBitBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD213EF8CF883AE0D087845CD929480B /* QRBitBuffer.swift */; };
+		373F24B22162A731CE26BDE4EF4C95AA /* QRMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0A650BF8BF2CE223EEDAB63853C9662 /* QRMath.swift */; };
+		3B7D7A17FE804C7B5F942B7A9E862649 /* Pods-BlueWalletWatch Extension-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = CEC9EEF2CC0C95DA153160F38740E6B9 /* Pods-BlueWalletWatch Extension-dummy.m */; };
+		3BE177719DF16BBAE7EDE74DED40DA61 /* CGImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B46430C9756741934CF772B7505A0FDB /* CGImage+.swift */; };
+		3BFD4E7E72B491458040BF95C17B09A5 /* QRRSBlock.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE2C45D3B62CDA429A22896648C2A6CC /* QRRSBlock.swift */; };
+		420AE8EC917E8CC594705D43B29730A1 /* swift_qrcodejs-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A65ECCB3D8979D045D5D9717C2F2746C /* swift_qrcodejs-dummy.m */; };
+		4C4DFF01DBC24B1E00E3A0C2B1A7368E /* EFUIntPixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC90E2DF1F64D898D46261086554498 /* EFUIntPixel.swift */; };
+		5070C4D21C5A575E8186BAF973462038 /* CIColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 066C18667F24A7A7822D61D3335BF27C /* CIColor+.swift */; };
+		55488468C753297FADFBF65D5CAF22B1 /* EFQRCodeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6AC98BDFB57D9F9EC6128D9DE68CCBF /* EFQRCodeMode.swift */; };
+		591A7001523F18542E156AE7163164DE /* Pods-BlueWalletWatch-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = A06EC8459C3E2A5E9F83BF4202601E6A /* Pods-BlueWalletWatch-dummy.m */; };
+		5D5AE6731A2B70C9256B81E983A2F81F /* UIColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC15475065728D0ED1C0CDAB28FB1AC0 /* UIColor+.swift */; };
+		6080E017B7C4016C83326D89290A416E /* QRMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 483EB752FE8F8C9F9757A36F9F4829A8 /* QRMode.swift */; };
+		654867076EC5B7FEEBF012BBE2F42205 /* Pods-BlueWalletWatch-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = B248D16DA6F668775A0588DD442E6733 /* Pods-BlueWalletWatch-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		65EAE2DB801A05CA6873A86B69ADF24B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBFACBF2F77A671183CDCB2C0EA37B8C /* Foundation.framework */; };
+		6D63F34B18E9B82A8595DE6D6698CA28 /* swift_qrcodejs-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 6F002D51C331F7702167B198FF0F74A3 /* swift_qrcodejs-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		761F6E1E1298BA37EA0FEFB6D7F129F2 /* QRPolynomial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38DBCFD8BE08BA1A11794FB663FD51DB /* QRPolynomial.swift */; };
+		767A359907362C59498CD685ADCF4AB7 /* QRErrorCorrectLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 984EAF2AF7E9825AB0753B25B32A2FBF /* QRErrorCorrectLevel.swift */; };
+		7AECE6D70D2460C9E0669C4E669C18C3 /* Pods-BlueWallet-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = CA7499962242F1591D9BF698BD484A91 /* Pods-BlueWallet-dummy.m */; };
+		7CB9710C794F800FC12FEA3251CF1DA1 /* QRPatternLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C297BAB2BB504CB2AE261FB5110343 /* QRPatternLocator.swift */; };
+		8274103C8171DFCC906D2DB921820B89 /* EFQRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A732266380F641347BBDC7DF27797319 /* EFQRCode.swift */; };
+		838884DF4B3117BDDE13EE6A08CCA23D /* swift_qrcodejs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0410658CBA0B48B1EF3C91A87622146D /* swift_qrcodejs.framework */; };
+		85B398FEEA4D28FC384D79F5B139E25D /* BCHUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 753A7C3050D55DE1265108D485443270 /* BCHUtil.swift */; };
+		88A6B0D197141212A579226C891E6C6F /* Pods-BlueWalletTests-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 366DD20171BF07FF0249055B4AA2D3C9 /* Pods-BlueWalletTests-dummy.m */; };
+		88F97B92CA7917EAD445BD0500BA5E0C /* swift_qrcodejs.h in Headers */ = {isa = PBXBuildFile; fileRef = 1239586765A003DB58AD397AECE92C05 /* swift_qrcodejs.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		8952B7C415D569A67E1389AE0B23F5CD /* QRCodeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B328956E53D436B8ECC89976E7773680 /* QRCodeType.swift */; };
+		8CE5A6854F432B67499C4BC853B837D6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBFACBF2F77A671183CDCB2C0EA37B8C /* Foundation.framework */; };
+		90E94D3F4C93567389BF6ED5869A6760 /* EFIntSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CD148241F737DC80A7DA08E6CE06388 /* EFIntSize.swift */; };
+		9568C41894208AA4C01D73328C449397 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBFACBF2F77A671183CDCB2C0EA37B8C /* Foundation.framework */; };
+		972D348D857776833F59512B792A76E3 /* AnError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0919D3F7A6A2AC1A0A9842CA9FE61339 /* AnError.swift */; };
+		9A451E15A166A0CA5E619FBAB27AB58F /* NSColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80E8D2477DC759DB8E3B8810E27055E7 /* NSColor+.swift */; };
+		AAB2D1F00D0A17A239A42FFCED9C99F5 /* NSImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED13874C541486733A9FFF933007CFA /* NSImage+.swift */; };
+		B4A09A66E2F6609AF8D960A7041AEEB6 /* EFPointShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8282F34F6DED9FE08CD45005BB17ED /* EFPointShape.swift */; };
+		B4ABF83A77D67AB1F4F28F965775DD83 /* CGColor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDE7FB7755C1F6B54706CBA46913BF5 /* CGColor+.swift */; };
+		B8CB271A93D46F9333170B7049F81E86 /* EFQRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AD0F1B7006126423092BE2774A56D1 /* EFQRCodeGenerator.swift */; };
+		C11C88D508EE1D3F77DBEAB718274097 /* EFQRCodeRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 559A2612977D873595EB45181CAA9B52 /* EFQRCodeRecognizer.swift */; };
+		C958AA878B6A04B9C7614E8F698730A4 /* EFWatermarkMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8EBB9610CA7140B32E6813D386740A6 /* EFWatermarkMode.swift */; };
+		CCB4682EC40833E6EF028F789713F98C /* EFQRCode+GIF.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82E57464F1C850454B161D2FEF751632 /* EFQRCode+GIF.swift */; };
+		CCEFB86DCEA735739D098800C50C6AD4 /* EFQRCode.h in Headers */ = {isa = PBXBuildFile; fileRef = 458564AC3B8E5F707FCA4CF37142A38E /* EFQRCode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D120760DDAB7981BB1CFBE14058593C1 /* QRCodeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1910A43D378A8732F814193C4D233ACF /* QRCodeModel.swift */; };
+		D18802B90DFB3A2C5BD5C16AE52A57D9 /* QRMaskPattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630714340D4AFF4C137D6CA867EDA971 /* QRMaskPattern.swift */; };
+		DDB1587E2E2CCBF84657D891BB9EE750 /* CGSize+.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F7E3A28CE682E1620D28768C0BCEAD /* CGSize+.swift */; };
+		E46C8FD73D56A5E98DE94E440FCA4F2C /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FCC926862DE5326A79278ED88A7C4A /* CoreGraphics.framework */; };
+		F4F9EBF42DBC974F6FE788512BBCB4F9 /* Pods-BlueWalletWatch Extension-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = F43D49A5CE4F041F6C048FA5BA7231E8 /* Pods-BlueWalletWatch Extension-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F723ED4B78279AF1F63B35F732410ECF /* EFInputCorrectionLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DADB24BED33C25EF187309614CAF6E1 /* EFInputCorrectionLevel.swift */; };
+		FF22E2C0F6A2BE47FBF2E5760B54ED99 /* EFQRCode-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 153D4BF9D47637649138DE49A46B5971 /* EFQRCode-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		417ECB181D54EF4AD99D3985A87634C6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97E0D63D47BB5592A3BFF635EFD07A28;
+			remoteInfo = swift_qrcodejs;
+		};
+		54D82221531C18DD70BAA1F426DC0E18 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BAD5C89E321B3F7005FEDF3A8098BD75;
+			remoteInfo = EFQRCode;
+		};
+		A7282AC5BE64FBEE7BCE1D4B5E841973 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97E0D63D47BB5592A3BFF635EFD07A28;
+			remoteInfo = swift_qrcodejs;
+		};
+		BF76F9CFEDBA14912354BF6EFFF8B1DC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 17C83112142C39595A14F5717C7F2899;
+			remoteInfo = "Pods-BlueWallet";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0410658CBA0B48B1EF3C91A87622146D /* swift_qrcodejs.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = swift_qrcodejs.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		05FA80E421F2905F8EF87AB1321A1998 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		066C18667F24A7A7822D61D3335BF27C /* CIColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "CIColor+.swift"; path = "Source/CIColor+.swift"; sourceTree = "<group>"; };
+		0919D3F7A6A2AC1A0A9842CA9FE61339 /* AnError.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AnError.swift; path = Sources/AnError.swift; sourceTree = "<group>"; };
+		1239586765A003DB58AD397AECE92C05 /* swift_qrcodejs.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = swift_qrcodejs.h; path = Sources/swift_qrcodejs.h; sourceTree = "<group>"; };
+		14C07FE3416D1DD8D37E5AD797E11255 /* EFQRCode-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "EFQRCode-dummy.m"; sourceTree = "<group>"; };
+		153D4BF9D47637649138DE49A46B5971 /* EFQRCode-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "EFQRCode-umbrella.h"; sourceTree = "<group>"; };
+		1910A43D378A8732F814193C4D233ACF /* QRCodeModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRCodeModel.swift; path = Sources/QRCodeModel.swift; sourceTree = "<group>"; };
+		2BF55E288EB5E91516876C2988B98433 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		34C5CFBA6EE522BA902C69418DCF8662 /* Pods-BlueWalletWatch Extension-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWalletWatch Extension-acknowledgements.markdown"; sourceTree = "<group>"; };
+		366DD20171BF07FF0249055B4AA2D3C9 /* Pods-BlueWalletTests-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWalletTests-dummy.m"; sourceTree = "<group>"; };
+		3751E77489DEDF70EDD4E71A2B6F6313 /* Pods-BlueWalletWatch Extension-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWalletWatch Extension-acknowledgements.plist"; sourceTree = "<group>"; };
+		38DBCFD8BE08BA1A11794FB663FD51DB /* QRPolynomial.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRPolynomial.swift; path = Sources/QRPolynomial.swift; sourceTree = "<group>"; };
+		3C67E1F28E45AD1F2B8BB5D461FD4F2B /* libPods-BlueWallet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-BlueWallet.a"; path = "libPods-BlueWallet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3CA108ABF9C3308B8127FCAE7ECEDE41 /* Pods-BlueWalletWatch Extension-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletWatch Extension-frameworks.sh"; sourceTree = "<group>"; };
+		3DDE7FB7755C1F6B54706CBA46913BF5 /* CGColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "CGColor+.swift"; path = "Source/CGColor+.swift"; sourceTree = "<group>"; };
+		3FC90E2DF1F64D898D46261086554498 /* EFUIntPixel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFUIntPixel.swift; path = Source/EFUIntPixel.swift; sourceTree = "<group>"; };
+		419D028D52C1BC5D8BC64A52EDDA013B /* Pods-BlueWalletWatch Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletWatch Extension.debug.xcconfig"; sourceTree = "<group>"; };
+		458564AC3B8E5F707FCA4CF37142A38E /* EFQRCode.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = EFQRCode.h; path = Source/EFQRCode.h; sourceTree = "<group>"; };
+		46BAD7CCF00FD7F86D204D9810C12937 /* Pods_BlueWalletWatch_Extension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_BlueWalletWatch_Extension.framework; path = "Pods-BlueWalletWatch Extension.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		483EB752FE8F8C9F9757A36F9F4829A8 /* QRMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRMode.swift; path = Sources/QRMode.swift; sourceTree = "<group>"; };
+		48E63411B11966E243D875A6E3191BD7 /* Pods-BlueWalletWatch Extension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletWatch Extension.release.xcconfig"; sourceTree = "<group>"; };
+		559A2612977D873595EB45181CAA9B52 /* EFQRCodeRecognizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFQRCodeRecognizer.swift; path = Source/EFQRCodeRecognizer.swift; sourceTree = "<group>"; };
+		56D4F92D39A499283730E3613477D1B4 /* Pods-BlueWalletTests-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletTests-frameworks.sh"; sourceTree = "<group>"; };
+		59FCC926862DE5326A79278ED88A7C4A /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS5.0.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
+		5DADB24BED33C25EF187309614CAF6E1 /* EFInputCorrectionLevel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFInputCorrectionLevel.swift; path = Source/EFInputCorrectionLevel.swift; sourceTree = "<group>"; };
+		60EAA9D810435B7FA67AE3BF683620EB /* Pods-BlueWalletWatch-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletWatch-resources.sh"; sourceTree = "<group>"; };
+		630714340D4AFF4C137D6CA867EDA971 /* QRMaskPattern.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRMaskPattern.swift; path = Sources/QRMaskPattern.swift; sourceTree = "<group>"; };
+		631280DD68DDDAE458C501E9CD07813A /* Pods-BlueWalletWatch.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletWatch.release.xcconfig"; sourceTree = "<group>"; };
+		6A7AE9F437AB9E7E564DF87B16FB0F9E /* Pods-BlueWallet-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWallet-acknowledgements.markdown"; sourceTree = "<group>"; };
+		6AD730CE71DA491C4CEED8668C183CD1 /* Pods-BlueWalletTests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWalletTests-acknowledgements.markdown"; sourceTree = "<group>"; };
+		6AEF5572BE958DFFAC76BA1F471CB49B /* Pods-BlueWallet-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWallet-acknowledgements.plist"; sourceTree = "<group>"; };
+		6F002D51C331F7702167B198FF0F74A3 /* swift_qrcodejs-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "swift_qrcodejs-umbrella.h"; sourceTree = "<group>"; };
+		706FEE1272E7D1CA9B731ED4618F95D5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		753A7C3050D55DE1265108D485443270 /* BCHUtil.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BCHUtil.swift; path = Sources/BCHUtil.swift; sourceTree = "<group>"; };
+		7B7B96AE3D3EDA68729DCB5BBC54868B /* swift_qrcodejs-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "swift_qrcodejs-prefix.pch"; sourceTree = "<group>"; };
+		80D7211B4E5537C5E19103E8E6C89B2B /* UIImage+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIImage+.swift"; path = "Source/UIImage+.swift"; sourceTree = "<group>"; };
+		80E8D2477DC759DB8E3B8810E27055E7 /* NSColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NSColor+.swift"; path = "Source/NSColor+.swift"; sourceTree = "<group>"; };
+		82E57464F1C850454B161D2FEF751632 /* EFQRCode+GIF.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "EFQRCode+GIF.swift"; path = "Source/EFQRCode+GIF.swift"; sourceTree = "<group>"; };
+		8933452D875F6E5D5F2543A47826EA0C /* swift_qrcodejs.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = swift_qrcodejs.modulemap; sourceTree = "<group>"; };
+		8CD148241F737DC80A7DA08E6CE06388 /* EFIntSize.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFIntSize.swift; path = Source/EFIntSize.swift; sourceTree = "<group>"; };
+		92AD0F1B7006126423092BE2774A56D1 /* EFQRCodeGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFQRCodeGenerator.swift; path = Source/EFQRCodeGenerator.swift; sourceTree = "<group>"; };
+		9357A8AB447FCA338ABDF6B1F11CBAA5 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		93A85F4C7EAA21B04910D1F168412E63 /* QRCode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRCode.swift; path = Sources/QRCode.swift; sourceTree = "<group>"; };
+		984EAF2AF7E9825AB0753B25B32A2FBF /* QRErrorCorrectLevel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRErrorCorrectLevel.swift; path = Sources/QRErrorCorrectLevel.swift; sourceTree = "<group>"; };
+		9B6B7CB7AA9947087D9551E7D3C55EEB /* Pods-BlueWalletWatch.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletWatch.debug.xcconfig"; sourceTree = "<group>"; };
+		9C027083A93E1A65089B55D1674BDFE4 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS5.0.sdk/System/Library/Frameworks/ImageIO.framework; sourceTree = DEVELOPER_DIR; };
+		9DB477C63F644DCAA3AAB144BB6A94DB /* Pods-BlueWalletTests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletTests-resources.sh"; sourceTree = "<group>"; };
+		9E65582B61C4BB7684A0145598C10237 /* EFQRCode.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = EFQRCode.framework; path = EFQRCode.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A05A547532CDCC6010672A39895EFE68 /* QR8bitByte.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QR8bitByte.swift; path = Sources/QR8bitByte.swift; sourceTree = "<group>"; };
+		A06EC8459C3E2A5E9F83BF4202601E6A /* Pods-BlueWalletWatch-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWalletWatch-dummy.m"; sourceTree = "<group>"; };
+		A14A3AABE0E81C7BE44BB0BF22ACF041 /* Pods_BlueWalletWatch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_BlueWalletWatch.framework; path = "Pods-BlueWalletWatch.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A169901F3E17AF046C98F84785C69E7B /* Pods-BlueWalletWatch.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-BlueWalletWatch.modulemap"; sourceTree = "<group>"; };
+		A1F7E3A28CE682E1620D28768C0BCEAD /* CGSize+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "CGSize+.swift"; path = "Source/CGSize+.swift"; sourceTree = "<group>"; };
+		A3E6FF4C8DFB526FF0DA741A0C3A5980 /* Pods-BlueWallet-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-frameworks.sh"; sourceTree = "<group>"; };
+		A4053FDD969165E46EA7575C58BF11B4 /* Pods-BlueWalletWatch Extension.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-BlueWalletWatch Extension.modulemap"; sourceTree = "<group>"; };
+		A65ECCB3D8979D045D5D9717C2F2746C /* swift_qrcodejs-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "swift_qrcodejs-dummy.m"; sourceTree = "<group>"; };
+		A732266380F641347BBDC7DF27797319 /* EFQRCode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFQRCode.swift; path = Source/EFQRCode.swift; sourceTree = "<group>"; };
+		A830245CAC808A73E96A0B261C2488C8 /* Pods-BlueWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B248D16DA6F668775A0588DD442E6733 /* Pods-BlueWalletWatch-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-BlueWalletWatch-umbrella.h"; sourceTree = "<group>"; };
+		B328956E53D436B8ECC89976E7773680 /* QRCodeType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRCodeType.swift; path = Sources/QRCodeType.swift; sourceTree = "<group>"; };
+		B46430C9756741934CF772B7505A0FDB /* CGImage+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "CGImage+.swift"; path = "Source/CGImage+.swift"; sourceTree = "<group>"; };
+		B4B0C50FBB24EF80DA42BD227BA485B4 /* EFQRCode.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = EFQRCode.modulemap; sourceTree = "<group>"; };
+		B75201786FAB3231BA410119637ACC9E /* swift_qrcodejs.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = swift_qrcodejs.xcconfig; sourceTree = "<group>"; };
+		C07116E4144A2D5C2E429FE65A84A7D4 /* EFQRCode.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = EFQRCode.xcconfig; sourceTree = "<group>"; };
+		C0C9ED821A9EFFD18157F9B9A05C05F6 /* Pods-BlueWalletTests-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWalletTests-acknowledgements.plist"; sourceTree = "<group>"; };
+		C306BC62C601839311D2C4F01999B58D /* Pods-BlueWalletWatch-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-BlueWalletWatch-acknowledgements.plist"; sourceTree = "<group>"; };
+		C561EE28C1CBA683B081645F8BD0FBEB /* libPods-BlueWalletTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; name = "libPods-BlueWalletTests.a"; path = "libPods-BlueWalletTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA7499962242F1591D9BF698BD484A91 /* Pods-BlueWallet-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWallet-dummy.m"; sourceTree = "<group>"; };
+		CAA102079B5BAFEEF1B109B4850AC0B2 /* Pods-BlueWallet-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWallet-resources.sh"; sourceTree = "<group>"; };
+		CBFACBF2F77A671183CDCB2C0EA37B8C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS5.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		CD213EF8CF883AE0D087845CD929480B /* QRBitBuffer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRBitBuffer.swift; path = Sources/QRBitBuffer.swift; sourceTree = "<group>"; };
+		CEC9EEF2CC0C95DA153160F38740E6B9 /* Pods-BlueWalletWatch Extension-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-BlueWalletWatch Extension-dummy.m"; sourceTree = "<group>"; };
+		CED13874C541486733A9FFF933007CFA /* NSImage+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "NSImage+.swift"; path = "Source/NSImage+.swift"; sourceTree = "<group>"; };
+		D1B5448D43C6D1F5FF39B93631B5321D /* Pods-BlueWalletWatch-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletWatch-frameworks.sh"; sourceTree = "<group>"; };
+		D6AC98BDFB57D9F9EC6128D9DE68CCBF /* EFQRCodeMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFQRCodeMode.swift; path = Source/EFQRCodeMode.swift; sourceTree = "<group>"; };
+		E0A650BF8BF2CE223EEDAB63853C9662 /* QRMath.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRMath.swift; path = Sources/QRMath.swift; sourceTree = "<group>"; };
+		E10462A620FD27019FE90346D5170EAA /* Pods-BlueWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet.release.xcconfig"; sourceTree = "<group>"; };
+		E2C297BAB2BB504CB2AE261FB5110343 /* QRPatternLocator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRPatternLocator.swift; path = Sources/QRPatternLocator.swift; sourceTree = "<group>"; };
+		E4E182A77B8D78F7DB1F879F2C90D4CD /* CIImage+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "CIImage+.swift"; path = "Source/CIImage+.swift"; sourceTree = "<group>"; };
+		E7714E7EA7E8DB5256CD77920C02F540 /* Pods-BlueWalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWalletTests.release.xcconfig"; sourceTree = "<group>"; };
+		E8EBB9610CA7140B32E6813D386740A6 /* EFWatermarkMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFWatermarkMode.swift; path = Source/EFWatermarkMode.swift; sourceTree = "<group>"; };
+		E9E42AE37A9E86FBAA96A336310AC480 /* Pods-BlueWalletWatch Extension-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-BlueWalletWatch Extension-resources.sh"; sourceTree = "<group>"; };
+		EB61EC48714E13723295F421DA52ADB7 /* EFQRCode-prefix.pch */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "EFQRCode-prefix.pch"; sourceTree = "<group>"; };
+		F43D49A5CE4F041F6C048FA5BA7231E8 /* Pods-BlueWalletWatch Extension-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-BlueWalletWatch Extension-umbrella.h"; sourceTree = "<group>"; };
+		F6025338661A392A3A164904F758E6B2 /* Pods-BlueWalletWatch-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-BlueWalletWatch-acknowledgements.markdown"; sourceTree = "<group>"; };
+		FB083C11BCD0CD592846A05F59D068FB /* swift_qrcodejs.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = swift_qrcodejs.framework; path = swift_qrcodejs.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC15475065728D0ED1C0CDAB28FB1AC0 /* UIColor+.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "UIColor+.swift"; path = "Source/UIColor+.swift"; sourceTree = "<group>"; };
+		FC8282F34F6DED9FE08CD45005BB17ED /* EFPointShape.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EFPointShape.swift; path = Source/EFPointShape.swift; sourceTree = "<group>"; };
+		FE2C45D3B62CDA429A22896648C2A6CC /* QRRSBlock.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = QRRSBlock.swift; path = Sources/QRRSBlock.swift; sourceTree = "<group>"; };
+		FE87D51A1309F3E01521C9BFCA623E56 /* Pods-BlueWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-BlueWallet.debug.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		401EBB2577AD8535BAD81510855BE180 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A9E56BA0E8B66815F669565E865ED67 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9568C41894208AA4C01D73328C449397 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		78FE224EA26EA468B8D4E6CDF8D90702 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E46C8FD73D56A5E98DE94E440FCA4F2C /* CoreGraphics.framework in Frameworks */,
+				1E7774C29F5CFF398359CAEAEFEEE63C /* Foundation.framework in Frameworks */,
+				10D11DE4639464C10F29E6BC9CFE9827 /* ImageIO.framework in Frameworks */,
+				838884DF4B3117BDDE13EE6A08CCA23D /* swift_qrcodejs.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8C10B1F9C01AC65363F2AC8C842F2EF7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8CE5A6854F432B67499C4BC853B837D6 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9D10CEB528784BF3B9016DC6958E9354 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				65EAE2DB801A05CA6873A86B69ADF24B /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB1AB9B5BA146C51438EC40C6197A4E2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2200065ED4B70B86D9AE990BA328A01E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				9C6668429FA6E2ECC9943027667790CD /* EFQRCode */,
+				6CCDA80E77F84B1D5EF815F35D483EC5 /* swift_qrcodejs */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		31B24A06F06839FFF19AFAF6D1A4284B /* watchOS */ = {
+			isa = PBXGroup;
+			children = (
+				59FCC926862DE5326A79278ED88A7C4A /* CoreGraphics.framework */,
+				CBFACBF2F77A671183CDCB2C0EA37B8C /* Foundation.framework */,
+				9C027083A93E1A65089B55D1674BDFE4 /* ImageIO.framework */,
+			);
+			name = watchOS;
+			sourceTree = "<group>";
+		};
+		4234C7E42F49F231D87C08296234991A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9E65582B61C4BB7684A0145598C10237 /* EFQRCode.framework */,
+				3C67E1F28E45AD1F2B8BB5D461FD4F2B /* libPods-BlueWallet.a */,
+				C561EE28C1CBA683B081645F8BD0FBEB /* libPods-BlueWalletTests.a */,
+				A14A3AABE0E81C7BE44BB0BF22ACF041 /* Pods_BlueWalletWatch.framework */,
+				46BAD7CCF00FD7F86D204D9810C12937 /* Pods_BlueWalletWatch_Extension.framework */,
+				FB083C11BCD0CD592846A05F59D068FB /* swift_qrcodejs.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		432DD28727BC0AD645347A2E9DA6D7A4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0410658CBA0B48B1EF3C91A87622146D /* swift_qrcodejs.framework */,
+				31B24A06F06839FFF19AFAF6D1A4284B /* watchOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5C8B45B8724AA3D4B263D5DC1AB86C5E /* Pods-BlueWalletWatch */ = {
+			isa = PBXGroup;
+			children = (
+				2BF55E288EB5E91516876C2988B98433 /* Info.plist */,
+				A169901F3E17AF046C98F84785C69E7B /* Pods-BlueWalletWatch.modulemap */,
+				F6025338661A392A3A164904F758E6B2 /* Pods-BlueWalletWatch-acknowledgements.markdown */,
+				C306BC62C601839311D2C4F01999B58D /* Pods-BlueWalletWatch-acknowledgements.plist */,
+				A06EC8459C3E2A5E9F83BF4202601E6A /* Pods-BlueWalletWatch-dummy.m */,
+				D1B5448D43C6D1F5FF39B93631B5321D /* Pods-BlueWalletWatch-frameworks.sh */,
+				60EAA9D810435B7FA67AE3BF683620EB /* Pods-BlueWalletWatch-resources.sh */,
+				B248D16DA6F668775A0588DD442E6733 /* Pods-BlueWalletWatch-umbrella.h */,
+				9B6B7CB7AA9947087D9551E7D3C55EEB /* Pods-BlueWalletWatch.debug.xcconfig */,
+				631280DD68DDDAE458C501E9CD07813A /* Pods-BlueWalletWatch.release.xcconfig */,
+			);
+			name = "Pods-BlueWalletWatch";
+			path = "Target Support Files/Pods-BlueWalletWatch";
+			sourceTree = "<group>";
+		};
+		6CCDA80E77F84B1D5EF815F35D483EC5 /* swift_qrcodejs */ = {
+			isa = PBXGroup;
+			children = (
+				0919D3F7A6A2AC1A0A9842CA9FE61339 /* AnError.swift */,
+				753A7C3050D55DE1265108D485443270 /* BCHUtil.swift */,
+				A05A547532CDCC6010672A39895EFE68 /* QR8bitByte.swift */,
+				CD213EF8CF883AE0D087845CD929480B /* QRBitBuffer.swift */,
+				93A85F4C7EAA21B04910D1F168412E63 /* QRCode.swift */,
+				1910A43D378A8732F814193C4D233ACF /* QRCodeModel.swift */,
+				B328956E53D436B8ECC89976E7773680 /* QRCodeType.swift */,
+				984EAF2AF7E9825AB0753B25B32A2FBF /* QRErrorCorrectLevel.swift */,
+				630714340D4AFF4C137D6CA867EDA971 /* QRMaskPattern.swift */,
+				E0A650BF8BF2CE223EEDAB63853C9662 /* QRMath.swift */,
+				483EB752FE8F8C9F9757A36F9F4829A8 /* QRMode.swift */,
+				E2C297BAB2BB504CB2AE261FB5110343 /* QRPatternLocator.swift */,
+				38DBCFD8BE08BA1A11794FB663FD51DB /* QRPolynomial.swift */,
+				FE2C45D3B62CDA429A22896648C2A6CC /* QRRSBlock.swift */,
+				1239586765A003DB58AD397AECE92C05 /* swift_qrcodejs.h */,
+				D7BA310A697CEC55891D268759227BC8 /* Support Files */,
+			);
+			name = swift_qrcodejs;
+			path = swift_qrcodejs;
+			sourceTree = "<group>";
+		};
+		7DB346D0F39D3F0E887471402A8071AB = {
+			isa = PBXGroup;
+			children = (
+				93A4A3777CF96A4AAC1D13BA6DCCEA73 /* Podfile */,
+				432DD28727BC0AD645347A2E9DA6D7A4 /* Frameworks */,
+				2200065ED4B70B86D9AE990BA328A01E /* Pods */,
+				4234C7E42F49F231D87C08296234991A /* Products */,
+				84B584B27D9E49D56336160439A155BA /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		84B584B27D9E49D56336160439A155BA /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				D74449223D5B388E5948426611B380F9 /* Pods-BlueWallet */,
+				F46DE689653FCBC73436BE7BD3F963C1 /* Pods-BlueWalletTests */,
+				5C8B45B8724AA3D4B263D5DC1AB86C5E /* Pods-BlueWalletWatch */,
+				A3CF0E8F45C11603D571ED54A94D2C65 /* Pods-BlueWalletWatch Extension */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		9C6668429FA6E2ECC9943027667790CD /* EFQRCode */ = {
+			isa = PBXGroup;
+			children = (
+				3DDE7FB7755C1F6B54706CBA46913BF5 /* CGColor+.swift */,
+				B46430C9756741934CF772B7505A0FDB /* CGImage+.swift */,
+				A1F7E3A28CE682E1620D28768C0BCEAD /* CGSize+.swift */,
+				066C18667F24A7A7822D61D3335BF27C /* CIColor+.swift */,
+				E4E182A77B8D78F7DB1F879F2C90D4CD /* CIImage+.swift */,
+				5DADB24BED33C25EF187309614CAF6E1 /* EFInputCorrectionLevel.swift */,
+				8CD148241F737DC80A7DA08E6CE06388 /* EFIntSize.swift */,
+				FC8282F34F6DED9FE08CD45005BB17ED /* EFPointShape.swift */,
+				458564AC3B8E5F707FCA4CF37142A38E /* EFQRCode.h */,
+				A732266380F641347BBDC7DF27797319 /* EFQRCode.swift */,
+				82E57464F1C850454B161D2FEF751632 /* EFQRCode+GIF.swift */,
+				92AD0F1B7006126423092BE2774A56D1 /* EFQRCodeGenerator.swift */,
+				D6AC98BDFB57D9F9EC6128D9DE68CCBF /* EFQRCodeMode.swift */,
+				559A2612977D873595EB45181CAA9B52 /* EFQRCodeRecognizer.swift */,
+				3FC90E2DF1F64D898D46261086554498 /* EFUIntPixel.swift */,
+				E8EBB9610CA7140B32E6813D386740A6 /* EFWatermarkMode.swift */,
+				80E8D2477DC759DB8E3B8810E27055E7 /* NSColor+.swift */,
+				CED13874C541486733A9FFF933007CFA /* NSImage+.swift */,
+				FC15475065728D0ED1C0CDAB28FB1AC0 /* UIColor+.swift */,
+				80D7211B4E5537C5E19103E8E6C89B2B /* UIImage+.swift */,
+				9F2801F31557C23E788CDE661952DBCE /* Support Files */,
+			);
+			name = EFQRCode;
+			path = EFQRCode;
+			sourceTree = "<group>";
+		};
+		9F2801F31557C23E788CDE661952DBCE /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				B4B0C50FBB24EF80DA42BD227BA485B4 /* EFQRCode.modulemap */,
+				C07116E4144A2D5C2E429FE65A84A7D4 /* EFQRCode.xcconfig */,
+				14C07FE3416D1DD8D37E5AD797E11255 /* EFQRCode-dummy.m */,
+				EB61EC48714E13723295F421DA52ADB7 /* EFQRCode-prefix.pch */,
+				153D4BF9D47637649138DE49A46B5971 /* EFQRCode-umbrella.h */,
+				05FA80E421F2905F8EF87AB1321A1998 /* Info.plist */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/EFQRCode";
+			sourceTree = "<group>";
+		};
+		A3CF0E8F45C11603D571ED54A94D2C65 /* Pods-BlueWalletWatch Extension */ = {
+			isa = PBXGroup;
+			children = (
+				9357A8AB447FCA338ABDF6B1F11CBAA5 /* Info.plist */,
+				A4053FDD969165E46EA7575C58BF11B4 /* Pods-BlueWalletWatch Extension.modulemap */,
+				34C5CFBA6EE522BA902C69418DCF8662 /* Pods-BlueWalletWatch Extension-acknowledgements.markdown */,
+				3751E77489DEDF70EDD4E71A2B6F6313 /* Pods-BlueWalletWatch Extension-acknowledgements.plist */,
+				CEC9EEF2CC0C95DA153160F38740E6B9 /* Pods-BlueWalletWatch Extension-dummy.m */,
+				3CA108ABF9C3308B8127FCAE7ECEDE41 /* Pods-BlueWalletWatch Extension-frameworks.sh */,
+				E9E42AE37A9E86FBAA96A336310AC480 /* Pods-BlueWalletWatch Extension-resources.sh */,
+				F43D49A5CE4F041F6C048FA5BA7231E8 /* Pods-BlueWalletWatch Extension-umbrella.h */,
+				419D028D52C1BC5D8BC64A52EDDA013B /* Pods-BlueWalletWatch Extension.debug.xcconfig */,
+				48E63411B11966E243D875A6E3191BD7 /* Pods-BlueWalletWatch Extension.release.xcconfig */,
+			);
+			name = "Pods-BlueWalletWatch Extension";
+			path = "Target Support Files/Pods-BlueWalletWatch Extension";
+			sourceTree = "<group>";
+		};
+		D74449223D5B388E5948426611B380F9 /* Pods-BlueWallet */ = {
+			isa = PBXGroup;
+			children = (
+				6A7AE9F437AB9E7E564DF87B16FB0F9E /* Pods-BlueWallet-acknowledgements.markdown */,
+				6AEF5572BE958DFFAC76BA1F471CB49B /* Pods-BlueWallet-acknowledgements.plist */,
+				CA7499962242F1591D9BF698BD484A91 /* Pods-BlueWallet-dummy.m */,
+				A3E6FF4C8DFB526FF0DA741A0C3A5980 /* Pods-BlueWallet-frameworks.sh */,
+				CAA102079B5BAFEEF1B109B4850AC0B2 /* Pods-BlueWallet-resources.sh */,
+				FE87D51A1309F3E01521C9BFCA623E56 /* Pods-BlueWallet.debug.xcconfig */,
+				E10462A620FD27019FE90346D5170EAA /* Pods-BlueWallet.release.xcconfig */,
+			);
+			name = "Pods-BlueWallet";
+			path = "Target Support Files/Pods-BlueWallet";
+			sourceTree = "<group>";
+		};
+		D7BA310A697CEC55891D268759227BC8 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				706FEE1272E7D1CA9B731ED4618F95D5 /* Info.plist */,
+				8933452D875F6E5D5F2543A47826EA0C /* swift_qrcodejs.modulemap */,
+				B75201786FAB3231BA410119637ACC9E /* swift_qrcodejs.xcconfig */,
+				A65ECCB3D8979D045D5D9717C2F2746C /* swift_qrcodejs-dummy.m */,
+				7B7B96AE3D3EDA68729DCB5BBC54868B /* swift_qrcodejs-prefix.pch */,
+				6F002D51C331F7702167B198FF0F74A3 /* swift_qrcodejs-umbrella.h */,
+			);
+			name = "Support Files";
+			path = "../Target Support Files/swift_qrcodejs";
+			sourceTree = "<group>";
+		};
+		F46DE689653FCBC73436BE7BD3F963C1 /* Pods-BlueWalletTests */ = {
+			isa = PBXGroup;
+			children = (
+				6AD730CE71DA491C4CEED8668C183CD1 /* Pods-BlueWalletTests-acknowledgements.markdown */,
+				C0C9ED821A9EFFD18157F9B9A05C05F6 /* Pods-BlueWalletTests-acknowledgements.plist */,
+				366DD20171BF07FF0249055B4AA2D3C9 /* Pods-BlueWalletTests-dummy.m */,
+				56D4F92D39A499283730E3613477D1B4 /* Pods-BlueWalletTests-frameworks.sh */,
+				9DB477C63F644DCAA3AAB144BB6A94DB /* Pods-BlueWalletTests-resources.sh */,
+				A830245CAC808A73E96A0B261C2488C8 /* Pods-BlueWalletTests.debug.xcconfig */,
+				E7714E7EA7E8DB5256CD77920C02F540 /* Pods-BlueWalletTests.release.xcconfig */,
+			);
+			name = "Pods-BlueWalletTests";
+			path = "Target Support Files/Pods-BlueWalletTests";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		203EF4F586E6C2553E14B2E3561DB117 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FF22E2C0F6A2BE47FBF2E5760B54ED99 /* EFQRCode-umbrella.h in Headers */,
+				CCEFB86DCEA735739D098800C50C6AD4 /* EFQRCode.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		96069C2AB428E9C8F66B3F39CCE3EA43 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6D63F34B18E9B82A8595DE6D6698CA28 /* swift_qrcodejs-umbrella.h in Headers */,
+				88F97B92CA7917EAD445BD0500BA5E0C /* swift_qrcodejs.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9966029337C7DBA271DFF16084DC0596 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4F9EBF42DBC974F6FE788512BBCB4F9 /* Pods-BlueWalletWatch Extension-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A328109F936A988E6D70C43BE979E762 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DA499A9149CB5AF96C33CFAE2DF85303 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEB7AAFCA62E275A7D1F73B6B7C99F12 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				654867076EC5B7FEEBF012BBE2F42205 /* Pods-BlueWalletWatch-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		17C83112142C39595A14F5717C7F2899 /* Pods-BlueWallet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D33D365A0B7ED2A01D8DB555EE8F1D45 /* Build configuration list for PBXNativeTarget "Pods-BlueWallet" */;
+			buildPhases = (
+				DA499A9149CB5AF96C33CFAE2DF85303 /* Headers */,
+				D8CD2D5125899BC3F4BE85F8580FE288 /* Sources */,
+				401EBB2577AD8535BAD81510855BE180 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-BlueWallet";
+			productName = "Pods-BlueWallet";
+			productReference = 3C67E1F28E45AD1F2B8BB5D461FD4F2B /* libPods-BlueWallet.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		97E0D63D47BB5592A3BFF635EFD07A28 /* swift_qrcodejs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2116391855734C5DAFE74B05844E8C2F /* Build configuration list for PBXNativeTarget "swift_qrcodejs" */;
+			buildPhases = (
+				96069C2AB428E9C8F66B3F39CCE3EA43 /* Headers */,
+				F028E6F37B41E0E0243B584F138147C4 /* Sources */,
+				9D10CEB528784BF3B9016DC6958E9354 /* Frameworks */,
+				0A530F45379D18CD819A6B1BE20F8FD5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = swift_qrcodejs;
+			productName = swift_qrcodejs;
+			productReference = FB083C11BCD0CD592846A05F59D068FB /* swift_qrcodejs.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		AC72AD2C0EEA48A3D72807A7BFB7B01B /* Pods-BlueWalletWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0F65D91ABE87A0A6C4135FF10335DBF3 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletWatch" */;
+			buildPhases = (
+				EEB7AAFCA62E275A7D1F73B6B7C99F12 /* Headers */,
+				1A6567F2296658571E0718D308D8ECC0 /* Sources */,
+				8C10B1F9C01AC65363F2AC8C842F2EF7 /* Frameworks */,
+				7ECE1FBE594DBE003B2DCB5C94156B65 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Pods-BlueWalletWatch";
+			productName = "Pods-BlueWalletWatch";
+			productReference = A14A3AABE0E81C7BE44BB0BF22ACF041 /* Pods_BlueWalletWatch.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		BAD5C89E321B3F7005FEDF3A8098BD75 /* EFQRCode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB269C6C438AB43C6FD7CC449C2DC188 /* Build configuration list for PBXNativeTarget "EFQRCode" */;
+			buildPhases = (
+				203EF4F586E6C2553E14B2E3561DB117 /* Headers */,
+				532FD3F9FDCE44B8955123B8F21CC8EE /* Sources */,
+				78FE224EA26EA468B8D4E6CDF8D90702 /* Frameworks */,
+				00691DB97F5ECD37017731AB24310562 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				092044206CA298F52E1C92E0523C61CC /* PBXTargetDependency */,
+			);
+			name = EFQRCode;
+			productName = EFQRCode;
+			productReference = 9E65582B61C4BB7684A0145598C10237 /* EFQRCode.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		E86CD54EE95DB9E61E88F07276EE61AA /* Pods-BlueWalletTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6C042E2A594983B490E0B8E9F3FFAF1 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletTests" */;
+			buildPhases = (
+				A328109F936A988E6D70C43BE979E762 /* Headers */,
+				5C7340D861DD08422DC03372A7E98D14 /* Sources */,
+				EB1AB9B5BA146C51438EC40C6197A4E2 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3034CFD295E562FADF9B3E0F70BD8135 /* PBXTargetDependency */,
+			);
+			name = "Pods-BlueWalletTests";
+			productName = "Pods-BlueWalletTests";
+			productReference = C561EE28C1CBA683B081645F8BD0FBEB /* libPods-BlueWalletTests.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		EBA2644C3BA71D53D4F091E3252CCFA0 /* Pods-BlueWalletWatch Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C973607C7E2B387FF235590E880EFB5 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletWatch Extension" */;
+			buildPhases = (
+				9966029337C7DBA271DFF16084DC0596 /* Headers */,
+				4D21697E88C29F6842C231B2826739A5 /* Sources */,
+				5A9E56BA0E8B66815F669565E865ED67 /* Frameworks */,
+				005856A59DF00FD250D9923C967DE851 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E07AE2BAD5598C30F160D5F703F3BE59 /* PBXTargetDependency */,
+				FF74BB2155C9312E6CA36B2FB808031A /* PBXTargetDependency */,
+			);
+			name = "Pods-BlueWalletWatch Extension";
+			productName = "Pods-BlueWalletWatch Extension";
+			productReference = 46BAD7CCF00FD7F86D204D9810C12937 /* Pods_BlueWalletWatch_Extension.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D41D8CD98F00B204E9800998ECF8427E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0930;
+				LastUpgradeCheck = 0930;
+			};
+			buildConfigurationList = 2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 7DB346D0F39D3F0E887471402A8071AB;
+			productRefGroup = 4234C7E42F49F231D87C08296234991A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BAD5C89E321B3F7005FEDF3A8098BD75 /* EFQRCode */,
+				17C83112142C39595A14F5717C7F2899 /* Pods-BlueWallet */,
+				E86CD54EE95DB9E61E88F07276EE61AA /* Pods-BlueWalletTests */,
+				AC72AD2C0EEA48A3D72807A7BFB7B01B /* Pods-BlueWalletWatch */,
+				EBA2644C3BA71D53D4F091E3252CCFA0 /* Pods-BlueWalletWatch Extension */,
+				97E0D63D47BB5592A3BFF635EFD07A28 /* swift_qrcodejs */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		005856A59DF00FD250D9923C967DE851 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00691DB97F5ECD37017731AB24310562 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		0A530F45379D18CD819A6B1BE20F8FD5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7ECE1FBE594DBE003B2DCB5C94156B65 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1A6567F2296658571E0718D308D8ECC0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				591A7001523F18542E156AE7163164DE /* Pods-BlueWalletWatch-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4D21697E88C29F6842C231B2826739A5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3B7D7A17FE804C7B5F942B7A9E862649 /* Pods-BlueWalletWatch Extension-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		532FD3F9FDCE44B8955123B8F21CC8EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B4ABF83A77D67AB1F4F28F965775DD83 /* CGColor+.swift in Sources */,
+				3BE177719DF16BBAE7EDE74DED40DA61 /* CGImage+.swift in Sources */,
+				DDB1587E2E2CCBF84657D891BB9EE750 /* CGSize+.swift in Sources */,
+				5070C4D21C5A575E8186BAF973462038 /* CIColor+.swift in Sources */,
+				211CFB0053645AC717E71957BF23666A /* CIImage+.swift in Sources */,
+				F723ED4B78279AF1F63B35F732410ECF /* EFInputCorrectionLevel.swift in Sources */,
+				90E94D3F4C93567389BF6ED5869A6760 /* EFIntSize.swift in Sources */,
+				B4A09A66E2F6609AF8D960A7041AEEB6 /* EFPointShape.swift in Sources */,
+				CCB4682EC40833E6EF028F789713F98C /* EFQRCode+GIF.swift in Sources */,
+				1DD314D90D129870C7146882A8758E7C /* EFQRCode-dummy.m in Sources */,
+				8274103C8171DFCC906D2DB921820B89 /* EFQRCode.swift in Sources */,
+				B8CB271A93D46F9333170B7049F81E86 /* EFQRCodeGenerator.swift in Sources */,
+				55488468C753297FADFBF65D5CAF22B1 /* EFQRCodeMode.swift in Sources */,
+				C11C88D508EE1D3F77DBEAB718274097 /* EFQRCodeRecognizer.swift in Sources */,
+				4C4DFF01DBC24B1E00E3A0C2B1A7368E /* EFUIntPixel.swift in Sources */,
+				C958AA878B6A04B9C7614E8F698730A4 /* EFWatermarkMode.swift in Sources */,
+				9A451E15A166A0CA5E619FBAB27AB58F /* NSColor+.swift in Sources */,
+				AAB2D1F00D0A17A239A42FFCED9C99F5 /* NSImage+.swift in Sources */,
+				5D5AE6731A2B70C9256B81E983A2F81F /* UIColor+.swift in Sources */,
+				30799508227406EF49F6A179602E6E95 /* UIImage+.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5C7340D861DD08422DC03372A7E98D14 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88A6B0D197141212A579226C891E6C6F /* Pods-BlueWalletTests-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8CD2D5125899BC3F4BE85F8580FE288 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7AECE6D70D2460C9E0669C4E669C18C3 /* Pods-BlueWallet-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F028E6F37B41E0E0243B584F138147C4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				972D348D857776833F59512B792A76E3 /* AnError.swift in Sources */,
+				85B398FEEA4D28FC384D79F5B139E25D /* BCHUtil.swift in Sources */,
+				100A5BE29B1F7F7FAD29AE0AB8297811 /* QR8bitByte.swift in Sources */,
+				37225BEF54E53C924DA560A89FDB290F /* QRBitBuffer.swift in Sources */,
+				3349BF737C0A9889D2F534C217D1EA74 /* QRCode.swift in Sources */,
+				D120760DDAB7981BB1CFBE14058593C1 /* QRCodeModel.swift in Sources */,
+				8952B7C415D569A67E1389AE0B23F5CD /* QRCodeType.swift in Sources */,
+				767A359907362C59498CD685ADCF4AB7 /* QRErrorCorrectLevel.swift in Sources */,
+				D18802B90DFB3A2C5BD5C16AE52A57D9 /* QRMaskPattern.swift in Sources */,
+				373F24B22162A731CE26BDE4EF4C95AA /* QRMath.swift in Sources */,
+				6080E017B7C4016C83326D89290A416E /* QRMode.swift in Sources */,
+				7CB9710C794F800FC12FEA3251CF1DA1 /* QRPatternLocator.swift in Sources */,
+				761F6E1E1298BA37EA0FEFB6D7F129F2 /* QRPolynomial.swift in Sources */,
+				3BFD4E7E72B491458040BF95C17B09A5 /* QRRSBlock.swift in Sources */,
+				420AE8EC917E8CC594705D43B29730A1 /* swift_qrcodejs-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		092044206CA298F52E1C92E0523C61CC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = swift_qrcodejs;
+			target = 97E0D63D47BB5592A3BFF635EFD07A28 /* swift_qrcodejs */;
+			targetProxy = A7282AC5BE64FBEE7BCE1D4B5E841973 /* PBXContainerItemProxy */;
+		};
+		3034CFD295E562FADF9B3E0F70BD8135 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "Pods-BlueWallet";
+			target = 17C83112142C39595A14F5717C7F2899 /* Pods-BlueWallet */;
+			targetProxy = BF76F9CFEDBA14912354BF6EFFF8B1DC /* PBXContainerItemProxy */;
+		};
+		E07AE2BAD5598C30F160D5F703F3BE59 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = EFQRCode;
+			target = BAD5C89E321B3F7005FEDF3A8098BD75 /* EFQRCode */;
+			targetProxy = 54D82221531C18DD70BAA1F426DC0E18 /* PBXContainerItemProxy */;
+		};
+		FF74BB2155C9312E6CA36B2FB808031A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = swift_qrcodejs;
+			target = 97E0D63D47BB5592A3BFF635EFD07A28 /* swift_qrcodejs */;
+			targetProxy = 417ECB181D54EF4AD99D3985A87634C6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		08F72583F36E572DB04E9955022F586B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
+				SYMROOT = "${SRCROOT}/../build";
+				WATCHOS_DEPLOYMENT_TARGET = 5.1;
+			};
+			name = Debug;
+		};
+		198F7571399A8BD2FE44F2FEF2680997 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9B6B7CB7AA9947087D9551E7D3C55EEB /* Pods-BlueWalletWatch.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-BlueWalletWatch/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-BlueWalletWatch/Pods-BlueWalletWatch.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 5.1;
+			};
+			name = Debug;
+		};
+		1EBF8818DFF68F606D0C32CA95D123BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E7714E7EA7E8DB5256CD77920C02F540 /* Pods-BlueWalletTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		39A01A08AE9EA0C52E26D38F208BD910 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 419D028D52C1BC5D8BC64A52EDDA013B /* Pods-BlueWalletWatch Extension.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-BlueWalletWatch Extension/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-BlueWalletWatch Extension/Pods-BlueWalletWatch Extension.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 5.1;
+			};
+			name = Debug;
+		};
+		56F19CCDD78C2B8D1FA5884C37342867 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C07116E4144A2D5C2E429FE65A84A7D4 /* EFQRCode.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/EFQRCode/EFQRCode-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/EFQRCode/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/EFQRCode/EFQRCode.modulemap";
+				PRODUCT_MODULE_NAME = EFQRCode;
+				PRODUCT_NAME = EFQRCode;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		5A956EA7DCFA066B4713F66B72F249BA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 4.2;
+				SYMROOT = "${SRCROOT}/../build";
+				WATCHOS_DEPLOYMENT_TARGET = 5.1;
+			};
+			name = Release;
+		};
+		66CC91A72EC0C7A2C7D29E442EE8B80C /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E10462A620FD27019FE90346D5170EAA /* Pods-BlueWallet.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		694C0DCDEED18B76B5B859A3B3CF0707 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C07116E4144A2D5C2E429FE65A84A7D4 /* EFQRCode.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/EFQRCode/EFQRCode-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/EFQRCode/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/EFQRCode/EFQRCode.modulemap";
+				PRODUCT_MODULE_NAME = EFQRCode;
+				PRODUCT_NAME = EFQRCode;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		8EA35C7B08269ABFFA9BA54C431841E8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FE87D51A1309F3E01521C9BFCA623E56 /* Pods-BlueWallet.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9F5B25E6B07CE596BCF1C0F90BFDCA9B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A830245CAC808A73E96A0B261C2488C8 /* Pods-BlueWalletTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				MACH_O_TYPE = staticlib;
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A2A6DF712CE0558C03FD36F15CD68B94 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 631280DD68DDDAE458C501E9CD07813A /* Pods-BlueWalletWatch.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-BlueWalletWatch/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-BlueWalletWatch/Pods-BlueWalletWatch.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 5.1;
+			};
+			name = Release;
+		};
+		BC4018C830D41FD072B284DBE2D829DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B75201786FAB3231BA410119637ACC9E /* swift_qrcodejs.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/swift_qrcodejs/swift_qrcodejs-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/swift_qrcodejs/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/swift_qrcodejs/swift_qrcodejs.modulemap";
+				PRODUCT_MODULE_NAME = swift_qrcodejs;
+				PRODUCT_NAME = swift_qrcodejs;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		DE4810BD5D0406E939FD7AA5BF565032 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 48E63411B11966E243D875A6E3191BD7 /* Pods-BlueWalletWatch Extension.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-BlueWalletWatch Extension/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-BlueWalletWatch Extension/Pods-BlueWalletWatch Extension.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 5.1;
+			};
+			name = Release;
+		};
+		EC737BBBFF68F1954B537D25ECEB0637 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B75201786FAB3231BA410119637ACC9E /* swift_qrcodejs.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREFIX_HEADER = "Target Support Files/swift_qrcodejs/swift_qrcodejs-prefix.pch";
+				INFOPLIST_FILE = "Target Support Files/swift_qrcodejs/Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MODULEMAP_FILE = "Target Support Files/swift_qrcodejs/swift_qrcodejs.modulemap";
+				PRODUCT_MODULE_NAME = swift_qrcodejs;
+				PRODUCT_NAME = swift_qrcodejs;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) ";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = 4;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0F65D91ABE87A0A6C4135FF10335DBF3 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				198F7571399A8BD2FE44F2FEF2680997 /* Debug */,
+				A2A6DF712CE0558C03FD36F15CD68B94 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2116391855734C5DAFE74B05844E8C2F /* Build configuration list for PBXNativeTarget "swift_qrcodejs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EC737BBBFF68F1954B537D25ECEB0637 /* Debug */,
+				BC4018C830D41FD072B284DBE2D829DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2D8E8EC45A3A1A1D94AE762CB5028504 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				08F72583F36E572DB04E9955022F586B /* Debug */,
+				5A956EA7DCFA066B4713F66B72F249BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6C973607C7E2B387FF235590E880EFB5 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletWatch Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				39A01A08AE9EA0C52E26D38F208BD910 /* Debug */,
+				DE4810BD5D0406E939FD7AA5BF565032 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6C042E2A594983B490E0B8E9F3FFAF1 /* Build configuration list for PBXNativeTarget "Pods-BlueWalletTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9F5B25E6B07CE596BCF1C0F90BFDCA9B /* Debug */,
+				1EBF8818DFF68F606D0C32CA95D123BA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB269C6C438AB43C6FD7CC449C2DC188 /* Build configuration list for PBXNativeTarget "EFQRCode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				56F19CCDD78C2B8D1FA5884C37342867 /* Debug */,
+				694C0DCDEED18B76B5B859A3B3CF0707 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D33D365A0B7ED2A01D8DB555EE8F1D45 /* Build configuration list for PBXNativeTarget "Pods-BlueWallet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8EA35C7B08269ABFFA9BA54C431841E8 /* Debug */,
+				66CC91A72EC0C7A2C7D29E442EE8B80C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D41D8CD98F00B204E9800998ECF8427E /* Project object */;
+}

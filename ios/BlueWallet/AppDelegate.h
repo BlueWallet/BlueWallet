@@ -6,9 +6,13 @@
  */
 
 #import <UIKit/UIKit.h>
+@import WatchConnectivity;
+@class WatchBridge;
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (nonatomic, strong) UIWindow *window;
+@property(nonatomic, strong) WatchBridge *watchBridge;
+@property(nonatomic, strong) WCSession *session;
 
 @end
