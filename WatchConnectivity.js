@@ -1,11 +1,8 @@
 import * as watch from 'react-native-watch-connectivity';
 const loc = require('./loc');
-/** @type {AppStorage} */
-import { AppStorage } from './class/app-storage';
-const BlueApp = require('./BlueApp');
-
 export default class WatchConnectivity {
   isAppInstalled = false;
+  BlueApp = require('./BlueApp');
 
   constructor() {
     this.getIsWatchAppInstalled();
@@ -21,12 +18,10 @@ export default class WatchConnectivity {
   }
 
   async sendWalletsToWatch() {
-    console.warn('ee')
     if (this.isAppInstalled) {
-      const allWallets = BlueApp.getWallets();
+      const allWallets = this.BlueApp.getWallets();
       let wallets = [];
       for (const wallet of allWallets) {
-        console.warn(wallet)
         let receiveAddress = '';
         if (wallet.getAddressAsync) {
           receiveAddress = await wallet.getAddressAsync();
@@ -87,8 +82,8 @@ export default class WatchConnectivity {
                 transaction.walletPreferredBalanceUnit;
             }
           }
-          if (BlueApp.tx_metadata[transaction.hash] && BlueApp.tx_metadata[transaction.hash]['memo']) {
-            memo = BlueApp.tx_metadata[transaction.hash]['memo'];
+          if (this.BlueApp.tx_metadata[transaction.hash] && this.BlueApp.tx_metadata[transaction.hash]['memo']) {
+            memo = this.BlueApp.tx_metadata[transaction.hash]['memo'];
           } else if (transaction.memo) {
             memo = transaction.memo;
           }
@@ -117,4 +112,7 @@ export default class WatchConnectivity {
   }
 }
 
-WatchConnectivity.shared = new WatchConnectivity();
+WatchConnectivity.init = function() {
+  if (WatchConnectivity.shared) return;
+  WatchConnectivity.shared = new WatchConnectivity();
+};

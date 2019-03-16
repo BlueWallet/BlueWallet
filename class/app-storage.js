@@ -184,6 +184,7 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
+        WatchConnectivity.init()
         await WatchConnectivity.shared.sendWalletsToWatch();
         return true;
       } else {
@@ -255,8 +256,9 @@ export class AppStorage {
     } else {
       await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-    await AsyncStorage.setItem('data', JSON.stringify(data))
-    await WatchConnectivity.sendWalletsToWatch();
+    WatchConnectivity.init();
+    WatchConnectivity.shared.sendWalletsToWatch();
+    return AsyncStorage.setItem('data', JSON.stringify(data));
   }
 
   /**

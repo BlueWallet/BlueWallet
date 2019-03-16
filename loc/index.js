@@ -9,12 +9,41 @@ const BigNumber = require('bignumber.js');
 let strings;
 dayjs.extend(relativeTime);
 
+strings = new Localization({
+  en: require('./en.js'),
+  ru: require('./ru.js'),
+  pt_br: require('./pt_BR.js'),
+  pt_pt: require('./pt_PT.js'),
+  es: require('./es.js'),
+  it: require('./it.js'),
+  el: require('./el.js'),
+  ua: require('./ua.js'),
+  jp_jp: require('./jp_JP.js'),
+  de_de: require('./de_DE.js'),
+  da_dk: require('./da_DK.js'),
+  cs_cz: require('./cs_CZ.js'),
+  th_th: require('./th_TH.js'),
+  nl_nl: require('./nl_NL.js'),
+  fr_fr: require('./fr_FR.js'),
+  hr_hr: require('./hr_HR.js'),
+  id_id: require('./id_ID.js'),
+  zh_cn: require('./zh_cn.js'),
+  nb_no: require('./nb_NO.js'),
+});
+strings.saveLanguage = async(lang) => AsyncStorage.setItem('lang', lang || 'en');
 // first-time loading sequence
 (async () => {
   // finding out whether lang preference was saved
-  let lang = await AsyncStorage.getItem(AppStorage.LANG);
+  let lang;
+  try {
+    lang = await AsyncStorage.getItem('lang');
+  } catch (_err) {
+    lang = 'en';
+    await strings.saveLanguage(lang);
+    await AsyncStorage.setItem('lang', lang)
+  }
   if (lang) {
-    strings.setLanguage(lang);
+    await strings.saveLanguage(lang);
     let localeForDayJSAvailable = true;
     switch (lang) {
       case 'el':
@@ -157,37 +186,13 @@ dayjs.extend(relativeTime);
         }
         dayjs.locale(locale.split('-')[0]);
         locale = locale.replace('-', '_');
-        strings.setLanguage(locale);
+        await strings.saveLanguage(locale);
       } else {
-        strings.setLanguage('en');
+        await strings.saveLanguage('en');
       }
     }
   }
 })();
-
-strings = new Localization({
-  en: require('./en.js'),
-  ru: require('./ru.js'),
-  pt_br: require('./pt_BR.js'),
-  pt_pt: require('./pt_PT.js'),
-  es: require('./es.js'),
-  it: require('./it.js'),
-  el: require('./el.js'),
-  ua: require('./ua.js'),
-  jp_jp: require('./jp_JP.js'),
-  de_de: require('./de_DE.js'),
-  da_dk: require('./da_DK.js'),
-  cs_cz: require('./cs_CZ.js'),
-  th_th: require('./th_TH.js'),
-  nl_nl: require('./nl_NL.js'),
-  fr_fr: require('./fr_FR.js'),
-  hr_hr: require('./hr_HR.js'),
-  id_id: require('./id_ID.js'),
-  zh_cn: require('./zh_cn.js'),
-  nb_no: require('./nb_NO.js'),
-});
-
-strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
 
 strings.transactionTimeToReadable = time => {
   if (time === 0) {
