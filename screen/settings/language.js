@@ -37,7 +37,7 @@ export default class Language extends Component {
         { label: 'Thai (TH)', value: 'th_th' },
         { label: 'Українська', value: 'ua' },
         { label: 'Ελληνικά (EL)', value: 'el' },
-        { label: 'Türkçe (TR)', value: 'tr' },
+        { label: 'Türkçe (TR)', value: 'tr_tr' },
       ],
     };
   }
