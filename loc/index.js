@@ -73,7 +73,7 @@ dayjs.extend(relativeTime);
         break;
       case 'tr_tr':
         require('dayjs/locale/tr');
-        break; 
+        break;
       default:
         localeForDayJSAvailable = false;
         break;

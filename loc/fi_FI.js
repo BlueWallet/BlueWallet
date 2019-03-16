@@ -15,10 +15,12 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'lompakot',
-      header: 'Lompakko koostuu salaisesta avaimesta (private key) sekä julkisesta osoitteesta' + ',jonka voit jakaa vastaanottaaksesi kolikoita.',
+      header:
+        'Lompakko koostuu salaisesta avaimesta (private key) sekä julkisesta osoitteesta' +
+        ',jonka voit jakaa vastaanottaaksesi kolikoita.',
       add: 'Lisää Lompakko',
       create_a_wallet: 'Luo lompakko',
-      create_a_wallet1: "Se on ilmaista ja voit luoda",
+      create_a_wallet1: 'Se on ilmaista ja voit luoda',
       create_a_wallet2: 'niin monta kuin haluat',
       latest_transaction: 'viimeisin siirto',
       empty_txs1: 'Siirtosi näkyvät tässä,',
@@ -72,7 +74,7 @@ module.exports = {
     import: {
       title: 'tuo',
       explanation:
-        "Kirjoita tähän muistisanasi, private key, WIF tai jotain mitä sinulla on. BlueWallet tekee parhaansa arvatakseen oikean muodon ja tuo lompakkosi",
+        'Kirjoita tähän muistisanasi, private key, WIF tai jotain mitä sinulla on. BlueWallet tekee parhaansa arvatakseen oikean muodon ja tuo lompakkosi',
       imported: 'Tuotu',
       error: 'Tuonti epäonnistui. Varmista, että annettu tieto on oikein',
       success: 'Onnistui',
@@ -182,7 +184,7 @@ module.exports = {
     lightning_settings: 'Lightning asetukset',
     lightning_settings_explain:
       'Yhdistääksesi omaan LND noodiin, asenna LndHub' +
-      " ja laita sen URL tänne. Jätä tyhjäksi käyttääksesi BlueWalletin LNDHubia (lndhub.io). Muutosten tallentamisen jälkeen luodut lompakot yhdistävät annettuun LNDHubiin.",
+      ' ja laita sen URL tänne. Jätä tyhjäksi käyttääksesi BlueWalletin LNDHubia (lndhub.io). Muutosten tallentamisen jälkeen luodut lompakot yhdistävät annettuun LNDHubiin.',
     save: 'Tallenna',
     about: 'Tietoa',
     language: 'Kieli',
@@ -195,7 +197,7 @@ module.exports = {
       'salasanasi. Pitääksesi kolikkosi turvassa, BlueWallet voi luoda toisen ' +
       'salatun tallennustilan, toisella salasanalla. Paineen alla, ' +
       'voit kertoa tämän salasanan kolmannelle osapuolelle. Annettaessa ' +
-      "BlueWalletiin, se avaa uuden väärennetyn tallennustilan. Se näyttää " +
+      'BlueWalletiin, se avaa uuden väärennetyn tallennustilan. Se näyttää ' +
       'oikealta kolmannelle osapuolelle, mutta pitää oikean tallennustilasi ' +
       'kolikkoineen turvassa.',
     help2: 'Uusi tallennustila näyttää täysin toimivalta, ja voit säilyttää ' + 'pieniä summia siellä, jotta se näyttää uskottavalta.',
