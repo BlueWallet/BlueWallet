@@ -11,6 +11,7 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -46,6 +47,26 @@ export default class WalletsList extends Component {
 
   componentDidMount() {
     this.redrawScreen();
+
+    // the idea is that upon wallet launch we will refresh
+    // all balances and all transactions here:
+    InteractionManager.runAfterInteractions(async () => {
+      let noErr = true;
+      try {
+        await BlueElectrum.waitTillConnected();
+        let balanceStart = +new Date();
+        await BlueApp.fetchWalletBalances();
+        let balanceEnd = +new Date();
+        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
+        let start = +new Date();
+        await BlueApp.fetchWalletTransactions();
+        let end = +new Date();
+        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
+      } catch (_) {
+        noErr = false;
+      }
+      if (noErr) this.redrawScreen();
+    });
   }
 
   /**
