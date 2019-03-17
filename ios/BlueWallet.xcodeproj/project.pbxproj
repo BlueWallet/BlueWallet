@@ -58,7 +58,6 @@
 		B1102FDCF41C4D008352748B /* libRNReactNativeHapticFeedback.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */; };
 		B439DB392234E59F00C85180 /* WalletInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B439DB382234E59F00C85180 /* WalletInformation.swift */; };
 		B439DB3A2234F56D00C85180 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEC02230BFFD0069E388 /* Assets.xcassets */; };
-		B439DB3C2234FA5A00C85180 /* KeychainSwiftDistrib.swift in Sources */ = {isa = PBXBuildFile; fileRef = B439DB3B2234FA5A00C85180 /* KeychainSwiftDistrib.swift */; };
 		B439DB3E22363BE400C85180 /* WalletDetailsInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B439DB3D22363BE400C85180 /* WalletDetailsInterfaceController.swift */; };
 		B4DAAEAB2230BFFA0069E388 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEA92230BFFA0069E388 /* Interface.storyboard */; };
 		B4DAAEAD2230BFFC0069E388 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEAC2230BFFC0069E388 /* Assets.xcassets */; };
@@ -73,6 +72,7 @@
 		B4E71B652238B83B00766E13 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E71B642238B83B00766E13 /* Wallet.swift */; };
 		B4E71B89223A351900766E13 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E71B88223A351900766E13 /* Transaction.swift */; };
 		B4E71BCB223A385600766E13 /* TransactionTableRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E71BCA223A385600766E13 /* TransactionTableRow.swift */; };
+		B4E79367223E4B3200AD5326 /* KeychainSwiftDistrib.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E79366223E4B3200AD5326 /* KeychainSwiftDistrib.swift */; };
 		C1056BF235EE4E23AAF21975 /* libRCTQRCodeLocalImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */; };
 		C10C13E4CC4445C5861B1A3A /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FD7977067E1A496F94D8B1B7 /* libRNDeviceInfo.a */; };
 		C41EC263DBE649299C99B9A5 /* libRNRate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */; };
@@ -677,7 +677,6 @@
 		AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		B439DB382234E59F00C85180 /* WalletInformation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInformation.swift; sourceTree = "<group>"; };
-		B439DB3B2234FA5A00C85180 /* KeychainSwiftDistrib.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KeychainSwiftDistrib.swift; path = ../../../KeychainSwiftDistrib.swift; sourceTree = "<group>"; };
 		B439DB3D22363BE400C85180 /* WalletDetailsInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsInterfaceController.swift; sourceTree = "<group>"; };
 		B4DAAEA72230BFFA0069E388 /* BlueWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4DAAEAA2230BFFA0069E388 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
@@ -695,6 +694,7 @@
 		B4E71B642238B83B00766E13 /* Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		B4E71B88223A351900766E13 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		B4E71BCA223A385600766E13 /* TransactionTableRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableRow.swift; sourceTree = "<group>"; };
+		B4E79366223E4B3200AD5326 /* KeychainSwiftDistrib.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainSwiftDistrib.swift; sourceTree = SOURCE_ROOT; };
 		B5E77FEF413646E685D5041B /* RNWatch.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNWatch.xcodeproj; path = "../node_modules/react-native-watch-connectivity/RNWatch.xcodeproj"; sourceTree = "<group>"; };
 		B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTQRCodeLocalImage.a; sourceTree = "<group>"; };
 		B9D9B3A7B2CB4255876B67AF /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -1297,7 +1297,7 @@
 		B4DAAEB72230BFFC0069E388 /* BlueWalletWatch Extension */ = {
 			isa = PBXGroup;
 			children = (
-				B439DB3B2234FA5A00C85180 /* KeychainSwiftDistrib.swift */,
+				B4E79366223E4B3200AD5326 /* KeychainSwiftDistrib.swift */,
 				B439DAF72234E57D00C85180 /* Objects */,
 				B4DAAEB82230BFFC0069E388 /* InterfaceController.swift */,
 				B4E71B2222378C6200766E13 /* ReceiveInterfaceController.swift */,
@@ -2262,10 +2262,10 @@
 				B4E71B89223A351900766E13 /* Transaction.swift in Sources */,
 				B4DAAEBB2230BFFC0069E388 /* ExtensionDelegate.swift in Sources */,
 				B4DAAEB92230BFFC0069E388 /* InterfaceController.swift in Sources */,
+				B4E79367223E4B3200AD5326 /* KeychainSwiftDistrib.swift in Sources */,
 				B4E71BCB223A385600766E13 /* TransactionTableRow.swift in Sources */,
 				B4E71B652238B83B00766E13 /* Wallet.swift in Sources */,
 				B4E71B2322378C6200766E13 /* ReceiveInterfaceController.swift in Sources */,
-				B439DB3C2234FA5A00C85180 /* KeychainSwiftDistrib.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
