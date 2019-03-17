@@ -9,6 +9,11 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>BlueWallet.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>71</integer>
+		</dict>
 		<key>BlueWalletWatch (Notification).xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -22,11 +27,6 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>13B07F861A680F5B00A75B9A</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>B4DAAEA62230BFFA0069E388</key>
 		<dict>
 			<key>primary</key>
