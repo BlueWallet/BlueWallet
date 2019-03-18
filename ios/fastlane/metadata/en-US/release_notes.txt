@@ -1,3 +1,14 @@
+v3.9.0
+======
+
+* FIX: all wallets are refreshed when app launches
+* FIX: Send BTC should ignore non-onchain wallets* FIX: all wallets are refreshed when app launches
+* FIX: correct qr scan when importing lndhub qr backup
+* ADD: Finnish translation
+* ADD: Turkish translation
+* ADD: Greek (EL) localization
+* ADD: norwegian translation
+
 v3.8.3
 ======
 
