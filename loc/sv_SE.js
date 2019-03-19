@@ -50,7 +50,6 @@ module.exports = {
       address: 'Adress',
       type: 'Typ',
       label: 'Etikett',
-      destination: 'destination',
       description: 'beskrivning',
       are_you_sure: 'Är du säker?',
       yes_delete: 'Ja, ta bort',
@@ -74,8 +73,7 @@ module.exports = {
       explanation:
         "Skriv in dina ord, din privata nyckel, WIF, eller vad du kan tänkas ha. BlueWallet kommer att göra sitt bästa för att gissa formatet och importera plånboken",
       imported: 'Importerad',
-      error: 'Failed to import. Please, make sure that the provided data is valid.',
-      error: 'Import misslyckades. Kontrollera att informationen du matade in är korrekt',
+      error: 'Import misslyckades. Kontrollera att informationen du matade in är korrekt.',
       success: 'Import lyckad!',
       do_import: 'Importera',
       scan_qr: 'eller skanna QR-kod istället?',
@@ -100,7 +98,6 @@ module.exports = {
     list: {
       tabBarLabel: 'Transaktioner',
       title: 'transaktioner',
-      description: 'A list of ingoing or outgoing transactions of your wallets',
       description: 'Lista över dina plånböckers inkommande och utgående transaktioner',
       conf: 'konf',
     },
@@ -121,8 +118,7 @@ module.exports = {
       fee_field_is_not_valid: 'Angiven avgift är inte giltig',
       address_field_is_not_valid: 'Angiven adress är inte giltig',
       total_exceeds_balance: 'Beloppet överstiger plånbokens tillgängliga belopp',
-      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
-      create_tx_error: 'Något gick fel när transaktionen skulle skapas. Kontrollera att adressen är giltig',
+      create_tx_error: 'Något gick fel när transaktionen skulle skapas. Kontrollera att adressen är giltig.',
       address: 'adress',
       amount_placeholder: 'belopp att skicka (i BTC)',
       fee_placeholder: 'plus avgift (i BTC)',
@@ -178,16 +174,12 @@ module.exports = {
     storage_not_encrypted: 'Lagring: ej krypterad',
     storage_encrypted: 'Lagring: krypterad',
     password: 'Lösenord',
-    password_explain: 'Create the password you will use to decrypt the storage',
     password_explain: 'Skapa ett lösenord som du kommer att använda vid dekryptering',
     retype_password: 'Ange lösenord igen',
     passwords_do_not_match: 'Lösenorden är olika!',
     encrypt_storage: 'Kryptera lagring',
     lightning_settings: 'Lightning Network',
     lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      " and put its URL here in settings. Leave blank to use BlueWallet's LNDHub (lndhub.io). Wallets created after saving changes will connect to the specified LNDHub.",
-      lightning_settings_explain:
       'För att ansluta till din egen LND-nod, installera LndHub' +
       " och mata in dess URL nedan. Lämna blankt för att använda BlueWallet's LNDHub (lndhub.io). Plånböcker skapade efter att inställningarna sparats kommer att använda den angivna LNDHub:en",
     save: 'Spara',
