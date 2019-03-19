@@ -23,6 +23,8 @@ module.exports = {
       latest_transaction: 'senaste transaktion',
       empty_txs1: 'Dina transaktioner kommer att visas här',
       empty_txs2: 'men än så länge finns inga!',
+      empty_txs1_lightning: 'Lightningplånboken ska användas för dagliga småtransaktioner. Avgifterna är minimala och transaktioner sker direkt.',
+      empty_txs2_lightning: '\nFör att komma igång klicka på "sätt in / ta ut" ovan och sätt in dina första bitcoin.',
       tap_here_to_buy: 'Tryck här för att köpa bitcoin',
     },
     reorder: {
