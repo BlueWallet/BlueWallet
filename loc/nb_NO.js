@@ -23,6 +23,8 @@ module.exports = {
       latest_transaction: 'siste transaksjonen',
       empty_txs1: 'Dine transaksjoner vil vises her,',
       empty_txs2: 'ingen for øyeblikket',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Trykk her for å kjøpe Bitcoin',
     },
     reorder: {

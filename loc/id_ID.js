@@ -23,6 +23,8 @@ module.exports = {
       latest_transaction: 'transaksi terbaru',
       empty_txs1: 'Transaksimu akan muncul di sini,',
       empty_txs2: 'saat ini tidak ada transaksi',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap di sini untuk membeli bitcoin',
     },
     reorder: {
