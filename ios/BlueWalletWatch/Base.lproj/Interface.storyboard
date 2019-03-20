@@ -101,7 +101,9 @@
                                                             <imageView width="23" height="16" alignment="right" image="pendingConfirmation" contentMode="scaleAspectFit" id="hWs-WA-db1"/>
                                                         </items>
                                                     </group>
-                                                    <separator alignment="left" id="531-nb-Bab"/>
+                                                    <separator alignment="left" id="531-nb-Bab">
+                                                        <color key="color" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                    </separator>
                                                 </items>
                                             </group>
                                         </items>

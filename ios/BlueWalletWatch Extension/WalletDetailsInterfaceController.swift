@@ -23,7 +23,8 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    guard let wallet = context as? Wallet else { return }
+    let index = context as? Int ?? 0
+    let wallet = WatchDataSource.shared.wallets[index]
     self.wallet = wallet
     walletBalanceLabel.setText(wallet.balance)
     walletNameLabel.setText(wallet.label)
@@ -45,10 +46,22 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
   }
   
+  override func didAppear() {
+    super.didAppear()
+    NotificationCenter.default.addObserver(self, selector: #selector(processWalletsTable), name: WatchDataSource.NotificationName.dataUpdated, object: nil)
+  }
+  
+  override func willDisappear() {
+    super.willDisappear()
+    NotificationCenter.default.removeObserver(self, name: WatchDataSource.NotificationName.dataUpdated, object: nil)
+  }
+
+  
   @IBAction func receiveMenuItemTapped() {
     presentController(withName: ReceiveInterfaceController.identifier, context: wallet)
   }
-  private func processWalletsTable() {
+  
+  @objc private func processWalletsTable() {
     transactionsTable.setNumberOfRows(wallet?.transactions.count ?? 0, withRowType: TransactionTableRow.identifier)
     
     for index in 0..<transactionsTable.numberOfRows {
