@@ -40,6 +40,11 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     // This method is called when watch view controller is about to be visible to user
     super.willActivate()
     session?.sendMessage(["message" : "sendApplicationContext"], replyHandler: nil, errorHandler: nil)
+    
+    if (wallets.isEmpty) {
+      loadingIndicatorGroup.setHidden(true)
+      noWalletsAvailableLabel.setHidden(false)
+    }
   }
   
   private func processWalletsTable() {

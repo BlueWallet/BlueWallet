@@ -22,7 +22,7 @@
                                             <label width="6" alignment="left" id="RJV-QC-scb"/>
                                             <group width="1" alignment="center" verticalAlignment="center" layout="vertical" id="UrU-xX-jYW">
                                                 <items>
-                                                    <label alignment="left" text="Balance" minimumScaleFactor="0.5" id="QYx-3e-6zf">
+                                                    <label width="1" alignment="left" text="Balance" minimumScaleFactor="0.5" id="QYx-3e-6zf">
                                                         <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
                                                     </label>
                                                     <label alignment="left" text="Wallet" id="qpj-I1-cWt"/>
@@ -64,12 +64,12 @@
                         <group width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="275-K7-Qhe" customClass="WalletInformation" customModule="BlueWalletWatch_Extension">
                             <items>
                                 <label width="6" alignment="left" id="QMf-Fm-1cw"/>
-                                <group width="1" alignment="center" verticalAlignment="center" layout="vertical" id="jx2-si-OEm">
+                                <group width="1" widthAdjustment="-10" alignment="center" verticalAlignment="center" layout="vertical" id="jx2-si-OEm">
                                     <items>
                                         <label alignment="left" text="Balance" minimumScaleFactor="0.5" id="WTr-jJ-w7L">
                                             <fontDescription key="font" style="UICTFontTextStyleHeadline"/>
                                         </label>
-                                        <label alignment="left" text="Wallet" id="PQi-JV-aYW"/>
+                                        <label width="1" alignment="left" text="Wallet" id="PQi-JV-aYW"/>
                                     </items>
                                 </group>
                             </items>
@@ -167,8 +167,9 @@
             <objects>
                 <controller identifier="ReceiveInterfaceController" fullBounds="YES" fullScreen="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <imageView width="1" height="1" alignment="left" id="Dnb-sM-wdN"/>
+                        <imageView height="1" alignment="left" id="Dnb-sM-wdN"/>
                     </items>
+                    <edgeInsets key="margins" left="4" right="4" top="4" bottom="4"/>
                     <connections>
                         <outlet property="imageInterface" destination="Dnb-sM-wdN" id="z1e-zC-anB"/>
                     </connections>

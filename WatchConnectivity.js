@@ -34,24 +34,25 @@ export default class WatchConnectivity {
           let type = '';
           let memo = '';
           let amount = '0';
-          if (transaction.confirmations > 0) {
-            if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
-              const currentDate = new Date();
-              const now = (currentDate.getTime() / 1000) | 0;
-              const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
-              if (invoiceExpiration > now) {
-                type = 'pendingConfirmation';
-              } else if (invoiceExpiration < now) {
-                if (transaction.ispaid) {
-                  type = 'received';
-                } else {
-                  type = 'sent';
-                }
+          if (transaction.hasOwnProperty('confirmations') && transaction.confirmations <= 0) {
+            type = 'pendingConfirmation';
+          } else if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
+            const currentDate = new Date();
+            const now = (currentDate.getTime() / 1000) | 0;
+            const invoiceExpiration = transaction.timestamp + transaction.expire_time;
+
+            if (invoiceExpiration > now) {
+              type = 'pendingConfirmation';
+            } else if (invoiceExpiration < now) {
+              if (transaction.ispaid) {
+                type = 'received';
+              } else {
+                type = 'sent';
               }
-            } else if (transaction.value / 100000000 < 0) {
-              type = 'sent';
             }
+          } else if (transaction.value / 100000000 < 0) {
+            type = 'sent';
           }
           if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
             if (isNaN(transaction.value)) {
@@ -63,13 +64,13 @@ export default class WatchConnectivity {
 
             if (invoiceExpiration > now) {
               amount =
-                loc.formatBalanceWithoutSuffix(transaction.value, transaction.walletPreferredBalanceUnit, true).toString() +
+                loc.formatBalanceWithoutSuffix(transaction.value, wallet.preferredBalanceUnit, true).toString() +
                 ' ' +
                 transaction.walletPreferredBalanceUnit;
             } else if (invoiceExpiration < now) {
               if (transaction.ispaid) {
                 amount =
-                  loc.formatBalanceWithoutSuffix(transaction.value, transaction.walletPreferredBalanceUnit, true).toString() +
+                  loc.formatBalanceWithoutSuffix(transaction.value, wallet.preferredBalanceUnit, true).toString() +
                   ' ' +
                   transaction.walletPreferredBalanceUnit;
               } else {
@@ -77,7 +78,7 @@ export default class WatchConnectivity {
               }
             } else {
               amount =
-                loc.formatBalanceWithoutSuffix(transaction.value, transaction.walletPreferredBalanceUnit, true).toString() +
+                loc.formatBalanceWithoutSuffix(transaction.value, wallet.preferredBalanceUnit, true).toString() +
                 ' ' +
                 transaction.walletPreferredBalanceUnit;
             }
@@ -91,7 +92,7 @@ export default class WatchConnectivity {
         }
         wallets.push({
           label: wallet.getLabel(),
-          balance: loc.formatBalance(wallet.balance, wallet.preferredBalanceUnit, true).toString(),
+          balance: loc.formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
           type: wallet.type,
           preferredBalanceUnit: wallet.preferredBalanceUnit,
           receiveAddress: receiveAddress,

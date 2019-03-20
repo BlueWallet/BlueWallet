@@ -184,7 +184,7 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
-        WatchConnectivity.init()
+        WatchConnectivity.init();
         await WatchConnectivity.shared.sendWalletsToWatch();
         return true;
       } else {
