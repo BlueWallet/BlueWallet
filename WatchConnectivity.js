@@ -68,29 +68,29 @@ export default class WatchConnectivity {
 
               if (invoiceExpiration > now) {
                 amount =
-                  loc.formatBalanceWithoutSuffix(transaction.value, wallet.preferredBalanceUnit, true).toString() +
+                  loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
                   ' ' +
-                  transaction.walletPreferredBalanceUnit;
+                  wallet.getPreferredBalanceUnit();
               } else if (invoiceExpiration < now) {
                 if (transaction.ispaid) {
                   amount =
-                    loc.formatBalanceWithoutSuffix(transaction.value, wallet.preferredBalanceUnit, true).toString() +
+                    loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
                     ' ' +
-                    transaction.walletPreferredBalanceUnit;
+                    wallet.getPreferredBalanceUnit();
                 } else {
                   amount = loc.lnd.expired;
                 }
               } else {
                 amount =
-                  loc.formatBalanceWithoutSuffix(transaction.value, wallet.preferredBalanceUnit, true).toString() +
+                  loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
                   ' ' +
-                  transaction.walletPreferredBalanceUnit;
+                  wallet.getPreferredBalanceUnit();
               }
             } else {
               amount =
-                loc.formatBalanceWithoutSuffix(transaction.value, wallet.preferredBalanceUnit, true).toString() +
+                loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
                 ' ' +
-                transaction.walletPreferredBalanceUnit;
+                wallet.getPreferredBalanceUnit();
             }
             if (this.BlueApp.tx_metadata[transaction.hash] && this.BlueApp.tx_metadata[transaction.hash]['memo']) {
               memo = this.BlueApp.tx_metadata[transaction.hash]['memo'];
@@ -104,7 +104,7 @@ export default class WatchConnectivity {
             label: wallet.getLabel(),
             balance: loc.formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             type: wallet.type,
-            preferredBalanceUnit: wallet.preferredBalanceUnit,
+            preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress: receiveAddress,
             transactions: watchTransactions,
           });
