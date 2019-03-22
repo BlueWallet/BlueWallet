@@ -67,30 +67,18 @@ export default class WatchConnectivity {
               const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
               if (invoiceExpiration > now) {
-                amount =
-                  loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
-                  ' ' +
-                  wallet.getPreferredBalanceUnit();
+                amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
               } else if (invoiceExpiration < now) {
                 if (transaction.ispaid) {
-                  amount =
-                    loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
-                    ' ' +
-                    wallet.getPreferredBalanceUnit();
+                  amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
                 } else {
                   amount = loc.lnd.expired;
                 }
               } else {
-                amount =
-                  loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
-                  ' ' +
-                  wallet.getPreferredBalanceUnit();
+                amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
               }
             } else {
-              amount =
-                loc.formatBalanceWithoutSuffix(transaction.value, wallet.getPreferredBalanceUnit(), true).toString() +
-                ' ' +
-                wallet.getPreferredBalanceUnit();
+              amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
             }
             if (this.BlueApp.tx_metadata[transaction.hash] && this.BlueApp.tx_metadata[transaction.hash]['memo']) {
               memo = this.BlueApp.tx_metadata[transaction.hash]['memo'];

@@ -140,17 +140,17 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
-    return balance + ' ' + BitcoinUnit.BTC;
-  } else if (toUnit === BitcoinUnit.SATS) {
-    const value = new BigNumber(balance).multipliedBy(100000000);
+    const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
+    return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
+    } else if (toUnit === BitcoinUnit.SATS) {
     return (
       (balance < 0 ? '-' : '') +
-      (withFormatting ? new Intl.NumberFormat().format(value.toString()).replace(/[^0-9]/g, ' ') : value) +
+      (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance) +
       ' ' +
       BitcoinUnit.SATS
     );
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.BTCToLocalCurrency(balance);
+    return currency.satoshiToLocalCurrency(balance);
   }
 };
 
