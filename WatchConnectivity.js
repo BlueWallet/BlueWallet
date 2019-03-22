@@ -22,6 +22,9 @@ export default class WatchConnectivity {
     InteractionManager.runAfterInteractions(async () => {
       if (this.isAppInstalled) {
         const allWallets = this.BlueApp.getWallets();
+        if (!(allWallets.length > 0)) {
+          return;
+        }
         let wallets = [];
         for (const wallet of allWallets) {
           let receiveAddress = '';
@@ -99,7 +102,7 @@ export default class WatchConnectivity {
         }
 
         watch.updateApplicationContext({ wallets });
-        watch.sendUserInfo({ wallets });
+        // watch.sendUserInfo({ wallets });
         watch.subscribeToMessages((err, message, _reply) => {
           if (!err) {
             if (message.message === 'sendApplicationContext') {
