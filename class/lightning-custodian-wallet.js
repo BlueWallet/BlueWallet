@@ -1,7 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-let BigNumber = require('bignumber.js');
 
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';

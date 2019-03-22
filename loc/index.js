@@ -142,7 +142,7 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
     return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
-    } else if (toUnit === BitcoinUnit.SATS) {
+  } else if (toUnit === BitcoinUnit.SATS) {
     return (
       (balance < 0 ? '-' : '') +
       (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance) +
