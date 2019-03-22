@@ -405,8 +405,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() &&
-                    'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.') ||
+                  {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) ||
                     loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
@@ -416,7 +415,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && '\nTo start using it tap on "manage funds" and topup your balance') ||
+                  {(this.isLightning() && loc.wallets.list.empty_txs2_lightning) ||
                     loc.wallets.list.empty_txs2}
                 </Text>
 
