@@ -75,6 +75,9 @@
                             </items>
                         </group>
                         <button width="1" alignment="left" title="Receive" id="bPO-h8-ccD">
+                            <color key="titleColor" red="0.18431372549019609" green="0.37254901960784315" blue="0.70196078431372544" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" red="0.80000000000000004" green="0.8666666666666667" blue="0.97647058823529409" alpha="1" colorSpace="calibratedRGB"/>
+                            <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
                             <connections>
                                 <segue destination="egq-Yw-qK5" kind="modal" identifier="ReceiveInterfaceController" id="zEG-Xi-Smb"/>
                             </connections>
@@ -82,32 +85,34 @@
                         <label alignment="center" verticalAlignment="bottom" text="No Transactions" textAlignment="left" id="pi4-Bk-Jiq"/>
                         <table alignment="left" id="nyQ-lX-DX0">
                             <items>
-                                <tableRow identifier="TransactionTableRow" selectable="NO" id="HuQ-ep-L9j" customClass="TransactionTableRow" customModule="BlueWalletWatch_Extension">
+                                <tableRow identifier="TransactionTableRow" id="HuQ-ep-L9j" customClass="TransactionTableRow" customModule="BlueWalletWatch_Extension">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="3X8-cc-rOv">
                                         <items>
-                                            <group width="1" alignment="left" layout="vertical" spacing="8" id="Tes-g9-rp0">
-                                                <items>
-                                                    <group width="1" alignment="left" id="skh-kN-5Ey">
-                                                        <items>
-                                                            <label alignment="left" verticalAlignment="center" text="Time" minimumScaleFactor="0.10000000000000001" id="GqE-KB-TRD"/>
-                                                        </items>
-                                                    </group>
-                                                    <label alignment="left" text="Amount" textAlignment="left" minimumScaleFactor="0.10000000000000001" id="sAS-LI-RY7"/>
-                                                    <group width="1" alignment="left" id="XY3-Vk-IUE">
-                                                        <items>
-                                                            <label alignment="left" text="memo" numberOfLines="0" id="AJ8-p9-ID7">
-                                                                <color key="textColor" red="0.63137254901960782" green="0.63137254901960782" blue="0.63137254901960782" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
-                                                            </label>
-                                                            <imageView width="23" height="16" alignment="right" image="pendingConfirmation" contentMode="scaleAspectFit" id="hWs-WA-db1"/>
-                                                        </items>
-                                                    </group>
-                                                    <separator alignment="left" id="531-nb-Bab">
-                                                        <color key="color" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    </separator>
-                                                </items>
-                                            </group>
+                                            <button alignment="left" id="NEN-rG-rmr">
+                                                <group key="contentGroup" width="1" alignment="left" id="NY7-0s-nLc">
+                                                    <items>
+                                                        <imageView width="23" height="16" alignment="left" verticalAlignment="center" image="pendingConfirmation" contentMode="scaleAspectFit" id="hWs-WA-db1"/>
+                                                        <group width="1" alignment="left" layout="vertical" spacing="8" id="Tes-g9-rp0">
+                                                            <items>
+                                                                <label alignment="left" text="Time" minimumScaleFactor="0.10000000000000001" id="GqE-KB-TRD">
+                                                                    <fontDescription key="font" style="UICTFontTextStyleSubhead"/>
+                                                                </label>
+                                                                <label alignment="left" verticalAlignment="bottom" text="memo" numberOfLines="0" id="AJ8-p9-ID7">
+                                                                    <color key="textColor" red="0.63137254901960782" green="0.63137254901960782" blue="0.63137254901960782" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
+                                                                    <fontDescription key="font" style="UICTFontTextStyleSubhead"/>
+                                                                </label>
+                                                                <label alignment="left" text="Amount" textAlignment="left" minimumScaleFactor="0.10000000000000001" id="sAS-LI-RY7">
+                                                                    <fontDescription key="font" style="UICTFontTextStyleSubhead"/>
+                                                                </label>
+                                                            </items>
+                                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                            <edgeInsets key="margins" left="4" right="8" top="8" bottom="8"/>
+                                                        </group>
+                                                    </items>
+                                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </group>
+                                            </button>
                                         </items>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </group>
                                     <connections>
                                         <outlet property="transactionAmountLabel" destination="sAS-LI-RY7" id="TkE-JU-sRF"/>
