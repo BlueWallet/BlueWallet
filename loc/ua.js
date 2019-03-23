@@ -23,6 +23,8 @@ module.exports = {
       latest_transaction: 'остання транзакція',
       empty_txs1: "Транзакціі з'являться тут,",
       empty_txs2: 'поки що жодноі',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
     reorder: {

@@ -22,6 +22,8 @@ module.exports = {
       latest_transaction: '最近的转账',
       empty_txs1: '你的转账信息将展示在这里',
       empty_txs2: '当前无信息',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: '点击购买比特币',
     },
     reorder: {

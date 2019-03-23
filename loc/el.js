@@ -25,6 +25,8 @@ module.exports = {
       latest_transaction: 'τελευταία συναλλαγή',
       empty_txs1: 'Οι συναλλαγές θα εμφανιστούν εδώ,',
       empty_txs2: 'καμία συναλλαγή',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Πάτησε εδώ για να αγοράσεις Bitcoin',
     },
     reorder: {

@@ -25,6 +25,8 @@ module.exports = {
       latest_transaction: 'Transazioni recenti',
       empty_txs1: 'Le tue transazioni appariranno qui,',
       empty_txs2: 'Nessuna transazione',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Clicca qui per comprare Bitcoin',
     },
     reorder: {

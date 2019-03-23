@@ -68,6 +68,9 @@ dayjs.extend(relativeTime);
       case 'id_id':
         require('dayjs/locale/id');
         break;
+      case 'sv_se':
+        require('dayjs/locale/sv');
+        break;
       case 'nb_no':
         require('dayjs/locale/nb');
         break;
@@ -104,6 +107,7 @@ strings = new Localization({
   hr_hr: require('./hr_HR.js'),
   id_id: require('./id_ID.js'),
   zh_cn: require('./zh_cn.js'),
+  sv_se: require('./sv_SE.js'),
   nb_no: require('./nb_NO.js'),
   tr_tr: require('./tr_TR.js'),
 });
