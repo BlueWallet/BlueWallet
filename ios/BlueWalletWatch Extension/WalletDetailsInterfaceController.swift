@@ -37,22 +37,10 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   override func willActivate() {
-    // This method is called when watch view controller is about to be visible to user
     super.willActivate()
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
-    WKExtension.shared().openSystemURL(URL(string: "https://www.bluewallet.io")!)
   }
-  
-  override func didAppear() {
-    super.didAppear()
-
-  }
-  
-  override func willDisappear() {
-    super.willDisappear()
-  }
-
   
   @IBAction func receiveMenuItemTapped() {
     presentController(withName: ReceiveInterfaceController.identifier, context: wallet)
