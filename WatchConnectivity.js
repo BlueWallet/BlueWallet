@@ -28,10 +28,12 @@ export default class WatchConnectivity {
         let wallets = [];
         for (const wallet of allWallets) {
           let receiveAddress = '';
-          if (wallet.getAddressAsync) {
-            receiveAddress = await wallet.getAddressAsync();
-          } else {
-            receiveAddress = wallet.getAddress();
+          if (wallet.allowReceive()) {
+            if (wallet.getAddressAsync) {
+              receiveAddress = await wallet.getAddressAsync();
+            } else {
+              receiveAddress = wallet.getAddress();
+            }
           }
           let transactions = wallet.getTransactions(10);
           let watchTransactions = [];

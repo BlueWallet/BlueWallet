@@ -27,13 +27,9 @@ class WalletInformation: NSObject {
     }
   }
   
-  var type: String = "HDsegwitP2SH" {
+  var type: WalletGradient = .SegwitHD {
     willSet {
-      if newValue == "HDsegwitP2SH" {
-        walletGroup.setBackgroundImageNamed("walletHD")
-      } else if newValue == "lightningCustodianWallet" {
-        walletGroup.setBackgroundImageNamed("walletLightningCustodial")
-      }
+      walletGroup.setBackgroundImageNamed(newValue.imageString)
     }
   }
   

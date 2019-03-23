@@ -39,16 +39,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     } else {
       processWalletsTable()
     }
-  }
-  
-  override func didAppear() {
-    super.didAppear()
     NotificationCenter.default.addObserver(self, selector: #selector(processWalletsTable), name: WatchDataSource.NotificationName.dataUpdated, object: nil)
-  }
-  
-  override func willDisappear() {
-    super.willDisappear()
-    NotificationCenter.default.removeObserver(self, name: WatchDataSource.NotificationName.dataUpdated, object: nil)
   }
   
   @objc private func processWalletsTable() {
@@ -59,7 +50,7 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
       let wallet = WatchDataSource.shared.wallets[index]
       controller.name = wallet.label
       controller.balance = wallet.balance
-      controller.type = wallet.type
+      controller.type = WalletGradient(rawValue: wallet.type) ?? .SegwitHD
     }
     loadingIndicatorGroup.setHidden(true)
     noWalletsAvailableLabel.setHidden(!WatchDataSource.shared.wallets.isEmpty)

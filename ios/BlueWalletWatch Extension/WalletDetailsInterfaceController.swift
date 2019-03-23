@@ -31,11 +31,8 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     receiveButton.setEnabled(!wallet.receiveAddress.isEmpty)
     receiveButton.setHidden(wallet.receiveAddress.isEmpty)
     
-    if wallet.type == "HDsegwitP2SH" {
-      walletBasicsGroup.setBackgroundImageNamed("walletHD")
-    } else if wallet.type == "lightningCustodianWallet" {
-      walletBasicsGroup.setBackgroundImageNamed("walletLightningCustodial")
-    }
+    walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
+
     processWalletsTable()
   }
   
@@ -44,16 +41,16 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     super.willActivate()
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
+    WKExtension.shared().openSystemURL(URL(string: "https://www.bluewallet.io")!)
   }
   
   override func didAppear() {
     super.didAppear()
-    NotificationCenter.default.addObserver(self, selector: #selector(processWalletsTable), name: WatchDataSource.NotificationName.dataUpdated, object: nil)
+
   }
   
   override func willDisappear() {
     super.willDisappear()
-    NotificationCenter.default.removeObserver(self, name: WatchDataSource.NotificationName.dataUpdated, object: nil)
   }
 
   
