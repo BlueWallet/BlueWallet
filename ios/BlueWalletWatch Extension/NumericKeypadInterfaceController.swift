@@ -13,20 +13,20 @@ import Foundation
 class NumericKeypadInterfaceController: WKInterfaceController {
 
     static let identifier = "NumericKeypadInterfaceController"
-  private var amount: [String] = ["0"]
-  
-    override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
-        
-        // Configure interface objects here.
+    private var amount: [String] = ["0"]
+    struct NotificationName {
+      static let keypadDataChanged = Notification.Name(rawValue: "Notification.NumericKeypadInterfaceController.keypadDataChanged")
     }
-
+    struct Notifications {
+      static let keypadDataChanged = Notification(name: NotificationName.keypadDataChanged)
+    }
+  
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
         updateTitle()
     }
-  
+
   private func updateTitle() {
     var title = ""
     for amount in self.amount {
@@ -36,14 +36,32 @@ class NumericKeypadInterfaceController: WKInterfaceController {
       }
     }
     setTitle("\(title) BTC")
+    NotificationCenter.default.post(name: NotificationName.keypadDataChanged, object: amount)
   }
   
   private func append(value: String) {
+    if amount.isEmpty {
+      if (value == "0") {
+        amount.append("0")
+      } else if value == "." && !amount.contains(".") {
+        amount.append("0")
+        amount.append(".")
+      } else {
+        amount.append(value)
+      }
+    } else if let first = amount.first, first == "0" {
+      if amount.count > 1, amount[1] != "." {
+        amount.insert(".", at: 1)
+      } else if amount.count == 1, amount.first == "0" {
+        amount.append(".")
+      } else {
+        amount.append("\(value)")
+      }
+    }
     let tempAmount = amount.filter({$0 != "."})
     guard tempAmount.count <= 9 else {
       return
     }
-    amount.append("\(value)")
     updateTitle()
   }
   
@@ -88,11 +106,17 @@ class NumericKeypadInterfaceController: WKInterfaceController {
   }
   
   @IBAction func keypadNumberDotTapped() {
+    guard !amount.contains(".") else { return }
     append(value: ".")
   }
   
   @IBAction func keypadNumberRemoveTapped() {
+    guard !amount.isEmpty else {
+      setTitle("0 BTC")
+      return
+    }
     amount.removeLast()
+    updateTitle()
   }
   
 

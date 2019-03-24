@@ -208,9 +208,13 @@
                             <color key="titleColor" red="0.1843137255" green="0.37254901959999998" blue="0.70196078429999997" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" red="0.80000000000000004" green="0.86666666670000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
                             <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
+                            <connections>
+                                <action selector="createButtonTapped" destination="aUg-UP-Vh5" id="dnh-3i-jIE"/>
+                            </connections>
                         </button>
                     </items>
                     <connections>
+                        <outlet property="amountButton" destination="0Hm-hv-Yi3" id="9DN-zh-BGB"/>
                         <outlet property="descriptionButton" destination="fcI-6Z-moQ" id="a7M-ZD-Zsi"/>
                     </connections>
                 </controller>
@@ -220,7 +224,7 @@
         <!--NumericKeypadInterfaceController-->
         <scene sceneID="4Mp-O7-Llm">
             <objects>
-                <controller identifier="NumericKeypadInterfaceController" fullBounds="YES" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="NumericKeypadInterfaceController" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <group width="1" alignment="left" layout="vertical" id="0co-9J-2Dc">
                             <items>
