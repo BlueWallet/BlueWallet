@@ -35,4 +35,9 @@ class ReceiveInterfaceController: WKInterfaceController {
     imageInterface.setImage(image)
   }
   
+  @IBAction func specifyMenuItemTapped() {
+    presentController(withName: SpecifyInterfaceController.identifier, context: nil)
+  }
+  
+  
 }

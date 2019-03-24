@@ -61,6 +61,8 @@
 		B439DB3E22363BE400C85180 /* WalletDetailsInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B439DB3D22363BE400C85180 /* WalletDetailsInterfaceController.swift */; };
 		B49F19332242E1A60065A5D0 /* WatchDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49F19322242E1A60065A5D0 /* WatchDataSource.swift */; };
 		B49F1B512245E6CA0065A5D0 /* WalletGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49F1B502245E6CA0065A5D0 /* WalletGradient.swift */; };
+		B49F1C1B2245F2830065A5D0 /* SpecifyInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49F1C1A2245F2830065A5D0 /* SpecifyInterfaceController.swift */; };
+		B49F1C5D22464D120065A5D0 /* NumericKeypadInterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49F1C5C22464D120065A5D0 /* NumericKeypadInterfaceController.swift */; };
 		B4DAAEAB2230BFFA0069E388 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEA92230BFFA0069E388 /* Interface.storyboard */; };
 		B4DAAEAD2230BFFC0069E388 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B4DAAEAC2230BFFC0069E388 /* Assets.xcassets */; };
 		B4DAAEB42230BFFC0069E388 /* BlueWalletWatch Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B4DAAEB32230BFFC0069E388 /* BlueWalletWatch Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -681,6 +683,8 @@
 		B439DB3D22363BE400C85180 /* WalletDetailsInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsInterfaceController.swift; sourceTree = "<group>"; };
 		B49F19322242E1A60065A5D0 /* WatchDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDataSource.swift; sourceTree = "<group>"; };
 		B49F1B502245E6CA0065A5D0 /* WalletGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletGradient.swift; sourceTree = "<group>"; };
+		B49F1C1A2245F2830065A5D0 /* SpecifyInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecifyInterfaceController.swift; sourceTree = "<group>"; };
+		B49F1C5C22464D120065A5D0 /* NumericKeypadInterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumericKeypadInterfaceController.swift; sourceTree = "<group>"; };
 		B4DAAEA72230BFFA0069E388 /* BlueWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4DAAEAA2230BFFA0069E388 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
 		B4DAAEAC2230BFFC0069E388 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1306,7 +1310,9 @@
 				B4DAAEB82230BFFC0069E388 /* InterfaceController.swift */,
 				B4E71B2222378C6200766E13 /* ReceiveInterfaceController.swift */,
 				B4DAAEBA2230BFFC0069E388 /* ExtensionDelegate.swift */,
+				B49F1C1A2245F2830065A5D0 /* SpecifyInterfaceController.swift */,
 				B4DAAEBC2230BFFC0069E388 /* NotificationController.swift */,
+				B49F1C5C22464D120065A5D0 /* NumericKeypadInterfaceController.swift */,
 				B4DAAEC02230BFFD0069E388 /* Assets.xcassets */,
 				B4DAAEC22230BFFD0069E388 /* Info.plist */,
 				B4DAAEC32230BFFD0069E388 /* PushNotificationPayload.apns */,
@@ -2263,6 +2269,7 @@
 				B4DAAEBD2230BFFC0069E388 /* NotificationController.swift in Sources */,
 				B439DB3E22363BE400C85180 /* WalletDetailsInterfaceController.swift in Sources */,
 				B4E71B89223A351900766E13 /* Transaction.swift in Sources */,
+				B49F1C5D22464D120065A5D0 /* NumericKeypadInterfaceController.swift in Sources */,
 				B4DAAEBB2230BFFC0069E388 /* ExtensionDelegate.swift in Sources */,
 				B4DAAEB92230BFFC0069E388 /* InterfaceController.swift in Sources */,
 				B4E79367223E4B3200AD5326 /* KeychainSwiftDistrib.swift in Sources */,
@@ -2270,6 +2277,7 @@
 				B4E71B652238B83B00766E13 /* Wallet.swift in Sources */,
 				B49F1B512245E6CA0065A5D0 /* WalletGradient.swift in Sources */,
 				B4E71B2322378C6200766E13 /* ReceiveInterfaceController.swift in Sources */,
+				B49F1C1B2245F2830065A5D0 /* SpecifyInterfaceController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

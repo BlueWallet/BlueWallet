@@ -79,7 +79,7 @@
                             <color key="backgroundColor" red="0.80000000000000004" green="0.8666666666666667" blue="0.97647058823529409" alpha="1" colorSpace="calibratedRGB"/>
                             <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
                             <connections>
-                                <segue destination="egq-Yw-qK5" kind="modal" identifier="ReceiveInterfaceController" id="zEG-Xi-Smb"/>
+                                <segue destination="egq-Yw-qK5" kind="push" identifier="ReceiveInterfaceController" id="zEG-Xi-Smb"/>
                             </connections>
                         </button>
                         <label alignment="center" verticalAlignment="bottom" text="No Transactions" textAlignment="left" id="pi4-Bk-Jiq"/>
@@ -124,15 +124,6 @@
                             </items>
                         </table>
                     </items>
-                    <menu key="menu" id="bbM-p0-Vc7">
-                        <items>
-                            <menuItem title="Receive" image="receiveArrow" id="0Yr-rK-713">
-                                <connections>
-                                    <action selector="receiveMenuItemTapped" destination="XWa-4i-Abg" id="vXP-gD-Ve1"/>
-                                </connections>
-                            </menuItem>
-                        </items>
-                    </menu>
                     <connections>
                         <outlet property="noTransactionsLabel" destination="pi4-Bk-Jiq" id="zft-Hw-KuZ"/>
                         <outlet property="receiveButton" destination="bPO-h8-ccD" id="xBq-42-9qP"/>
@@ -176,6 +167,15 @@
                     <items>
                         <imageView height="1" alignment="left" id="Dnb-sM-wdN"/>
                     </items>
+                    <menu key="menu" id="GDw-hN-TVp">
+                        <items>
+                            <menuItem title="Specify" icon="more" id="RHB-IJ-Utd">
+                                <connections>
+                                    <action selector="specifyMenuItemTapped" destination="egq-Yw-qK5" id="KMQ-wI-vdE"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
                     <edgeInsets key="margins" left="4" right="4" top="4" bottom="4"/>
                     <connections>
                         <outlet property="imageInterface" destination="Dnb-sM-wdN" id="z1e-zC-anB"/>
@@ -183,6 +183,141 @@
                 </controller>
             </objects>
             <point key="canvasLocation" x="716" y="345"/>
+        </scene>
+        <!--SpecifyInterfaceController-->
+        <scene sceneID="erR-Ld-VGW">
+            <objects>
+                <controller identifier="SpecifyInterfaceController" id="aUg-UP-Vh5" customClass="SpecifyInterfaceController" customModule="BlueWalletWatch_Extension">
+                    <items>
+                        <label alignment="left" text="Description" id="CBM-2e-5bP"/>
+                        <button width="1" alignment="left" title="Description" id="fcI-6Z-moQ">
+                            <connections>
+                                <action selector="descriptionButtonTapped" destination="aUg-UP-Vh5" id="ZT5-rL-QZq"/>
+                            </connections>
+                        </button>
+                        <label alignment="left" text="Amount" id="Ig2-tf-Q09"/>
+                        <button width="1" alignment="left" title="0 BTC" id="0Hm-hv-Yi3">
+                            <connections>
+                                <action selector="amountButtonTapped" destination="aUg-UP-Vh5" id="tv2-N7-wCs"/>
+                            </connections>
+                        </button>
+                        <separator alignment="left" alpha="0.0" id="i7u-PI-g7Q">
+                            <color key="color" red="0.63137254899999995" green="0.63137254899999995" blue="0.63137254899999995" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
+                        </separator>
+                        <button width="1" alignment="left" title="Create" id="6eh-lx-UEe">
+                            <color key="titleColor" red="0.1843137255" green="0.37254901959999998" blue="0.70196078429999997" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" red="0.80000000000000004" green="0.86666666670000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
+                        </button>
+                    </items>
+                    <connections>
+                        <outlet property="descriptionButton" destination="fcI-6Z-moQ" id="a7M-ZD-Zsi"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="967" y="357"/>
+        </scene>
+        <!--NumericKeypadInterfaceController-->
+        <scene sceneID="4Mp-O7-Llm">
+            <objects>
+                <controller identifier="NumericKeypadInterfaceController" fullBounds="YES" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="BlueWalletWatch_Extension">
+                    <items>
+                        <group width="1" alignment="left" layout="vertical" id="0co-9J-2Dc">
+                            <items>
+                                <group height="1" alignment="left" id="kaq-2v-f7r">
+                                    <items>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="1" id="ghD-Jq-ubw">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberOneTapped" destination="2PN-Fb-8j5" id="n6o-GR-D7i"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="2" id="aUI-EE-NVw">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberTwoTapped" destination="2PN-Fb-8j5" id="pfD-Db-6od"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="3" id="TKO-lc-aYf">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberThreeTapped" destination="2PN-Fb-8j5" id="fqm-0L-U6Z"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                                <group height="1" alignment="left" verticalAlignment="center" id="JB4-ZC-T8y">
+                                    <items>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="4" id="kH2-N1-Hbe">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberFourTapped" destination="2PN-Fb-8j5" id="r24-dK-OUA"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="5" id="AA6-Gq-qRe">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberFiveTapped" destination="2PN-Fb-8j5" id="yTW-cf-ZCP"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="6" id="Nt9-we-M9f">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberSixTapped" destination="2PN-Fb-8j5" id="xOh-ab-nWm"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                                <group height="1" alignment="left" verticalAlignment="center" id="CT1-xK-izT">
+                                    <items>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="7" id="ohU-B0-mvg">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberSevenTapped" destination="2PN-Fb-8j5" id="8CA-Q5-XZt"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="8" id="3FQ-tZ-9kd">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberEightTapped" destination="2PN-Fb-8j5" id="4h8-vi-GjT"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="9" id="NJM-uR-nyO">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberNineTapped" destination="2PN-Fb-8j5" id="qpZ-nf-E5y"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                                <group height="1" alignment="left" verticalAlignment="center" id="hqA-Nb-d5C">
+                                    <items>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="." id="g6Z-9t-ahQ">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberDotTapped" destination="2PN-Fb-8j5" id="K7P-bQ-h24"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="0" id="S1H-Id-l6g">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberZeroTapped" destination="2PN-Fb-8j5" id="YH1-KR-oIu"/>
+                                            </connections>
+                                        </button>
+                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="&lt;" id="q8Q-tK-nzd">
+                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                            <connections>
+                                                <action selector="keypadNumberRemoveTapped" destination="2PN-Fb-8j5" id="l7u-ZB-AyF"/>
+                                            </connections>
+                                        </button>
+                                    </items>
+                                </group>
+                            </items>
+                        </group>
+                    </items>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="1197" y="357"/>
         </scene>
         <!--Notification Controller-->
         <scene sceneID="Niz-AI-uX2">
