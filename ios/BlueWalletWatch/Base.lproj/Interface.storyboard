@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14460.31" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc" pageOrientation="vertical">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14460.31" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
     <device id="watch44" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -169,7 +169,7 @@
                     </items>
                     <menu key="menu" id="GDw-hN-TVp">
                         <items>
-                            <menuItem title="Specify" icon="more" id="RHB-IJ-Utd">
+                            <menuItem title="Customize" icon="more" id="RHB-IJ-Utd">
                                 <connections>
                                     <action selector="specifyMenuItemTapped" destination="egq-Yw-qK5" id="KMQ-wI-vdE"/>
                                 </connections>
@@ -189,22 +189,20 @@
             <objects>
                 <controller identifier="SpecifyInterfaceController" id="aUg-UP-Vh5" customClass="SpecifyInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <label alignment="left" text="Description" id="CBM-2e-5bP"/>
                         <button width="1" alignment="left" title="Description" id="fcI-6Z-moQ">
                             <connections>
                                 <action selector="descriptionButtonTapped" destination="aUg-UP-Vh5" id="ZT5-rL-QZq"/>
                             </connections>
                         </button>
-                        <label alignment="left" text="Amount" id="Ig2-tf-Q09"/>
-                        <button width="1" alignment="left" title="0 BTC" id="0Hm-hv-Yi3">
+                        <button width="1" alignment="left" title="Amount" id="0Hm-hv-Yi3">
                             <connections>
-                                <action selector="amountButtonTapped" destination="aUg-UP-Vh5" id="tv2-N7-wCs"/>
+                                <segue destination="2PN-Fb-8j5" kind="modal" identifier="NumericKeypadInterfaceController" id="LlG-6l-ghO"/>
                             </connections>
                         </button>
                         <separator alignment="left" alpha="0.0" id="i7u-PI-g7Q">
                             <color key="color" red="0.63137254899999995" green="0.63137254899999995" blue="0.63137254899999995" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
                         </separator>
-                        <button width="1" alignment="left" title="Create" id="6eh-lx-UEe">
+                        <button width="1" alignment="left" verticalAlignment="bottom" title="Create" id="6eh-lx-UEe">
                             <color key="titleColor" red="0.1843137255" green="0.37254901959999998" blue="0.70196078429999997" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" red="0.80000000000000004" green="0.86666666670000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
                             <fontDescription key="font" type="system" weight="medium" pointSize="16"/>

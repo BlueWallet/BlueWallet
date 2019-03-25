@@ -21,6 +21,13 @@ class NumericKeypadInterfaceController: WKInterfaceController {
       static let keypadDataChanged = Notification(name: NotificationName.keypadDataChanged)
     }
   
+  override func awake(withContext context: Any?) {
+    super.awake(withContext: context)
+    if let context = context as? SpecifyInterfaceController.SpecificQRCodeContent, let amountStringArray = context.amountStringArray {
+      amount = amountStringArray
+    }
+  }
+  
     override func willActivate() {
         // This method is called when watch view controller is about to be visible to user
         super.willActivate()
@@ -35,7 +42,10 @@ class NumericKeypadInterfaceController: WKInterfaceController {
         title.append(String(amount))
       }
     }
-    setTitle("\(title) BTC")
+    if title.isEmpty {
+      title = "0"
+    }
+    setTitle("< \(title) BTC")
     NotificationCenter.default.post(name: NotificationName.keypadDataChanged, object: amount)
   }
   
@@ -54,6 +64,7 @@ class NumericKeypadInterfaceController: WKInterfaceController {
         amount.insert(".", at: 1)
       } else if amount.count == 1, amount.first == "0" {
         amount.append(".")
+        amount.append(value)
       } else {
         amount.append("\(value)")
       }
@@ -112,7 +123,7 @@ class NumericKeypadInterfaceController: WKInterfaceController {
   
   @IBAction func keypadNumberRemoveTapped() {
     guard !amount.isEmpty else {
-      setTitle("0 BTC")
+      setTitle("< 0 BTC")
       return
     }
     amount.removeLast()

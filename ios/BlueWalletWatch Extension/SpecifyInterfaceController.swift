@@ -18,8 +18,9 @@ class SpecifyInterfaceController: WKInterfaceController {
   struct SpecificQRCodeContent {
     var amount: Double?
     var description: String?
+    var amountStringArray: [String]?
   }
-  var specifiedQRContent: SpecificQRCodeContent = SpecificQRCodeContent(amount: nil, description: nil)
+  var specifiedQRContent: SpecificQRCodeContent = SpecificQRCodeContent(amount: nil, description: nil, amountStringArray: nil)
   
   struct NotificationName {
     static let createQRCode = Notification.Name(rawValue: "Notification.SpecifyInterfaceController.createQRCode")
@@ -39,6 +40,7 @@ class SpecifyInterfaceController: WKInterfaceController {
           title.append(String(amount))
         }
       }
+      self?.specifiedQRContent.amountStringArray = amountObject
       if let amountDouble = Double(title) {
         self?.specifiedQRContent.amount = amountDouble
         self?.amountButton.setTitle("\(title) BTC")
@@ -59,9 +61,13 @@ class SpecifyInterfaceController: WKInterfaceController {
 
   @IBAction func descriptionButtonTapped() {
     presentTextInputController(withSuggestions: nil, allowedInputMode: .allowEmoji) { [weak self]  (result: [Any]?) in
-      if let text = result {
-        self?.descriptionButton.setTitle(text.first as? String)
-        self?.specifiedQRContent.description = text.first as? String
+      DispatchQueue.main.async {
+        if let result = result, let text = result.first as? String   {
+          self?.specifiedQRContent.description = text
+          self?.descriptionButton.setTitle(nil)
+          self?.descriptionButton.setTitle(text)
+          self?.dismissTextInputController()
+        }
       }
     }
   }
@@ -71,8 +77,11 @@ class SpecifyInterfaceController: WKInterfaceController {
     dismiss()
   }
   
-  @IBAction func amountButtonTapped() {
-    presentController(withName: NumericKeypadInterfaceController.identifier, context: nil)
+  override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
+    if segueIdentifier == NumericKeypadInterfaceController.identifier {
+      return specifiedQRContent
+    }
+    return nil
   }
   
 }
