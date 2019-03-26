@@ -48,11 +48,6 @@ class SpecifyInterfaceController: WKInterfaceController {
       }
     }
 
-    override func willActivate() {
-        // This method is called when watch view controller is about to be visible to user
-        super.willActivate()
-    }
-
     override func didDeactivate() {
         // This method is called when watch view controller is no longer visible
       super.didDeactivate()
@@ -60,13 +55,12 @@ class SpecifyInterfaceController: WKInterfaceController {
     }
 
   @IBAction func descriptionButtonTapped() {
-    presentTextInputController(withSuggestions: nil, allowedInputMode: .allowEmoji) { [weak self]  (result: [Any]?) in
+    presentTextInputController(withSuggestions: nil, allowedInputMode: .plain) { [weak self]  (result: [Any]?) in
       DispatchQueue.main.async {
         if let result = result, let text = result.first as? String   {
           self?.specifiedQRContent.description = text
           self?.descriptionButton.setTitle(nil)
           self?.descriptionButton.setTitle(text)
-          self?.dismissTextInputController()
         }
       }
     }

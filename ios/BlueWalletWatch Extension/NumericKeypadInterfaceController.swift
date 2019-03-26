@@ -50,6 +50,9 @@ class NumericKeypadInterfaceController: WKInterfaceController {
   }
   
   private func append(value: String) {
+    guard amount.filter({$0 != "."}).count <= 9 else {
+      return
+    }
     if amount.isEmpty {
       if (value == "0") {
         amount.append("0")
@@ -66,12 +69,10 @@ class NumericKeypadInterfaceController: WKInterfaceController {
         amount.append(".")
         amount.append(value)
       } else {
-        amount.append("\(value)")
+        amount.append(value)
       }
-    }
-    let tempAmount = amount.filter({$0 != "."})
-    guard tempAmount.count <= 9 else {
-      return
+    } else {
+      amount.append(value)
     }
     updateTitle()
   }
