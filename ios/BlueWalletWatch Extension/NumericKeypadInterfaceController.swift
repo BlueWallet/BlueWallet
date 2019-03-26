@@ -11,15 +11,15 @@ import Foundation
 
 
 class NumericKeypadInterfaceController: WKInterfaceController {
-
-    static let identifier = "NumericKeypadInterfaceController"
-    private var amount: [String] = ["0"]
-    struct NotificationName {
-      static let keypadDataChanged = Notification.Name(rawValue: "Notification.NumericKeypadInterfaceController.keypadDataChanged")
-    }
-    struct Notifications {
-      static let keypadDataChanged = Notification(name: NotificationName.keypadDataChanged)
-    }
+  
+  static let identifier = "NumericKeypadInterfaceController"
+  private var amount: [String] = ["0"]
+  struct NotificationName {
+    static let keypadDataChanged = Notification.Name(rawValue: "Notification.NumericKeypadInterfaceController.keypadDataChanged")
+  }
+  struct Notifications {
+    static let keypadDataChanged = Notification(name: NotificationName.keypadDataChanged)
+  }
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
@@ -28,12 +28,12 @@ class NumericKeypadInterfaceController: WKInterfaceController {
     }
   }
   
-    override func willActivate() {
-        // This method is called when watch view controller is about to be visible to user
-        super.willActivate()
-        updateTitle()
-    }
-
+  override func willActivate() {
+    // This method is called when watch view controller is about to be visible to user
+    super.willActivate()
+    updateTitle()
+  }
+  
   private func updateTitle() {
     var title = ""
     for amount in self.amount {
@@ -50,7 +50,7 @@ class NumericKeypadInterfaceController: WKInterfaceController {
   }
   
   private func append(value: String) {
-    guard amount.filter({$0 != "."}).count <= 9 else {
+    guard amount.filter({$0 != "."}).count <= 9 && !(amount.contains(".") && value == ".") else {
       return
     }
     if amount.isEmpty {
@@ -65,7 +65,7 @@ class NumericKeypadInterfaceController: WKInterfaceController {
     } else if let first = amount.first, first == "0" {
       if amount.count > 1, amount[1] != "." {
         amount.insert(".", at: 1)
-      } else if amount.count == 1, amount.first == "0" {
+      } else if amount.count == 1, amount.first == "0" && value != "." {
         amount.append(".")
         amount.append(value)
       } else {
@@ -131,5 +131,4 @@ class NumericKeypadInterfaceController: WKInterfaceController {
     updateTitle()
   }
   
-
 }

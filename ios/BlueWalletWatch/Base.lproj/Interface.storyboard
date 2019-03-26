@@ -224,96 +224,92 @@
             <objects>
                 <controller identifier="NumericKeypadInterfaceController" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <group width="1" alignment="left" layout="vertical" id="0co-9J-2Dc">
+                        <group height="0.25" alignment="left" id="kaq-2v-f7r">
                             <items>
-                                <group height="1" alignment="left" id="kaq-2v-f7r">
-                                    <items>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="1" id="ghD-Jq-ubw">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberOneTapped" destination="2PN-Fb-8j5" id="n6o-GR-D7i"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="2" id="aUI-EE-NVw">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberTwoTapped" destination="2PN-Fb-8j5" id="pfD-Db-6od"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="3" id="TKO-lc-aYf">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberThreeTapped" destination="2PN-Fb-8j5" id="fqm-0L-U6Z"/>
-                                            </connections>
-                                        </button>
-                                    </items>
-                                </group>
-                                <group height="1" alignment="left" verticalAlignment="center" id="JB4-ZC-T8y">
-                                    <items>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="4" id="kH2-N1-Hbe">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberFourTapped" destination="2PN-Fb-8j5" id="r24-dK-OUA"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="5" id="AA6-Gq-qRe">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberFiveTapped" destination="2PN-Fb-8j5" id="yTW-cf-ZCP"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="6" id="Nt9-we-M9f">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberSixTapped" destination="2PN-Fb-8j5" id="xOh-ab-nWm"/>
-                                            </connections>
-                                        </button>
-                                    </items>
-                                </group>
-                                <group height="1" alignment="left" verticalAlignment="center" id="CT1-xK-izT">
-                                    <items>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="7" id="ohU-B0-mvg">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberSevenTapped" destination="2PN-Fb-8j5" id="8CA-Q5-XZt"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="8" id="3FQ-tZ-9kd">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberEightTapped" destination="2PN-Fb-8j5" id="4h8-vi-GjT"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="9" id="NJM-uR-nyO">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberNineTapped" destination="2PN-Fb-8j5" id="qpZ-nf-E5y"/>
-                                            </connections>
-                                        </button>
-                                    </items>
-                                </group>
-                                <group height="1" alignment="left" verticalAlignment="center" id="hqA-Nb-d5C">
-                                    <items>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="." id="g6Z-9t-ahQ">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberDotTapped" destination="2PN-Fb-8j5" id="K7P-bQ-h24"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="0" id="S1H-Id-l6g">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberZeroTapped" destination="2PN-Fb-8j5" id="YH1-KR-oIu"/>
-                                            </connections>
-                                        </button>
-                                        <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="&lt;" id="q8Q-tK-nzd">
-                                            <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
-                                            <connections>
-                                                <action selector="keypadNumberRemoveTapped" destination="2PN-Fb-8j5" id="l7u-ZB-AyF"/>
-                                            </connections>
-                                        </button>
-                                    </items>
-                                </group>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="1" id="ghD-Jq-ubw">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberOneTapped" destination="2PN-Fb-8j5" id="n6o-GR-D7i"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="2" id="aUI-EE-NVw">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberTwoTapped" destination="2PN-Fb-8j5" id="pfD-Db-6od"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="3" id="TKO-lc-aYf">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberThreeTapped" destination="2PN-Fb-8j5" id="fqm-0L-U6Z"/>
+                                    </connections>
+                                </button>
+                            </items>
+                        </group>
+                        <group height="0.25" alignment="left" verticalAlignment="center" id="JB4-ZC-T8y">
+                            <items>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="4" id="kH2-N1-Hbe">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberFourTapped" destination="2PN-Fb-8j5" id="r24-dK-OUA"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="5" id="AA6-Gq-qRe">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberFiveTapped" destination="2PN-Fb-8j5" id="yTW-cf-ZCP"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="6" id="Nt9-we-M9f">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberSixTapped" destination="2PN-Fb-8j5" id="xOh-ab-nWm"/>
+                                    </connections>
+                                </button>
+                            </items>
+                        </group>
+                        <group height="0.25" alignment="left" verticalAlignment="center" id="CT1-xK-izT">
+                            <items>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="7" id="ohU-B0-mvg">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberSevenTapped" destination="2PN-Fb-8j5" id="8CA-Q5-XZt"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="8" id="3FQ-tZ-9kd">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberEightTapped" destination="2PN-Fb-8j5" id="4h8-vi-GjT"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" alignment="left" verticalAlignment="center" title="9" id="NJM-uR-nyO">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberNineTapped" destination="2PN-Fb-8j5" id="qpZ-nf-E5y"/>
+                                    </connections>
+                                </button>
+                            </items>
+                        </group>
+                        <group height="0.25" alignment="left" verticalAlignment="center" id="hqA-Nb-d5C">
+                            <items>
+                                <button width="0.33300000000000002" height="1" alignment="left" verticalAlignment="center" title="." id="g6Z-9t-ahQ">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberDotTapped" destination="2PN-Fb-8j5" id="K7P-bQ-h24"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" height="1" alignment="left" verticalAlignment="center" title="0" id="S1H-Id-l6g">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberZeroTapped" destination="2PN-Fb-8j5" id="YH1-KR-oIu"/>
+                                    </connections>
+                                </button>
+                                <button width="0.33300000000000002" height="1" alignment="left" verticalAlignment="center" title="&lt;" id="q8Q-tK-nzd">
+                                    <fontDescription key="font" type="system" weight="heavy" pointSize="15"/>
+                                    <connections>
+                                        <action selector="keypadNumberRemoveTapped" destination="2PN-Fb-8j5" id="l7u-ZB-AyF"/>
+                                    </connections>
+                                </button>
                             </items>
                         </group>
                     </items>

@@ -32,7 +32,10 @@ class SpecifyInterfaceController: WKInterfaceController {
   override func awake(withContext context: Any?) {
         super.awake(withContext: context)
     NotificationCenter.default.addObserver(forName: NumericKeypadInterfaceController.NotificationName.keypadDataChanged, object: nil, queue: nil) { [weak self] (notification) in
-      guard let amountObject = notification.object as? [String] else { return }
+      guard let amountObject = notification.object as? [String], !amountObject.isEmpty else { return }
+      if amountObject.count == 1 && (amountObject.first == "." || amountObject.first == "0") {
+        return
+      }
       var title = ""
       for amount in amountObject {
         let isValid = Double(amount)
@@ -55,7 +58,7 @@ class SpecifyInterfaceController: WKInterfaceController {
     }
 
   @IBAction func descriptionButtonTapped() {
-    presentTextInputController(withSuggestions: nil, allowedInputMode: .plain) { [weak self]  (result: [Any]?) in
+    presentTextInputController(withSuggestions: nil, allowedInputMode: .allowEmoji) { [weak self]  (result: [Any]?) in
       DispatchQueue.main.async {
         if let result = result, let text = result.first as? String   {
           self?.specifiedQRContent.description = text
