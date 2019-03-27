@@ -8,6 +8,7 @@
 
 
 import Foundation
+import WatchConnectivity
 
 class WatchDataSource {
   struct NotificationName {
@@ -55,5 +56,13 @@ class WatchDataSource {
   
   static func postDataUpdatedNotification() {
     NotificationCenter.default.post(Notifications.dataUpdated)
+  }
+  
+  static func requestLightningInvoice(wallet: Wallet, amount: Double, description: String?, responseHandler: @escaping (_ invoice: String) -> Void) {
+    guard let walletIndex = shared.wallets.firstIndex(of: wallet) else { return }
+    WCSession.default.sendMessage(["request": "createInvoice", "walletIndex": walletIndex, "amount": amount, "description": description ?? ""], replyHandler: { (reply: [String : Any]) in
+      if let invoicePaymentRequest =  reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
+        responseHandler(invoicePaymentRequest)
+      }})
   }
 }

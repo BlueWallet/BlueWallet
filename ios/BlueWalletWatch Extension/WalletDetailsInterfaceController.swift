@@ -28,9 +28,9 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     self.wallet = wallet
     walletBalanceLabel.setText(wallet.balance)
     walletNameLabel.setText(wallet.label)
-    receiveButton.setEnabled(!wallet.receiveAddress.isEmpty)
-    receiveButton.setHidden(wallet.receiveAddress.isEmpty)
-    
+//    receiveButton.setEnabled(!wallet.receiveAddress.isEmpty)
+//    receiveButton.setHidden(wallet.receiveAddress.isEmpty)
+//    
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
 
     processWalletsTable()

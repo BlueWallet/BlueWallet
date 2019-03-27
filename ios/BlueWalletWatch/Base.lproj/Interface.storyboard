@@ -166,6 +166,12 @@
                 <controller identifier="ReceiveInterfaceController" fullBounds="YES" fullScreen="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <imageView height="1" alignment="left" id="Dnb-sM-wdN"/>
+                        <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
+                            <items>
+                                <imageView width="60" height="60" alignment="center" image="loadingIndicator" contentMode="scaleAspectFit" id="nQb-s6-ySB"/>
+                                <label alignment="center" text="Creating Invoice..." id="n5f-iL-ib7"/>
+                            </items>
+                        </group>
                     </items>
                     <menu key="menu" id="GDw-hN-TVp">
                         <items>
@@ -179,6 +185,7 @@
                     <edgeInsets key="margins" left="4" right="4" top="4" bottom="4"/>
                     <connections>
                         <outlet property="imageInterface" destination="Dnb-sM-wdN" id="z1e-zC-anB"/>
+                        <outlet property="loadingIndicator" destination="0If-FP-smM" id="Wtf-mm-8Ke"/>
                     </connections>
                 </controller>
             </objects>

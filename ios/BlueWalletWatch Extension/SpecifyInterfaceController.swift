@@ -9,7 +9,6 @@
 import WatchKit
 import Foundation
 
-
 class SpecifyInterfaceController: WKInterfaceController {
 
   static let identifier = "SpecifyInterfaceController"

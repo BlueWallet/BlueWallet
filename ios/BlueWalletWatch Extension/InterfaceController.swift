@@ -10,7 +10,6 @@ import WatchKit
 import WatchConnectivity
 import Foundation
 
-
 class InterfaceController: WKInterfaceController, WCSessionDelegate {
   
   var session: WCSession?

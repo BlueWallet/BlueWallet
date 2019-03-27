@@ -16,6 +16,30 @@ export default class WatchConnectivity {
         this.sendWalletsToWatch();
       }
     });
+    watch.subscribeToMessages(async (err, message, reply) => {
+      if (!err) {
+        if (message.request === 'createInvoice') {
+          const createInvoiceRequest = await this.handleLightningInvoiceCreateRequest(
+            message.walletIndex,
+            message.amount,
+            message.description,
+          );
+          reply({ invoicePaymentRequest: createInvoiceRequest });
+        }
+      }
+    });
+  }
+
+  async handleLightningInvoiceCreateRequest(walletIndex, amount, description) {
+    const wallet = this.BlueApp.getWallets()[walletIndex];
+    if (wallet.allowReceive() && amount > 0 && description.trim().length > 0) {
+      try {
+        const invoiceRequest = await wallet.addInvoice(amount, description);
+        return invoiceRequest;
+      } catch (error) {
+        return error;
+      }
+    }
   }
 
   async sendWalletsToWatch() {
