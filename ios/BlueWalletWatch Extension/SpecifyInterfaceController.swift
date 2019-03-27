@@ -18,9 +18,10 @@ class SpecifyInterfaceController: WKInterfaceController {
     var amount: Double?
     var description: String?
     var amountStringArray: [String] = ["0"]
+    var bitcoinUnit: NumericKeypadInterfaceController.NumericKeypadType = .BTC
   }
-  var specifiedQRContent: SpecificQRCodeContent = SpecificQRCodeContent(amount: nil, description: nil, amountStringArray: ["0"])
-  
+  var specifiedQRContent: SpecificQRCodeContent = SpecificQRCodeContent(amount: nil, description: nil, amountStringArray: ["0"], bitcoinUnit: .BTC)
+  var wallet: Wallet?
   struct NotificationName {
     static let createQRCode = Notification.Name(rawValue: "Notification.SpecifyInterfaceController.createQRCode")
   }
@@ -29,7 +30,12 @@ class SpecifyInterfaceController: WKInterfaceController {
   }
 
   override func awake(withContext context: Any?) {
-        super.awake(withContext: context)
+    super.awake(withContext: context)
+    guard let context = context as? Wallet else {
+     return
+    }
+    self.wallet = context
+    self.specifiedQRContent.bitcoinUnit = context.type == "lightningCustodianWallet" ? .SATS : .BTC
     NotificationCenter.default.addObserver(forName: NumericKeypadInterfaceController.NotificationName.keypadDataChanged, object: nil, queue: nil) { [weak self] (notification) in
       guard let amountObject = notification.object as? [String], !amountObject.isEmpty else { return }
       if amountObject.count == 1 && (amountObject.first == "." || amountObject.first == "0") {
@@ -43,9 +49,9 @@ class SpecifyInterfaceController: WKInterfaceController {
         }
       }
       self?.specifiedQRContent.amountStringArray = amountObject
-      if let amountDouble = Double(title) {
+      if let amountDouble = Double(title), let keyPadType = self?.specifiedQRContent.bitcoinUnit {
         self?.specifiedQRContent.amount = amountDouble
-        self?.amountButton.setTitle("\(title) BTC")
+        self?.amountButton.setTitle("\(title) \(keyPadType)")
         }
       }
     }

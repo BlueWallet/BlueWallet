@@ -94,19 +94,19 @@
                                                         <imageView width="23" height="16" alignment="left" verticalAlignment="center" image="pendingConfirmation" contentMode="scaleAspectFit" id="hWs-WA-db1"/>
                                                         <group width="1" alignment="left" layout="vertical" spacing="8" id="Tes-g9-rp0">
                                                             <items>
-                                                                <label alignment="left" text="Time" minimumScaleFactor="0.10000000000000001" id="GqE-KB-TRD">
+                                                                <label width="1" alignment="left" text="Time" minimumScaleFactor="0.10000000000000001" id="GqE-KB-TRD">
                                                                     <fontDescription key="font" style="UICTFontTextStyleSubhead"/>
                                                                 </label>
-                                                                <label alignment="left" verticalAlignment="bottom" text="memo" numberOfLines="0" id="AJ8-p9-ID7">
+                                                                <label width="1" alignment="left" verticalAlignment="bottom" text="memo" numberOfLines="0" id="AJ8-p9-ID7">
                                                                     <color key="textColor" red="0.63137254901960782" green="0.63137254901960782" blue="0.63137254901960782" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
                                                                     <fontDescription key="font" style="UICTFontTextStyleSubhead"/>
                                                                 </label>
-                                                                <label alignment="left" text="Amount" textAlignment="left" minimumScaleFactor="0.10000000000000001" id="sAS-LI-RY7">
+                                                                <label width="1" alignment="left" text="Amount" textAlignment="left" minimumScaleFactor="0.10000000000000001" id="sAS-LI-RY7">
                                                                     <fontDescription key="font" style="UICTFontTextStyleSubhead"/>
                                                                 </label>
                                                             </items>
                                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                            <edgeInsets key="margins" left="4" right="8" top="8" bottom="8"/>
+                                                            <edgeInsets key="margins" left="4" right="27" top="8" bottom="8"/>
                                                         </group>
                                                     </items>
                                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -320,6 +320,9 @@
                             </items>
                         </group>
                     </items>
+                    <connections>
+                        <outlet property="periodButton" destination="g6Z-9t-ahQ" id="ynz-0C-Fxe"/>
+                    </connections>
                 </controller>
             </objects>
             <point key="canvasLocation" x="1197" y="357"/>

@@ -14,18 +14,27 @@ class NumericKeypadInterfaceController: WKInterfaceController {
   
   static let identifier = "NumericKeypadInterfaceController"
   private var amount: [String] = ["0"]
+  var keyPadType: NumericKeypadType = .BTC
   struct NotificationName {
     static let keypadDataChanged = Notification.Name(rawValue: "Notification.NumericKeypadInterfaceController.keypadDataChanged")
   }
   struct Notifications {
     static let keypadDataChanged = Notification(name: NotificationName.keypadDataChanged)
   }
+  enum NumericKeypadType: String {
+    case BTC = "BTC"
+    case SATS = "sats"
+  }
+  
+  @IBOutlet weak var periodButton: WKInterfaceButton!
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
     if let context = context as? SpecifyInterfaceController.SpecificQRCodeContent {
       amount = context.amountStringArray
+      keyPadType = context.bitcoinUnit
     }
+    periodButton.setEnabled(keyPadType == .SATS)
   }
   
   override func willActivate() {
@@ -45,7 +54,7 @@ class NumericKeypadInterfaceController: WKInterfaceController {
     if title.isEmpty {
       title = "0"
     }
-    setTitle("< \(title) BTC")
+    setTitle("< \(title) \(keyPadType)")
     NotificationCenter.default.post(name: NotificationName.keypadDataChanged, object: amount)
   }
   
@@ -53,26 +62,38 @@ class NumericKeypadInterfaceController: WKInterfaceController {
     guard amount.filter({$0 != "."}).count <= 9 && !(amount.contains(".") && value == ".") else {
       return
     }
-    if amount.isEmpty {
-      if (value == "0") {
-        amount.append("0")
-      } else if value == "." && !amount.contains(".") {
-        amount.append("0")
-        amount.append(".")
+    switch keyPadType {
+    case .SATS:
+      if amount.first == "0" {
+        if value == "0" {
+          return
+        }
+        amount[0] = value
       } else {
         amount.append(value)
       }
-    } else if let first = amount.first, first == "0" {
-      if amount.count > 1, amount[1] != "." {
-        amount.insert(".", at: 1)
-      } else if amount.count == 1, amount.first == "0" && value != "." {
-        amount.append(".")
-        amount.append(value)
+    case .BTC:
+      if amount.isEmpty {
+        if (value == "0") {
+          amount.append("0")
+        } else if value == "." && !amount.contains(".") {
+          amount.append("0")
+          amount.append(".")
+        } else {
+          amount.append(value)
+        }
+      } else if let first = amount.first, first == "0" {
+        if amount.count > 1, amount[1] != "." {
+          amount.insert(".", at: 1)
+        } else if amount.count == 1, amount.first == "0" && value != "." {
+          amount.append(".")
+          amount.append(value)
+        } else {
+          amount.append(value)
+        }
       } else {
         amount.append(value)
       }
-    } else {
-      amount.append(value)
     }
     updateTitle()
   }
@@ -118,13 +139,13 @@ class NumericKeypadInterfaceController: WKInterfaceController {
   }
   
   @IBAction func keypadNumberDotTapped() {
-    guard !amount.contains(".") else { return }
+    guard !amount.contains("."), keyPadType == .BTC else { return }
     append(value: ".")
   }
   
   @IBAction func keypadNumberRemoveTapped() {
     guard !amount.isEmpty else {
-      setTitle("< 0 BTC")
+      setTitle("< 0 \(keyPadType)")
       return
     }
     amount.removeLast()

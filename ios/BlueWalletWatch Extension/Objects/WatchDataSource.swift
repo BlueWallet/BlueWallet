@@ -63,6 +63,9 @@ class WatchDataSource {
     WCSession.default.sendMessage(["request": "createInvoice", "walletIndex": walletIndex, "amount": amount, "description": description ?? ""], replyHandler: { (reply: [String : Any]) in
       if let invoicePaymentRequest =  reply["invoicePaymentRequest"] as? String, !invoicePaymentRequest.isEmpty {
         responseHandler(invoicePaymentRequest)
-      }})
+      } else {
+        responseHandler("")
+      }
+    })
   }
 }
