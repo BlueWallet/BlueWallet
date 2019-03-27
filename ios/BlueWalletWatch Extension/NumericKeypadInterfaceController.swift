@@ -23,8 +23,8 @@ class NumericKeypadInterfaceController: WKInterfaceController {
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    if let context = context as? SpecifyInterfaceController.SpecificQRCodeContent, let amountStringArray = context.amountStringArray {
-      amount = amountStringArray
+    if let context = context as? SpecifyInterfaceController.SpecificQRCodeContent {
+      amount = context.amountStringArray
     }
   }
   

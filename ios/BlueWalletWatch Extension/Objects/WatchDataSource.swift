@@ -23,7 +23,7 @@ class WatchDataSource {
   
   init() {
     if let existingData = keychain.getData(Wallet.identifier), let walletData = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(existingData) as? [Wallet] {
-      guard let walletData = walletData else { return }
+      guard let walletData = walletData, walletData != self.wallets  else { return }
       wallets = walletData
       WatchDataSource.postDataUpdatedNotification()
     }

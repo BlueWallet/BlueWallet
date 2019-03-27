@@ -222,7 +222,7 @@
         <!--NumericKeypadInterfaceController-->
         <scene sceneID="4Mp-O7-Llm">
             <objects>
-                <controller identifier="NumericKeypadInterfaceController" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="NumericKeypadInterfaceController" fullBounds="YES" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
                         <group height="0.25" alignment="left" id="kaq-2v-f7r">
                             <items>
