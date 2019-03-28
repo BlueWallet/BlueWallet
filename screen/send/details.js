@@ -549,7 +549,7 @@ export default class SendDetails extends Component {
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
           <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
           <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
-            {this.state.fromWallet.getBalance()}
+            {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
           </Text>
           <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
             {BitcoinUnit.BTC}

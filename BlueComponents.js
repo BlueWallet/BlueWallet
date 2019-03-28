@@ -30,8 +30,10 @@ import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
 import ImagePicker from 'react-native-image-picker';
 import WalletGradient from './class/walletGradient';
+const dayjs = require('dayjs');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
-let loc = require('./loc/');
+const loc = require('./loc/');
+const currency = require('./currency');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
@@ -93,22 +95,27 @@ export class BitcoinButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderColor: "#68bbe1",
             borderWidth: 0.5,
-            borderRadius: 5,
-            backgroundColor: '#f5f5f5',
+            borderRadius: 4,
+            backgroundColor: (this.props.active && '#ecf9ff') || '#FFFFFF',
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon name="btc" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              {loc.wallets.add.bitcoin}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16 }}>
+            <Text style={{ color: '#68bbe1', fontWeight: 'bold' }}>{loc.wallets.add.bitcoin}</Text>
           </View>
+          <BlueSpacing10 />
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/bitcoin.png')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -127,22 +134,27 @@ export class LightningButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderColor: "#f7c056",
             borderWidth: 0.5,
-            borderRadius: 5,
-            backgroundColor: '#f5f5f5',
+            borderRadius: 4,
+            backgroundColor: (this.props.active && '#fffaef') || '#FFFFFF',
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
-              {loc.wallets.add.lightning}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16 }}>
+            <Text style={{ color: '#f7c056', fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
           </View>
+          <BlueSpacing10 />
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/lightning.png')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -326,18 +338,28 @@ export class BlueFormLabel extends Component {
 export class BlueFormInput extends Component {
   render() {
     return (
-      <FormInput
-        {...this.props}
-        inputStyle={{ color: BlueApp.settings.foregroundColor, maxWidth: width - 105 }}
-        containerStyle={{
-          marginTop: 5,
+      <View
+        style={{
+          flexDirection: 'row',
           borderColor: '#d2d2d2',
           borderBottomColor: '#d2d2d2',
-          borderWidth: 0.5,
+          borderWidth: 1.0,
           borderBottomWidth: 0.5,
           backgroundColor: '#f5f5f5',
+          minHeight: 44,
+          height: 44,
+          alignItems: 'center',
+          marginVertical: 8,
+          borderRadius: 4,
         }}
-      />
+      >
+        <TextInput
+          numberOfLines={1}
+          style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+          onSubmitEditing={Keyboard.dismiss}
+          {...this.props}
+        />
+      </View>
     );
   }
 }
@@ -552,6 +574,12 @@ export class is {
 export class BlueSpacing20 extends Component {
   render() {
     return <View {...this.props} style={{ height: 20, opacity: 0 }} />;
+  }
+}
+
+export class BlueSpacing10 extends Component {
+  render() {
+    return <View {...this.props} style={{ height: 10, opacity: 0 }} />;
   }
 }
 
@@ -1083,6 +1111,15 @@ export class BlueTransactionListItem extends Component {
           return loc.lnd.expired;
         }
       }
+    } else if (item.object === 'charge') {
+      if (isNaN(item.amount_satoshi)) {
+        item.amount_satoshi = '0';
+      }
+      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        return loc.lnd.expired;
+      }
+      return loc.formatBalanceWithoutSuffix(item.amount_satoshi, this.props.itemPriceUnit, true).toString();
     } else {
       return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
     }
@@ -1105,6 +1142,13 @@ export class BlueTransactionListItem extends Component {
         } else {
           color = '#FF0000';
         }
+      }
+    } else if (item.object === 'charge') {
+      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        color = '#FF0000';
+      } else {
+        color = '#37c0a1';
       }
     } else if (item.value / 100000000 < 0) {
       color = BlueApp.settings.foregroundColor;
@@ -1164,6 +1208,30 @@ export class BlueTransactionListItem extends Component {
       }
     }
 
+    if (this.props.item.object === 'charge') {
+      if (this.props.item.paid) {
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionOffchainIncomingIcon />
+          </View>
+        );
+      } else {
+        const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+        if (expectedExpiration.isBefore(dayjs())) {
+          return (
+            <View style={{ width: 25 }}>
+              <BlueTransactionExpiredIcon />
+            </View>
+          );
+        }
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionPendingIcon />
+          </View>
+        );
+      }
+    }
+
     if (!this.props.item.confirmations) {
       return (
         <View style={{ width: 25 }}>
@@ -1186,11 +1254,15 @@ export class BlueTransactionListItem extends Component {
   };
 
   subtitle = () => {
-    return (
-      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
-      this.txMemo() +
-      (this.props.item.memo || '')
-    );
+    if (this.props.item.object === 'charge') {
+      return this.props.item.description;
+    } else {
+      return (
+        (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
+        this.txMemo() +
+        (this.props.item.memo || '')
+      );
+    }
   };
 
   onPress = () => {
@@ -1199,7 +1271,8 @@ export class BlueTransactionListItem extends Component {
     } else if (
       this.props.item.type === 'user_invoice' ||
       this.props.item.type === 'payment_request' ||
-      this.props.item.type === 'paid_invoice'
+      this.props.item.type === 'paid_invoice' ||
+      this.props.item.object === 'charge'
     ) {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
@@ -1222,7 +1295,7 @@ export class BlueTransactionListItem extends Component {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={loc.transactionTimeToReadable(this.props.item.received || this.props.item.updated)}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
@@ -1339,6 +1412,7 @@ export class BlueListTransactionItem extends Component {
         const currentDate = new Date();
         const now = (currentDate.getTime() / 1000) | 0;
         const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
+        console.warn(invoiceExpiration);
         if (invoiceExpiration < now) {
           return (
             <View style={{ width: 25 }}>
@@ -1734,11 +1808,9 @@ export class BlueBitcoinAmount extends Component {
           </View>
           <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
             <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-              {loc.formatBalance(
-                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC, false),
-                BitcoinUnit.LOCAL_CURRENCY,
-                false,
-              )}
+              {this.props.unit === BitcoinUnit.BTC
+                ? currency.BTCToLocalCurrency(amount || 0)
+                : loc.formatBalance(amount || 0, BitcoinUnit.LOCAL_CURRENCY, false)}
             </Text>
           </View>
         </View>

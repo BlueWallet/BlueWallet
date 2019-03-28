@@ -54,7 +54,6 @@ export default class Language extends Component {
       <TouchableOpacity
         onPress={() => {
           console.log('setLanguage', item.value);
-          loc.setLanguage(item.value);
           loc.saveLanguage(item.value);
           return this.setState({ language: item.value });
         }}
