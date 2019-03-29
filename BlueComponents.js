@@ -45,11 +45,11 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : '#ccddf9';
-    let fontColor = '#0c2550';
+    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueApp.settings.buttonBackgroundColor;
+    let fontColor = BlueApp.settings.buttonTextColor;
     if (this.props.hasOwnProperty('disabled') && this.props.disabled === true) {
-      backgroundColor = '#eef0f4';
-      fontColor = '#9aa0aa';
+      backgroundColor = BlueApp.settings.buttonDisabledBackgroundColor;
+      fontColor = BlueApp.settings.buttonDisabledTextColor;
     }
     let buttonWidth = width / 1.5;
     if (this.props.hasOwnProperty('noMinWidth')) {
@@ -93,10 +93,10 @@ export class BitcoinButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
             borderWidth: 0.5,
             borderRadius: 5,
-            backgroundColor: '#f5f5f5',
+            backgroundColor: BlueApp.settings.inputBackgroundColor,
             // eslint-disable-next-line
             width: this.props.style.width,
             // eslint-disable-next-line
@@ -104,8 +104,8 @@ export class BitcoinButton extends Component {
           }}
         >
           <View style={{ paddingTop: 30 }}>
-            <Icon name="btc" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
+            <Icon name="btc" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor} />
+            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor }}>
               {loc.wallets.add.bitcoin}
             </Text>
           </View>
@@ -127,10 +127,10 @@ export class LightningButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2',
+            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
             borderWidth: 0.5,
             borderRadius: 5,
-            backgroundColor: '#f5f5f5',
+            backgroundColor: BlueApp.settings.inputBackgroundColor,
             // eslint-disable-next-line
             width: this.props.style.width,
             // eslint-disable-next-line
@@ -138,8 +138,8 @@ export class LightningButton extends Component {
           }}
         >
           <View style={{ paddingTop: 30 }}>
-            <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2'} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || '#d2d2d2' }}>
+            <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor} />
+            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor }}>
               {loc.wallets.add.lightning}
             </Text>
           </View>
@@ -161,7 +161,7 @@ export class BlueButtonLink extends Component {
         }}
         {...this.props}
       >
-        <Text style={{ color: '#0c2550', textAlign: 'center', fontSize: 16 }}>{this.props.title}</Text>
+        <Text style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center', fontSize: 16 }}>{this.props.title}</Text>
       </TouchableOpacity>
     );
   }
@@ -169,15 +169,15 @@ export class BlueButtonLink extends Component {
 
 export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => ({
   headerStyle: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueApp.settings.brandingColor,
     borderBottomWidth: 0,
     elevation: 0,
   },
   headerTitleStyle: {
     fontWeight: '600',
-    color: '#0c2550',
+    color: BlueApp.settings.foregroundColor,
   },
-  headerTintColor: '#0c2550',
+  headerTintColor: BlueApp.settings.foregroundColor,
   headerRight: withNavigationCloseButton ? (
     <TouchableOpacity
       style={{ width: 40, height: 40, padding: 14 }}
@@ -249,7 +249,7 @@ const styleCopyTextToClipboard = StyleSheet.create({
   address: {
     marginVertical: 32,
     fontSize: 15,
-    color: '#9aa0aa',
+    color: BlueApp.settings.alternativeTextColor,
     textAlign: 'center',
   },
 });
@@ -309,7 +309,7 @@ export class BlueListItem extends Component {
           fontSize: 16,
           fontWeight: '500',
         }}
-        subtitleStyle={{ color: '#9aa0aa' }}
+        subtitleStyle={{ color: BlueApp.settings.alternativeTextColor }}
         subtitleNumberOfLines={1}
         {...this.props}
       />
@@ -331,11 +331,11 @@ export class BlueFormInput extends Component {
         inputStyle={{ color: BlueApp.settings.foregroundColor, maxWidth: width - 105 }}
         containerStyle={{
           marginTop: 5,
-          borderColor: '#d2d2d2',
-          borderBottomColor: '#d2d2d2',
+          borderColor: BlueApp.settings.inputBorderColor,
+          borderBottomColor: BlueApp.settings.inputBorderColor,
           borderWidth: 0.5,
           borderBottomWidth: 0.5,
-          backgroundColor: '#f5f5f5',
+          backgroundColor: BlueApp.settings.inputBackgroundColor,
         }}
       />
     );
@@ -363,11 +363,11 @@ export class BlueFormMultiInput extends Component {
         style={{
           marginTop: 5,
           marginHorizontal: 20,
-          borderColor: '#d2d2d2',
-          borderBottomColor: '#d2d2d2',
+          borderColor: BlueApp.settings.inputBorderColor,
+          borderBottomColor: BlueApp.settings.inputBorderColor,
           borderWidth: 0.5,
           borderBottomWidth: 0.5,
-          backgroundColor: '#f5f5f5',
+          backgroundColor: BlueApp.settings.inputBackgroundColor,
           height: 200,
           color: BlueApp.settings.foregroundColor,
         }}
@@ -396,11 +396,11 @@ export class BlueFormInputAddress extends Component {
         }}
         containerStyle={{
           marginTop: 5,
-          borderColor: '#d2d2d2',
-          borderBottomColor: '#d2d2d2',
+          borderColor: BlueApp.settings.inputBorderColor,
+          borderBottomColor: BlueApp.settings.inputBorderColor,
           borderWidth: 0.5,
           borderBottomWidth: 0.5,
-          backgroundColor: '#f5f5f5',
+          backgroundColor: BlueApp.settings.inputBackgroundColor,
         }}
       />
     );
@@ -426,9 +426,9 @@ export class BlueHeader extends Component {
 export class BlueHeaderDefaultSub extends Component {
   render() {
     return (
-      <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
+      <SafeAreaView style={{ backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
-          backgroundColor="#FFFFFF"
+          backgroundColor={BlueApp.settings.brandingColor}
           outerContainerStyles={{
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
@@ -473,10 +473,10 @@ export class BlueHeaderDefaultSub extends Component {
 export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
-      <SafeAreaView style={{ backgroundColor: '#FFFFFF' }}>
+      <SafeAreaView style={{ backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
           {...this.props}
-          backgroundColor="#FFFFFF"
+          backgroundColor={BlueApp.settings.brandingColor}
           outerContainerStyles={{
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
@@ -582,7 +582,7 @@ export class BlueUseAllFundsButton extends Component {
     return (
       <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ color: '#9aa0aa', fontSize: 16, marginHorizontal: 8 }}>
+          <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
             Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
           </Text>
           <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />
@@ -647,40 +647,40 @@ const stylesBlueIcon = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#ccddf9',
+    backgroundColor: BlueApp.settings.buttonBackgroundColor,
   },
   ballIncoming: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueApp.settings.incomingBackgroundColor,
     transform: [{ rotate: '-45deg' }],
   },
   ballIncomingWithoutRotate: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueApp.settings.incomingBackgroundColor,
   },
   ballReceive: {
     width: 30,
     height: 30,
     borderBottomLeftRadius: 15,
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueApp.settings.incomingBackgroundColor,
     transform: [{ rotate: '-45deg' }],
   },
   ballOutgoing: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#f8d2d2',
+    backgroundColor: BlueApp.settings.outgoingBackgroundColor,
     transform: [{ rotate: '225deg' }],
   },
   ballOutgoingWithoutRotate: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#f8d2d2',
+    backgroundColor: BlueApp.settings.outgoingBackgroundColor,
   },
   ballTransparrent: {
     width: 30,
@@ -725,7 +725,7 @@ export class BlueTransactionIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncoming}>
-            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 8 }} />
+            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} iconStyle={{ left: 0, top: 8 }} />
           </View>
         </View>
       </View>
@@ -760,7 +760,7 @@ export class BlueTransactionExpiredIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon {...this.props} name="hourglass-end" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 6 }} />
+            <Icon {...this.props} name="hourglass-end" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, top: 6 }} />
           </View>
         </View>
       </View>
@@ -779,7 +779,7 @@ export class BlueTransactionOnchainIcon extends Component {
               name="link"
               size={16}
               type="font-awesome"
-              color="#37c0a1"
+              color={BlueApp.settings.incomingForegroundColor}
               iconStyle={{ left: 0, top: 7, transform: [{ rotate: '-45deg' }] }}
             />
           </View>
@@ -795,7 +795,7 @@ export class BlueTransactionOffchainIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 7 }} />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
       </View>
@@ -809,7 +809,7 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color="#37c0a1" iconStyle={{ left: 0, top: 7 }} />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} iconStyle={{ left: 0, top: 7 }} />
           </View>
         </View>
       </View>
@@ -823,7 +823,7 @@ export class BlueTransactionOutgoingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoing}>
-            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#d0021b" iconStyle={{ left: 0, top: 8 }} />
+            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, top: 8 }} />
           </View>
         </View>
       </View>
@@ -841,7 +841,7 @@ export class BlueReceiveButtonIcon extends Component {
           style={{
             flex: 1,
             minWidth: 130,
-            backgroundColor: '#ccddf9',
+            backgroundColor: BlueApp.settings.buttonBackgroundColor,
           }}
         >
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
@@ -856,11 +856,11 @@ export class BlueReceiveButtonIcon extends Component {
                 marginBottom: -11,
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.buttonAlternativeTextColor} />
             </View>
             <Text
               style={{
-                color: '#2f5fb3',
+                color: BlueApp.settings.buttonAlternativeTextColor,
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 left: 5,
@@ -884,7 +884,7 @@ export class BlueSendButtonIcon extends Component {
           style={{
             flex: 1,
             minWidth: 130,
-            backgroundColor: '#ccddf9',
+            backgroundColor: BlueApp.settings.buttonBackgroundColor,
             alignItems: 'center',
           }}
         >
@@ -899,11 +899,11 @@ export class BlueSendButtonIcon extends Component {
                 marginBottom: 11,
               }}
             >
-              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color="#2f5fb3" />
+              <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.buttonAlternativeTextColor} />
             </View>
             <Text
               style={{
-                color: '#2f5fb3',
+                color: BlueApp.settings.buttonAlternativeTextColor,
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 backgroundColor: 'transparent',
@@ -926,7 +926,7 @@ export class ManageFundsBigButton extends Component {
           style={{
             flex: 1,
             width: 168,
-            backgroundColor: '#ccddf9',
+            backgroundColor: BlueApp.settings.buttonBackgroundColor,
           }}
         >
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
@@ -939,11 +939,11 @@ export class ManageFundsBigButton extends Component {
                 transform: [{ rotate: '90deg' }],
               }}
             >
-              <Icon {...this.props} name="link" size={16} type="font-awesome" color="#2f5fb3" />
+              <Icon {...this.props} name="link" size={16} type="font-awesome" color={BlueApp.settings.buttonAlternativeTextColor} />
             </View>
             <Text
               style={{
-                color: '#2f5fb3',
+                color: BlueApp.settings.buttonAlternativeTextColor,
                 fontSize: (isIpad && 10) || 16,
                 fontWeight: '500',
                 backgroundColor: 'transparent',
@@ -1017,7 +1017,7 @@ export class NewWalletPanel extends Component {
               backgroundColor: 'transparent',
               fontWeight: 'bold',
               fontSize: 20,
-              color: '#9aa0aa',
+              color: BlueApp.settings.alternativeTextColor,
             }}
           >
             {loc.wallets.list.create_a_wallet}
@@ -1027,7 +1027,7 @@ export class NewWalletPanel extends Component {
             style={{
               backgroundColor: 'transparent',
               fontSize: 13,
-              color: '#9aa0aa',
+              color: BlueApp.settings.alternativeTextColor,
             }}
           >
             {loc.wallets.list.create_a_wallet1}
@@ -1036,7 +1036,7 @@ export class NewWalletPanel extends Component {
             style={{
               backgroundColor: 'transparent',
               fontSize: 13,
-              color: '#9aa0aa',
+              color: BlueApp.settings.alternativeTextColor,
             }}
           >
             {loc.wallets.list.create_a_wallet2}
@@ -1090,7 +1090,7 @@ export class BlueTransactionListItem extends Component {
 
   rowTitleStyle = () => {
     const item = this.props.item;
-    let color = '#37c0a1';
+    let color = BlueApp.settings.successColor;
 
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       const currentDate = new Date();
@@ -1098,12 +1098,12 @@ export class BlueTransactionListItem extends Component {
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        color = '#37c0a1';
+        color = BlueApp.settings.successColor;
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          color = '#37c0a1';
+          color = BlueApp.settings.successColor;
         } else {
-          color = '#FF0000';
+          color = BlueApp.settings.failedColor;
         }
       }
     } else if (item.value / 100000000 < 0) {
@@ -1486,7 +1486,7 @@ export class WalletsCarousel extends Component {
           }}
         >
           <LinearGradient
-            shadowColor="#000000"
+            shadowColor={BlueApp.settings.shadowColor}
             colors={WalletGradient.gradientsFor(item.type)}
             style={{
               padding: 15,
@@ -1512,7 +1512,7 @@ export class WalletsCarousel extends Component {
               style={{
                 backgroundColor: 'transparent',
                 fontSize: 19,
-                color: '#fff',
+                color: BlueApp.settings.inverseForegroundColor,
               }}
             >
               {item.getLabel()}
@@ -1524,7 +1524,7 @@ export class WalletsCarousel extends Component {
                 backgroundColor: 'transparent',
                 fontWeight: 'bold',
                 fontSize: 36,
-                color: '#fff',
+                color: BlueApp.settings.inverseForegroundColor,
               }}
             >
               {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
@@ -1535,7 +1535,7 @@ export class WalletsCarousel extends Component {
               style={{
                 backgroundColor: 'transparent',
                 fontSize: 13,
-                color: '#fff',
+                color: BlueApp.settings.inverseForegroundColor,
               }}
             >
               {loc.wallets.list.latest_transaction}
@@ -1546,7 +1546,7 @@ export class WalletsCarousel extends Component {
                 backgroundColor: 'transparent',
                 fontWeight: 'bold',
                 fontSize: 16,
-                color: '#fff',
+                color: BlueApp.settings.inverseForegroundColor,
               }}
             >
               {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
@@ -1602,11 +1602,11 @@ export class BlueAddressInput extends Component {
       <View
         style={{
           flexDirection: 'row',
-          borderColor: '#d2d2d2',
-          borderBottomColor: '#d2d2d2',
+          borderColor: BlueApp.settings.inputBorderColor,
+          borderBottomColor: BlueApp.settings.inputBorderColor,
           borderWidth: 1.0,
           borderBottomWidth: 0.5,
-          backgroundColor: '#f5f5f5',
+          backgroundColor: BlueApp.settings.inputBackgroundColor,
           minHeight: 44,
           height: 44,
           marginHorizontal: 20,
@@ -1667,8 +1667,8 @@ export class BlueAddressInput extends Component {
             marginHorizontal: 4,
           }}
         >
-          <Icon name="qrcode" size={22} type="font-awesome" color="#FFFFFF" />
-          <Text style={{ color: '#FFFFFF' }}>{loc.send.details.scan}</Text>
+          <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
+          <Text style={{ color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -1712,16 +1712,16 @@ export class BlueBitcoinAmount extends Component {
               ref={textInput => (this.textInput = textInput)}
               editable={!this.props.isLoading && !this.props.disabled}
               value={amount}
-              placeholderTextColor={this.props.disabled ? '#99a0ab' : '#0f5cc0'}
+              placeholderTextColor={this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2}
               style={{
-                color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
+                color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
                 fontSize: 36,
                 fontWeight: '600',
               }}
             />
             <Text
               style={{
-                color: this.props.disabled ? '#99a0ab' : '#0f5cc0',
+                color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
                 fontSize: 16,
                 marginHorizontal: 4,
                 paddingBottom: 6,
