@@ -14,7 +14,6 @@
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		00E356F31AD99517003FC87E /* BlueWalletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BlueWalletTests.m */; };
 		01AB943FA0794E91B65F0BFE /* libRCTPrivacySnapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */; };
-		02DEC1C9F61B405E8E357B2E /* libRCTWKWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E7078D2FED444DA4B0BD57F9 /* libRCTWKWebView.a */; };
 		034FE828CEF14A6CBCF9073E /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8637D4B5E14D443A9031DA95 /* libRNFS.a */; };
 		0AF37AC0E67044038B49FB3B /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4D746BBE67E84684848246E2 /* SimpleLineIcons.ttf */; };
 		0B2C4EBFB4CB4960AAD777BC /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 44BC9E3EE0E9476A830CCCB9 /* Entypo.ttf */; };
@@ -67,6 +66,7 @@
 		B058E2132B704E9E874BDB29 /* libRNRandomBytes-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 253243E162CE4822BF3A3B7D /* libRNRandomBytes-tvOS.a */; };
 		B1102FDCF41C4D008352748B /* libRNReactNativeHapticFeedback.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */; };
 		B44D665E562B4F289F09D327 /* libRNSVG-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */; };
+		B46542A9224DD36D00290E88 /* libRCTWKWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B40FE6DD21FAD7A8005D5578 /* libRCTWKWebView.a */; };
 		C1056BF235EE4E23AAF21975 /* libRCTQRCodeLocalImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */; };
 		C10C13E4CC4445C5861B1A3A /* libRNDeviceInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FD7977067E1A496F94D8B1B7 /* libRNDeviceInfo.a */; };
 		C41EC263DBE649299C99B9A5 /* libRNRate.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BBA99996E6FA4B49ACE0BEFA /* libRNRate.a */; };
@@ -542,6 +542,13 @@
 			remoteGlobalIDString = DB1744351BC4C14D00D02B05;
 			remoteInfo = RCTPrivacySnapshot;
 		};
+		B465429A224DD34800290E88 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 178483985D8A4250A4794DA7 /* RNGestureHandler.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = B5C32A36220C603B000FFB8D;
+			remoteInfo = "RNGestureHandler-tvOS";
+		};
 		B47720652202510900DD0E81 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 910283A2A9EB4D00902DE78E /* TcpSockets.xcodeproj */;
@@ -660,6 +667,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B46542A9224DD36D00290E88 /* libRCTWKWebView.a in Frameworks */,
 				ED297163215061F000B7C4FE /* JavaScriptCore.framework in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
 				11D1A2F320CAFA9E000508D9 /* libRCTAnimation.a in Frameworks */,
@@ -690,7 +698,6 @@
 				C70F52A820614622A16EAF23 /* libRNSentry.a in Frameworks */,
 				6D9E44529B3C463AB9E6CA39 /* libRNVectorIcons.a in Frameworks */,
 				1FE70B15FB724CE3927C7541 /* libRNSVG.a in Frameworks */,
-				02DEC1C9F61B405E8E357B2E /* libRCTWKWebView.a in Frameworks */,
 				A6E5EEC7A4B54F5A9C9D92FC /* libRNImagePicker.a in Frameworks */,
 				C1056BF235EE4E23AAF21975 /* libRCTQRCodeLocalImage.a in Frameworks */,
 				34582CAA4AD140F7B80C961A /* libTcpSockets.a in Frameworks */,
@@ -1074,6 +1081,7 @@
 			isa = PBXGroup;
 			children = (
 				B40FE56C21FAD229005D5578 /* libRNGestureHandler.a */,
+				B465429B224DD34800290E88 /* libRNGestureHandler-tvOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1882,6 +1890,13 @@
 			fileType = archive.ar;
 			path = libRCTPrivacySnapshot.a;
 			remoteRef = B4442B9C22276A3200009CC0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		B465429B224DD34800290E88 /* libRNGestureHandler-tvOS.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libRNGestureHandler-tvOS.a";
+			remoteRef = B465429A224DD34800290E88 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		B47720662202510900DD0E81 /* libTcpSockets.a */ = {

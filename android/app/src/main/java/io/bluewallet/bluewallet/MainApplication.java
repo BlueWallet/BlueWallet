@@ -7,7 +7,6 @@ import com.diegofhg.obscure.ObscurePackage;
 import com.peel.react.TcpSocketsModule;
 import com.remobile.qrcodeLocalImage.RCTQRCodeLocalImagePackage;
 import com.imagepicker.ImagePickerPackage;
-import com.reactnativecommunity.webview.RNCWebViewPackage;
 import io.sentry.RNSentryPackage;
 import com.bitgo.randombytes.RandomBytesPackage;
 import im.shimo.react.prompt.RNPromptPackage;
@@ -38,7 +37,6 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import org.reactnative.camera.RNCameraPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.rnfs.RNFSPackage;
 

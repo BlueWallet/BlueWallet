@@ -11,7 +11,6 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Platform,
-  Slider,
   AsyncStorage,
   Text,
 } from 'react-native';
@@ -31,6 +30,7 @@ import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Slider from 'react-native-slider';
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
@@ -503,9 +503,8 @@ export default class SendDetails extends Component {
                   value={Number(this.state.feeSliderValue)}
                   maximumTrackTintColor="#d8d8d8"
                   minimumTrackTintColor="#37c0a1"
-                  style={{ flex: 1 }}
                 />
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 }}>
+                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
                   <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>slow</Text>
                   <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>fast</Text>
                 </View>
