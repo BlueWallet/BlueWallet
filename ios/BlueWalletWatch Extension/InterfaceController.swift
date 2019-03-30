@@ -10,27 +10,16 @@ import WatchKit
 import WatchConnectivity
 import Foundation
 
-class InterfaceController: WKInterfaceController, WCSessionDelegate {
+class InterfaceController: WKInterfaceController {
   
-  var session: WCSession?
   @IBOutlet weak var walletsTable: WKInterfaceTable!
   @IBOutlet weak var loadingIndicatorGroup: WKInterfaceGroup!
   @IBOutlet weak var noWalletsAvailableLabel: WKInterfaceLabel!
   
-  override func awake(withContext context: Any?) {
-    super.awake(withContext: context)
-    if WCSession.isSupported() {
-      print("Activating watch session")
-      self.session = WCSession.default
-      self.session?.delegate = self
-      self.session?.activate()
-    }
-  }
-  
   override func willActivate() {
     // This method is called when watch view controller is about to be visible to user
     super.willActivate()
-    session?.sendMessage(["message" : "sendApplicationContext"], replyHandler: nil, errorHandler: nil)
+    WCSession.default.sendMessage(["message" : "sendApplicationContext"], replyHandler: nil, errorHandler: nil)
     
     if (WatchDataSource.shared.wallets.isEmpty) {
       loadingIndicatorGroup.setHidden(true)
@@ -47,28 +36,15 @@ class InterfaceController: WKInterfaceController, WCSessionDelegate {
     for index in 0..<walletsTable.numberOfRows {
       guard let controller = walletsTable.rowController(at: index) as? WalletInformation else { continue }
       let wallet = WatchDataSource.shared.wallets[index]
+      if wallet.identifier == nil {
+        WatchDataSource.shared.wallets[index].identifier = index
+      }
       controller.name = wallet.label
       controller.balance = wallet.balance
       controller.type = WalletGradient(rawValue: wallet.type) ?? .SegwitHD
     }
     loadingIndicatorGroup.setHidden(true)
     noWalletsAvailableLabel.setHidden(!WatchDataSource.shared.wallets.isEmpty)
-  }
-  
-  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
-    WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
-  }
-  
-  func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
-    WatchDataSource.shared.processWalletsData(walletsInfo: applicationContext)
-  }
-
-  func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
-    WatchDataSource.shared.processWalletsData(walletsInfo: userInfo)
-  }
-  
-  func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-    // Not used
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String, in table: WKInterfaceTable, rowIndex: Int) -> Any? {

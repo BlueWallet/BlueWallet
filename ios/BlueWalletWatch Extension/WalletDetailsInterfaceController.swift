@@ -23,14 +23,14 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    let index = context as? Int ?? 0
-    let wallet = WatchDataSource.shared.wallets[index]
+    guard let identifier = context as? Int else {
+      pop()
+      return
+    }
+    let wallet = WatchDataSource.shared.wallets[identifier]
     self.wallet = wallet
     walletBalanceLabel.setText(wallet.balance)
-    walletNameLabel.setText(wallet.label)
-//    receiveButton.setEnabled(!wallet.receiveAddress.isEmpty)
-//    receiveButton.setHidden(wallet.receiveAddress.isEmpty)
-//    
+    walletNameLabel.setText(wallet.label) 
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
 
     processWalletsTable()
@@ -60,7 +60,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   }
   
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
-    return wallet
+    return wallet?.identifier
   }
   
 }
