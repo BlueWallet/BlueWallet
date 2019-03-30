@@ -5,6 +5,7 @@ let assert = require('assert');
 let bitcoin = require('bitcoinjs-lib');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('./BlueElectrum'); // so it connects ASAP
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -14,7 +15,12 @@ afterAll(() => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  try {
+    await BlueElectrum.waitTillConnected();
+  } catch (Err) {
+    console.log('failed to connect to Electrum:', Err);
+    process.exit();
+  }
 });
 
 it('can convert witness to address', () => {
@@ -29,7 +35,6 @@ it('can convert witness to address', () => {
 });
 
 it('can create a Segwit HD (BIP49)', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
   let mnemonic =
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
   let hd = new HDSegwitP2SHWallet();
@@ -124,7 +129,6 @@ it('HD (BIP49) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
@@ -199,7 +203,6 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
     return;
   }
 
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
   assert.ok(hd.validateMnemonic());
@@ -247,7 +250,6 @@ it('can create a Legacy HD (BIP44)', async function() {
     return;
   }
 
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
   let mnemonic = process.env.HD_MNEMONIC_BREAD;
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(mnemonic);
@@ -298,7 +300,6 @@ it('Legacy HD (BIP44) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
