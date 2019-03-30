@@ -16,19 +16,19 @@ let bluewalletResponses = {};
 // eslint-disable-next-line
 var webln = {
   enable: function() {
-    window.postMessage(JSON.stringify({ enable: true }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({ enable: true }));
     return new Promise(function(resolve, reject) {
       resolve(true);
     });
   },
   getInfo: function() {
-    window.postMessage('getInfo');
+    window.ReactNativeWebView.postMessage('getInfo');
     return new Promise(function(resolve, reject) {
       reject(new Error('not implemented'));
     });
   },
   sendPayment: function(paymentRequest) {
-    window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
     return new Promise(function(resolve, reject) {
       /* nop. intentionally, forever hang promise.
 				 lapp page usually asynchroniously checks payment itself, via ajax,
@@ -38,7 +38,7 @@ var webln = {
   },
   makeInvoice: function(RequestInvoiceArgs) {
     var id = Math.random();
-    window.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
     return new Promise(function(resolve, reject) {
       var interval = setInterval(function() {
         if (bluewalletResponses[id]) {
@@ -49,13 +49,13 @@ var webln = {
     });
   },
   signMessage: function() {
-    window.postMessage('signMessage');
+    window.ReactNativeWebView.postMessage('signMessage');
     return new Promise(function(resolve, reject) {
       reject(new Error('not implemented'));
     });
   },
   verifyMessage: function() {
-    window.postMessage('verifyMessage');
+    window.ReactNativeWebView.postMessage('verifyMessage');
     return new Promise(function(resolve, reject) {
       reject(new Error('not implemented'));
     });
@@ -92,19 +92,19 @@ bluewalletResponses = {};
 
 webln = {
 	enable : function () {
-		window.postMessage(JSON.stringify({'enable': true}));
+		window.ReactNativeWebView.postMessage(JSON.stringify({'enable': true}));
 		return new Promise(function(resolve, reject){
 			resolve(true);
 		})
 	},
 	getInfo : function () {
-		window.postMessage('getInfo');
+		window.ReactNativeWebView.postMessage('getInfo');
 		return new Promise(function(resolve, reject){
 			reject('not implemented');
 		})
 	},
 	sendPayment: function(paymentRequest) {
-		window.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+		window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
 		return new Promise(function(resolve, reject) {
 			/* nop. intentionally, forever hang promise.
 				 lapp page usually asynchroniously checks payment itself, via ajax,
@@ -114,7 +114,7 @@ webln = {
 	},
 	makeInvoice: function (RequestInvoiceArgs) {
 		var id = Math.random();
-		window.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
+		window.ReactNativeWebView.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
 		return new Promise(function(resolve, reject) {
 			var interval = setInterval(function () {
 				if (bluewalletResponses[id]) {
@@ -125,13 +125,13 @@ webln = {
 		});
 	},
 	signMessage: function () {
-		window.postMessage('signMessage');
+		window.ReactNativeWebView.postMessage('signMessage');
 		return new Promise(function(resolve, reject){
 			reject('not implemented');
 		})
 	},
 	verifyMessage: function () {
-		window.postMessage('verifyMessage');
+		window.ReactNativeWebView.postMessage('verifyMessage');
 		return new Promise(function(resolve, reject){
 			reject('not implemented');
 		})
@@ -143,7 +143,7 @@ webln = {
 
 /* listening to events that might come from RN: */
 document.addEventListener("message", function(event) {
-	window.postMessage("inside webview, received post message: " + event.data);
+	window.ReactNativeWebView.postMessage("inside webview, received post message: " + event.data);
 	var json;
 	try {
 		json = JSON.parse(event.data);
@@ -161,14 +161,14 @@ document.addEventListener("message", function(event) {
 
 
 function tryToPay(invoice) {
-	window.postMessage(JSON.stringify({sendPayment:invoice}));
+	window.ReactNativeWebView.postMessage(JSON.stringify({sendPayment:invoice}));
 }
 
 /* for non-webln compatible pages we do it oldschool,
 	 searching for all bolt11 manually */
 
 setInterval(function() {
-window.postMessage('interval');
+window.ReactNativeWebView.postMessage('interval');
 
 	var searchText = "lnbc";
 
