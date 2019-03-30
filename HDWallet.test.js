@@ -60,6 +60,38 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), freeChangeAddress);
 });
 
+it.skip('HD (BIP49) can work with a gap', async function() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd._xpub = 'ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy'; // has gap
+  await hd.fetchBalance();
+  console.log(hd.getBalance());
+  console.log('hd.next_free_address_index = ', hd.next_free_address_index);
+  console.log('hd.next_free_change_address_index = ', hd.next_free_change_address_index);
+
+  // for (let c = 0; c < 5; c++) {
+  //   console.log('internal', c, hd._getInternalAddressByIndex(c));
+  // }
+
+  // for (let c = 0; c < 5; c++) {
+  //   console.log('external', c, hd._getExternalAddressByIndex(c));
+  // }
+  await hd.fetchTransactions();
+  console.log('hd.transactions.length=', hd.transactions.length);
+  assert.ok(hd.transactions.length >= 3);
+  assert.ok(hd.next_free_address_index >= 4);
+});
+
+it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ'; // cant fetch txs
+  await hd.fetchBalance();
+  await hd.fetchTransactions();
+  assert.ok(hd.transactions.length > 0);
+  console.log('hd.transactions.length=', hd.transactions.length);
+});
+
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
   let ypub = 'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp';
   let hd = new HDSegwitP2SHWallet();
