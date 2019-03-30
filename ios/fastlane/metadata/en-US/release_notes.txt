@@ -1,4 +1,4 @@
-v3.9.0
+v3.9.2
 ======
 
 * FIX: all wallets are refreshed when app launches
