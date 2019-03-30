@@ -16,9 +16,9 @@ async function connectMain() {
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
     await mainClient.connect();
     const ver = await mainClient.server_version('2.7.11', '1.2');
-    console.log('connected to ', ver);
     let peers = await mainClient.serverPeers_subscribe();
     if (peers && peers.length > 0) {
+      console.log('connected to ', ver);
       mainConnected = true;
       AsyncStorage.setItem(storageKey, JSON.stringify(peers));
     }
@@ -29,6 +29,9 @@ async function connectMain() {
 
   if (!mainConnected) {
     console.log('retry');
+    mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
+    mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
+    mainClient.close();
     setTimeout(connectMain, 5000);
   }
 }
@@ -44,13 +47,7 @@ connectMain();
 async function getRandomHardcodedPeer() {
   let hardcodedPeers = [
     { host: 'node.ispol.sk', tcp: '50001' },
-    { host: 'electrum.vom-stausee.de', tcp: '50001' },
-    { host: 'orannis.com', tcp: '50001' },
     { host: '139.162.14.142', tcp: '50001' },
-    { host: 'daedalus.bauerj.eu', tcp: '50001' },
-    { host: 'electrum.eff.ro', tcp: '50001' },
-    { host: 'electrum.anduck.net', tcp: '50001' },
-    { host: 'mooo.not.fyi', tcp: '50011' },
     { host: 'electrum.coinucopia.io', tcp: '50001' },
   ];
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
