@@ -1,6 +1,5 @@
 /* global jest */
 jest.mock('react-native-qrcode-svg', () => 'Video');
-jest.useFakeTimers();
 jest.mock('Picker', () => {
 	// eslint-disable-next-line import/no-unresolved
 	const React = require('React');
