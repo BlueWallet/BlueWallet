@@ -19,6 +19,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this._xpub = ''; // cache
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
+    this.gap_limit = 3;
   }
 
   generate() {
@@ -347,8 +348,6 @@ export class AbstractHDWallet extends LegacyWallet {
 
   async fetchBalance() {
     try {
-      // doing binary search for last used externa address
-
       let that = this;
 
       // refactor me
@@ -371,8 +370,6 @@ export class AbstractHDWallet extends LegacyWallet {
         return binarySearchIterationForInternalAddress(index, maxUsedIndex, minUnusedIndex, depth + 1);
       }
 
-      this.next_free_change_address_index = await binarySearchIterationForInternalAddress(100);
-
       // refactor me
       // eslint-disable-next-line
       async function binarySearchIterationForExternalAddress(index, maxUsedIndex = 0, minUnusedIndex = 100500100, depth = 0) {
@@ -393,14 +390,34 @@ export class AbstractHDWallet extends LegacyWallet {
         return binarySearchIterationForExternalAddress(index, maxUsedIndex, minUnusedIndex, depth + 1);
       }
 
-      this.next_free_address_index = await binarySearchIterationForExternalAddress(100);
+      if (this.next_free_change_address_index === 0 && this.next_free_address_index === 0) {
+        // assuming that this is freshly imported/created wallet, with no internal variables set
+        // wild guess - its completely empty wallet:
+        let completelyEmptyWallet = false;
+        let txs = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(0));
+        if (txs.length === 0) {
+          let txs2 = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(0));
+          if (txs2.length === 0) {
+            // yep, completely empty wallet
+            completelyEmptyWallet = true;
+          }
+        }
+
+        // wrong guess. will have to rescan
+        if (!completelyEmptyWallet) {
+          // so doing binary search for last used address:
+          this.next_free_change_address_index = await binarySearchIterationForInternalAddress(100);
+          this.next_free_address_index = await binarySearchIterationForExternalAddress(100);
+        }
+      }
+
       this.usedAddresses = [];
 
       // generating all involved addresses:
-      for (let c = 0; c < this.next_free_address_index; c++) {
+      for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
         this.usedAddresses.push(this._getExternalAddressByIndex(c));
       }
-      for (let c = 0; c < this.next_free_change_address_index; c++) {
+      for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
         this.usedAddresses.push(this._getInternalAddressByIndex(c));
       }
 
