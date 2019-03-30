@@ -31,6 +31,7 @@
   },
   "jest": {
     "preset": "react-native",
+    "setupFiles": ["<rootDir>/jest/setup.js"],
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
     }
