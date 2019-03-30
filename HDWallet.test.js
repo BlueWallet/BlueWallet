@@ -5,7 +5,7 @@ let assert = require('assert');
 let bitcoin = require('bitcoinjs-lib');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('./BlueElectrum'); // so it connects ASAP
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -19,7 +19,7 @@ beforeAll(async () => {
     await BlueElectrum.waitTillConnected();
   } catch (Err) {
     console.log('failed to connect to Electrum:', Err);
-    process.exit();
+    process.exit(2);
   }
 });
 
