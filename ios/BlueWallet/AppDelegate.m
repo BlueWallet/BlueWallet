@@ -38,6 +38,8 @@
   [self.window makeKeyAndVisible];
   self.watchBridge = [WatchBridge shared];
   self.session = self.watchBridge.session;
+  [self.session activateSession];
+  self.session.delegate = self;
   
   return YES;
 }
@@ -48,6 +50,10 @@
 
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier {
   return NO;
+}
+
+- (void)sessionDidDeactivate:(WCSession *)session {
+  [session activateSession];
 }
 
 @end

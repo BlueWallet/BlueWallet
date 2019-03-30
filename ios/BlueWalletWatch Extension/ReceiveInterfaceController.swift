@@ -20,14 +20,18 @@ class ReceiveInterfaceController: WKInterfaceController {
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    self.wallet = context as? Wallet
-    
+    guard let identifier = context as? Int, WatchDataSource.shared.wallets.count > identifier else {
+      pop()
+      return
+    }
+    let wallet = WatchDataSource.shared.wallets[identifier]
+    self.wallet = wallet
     NotificationCenter.default.addObserver(forName: SpecifyInterfaceController.NotificationName.createQRCode, object: nil, queue: nil) { [weak self] (notification) in
       self?.isRenderingQRCode = true
       if let wallet = self?.wallet, wallet.type == "lightningCustodianWallet", let object = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let amount = object.amount {
         self?.imageInterface.setHidden(true)
         self?.loadingIndicator.setHidden(false)
-        WatchDataSource.requestLightningInvoice(wallet: wallet, amount: amount, description: object.description, responseHandler: { (invoice) in
+        WatchDataSource.requestLightningInvoice(walletIdentifier: identifier, amount: amount, description: object.description, responseHandler: { (invoice) in
           DispatchQueue.main.async {
             if (!invoice.isEmpty) {
               guard let cgImage = EFQRCode.generate(
@@ -78,8 +82,8 @@ class ReceiveInterfaceController: WKInterfaceController {
       }
     }
     
-    guard let walletContext = wallet, !walletContext.receiveAddress.isEmpty, let cgImage = EFQRCode.generate(
-      content: walletContext.receiveAddress) else {
+    guard !wallet.receiveAddress.isEmpty, let cgImage = EFQRCode.generate(
+      content: wallet.receiveAddress) else {
         return
     }
     
@@ -91,7 +95,7 @@ class ReceiveInterfaceController: WKInterfaceController {
     super.didAppear()
     if wallet?.type == "lightningCustodianWallet" {
       if isRenderingQRCode == nil {
-        presentController(withName: SpecifyInterfaceController.identifier, context: wallet)
+        presentController(withName: SpecifyInterfaceController.identifier, context: wallet?.identifier)
         isRenderingQRCode = false
       } else if isRenderingQRCode == false {
         pop()
@@ -105,7 +109,7 @@ class ReceiveInterfaceController: WKInterfaceController {
   }
   
   @IBAction func specifyMenuItemTapped() {
-    presentController(withName: SpecifyInterfaceController.identifier, context: wallet)
+    presentController(withName: SpecifyInterfaceController.identifier, context: wallet?.identifier)
   }
   
 }

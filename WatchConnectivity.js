@@ -26,6 +26,8 @@ export default class WatchConnectivity {
           );
           reply({ invoicePaymentRequest: createInvoiceRequest });
         }
+      } else {
+        reply(err)
       }
     });
   }

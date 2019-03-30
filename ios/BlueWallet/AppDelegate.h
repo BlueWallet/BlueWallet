@@ -9,7 +9,7 @@
 @import WatchConnectivity;
 @class WatchBridge;
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, WCSessionDelegate>
 
 @property (nonatomic, strong) UIWindow *window;
 @property(nonatomic, strong) WatchBridge *watchBridge;

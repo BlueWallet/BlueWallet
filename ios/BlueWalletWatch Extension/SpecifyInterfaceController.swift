@@ -31,11 +31,12 @@ class SpecifyInterfaceController: WKInterfaceController {
 
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    guard let context = context as? Wallet else {
+    guard let identifier = context as? Int, WatchDataSource.shared.wallets.count > identifier else {
      return
     }
-    self.wallet = context
-    self.specifiedQRContent.bitcoinUnit = context.type == "lightningCustodianWallet" ? .SATS : .BTC
+    let wallet = WatchDataSource.shared.wallets[identifier]
+    self.wallet = wallet
+    self.specifiedQRContent.bitcoinUnit = wallet.type == "lightningCustodianWallet" ? .SATS : .BTC
     NotificationCenter.default.addObserver(forName: NumericKeypadInterfaceController.NotificationName.keypadDataChanged, object: nil, queue: nil) { [weak self] (notification) in
       guard let amountObject = notification.object as? [String], !amountObject.isEmpty else { return }
       if amountObject.count == 1 && (amountObject.first == "." || amountObject.first == "0") {
