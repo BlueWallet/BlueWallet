@@ -5,6 +5,7 @@ let assert = require('assert');
 let bitcoin = require('bitcoinjs-lib');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('./BlueElectrum'); // so it connects ASAP
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
@@ -14,7 +15,12 @@ afterAll(() => {
 beforeAll(async () => {
   // awaiting for Electrum to be connected. For RN Electrum would naturally connect
   // while app starts up, but for tests we need to wait for it
-  await BlueElectrum.waitTillConnected();
+  try {
+    await BlueElectrum.waitTillConnected();
+  } catch (Err) {
+    console.log('failed to connect to Electrum:', Err);
+    process.exit(2);
+  }
 });
 
 it('can convert witness to address', () => {
@@ -29,7 +35,6 @@ it('can convert witness to address', () => {
 });
 
 it('can create a Segwit HD (BIP49)', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
   let mnemonic =
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
   let hd = new HDSegwitP2SHWallet();
@@ -58,6 +63,38 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.strictEqual(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
   let freeChangeAddress = await hd.getChangeAddressAsync();
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), freeChangeAddress);
+});
+
+it.skip('HD (BIP49) can work with a gap', async function() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd._xpub = 'ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy'; // has gap
+  await hd.fetchBalance();
+  console.log(hd.getBalance());
+  console.log('hd.next_free_address_index = ', hd.next_free_address_index);
+  console.log('hd.next_free_change_address_index = ', hd.next_free_change_address_index);
+
+  // for (let c = 0; c < 5; c++) {
+  //   console.log('internal', c, hd._getInternalAddressByIndex(c));
+  // }
+
+  // for (let c = 0; c < 5; c++) {
+  //   console.log('external', c, hd._getExternalAddressByIndex(c));
+  // }
+  await hd.fetchTransactions();
+  console.log('hd.transactions.length=', hd.transactions.length);
+  assert.ok(hd.transactions.length >= 3);
+  assert.ok(hd.next_free_address_index >= 4);
+});
+
+it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ'; // cant fetch txs
+  await hd.fetchBalance();
+  await hd.fetchTransactions();
+  assert.ok(hd.transactions.length > 0);
+  console.log('hd.transactions.length=', hd.transactions.length);
 });
 
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
@@ -92,7 +129,6 @@ it('HD (BIP49) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
@@ -167,7 +203,6 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
     return;
   }
 
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
   assert.ok(hd.validateMnemonic());
@@ -215,7 +250,6 @@ it('can create a Legacy HD (BIP44)', async function() {
     return;
   }
 
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
   let mnemonic = process.env.HD_MNEMONIC_BREAD;
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(mnemonic);
@@ -266,7 +300,6 @@ it('Legacy HD (BIP44) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
   let hd = new HDLegacyP2PKHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());

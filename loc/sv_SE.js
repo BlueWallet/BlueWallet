@@ -18,12 +18,13 @@ module.exports = {
       header: 'En plånbok representerar ett par av en privat nyckel samt en adress' + 'som du kan dela med andra för att ta emot coins',
       add: 'Ny Plånbok',
       create_a_wallet: 'Ny plånbok',
-      create_a_wallet1: "Det är gratis och du kan skapa",
+      create_a_wallet1: 'Det är gratis och du kan skapa',
       create_a_wallet2: 'hur många du vill',
       latest_transaction: 'senaste transaktion',
       empty_txs1: 'Dina transaktioner kommer att visas här',
       empty_txs2: 'men än så länge finns inga!',
-      empty_txs1_lightning: 'Lightningplånboken ska användas för dagliga småtransaktioner. Avgifterna är minimala och transaktioner sker direkt.',
+      empty_txs1_lightning:
+        'Lightningplånboken ska användas för dagliga småtransaktioner. Avgifterna är minimala och transaktioner sker direkt.',
       empty_txs2_lightning: '\nFör att komma igång klicka på "sätt in / ta ut" ovan och sätt in dina första bitcoin.',
       tap_here_to_buy: 'Tryck här för att köpa bitcoin',
     },
@@ -73,7 +74,7 @@ module.exports = {
     import: {
       title: 'import',
       explanation:
-        "Skriv in dina ord, din privata nyckel, WIF, eller vad du kan tänkas ha. BlueWallet kommer att göra sitt bästa för att gissa formatet och importera plånboken",
+        'Skriv in dina ord, din privata nyckel, WIF, eller vad du kan tänkas ha. BlueWallet kommer att göra sitt bästa för att gissa formatet och importera plånboken',
       imported: 'Importerad',
       error: 'Import misslyckades. Kontrollera att informationen du matade in är korrekt.',
       success: 'Import lyckad!',
@@ -199,7 +200,8 @@ module.exports = {
       "BlueWallet så kommer det att låsa upp din 'fejkade' lagringsyta. Det kommer att se " +
       'ut precis som vanligt men i själva verket är dina pengar i säkert förvar på din ' +
       'primära lagringsyta.',
-    help2: 'Den alternativa lagringsytan kommer att vara fullt fungerade och du kan eventuellt spara en mindre summa där för att den ska verka mer trovärdig.',
+    help2:
+      'Den alternativa lagringsytan kommer att vara fullt fungerade och du kan eventuellt spara en mindre summa där för att den ska verka mer trovärdig.',
     create_fake_storage: 'Skapa fejkad lagringsyta',
     go_back: 'Tillbaka',
     create_password: 'Skapa ett lösenord',

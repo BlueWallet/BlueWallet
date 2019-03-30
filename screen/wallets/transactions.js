@@ -405,8 +405,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) ||
-                    loc.wallets.list.empty_txs1}
+                  {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
                   style={{
@@ -415,8 +414,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && loc.wallets.list.empty_txs2_lightning) ||
-                    loc.wallets.list.empty_txs2}
+                  {(this.isLightning() && loc.wallets.list.empty_txs2_lightning) || loc.wallets.list.empty_txs2}
                 </Text>
 
                 <Text />
