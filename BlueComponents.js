@@ -104,8 +104,18 @@ export class BitcoinButton extends Component {
           }}
         >
           <View style={{ paddingTop: 30 }}>
-            <Icon name="btc" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor }}>
+            <Icon
+              name="btc"
+              size={32}
+              type="font-awesome"
+              color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor}
+            />
+            <Text
+              style={{
+                textAlign: 'center',
+                color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
+              }}
+            >
               {loc.wallets.add.bitcoin}
             </Text>
           </View>
@@ -138,8 +148,18 @@ export class LightningButton extends Component {
           }}
         >
           <View style={{ paddingTop: 30 }}>
-            <Icon name="bolt" size={32} type="font-awesome" color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor} />
-            <Text style={{ textAlign: 'center', color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor }}>
+            <Icon
+              name="bolt"
+              size={32}
+              type="font-awesome"
+              color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor}
+            />
+            <Text
+              style={{
+                textAlign: 'center',
+                color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
+              }}
+            >
               {loc.wallets.add.lightning}
             </Text>
           </View>
@@ -725,7 +745,14 @@ export class BlueTransactionIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncoming}>
-            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} iconStyle={{ left: 0, top: 8 }} />
+            <Icon
+              {...this.props}
+              name="arrow-down"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.incomingForegroundColor}
+              iconStyle={{ left: 0, top: 8 }}
+            />
           </View>
         </View>
       </View>
@@ -760,7 +787,14 @@ export class BlueTransactionExpiredIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon {...this.props} name="hourglass-end" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, top: 6 }} />
+            <Icon
+              {...this.props}
+              name="hourglass-end"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.outgoingForegroundColor}
+              iconStyle={{ left: 0, top: 6 }}
+            />
           </View>
         </View>
       </View>
@@ -795,7 +829,14 @@ export class BlueTransactionOffchainIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, top: 7 }} />
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.outgoingForegroundColor}
+              iconStyle={{ left: 0, top: 7 }}
+            />
           </View>
         </View>
       </View>
@@ -809,7 +850,14 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} iconStyle={{ left: 0, top: 7 }} />
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.incomingForegroundColor}
+              iconStyle={{ left: 0, top: 7 }}
+            />
           </View>
         </View>
       </View>
@@ -823,7 +871,14 @@ export class BlueTransactionOutgoingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoing}>
-            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, top: 8 }} />
+            <Icon
+              {...this.props}
+              name="arrow-down"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.outgoingForegroundColor}
+              iconStyle={{ left: 0, top: 8 }}
+            />
           </View>
         </View>
       </View>
