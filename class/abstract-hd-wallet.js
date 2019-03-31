@@ -1,6 +1,5 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
-import { WatchOnlyWallet } from './watch-only-wallet';
 const bip39 = require('bip39');
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -115,12 +114,10 @@ export class AbstractHDWallet extends LegacyWallet {
       if (this.next_free_address_index + c < 0) continue;
       let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
       this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
-      let WatchWallet = new WatchOnlyWallet();
-      WatchWallet.setSecret(address);
-      await WatchWallet.fetchTransactions();
-      if (WatchWallet.transactions.length === 0) {
+      let txs = await BlueElectrum.getTransactionsByAddress(address);
+      if (txs.length === 0) {
         // found free address
-        freeAddress = WatchWallet.getAddress();
+        freeAddress = address;
         this.next_free_address_index += c; // now points to _this one_
         break;
       }
@@ -150,12 +147,10 @@ export class AbstractHDWallet extends LegacyWallet {
       if (this.next_free_change_address_index + c < 0) continue;
       let address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
       this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
-      let WatchWallet = new WatchOnlyWallet();
-      WatchWallet.setSecret(address);
-      await WatchWallet.fetchTransactions();
-      if (WatchWallet.transactions.length === 0) {
+      let txs = await BlueElectrum.getTransactionsByAddress(address);
+      if (txs.length === 0) {
         // found free address
-        freeAddress = WatchWallet.getAddress();
+        freeAddress = address;
         this.next_free_change_address_index += c; // now points to _this one_
         break;
       }
