@@ -56,8 +56,10 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCameraUsageDescription</key>
-	<string>In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code.</string>
+	<string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This alert should not show up as we do not require this data</string>
+	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
