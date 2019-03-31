@@ -1,3 +1,12 @@
+v3.9.2
+======
+
+* ADD: Swedish translation
+* FIX: fetch tx history for large HD wallets (closes #416)
+* FIX: HD wallets not can handle small gaps in hierarchy (closes #388)
+* FIX: JP
+* REF: better Electrum support
+
 v3.9.0
 ======
 
