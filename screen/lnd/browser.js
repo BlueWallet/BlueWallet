@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Platform, Alert } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
-import WKWebView from 'react-native-wkwebview-reborn';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -243,193 +242,103 @@ export default class Browser extends Component {
   };
 
   renderWebView = () => {
-    if (Platform.OS === 'android') {
-      return (
-        <WebView
-          onNavigationStateChange={this._onNavigationStateChange}
-          ref={ref => (this.webview = ref)}
-          source={{ uri: this.state.url }}
-          onMessage={e => {
-            // this is a handler which receives messages sent from within the browser
-            console.log('---- message from the bus:', e.nativeEvent.data);
-            let json = false;
-            try {
-              json = JSON.parse(e.nativeEvent.data);
-            } catch (_) {}
-            // message from browser has ln invoice
-            if (json && json.sendPayment) {
-              // checking that already asked about this invoice:
-              if (processedInvoices[json.sendPayment]) {
-                return;
-              } else {
-                // checking that we do not trigger alert too often:
-                if (+new Date() - lastTimeTriedToPay < 3000) {
-                  return;
-                }
-                lastTimeTriedToPay = +new Date();
-                //
-                processedInvoices[json.sendPayment] = 1;
-              }
-
-              Alert.alert(
-                'Page',
-                'This page asks for permission to pay an invoice',
-                [
-                  { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                  {
-                    text: 'Pay',
-                    onPress: () => {
-                      console.log('OK Pressed');
-                      this.props.navigation.navigate({
-                        routeName: 'ScanLndInvoice',
-                        params: {
-                          uri: json.sendPayment,
-                          fromSecret: this.state.fromSecret,
-                        },
-                      });
-                    },
-                  },
-                ],
-                { cancelable: false },
-              );
-            }
-
-            if (json && json.makeInvoice) {
-              let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
-              Alert.alert(
-                'Page',
-                'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
-                [
-                  { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                  {
-                    text: 'Accept',
-                    onPress: async () => {
-                      /** @type {LightningCustodianWallet} */
-                      const fromWallet = this.state.fromWallet;
-                      const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
-                      this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
-                    },
-                  },
-                ],
-                { cancelable: false },
-              );
-            }
-
-            if (json && json.enable) {
-              console.log('webln enabled');
-              this.setState({ weblnEnabled: true });
-            }
-          }}
-          onLoadStart={e => {
-            alreadyInjected = false;
-            console.log('load start');
-            this.setState({ pageIsLoading: true, weblnEnabled: false });
-          }}
-          onLoadEnd={e => {
-            console.log('load end');
-            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
-          }}
-          onLoadProgress={e => {
-            console.log('progress:', e.nativeEvent.progress);
-            if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
-              this.webview.injectJavaScript(injectedParadise);
-              alreadyInjected = true;
-              console.log('injected');
-            }
-          }}
-        />
-      );
-    } else if (Platform.OS === 'ios') {
-      return (
-        <WKWebView
-          ref={ref => (this.webview = ref)}
-          source={{ uri: this.state.url }}
-          injectJavaScript={injectedParadise}
-          onNavigationStateChange={this._onNavigationStateChange}
-          onMessage={e => {
-            // this is a handler which receives messages sent from within the browser
-            console.log('---- message from the bus:', e.nativeEvent.data);
-            let json = false;
-            try {
-              json = JSON.parse(e.nativeEvent.data);
-            } catch (_) {}
-            // message from browser has ln invoice
-            if (json && json.sendPayment) {
+    return (
+      <WebView
+        onNavigationStateChange={this._onNavigationStateChange}
+        ref={ref => (this.webview = ref)}
+        source={{ uri: this.state.url }}
+        onMessage={e => {
+          // this is a handler which receives messages sent from within the browser
+          console.log('---- message from the bus:', e.nativeEvent.data);
+          let json = false;
+          try {
+            json = JSON.parse(e.nativeEvent.data);
+          } catch (_) {}
+          // message from browser has ln invoice
+          if (json && json.sendPayment) {
+            // checking that already asked about this invoice:
+            if (processedInvoices[json.sendPayment]) {
+              return;
+            } else {
               // checking that we do not trigger alert too often:
               if (+new Date() - lastTimeTriedToPay < 3000) {
                 return;
               }
               lastTimeTriedToPay = +new Date();
+              //
+              processedInvoices[json.sendPayment] = 1;
+            }
 
-              // checking that already asked about this invoice:
-              if (processedInvoices[json.sendPayment]) {
-                return;
-              } else {
-                processedInvoices[json.sendPayment] = 1;
-              }
-
-              Alert.alert(
-                'Page',
-                'This page asks for permission to pay an invoice',
-                [
-                  { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                  {
-                    text: 'Pay',
-                    onPress: () => {
-                      console.log('OK Pressed');
-                      this.props.navigation.navigate({
-                        routeName: 'ScanLndInvoice',
-                        params: {
-                          uri: json.sendPayment,
-                          fromSecret: this.state.fromSecret,
-                        },
-                      });
-                    },
+            Alert.alert(
+              'Page',
+              'This page asks for permission to pay an invoice',
+              [
+                { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                {
+                  text: 'Pay',
+                  onPress: () => {
+                    console.log('OK Pressed');
+                    this.props.navigation.navigate({
+                      routeName: 'ScanLndInvoice',
+                      params: {
+                        uri: json.sendPayment,
+                        fromSecret: this.state.fromSecret,
+                      },
+                    });
                   },
-                ],
-                { cancelable: false },
-              );
-            }
+                },
+              ],
+              { cancelable: false },
+            );
+          }
 
-            if (json && json.makeInvoice) {
-              let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
-              Alert.alert(
-                'Page',
-                'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
-                [
-                  { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-                  {
-                    text: 'Accept',
-                    onPress: async () => {
-                      /** @type {LightningCustodianWallet} */
-                      const fromWallet = this.state.fromWallet;
-                      const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
-                      this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
-                    },
+          if (json && json.makeInvoice) {
+            let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
+            Alert.alert(
+              'Page',
+              'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
+              [
+                { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                {
+                  text: 'Accept',
+                  onPress: async () => {
+                    /** @type {LightningCustodianWallet} */
+                    const fromWallet = this.state.fromWallet;
+                    const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
+                    this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
                   },
-                ],
-                { cancelable: false },
-              );
-            }
+                },
+              ],
+              { cancelable: false },
+            );
+          }
 
-            if (json && json.enable) {
-              console.log('webln enabled');
-              this.setState({ weblnEnabled: true });
-            }
-          }}
-          onLoadStart={e => {
-            alreadyInjected = false;
-            console.log('load start');
-            this.setState({ pageIsLoading: true, weblnEnabled: false });
-          }}
-          onLoadEnd={e => {
-            console.log('load end');
-            this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
-          }}
-        />
-      );
-    }
+          if (json && json.enable) {
+            console.log('webln enabled');
+            this.setState({ weblnEnabled: true });
+          }
+        }}
+        onLoadStart={e => {
+          alreadyInjected = false;
+          console.log('load start');
+          this.setState({ pageIsLoading: true, weblnEnabled: false });
+        }}
+        onLoadEnd={e => {
+          console.log('load end');
+          this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
+        }}
+        onLoadProgress={e => {
+          console.log('progress:', e.nativeEvent.progress);
+          if (!alreadyInjected && e.nativeEvent.progress > 0.5) {
+            this.webview.injectJavaScript(injectedParadise);
+            alreadyInjected = true;
+            console.log('injected');
+          }
+        }}
+      />
+    );
   };
+
   render() {
     return (
       <SafeBlueArea>
