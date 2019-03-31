@@ -231,12 +231,12 @@ it('Wallet can fetch UTXO', async () => {
 it('Wallet can fetch balance', async () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let w = new LegacyWallet();
-  w._address = '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'; // hack internals
+  w._address = '115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG'; // hack internals
   assert.ok(w.getBalance() === 0);
   assert.ok(w.getUnconfirmedBalance() === 0);
   assert.ok(w._lastBalanceFetch === 0);
   await w.fetchBalance();
-  assert.ok(w.getBalance() > 0);
+  assert.ok(w.getBalance() === 0.18262);
   assert.ok(w.getUnconfirmedBalance() === 0);
   assert.ok(w._lastBalanceFetch > 0);
 });
