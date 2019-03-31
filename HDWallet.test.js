@@ -66,7 +66,7 @@ it('can create a Segwit HD (BIP49)', async function() {
 });
 
 it('HD (BIP49) can work with a gap', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   let hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy'; // has gap
   await hd.fetchBalance();
@@ -83,7 +83,7 @@ it('HD (BIP49) can work with a gap', async function() {
   assert.ok(hd.transactions.length >= 3);
 });
 
-it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
+it('Segwit HD (BIP49) can batch fetch many txs', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
   let hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ'; // cant fetch txs

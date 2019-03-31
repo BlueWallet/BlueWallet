@@ -34,8 +34,11 @@ export class AbstractHDWallet extends LegacyWallet {
     // need to reformat txs, as we are expected to return them in blockcypher format,
     // but they are from blockchain.info actually (for all hd wallets)
 
+    let uniq = {};
     let txs = [];
     for (let tx of this.transactions) {
+      if (uniq[tx.hash]) continue;
+      uniq[tx.hash] = 1;
       txs.push(AbstractHDWallet.convertTx(tx));
     }
 
