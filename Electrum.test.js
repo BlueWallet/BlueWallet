@@ -1,11 +1,27 @@
-/* global it, describe, jasmine */
+/* global it, describe, afterAll, beforeAll, jasmine */
 global.net = require('net');
 let BlueElectrum = require('./BlueElectrum');
 let assert = require('assert');
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+
+afterAll(() => {
+  // after all tests we close socket so the test suite can actually terminate
+  return BlueElectrum.forceDisconnect();
+});
+
+beforeAll(async () => {
+  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
+  // while app starts up, but for tests we need to wait for it
+  try {
+    await BlueElectrum.waitTillConnected();
+  } catch (Err) {
+    console.log('failed to connect to Electrum:', Err);
+    process.exit(1);
+  }
+});
 
 describe('Electrum', () => {
   it('ElectrumClient can connect and query', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     const ElectrumClient = require('electrum-client');
     let bitcoin = require('bitcoinjs-lib');
     // let bitcoin = require('bitcoinjs-lib');
@@ -47,7 +63,6 @@ describe('Electrum', () => {
 
   it('BlueElectrum works', async function() {
     let address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
-    await BlueElectrum.waitTillConnected();
     let balance = await BlueElectrum.getBalanceByAddress(address);
     assert.strictEqual(balance.confirmed, 51432);
     assert.strictEqual(balance.unconfirmed, 0);
@@ -59,7 +74,5 @@ describe('Electrum', () => {
       assert.ok(tx.tx_hash);
       assert.ok(tx.height);
     }
-
-    BlueElectrum.forceDisconnect();
   });
 });
