@@ -3,6 +3,7 @@ package io.bluewallet.bluewallet;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.slider.ReactSliderPackage;
 import com.diegofhg.obscure.ObscurePackage;
 import com.peel.react.TcpSocketsModule;
 import com.remobile.qrcodeLocalImage.RCTQRCodeLocalImagePackage;
@@ -57,6 +58,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ReactSliderPackage(),
             new ObscurePackage(),
             new TcpSocketsModule(),
             new RCTQRCodeLocalImagePackage(),
