@@ -5,6 +5,18 @@ let reverse = require('buffer-reverse');
 
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum.coinucopia.io', tcp: 50001 };
+const hardcodedPeers = [
+  { host: 'noveltybobble.coinjoined.com', tcp: '50001' },
+  { host: 'daedalus.bauerj.eu', tcp: '50001' },
+  { host: 'elx1.kempken.org', tcp: '50001' },
+  { host: 'electrum.be', tcp: '50001' },
+  { host: 'node.ispol.sk', tcp: '50001' }, // SLOW
+  { host: '139.162.14.142', tcp: '50001' },
+  // { host: 'electrum.coinucopia.io', tcp: '50001' }, // SLOW
+  { host: 'Bitkoins.nl', tcp: '50001' },
+  { host: 'fullnode.coinkite.com', tcp: '50001' },
+  { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' },
+];
 
 let mainClient = false;
 let mainConnected = false;
@@ -45,11 +57,6 @@ connectMain();
  * @returns {Promise<{tcp, host}|*>}
  */
 async function getRandomHardcodedPeer() {
-  let hardcodedPeers = [
-    { host: 'node.ispol.sk', tcp: '50001' },
-    { host: '139.162.14.142', tcp: '50001' },
-    { host: 'electrum.coinucopia.io', tcp: '50001' },
-  ];
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
 }
 
@@ -185,6 +192,8 @@ module.exports.forceDisconnect = () => {
   mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
   mainClient.close();
 };
+
+module.exports.hardcodedPeers = hardcodedPeers;
 
 /*
 
