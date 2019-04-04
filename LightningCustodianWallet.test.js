@@ -376,7 +376,7 @@ describe('LightningCustodianWallet', () => {
     assert.ok(err);
   });
 
-  it.only('cant pay negative free amount', async () => {
+  it('cant pay negative free amount', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
