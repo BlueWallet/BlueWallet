@@ -142,10 +142,10 @@ webln = {
 
 /* listening to events that might come from RN: */
 document.addEventListener("message", function(event) {
-	window.ReactNativeWebView.postMessage("inside webview, received post message: " + event.data);
+	window.ReactNativeWebView.postMessage("inside webview, received post message: " + event.detail);
 	var json;
 	try {
-		json = JSON.parse(event.data);
+		json = JSON.parse(event.detail);
 	} catch (_) {}
 
 	if (json && json.bluewalletResponse) {
@@ -305,7 +305,11 @@ export default class Browser extends Component {
                     /** @type {LightningCustodianWallet} */
                     const fromWallet = this.state.fromWallet;
                     const payreq = await fromWallet.addInvoice(amount, json.makeInvoice.defaultMemo || ' ');
-                    this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+                    // this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
+                    // Since webview.postMessage is removed from webview, we inject javascript that will manually triger document
+                    // event; note how data is passed in 'detail', not 'data'
+                    let jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
+                    this.webview.injectJavaScript("document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );");
                   },
                 },
               ],
