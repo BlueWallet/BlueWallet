@@ -28,12 +28,12 @@ export default class ScanQrWif extends React.Component {
   };
 
   async onBarCodeScanned(ret) {
-    this.setState({ isLoading: true });
     if (+new Date() - this.lastTimeIveBeenHere < 6000) {
       this.lastTimeIveBeenHere = +new Date();
       return;
     }
     this.lastTimeIveBeenHere = +new Date();
+    this.setState({ isLoading: true });
 
     console.log('onBarCodeScanned', ret);
     if (ret.data[0] === '6') {
