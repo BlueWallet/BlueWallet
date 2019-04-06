@@ -225,7 +225,7 @@ export default class SendCreate extends Component {
         {this.state.isLoading ? (
           <ActivtyIndicator />
         ) : (
-          <BlueButton icon={{ name: 'megaphone', type: 'octicon' }} onPress={() => this.broadcast()} title="Broadcast" />
+          <BlueButton icon={{ name: 'bullhorn', type: 'font-awesome' }} onPress={() => this.broadcast()} title="Broadcast" />
         )}
       </SafeBlueArea>
     );

@@ -255,7 +255,7 @@ export default class ScanQrWif extends React.Component {
                   >
                     <BlueText>{this.state.message}</BlueText>
                     <BlueButton
-                      icon={{ name: 'stop', type: 'octicon' }}
+                      icon={{ name: 'ban', type: 'font-awesome' }}
                       onPress={async () => {
                         this.setState({ message: false });
                         shold_stop_bip38 = true; // eslint-disable-line

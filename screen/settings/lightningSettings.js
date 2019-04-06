@@ -59,8 +59,8 @@ export default class LightningSettings extends Component {
 
         <Button
           icon={{
-            name: 'mark-github',
-            type: 'octicon',
+            name: 'github',
+            type: 'font-awesome',
             color: BlueApp.settings.buttonTextColor,
             backgroundColor: '#FFFFFF',
           }}

@@ -41,7 +41,7 @@ export default class WalletTransactions extends Component {
             })
           }
         >
-          <Icon name="kebab-horizontal" size={22} type="octicon" color="#FFFFFF" />
+          <Icon name="ellipsis-h" type="font-awesome" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       ),
       headerStyle: {
