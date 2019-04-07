@@ -1,3 +1,35 @@
+v3.9.2
+======
+
+* ADD: Swedish translation
+* FIX: fetch tx history for large HD wallets (closes #416)
+* FIX: HD wallets not can handle small gaps in hierarchy (closes #388)
+* FIX: JP
+* REF: better Electrum support
+
+v3.9.0
+======
+
+* FIX: all wallets are refreshed when app launches
+* FIX: Send BTC should ignore non-onchain wallets* FIX: all wallets are refreshed when app launches
+* FIX: correct qr scan when importing lndhub qr backup
+* ADD: Finnish translation
+* ADD: Turkish translation
+* ADD: Greek (EL) localization
+* ADD: norwegian translation
+
+v3.8.3
+======
+
+* REF: better support for different lndhub uris
+* FIX: Send BTC should ignore non-onchain wallets
+* FIX: Deeplink would fail sometimes on cold start (#382)
+* FIX: Fixed an issue when inserting an address after amount.
+* FIX: UI fixes for  transactions list
+* ADD: Haptic feedbacks on error alerts
+* ADD: Read clipboard for transactions
+* ADD: Italian language
+
 v3.8.2
 ======
 

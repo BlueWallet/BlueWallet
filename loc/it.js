@@ -16,7 +16,8 @@ module.exports = {
       app_name: 'BlueWallet',
       title: 'Portafogli',
       header:
-        'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' + 'che puoi condividere per ricevere Bitcoin.',
+        'Un portafoglio rappresenta la coppia fra un segreto (chiave privata) e un indirizzo' +
+        'che puoi condividere per ricevere Bitcoin.',
       add: 'Aggiungi Portafoglio',
       create_a_wallet: 'Crea un portafoglio',
       create_a_wallet1: 'È gratuito e puoi crearne',
@@ -24,6 +25,9 @@ module.exports = {
       latest_transaction: 'Transazioni recenti',
       empty_txs1: 'Le tue transazioni appariranno qui,',
       empty_txs2: 'Nessuna transazione',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Clicca qui per comprare Bitcoin',
     },
     reorder: {
@@ -33,7 +37,7 @@ module.exports = {
       title: 'Aggiungi Portafoglio',
       description:
         'Puoi scansionare il Backup di un Paper-Wallet (in WIF - Wallet Import Format), o creare un nuovo portafoglio. I portafogli Segwit sono supportati di default.',
-      scan: 'Scansiona',
+      scan: 'Scan',
       create: 'Crea',
       label_new_segwit: 'Nuovo SegWit',
       label_new_lightning: 'Nuovo Lightning',

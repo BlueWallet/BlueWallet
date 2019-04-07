@@ -58,7 +58,7 @@ export default class EncryptStorage extends Component {
                   <BlueButton
                     icon={{
                       name: 'shield',
-                      type: 'octicon',
+                      type: 'font-awesome',
                       color: BlueApp.settings.buttonTextColor,
                     }}
                     onPress={async () => {

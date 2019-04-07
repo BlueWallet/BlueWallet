@@ -11,7 +11,6 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Platform,
-  Slider,
   AsyncStorage,
   Text,
 } from 'react-native';
@@ -24,6 +23,7 @@ import {
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
 } from '../../BlueComponents';
+import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';

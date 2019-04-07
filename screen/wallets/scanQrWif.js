@@ -28,12 +28,12 @@ export default class ScanQrWif extends React.Component {
   };
 
   async onBarCodeScanned(ret) {
-    this.setState({ isLoading: true });
     if (+new Date() - this.lastTimeIveBeenHere < 6000) {
       this.lastTimeIveBeenHere = +new Date();
       return;
     }
     this.lastTimeIveBeenHere = +new Date();
+    this.setState({ isLoading: true });
 
     console.log('onBarCodeScanned', ret);
     if (ret.data[0] === '6') {
@@ -129,6 +129,12 @@ export default class ScanQrWif extends React.Component {
       this.setState({ isLoading: true });
       let lnd = new LightningCustodianWallet();
       lnd.setSecret(ret.data);
+      if (ret.data.includes('@')) {
+        const split = ret.data.split('@');
+        lnd.setBaseURI(split[1]);
+        lnd.setSecret(split[0]);
+      }
+
       try {
         await lnd.authorize();
         await lnd.fetchTransactions();
@@ -249,7 +255,7 @@ export default class ScanQrWif extends React.Component {
                   >
                     <BlueText>{this.state.message}</BlueText>
                     <BlueButton
-                      icon={{ name: 'stop', type: 'octicon' }}
+                      icon={{ name: 'ban', type: 'font-awesome' }}
                       onPress={async () => {
                         this.setState({ message: false });
                         shold_stop_bip38 = true; // eslint-disable-line

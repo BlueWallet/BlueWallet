@@ -5,6 +5,17 @@ let reverse = require('buffer-reverse');
 
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum.coinucopia.io', tcp: 50001 };
+const hardcodedPeers = [
+  { host: 'noveltybobble.coinjoined.com', tcp: '50001' },
+  { host: 'electrum.be', tcp: '50001' },
+  // { host: 'node.ispol.sk', tcp: '50001' }, // down
+  { host: '139.162.14.142', tcp: '50001' },
+  // { host: 'electrum.coinucopia.io', tcp: '50001' }, // SLOW
+  { host: 'Bitkoins.nl', tcp: '50001' },
+  { host: 'fullnode.coinkite.com', tcp: '50001' },
+  // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
+  { host: 'electrum1.bluewallet.io', tcp: '50001' },
+];
 
 let mainClient = false;
 let mainConnected = false;
@@ -16,9 +27,9 @@ async function connectMain() {
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
     await mainClient.connect();
     const ver = await mainClient.server_version('2.7.11', '1.2');
-    console.log('connected to ', ver);
     let peers = await mainClient.serverPeers_subscribe();
     if (peers && peers.length > 0) {
+      console.log('connected to ', ver);
       mainConnected = true;
       AsyncStorage.setItem(storageKey, JSON.stringify(peers));
     }
@@ -29,6 +40,9 @@ async function connectMain() {
 
   if (!mainConnected) {
     console.log('retry');
+    mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
+    mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
+    mainClient.close();
     setTimeout(connectMain, 5000);
   }
 }
@@ -42,17 +56,6 @@ connectMain();
  * @returns {Promise<{tcp, host}|*>}
  */
 async function getRandomHardcodedPeer() {
-  let hardcodedPeers = [
-    { host: 'node.ispol.sk', tcp: '50001' },
-    { host: 'electrum.vom-stausee.de', tcp: '50001' },
-    { host: 'orannis.com', tcp: '50001' },
-    { host: '139.162.14.142', tcp: '50001' },
-    { host: 'daedalus.bauerj.eu', tcp: '50001' },
-    { host: 'electrum.eff.ro', tcp: '50001' },
-    { host: 'electrum.anduck.net', tcp: '50001' },
-    { host: 'mooo.not.fyi', tcp: '50011' },
-    { host: 'electrum.coinucopia.io', tcp: '50001' },
-  ];
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
 }
 
@@ -188,6 +191,8 @@ module.exports.forceDisconnect = () => {
   mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
   mainClient.close();
 };
+
+module.exports.hardcodedPeers = hardcodedPeers;
 
 /*
 

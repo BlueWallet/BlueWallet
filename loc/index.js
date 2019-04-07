@@ -17,6 +17,9 @@ dayjs.extend(relativeTime);
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
     switch (lang) {
+      case 'el':
+        require('dayjs/locale/el');
+        break;
       case 'it':
         require('dayjs/locale/it');
         break;
@@ -28,6 +31,9 @@ dayjs.extend(relativeTime);
         break;
       case 'es':
         require('dayjs/locale/es');
+        break;
+      case 'fi_fi':
+        require('dayjs/locale/fi');
         break;
       case 'fr_fr':
         require('dayjs/locale/fr');
@@ -62,91 +68,21 @@ dayjs.extend(relativeTime);
       case 'id_id':
         require('dayjs/locale/id');
         break;
+      case 'sv_se':
+        require('dayjs/locale/sv');
+        break;
+      case 'nb_no':
+        require('dayjs/locale/nb');
+        break;
+      case 'tr_tr':
+        require('dayjs/locale/tr');
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
     }
     if (localeForDayJSAvailable) {
       dayjs.locale(lang.split('_')[0]);
-    }
-    return;
-  }
-
-  if (Localization.getCurrentLocaleAsync) {
-    let locale = await Localization.getCurrentLocaleAsync();
-    if (locale) {
-      console.log('current locale:', locale);
-      if (
-        locale === 'en' ||
-        locale === 'ru' ||
-        locale === 'ua' ||
-        locale === 'es' ||
-        locale === 'it' ||
-        locale === 'fr-fr' ||
-        locale === 'pt-br' ||
-        locale === 'pt-pt' ||
-        locale === 'jp-JP' ||
-        locale === 'de-de' ||
-        locale === 'cs-cz' ||
-        locale === 'th-th' ||
-        locale === 'da-dk' ||
-        locale === 'nl-nl' ||
-        locale === 'hr-hr' ||
-        locale === 'id-id' ||
-        locale === 'zh-cn'
-      ) {
-        switch (locale) {
-          case 'it':
-            require('dayjs/locale/it');
-            break;
-          case 'zh-cn':
-            require('dayjs/locale/zh-cn');
-            break;
-          case 'ru':
-            require('dayjs/locale/ru');
-            break;
-          case 'es':
-            require('dayjs/locale/es');
-            break;
-          case 'fr-fr':
-            require('dayjs/locale/fr');
-            break;
-          case 'pt-br':
-            require('dayjs/locale/pt-br');
-            break;
-          case 'pt-pt':
-            require('dayjs/locale/pt');
-            break;
-          case 'jp-JP':
-            require('dayjs/locale/ja');
-            break;
-          case 'de-de':
-            require('dayjs/locale/de');
-            break;
-          case 'th-th':
-            require('dayjs/locale/th');
-            break;
-          case 'da-dk':
-            require('dayjs/locale/da');
-            break;
-          case 'nl-nl':
-            require('dayjs/locale/nl');
-            break;
-          case 'hr-hr':
-            require('dayjs/locale/hr');
-            break;
-          case 'id-id':
-            require('dayjs/locale/id');
-            break;
-          default:
-            break;
-        }
-        dayjs.locale(locale.split('-')[0]);
-        locale = locale.replace('-', '_');
-        strings.setLanguage(locale);
-      } else {
-        strings.setLanguage('en');
-      }
     }
   }
 })();
@@ -158,6 +94,7 @@ strings = new Localization({
   pt_pt: require('./pt_PT.js'),
   es: require('./es.js'),
   it: require('./it.js'),
+  el: require('./el.js'),
   ua: require('./ua.js'),
   jp_jp: require('./jp_JP.js'),
   de_de: require('./de_DE.js'),
@@ -165,10 +102,14 @@ strings = new Localization({
   cs_cz: require('./cs_CZ.js'),
   th_th: require('./th_TH.js'),
   nl_nl: require('./nl_NL.js'),
+  fi_fi: require('./fi_FI.js'),
   fr_fr: require('./fr_FR.js'),
   hr_hr: require('./hr_HR.js'),
   id_id: require('./id_ID.js'),
   zh_cn: require('./zh_cn.js'),
+  sv_se: require('./sv_SE.js'),
+  nb_no: require('./nb_NO.js'),
+  tr_tr: require('./tr_TR.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
