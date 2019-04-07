@@ -24,8 +24,8 @@ module.exports = {
       empty_txs1: 'ธุรกรรมจะปรากฏที่นี่,',
       empty_txs2: 'ไม่มี ณ ขณะนี้',
       empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+        'ควรใช้ไลท์นิงเน็ตเวิร์คสำหรับธุรกรรมประจำวันเท่านั้น ธุรกรรมทันใจและมีค่าธรรมเนียมน้อยมาก',
+      empty_txs2_lightning: '\nแตะที่ "จัดการเงิน" เพื่อเริ่มใช้งาน และเติมเงิน',
       tap_here_to_buy: 'กดที่นี่เพื่อซื้อบิตคอยน์',
     },
     reorder: {
