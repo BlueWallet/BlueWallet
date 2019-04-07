@@ -41,7 +41,7 @@ export default class WalletTransactions extends Component {
             })
           }
         >
-          <Icon name="kebab-horizontal" size={22} type="octicon" color="#FFFFFF" />
+          <Icon name="ellipsis-h" type="font-awesome" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       ),
       headerStyle: {
@@ -405,9 +405,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() &&
-                    'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.') ||
-                    loc.wallets.list.empty_txs1}
+                  {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
                   style={{
@@ -416,8 +414,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && '\nTo start using it tap on "manage funds" and topup your balance') ||
-                    loc.wallets.list.empty_txs2}
+                  {(this.isLightning() && loc.wallets.list.empty_txs2_lightning) || loc.wallets.list.empty_txs2}
                 </Text>
 
                 <Text />

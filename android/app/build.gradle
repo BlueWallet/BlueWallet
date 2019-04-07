@@ -102,11 +102,12 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "3.8.3"
+        versionName "3.9.4"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
         multiDexEnabled true
+        missingDimensionStrategy 'react-native-camera', 'general'
     }
     splits {
         abi {
@@ -138,6 +139,7 @@ android {
 }
 
 dependencies {
+    implementation project(':@react-native-community_slider')
     implementation project(':react-native-obscure')
     implementation project(':react-native-tcp')
     implementation project(':@remobile_react-native-qrcode-local-image')
