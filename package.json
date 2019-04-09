@@ -63,7 +63,7 @@
     "prop-types": "15.7.2",
     "react": "16.8.6",
     "react-localization": "1.0.13",
-    "react-native": "0.59.3",
+    "react-native": "0.59.4",
     "react-native-camera": "2.2.1",
     "react-native-device-info": "1.4.2",
     "react-native-elements": "0.19.0",
