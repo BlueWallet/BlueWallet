@@ -97,6 +97,7 @@
     "readable-stream": "3.3.0",
     "secure-random": "1.1.1",
     "stream-browserify": "2.0.2",
+    "url": "^0.11.0",
     "util": "0.11.1",
     "wif": "2.0.1"
   },
