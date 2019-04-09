@@ -6,13 +6,13 @@ let reverse = require('buffer-reverse');
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum.coinucopia.io', tcp: 50001 };
 const hardcodedPeers = [
-  { host: 'noveltybobble.coinjoined.com', tcp: '50001' },
+  // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
   { host: 'electrum.be', tcp: '50001' },
   // { host: 'node.ispol.sk', tcp: '50001' }, // down
-  { host: '139.162.14.142', tcp: '50001' },
+  // { host: '139.162.14.142', tcp: '50001' },
   // { host: 'electrum.coinucopia.io', tcp: '50001' }, // SLOW
-  { host: 'Bitkoins.nl', tcp: '50001' },
-  { host: 'fullnode.coinkite.com', tcp: '50001' },
+  // { host: 'Bitkoins.nl', tcp: '50001' }, // down
+  // { host: 'fullnode.coinkite.com', tcp: '50001' },
   // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
   { host: 'electrum1.bluewallet.io', tcp: '50001' },
 ];
@@ -43,7 +43,7 @@ async function connectMain() {
     mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
     mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
     mainClient.close();
-    setTimeout(connectMain, 5000);
+    setTimeout(connectMain, 500);
   }
 }
 
