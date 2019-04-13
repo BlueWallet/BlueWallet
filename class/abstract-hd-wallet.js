@@ -429,27 +429,18 @@ export class AbstractHDWallet extends LegacyWallet {
     }
   }
 
-  /**
-   * @inheritDoc
-   */
-  async fetchUtxo() {
+  async _fetchUtxoBatch(addresses) {
     const api = new Frisbee({
       baseURI: 'https://blockchain.info',
     });
 
-    if (this.usedAddresses.length === 0) {
-      // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
-      await this.fetchBalance();
-    }
-
-    let addresses = this.usedAddresses.join('|');
-    addresses += '|' + this._getExternalAddressByIndex(this.next_free_address_index);
-    addresses += '|' + this._getInternalAddressByIndex(this.next_free_change_address_index);
-
+    addresses = addresses.join('|');
     let utxos = [];
 
     let response;
+    let uri;
     try {
+      uri = 'https://blockchain.info' + '/unspent?active=' + addresses + '&limit=1000';
       response = await api.get('/unspent?active=' + addresses + '&limit=1000');
       // this endpoint does not support offset of some kind o_O
       // so doing only one call
@@ -469,10 +460,55 @@ export class AbstractHDWallet extends LegacyWallet {
         utxos.push(unspent);
       }
     } catch (err) {
-      console.warn(err);
+      console.warn(err, { uri });
     }
 
-    this.utxo = utxos;
+    return utxos;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async fetchUtxo() {
+    if (this.usedAddresses.length === 0) {
+      // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
+      await this.fetchBalance();
+    }
+
+    this.utxo = [];
+    let addresses = this.usedAddresses;
+    addresses.push(this._getExternalAddressByIndex(this.next_free_address_index));
+    addresses.push(this._getInternalAddressByIndex(this.next_free_change_address_index));
+
+    let duplicateUtxos = {};
+
+    let batch = [];
+    for (let addr of addresses) {
+      batch.push(addr);
+      if (batch.length >= 75) {
+        let utxos = await this._fetchUtxoBatch(batch);
+        for (let utxo of utxos) {
+          let key = utxo.txid + utxo.vout;
+          if (!duplicateUtxos[key]) {
+            this.utxo.push(utxo);
+            duplicateUtxos[key] = 1;
+          }
+        }
+        batch = [];
+      }
+    }
+
+    // final batch
+    if (batch.length > 0) {
+      let utxos = await this._fetchUtxoBatch(batch);
+      for (let utxo of utxos) {
+        let key = utxo.txid + utxo.vout;
+        if (!duplicateUtxos[key]) {
+          this.utxo.push(utxo);
+          duplicateUtxos[key] = 1;
+        }
+      }
+    }
   }
 
   weOwnAddress(addr) {
