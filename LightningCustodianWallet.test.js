@@ -374,6 +374,14 @@ describe('LightningCustodianWallet', () => {
       err = true;
     }
     assert.ok(err);
+
+    err = false;
+    try {
+      await l1.addInvoice(NaN, 'zero amt inv');
+    } catch (_) {
+      err = true;
+    }
+    assert.ok(err);
   });
 
   it('cant pay negative free amount', async () => {
