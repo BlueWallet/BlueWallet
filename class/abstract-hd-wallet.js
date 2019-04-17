@@ -1,7 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 const bip39 = require('bip39');
-const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../BlueElectrum');
 
@@ -421,8 +420,8 @@ export class AbstractHDWallet extends LegacyWallet {
 
       // finally fetching balance
       let balance = await BlueElectrum.multiGetBalanceByAddress(this.usedAddresses);
-      this.balance = new BigNumber(balance.balance).dividedBy(100000000).toNumber();
-      this.unconfirmed_balance = new BigNumber(balance.unconfirmed_balance).dividedBy(100000000).toNumber();
+      this.balance = balance.balance;
+      this.unconfirmed_balance = balance.unconfirmed_balance;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
       console.warn(err);

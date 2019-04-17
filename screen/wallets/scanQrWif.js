@@ -2,8 +2,7 @@
 import React from 'react';
 import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import Camera from 'react-native-camera';
-import Permissions from 'react-native-permissions';
+import { RNCamera } from 'react-native-camera';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet } from '../../class';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
@@ -24,10 +23,9 @@ export default class ScanQrWif extends React.Component {
 
   state = {
     isLoading: false,
-    hasCameraPermission: null,
   };
 
-  async onBarCodeScanned(ret) {
+  onBarCodeScanned = async ret => {
     if (+new Date() - this.lastTimeIveBeenHere < 6000) {
       this.lastTimeIveBeenHere = +new Date();
       return;
@@ -213,14 +211,7 @@ export default class ScanQrWif extends React.Component {
     await BlueApp.saveToDisk();
     this.props.navigation.popToTop();
     setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-  } // end
-
-  async componentWillMount() {
-    Permissions.request('camera').then(response => {
-      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-      this.setState({ hasCameraPermission: response === 'authorized' });
-    });
-  }
+  }; // end
 
   render() {
     if (this.state.isLoading) {
@@ -230,59 +221,68 @@ export default class ScanQrWif extends React.Component {
         </View>
       );
     }
-
-    const { hasCameraPermission } = this.state;
-    if (hasCameraPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      alert('BlueWallet does not have permission to use your camera.');
-      this.props.navigation.goBack(null);
-      return <View />;
-    } else {
-      return (
-        <View style={{ flex: 1 }}>
-          {(() => {
-            if (this.state.message) {
-              return (
-                <SafeBlueArea>
-                  <View
-                    style={{
-                      flex: 1,
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <BlueText>{this.state.message}</BlueText>
-                    <BlueButton
-                      icon={{ name: 'ban', type: 'font-awesome' }}
-                      onPress={async () => {
-                        this.setState({ message: false });
+    return (
+      <View style={{ flex: 1 }}>
+        {(() => {
+          if (this.state.message) {
+            return (
+              <SafeBlueArea>
+                <View
+                  style={{
+                    flex: 1,
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <BlueText>{this.state.message}</BlueText>
+                  <BlueButton
+                    icon={{ name: 'ban', type: 'font-awesome' }}
+                    onPress={async () => {
+                      this.setState({ message: false });
                         shold_stop_bip38 = true; // eslint-disable-line
-                      }}
-                      title={loc.wallets.scanQrWif.cancel}
-                    />
-                  </View>
-                </SafeBlueArea>
-              );
-            } else {
-              return (
-                <SafeBlueArea style={{ flex: 1 }}>
-                  <Camera style={{ flex: 1 }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
-                    <TouchableOpacity
-                      style={{ width: 80, height: 80, padding: 14, marginTop: 32 }}
-                      onPress={() => this.props.navigation.goBack(null)}
-                    >
-                      <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
-                    </TouchableOpacity>
-                  </Camera>
-                </SafeBlueArea>
-              );
-            }
-          })()}
-        </View>
-      );
-    }
+                    }}
+                    title={loc.wallets.scanQrWif.cancel}
+                  />
+                </View>
+              </SafeBlueArea>
+            );
+          } else {
+            return (
+              <SafeBlueArea style={{ flex: 1 }}>
+                <RNCamera
+                  captureAudio={false}
+                  androidCameraPermissionOptions={{
+                    title: 'Permission to use camera',
+                    message: 'We need your permission to use your camera',
+                    buttonPositive: 'OK',
+                    buttonNegative: 'Cancel',
+                  }}
+                  style={{ flex: 1, justifyContent: 'space-between' }}
+                  onBarCodeRead={this.onBarCodeScanned}
+                  barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+                />
+                <TouchableOpacity
+                  style={{
+                    width: 40,
+                    height: 40,
+                    marginLeft: 24,
+                    backgroundColor: '#FFFFFF',
+                    justifyContent: 'center',
+                    borderRadius: 20,
+                    position: 'absolute',
+                    top: 64,
+                  }}
+                  onPress={() => this.props.navigation.goBack(null)}
+                >
+                  <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+                </TouchableOpacity>
+              </SafeBlueArea>
+            );
+          }
+        })()}
+      </View>
+    );
   }
 }
 

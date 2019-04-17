@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
@@ -9,7 +9,8 @@ import {
   SegwitBech32Wallet,
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
-let encryption = require('../encryption');
+import WatchConnectivity from '../WatchConnectivity';
+const encryption = require('../encryption');
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -118,8 +119,9 @@ export class AppStorage {
     buckets = JSON.parse(buckets);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
-
-    return AsyncStorage.setItem('data', JSON.stringify(buckets));
+    const bucketsString = JSON.stringify(buckets);
+    await AsyncStorage.setItem('data', bucketsString);
+    return (await AsyncStorage.getItem('data')) === bucketsString;
   }
 
   /**
@@ -199,6 +201,8 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
+        WatchConnectivity.init();
+        await WatchConnectivity.shared.sendWalletsToWatch();
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -269,7 +273,8 @@ export class AppStorage {
     } else {
       await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-
+    WatchConnectivity.init();
+    WatchConnectivity.shared.sendWalletsToWatch();
     return AsyncStorage.setItem('data', JSON.stringify(data));
   }
 
