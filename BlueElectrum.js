@@ -4,7 +4,7 @@ let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: 'electrum.coinucopia.io', tcp: 50001 };
+const defaultPeer = { host: 'electrum1.bluewallet.io', tcp: 50001 };
 const hardcodedPeers = [
   // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
   // { host: 'electrum.be', tcp: '50001' },
@@ -15,6 +15,12 @@ const hardcodedPeers = [
   // { host: 'fullnode.coinkite.com', tcp: '50001' },
   // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
   { host: 'electrum1.bluewallet.io', tcp: '50001' },
+  { host: 'electrum1.bluewallet.io', tcp: '50001' }, // 2x weight
+  { host: 'electrum2.bluewallet.io', tcp: '50001' },
+  { host: 'electrum3.bluewallet.io', tcp: '50001' },
+  { host: 'electrum3.bluewallet.io', tcp: '50001' }, // 2x weight
+  { host: 'electrum.coinop.cc', tcp: '50001' },
+  { host: 'electrum-server.ninja', tcp: '50001' },
 ];
 
 let mainClient = false;
@@ -26,7 +32,7 @@ async function connectMain() {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
     await mainClient.connect();
-    const ver = await mainClient.server_version('2.7.11', '1.2');
+    const ver = await mainClient.server_version('2.7.11', '1.4');
     let peers = await mainClient.serverPeers_subscribe();
     if (peers && peers.length > 0) {
       console.log('connected to ', ver);
@@ -35,7 +41,7 @@ async function connectMain() {
     }
   } catch (e) {
     mainConnected = false;
-    console.log('bad connection:', JSON.stringify(usingPeer));
+    console.log('bad connection:', JSON.stringify(usingPeer), e);
   }
 
   if (!mainConnected) {

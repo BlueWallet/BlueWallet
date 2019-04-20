@@ -30,11 +30,11 @@ describe('Electrum', () => {
 
       try {
         await mainClient.connect();
-        await mainClient.server_version('2.7.11', '1.2');
+        await mainClient.server_version('2.7.11', '1.4');
       } catch (e) {
         mainClient.reconnect = mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
         mainClient.close();
-        throw new Error('bad connection: ' + JSON.stringify(peer));
+        throw new Error('bad connection: ' + JSON.stringify(peer) + ' ' + e.message);
       }
 
       let addr4elect = 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej';
