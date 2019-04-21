@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
-import { Linking, View } from 'react-native';
-import {
-  BlueNavigationStyle,
-  BlueCopyTextToClipboard,
-  BlueLoading,
-  SafeBlueArea,
-  BlueButton,
-  BlueText,
-  BlueSpacing40,
-} from '../../BlueComponents';
+import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { WebView } from 'react-native-webview';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -71,36 +63,7 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-            <BlueText>{loc.buyBitcoin.tap_your_address}</BlueText>
-
-            <BlueCopyTextToClipboard text={this.state.addressText} />
-
-            <BlueButton
-              icon={{
-                name: 'shopping-cart',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => {
-                Linking.openURL('https://bluewallet.io/buy-bitcoin-redirect.html');
-              }}
-              title="Buy Bitcoin"
-            />
-
-            <BlueSpacing40 />
-            <BlueSpacing40 />
-            <BlueSpacing40 />
-            <BlueSpacing40 />
-            <BlueSpacing40 />
-            <BlueSpacing40 />
-          </View>
-        </View>
-      </SafeBlueArea>
-    );
+    return <WebView source={{ uri: 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address }} />;
   }
 }
 
