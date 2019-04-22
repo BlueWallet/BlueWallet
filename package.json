@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "3.9.6",
+  "version": "3.9.7",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.0.1",
