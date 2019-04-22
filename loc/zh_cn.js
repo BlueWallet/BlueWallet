@@ -215,4 +215,10 @@ module.exports = {
     expired: '超时',
     sameWalletAsInvoiceError: '你不能用创建账单的钱包去支付该账单',
   },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
 };
