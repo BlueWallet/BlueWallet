@@ -12,6 +12,7 @@ import LightningSettings from './screen/settings/lightningSettings';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
+import PleaseBackup from './screen/wallets/pleaseBackup';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
@@ -182,6 +183,9 @@ const CreateWalletStackNavigator = createStackNavigator({
   },
   ImportWallet: {
     screen: ImportWallet,
+  },
+  PleaseBackup: {
+    screen: PleaseBackup,
   },
 });
 

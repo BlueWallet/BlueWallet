@@ -260,7 +260,13 @@ export default class WalletsAdd extends Component {
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
                           A(A.ENUM.CREATED_WALLET);
                           ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-                          this.props.navigation.dismiss();
+                          if (w.type === HDSegwitP2SHWallet.type) {
+                            this.props.navigation.navigate('PleaseBackup', {
+                              secret: w.getSecret(),
+                            });
+                          } else {
+                            this.props.navigation.dismiss();
+                          }
                         }
                       },
                       1,
