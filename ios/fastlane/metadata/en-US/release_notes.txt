@@ -4,6 +4,7 @@ v3.9.7
 * ADD: intermediate step asking user to backup his mnemonic
 * ADD: buy bitcoin now happens in builtin webview instead of external browser
 * ADD: new deeplinking scheme
+* FIX: rare crash on app startup
 * FIX: large HD utxo fetch (closes #459)
 * FIX: better ln wallet import
 * FIX: rare hangs when importing wallet via qr

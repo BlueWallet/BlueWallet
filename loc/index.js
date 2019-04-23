@@ -24,6 +24,7 @@ dayjs.extend(relativeTime);
         require('dayjs/locale/it');
         break;
       case 'zh_cn':
+        lang = 'zh-cn';
         require('dayjs/locale/zh-cn');
         break;
       case 'ru':
@@ -118,7 +119,14 @@ strings.transactionTimeToReadable = time => {
   if (time === 0) {
     return strings._.never;
   }
-  return dayjs(time).fromNow();
+  let ret;
+  try {
+    ret = dayjs(time).fromNow();
+  } catch (_) {
+    console.warn('incorrect locale set for dayjs');
+    return time;
+  }
+  return ret;
 };
 
 function removeTrailingZeros(value) {
