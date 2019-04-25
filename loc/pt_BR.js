@@ -231,7 +231,7 @@ module.exports = {
   pleasebackup: {
     title: 'Sua carteira foi criada...',
     text:
-      "Por favor anote num pedaço de papel essa seqüencia de palavras. Isso será o seu backup e você pode usá-lo para" +
+      "Por favor anote num pedaço de papel essa seqüência de palavras, elas serão o seu backup e você as pode usar para" +
       " recuperar a sua carteira em outros dispositivos. Por exemplo, você pode usar o programa Electrum para desktops" +
       " (https://electrum.org/) para acessar esta mesma carteira.",
     ok: 'Certo, já anotei!',
