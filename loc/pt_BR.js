@@ -1,6 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Os arquivos estão criptografados, é necessária uma senha',
+    storage_is_encrypted: 'Os arquivos estão criptografados, uma senha é necessária',
     enter_password: 'Inserir senha',
     bad_password: 'Senha errada, tente outra vez',
     never: 'nunca',
@@ -10,13 +10,13 @@ module.exports = {
   wallets: {
     options: 'opções',
     select_wallet: 'Escolher carteira',
-    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+    createBitcoinWallet: 'Antes de criar a carteira Lightning é preciso criar uma carteira Bitcoin, tudo bem?',
 
     list: {
       tabBarLabel: 'Carteiras',
       app_name: 'BlueWallet',
       title: 'carteiras',
-      header: 'Uma carteira representa um par composto de uma chave privada e um endereço que você pode .',
+      header: 'Uma carteira representa um par composto de uma chave privada secreta e um endereço de depósito que você pode compartilhar.',
       add: 'adicionar wallet',
       create_a_wallet: 'Criar uma carteira',
       create_a_wallet1: 'é grátis e você pode criar',
@@ -25,8 +25,9 @@ module.exports = {
       empty_txs1: 'Suas transações aparecerão aqui,',
       empty_txs2: 'nenhuma no momento',
       empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+        "A carteira Lightning faz transações super rápidas (coisa de segundos) e tem taxas ridiculamente baratas," +
+        " ideal para transações diárias e de baixo valor.",
+      empty_txs2_lightning: '\nPara começar a usar clique em "administrar fundos" e recarregue o seu saldo.',
       tap_here_to_buy: 'Toque aqui para comprar Bitcoin',
     },
     reorder: {
@@ -132,7 +133,7 @@ module.exports = {
       receiver_placeholder: 'endereço de envio aqui',
       amount_placeholder: 'quantia a enviar (em BTC)',
       fee_placeholder: 'mais a taxa de transacção (em BTC)',
-      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
+      create_tx_error: 'Erro na criação da transação, por favor confira se o endereço é válido.',
       note_placeholder: 'Nota pessoal',
       cancel: 'Cancelar',
       scan: 'Scanear',
@@ -185,12 +186,12 @@ module.exports = {
     retype_password: 'Inserir senha novamente',
     passwords_do_not_match: 'Senhas não coincidem',
     encrypt_storage: 'Criptografar',
-    lightning_settings: 'Lightning settings',
+    lightning_settings: 'Preferências Lightning',
     lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      ' and put its URL here in settings. Leave blank to use default ' +
-      'ndHub\n (lndhub.io)',
-    save: 'save',
+      'Para se conectar ao seu próprio ponto LND, você precisa instalar a aplicação LndHub' +
+      ' e copiar sua URL para cá. Deixe em branco para usar a LndHub padrão fornecida pela BlueWallet (lndhub.io).' + 
+      ' Carteiras criadas após mudanças nestas preferências ficarão ligadas à instância LndHub que estiver especificada.',
+    save: 'Salvar',
     about: 'Sobre',
     language: 'Idioma',
     currency: 'Moeda',
@@ -218,7 +219,7 @@ module.exports = {
     success: 'Sucesso',
   },
   lnd: {
-    title: 'manejar fundos',
+    title: 'administrar fundos',
     choose_source_wallet: 'Escolha a carteira de origem',
     refill_lnd_balance: 'Recarregar a carteira Lightning',
     refill: 'Recarregar',
@@ -228,10 +229,12 @@ module.exports = {
     sameWalletAsInvoiceError: 'Você não pode pagar uma fatura com a mesma carteira que a criou.',
   },
   pleasebackup: {
-    title: 'Your wallet is created...',
+    title: 'Sua carteira foi criada...',
     text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
-    ok: 'OK, I wrote this down!',
+      "Por favor anote num pedaço de papel essa seqüencia de palavras. Isso será o seu backup e você pode usá-lo para" +
+      " recuperar a sua carteira em outros dispositivos. Por exemplo, você pode usar o programa Electrum para desktops" +
+      " (https://electrum.org/) para acessar esta mesma carteira.",
+    ok: 'Certo, já anotei!',
   },
   lndViewInvoice: {
     wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
