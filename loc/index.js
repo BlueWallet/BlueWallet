@@ -12,7 +12,8 @@ dayjs.extend(relativeTime);
 // first-time loading sequence
 (async () => {
   // finding out whether lang preference was saved
-  let lang = await AsyncStorage.getItem(AppStorage.LANG);
+  // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
+  let lang = await AsyncStorage.getItem('lang');
   if (lang) {
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;

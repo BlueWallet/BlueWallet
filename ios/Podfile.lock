@@ -83,7 +83,7 @@ PODS:
     - React/RCTBlob
   - RNCAsyncStorage (1.3.3):
     - React
-  - RNDeviceInfo (1.5.0):
+  - RNDeviceInfo (1.5.1):
     - React
   - RNFS (2.13.3):
     - React
