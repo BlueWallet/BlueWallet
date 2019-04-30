@@ -52,8 +52,10 @@ export default class ReceiveDetails extends Component {
         wallet = w;
       }
     }
-    if (wallet && wallet.getAddressAsync) {
-      address = await wallet.getAddressAsync();
+    if (wallet) {
+      if (wallet.getAddressAsync) {
+        address = await wallet.getAddressAsync();
+      }
       BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
       this.setState({
         address: address,

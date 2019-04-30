@@ -30,9 +30,9 @@ PODS:
     - React
   - react-native-randombytes (3.5.2):
     - React
-  - react-native-slider (1.0.4):
+  - react-native-slider (1.1.0):
     - React
-  - react-native-webview (5.7.1):
+  - react-native-webview (5.8.1):
     - React
   - React/Core (0.59.6):
     - yoga (= 0.59.6.React)
@@ -83,11 +83,11 @@ PODS:
     - React/RCTBlob
   - RNCAsyncStorage (1.3.3):
     - React
-  - RNDeviceInfo (1.5.1):
+  - RNDeviceInfo (1.6.0):
     - React
   - RNFS (2.13.3):
     - React
-  - RNGestureHandler (1.1.0):
+  - RNGestureHandler (1.2.0):
     - React
   - RNRate (1.0.1):
     - React
@@ -216,7 +216,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 289488409d0c42f30e12535e3f45c5bd3cfc73d2
   RNDeviceInfo: 08dd79c5adef48b6dc103bf3ddf208039aa78664
   RNFS: bbb1a64eb245763daf34aea86f97c97c4e85f74c
-  RNGestureHandler: afde2addc517e85cc97a25bfe119acbee779a7ce
+  RNGestureHandler: 7ccf2f3f60458e084f9ada01fbaf610f6fef073c
   RNRate: 72b5c9c2e62de9a01710918eb83d75fb99b44c7b
   RNSVG: 4834be1d644eb77f0e3f6de851881b83758a3124
   RNVectorIcons: 8c52e1e8da1153613fdef44748e865c25556cb9c
