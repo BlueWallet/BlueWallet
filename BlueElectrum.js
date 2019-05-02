@@ -20,7 +20,6 @@ const hardcodedPeers = [
   { host: 'electrum3.bluewallet.io', tcp: '50001' },
   { host: 'electrum3.bluewallet.io', tcp: '50001' }, // 2x weight
   { host: 'electrum.coinop.cc', tcp: '50001' },
-  { host: 'electrum-server.ninja', tcp: '50001' },
 ];
 
 let mainClient = false;
