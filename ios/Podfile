@@ -1,0 +1,127 @@
+
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+platform :ios, '10.0'
+workspace 'BlueWallet'
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+        target.build_configurations.each do |config|
+            puts "Setting Swift Version setting for #{target.name}..."
+            config.build_settings['SWIFT_VERSION'] = '4.2'
+        end
+    end
+end
+
+
+def sharedPods
+    # Explicitly include Yoga if you are using RN >= 0.42.0
+    pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+    
+    # Third party deps podspec link
+    pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+    pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+    pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+    pod 'React', :path => '../node_modules/react-native', :subspecs => [
+    'Core',
+    'CxxBridge', # Include this for RN >= 0.47
+    'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
+    'RCTText',
+    'RCTImage', # <-- Add RCTImage
+    'RCTNetwork',
+    'RCTActionSheet',
+    'RCTLinkingIOS',
+    'RCTWebSocket', # Needed for debugging
+    'RCTAnimation', # Needed for FlatList and animations running on native UI thread
+    # Add any other subspecs you want to use in your project
+    ]
+end
+
+target 'BlueWallet' do
+    # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+    #  use_frameworks!
+    project 'BlueWallet.xcodeproj'
+    platform :ios, '10.0'
+    # Pods for BlueWallet
+    # React Native requirements
+    
+    sharedPods
+    pod 'RNWatch', :path => '../node_modules/react-native-watch-connectivity'
+    
+    pod 'react-native-webview', :path => '../node_modules/react-native-webview'
+    
+    pod 'react-native-camera', :path => '../node_modules/react-native-camera'
+    
+    pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info'  
+    
+    pod 'RNGestureHandler', :path => '../node_modules/react-native-gesture-handler'
+    
+    pod 'RNFS', :path => '../node_modules/react-native-fs'
+    
+    pod 'react-native-google-analytics-bridge', :path => '../node_modules/react-native-google-analytics-bridge'
+    
+    pod 'react-native-haptic-feedback', :path => '../node_modules/react-native-haptic-feedback'
+    
+    pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
+    
+    pod 'RNRate', :path => '../node_modules/react-native-rate/ios'
+    
+    pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+    
+    pod 'RNSVG', :path => '../node_modules/react-native-svg'
+    
+    pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+    
+    pod 'react-native-randombytes', :path => '../node_modules/react-native-randombytes'
+    
+    pod 'react-native-slider', :path => '../node_modules/@react-native-community/slider'
+    
+    pod 'SentryReactNative', :path => '../node_modules/react-native-sentry'
+    
+    pod 'ToolTipMenu', :path => '../node_modules/react-native-tooltip'
+    
+    pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
+    
+end
+
+target 'BlueWalletTests' do
+    inherit! :search_paths
+    # Pods for testing
+    
+end
+
+target 'BlueWalletWatch' do
+    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+    #  use_frameworks!
+    # Pods for BlueWalletWatch
+    platform :watchos, '5.1'
+end
+
+target 'BlueWalletWatch Extension' do
+    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+    #  use_frameworks!
+    platform :watchos, '5.1'
+    pod 'EFQRCode', '~> 5.0.0'
+    # Pods for BlueWalletWatch Extension
+end
+
+
+target 'TcpSockets' do
+    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+    #  use_frameworks!
+    project '../node_modules/react-native-tcp/ios/TcpSockets.xcodeproj'
+    sharedPods
+end
+
+target 'RCTQRCodeLocalImage' do
+    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+    #  use_frameworks!
+    project '../node_modules/@remobile/react-native-qrcode-local-image/ios/RCTQRCodeLocalImage.xcodeproj'
+    sharedPods
+end
+
+target 'RCTPrivacySnapshot' do
+    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
+    #  use_frameworks!
+    project '../node_modules/react-native-privacy-snapshot/RCTPrivacySnapshot.xcodeproj'
+    sharedPods
+end

@@ -1,5 +1,5 @@
 import Localization from 'react-localization';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -12,7 +12,8 @@ dayjs.extend(relativeTime);
 // first-time loading sequence
 (async () => {
   // finding out whether lang preference was saved
-  let lang = await AsyncStorage.getItem(AppStorage.LANG);
+  // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
+  let lang = await AsyncStorage.getItem('lang');
   if (lang) {
     strings.setLanguage(lang);
     let localeForDayJSAvailable = true;
@@ -152,17 +153,17 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
-    return balance + ' ' + BitcoinUnit.BTC;
+    const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
+    return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
-    const value = new BigNumber(balance).multipliedBy(100000000);
     return (
       (balance < 0 ? '-' : '') +
-      (withFormatting ? new Intl.NumberFormat().format(value.toString()).replace(/[^0-9]/g, ' ') : value) +
+      (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance) +
       ' ' +
       BitcoinUnit.SATS
     );
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.BTCToLocalCurrency(balance);
+    return currency.satoshiToLocalCurrency(balance);
   }
 };
 

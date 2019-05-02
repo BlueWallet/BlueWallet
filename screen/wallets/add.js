@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Alert, AsyncStorage, ActivityIndicator, Keyboard, Dimensions, View, TextInput, TouchableWithoutFeedback } from 'react-native';
+import { Alert, ActivityIndicator, Keyboard, Dimensions, View, TextInput, TouchableWithoutFeedback } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueTextCentered,
   BlueText,

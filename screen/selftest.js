@@ -258,7 +258,7 @@ export default class Selftest extends Component {
         let hd3 = new HDSegwitP2SHWallet();
         hd3._xpub = 'ypub6XRSuTABFst6pd8BuTmjSwkDya7HrCRqmtsNmtrh1gyrEZwe24GcjJf6jk6nhhenZpLsm6sDHx2BXwnCQQtjF63FbpNyVEkmngKFQF11aph';
         await hd3.fetchBalance();
-        if (hd3.getBalance() !== 0.00026) throw new Error('Could not fetch HD balance');
+        if (hd3.getBalance() !== 26000) throw new Error('Could not fetch HD balance');
         await hd3.fetchTransactions();
         if (hd3.transactions.length !== 7) throw new Error('Could not fetch HD transactions');
       } else {

@@ -95,7 +95,5 @@ export class AbstractWallet {
     return 0;
   }
 
-  getAddress() {}
-
   // createTx () { throw Error('not implemented') }
 }

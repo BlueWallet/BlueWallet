@@ -15,6 +15,7 @@
 #else
 #import "RNSentry.h" // This is used for versions of react < 0.40
 #endif
+#import "WatchBridge.h"
 
 @implementation AppDelegate
 
@@ -35,6 +36,11 @@
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  self.watchBridge = [WatchBridge shared];
+  self.session = self.watchBridge.session;
+  [self.session activateSession];
+  self.session.delegate = self;
+  
   return YES;
 }
 
@@ -45,5 +51,19 @@
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier {
   return NO;
 }
+
+- (void)sessionDidDeactivate:(WCSession *)session {
+  [session activateSession];
+}
+
+- (void)session:(nonnull WCSession *)session activationDidCompleteWithState:(WCSessionActivationState)activationState error:(nullable NSError *)error {
+  
+}
+
+
+- (void)sessionDidBecomeInactive:(nonnull WCSession *)session {
+  
+}
+
 
 @end

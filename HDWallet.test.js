@@ -207,7 +207,7 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   let end = +new Date();
   const took = (end - start) / 1000;
   took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
-  assert.strictEqual(hd.getBalance(), 0.00051432);
+  assert.strictEqual(hd.getBalance(), 51432);
 
   await hd.fetchUtxo();
   assert.ok(hd.utxo.length > 0);

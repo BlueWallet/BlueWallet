@@ -114,8 +114,7 @@ export class LegacyWallet extends AbstractWallet {
         throw new Error('Could not fetch balance from API: ' + response.err + ' ' + JSON.stringify(response.body));
       }
 
-      this.balance = new BigNumber(json.final_balance);
-      this.balance = this.balance.dividedBy(100000000).toString() * 1;
+      this.balance = Number(json.final_balance);
       this.unconfirmed_balance = new BigNumber(json.unconfirmed_balance);
       this.unconfirmed_balance = this.unconfirmed_balance.dividedBy(100000000).toString() * 1;
       this._lastBalanceFetch = +new Date();

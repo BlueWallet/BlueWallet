@@ -14,8 +14,8 @@ beforeAll(async () => {
   // while app starts up, but for tests we need to wait for it
   try {
     await BlueElectrum.waitTillConnected();
-  } catch (Err) {
-    console.log('failed to connect to Electrum:', Err);
+  } catch (err) {
+    console.log('failed to connect to Electrum:', err);
     process.exit(1);
   }
 });
@@ -52,7 +52,6 @@ describe('Electrum', () => {
       hash = bitcoin.crypto.sha256(script);
       reversedHash = Buffer.from(hash.reverse());
       balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
-      assert.ok(balance.confirmed === 51432);
 
       // let peers = await mainClient.serverPeers_subscribe();
       // console.log(peers);
