@@ -225,10 +225,10 @@ module.exports = {
     sameWalletAsInvoiceError: '以前作成したウォレットと同じウォレットへの支払いはできません。',
   },
   pleasebackup: {
-    title: 'Your wallet is created...',
+    title: 'ウォレットを作成しています...',
     text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
-    ok: 'OK, I wrote this down!',
+      "すべてのニモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https://electrum.org/) へニモニックを使用してウォレットをリストアすることが可能です。",
+    ok: 'すべてのニモニックを書きとめました',
   },
   lndViewInvoice: {
     wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
