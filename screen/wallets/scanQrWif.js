@@ -136,6 +136,8 @@ export default class ScanQrWif extends React.Component {
       try {
         await lnd.authorize();
         await lnd.fetchTransactions();
+        await lnd.fetchUserInvoices();
+        await lnd.fetchPendingTransactions();
         await lnd.fetchBalance();
       } catch (Err) {
         console.log(Err);
