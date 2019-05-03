@@ -116,6 +116,27 @@ export default class LNDViewInvoice extends Component {
       const now = (currentDate.getTime() / 1000) | 0;
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
 
+      if (this.state.showPreimageQr) {
+        return (
+          <SafeBlueArea style={{ flex: 1 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <BlueText>Preimage:</BlueText>
+              <BlueSpacing20 />
+              <QRCode
+                value={(invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && invoice.payment_preimage) || 'none'}
+                logo={require('../../img/qr-code.png')}
+                size={this.state.qrCodeHeight}
+                logoSize={90}
+                color={BlueApp.settings.foregroundColor}
+                logoBackgroundColor={BlueApp.settings.brandingColor}
+              />
+              <BlueSpacing20 />
+              <BlueText>{invoice.payment_preimage}</BlueText>
+            </View>
+          </SafeBlueArea>
+        );
+      }
+
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
@@ -135,6 +156,20 @@ export default class LNDViewInvoice extends Component {
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
               <BlueText>This invoice has been paid for</BlueText>
+              {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && (
+                <View style={{ position: 'absolute', bottom: 0 }}>
+                  <BlueButton
+                    backgroundColor="#FFFFFF"
+                    icon={{
+                      name: 'info',
+                      type: 'entypo',
+                      color: BlueApp.settings.buttonTextColor,
+                    }}
+                    onPress={() => this.setState({ showPreimageQr: true })}
+                    title=" "
+                  />
+                </View>
+              )}
             </View>
           </SafeBlueArea>
         );
