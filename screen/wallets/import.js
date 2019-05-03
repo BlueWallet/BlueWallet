@@ -86,6 +86,8 @@ export default class WalletsImport extends Component {
         lnd.init();
         await lnd.authorize();
         await lnd.fetchTransactions();
+        await lnd.fetchUserInvoices();
+        await lnd.fetchPendingTransactions();
         await lnd.fetchBalance();
         return this._saveWallet(lnd);
       }
