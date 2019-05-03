@@ -64,7 +64,7 @@ export default class LNDViewInvoice extends Component {
             if (updatedUserInvoice.ispaid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
-              ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
               EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // remote because we want to refetch from server tx list and balance
@@ -75,7 +75,7 @@ export default class LNDViewInvoice extends Component {
               if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 // invoice expired :-(
                 this.setState({ isFetchingInvoices: false });
-                ReactNativeHapticFeedback.trigger('notificationError', false);
+                ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                 clearInterval(this.fetchInvoiceInterval);
                 this.fetchInvoiceInterval = undefined;
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);

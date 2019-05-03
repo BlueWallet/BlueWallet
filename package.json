@@ -42,7 +42,7 @@
   "dependencies": {
     "@babel/preset-env": "7.4.4",
     "@react-native-community/async-storage": "1.3.3",
-    "@react-native-community/slider": "1.1.0",
+    "@react-native-community/slider": "1.0.4",
     "@remobile/react-native-qrcode-local-image": "1.0.4",
     "bignumber.js": "8.1.1",
     "bip21": "2.0.2",

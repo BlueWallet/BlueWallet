@@ -60,7 +60,7 @@ export default class WalletsImport extends Component {
       alert('This wallet has been previously imported.');
     } else {
       alert(loc.wallets.import.success);
-      ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
@@ -189,7 +189,7 @@ export default class WalletsImport extends Component {
     }
 
     alert(loc.wallets.import.error);
-    ReactNativeHapticFeedback.trigger('notificationError', false);
+    ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     // Plan:
     // 1. check if its HDSegwitP2SHWallet (BIP49)
     // 2. check if its HDLegacyP2PKHWallet (BIP44)

@@ -195,7 +195,7 @@ export default class App extends React.Component {
   renderClipboardContentModal = () => {
     return (
       <Modal
-        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', false)}
+        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {

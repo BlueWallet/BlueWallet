@@ -232,7 +232,7 @@ export default class WalletsList extends Component {
     if (BlueApp.getWallets().length > 1) {
       this.props.navigation.navigate('ReorderWallets');
     } else {
-      ReactNativeHapticFeedback.trigger('notificationError', false);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     }
   };
 
