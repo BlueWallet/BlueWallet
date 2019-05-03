@@ -347,7 +347,7 @@ export default class SendDetails extends Component {
     if (error) {
       this.setState({ isLoading: false });
       alert(error);
-      ReactNativeHapticFeedback.trigger('notificationError', false);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return;
     }
 
@@ -411,7 +411,7 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        ReactNativeHapticFeedback.trigger('notificationError', false);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert(err);
         this.setState({ isLoading: false });
         return;

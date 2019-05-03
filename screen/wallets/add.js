@@ -215,7 +215,7 @@ export default class WalletsAdd extends Component {
                             await BlueApp.saveToDisk();
                             EV(EV.enum.WALLETS_COUNT_CHANGED);
                             A(A.ENUM.CREATED_WALLET);
-                            ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                            ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                             this.props.navigation.dismiss();
                           };
 
@@ -260,7 +260,7 @@ export default class WalletsAdd extends Component {
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
                           A(A.ENUM.CREATED_WALLET);
-                          ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                           if (w.type === HDSegwitP2SHWallet.type) {
                             this.props.navigation.navigate('PleaseBackup', {
                               secret: w.getSecret(),

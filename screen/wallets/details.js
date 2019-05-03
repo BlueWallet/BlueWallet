@@ -180,7 +180,7 @@ export default class WalletDetails extends Component {
                 <TouchableOpacity
                   style={{ alignItems: 'center' }}
                   onPress={() => {
-                    ReactNativeHapticFeedback.trigger('notificationWarning', false);
+                    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
                     Alert.alert(
                       loc.wallets.details.delete + ' ' + loc.wallets.details.title,
                       loc.wallets.details.are_you_sure,
@@ -191,7 +191,7 @@ export default class WalletDetails extends Component {
                             this.props.navigation.setParams({ isLoading: true });
                             this.setState({ isLoading: true }, async () => {
                               BlueApp.deleteWallet(this.state.wallet);
-                              ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                               await BlueApp.saveToDisk();
                               EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                               EV(EV.enum.WALLETS_COUNT_CHANGED);
