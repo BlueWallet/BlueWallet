@@ -113,7 +113,12 @@ export class AbstractHDWallet extends LegacyWallet {
       if (this.next_free_address_index + c < 0) continue;
       let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
       this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
-      let txs = await BlueElectrum.getTransactionsByAddress(address);
+      let txs = [];
+      try {
+        txs = await BlueElectrum.getTransactionsByAddress(address);
+      } catch (Err) {
+        console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
+      }
       if (txs.length === 0) {
         // found free address
         freeAddress = address;
@@ -146,7 +151,12 @@ export class AbstractHDWallet extends LegacyWallet {
       if (this.next_free_change_address_index + c < 0) continue;
       let address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
       this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
-      let txs = await BlueElectrum.getTransactionsByAddress(address);
+      let txs = [];
+      try {
+        txs = await BlueElectrum.getTransactionsByAddress(address);
+      } catch (Err) {
+        console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
+      }
       if (txs.length === 0) {
         // found free address
         freeAddress = address;
