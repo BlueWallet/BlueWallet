@@ -57,7 +57,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               logoBackgroundColor={BlueApp.settings.brandingColor}
             />
             <BlueSpacing20 />
-            <BlueText>Open direct channel with this node:</BlueText>
+            <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
             <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           </View>
           <View style={{ marginBottom: 25 }}>

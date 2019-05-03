@@ -155,7 +155,7 @@ export default class LNDViewInvoice extends Component {
               >
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
-              <BlueText>This invoice has been paid for</BlueText>
+              <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && (
                 <View style={{ position: 'absolute', bottom: 0 }}>
                   <BlueButton
@@ -192,7 +192,7 @@ export default class LNDViewInvoice extends Component {
               >
                 <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
-              <BlueText>This invoice was not paid for and has expired</BlueText>
+              <BlueText>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueText>
             </View>
           </SafeBlueArea>
         );
@@ -201,7 +201,7 @@ export default class LNDViewInvoice extends Component {
           return (
             <SafeBlueArea style={{ flex: 1 }}>
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <BlueText>'This invoice has been paid for.'</BlueText>
+                <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
               </View>
             </SafeBlueArea>
           );
@@ -233,9 +233,15 @@ export default class LNDViewInvoice extends Component {
             </View>
 
             <BlueSpacing20 />
-            {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
+            {invoice && invoice.amt && (
+              <BlueText>
+                {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+              </BlueText>
+            )}
             {invoice && invoice.hasOwnProperty('description') && invoice.description.length > 0 && (
-              <BlueText>For: {invoice.description}</BlueText>
+              <BlueText>
+                {loc.lndViewInvoice.for} {invoice.description}
+              </BlueText>
             )}
             <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
 
@@ -261,7 +267,7 @@ export default class LNDViewInvoice extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
-              title="Additional Information"
+              title={loc.lndViewInvoice.additional_info}
             />
           </View>
           <BlueSpacing20 />
