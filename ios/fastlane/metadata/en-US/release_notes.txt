@@ -1,3 +1,11 @@
+v.4.0.0
+=======
+
+* ADD: Apple Watch support
+* ADD: preimage info of paid ln tx
+* FIX: better import of ln wallet
+* REF: better offline handling
+
 v3.9.7
 ======
 
@@ -11,61 +19,3 @@ v3.9.7
 * REF: Remove old security alert #379
 * REF: more electrum servers
 * REF: lapp browser improv
-
-v3.9.2
-======
-
-* ADD: Swedish translation
-* FIX: fetch tx history for large HD wallets (closes #416)
-* FIX: HD wallets not can handle small gaps in hierarchy (closes #388)
-* FIX: JP
-* REF: better Electrum support
-
-v3.9.0
-======
-
-* FIX: all wallets are refreshed when app launches
-* FIX: Send BTC should ignore non-onchain wallets* FIX: all wallets are refreshed when app launches
-* FIX: correct qr scan when importing lndhub qr backup
-* ADD: Finnish translation
-* ADD: Turkish translation
-* ADD: Greek (EL) localization
-* ADD: norwegian translation
-
-v3.8.3
-======
-
-* REF: better support for different lndhub uris
-* FIX: Send BTC should ignore non-onchain wallets
-* FIX: Deeplink would fail sometimes on cold start (#382)
-* FIX: Fixed an issue when inserting an address after amount.
-* FIX: UI fixes for  transactions list
-* ADD: Haptic feedbacks on error alerts
-* ADD: Read clipboard for transactions
-* ADD: Italian language
-
-v3.8.2
-======
-
-* FIX: Create button was difficult to press
-* ADD: Clipboard detection on app state change to foreground
-* FIX: Statusbar restored
-* ADD: Broadcast TX using Electrum
-* ADD: Blur sensitive views from visibility on app switcher
-* FIX: Hide context menu
-* FIX: Disable third party keyboard on iOS
-* FIX: Disable suggestions
-* ADD: Switch Lightning wallets on send screen.
-* ADD: If providing an LND address in BTC send screen, throw an error.
-* ADD: Chain type in order to determine what type of wallet has been selected.
-* FIX: Handle BitPay BIP70 scenarios where schema isnt present.
-* ADD: Use Electrum to estimate fee
-* FIX: Wallet selection
-* FIX: wallets/list pull-to-refresh animation duration
-* FIX: Text not displayed correctly #165
-* FIX: back button
-* FIX: Fix transaction fee for BIP70 payments
-* REF: buy bitcoin via redirect
-* FIX: Update th_TS
-* ADD: Tap, and hold, on balance to display a Copy balance option
-* FIX: Send BTC should ignore non-onchain wallets
