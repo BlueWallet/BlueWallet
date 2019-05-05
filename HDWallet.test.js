@@ -9,7 +9,8 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
-  return BlueElectrum.forceDisconnect();
+  BlueElectrum.forceDisconnect();
+  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {

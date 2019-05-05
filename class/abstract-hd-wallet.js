@@ -416,26 +416,28 @@ export class AbstractHDWallet extends LegacyWallet {
           this.next_free_change_address_index = await binarySearchIterationForInternalAddress(100);
           this.next_free_address_index = await binarySearchIterationForExternalAddress(100);
         }
-      }
-
-      this.usedAddresses = [];
-
-      // generating all involved addresses:
-      for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-        this.usedAddresses.push(this._getExternalAddressByIndex(c));
-      }
-      for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-        this.usedAddresses.push(this._getInternalAddressByIndex(c));
-      }
+      } // end rescanning fresh wallet
 
       // finally fetching balance
-      let balance = await BlueElectrum.multiGetBalanceByAddress(this.usedAddresses);
-      this.balance = balance.balance;
-      this.unconfirmed_balance = balance.unconfirmed_balance;
-      this._lastBalanceFetch = +new Date();
+      await this._fetchBalance();
     } catch (err) {
       console.warn(err);
     }
+  }
+
+  async _fetchBalance() {
+    this.usedAddresses = [];
+    // generating all involved addresses:
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      this.usedAddresses.push(this._getExternalAddressByIndex(c));
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      this.usedAddresses.push(this._getInternalAddressByIndex(c));
+    }
+    let balance = await BlueElectrum.multiGetBalanceByAddress(this.usedAddresses);
+    this.balance = balance.balance;
+    this.unconfirmed_balance = balance.unconfirmed_balance;
+    this._lastBalanceFetch = +new Date();
   }
 
   async _fetchUtxoBatch(addresses) {
