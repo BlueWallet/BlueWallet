@@ -6,7 +6,8 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
-  return BlueElectrum.forceDisconnect();
+  BlueElectrum.forceDisconnect();
+  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {
@@ -60,18 +61,51 @@ describe('Electrum', () => {
     }
   });
 
-  it('BlueElectrum works', async function() {
+  it('BlueElectrum can do getBalanceByAddress()', async function() {
     let address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
     let balance = await BlueElectrum.getBalanceByAddress(address);
     assert.strictEqual(balance.confirmed, 51432);
     assert.strictEqual(balance.unconfirmed, 0);
     assert.strictEqual(balance.addr, address);
+  });
 
-    let txs = await BlueElectrum.getTransactionsByAddress(address);
+  it('BlueElectrum can do getTransactionsByAddress()', async function() {
+    let txs = await BlueElectrum.getTransactionsByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
     assert.strictEqual(txs.length, 1);
+    assert.strictEqual(txs[0].tx_hash, 'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d');
+    assert.strictEqual(txs[0].height, 563077);
+  });
+
+  it.only('BlueElectrum can do getTransactionsFullByAddress()', async function() {
+    let txs = await BlueElectrum.getTransactionsFullByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
     for (let tx of txs) {
-      assert.ok(tx.tx_hash);
-      assert.ok(tx.height);
+      assert.ok(tx.address === 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
+      assert.ok(tx.txid);
+      assert.ok(tx.confirmations);
+      assert.ok(tx.vin);
+      assert.ok(tx.vout);
+      assert.ok(tx.vout[0].value);
+      assert.ok(tx.vout[0].scriptPubKey);
     }
+  });
+
+  it('BlueElectrum can do multiGetBalanceByAddress()', async function() {
+    let balances = await BlueElectrum.multiGetBalanceByAddress([
+      'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
+      'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p',
+      'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r',
+      'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy',
+    ]);
+
+    assert.strictEqual(balances.balance, 200000);
+    assert.strictEqual(balances.unconfirmed_balance, 0);
+    assert.strictEqual(balances.addresses['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'].confirmed, 50000);
+    assert.strictEqual(balances.addresses['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'].unconfirmed, 0);
+    assert.strictEqual(balances.addresses['bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p'].confirmed, 50000);
+    assert.strictEqual(balances.addresses['bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p'].unconfirmed, 0);
+    assert.strictEqual(balances.addresses['bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r'].confirmed, 50000);
+    assert.strictEqual(balances.addresses['bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r'].unconfirmed, 0);
+    assert.strictEqual(balances.addresses['bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy'].confirmed, 50000);
+    assert.strictEqual(balances.addresses['bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy'].unconfirmed, 0);
   });
 });
