@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { SegwitBech32Wallet } from './class';
 const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
@@ -19,7 +20,6 @@ const hardcodedPeers = [
   { host: 'electrum2.bluewallet.io', tcp: '50001' },
   { host: 'electrum3.bluewallet.io', tcp: '50001' },
   { host: 'electrum3.bluewallet.io', tcp: '50001' }, // 2x weight
-  { host: 'electrum.coinop.cc', tcp: '50001' },
 ];
 
 let mainClient = false;
@@ -123,23 +123,47 @@ async function getTransactionsByAddress(address) {
   return history;
 }
 
+async function getTransactionsFullByAddress(address) {
+  let txs = await this.getTransactionsByAddress(address);
+  let ret = [];
+  for (let tx of txs) {
+    let full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
+    full.address = address;
+    for (let vin of full.vin) {
+      vin.address = SegwitBech32Wallet.witnessToAddress(vin.txinwitness[1]);
+      // now we need to fetch previous TX where this VIN became an output, so we can see its amount
+      let prevTxForVin = await mainClient.blockchainTransaction_get(vin.txid, true);
+      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[vin.vout]) {
+        vin.value = prevTxForVin.vout[vin.vout].value;
+      }
+    }
+    delete full.hex; // compact
+    delete full.hash; // compact
+    ret.push(full);
+  }
+
+  return ret;
+}
+
 /**
  *
  * @param addresses {Array}
- * @returns {Promise<{balance: number, unconfirmed_balance: number}>}
+ * @returns {Promise<{balance: number, unconfirmed_balance: number, addresses: object}>}
  */
 async function multiGetBalanceByAddress(addresses) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   let balance = 0;
   let unconfirmedBalance = 0;
+  let addressesAssoc = {};
   for (let addr of addresses) {
     let b = await getBalanceByAddress(addr);
 
     balance += b.confirmed;
-    unconfirmedBalance += b.unconfirmed_balance;
+    unconfirmedBalance += b.unconfirmed;
+    addressesAssoc[addr] = b;
   }
 
-  return { balance, unconfirmed_balance: unconfirmedBalance };
+  return { balance, unconfirmed_balance: unconfirmedBalance, addresses: addressesAssoc };
 }
 
 /**
@@ -187,6 +211,7 @@ async function broadcast(hex) {
 module.exports.getBalanceByAddress = getBalanceByAddress;
 module.exports.getTransactionsByAddress = getTransactionsByAddress;
 module.exports.multiGetBalanceByAddress = multiGetBalanceByAddress;
+module.exports.getTransactionsFullByAddress = getTransactionsFullByAddress;
 module.exports.waitTillConnected = waitTillConnected;
 module.exports.estimateFees = estimateFees;
 module.exports.broadcast = broadcast;

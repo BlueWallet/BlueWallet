@@ -9,7 +9,8 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
-  return BlueElectrum.forceDisconnect();
+  BlueElectrum.forceDisconnect();
+  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {
@@ -79,7 +80,6 @@ it('HD (BIP49) can work with a gap', async function() {
   //   console.log('external', c, hd._getExternalAddressByIndex(c));
   // }
   await hd.fetchTransactions();
-  console.log('hd.transactions.length=', hd.transactions.length);
   assert.ok(hd.transactions.length >= 3);
 });
 
@@ -90,7 +90,6 @@ it('Segwit HD (BIP49) can batch fetch many txs', async function() {
   await hd.fetchBalance();
   await hd.fetchTransactions();
   assert.ok(hd.transactions.length > 0);
-  console.log('hd.transactions.length=', hd.transactions.length);
 });
 
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
