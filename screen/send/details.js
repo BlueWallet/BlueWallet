@@ -14,7 +14,6 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueNavigationStyle,
   BlueButton,
@@ -23,10 +22,10 @@ import {
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
 } from '../../BlueComponents';
-import Slider from '@react-native-community/slider';
+import BottomSheet from 'react-native-bottomsheet';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
-import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
+import NetworkTransactionFees from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
@@ -45,8 +44,6 @@ export default class SendDetails extends Component {
     ...BlueNavigationStyle(navigation, true),
     title: loc.send.header,
   });
-
-  state = { isLoading: true, fromWallet: undefined };
 
   constructor(props) {
     super(props);
@@ -75,16 +72,16 @@ export default class SendDetails extends Component {
       }
       this.state = {
         isFeeSelectionModalVisible: false,
+        isCustomNetworkFee: false,
         fromAddress,
         fromWallet,
         fromSecret,
         address,
         memo,
         fee: 1,
-        networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
-        feeSliderValue: 1,
         bip70TransactionExpiration: null,
         renderWalletSelectionButtonHidden: false,
+        networkTransactionFees: undefined,
       };
     }
   }
@@ -142,25 +139,11 @@ export default class SendDetails extends Component {
     StatusBar.setBarStyle('dark-content');
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-    try {
-      const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
-
-      if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
-        this.setState({
-          fee: cachedNetworkTransactionFees.halfHourFee,
-          networkTransactionFees: cachedNetworkTransactionFees,
-          feeSliderValue: cachedNetworkTransactionFees.halfHourFee,
-        });
-      }
-    } catch (_) {}
-
     let recommendedFees = await NetworkTransactionFees.recommendedFees();
-    if (recommendedFees && recommendedFees.hasOwnProperty('halfHourFee')) {
-      await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
+    if (recommendedFees) {
       this.setState({
-        fee: recommendedFees.halfHourFee,
+        fee: recommendedFees.fast,
         networkTransactionFees: recommendedFees,
-        feeSliderValue: recommendedFees.halfHourFee,
       });
 
       if (this.props.navigation.state.params.uri) {
@@ -271,19 +254,13 @@ export default class SendDetails extends Component {
             BitcoinBIP70TransactionDecode.decode(text)
               .then(response => {
                 let networkTransactionFees = this.state.networkTransactionFees;
-                if (response.fee > networkTransactionFees.fastestFee) {
-                  networkTransactionFees.fastestFee = response.fee;
-                } else {
-                  networkTransactionFees.halfHourFee = response.fee;
-                }
                 this.setState({
                   address: response.address,
                   amount: loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
                   memo: response.memo,
-                  networkTransactionFees,
-                  fee: networkTransactionFees.fastestFee,
-                  feeSliderValue: networkTransactionFees.fastestFee,
+                  fee: networkTransactionFees.fast,
                   bip70TransactionExpiration: response.expires,
+                  isCustomNetworkFee: false,
                   isLoading: false,
                 });
               })
@@ -443,13 +420,14 @@ export default class SendDetails extends Component {
   };
 
   renderFeeSelectionModal = () => {
+    if (!this.state.isFeeSelectionModalVisible) return;
     return (
       <Modal
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
-          if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-            this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+          if (this.state.fee < 1) {
+            this.setState({ fee: Number(1) });
           }
           Keyboard.dismiss();
           this.setState({ isFeeSelectionModalVisible: false });
@@ -463,20 +441,21 @@ export default class SendDetails extends Component {
                 ref={ref => {
                   this.textInput = ref;
                 }}
-                value={this.state.fee.toString()}
+                value={this.state.isCustomNetworkFee ? this.state.fee.toString() : '1'}
                 onEndEditing={() => {
-                  if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-                    this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+                  if (this.state.fee < 1) {
+                    this.setState({ fee: Number(1) });
                   }
                 }}
                 onChangeText={value => {
                   let newValue = value.replace(/\D/g, '');
-                  this.setState({ fee: newValue, feeSliderValue: Number(newValue) });
+                  this.setState({ fee: newValue });
                 }}
                 maxLength={9}
+                autoFocus
                 editable={!this.state.isLoading}
                 placeholderTextColor="#37c0a1"
-                placeholder={this.state.networkTransactionFees.halfHourFee.toString()}
+                placeholder={this.state.networkTransactionFees.moderate.toString()}
                 style={{ fontWeight: '600', color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right', fontSize: 36 }}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
@@ -494,23 +473,6 @@ export default class SendDetails extends Component {
                 sat/b
               </Text>
             </TouchableOpacity>
-            {this.state.networkTransactionFees.fastestFee > 1 && (
-              <View style={{ flex: 1, marginTop: 32, minWidth: 240, width: 240 }}>
-                <Slider
-                  onValueChange={value => this.setState({ feeSliderValue: value.toFixed(0), fee: value.toFixed(0) })}
-                  minimumValue={1}
-                  maximumValue={Number(this.state.networkTransactionFees.fastestFee)}
-                  value={Number(this.state.feeSliderValue)}
-                  maximumTrackTintColor="#d8d8d8"
-                  minimumTrackTintColor="#37c0a1"
-                  style={{ flex: 1 }}
-                />
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 }}>
-                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>slow</Text>
-                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>fast</Text>
-                </View>
-              </View>
-            )}
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -635,7 +597,33 @@ export default class SendDetails extends Component {
                 />
               </View>
               <TouchableOpacity
-                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+                onPress={() =>
+                  BottomSheet.showBottomSheetWithOptions(
+                    {
+                      options: [
+                        `Fast (${this.state.networkTransactionFees.fast} ${BitcoinUnit.BTC})`,
+                        `Moderate (${this.state.networkTransactionFees.moderate} ${BitcoinUnit.BTC})`,
+                        `Economy (${this.state.networkTransactionFees.economy} ${BitcoinUnit.BTC})`,
+                        'Custom...',
+                        'Cancel',
+                      ],
+                      title: 'Transaction Fee',
+                      dark: true,
+                      cancelButtonIndex: 4,
+                    },
+                    value => {
+                      if (value === 0) {
+                        this.setState({ fee: this.state.networkTransactionFees.fast });
+                      } else if (value === 1) {
+                        this.setState({ fee: this.state.networkTransactionFees.moderate });
+                      } else if (value === 2) {
+                        this.setState({ fee: this.state.networkTransactionFees.economy });
+                      } else if (value === 3) {
+                        this.setState({ isFeeSelectionModalVisible: true });
+                      }
+                    },
+                  )
+                }
                 disabled={this.state.isLoading}
                 style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
               >
@@ -652,8 +640,22 @@ export default class SendDetails extends Component {
                     paddingHorizontal: 10,
                   }}
                 >
-                  <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
-                  <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+                  <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>
+                    {(() => {
+                      if (this.state.networkTransactionFees === undefined) {
+                        return `${this.state.fee} sat/b`;
+                      }
+                      if (this.state.fee === this.state.networkTransactionFees.fast) {
+                        return 'Fast';
+                      } else if (this.state.fee === this.state.networkTransactionFees.moderate) {
+                        return 'Moderate';
+                      } else if (this.state.fee === this.state.networkTransactionFees.economy) {
+                        return 'Economy';
+                      } else {
+                        return `${this.state.fee} sat/b`;
+                      }
+                    })()}
+                  </Text>
                 </View>
               </TouchableOpacity>
               {this.renderCreateButton()}

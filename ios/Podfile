@@ -73,7 +73,6 @@ target 'BlueWallet' do
     
     pod 'react-native-randombytes', :path => '../node_modules/react-native-randombytes'
     
-    pod 'react-native-slider', :path => '../node_modules/@react-native-community/slider'
     
     pod 'SentryReactNative', :path => '../node_modules/react-native-sentry'
     

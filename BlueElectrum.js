@@ -193,9 +193,9 @@ async function waitTillConnected() {
 async function estimateFees() {
   if (!mainClient) throw new Error('Electrum client is not connected');
   const fast = await mainClient.blockchainEstimatefee(1);
-  const medium = await mainClient.blockchainEstimatefee(5);
-  const slow = await mainClient.blockchainEstimatefee(10);
-  return { fast, medium, slow };
+  const moderate = await mainClient.blockchainEstimatefee(10);
+  const economy = await mainClient.blockchainEstimatefee(20);
+  return { fast, moderate, economy };
 }
 
 async function broadcast(hex) {

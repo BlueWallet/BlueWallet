@@ -1,15 +1,11 @@
-import { BitcoinUnit } from './bitcoinUnits';
-import BigNumber from 'bignumber.js';
-let loc = require('../loc');
-
 const BlueElectrum = require('../BlueElectrum');
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
-  constructor(fastestFee = 1, halfHourFee = 1, hourFee = 1) {
-    this.fastestFee = fastestFee;
-    this.halfHourFee = halfHourFee;
-    this.hourFee = hourFee;
+  constructor(fast = 1, moderate = 1, economy = 1) {
+    this.fast = fast;
+    this.moderate = moderate;
+    this.economy = economy;
   }
 }
 
@@ -19,28 +15,7 @@ export default class NetworkTransactionFees {
       try {
         let response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
-          const fast = loc.formatBalanceWithoutSuffix(
-            new BigNumber(response.fast)
-              .multipliedBy(100000)
-              .toNumber()
-              .toFixed(0),
-            BitcoinUnit.SATS,
-          );
-          const medium = loc.formatBalanceWithoutSuffix(
-            new BigNumber(response.medium)
-              .multipliedBy(100000)
-              .toNumber()
-              .toFixed(0),
-            BitcoinUnit.SATS,
-          );
-          const slow = loc.formatBalanceWithoutSuffix(
-            new BigNumber(response.slow)
-              .multipliedBy(100000)
-              .toNumber()
-              .toFixed(0),
-            BitcoinUnit.SATS,
-          );
-          const networkFee = new NetworkTransactionFee(fast, medium, slow);
+          const networkFee = new NetworkTransactionFee(response.fast, response.moderate, response.economy);
           resolve(networkFee);
         } else {
           const networkFee = new NetworkTransactionFee(1, 1, 1);
