@@ -221,25 +221,20 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     let ret = [];
     for (let tx of txs) {
-      tx.timestamp = tx.blocktime;
+      tx.received = tx.blocktime * 1000;
       tx.hash = tx.txid;
       tx.value = 0;
 
-      for (let vin of tx.vin) {
+      for (let vin of tx.inputs) {
         // if input (spending) goes from our address - we are loosing!
         if (vin.address && this.weOwnAddress(vin.address)) {
           tx.value -= new BigNumber(vin.value).multipliedBy(100000000).toNumber();
         }
       }
 
-      for (let vout of tx.vout) {
+      for (let vout of tx.outputs) {
         // when output goes to our address - this means we are gaining!
-        if (
-          vout.scriptPubKey &&
-          vout.scriptPubKey.addresses &&
-          vout.scriptPubKey.addresses[0] &&
-          this.weOwnAddress(vout.scriptPubKey.addresses[0])
-        ) {
+        if (vout.addresses && vout.addresses[0] && this.weOwnAddress(vout.scriptPubKey.addresses[0])) {
           tx.value += new BigNumber(vout.value).multipliedBy(100000000).toNumber();
         }
       }
