@@ -96,6 +96,7 @@ BuyBitcoin.propTypes = {
       params: PropTypes.shape({
         address: PropTypes.string,
         secret: PropTypes.string,
+        safelloStateToken: PropTypes.string,
       }),
     }),
   }),
