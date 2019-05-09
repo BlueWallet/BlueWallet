@@ -168,15 +168,14 @@ export default class ScanQrWif extends React.Component {
       }
     }
 
-    if (watchOnly.isAddressValid(watchAddr)) {
-      watchOnly.setSecret(watchAddr);
+    if (watchOnly.setSecret(watchAddr) && watchOnly.valid()) {
       watchOnly.setLabel(loc.wallets.scanQrWif.imported_watchonly);
       BlueApp.wallets.push(watchOnly);
       alert(loc.wallets.scanQrWif.imported_watchonly + loc.wallets.scanQrWif.with_address + watchOnly.getAddress());
-      this.props.navigation.popToTop();
       await watchOnly.fetchBalance();
       await watchOnly.fetchTransactions();
       await BlueApp.saveToDisk();
+      this.props.navigation.popToTop();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
       this.setState({ isLoading: false });
       return;

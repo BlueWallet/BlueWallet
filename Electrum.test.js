@@ -82,10 +82,15 @@ describe('Electrum', () => {
       assert.ok(tx.address === 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
       assert.ok(tx.txid);
       assert.ok(tx.confirmations);
-      assert.ok(tx.vin);
-      assert.ok(tx.vout);
-      assert.ok(tx.vout[0].value);
-      assert.ok(tx.vout[0].scriptPubKey);
+      assert.ok(!tx.vin);
+      assert.ok(!tx.vout);
+      assert.ok(tx.inputs);
+      assert.ok(tx.inputs[0].addresses.length > 0);
+      assert.ok(tx.inputs[0].value > 0);
+      assert.ok(tx.outputs);
+      assert.ok(tx.outputs[0].value > 0);
+      assert.ok(tx.outputs[0].scriptPubKey);
+      assert.ok(tx.outputs[0].addresses.length > 0);
     }
   });
 

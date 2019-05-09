@@ -129,14 +129,23 @@ async function getTransactionsFullByAddress(address) {
   for (let tx of txs) {
     let full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
     full.address = address;
-    for (let vin of full.vin) {
-      vin.address = SegwitBech32Wallet.witnessToAddress(vin.txinwitness[1]);
+    for (let input of full.vin) {
+      input.address = SegwitBech32Wallet.witnessToAddress(input.txinwitness[1]);
+      input.addresses = [input.address];
       // now we need to fetch previous TX where this VIN became an output, so we can see its amount
-      let prevTxForVin = await mainClient.blockchainTransaction_get(vin.txid, true);
-      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[vin.vout]) {
-        vin.value = prevTxForVin.vout[vin.vout].value;
+      let prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
+      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
+        input.value = prevTxForVin.vout[input.vout].value;
       }
     }
+
+    for (let output of full.vout) {
+      if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
+    }
+    full.inputs = full.vin;
+    full.outputs = full.vout;
+    delete full.vin;
+    delete full.vout;
     delete full.hex; // compact
     delete full.hash; // compact
     ret.push(full);
