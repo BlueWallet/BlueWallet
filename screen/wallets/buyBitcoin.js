@@ -63,7 +63,21 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    return <WebView source={{ uri: 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address }} />;
+    const { safelloStateToken } = this.props.navigation.state.params
+
+    let uri = "https://bluewallet.io/buy-bitcoin-redirect.html?address=" + this.state.address
+
+    if (safelloStateToken) {
+      uri += "&safelloStateToken=" + safelloStateToken
+    }
+
+     return (
+      <WebView
+        source={{
+          uri,
+        }}
+      />
+    )
   }
 }
 
@@ -74,6 +88,7 @@ BuyBitcoin.propTypes = {
       params: PropTypes.shape({
         address: PropTypes.string,
         secret: PropTypes.string,
+        safelloStateToken: PropTypes.string,
       }),
     }),
   }),
