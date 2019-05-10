@@ -65,24 +65,16 @@ export default class BuyBitcoin extends Component {
 
     const { safelloStateToken } = this.props.navigation.state.params
 
-     if (safelloStateToken) {
-      return (
-        <WebView
-          source={{
-            uri:
-              "https://app.safello.com/sdk/quickbuy.html?appId=1234-5678&stateToken=" +
-              safelloStateToken,
-          }}
-        />
-      )
+    let uri = "https://bluewallet.io/buy-bitcoin-redirect.html?address=" + this.state.address
+
+    if (safelloStateToken) {
+      uri += "&safelloStateToken=" + safelloStateToken
     }
 
      return (
       <WebView
         source={{
-          uri:
-            "https://bluewallet.io/buy-bitcoin-redirect.html?address=" +
-            this.state.address,
+          uri,
         }}
       />
     )
