@@ -63,21 +63,21 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    const { safelloStateToken } = this.props.navigation.state.params
+    const { safelloStateToken } = this.props.navigation.state.params;
 
-    let uri = "https://bluewallet.io/buy-bitcoin-redirect.html?address=" + this.state.address
+    let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
 
     if (safelloStateToken) {
-      uri += "&safelloStateToken=" + safelloStateToken
+      uri += '&safelloStateToken=' + safelloStateToken;
     }
 
-     return (
+    return (
       <WebView
         source={{
           uri,
         }}
       />
-    )
+    );
   }
 }
 

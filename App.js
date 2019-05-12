@@ -98,7 +98,7 @@ export default class App extends React.Component {
   isSafelloRedirect(event) {
     let urlObject = url.parse(event.url, true) // eslint-disable-line
 
-    return !!urlObject.query["safello-state-token"]
+    return !!urlObject.query['safello-state-token'];
   }
 
   handleOpenURL = event => {
@@ -131,18 +131,18 @@ export default class App extends React.Component {
     } else if (this.isSafelloRedirect(event)) {
       let urlObject = url.parse(event.url, true) // eslint-disable-line
 
-       const safelloStateToken = urlObject.query["safello-state-token"]
+      const safelloStateToken = urlObject.query['safello-state-token'];
 
-       this.navigator &&
+      this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
-            routeName: "BuyBitcoin",
+            routeName: 'BuyBitcoin',
             params: {
               uri: event.url,
               safelloStateToken,
             },
           }),
-        )
+        );
     } else {
       let urlObject = url.parse(event.url, true); // eslint-disable-line
       console.log('parsed', urlObject);
