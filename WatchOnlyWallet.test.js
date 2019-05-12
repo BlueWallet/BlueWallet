@@ -101,4 +101,14 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getTransactions().length, 4);
     assert.ok((await w.getAddressAsync()).startsWith('1'));
   });
+
+  it('can fetch large HD', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 500 * 1000;
+    let w = new WatchOnlyWallet();
+    w.setSecret('ypub6WnnYxkQCGeowv4BXq9Y9PHaXgHMJg9TkFaDJkunhcTAfbDw8z3LvV9kFNHGjeVaEoGdsSJgaMWpUBvYvpYGMJd43gTK5opecVVkvLwKttx');
+    await w.fetchBalance();
+
+    await w.fetchTransactions();
+    assert.ok(w.getTransactions().length >= 167);
+  });
 });

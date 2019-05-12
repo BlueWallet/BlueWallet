@@ -84,7 +84,7 @@ it('HD (BIP49) can work with a gap', async function() {
 });
 
 it('Segwit HD (BIP49) can batch fetch many txs', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   let hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ'; // cant fetch txs
   await hd.fetchBalance();

@@ -76,7 +76,7 @@ describe('Electrum', () => {
     assert.strictEqual(txs[0].height, 563077);
   });
 
-  it.only('BlueElectrum can do getTransactionsFullByAddress()', async function() {
+  it('BlueElectrum can do getTransactionsFullByAddress()', async function() {
     let txs = await BlueElectrum.getTransactionsFullByAddress('bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
     for (let tx of txs) {
       assert.ok(tx.address === 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
