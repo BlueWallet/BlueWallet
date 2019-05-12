@@ -157,22 +157,37 @@ async function getTransactionsFullByAddress(address) {
 /**
  *
  * @param addresses {Array}
+ * @param batchsize {Number}
  * @returns {Promise<{balance: number, unconfirmed_balance: number, addresses: object}>}
  */
-async function multiGetBalanceByAddress(addresses) {
+async function multiGetBalanceByAddress(addresses, batchsize) {
+  batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
-  let balance = 0;
-  let unconfirmedBalance = 0;
-  let addressesAssoc = {};
-  for (let addr of addresses) {
-    let b = await getBalanceByAddress(addr);
+  let ret = { balance: 0, unconfirmed_balance: 0, addresses: {} };
 
-    balance += b.confirmed;
-    unconfirmedBalance += b.unconfirmed;
-    addressesAssoc[addr] = b;
+  let chunks = splitIntoChunks(addresses, batchsize);
+  for (let chunk of chunks) {
+    let scripthashes = [];
+    let scripthash2addr = {};
+    for (let addr of chunk) {
+      let script = bitcoin.address.toOutputScript(addr);
+      let hash = bitcoin.crypto.sha256(script);
+      let reversedHash = Buffer.from(reverse(hash));
+      reversedHash = reversedHash.toString('hex');
+      scripthashes.push(reversedHash);
+      scripthash2addr[reversedHash] = addr;
+    }
+
+    let balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
+
+    for (let bal of balances) {
+      ret.balance += +bal.result.confirmed;
+      ret.unconfirmed_balance += +bal.result.unconfirmed;
+      ret.addresses[scripthash2addr[bal.param]] = bal.result;
+    }
   }
 
-  return { balance, unconfirmed_balance: unconfirmedBalance, addresses: addressesAssoc };
+  return ret;
 }
 
 /**
@@ -232,6 +247,15 @@ module.exports.forceDisconnect = () => {
 };
 
 module.exports.hardcodedPeers = hardcodedPeers;
+
+let splitIntoChunks = function(arr, chunkSize) {
+  let groups = [];
+  let i;
+  for (i = 0; i < arr.length; i += chunkSize) {
+    groups.push(arr.slice(i, i + chunkSize));
+  }
+  return groups;
+};
 
 /*
 
