@@ -158,7 +158,7 @@ export class AppStorage {
               break;
             case WatchOnlyWallet.type:
               unserializedWallet = WatchOnlyWallet.fromJson(key);
-              if (unserializedWallet.init) unserializedWallet.init();
+              unserializedWallet.init();
               break;
             case HDLegacyP2PKHWallet.type:
               unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
@@ -209,6 +209,7 @@ export class AppStorage {
         return false; // failed loading data or loading/decryptin data
       }
     } catch (error) {
+      console.warn(error.message);
       return false;
     }
   }
