@@ -39,8 +39,9 @@ export class WatchOnlyWallet extends LegacyWallet {
   init() {
     let hdWalletInstance;
     if (this.secret.startsWith('xpub')) hdWalletInstance = new HDLegacyP2PKHWallet();
-    if (this.secret.startsWith('ypub')) hdWalletInstance = new HDSegwitP2SHWallet();
-    if (this.secret.startsWith('zpub')) hdWalletInstance = new HDSegwitBech32Wallet();
+    else if (this.secret.startsWith('ypub')) hdWalletInstance = new HDSegwitP2SHWallet();
+    else if (this.secret.startsWith('zpub')) hdWalletInstance = new HDSegwitBech32Wallet();
+    else return;
     hdWalletInstance._xpub = this.secret;
     if (this._hdWalletInstance) {
       // now, porting all properties from old object to new one

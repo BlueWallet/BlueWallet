@@ -150,6 +150,7 @@ export default class ScanQrWif extends React.Component {
       lnd.setLabel(loc.wallets.import.imported + ' ' + lnd.typeReadable);
       this.props.navigation.popToTop();
       alert(loc.wallets.import.success);
+      await BlueApp.saveToDisk();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
       this.setState({ isLoading: false });
       return;
