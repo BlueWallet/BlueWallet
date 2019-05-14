@@ -142,6 +142,7 @@ export default class ScanQrWif extends React.Component {
       } catch (Err) {
         console.log(Err);
         this.setState({ isLoading: false });
+        alert(Err.message);
         return;
       }
 
