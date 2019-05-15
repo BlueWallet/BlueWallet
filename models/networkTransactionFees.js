@@ -18,13 +18,11 @@ export default class NetworkTransactionFees {
           const networkFee = new NetworkTransactionFee(response.fast, response.moderate, response.economy);
           resolve(networkFee);
         } else {
-          const networkFee = new NetworkTransactionFee(1, 1, 1);
-          reject(networkFee);
+          reject(new Error());
         }
       } catch (err) {
         console.warn(err);
-        const networkFee = new NetworkTransactionFee(1, 1, 1);
-        reject(networkFee);
+        reject(err);
       }
     });
   }

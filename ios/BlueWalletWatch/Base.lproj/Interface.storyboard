@@ -165,7 +165,7 @@
             <objects>
                 <controller identifier="ReceiveInterfaceController" fullBounds="YES" fullScreen="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <imageView height="1" alignment="left" id="Dnb-sM-wdN"/>
+                        <imageView width="1" height="1" alignment="left" id="Dnb-sM-wdN"/>
                         <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
                             <items>
                                 <imageView width="60" height="60" alignment="center" image="loadingIndicator" contentMode="scaleAspectFit" id="nQb-s6-ySB"/>

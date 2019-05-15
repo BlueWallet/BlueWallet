@@ -3,7 +3,6 @@ package io.bluewallet.bluewallet;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.clipsub.rnbottomsheet.RNBottomSheetPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.diegofhg.obscure.ObscurePackage;
 import com.peel.react.TcpSocketsModule;
@@ -59,7 +58,6 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new RNBottomSheetPackage(),
             new AsyncStoragePackage(),
             new ObscurePackage(),
             new TcpSocketsModule(),

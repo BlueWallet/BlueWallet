@@ -139,7 +139,6 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-bottomsheet')
     implementation project(':@react-native-community_async-storage')
     implementation project(':react-native-obscure')
     implementation project(':react-native-tcp')
