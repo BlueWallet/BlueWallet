@@ -1,4 +1,14 @@
-v.4.0.0
+v4.0.1
+======
+
+* FIX: watchonly & ln wallet import/load
+* REF: reworded error msg
+* REF: better ln scan qr import
+* REF: electrum batching for getBalance
+* ADD: Support Safello redirect URLs (better Safello integration)
+* ADD: watch-only wallets support HD (xpub, ypub, zpub)
+
+v4.0.0
 =======
 
 * ADD: Apple Watch support
