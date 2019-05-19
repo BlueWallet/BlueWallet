@@ -1,10 +1,26 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import { SegwitBech32Wallet } from './class';
 const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: 'electrum.coinucopia.io', tcp: 50001 };
+const defaultPeer = { host: 'electrum1.bluewallet.io', tcp: '50001' };
+const hardcodedPeers = [
+  // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
+  // { host: 'electrum.be', tcp: '50001' },
+  // { host: 'node.ispol.sk', tcp: '50001' }, // down
+  // { host: '139.162.14.142', tcp: '50001' },
+  // { host: 'electrum.coinucopia.io', tcp: '50001' }, // SLOW
+  // { host: 'Bitkoins.nl', tcp: '50001' }, // down
+  // { host: 'fullnode.coinkite.com', tcp: '50001' },
+  // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
+  { host: 'electrum1.bluewallet.io', tcp: '50001' },
+  { host: 'electrum1.bluewallet.io', tcp: '50001' }, // 2x weight
+  { host: 'electrum2.bluewallet.io', tcp: '50001' },
+  { host: 'electrum3.bluewallet.io', tcp: '50001' },
+  { host: 'electrum3.bluewallet.io', tcp: '50001' }, // 2x weight
+];
 
 let mainClient = false;
 let mainConnected = false;
@@ -15,21 +31,24 @@ async function connectMain() {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
     await mainClient.connect();
-    const ver = await mainClient.server_version('2.7.11', '1.2');
-    console.log('connected to ', ver);
+    const ver = await mainClient.server_version('2.7.11', '1.4');
     let peers = await mainClient.serverPeers_subscribe();
     if (peers && peers.length > 0) {
+      console.log('connected to ', ver);
       mainConnected = true;
       AsyncStorage.setItem(storageKey, JSON.stringify(peers));
     }
   } catch (e) {
     mainConnected = false;
-    console.log('bad connection:', JSON.stringify(usingPeer));
+    console.log('bad connection:', JSON.stringify(usingPeer), e);
   }
 
   if (!mainConnected) {
     console.log('retry');
-    setTimeout(connectMain, 5000);
+    mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
+    mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
+    mainClient.close();
+    setTimeout(connectMain, 500);
   }
 }
 
@@ -42,17 +61,6 @@ connectMain();
  * @returns {Promise<{tcp, host}|*>}
  */
 async function getRandomHardcodedPeer() {
-  let hardcodedPeers = [
-    { host: 'node.ispol.sk', tcp: '50001' },
-    { host: 'electrum.vom-stausee.de', tcp: '50001' },
-    { host: 'orannis.com', tcp: '50001' },
-    { host: '139.162.14.142', tcp: '50001' },
-    { host: 'daedalus.bauerj.eu', tcp: '50001' },
-    { host: 'electrum.eff.ro', tcp: '50001' },
-    { host: 'electrum.anduck.net', tcp: '50001' },
-    { host: 'mooo.not.fyi', tcp: '50011' },
-    { host: 'electrum.coinucopia.io', tcp: '50001' },
-  ];
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
 }
 
@@ -115,23 +123,71 @@ async function getTransactionsByAddress(address) {
   return history;
 }
 
+async function getTransactionsFullByAddress(address) {
+  let txs = await this.getTransactionsByAddress(address);
+  let ret = [];
+  for (let tx of txs) {
+    let full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
+    full.address = address;
+    for (let input of full.vin) {
+      input.address = SegwitBech32Wallet.witnessToAddress(input.txinwitness[1]);
+      input.addresses = [input.address];
+      // now we need to fetch previous TX where this VIN became an output, so we can see its amount
+      let prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
+      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
+        input.value = prevTxForVin.vout[input.vout].value;
+      }
+    }
+
+    for (let output of full.vout) {
+      if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
+    }
+    full.inputs = full.vin;
+    full.outputs = full.vout;
+    delete full.vin;
+    delete full.vout;
+    delete full.hex; // compact
+    delete full.hash; // compact
+    ret.push(full);
+  }
+
+  return ret;
+}
+
 /**
  *
  * @param addresses {Array}
- * @returns {Promise<{balance: number, unconfirmed_balance: number}>}
+ * @param batchsize {Number}
+ * @returns {Promise<{balance: number, unconfirmed_balance: number, addresses: object}>}
  */
-async function multiGetBalanceByAddress(addresses) {
+async function multiGetBalanceByAddress(addresses, batchsize) {
+  batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
-  let balance = 0;
-  let unconfirmedBalance = 0;
-  for (let addr of addresses) {
-    let b = await getBalanceByAddress(addr);
+  let ret = { balance: 0, unconfirmed_balance: 0, addresses: {} };
 
-    balance += b.confirmed;
-    unconfirmedBalance += b.unconfirmed_balance;
+  let chunks = splitIntoChunks(addresses, batchsize);
+  for (let chunk of chunks) {
+    let scripthashes = [];
+    let scripthash2addr = {};
+    for (let addr of chunk) {
+      let script = bitcoin.address.toOutputScript(addr);
+      let hash = bitcoin.crypto.sha256(script);
+      let reversedHash = Buffer.from(reverse(hash));
+      reversedHash = reversedHash.toString('hex');
+      scripthashes.push(reversedHash);
+      scripthash2addr[reversedHash] = addr;
+    }
+
+    let balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
+
+    for (let bal of balances) {
+      ret.balance += +bal.result.confirmed;
+      ret.unconfirmed_balance += +bal.result.unconfirmed;
+      ret.addresses[scripthash2addr[bal.param]] = bal.result;
+    }
   }
 
-  return { balance, unconfirmed_balance: unconfirmedBalance };
+  return ret;
 }
 
 /**
@@ -161,8 +217,8 @@ async function waitTillConnected() {
 async function estimateFees() {
   if (!mainClient) throw new Error('Electrum client is not connected');
   const fast = await mainClient.blockchainEstimatefee(1);
-  const medium = await mainClient.blockchainEstimatefee(6);
-  const slow = await mainClient.blockchainEstimatefee(12);
+  const medium = await mainClient.blockchainEstimatefee(5);
+  const slow = await mainClient.blockchainEstimatefee(10);
   return { fast, medium, slow };
 }
 
@@ -179,6 +235,7 @@ async function broadcast(hex) {
 module.exports.getBalanceByAddress = getBalanceByAddress;
 module.exports.getTransactionsByAddress = getTransactionsByAddress;
 module.exports.multiGetBalanceByAddress = multiGetBalanceByAddress;
+module.exports.getTransactionsFullByAddress = getTransactionsFullByAddress;
 module.exports.waitTillConnected = waitTillConnected;
 module.exports.estimateFees = estimateFees;
 module.exports.broadcast = broadcast;
@@ -187,6 +244,17 @@ module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
   mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
   mainClient.close();
+};
+
+module.exports.hardcodedPeers = hardcodedPeers;
+
+let splitIntoChunks = function(arr, chunkSize) {
+  let groups = [];
+  let i;
+  for (i = 0; i < arr.length; i += chunkSize) {
+    groups.push(arr.slice(i, i + chunkSize));
+  }
+  return groups;
 };
 
 /*

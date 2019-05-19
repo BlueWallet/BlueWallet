@@ -45,6 +45,7 @@ export default class Selftest extends Component {
       //
 
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        await BlueElectrum.waitTillConnected();
         let addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
         let electrumBalance = await BlueElectrum.getBalanceByAddress(addr4elect);
         if (electrumBalance.confirmed !== 51432)
@@ -252,6 +253,15 @@ export default class Selftest extends Component {
         if (!hd2.validateMnemonic()) {
           throw new Error('mnemonic phrase validation not ok');
         }
+
+        //
+
+        let hd3 = new HDSegwitP2SHWallet();
+        hd3._xpub = 'ypub6XRSuTABFst6pd8BuTmjSwkDya7HrCRqmtsNmtrh1gyrEZwe24GcjJf6jk6nhhenZpLsm6sDHx2BXwnCQQtjF63FbpNyVEkmngKFQF11aph';
+        await hd3.fetchBalance();
+        if (hd3.getBalance() !== 26000) throw new Error('Could not fetch HD balance');
+        await hd3.fetchTransactions();
+        if (hd3.transactions.length !== 7) throw new Error('Could not fetch HD transactions');
       } else {
         console.warn('skipping RN-specific test');
       }

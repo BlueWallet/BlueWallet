@@ -23,6 +23,9 @@ module.exports = {
       latest_transaction: 'últimas transacções',
       empty_txs1: 'As suas transacções aparecerão aqui,',
       empty_txs2: 'nenhuma de momento',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
     reorder: {
@@ -220,5 +223,20 @@ module.exports = {
     withdraw: 'Transferir',
     expired: 'Expired',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

@@ -11,11 +11,10 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Platform,
-  Slider,
-  AsyncStorage,
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueNavigationStyle,
   BlueButton,
@@ -24,6 +23,7 @@ import {
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
 } from '../../BlueComponents';
+import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -347,7 +347,7 @@ export default class SendDetails extends Component {
     if (error) {
       this.setState({ isLoading: false });
       alert(error);
-      ReactNativeHapticFeedback.trigger('notificationError', false);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return;
     }
 
@@ -411,7 +411,7 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        ReactNativeHapticFeedback.trigger('notificationError', false);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert(err);
         this.setState({ isLoading: false });
         return;
@@ -549,7 +549,7 @@ export default class SendDetails extends Component {
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
           <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
           <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
-            {this.state.fromWallet.getBalance()}
+            {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
           </Text>
           <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
             {BitcoinUnit.BTC}

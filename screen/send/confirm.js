@@ -59,7 +59,7 @@ export default class Confirm extends Component {
           });
         }
       } catch (error) {
-        ReactNativeHapticFeedback.trigger('notificationError', false);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         this.setState({ isLoading: false });
         alert(error.message);
       }
@@ -103,7 +103,7 @@ export default class Confirm extends Component {
               alignSelf: 'center',
             }}
           >
-            {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.BTC)} (
+            {loc.send.create.fee}: {loc.formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
             {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
           </Text>
         </BlueCard>

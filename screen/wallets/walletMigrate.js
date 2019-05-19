@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, AsyncStorage } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import PropTypes from 'prop-types';
 import RNFS from 'react-native-fs';
 

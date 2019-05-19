@@ -21,8 +21,6 @@ Community: [telegram group](https://t.me/bluewallet)
 * Encryption. Plausible deniability
 * And many more [features...](https://bluewallet.io/features.html)
 
-Beta version, do not use to store large amounts!
-
 
 <img src="https://i.imgur.com/hHYJnMj.png" width="100%">
 

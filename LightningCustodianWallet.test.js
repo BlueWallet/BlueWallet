@@ -153,6 +153,9 @@ describe('LightningCustodianWallet', () => {
 
     await l2.fetchTransactions();
     assert.strictEqual(l2.transactions_raw.length, txLen + 1);
+    let lastTx = l2.transactions_raw[l2.transactions_raw.length - 1];
+    assert.strictEqual(typeof lastTx.payment_preimage, 'string', 'preimage is present and is a string');
+    assert.strictEqual(lastTx.payment_preimage.length, 64, 'preimage is present and is a string of 32 hex-encoded bytes');
     // transactions became more after paying an invoice
 
     // now, trying to pay duplicate invoice
@@ -349,7 +352,7 @@ describe('LightningCustodianWallet', () => {
     assert.strictEqual(oldBalance - l2.balance, 3);
   });
 
-  it('cant pay negative free amount', async () => {
+  it('cant create zemo amt invoices yet', async () => {
     let l1 = new LightningCustodianWallet();
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
@@ -367,16 +370,79 @@ describe('LightningCustodianWallet', () => {
     assert.ok(l1._access_token_created_ts > 0);
     assert.ok(l1.balance === 0);
 
-    let invoice = await l1.addInvoice(0, 'zero amt inv');
+    let err = false;
+    try {
+      await l1.addInvoice(0, 'zero amt inv');
+    } catch (_) {
+      err = true;
+    }
+    assert.ok(err);
+
+    err = false;
+    try {
+      await l1.addInvoice(NaN, 'zero amt inv');
+    } catch (_) {
+      err = true;
+    }
+    assert.ok(err);
+  });
+
+  it('cant pay negative free amount', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
+
+    // fetchig invoice from tippin.me :
+
+    const api = new Frisbee({
+      baseURI: 'https://tippin.me',
+    });
+    const res = await api.post('/lndreq/newinvoice.php', {
+      headers: {
+        Origin: 'https://tippin.me',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-GB,en-US;q=0.9,en;q=0.8',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        Accept: 'application/json, text/javascript, */*; q=0.01',
+      },
+      body: 'userid=1188&username=overtorment&istaco=0&customAmnt=0&customMemo=',
+    });
+
+    let json;
+    let invoice;
+    if (res && res.body && (json = JSON.parse(res.body)) && json.message) {
+      invoice = json.message;
+    } else {
+      throw new Error('tippin.me problem: ' + JSON.stringify(res));
+    }
+
+    let l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+    await l2.fetchTransactions();
+    await l2.fetchBalance();
+    let oldBalance = +l2.balance;
+    let txLen = l2.transactions_raw.length;
+
+    let decoded = await l2.decodeInvoice(invoice);
+    assert.ok(decoded.payment_hash);
+    assert.ok(decoded.description);
+    assert.strictEqual(+decoded.num_satoshis, 0);
+
+    await l2.checkRouteInvoice(invoice);
 
     let error = false;
     try {
-      await l1.payInvoice(invoice, -1);
+      await l2.payInvoice(invoice, -1);
     } catch (Err) {
       error = true;
     }
-    await l1.fetchBalance();
-    assert.strictEqual(l1.balance, 0);
     assert.ok(error);
+    await l2.fetchBalance();
+    assert.strictEqual(l2.balance, oldBalance);
+    await l2.fetchTransactions();
+    assert.strictEqual(l2.transactions_raw.length, txLen);
   });
 });

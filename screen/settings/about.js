@@ -54,8 +54,8 @@ export default class About extends Component {
 
             <BlueButton
               icon={{
-                name: 'mark-github',
-                type: 'octicon',
+                name: 'github',
+                type: 'font-awesome',
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
@@ -93,8 +93,8 @@ export default class About extends Component {
 
             <BlueButton
               icon={{
-                name: 'thumbsup',
-                type: 'octicon',
+                name: 'thumbs-up',
+                type: 'font-awesome',
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {

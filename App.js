@@ -1,11 +1,14 @@
 import React from 'react';
 import { Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Modal from 'react-native-modal';
 import { NavigationActions } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import url from 'url';
+import { AppStorage, LightningCustodianWallet } from './class';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -56,7 +59,13 @@ export default class App extends React.Component {
   hasSchema(schemaString) {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
     const lowercaseString = schemaString.trim().toLowerCase();
-    return lowercaseString.startsWith('bitcoin:') || lowercaseString.startsWith('lightning:');
+    return (
+      lowercaseString.startsWith('bitcoin:') ||
+      lowercaseString.startsWith('lightning:') ||
+      lowercaseString.startsWith('blue:') ||
+      lowercaseString.startsWith('bluewallet:') ||
+      lowercaseString.startsWith('lapp:')
+    );
   }
 
   isBitcoinAddress(address) {
@@ -86,6 +95,12 @@ export default class App extends React.Component {
     return isValidLightningInvoice;
   }
 
+  isSafelloRedirect(event) {
+    let urlObject = url.parse(event.url, true) // eslint-disable-line
+
+    return !!urlObject.query['safello-state-token'];
+  }
+
   handleOpenURL = event => {
     if (event.url === null) {
       return;
@@ -113,13 +128,95 @@ export default class App extends React.Component {
             },
           }),
         );
+    } else if (this.isSafelloRedirect(event)) {
+      let urlObject = url.parse(event.url, true) // eslint-disable-line
+
+      const safelloStateToken = urlObject.query['safello-state-token'];
+
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'BuyBitcoin',
+            params: {
+              uri: event.url,
+              safelloStateToken,
+            },
+          }),
+        );
+    } else {
+      let urlObject = url.parse(event.url, true); // eslint-disable-line
+      console.log('parsed', urlObject);
+      (async () => {
+        if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
+          switch (urlObject.host) {
+            case 'openlappbrowser':
+              console.log('opening LAPP', urlObject.query.url);
+              // searching for LN wallet:
+              let haveLnWallet = false;
+              for (let w of BlueApp.getWallets()) {
+                if (w.type === LightningCustodianWallet.type) {
+                  haveLnWallet = true;
+                }
+              }
+
+              if (!haveLnWallet) {
+                // need to create one
+                let w = new LightningCustodianWallet();
+                w.setLabel(this.state.label || w.typeReadable);
+
+                try {
+                  let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                  if (lndhub) {
+                    w.setBaseURI(lndhub);
+                    w.init();
+                  }
+                  await w.createAccount();
+                  await w.authorize();
+                } catch (Err) {
+                  // giving up, not doing anything
+                  return;
+                }
+                BlueApp.wallets.push(w);
+                await BlueApp.saveToDisk();
+              }
+
+              // now, opening lapp browser and navigating it to URL.
+              // looking for a LN wallet:
+              let lnWallet;
+              for (let w of BlueApp.getWallets()) {
+                if (w.type === LightningCustodianWallet.type) {
+                  lnWallet = w;
+                  break;
+                }
+              }
+
+              if (!lnWallet) {
+                // something went wrong
+                return;
+              }
+
+              this.navigator &&
+                this.navigator.dispatch(
+                  NavigationActions.navigate({
+                    routeName: 'LappBrowser',
+                    params: {
+                      fromSecret: lnWallet.getSecret(),
+                      fromWallet: lnWallet,
+                      url: urlObject.query.url,
+                    },
+                  }),
+                );
+              break;
+          }
+        }
+      })();
     }
   };
 
   renderClipboardContentModal = () => {
     return (
       <Modal
-        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', false)}
+        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {

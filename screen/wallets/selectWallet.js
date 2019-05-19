@@ -36,7 +36,7 @@ export default class SelectWallet extends Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          ReactNativeHapticFeedback.trigger('selection', false);
+          ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
           this.props.navigation.getParam('onWalletSelect')(item);
         }}
       >

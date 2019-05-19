@@ -2,17 +2,17 @@
 import React, { Component } from 'react';
 import {
   Alert,
-  AsyncStorage,
   TouchableOpacity,
   Text,
+  LayoutAnimation,
   ActivityIndicator,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   View,
   TextInput,
-  LayoutAnimation,
-  Platform,
-  KeyboardAvoidingView,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueTextCentered,
   BlueText,
@@ -266,7 +266,7 @@ export default class WalletsAdd extends Component {
                             await BlueApp.saveToDisk();
                             EV(EV.enum.WALLETS_COUNT_CHANGED);
                             A(A.ENUM.CREATED_WALLET);
-                            ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+                            ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                             this.props.navigation.dismiss();
                           };
 
@@ -311,8 +311,14 @@ export default class WalletsAdd extends Component {
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
                           A(A.ENUM.CREATED_WALLET);
-                          ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-                          this.props.navigation.dismiss();
+                          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                          if (w.type === HDSegwitP2SHWallet.type) {
+                            this.props.navigation.navigate('PleaseBackup', {
+                              secret: w.getSecret(),
+                            });
+                          } else {
+                            this.props.navigation.dismiss();
+                          }
                         }
                       },
                       1,
