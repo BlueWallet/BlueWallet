@@ -11,7 +11,7 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-let BlueElectrum = require('../../BlueElectrum');
+const BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation }) => ({
