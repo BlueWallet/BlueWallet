@@ -190,6 +190,8 @@ module.exports = {
     about: 'Andet',
     language: 'Sprog',
     currency: 'Valuta',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Sandsynlig benægtelse',

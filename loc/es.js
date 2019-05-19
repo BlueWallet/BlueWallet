@@ -193,6 +193,8 @@ module.exports = {
     about: 'Sobre nosotros',
     language: 'Idioma',
     currency: 'Moneda',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Negación plausible',

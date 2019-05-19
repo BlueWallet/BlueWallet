@@ -190,6 +190,8 @@ module.exports = {
     about: 'เกี่ยวกับ',
     language: 'ภาษา',
     currency: 'เงินตรา',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'การปฏิเสธที่เป็นไปได้',
