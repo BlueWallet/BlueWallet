@@ -190,6 +190,8 @@ module.exports = {
     about: 'O BlueWallet',
     language: 'Jazyk',
     currency: 'Měna',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Plausible Deniability',

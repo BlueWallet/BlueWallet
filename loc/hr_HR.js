@@ -188,6 +188,8 @@ module.exports = {
     about: 'Informacije',
     language: 'Jezik',
     currency: 'Valuta',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Fejk volet',

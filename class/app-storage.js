@@ -18,6 +18,7 @@ export class AppStorage {
   static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
   static PREFERRED_CURRENCY = 'preferredCurrency';
+  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -49,7 +50,6 @@ export class AppStorage {
   }
 
   async storageIsEncrypted() {
-    // await AsyncStorage.clear();
     let data;
     try {
       data = await AsyncStorage.getItem(AppStorage.FLAG_ENCRYPTED);

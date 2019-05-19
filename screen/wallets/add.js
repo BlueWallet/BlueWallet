@@ -1,17 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import {
-  Alert,
-  TouchableOpacity,
-  Text,
-  LayoutAnimation,
-  ActivityIndicator,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-  TextInput,
-} from 'react-native';
+import { Alert, Text, LayoutAnimation, ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, View, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueTextCentered,
@@ -24,6 +13,7 @@ import {
   BlueFormInput,
   BlueNavigationStyle,
   BlueButtonLink,
+  BlueSpacing20,
 } from '../../BlueComponents';
 import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
@@ -53,12 +43,13 @@ export default class WalletsAdd extends Component {
 
   async componentDidMount() {
     let walletBaseURI = await AsyncStorage.getItem(AppStorage.LNDHUB);
+    let isAdvancedOptionsEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     walletBaseURI = JSON.parse(walletBaseURI) || '';
     this.setState({
       isLoading: false,
       activeBitcoin: undefined,
       label: '',
-      isAdvancedOptionsEnabled: false,
+      isAdvancedOptionsEnabled,
       walletBaseURI,
     });
   }
@@ -169,9 +160,6 @@ export default class WalletsAdd extends Component {
           </View>
 
           <View style={{ marginHorizontal: 20 }}>
-            <TouchableOpacity onPress={this.showAdvancedOptions} style={{ marginVertical: 25 }}>
-              <Text style={{ color: '#0c2550', fontWeight: '500' }}>Advanced options</Text>
-            </TouchableOpacity>
             {(() => {
               if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
                 return (
@@ -180,12 +168,14 @@ export default class WalletsAdd extends Component {
                       height: 100,
                     }}
                   >
+                    <BlueSpacing20 />
+                    <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
                     <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
                       <RadioButton value={HDSegwitP2SHWallet.type}>
-                        <BlueText>Multiple addresses</BlueText>
+                        <BlueText>{HDSegwitP2SHWallet.typeReadable} - Multiple addresses</BlueText>
                       </RadioButton>
                       <RadioButton value={SegwitP2SHWallet.type}>
-                        <BlueText>Single address</BlueText>
+                        <BlueText>{SegwitP2SHWallet.typeReadable} - Single address</BlueText>
                       </RadioButton>
                     </RadioGroup>
                   </View>
@@ -193,6 +183,9 @@ export default class WalletsAdd extends Component {
               } else if (this.state.activeLightning && this.state.isAdvancedOptionsEnabled) {
                 return (
                   <React.Fragment>
+                    <BlueSpacing20 />
+                    <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
+                    <BlueSpacing20 />
                     <BlueText>Connect to your LNDHub</BlueText>
                     <BlueFormInput
                       value={this.state.walletBaseURI}
@@ -207,11 +200,7 @@ export default class WalletsAdd extends Component {
                   </React.Fragment>
                 );
               } else if (this.state.activeBitcoin === undefined && this.state.isAdvancedOptionsEnabled) {
-                return (
-                  <View>
-                    <Text style={{ color: '#81868e' }}>No wallet type selected</Text>
-                  </View>
-                );
+                return <View />;
               }
             })()}
             <View

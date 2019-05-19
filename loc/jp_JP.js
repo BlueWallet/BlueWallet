@@ -190,6 +190,8 @@ module.exports = {
     about: 'BlueWallet について',
     language: '言語',
     currency: '通貨',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: '隠匿設定',

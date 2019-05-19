@@ -192,6 +192,8 @@ module.exports = {
     about: 'О программе',
     language: 'Язык',
     currency: 'Валюта',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Правдоподобная имитация',

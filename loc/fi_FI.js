@@ -192,6 +192,8 @@ module.exports = {
     about: 'Tietoa',
     language: 'Kieli',
     currency: 'Valuutta',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Uskottava Kiistettävyys',
