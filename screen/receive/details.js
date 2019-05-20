@@ -83,8 +83,8 @@ export default class ReceiveDetails extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+        <View style={{ }}>
+          <View style={{ marginTop:32, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
             {this.state.bip21encoded === undefined ? (
               <BlueLoading />
             ) : (
@@ -98,7 +98,7 @@ export default class ReceiveDetails extends Component {
               />
             )}
           </View>
-          <View style={{ alignItems: 'center' }}>
+          <View style={{ alignItems: 'center', marginTop: 0 }}>
             <BlueCopyTextToClipboard text={this.state.addressText} />
             <BlueButtonLink
               title={loc.receive.details.setAmount}
@@ -108,7 +108,7 @@ export default class ReceiveDetails extends Component {
                 });
               }}
             />
-            <View syle={{ margin: 24 }}>
+            <View>
               <BlueButton
                 icon={{
                   name: 'share-alternative',

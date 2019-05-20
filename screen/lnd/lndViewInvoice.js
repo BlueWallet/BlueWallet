@@ -249,6 +249,7 @@ export default class LNDViewInvoice extends Component {
               icon={{
                 name: 'share-alternative',
                 type: 'entypo',
+                size: 10,
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={async () => {
@@ -259,13 +260,8 @@ export default class LNDViewInvoice extends Component {
               title={loc.receive.details.share}
             />
             <BlueSpacing20 />
-            <BlueButton
-              backgroundColor="#FFFFFF"
-              icon={{
-                name: 'info',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
+            <BlueButton style={{
+              backgroundColor: BlueApp.settings.brandingColor }}
               onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
               title={loc.lndViewInvoice.additional_info}
             />
