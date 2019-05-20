@@ -192,6 +192,8 @@ module.exports = {
     about: 'Σχετικά',
     language: 'Γλώσσα',
     currency: 'Νόμισμα',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Εύλογη δυνατότητα άρνησης',

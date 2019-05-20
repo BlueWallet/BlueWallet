@@ -192,6 +192,8 @@ module.exports = {
     about: 'Über',
     language: 'Sprache',
     currency: 'Währung',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Glaubhafte Täuschung',

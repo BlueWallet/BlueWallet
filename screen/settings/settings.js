@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
-import { ScrollView, TouchableOpacity } from 'react-native';
-import { BlueLoading, SafeBlueArea, BlueNavigationStyle, BlueHeaderDefaultSub, BlueListItem } from '../../BlueComponents';
+import { ScrollView, Switch, TouchableOpacity } from 'react-native';
+import {
+  BlueText,
+  BlueCard,
+  BlueLoading,
+  SafeBlueArea,
+  BlueNavigationStyle,
+  BlueHeaderDefaultSub,
+  BlueListItem,
+} from '../../BlueComponents';
+import AsyncStorage from '@react-native-community/async-storage';
 import PropTypes from 'prop-types';
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+import { AppStorage } from '../../class';
 let loc = require('../../loc');
 
 export default class Settings extends Component {
@@ -20,10 +28,20 @@ export default class Settings extends Component {
   }
 
   async componentDidMount() {
+    let advancedModeEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     this.setState({
       isLoading: false,
-      storageIsEncrypted: await BlueApp.storageIsEncrypted(),
+      advancedModeEnabled,
     });
+  }
+
+  async onAdvancedModeSwitch(value) {
+    if (value) {
+      await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, '1');
+    } else {
+      await AsyncStorage.removeItem(AppStorage.ADVANCED_MODE_ENABLED);
+    }
+    this.setState({ advancedModeEnabled: value });
   }
 
   render() {
@@ -47,6 +65,16 @@ export default class Settings extends Component {
           <TouchableOpacity onPress={() => this.props.navigation.navigate('Currency')}>
             <BlueListItem title={loc.settings.currency} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.setState({ showAdvancedOptions: !this.state.showAdvancedOptions })}>
+            <BlueListItem title={loc.settings.advanced_options} />
+          </TouchableOpacity>
+          {this.state.showAdvancedOptions && (
+            <BlueCard>
+              <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
+              <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
+            </BlueCard>
+          )}
+
           <TouchableOpacity onPress={() => this.props.navigation.navigate('About')}>
             <BlueListItem title={loc.settings.about} />
           </TouchableOpacity>

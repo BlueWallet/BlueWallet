@@ -190,6 +190,8 @@ module.exports = {
     about: 'About',
     language: 'Language',
     currency: 'Currency',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Plausible Deniability',

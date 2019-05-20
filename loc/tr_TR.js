@@ -190,6 +190,8 @@ module.exports = {
     about: 'Hakkında',
     language: 'Dil',
     currency: 'Para Birimi',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Makul Ret',

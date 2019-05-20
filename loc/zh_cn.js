@@ -185,6 +185,8 @@ module.exports = {
     about: '关于',
     language: '语言',
     currency: '货币',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: '可否认性',
