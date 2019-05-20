@@ -30,7 +30,7 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-webview (6.0.1):
+  - react-native-webview (5.9.1):
     - React
   - React/Core (0.59.8):
     - yoga (= 0.59.8.React)
@@ -98,7 +98,7 @@ PODS:
   - Sentry (4.1.3):
     - Sentry/Core (= 4.1.3)
   - Sentry/Core (4.1.3)
-  - SentryReactNative (0.42.0):
+  - SentryReactNative (0.43.0):
     - React
     - Sentry (~> 4.1.3)
   - swift_qrcodejs (1.1.1)
