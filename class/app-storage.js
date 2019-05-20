@@ -46,6 +46,10 @@ export class AppStorage {
       failedColor: '#ff0000',
       shadowColor: '#000000',
       inverseForegroundColor: '#ffffff',
+      hdborderColor: '#68BBE1',
+      hdbackgroundColor: '#ECF9FF',
+      lnborderColor: '#F7C056',
+      lnbackgroundColor: '#FFFAEF',
     };
   }
 
