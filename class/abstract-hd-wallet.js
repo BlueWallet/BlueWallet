@@ -20,6 +20,12 @@ export class AbstractHDWallet extends LegacyWallet {
     this.gap_limit = 3;
   }
 
+  prepareForSerialization() {
+    // deleting structures that cant be serialized
+    delete this._node0;
+    delete this._node1;
+  }
+
   generate() {
     throw new Error('Not implemented');
   }
