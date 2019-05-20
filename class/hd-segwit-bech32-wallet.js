@@ -52,6 +52,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     this._txs_by_external_index = {};
     this._txs_by_internal_index = {};
+
+    this.gap_limit = 20;
   }
 
   /**
@@ -141,9 +143,26 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
     }
 
-    const xpub = _zpubToXpub(this.getXpub());
-    const hdNode = bitcoin.HDNode.fromBase58(xpub);
-    const address = _nodeToBech32SegwitAddress(hdNode.derive(node).derive(index));
+    if (node === 0 && !this._node0) {
+      const xpub = _zpubToXpub(this.getXpub());
+      const hdNode = bitcoin.HDNode.fromBase58(xpub);
+      this._node0 = hdNode.derive(node);
+    }
+
+    if (node === 1 && !this._node1) {
+      const xpub = _zpubToXpub(this.getXpub());
+      const hdNode = bitcoin.HDNode.fromBase58(xpub);
+      this._node1 = hdNode.derive(node);
+    }
+
+    let address;
+    if (node === 0) {
+      address = _nodeToBech32SegwitAddress(this._node0.derive(index));
+    }
+
+    if (node === 1) {
+      address = _nodeToBech32SegwitAddress(this._node1.derive(index));
+    }
 
     if (node === 0) {
       return (this.external_addresses_cache[index] = address);

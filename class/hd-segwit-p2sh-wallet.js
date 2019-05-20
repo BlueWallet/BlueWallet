@@ -102,9 +102,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
-    const xpub = ypubToXpub(this.getXpub());
-    const hdNode = bitcoin.HDNode.fromBase58(xpub);
-    const address = nodeToP2shSegwitAddress(hdNode.derive(0).derive(index));
+    if (!this._node0) {
+      const xpub = ypubToXpub(this.getXpub());
+      const hdNode = bitcoin.HDNode.fromBase58(xpub);
+      this._node0 = hdNode.derive(0);
+    }
+    const address = nodeToP2shSegwitAddress(this._node0.derive(index));
 
     return (this.external_addresses_cache[index] = address);
   }
@@ -113,9 +116,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
-    const xpub = ypubToXpub(this.getXpub());
-    const hdNode = bitcoin.HDNode.fromBase58(xpub);
-    const address = nodeToP2shSegwitAddress(hdNode.derive(1).derive(index));
+    if (!this._node1) {
+      const xpub = ypubToXpub(this.getXpub());
+      const hdNode = bitcoin.HDNode.fromBase58(xpub);
+      this._node1 = hdNode.derive(1);
+    }
+    const address = nodeToP2shSegwitAddress(this._node1.derive(index));
 
     return (this.internal_addresses_cache[index] = address);
   }
