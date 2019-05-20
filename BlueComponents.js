@@ -93,32 +93,26 @@ export class BitcoinButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-            borderWidth: 0.5,
+            borderColor: BlueApp.settings.hdborderColor,
+            borderWidth: 1,
             borderRadius: 5,
-            backgroundColor: BlueApp.settings.inputBackgroundColor,
+            backgroundColor: (this.props.active && BlueApp.settings.hdbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon
-              name="btc"
-              size={32}
-              type="font-awesome"
-              color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor}
-            />
-            <Text
-              style={{
-                textAlign: 'center',
-                color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-              }}
-            >
-              {loc.wallets.add.bitcoin}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+            <Text style={{ color: BlueApp.settings.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add.bitcoin}</Text>
           </View>
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/bitcoin.png')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -137,33 +131,28 @@ export class LightningButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-            borderWidth: 0.5,
+            borderColor: BlueApp.settings.lnborderColor,
+            borderWidth: 1,
             borderRadius: 5,
-            backgroundColor: BlueApp.settings.inputBackgroundColor,
+            backgroundColor: (this.props.active && BlueApp.settings.lnbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon
-              name="bolt"
-              size={32}
-              type="font-awesome"
-              color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor}
-            />
-            <Text
-              style={{
-                textAlign: 'center',
-                color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-              }}
-            >
-              {loc.wallets.add.lightning}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+            <Text style={{ color: BlueApp.settings.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
           </View>
+              <Image
+                style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+                source={require('./img/addWallet/lightning.png')}
+              />
         </View>
+
       </TouchableOpacity>
     );
   }

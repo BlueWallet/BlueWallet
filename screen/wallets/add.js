@@ -207,7 +207,7 @@ export default class WalletsAdd extends Component {
               style={{
                 alignItems: 'center',
                 flex: 1,
-                marginVertical: 24,
+                marginVertical: 32,
               }}
             >
               {!this.state.isLoading ? (
