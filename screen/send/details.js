@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   View,
   TextInput,
   StatusBar,
@@ -25,7 +26,7 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
-import NetworkTransactionFees from '../../models/networkTransactionFees';
+import NetworkTransactionFees, { NetworkTransactionFeeStatus } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
@@ -80,6 +81,7 @@ export default class SendDetails extends Component {
         memo,
         fee: 1,
         isFeeCustom: true,
+        feeFetchStatus: NetworkTransactionFeeStatus.INACTIVE,
         bip70TransactionExpiration: null,
         renderWalletSelectionButtonHidden: false,
         networkTransactionFees: undefined,
@@ -140,34 +142,25 @@ export default class SendDetails extends Component {
     StatusBar.setBarStyle('dark-content');
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-    InteractionManager.runAfterInteractions(async () => {
-      const recommendedFees = await NetworkTransactionFees.recommendedFees();
-      if (recommendedFees) {
-        this.setState({
-          fee: recommendedFees.fast,
-          networkTransactionFees: recommendedFees,
-          isFeeCustom: false,
-        });
-        if (this.props.navigation.state.params.uri) {
-          if (BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.navigation.state.params.uri)) {
-            this.processBIP70Invoice(this.props.navigation.state.params.uri);
-          } else {
-            try {
-              const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
-              this.setState({ address, amount, memo, isLoading: false });
-            } catch (error) {
-              console.log(error);
-              this.setState({ isLoading: false });
-              alert('Error: Unable to decode Bitcoin address');
-            }
-          }
-        } else {
-          this.setState({ isLoading: false });
-        }
+
+    if (this.props.navigation.state.params.uri) {
+      if (BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.navigation.state.params.uri)) {
+        this.processBIP70Invoice(this.props.navigation.state.params.uri);
       } else {
-        this.setState({ isLoading: false });
+        try {
+          const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
+          this.setState({ address, amount, memo, isLoading: false });
+        } catch (error) {
+          console.log(error);
+          this.setState({ isLoading: false });
+          alert('Error: Unable to decode Bitcoin address');
+        }
       }
-    });
+    } else {
+      this.setState({ isLoading: false });
+    }
+
+    this.fetchNetworkFees();
   }
 
   componentWillUnmount() {
@@ -181,6 +174,26 @@ export default class SendDetails extends Component {
 
   _keyboardDidHide = () => {
     this.setState({ renderWalletSelectionButtonHidden: false });
+  };
+
+  fetchNetworkFees = () => {
+    this.setState({ feeFetchStatus: NetworkTransactionFeeStatus.FETCHING }, () =>
+      InteractionManager.runAfterInteractions(async () => {
+        try {
+          const recommendedFees = await NetworkTransactionFees.recommendedFees();
+          this.setState({
+            fee: recommendedFees.fast,
+            networkTransactionFees: recommendedFees,
+            isFeeCustom: false,
+            feeFetchStatus: NetworkTransactionFeeStatus.INACTIVE,
+          });
+        } catch (_e) {
+          this.setState({
+            feeFetchStatus: NetworkTransactionFeeStatus.FAILED,
+          });
+        }
+      }),
+    );
   };
 
   decodeBitcoinUri(uri) {
@@ -511,9 +524,9 @@ export default class SendDetails extends Component {
     }
   };
 
-  presentCustomFeeAlert = async () => {
+  presentCustomFeeAlert = () => {
     prompt(
-      'Fee',
+      'Fees',
       'Satoshis Per Byte',
       [
         { text: 'Cancel', onPress: () => console.log('Cancel'), style: 'cancel' },
@@ -535,6 +548,17 @@ export default class SendDetails extends Component {
         placeholder: '1 sat/byte',
       },
     );
+  };
+
+  feeFetchFailedAlert = () => {
+    Alert.alert('Fees', 'An error was encountered when trying to fetch current network fees. Would you like to try again?', [
+      { text: 'Cancel', onPress: () => console.log('Cancel'), style: 'cancel' },
+      {
+        text: 'OK',
+        style: 'default',
+        onPress: this.fetchNetworkFees(),
+      },
+    ]);
   };
 
   renderCreateButton = () => {
@@ -577,6 +601,19 @@ export default class SendDetails extends Component {
         </View>
       </View>
     );
+  };
+
+  renderFeeFetchStatusComponent = () => {
+    if (this.state.feeFetchStatus === NetworkTransactionFeeStatus.FAILED) {
+      return (
+        <TouchableOpacity onPress={this.feeFetchFailedAlert} style={{ marginLeft: 20 }}>
+          <Icon name="exclamation-circle" size={22} type="font-awesome" color="#FF0000" />
+        </TouchableOpacity>
+      );
+    } else if (this.state.feeFetchStatus === NetworkTransactionFeeStatus.FETCHING) {
+      return <ActivityIndicator style={{ marginLeft: 20 }} />;
+    }
+    return <React.Fragment />;
   };
 
   render() {
@@ -654,31 +691,34 @@ export default class SendDetails extends Component {
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
               </View>
-              <TouchableOpacity
-                onPress={() =>
-                  typeof this.state.networkTransactionFees !== 'object'
-                    ? this.presentCustomFeeAlert()
-                    : this.setState({ isFeeSelectionModalVisible: true })
-                }
-                disabled={this.state.isLoading}
-                style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
-              >
-                <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
-                <View
-                  style={{
-                    backgroundColor: '#d2f8d6',
-                    minWidth: 40,
-                    height: 25,
-                    borderRadius: 4,
-                    justifyContent: 'space-between',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 10,
-                  }}
+              <View style={{ flexDirection: 'row', marginHorizontal: 20 }}>
+                <TouchableOpacity
+                  onPress={() =>
+                    typeof this.state.networkTransactionFees !== 'object'
+                      ? this.presentCustomFeeAlert()
+                      : this.setState({ isFeeSelectionModalVisible: true })
+                  }
+                  disabled={this.state.isLoading}
+                  style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}
                 >
-                  <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.feeText()}</Text>
-                </View>
-              </TouchableOpacity>
+                  <Text style={{ color: '#81868e', fontSize: 14, alignSelf: 'center' }}>Fee</Text>
+                  <View
+                    style={{
+                      backgroundColor: '#d2f8d6',
+                      minWidth: 40,
+                      height: 25,
+                      borderRadius: 4,
+                      justifyContent: 'space-between',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.feeText()}</Text>
+                  </View>
+                </TouchableOpacity>
+                {this.renderFeeFetchStatusComponent()}
+              </View>
               {this.renderCreateButton()}
               {this.renderFeeSelectionModal()}
             </KeyboardAvoidingView>

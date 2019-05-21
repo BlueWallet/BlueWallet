@@ -147,12 +147,11 @@ export class LightningButton extends Component {
           <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
             <Text style={{ color: BlueApp.settings.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
           </View>
-              <Image
-                style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-                source={require('./img/addWallet/lightning.png')}
-              />
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/lightning.png')}
+          />
         </View>
-
       </TouchableOpacity>
     );
   }

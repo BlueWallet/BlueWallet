@@ -30,7 +30,7 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-webview (5.9.1):
+  - react-native-webview (6.1.0):
     - React
   - React/Core (0.59.8):
     - yoga (= 0.59.8.React)
