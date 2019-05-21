@@ -19,9 +19,8 @@ export class NetworkTransactionFee {
 export default class NetworkTransactionFees {
   static recommendedFees() {
     return new Promise(async (resolve, reject) => {
-    //  reject(new Error());
       try {
-        let response = await BlueElectrum.estimateFees();
+        const response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
           const networkFee = new NetworkTransactionFee(response.fast, response.moderate, response.economy);
           resolve(networkFee);

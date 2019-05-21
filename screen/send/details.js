@@ -556,7 +556,7 @@ export default class SendDetails extends Component {
       {
         text: 'OK',
         style: 'default',
-        onPress: this.fetchNetworkFees(),
+        onPress: () => this.fetchNetworkFees(),
       },
     ]);
   };
