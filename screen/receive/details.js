@@ -95,6 +95,7 @@ export default class ReceiveDetails extends Component {
                 logoSize={90}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
+                ecl={'H'}
               />
             )}
           </View>
