@@ -223,6 +223,12 @@ it('Wallet can fetch UTXO', async () => {
   assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
 });
 
+it('SegwitP2SHWallet can generate segwit P2SH address from WIF', () => {
+  let l = new SegwitP2SHWallet();
+  l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
+  assert.ok(l.getAddress() === '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53', 'expected ' + l.getAddress());
+});
+
 it('Wallet can fetch balance', async () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let w = new LegacyWallet();

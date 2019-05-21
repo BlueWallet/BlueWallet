@@ -117,7 +117,7 @@ export default class SendCreate extends Component {
         BlueApp.tx_metadata[this.state.txid]['last_sequence'] = lastSequence;
 
         // in case new TX get confirmed, we must save metadata under new txid
-        let bitcoin = require('bitcoinjs-lib');
+        let bitcoin = bitcoinjs;
         let txDecoded = bitcoin.Transaction.fromHex(tx);
         let txid = txDecoded.getId();
         BlueApp.tx_metadata[txid] = BlueApp.tx_metadata[this.state.txid];

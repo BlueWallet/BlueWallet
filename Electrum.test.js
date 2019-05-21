@@ -24,7 +24,6 @@ beforeAll(async () => {
 describe('Electrum', () => {
   it('ElectrumClient can connect and query', async () => {
     const ElectrumClient = require('electrum-client');
-    let bitcoin = require('bitcoinjs-lib');
 
     for (let peer of BlueElectrum.hardcodedPeers) {
       let mainClient = new ElectrumClient(peer.tcp, peer.host, 'tcp');

@@ -419,8 +419,8 @@ export class AbstractHDWallet extends LegacyWallet {
         // wrong guess. will have to rescan
         if (!completelyEmptyWallet) {
           // so doing binary search for last used address:
-          this.next_free_change_address_index = await binarySearchIterationForInternalAddress(100);
-          this.next_free_address_index = await binarySearchIterationForExternalAddress(100);
+          this.next_free_change_address_index = await binarySearchIterationForInternalAddress(1000);
+          this.next_free_address_index = await binarySearchIterationForExternalAddress(1000);
         }
       } // end rescanning fresh wallet
 
