@@ -83,8 +83,8 @@ export default class ReceiveDetails extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ }}>
-          <View style={{ marginTop:32, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+        <View style={{}}>
+          <View style={{ marginTop: 32, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
             {this.state.bip21encoded === undefined ? (
               <BlueLoading />
             ) : (
