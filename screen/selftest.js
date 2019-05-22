@@ -270,8 +270,7 @@ export default class Selftest extends Component {
         await hd4.fetchBalance();
         if (hd4.getBalance() !== 200000) throw new Error('Could not fetch HD Bech32 balance');
         await hd4.fetchTransactions();
-        if (hd4.getTransactions().length !== 4)
-          throw new Error('Could not fetch HD Bech32 transactions');
+        if (hd4.getTransactions().length !== 4) throw new Error('Could not fetch HD Bech32 transactions');
       } else {
         console.warn('skipping RN-specific test');
       }

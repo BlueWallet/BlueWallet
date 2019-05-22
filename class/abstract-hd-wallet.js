@@ -17,7 +17,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this._xpub = ''; // cache
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
-    this.gap_limit = 3;
+    this.gap_limit = 20;
   }
 
   prepareForSerialization() {
@@ -115,7 +115,7 @@ export class AbstractHDWallet extends LegacyWallet {
     // looking for free external address
     let freeAddress = '';
     let c;
-    for (c = 0; c < Math.max(5, this.usedAddresses.length); c++) {
+    for (c = 0; c < this.gap_limit + 1; c++) {
       if (this.next_free_address_index + c < 0) continue;
       let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
       this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
@@ -153,7 +153,7 @@ export class AbstractHDWallet extends LegacyWallet {
     // looking for free internal address
     let freeAddress = '';
     let c;
-    for (c = 0; c < Math.max(5, this.usedAddresses.length); c++) {
+    for (c = 0; c < this.gap_limit + 1; c++) {
       if (this.next_free_change_address_index + c < 0) continue;
       let address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
       this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
@@ -432,6 +432,32 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   async _fetchBalance() {
+    // probing future addressess in hierarchy whether they have any transactions, in case
+    // our 'next free addr' pointers are lagging behind
+    let tryAgain = false;
+    let txs = await BlueElectrum.getTransactionsByAddress(
+      this._getExternalAddressByIndex(this.next_free_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      // whoa, someone uses our wallet outside! better catch up
+      this.next_free_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    txs = await BlueElectrum.getTransactionsByAddress(
+      this._getInternalAddressByIndex(this.next_free_change_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      this.next_free_change_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    // FIXME: refactor me ^^^ can be batched in single call
+
+    if (tryAgain) return this._fetchBalance();
+
+    // next, business as usuall. fetch balances
+
     this.usedAddresses = [];
     // generating all involved addresses:
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {

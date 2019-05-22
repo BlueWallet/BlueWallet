@@ -86,10 +86,21 @@ it('HD (BIP49) can work with a gap', async function() {
 it('Segwit HD (BIP49) can batch fetch many txs', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   let hd = new HDSegwitP2SHWallet();
-  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ'; // cant fetch txs
+  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
   await hd.fetchBalance();
   await hd.fetchTransactions();
-  assert.ok(hd.transactions.length > 0);
+  assert.ok(hd.getTransactions().length === 153);
+});
+
+it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
+  hd.next_free_change_address_index = 40;
+  hd.next_free_address_index = 50;
+  await hd.fetchBalance();
+  await hd.fetchTransactions();
+  assert.strictEqual(hd.getTransactions().length, 153);
 });
 
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {

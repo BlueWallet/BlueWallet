@@ -52,8 +52,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     this._txs_by_external_index = {};
     this._txs_by_internal_index = {};
-
-    this.gap_limit = 20;
   }
 
   /**
@@ -264,6 +262,32 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   async _fetchBalance() {
+    // probing future addressess in hierarchy whether they have any transactions, in case
+    // our 'next free addr' pointers are lagging behind
+    let tryAgain = false;
+    let txs = await BlueElectrum.getTransactionsByAddress(
+      this._getExternalAddressByIndex(this.next_free_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      // whoa, someone uses our wallet outside! better catch up
+      this.next_free_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    txs = await BlueElectrum.getTransactionsByAddress(
+      this._getInternalAddressByIndex(this.next_free_change_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      this.next_free_change_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    // FIXME: refactor me ^^^ can be batched in single call
+
+    if (tryAgain) return this._fetchBalance();
+
+    // next, business as usuall. fetch balances
+
     let addresses2fetch = [];
 
     // generating all involved addresses.
