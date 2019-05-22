@@ -542,6 +542,12 @@ export class BlueSpacing20 extends Component {
   }
 }
 
+export class BlueSpacing10 extends Component {
+  render() {
+    return <View {...this.props} style={{ height: 10, opacity: 0 }} />;
+  }
+}
+
 export class BlueList extends Component {
   render() {
     return (
