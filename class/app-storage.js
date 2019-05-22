@@ -250,6 +250,7 @@ export class AppStorage {
     let walletsToSave = [];
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
+      if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 
