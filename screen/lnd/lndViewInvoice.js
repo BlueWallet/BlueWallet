@@ -260,8 +260,10 @@ export default class LNDViewInvoice extends Component {
               title={loc.receive.details.share}
             />
             <BlueSpacing20 />
-            <BlueButton style={{
-              backgroundColor: BlueApp.settings.brandingColor }}
+            <BlueButton
+              style={{
+                backgroundColor: BlueApp.settings.brandingColor,
+              }}
               onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
               title={loc.lndViewInvoice.additional_info}
             />
