@@ -14,6 +14,7 @@ import {
   BlueNavigationStyle,
   BlueButtonLink,
   BlueSpacing20,
+  BlueSpacing10,
 } from '../../BlueComponents';
 import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
@@ -317,13 +318,14 @@ export default class WalletsAdd extends Component {
               ) : (
                 <ActivityIndicator />
               )}
-              <BlueButtonLink
-                title={loc.wallets.add.import_wallet}
-                onPress={() => {
-                  this.props.navigation.navigate('ImportWallet');
-                }}
-              />
             </View>
+            <BlueSpacing10 />
+            <BlueButtonLink
+              title={loc.wallets.add.import_wallet}
+              onPress={() => {
+                this.props.navigation.navigate('ImportWallet');
+              }}
+            />
           </View>
         </KeyboardAvoidingView>
       </SafeBlueArea>
