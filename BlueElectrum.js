@@ -190,6 +190,37 @@ async function multiGetBalanceByAddress(addresses, batchsize) {
   return ret;
 }
 
+async function multiGetUtxoByAddress(addresses, batchsize) {
+  batchsize = batchsize || 100;
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  let ret = {};
+
+  let chunks = splitIntoChunks(addresses, batchsize);
+  for (let chunk of chunks) {
+    let scripthashes = [];
+    let scripthash2addr = {};
+    for (let addr of chunk) {
+      let script = bitcoin.address.toOutputScript(addr);
+      let hash = bitcoin.crypto.sha256(script);
+      let reversedHash = Buffer.from(reverse(hash));
+      reversedHash = reversedHash.toString('hex');
+      scripthashes.push(reversedHash);
+      scripthash2addr[reversedHash] = addr;
+    }
+
+    let results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
+
+    for (let utxos of results) {
+      ret[scripthash2addr[utxos.param]] = utxos.result;
+      for (let utxo of ret[scripthash2addr[utxos.param]]) {
+        utxo.address = scripthash2addr[utxos.param];
+      }
+    }
+  }
+
+  return ret;
+}
+
 /**
  * Simple waiter till `mainConnected` becomes true (which means
  * it Electrum was connected in other function), or timeout 30 sec.
@@ -239,6 +270,7 @@ module.exports.getTransactionsFullByAddress = getTransactionsFullByAddress;
 module.exports.waitTillConnected = waitTillConnected;
 module.exports.estimateFees = estimateFees;
 module.exports.broadcast = broadcast;
+module.exports.multiGetUtxoByAddress = multiGetUtxoByAddress;
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
