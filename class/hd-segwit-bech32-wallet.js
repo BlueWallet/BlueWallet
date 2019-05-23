@@ -52,6 +52,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     this._txs_by_external_index = {};
     this._txs_by_internal_index = {};
+
+    this._utxo = [];
   }
 
   /**
@@ -342,6 +344,32 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     }
 
     this._lastBalanceFetch = +new Date();
+  }
+
+  async fetchUtxo() {
+    // considering only confirmed balance
+    let addressess = [];
+
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      if (this._balances_by_external_index[c] && this._balances_by_external_index[c].c && this._balances_by_external_index[c].c > 0) {
+        addressess.push(this._getExternalAddressByIndex(c));
+      }
+    }
+
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      if (this._balances_by_internal_index[c] && this._balances_by_internal_index[c].c && this._balances_by_internal_index[c].c > 0) {
+        addressess.push(this._getInternalAddressByIndex(c));
+      }
+    }
+
+    this._utxo = [];
+    for (let arr of Object.values(await BlueElectrum.multiGetUtxoByAddress(addressess))) {
+      this._utxo = this._utxo.concat(arr);
+    }
+  }
+
+  getUtxo() {
+    return this._utxo;
   }
 
   weOwnAddress(address) {
