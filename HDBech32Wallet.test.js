@@ -114,6 +114,26 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     }
   });
 
+  it('can fetch UTXO', async () => {
+    if (!process.env.HD_MNEMONIC) {
+      console.error('process.env.HD_MNEMONIC not set, skipped');
+      return;
+    }
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC);
+    assert.ok(hd.validateMnemonic());
+
+    await hd.fetchBalance();
+    await hd.fetchUtxo();
+    let utxo = hd.getUtxo();
+    assert.strictEqual(utxo.length, 4);
+    assert.ok(utxo[0].tx_hash);
+    assert.ok(utxo[0].tx_pos === 0 || utxo[0].tx_pos === 1);
+    assert.ok(utxo[0].value);
+    assert.ok(utxo[0].address);
+  });
+
   it('can generate addresses only via zpub', function() {
     let zpub = 'zpub6rFR7y4Q2AijBEqTUquhVz398htDFrtymD9xYYfG1m4wAcvPhXNfE3EfH1r1ADqtfSdVCToUG868RvUUkgDKf31mGDtKsAYz2oz2AGutZYs';
     let hd = new HDSegwitBech32Wallet();

@@ -113,4 +113,25 @@ describe('Electrum', () => {
     assert.strictEqual(balances.addresses['bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy'].confirmed, 50000);
     assert.strictEqual(balances.addresses['bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy'].unconfirmed, 0);
   });
+
+  it('BlueElectrum can do multiGetUtxoByAddress()', async () => {
+    let utxos = await BlueElectrum.multiGetUtxoByAddress(
+      [
+        'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
+        'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p',
+        'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r',
+        'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy',
+      ],
+      3,
+    );
+
+    assert.strictEqual(Object.keys(utxos).length, 4);
+    assert.strictEqual(
+      utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].tx_hash,
+      'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
+    );
+    assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].tx_pos, 1);
+    assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].value, 50000);
+    assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].address, 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
+  });
 });
