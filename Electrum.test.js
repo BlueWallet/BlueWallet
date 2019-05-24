@@ -127,10 +127,10 @@ describe('Electrum', () => {
 
     assert.strictEqual(Object.keys(utxos).length, 4);
     assert.strictEqual(
-      utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].tx_hash,
+      utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].txId,
       'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
     );
-    assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].tx_pos, 1);
+    assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].vout, 1);
     assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].value, 50000);
     assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].address, 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
   });
