@@ -1,3 +1,15 @@
+v4.0.2
+======
+
+* ADD: new style and colors to add wallet screen
+* ADD: advanced mode in app settings
+* FIX: HD wallet update if it was heavily used externally (closes #495)
+* FIX: improve quality of qr code, users complaining they couldn't read the qr code
+* FIX: lack of spacing in receive QR screen
+* REF: better mnemonic backup screen
+* REF: cached HD addresses generation (speeded up)
+* REF: updated bitcoinjs-lib, HD wallets speed-up
+
 v4.0.1
 ======
 
