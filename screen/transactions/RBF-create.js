@@ -153,7 +153,11 @@ export default class SendCreate extends Component {
       let result = await this.state.fromWallet.broadcastTx(this.state.tx);
       console.log('broadcast result = ', result);
       if (typeof result === 'string') {
-        result = JSON.parse(result);
+        try {
+          result = JSON.parse(result);
+        } catch (_) {
+          result = { result };
+        }
       }
       if (result && result.error) {
         alert(JSON.stringify(result.error));
