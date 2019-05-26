@@ -2,6 +2,7 @@
 global.net = require('net');
 let BlueElectrum = require('./BlueElectrum');
 let assert = require('assert');
+let bitcoin = require('bitcoinjs-lib');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 afterAll(() => {
@@ -24,7 +25,6 @@ beforeAll(async () => {
 describe('Electrum', () => {
   it('ElectrumClient can connect and query', async () => {
     const ElectrumClient = require('electrum-client');
-    let bitcoin = require('bitcoinjs-lib');
 
     for (let peer of BlueElectrum.hardcodedPeers) {
       let mainClient = new ElectrumClient(peer.tcp, peer.host, 'tcp');

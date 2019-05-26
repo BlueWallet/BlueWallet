@@ -225,18 +225,18 @@ module.exports = {
     sameWalletAsInvoiceError: '以前作成したウォレットと同じウォレットへの支払いはできません。',
   },
   pleasebackup: {
-    title: 'Your wallet is created...',
+    title: 'ウォレットを作成しています...',
     text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
-    ok: 'OK, I wrote this down!',
+      "すべてのニモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https://electrum.org/) へニモニックを使用してウォレットをリストアすることが可能です。",
+    ok: 'すべてのニモニックを書きとめました',
   },
   lndViewInvoice: {
-    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
-    has_been_paid: 'This invoice has been paid for',
-    please_pay: 'Please pay',
+    wasnt_paid_and_expired: 'この請求書は支払いが行われなかったため無効になりました',
+    has_been_paid: 'この請求書は支払い完了しました',
+    please_pay: '支払う額',
     sats: 'sats',
-    for: 'For:',
-    additional_info: 'Additional Information',
-    open_direct_channel: 'Open direct channel with this node:',
+    for: 'メモ:',
+    additional_info: '追加情報',
+    open_direct_channel: 'このノードの直接チャネルを作成:',
   },
 };

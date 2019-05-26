@@ -1,11 +1,12 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import { NativeModules } from 'react-native';
-import bitcoin from 'bitcoinjs-lib';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import signer from '../models/signer';
 const BlueElectrum = require('../BlueElectrum');
+const bitcoin5 = require('bitcoinjs5');
+const HDNode = require('bip32');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -30,10 +31,9 @@ function _zpubToXpub(zpub) {
  * @returns {String}
  */
 function _nodeToBech32SegwitAddress(hdNode) {
-  const pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
-  var scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubkeyBuf));
-  var address = bitcoin.address.fromOutputScript(scriptPubKey);
-  return address;
+  return bitcoin5.payments.p2wpkh({
+    pubkey: hdNode.publicKey,
+  }).address;
 }
 
 /**
@@ -52,8 +52,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     this._txs_by_external_index = {};
     this._txs_by_internal_index = {};
-
-    this.gap_limit = 20;
   }
 
   /**
@@ -126,11 +124,11 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = HDNode.fromSeed(seed);
     const path = `m/84'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
-    return child.keyPair.toWIF();
+    return child.toWIF();
   }
 
   _getNodeAddressByIndex(node, index) {
@@ -145,13 +143,13 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     if (node === 0 && !this._node0) {
       const xpub = _zpubToXpub(this.getXpub());
-      const hdNode = bitcoin.HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
       const xpub = _zpubToXpub(this.getXpub());
-      const hdNode = bitcoin.HDNode.fromBase58(xpub);
+      const hdNode = HDNode.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 
@@ -194,7 +192,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     // first, getting xpub
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = HDNode.fromSeed(seed);
 
     const path = "m/84'/0'/0'";
     const child = root.derivePath(path).neutered();
@@ -264,6 +262,32 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   async _fetchBalance() {
+    // probing future addressess in hierarchy whether they have any transactions, in case
+    // our 'next free addr' pointers are lagging behind
+    let tryAgain = false;
+    let txs = await BlueElectrum.getTransactionsByAddress(
+      this._getExternalAddressByIndex(this.next_free_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      // whoa, someone uses our wallet outside! better catch up
+      this.next_free_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    txs = await BlueElectrum.getTransactionsByAddress(
+      this._getInternalAddressByIndex(this.next_free_change_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      this.next_free_change_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    // FIXME: refactor me ^^^ can be batched in single call
+
+    if (tryAgain) return this._fetchBalance();
+
+    // next, business as usuall. fetch balances
+
     let addresses2fetch = [];
 
     // generating all involved addresses.
