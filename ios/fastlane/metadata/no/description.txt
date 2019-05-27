@@ -19,7 +19,7 @@ Plausible deniability
 Password which decrypts fake wallets if you are forced to disclose your access
 
 Full encryption
-On top of iOS multi-layer encryption, we encrypt everyting with added passwords
+On top of iOS multi-layer encryption, we encrypt everything with added passwords
 
 SegWit & HD wallets
 SegWit supported and HD wallets enable
@@ -27,7 +27,7 @@ SegWit supported and HD wallets enable
 2 - Focused on your experience
 
 Be in control
-Private keys never leave your device.  You control your private keys
+On the Bitcoin wallet the Private keys never leave your device.  You control your private keys
 
 Flexible fees
 Starting from 1 Satoshi.  Defined by you, the user
@@ -35,5 +35,5 @@ Starting from 1 Satoshi.  Defined by you, the user
 Replace-By-Fee
 (RBF) Speed-up your transactions by increasing the fee (BIP125)
 
-Sentinel wallets new
-Watch-only wallets allow you to keep an eye on your cold storage without touching the hardware.
+Watch-only wallets
+Allows you to keep an eye on your cold storage without touching the hardware.
