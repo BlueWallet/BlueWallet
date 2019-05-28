@@ -3,10 +3,11 @@ import { NativeModules } from 'react-native';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
-import signer from '../models/signer';
 const BlueElectrum = require('../BlueElectrum');
 const bitcoin5 = require('bitcoinjs5');
 const HDNode = require('bip32');
+const coinSelectAccumulative = require('coinselect/accumulative');
+const coinSelectSplit = require('coinselect/split');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -216,13 +217,26 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     // if txs are absent for some internal address in hierarchy - this is a sign
     // we should fetch txs for that address
     // OR if some address has unconfirmed balance - should fetch it's txs
+    // OR some tx for address is unconfirmed
+
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (!this._txs_by_external_index[c] || this._txs_by_external_index[c].length === 0 || this._balances_by_external_index[c].u !== 0) {
+      // external addresses first
+      let hasUnconfirmed = false;
+      this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
+      for (let tx of this._txs_by_external_index[c]) hasUnconfirmed = hasUnconfirmed || (!tx.confirmations || tx.confirmations === 0);
+
+      if (hasUnconfirmed || this._txs_by_external_index[c].length === 0 || this._balances_by_external_index[c].u !== 0) {
         this._txs_by_external_index[c] = await BlueElectrum.getTransactionsFullByAddress(this._getExternalAddressByIndex(c));
       }
     }
-    for (let c = 0; c < this.next_free_change_address_index + 1 /* this.gap_limit */; c++) {
-      if (!this._txs_by_internal_index[c] || this._txs_by_internal_index[c].length === 0 || this._balances_by_internal_index[c].u !== 0) {
+
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      // next, internal addresses
+      let hasUnconfirmed = false;
+      this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
+      for (let tx of this._txs_by_internal_index[c]) hasUnconfirmed = hasUnconfirmed || (!tx.confirmations || tx.confirmations === 0);
+
+      if (hasUnconfirmed || this._txs_by_internal_index[c].length === 0 || this._balances_by_internal_index[c].u !== 0) {
         this._txs_by_internal_index[c] = await BlueElectrum.getTransactionsFullByAddress(this._getInternalAddressByIndex(c));
       }
     }
@@ -241,6 +255,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     let ret = [];
     for (let tx of txs) {
       tx.received = tx.blocktime * 1000;
+      if (!tx.blocktime) tx.received = +new Date() - 30 * 1000; // unconfirmed
+      tx.confirmations = tx.confirmations || 0; // unconfirmed
       tx.hash = tx.txid;
       tx.value = 0;
 
@@ -260,7 +276,17 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       ret.push(tx);
     }
 
-    return ret;
+    // now, deduplication:
+    let usedTxIds = {};
+    let ret2 = [];
+    for (let tx of ret) {
+      if (!usedTxIds[tx.txid]) ret2.push(tx);
+      usedTxIds[tx.txid] = 1;
+    }
+
+    return ret2.sort(function(a, b) {
+      return b.received - a.received;
+    });
   }
 
   async _fetchBalance() {
@@ -376,24 +402,73 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return true;
     }
-    for (let c = 0; c < this.next_free_change_address_index + 1 /* this.gap_limit */; c++) {
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (this._getInternalAddressByIndex(c) === address) return true;
     }
     return false;
   }
 
   createTx(utxos, amount, fee, address) {
-    for (let utxo of utxos) {
-      utxo.wif = this._getWifForAddress(utxo.address);
+    throw new Error('Deprecated');
+  }
+
+  /**
+   *
+   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
+   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
+   * @param feeRate {Number} satoshi per byte
+   * @param changeAddress {String} Excessive coins will go back to that address
+   * @param sequence {Number} Used in RBF
+   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number}}
+   */
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence) {
+    if (!changeAddress) throw new Error('No change address provided');
+    sequence = sequence || 0;
+
+    let algo = coinSelectAccumulative;
+    if (targets.length === 1 && targets[0] && !targets[0].value) {
+      // we want to send MAX
+      algo = coinSelectSplit;
     }
 
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
-    return signer.createHDSegwitTransaction(
-      utxos,
-      address,
-      amountPlusFee,
-      fee,
-      this._getInternalAddressByIndex(this.next_free_change_address_index),
-    );
+    let { inputs, outputs, fee } = algo(utxos, targets, feeRate);
+    console.log({ inputs, outputs, fee });
+
+    // .inputs and .outputs will be undefined if no solution was found
+    if (!inputs || !outputs) {
+      throw new Error('Not enough balance. Try sending smaller amount');
+    }
+
+    let txb = new bitcoin5.TransactionBuilder();
+
+    let c = 0;
+    let keypairs = {};
+    let values = {};
+
+    inputs.forEach(input => {
+      const keyPair = bitcoin5.ECPair.fromWIF(this._getWifForAddress(input.address));
+      keypairs[c] = keyPair;
+      values[c] = input.value;
+      c++;
+      if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
+      const p2wpkh = bitcoin5.payments.p2wpkh({ pubkey: keyPair.publicKey });
+      txb.addInput(input.txId, input.vout, sequence, p2wpkh.output); // NOTE: provide the prevOutScript!
+    });
+
+    outputs.forEach(output => {
+      // if output has no address - this is change output
+      if (!output.address) {
+        output.address = changeAddress;
+      }
+
+      txb.addOutput(output.address, output.value);
+    });
+
+    for (let cc = 0; cc < c; cc++) {
+      txb.sign(cc, keypairs[cc], null, null, values[cc]); // NOTE: no redeem script
+    }
+
+    const tx = txb.build();
+    return { tx, inputs, outputs, fee };
   }
 }
