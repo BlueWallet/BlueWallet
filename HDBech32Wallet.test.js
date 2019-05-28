@@ -104,7 +104,6 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     await hd.fetchBalance();
     await hd.fetchTransactions();
     assert.strictEqual(hd.getTransactions().length, 4);
-    // console.warn(JSON.stringify(hd.getTransactions(), null, 2));
 
     for (let tx of hd.getTransactions()) {
       assert.ok(tx.hash);
@@ -160,5 +159,66 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     let hd2 = new HDSegwitBech32Wallet();
     hd2.setSecret(hd.getSecret());
     assert.ok(hd2.validateMnemonic());
+  });
+
+  it.only('can create transactions', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+
+    let start = +new Date();
+    await hd.fetchBalance();
+    let end = +new Date();
+    console.log('balance', hd.getBalance());
+    end - start > 5000 && console.warn('fetchBalance took', (end - start) / 1000, 'sec');
+
+    start = +new Date();
+    await hd.fetchTransactions();
+    end = +new Date();
+    end - start > 15000 && console.warn('fetchTransactions took', (end - start) / 1000, 'sec');
+
+    let txFound = 0;
+    for (let tx of hd.getTransactions()) {
+      if (tx.hash === 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b') {
+        assert.strictEqual(tx.value, -129545);
+        txFound++;
+      }
+      if (tx.hash === 'e112771fd43962abfe4e4623bf788d6d95ff1bd0f9b56a6a41fb9ed4dacc75f1') {
+        assert.strictEqual(tx.value, 1000000);
+        txFound++;
+      }
+    }
+    assert.ok(txFound === 2);
+
+    await hd.fetchUtxo();
+    let changeAddress = await hd.getChangeAddressAsync();
+    assert.ok(changeAddress && changeAddress.startsWith('bc1'));
+
+    let { tx, inputs, outputs, fee } = hd.createTransaction(
+      hd.getUtxo(),
+      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 101000 }],
+      13,
+      changeAddress,
+    );
+
+    assert.strictEqual(Math.round(fee / tx.byteLength()), 13);
+
+    let totalInput = 0;
+    for (let inp of inputs) {
+      totalInput += inp.value;
+    }
+
+    let totalOutput = 0;
+    for (let outp of outputs) {
+      totalOutput += outp.value;
+    }
+
+    assert.strictEqual(totalInput - totalOutput, fee);
+    assert.strictEqual(outputs[outputs.length - 1].address, changeAddress);
   });
 });
