@@ -161,7 +161,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(hd2.validateMnemonic());
   });
 
-  it.only('can create transactions', async () => {
+  it('can create transactions', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
