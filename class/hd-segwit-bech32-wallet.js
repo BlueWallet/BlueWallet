@@ -337,7 +337,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     }
 
     // internal
-    for (let c = 0; c < this.next_free_change_address_index + 1 /* this.gap_limit */; c++) {
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       if (c >= this.next_free_change_address_index) {
         addresses2fetch.push(this._getInternalAddressByIndex(c));
       } else if (!this._balances_by_internal_index[c]) {
@@ -353,6 +353,17 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       let addr = this._getExternalAddressByIndex(c);
       if (balances.addresses[addr]) {
+        // first, if balances differ from what we store - we delete transactions for that
+        // address so next fetchTransactions() will refetch everything
+        if (this._balances_by_external_index[c]) {
+          if (
+            this._balances_by_external_index[c].c !== balances.addresses[addr].confirmed ||
+            this._balances_by_external_index[c].u !== balances.addresses[addr].unconfirmed
+          ) {
+            delete this._txs_by_external_index[c];
+          }
+        }
+        // update local representation of balances on that address:
         this._balances_by_external_index[c] = {
           c: balances.addresses[addr].confirmed,
           u: balances.addresses[addr].unconfirmed,
@@ -362,6 +373,17 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       let addr = this._getInternalAddressByIndex(c);
       if (balances.addresses[addr]) {
+        // first, if balances differ from what we store - we delete transactions for that
+        // address so next fetchTransactions() will refetch everything
+        if (this._balances_by_internal_index[c]) {
+          if (
+            this._balances_by_internal_index[c].c !== balances.addresses[addr].confirmed ||
+            this._balances_by_internal_index[c].u !== balances.addresses[addr].unconfirmed
+          ) {
+            delete this._txs_by_internal_index[c];
+          }
+        }
+        // update local representation of balances on that address:
         this._balances_by_internal_index[c] = {
           c: balances.addresses[addr].confirmed,
           u: balances.addresses[addr].unconfirmed,
