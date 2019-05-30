@@ -310,7 +310,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       tryAgain = true;
     }
 
-    // FIXME: refactor me ^^^ can be batched in single call
+    // FIXME: refactor me ^^^ can be batched in single call. plus not just couple of addresses, but all between [ next_free .. (next_free + gap_limit) ]
 
     if (tryAgain) return this._fetchBalance();
 
@@ -319,32 +319,17 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     let addresses2fetch = [];
 
     // generating all involved addresses.
-    // if address is skipped in internal representation (`_balances_by_external_index` and `_balances_by_internal_index`)
-    // then its a marker that this address should be fetched.
-    // if it has unconfirmed balance - it is also a marker that it should be fetched
-    // also it should be fetched if it is the last used address in hierarchy, just for any case,
-    // or if it is next unused (plus several unused addressess according to gap limit)
+    // basically, refetch all from index zero to maximum. doesnt matter
+    // since we batch them 100 per call
 
     // external
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      if (c >= this.next_free_address_index) {
-        addresses2fetch.push(this._getExternalAddressByIndex(c));
-      } else if (!this._balances_by_external_index[c]) {
-        addresses2fetch.push(this._getExternalAddressByIndex(c));
-      } else if (this._balances_by_external_index[c] && this._balances_by_external_index[c].u !== 0) {
-        addresses2fetch.push(this._getExternalAddressByIndex(c));
-      }
+      addresses2fetch.push(this._getExternalAddressByIndex(c));
     }
 
     // internal
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      if (c >= this.next_free_change_address_index) {
-        addresses2fetch.push(this._getInternalAddressByIndex(c));
-      } else if (!this._balances_by_internal_index[c]) {
-        addresses2fetch.push(this._getInternalAddressByIndex(c));
-      } else if (this._balances_by_internal_index[c] && this._balances_by_internal_index[c].u !== 0) {
-        addresses2fetch.push(this._getInternalAddressByIndex(c));
-      }
+      addresses2fetch.push(this._getInternalAddressByIndex(c));
     }
 
     let balances = await BlueElectrum.multiGetBalanceByAddress(addresses2fetch);
@@ -454,7 +439,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     }
 
     let { inputs, outputs, fee } = algo(utxos, targets, feeRate);
-    console.log({ inputs, outputs, fee });
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {

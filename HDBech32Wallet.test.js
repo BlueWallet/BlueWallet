@@ -161,6 +161,42 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.ok(hd2.validateMnemonic());
   });
 
+  it('can catch up with externally modified wallet', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+
+    await hd.fetchBalance();
+    let oldBalance = hd.getBalance();
+
+    await hd.fetchTransactions();
+    let oldTransactions = hd.getTransactions();
+
+    // now, mess with internal state, make it 'obsolete'
+
+    hd._txs_by_external_index['2'].pop();
+    hd._txs_by_internal_index['16'].pop();
+    hd._txs_by_internal_index['17'] = [];
+
+    for (let c = 17; c < 100; c++) hd._balances_by_internal_index[c] = { c: 0, u: 0 };
+    hd._balances_by_external_index['2'].c = 1000000;
+
+    assert.ok(hd.getBalance() !== oldBalance);
+    assert.ok(hd.getTransactions().length !== oldTransactions.length);
+
+    // now, refetch! should get back to normal
+
+    await hd.fetchBalance();
+    assert.strictEqual(hd.getBalance(), oldBalance);
+    await hd.fetchTransactions();
+    assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
+  });
+
   it('can create transactions', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -174,7 +210,6 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     let start = +new Date();
     await hd.fetchBalance();
     let end = +new Date();
-    console.log('balance', hd.getBalance());
     end - start > 5000 && console.warn('fetchBalance took', (end - start) / 1000, 'sec');
 
     start = +new Date();
