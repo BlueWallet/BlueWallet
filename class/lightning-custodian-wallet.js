@@ -55,11 +55,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   timeToRefreshBalance() {
-    return (+new Date() - this._lastBalanceFetch) / 1000 > 3600; // 1hr
+    return (+new Date() - this._lastBalanceFetch) / 1000 > 300; // 5 min
   }
 
   timeToRefreshTransaction() {
-    return (+new Date() - this._lastTxFetch) / 1000 > 3600; // 1hr
+    return (+new Date() - this._lastTxFetch) / 1000 > 300; // 5 min
   }
 
   static fromJson(param) {
