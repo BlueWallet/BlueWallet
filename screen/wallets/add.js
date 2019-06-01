@@ -20,7 +20,7 @@ import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { AppStorage, SegwitP2SHWallet } from '../../class';
+import { AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -166,7 +166,7 @@ export default class WalletsAdd extends Component {
                 return (
                   <View
                     style={{
-                      height: 100,
+                      height: 140,
                     }}
                   >
                     <BlueSpacing20 />
@@ -177,6 +177,9 @@ export default class WalletsAdd extends Component {
                       </RadioButton>
                       <RadioButton value={SegwitP2SHWallet.type}>
                         <BlueText>{SegwitP2SHWallet.typeReadable} - Single address</BlueText>
+                      </RadioButton>
+                      <RadioButton value={HDSegwitBech32Wallet.type}>
+                        <BlueText>{HDSegwitBech32Wallet.typeReadable} - Multiple addresses</BlueText>
                       </RadioButton>
                     </RadioGroup>
                   </View>
@@ -285,6 +288,11 @@ export default class WalletsAdd extends Component {
                           } else {
                             this.createLightningWallet();
                           }
+                        } else if (this.state.selectedIndex === 2) {
+                          // btc was selected
+                          // index 2 radio - hd bip84
+                          w = new HDSegwitBech32Wallet();
+                          w.setLabel(this.state.label || loc.wallets.details.title);
                         } else if (this.state.selectedIndex === 1) {
                           // btc was selected
                           // index 1 radio - segwit single address
@@ -302,7 +310,7 @@ export default class WalletsAdd extends Component {
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
                           A(A.ENUM.CREATED_WALLET);
                           ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-                          if (w.type === HDSegwitP2SHWallet.type) {
+                          if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
                             this.props.navigation.navigate('PleaseBackup', {
                               secret: w.getSecret(),
                             });

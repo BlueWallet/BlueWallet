@@ -68,7 +68,17 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     for (let bal of Object.values(this._balances_by_internal_index)) {
       ret += bal.c;
     }
-    return ret;
+    return ret + this.getUnconfirmedBalance();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  timeToRefreshTransaction() {
+    for (let tx of this.getTransactions()) {
+      if (tx.confirmations < 7) return true;
+    }
+    return false;
   }
 
   getUnconfirmedBalance() {
@@ -240,6 +250,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
         this._txs_by_internal_index[c] = await BlueElectrum.getTransactionsFullByAddress(this._getInternalAddressByIndex(c));
       }
     }
+
+    this._lastTxFetch = +new Date();
   }
 
   getTransactions() {

@@ -3,7 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
 import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { RNCamera } from 'react-native-camera';
-import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet } from '../../class';
+import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -71,8 +71,35 @@ export default class ScanQrWif extends React.Component {
       }
     }
 
+    // is it HD BIP84 mnemonic?
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(ret.data);
+    if (hd.validateMnemonic()) {
+      for (let w of BlueApp.wallets) {
+        if (w.getSecret() === hd.getSecret()) {
+          // lookig for duplicates
+          this.setState({ isLoading: false });
+          return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
+        }
+      }
+      this.setState({ isLoading: true });
+      hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
+      await hd.fetchBalance();
+      if (hd.getBalance() !== 0) {
+        await hd.fetchTransactions();
+        BlueApp.wallets.push(hd);
+        await BlueApp.saveToDisk();
+        alert(loc.wallets.import.success);
+        this.props.navigation.popToTop();
+        setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+        this.setState({ isLoading: false });
+        return;
+      }
+    }
+    // nope
+
     // is it HD legacy (BIP44) mnemonic?
-    let hd = new HDLegacyP2PKHWallet();
+    hd = new HDLegacyP2PKHWallet();
     hd.setSecret(ret.data);
     if (hd.validateMnemonic()) {
       for (let w of BlueApp.wallets) {
