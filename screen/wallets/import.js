@@ -6,6 +6,7 @@ import {
   HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
+  HDSegwitBech32Wallet,
 } from '../../class';
 import React, { Component } from 'react';
 import { KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
@@ -117,6 +118,16 @@ export default class WalletsImport extends Component {
 
       // if we're here - nope, its not a valid WIF
 
+      let hd4 = new HDSegwitBech32Wallet();
+      hd4.setSecret(text);
+      if (hd4.validateMnemonic()) {
+        await hd4.fetchBalance();
+        if (hd4.getBalance() > 0) {
+          await hd4.fetchTransactions();
+          return this._saveWallet(hd4);
+        }
+      }
+
       let hd1 = new HDLegacyBreadwalletWallet();
       hd1.setSecret(text);
       if (hd1.validateMnemonic()) {
@@ -167,10 +178,16 @@ export default class WalletsImport extends Component {
           return this._saveWallet(hd3);
         }
       }
+      if (hd4.validateMnemonic()) {
+        await hd4.fetchTransactions();
+        if (hd4.getTransactions().length !== 0) {
+          return this._saveWallet(hd4);
+        }
+      }
 
       // is it even valid? if yes we will import as:
-      if (hd2.validateMnemonic()) {
-        return this._saveWallet(hd2);
+      if (hd4.validateMnemonic()) {
+        return this._saveWallet(hd4);
       }
 
       // not valid? maybe its a watch-only address?
@@ -193,6 +210,7 @@ export default class WalletsImport extends Component {
     alert(loc.wallets.import.error);
     ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     // Plan:
+    // 0. check if its HDSegwitBech32Wallet (BIP84)
     // 1. check if its HDSegwitP2SHWallet (BIP49)
     // 2. check if its HDLegacyP2PKHWallet (BIP44)
     // 3. check if its HDLegacyBreadwalletWallet (no BIP, just "m/0")

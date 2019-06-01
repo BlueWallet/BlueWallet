@@ -101,8 +101,14 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     hd.setSecret(process.env.HD_MNEMONIC);
     assert.ok(hd.validateMnemonic());
 
+    assert.strictEqual(hd.timeToRefreshBalance(), true);
+    assert.ok(hd._lastTxFetch === 0);
+    assert.ok(hd._lastBalanceFetch === 0);
     await hd.fetchBalance();
     await hd.fetchTransactions();
+    assert.ok(hd._lastTxFetch > 0);
+    assert.ok(hd._lastBalanceFetch > 0);
+    assert.strictEqual(hd.timeToRefreshBalance(), false);
     assert.strictEqual(hd.getTransactions().length, 4);
 
     for (let tx of hd.getTransactions()) {
