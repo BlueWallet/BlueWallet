@@ -45,7 +45,8 @@ export default class WalletsAdd extends Component {
   async componentDidMount() {
     let walletBaseURI = await AsyncStorage.getItem(AppStorage.LNDHUB);
     let isAdvancedOptionsEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
-    walletBaseURI = JSON.parse(walletBaseURI) || '';
+    walletBaseURI = walletBaseURI || '';
+
     this.setState({
       isLoading: false,
       activeBitcoin: undefined,
