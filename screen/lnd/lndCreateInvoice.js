@@ -31,14 +31,14 @@ export default class LNDCreateInvoice extends Component {
       try {
         const invoiceRequest = await this.state.fromWallet.addInvoice(this.state.amount, this.state.description);
         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
           fromWallet: this.state.fromWallet,
           isModal: true,
         });
       } catch (_error) {
-        ReactNativeHapticFeedback.trigger('notificationError', false);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         this.setState({ isLoading: false });
         alert('Error');
       }

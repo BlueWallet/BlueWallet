@@ -153,6 +153,9 @@ describe('LightningCustodianWallet', () => {
 
     await l2.fetchTransactions();
     assert.strictEqual(l2.transactions_raw.length, txLen + 1);
+    let lastTx = l2.transactions_raw[l2.transactions_raw.length - 1];
+    assert.strictEqual(typeof lastTx.payment_preimage, 'string', 'preimage is present and is a string');
+    assert.strictEqual(lastTx.payment_preimage.length, 64, 'preimage is present and is a string of 32 hex-encoded bytes');
     // transactions became more after paying an invoice
 
     // now, trying to pay duplicate invoice
@@ -370,6 +373,14 @@ describe('LightningCustodianWallet', () => {
     let err = false;
     try {
       await l1.addInvoice(0, 'zero amt inv');
+    } catch (_) {
+      err = true;
+    }
+    assert.ok(err);
+
+    err = false;
+    try {
+      await l1.addInvoice(NaN, 'zero amt inv');
     } catch (_) {
       err = true;
     }

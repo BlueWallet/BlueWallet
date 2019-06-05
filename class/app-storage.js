@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
@@ -7,9 +7,11 @@ import {
   LegacyWallet,
   SegwitP2SHWallet,
   SegwitBech32Wallet,
+  HDSegwitBech32Wallet,
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
-let encryption = require('../encryption');
+import WatchConnectivity from '../WatchConnectivity';
+const encryption = require('../encryption');
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -17,6 +19,7 @@ export class AppStorage {
   static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
   static PREFERRED_CURRENCY = 'preferredCurrency';
+  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -44,11 +47,14 @@ export class AppStorage {
       failedColor: '#ff0000',
       shadowColor: '#000000',
       inverseForegroundColor: '#ffffff',
+      hdborderColor: '#68BBE1',
+      hdbackgroundColor: '#ECF9FF',
+      lnborderColor: '#F7C056',
+      lnbackgroundColor: '#FFFAEF',
     };
   }
 
   async storageIsEncrypted() {
-    // await AsyncStorage.clear();
     let data;
     try {
       data = await AsyncStorage.getItem(AppStorage.FLAG_ENCRYPTED);
@@ -118,8 +124,9 @@ export class AppStorage {
     buckets = JSON.parse(buckets);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
-
-    return AsyncStorage.setItem('data', JSON.stringify(buckets));
+    const bucketsString = JSON.stringify(buckets);
+    await AsyncStorage.setItem('data', bucketsString);
+    return (await AsyncStorage.getItem('data')) === bucketsString;
   }
 
   /**
@@ -156,12 +163,16 @@ export class AppStorage {
               break;
             case WatchOnlyWallet.type:
               unserializedWallet = WatchOnlyWallet.fromJson(key);
+              unserializedWallet.init();
               break;
             case HDLegacyP2PKHWallet.type:
               unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
               break;
             case HDSegwitP2SHWallet.type:
               unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
+              break;
+            case HDSegwitBech32Wallet.type:
+              unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
               break;
             case HDLegacyBreadwalletWallet.type:
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
@@ -199,11 +210,14 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
+        WatchConnectivity.init();
+        await WatchConnectivity.shared.sendWalletsToWatch();
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
       }
     } catch (error) {
+      console.warn(error.message);
       return false;
     }
   }
@@ -240,6 +254,7 @@ export class AppStorage {
     let walletsToSave = [];
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
+      if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 
@@ -269,7 +284,8 @@ export class AppStorage {
     } else {
       await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-
+    WatchConnectivity.init();
+    WatchConnectivity.shared.sendWalletsToWatch();
     return AsyncStorage.setItem('data', JSON.stringify(data));
   }
 

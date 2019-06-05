@@ -26,6 +26,9 @@
           <category android:name="android.intent.category.BROWSABLE" />
           <data android:scheme="bitcoin" />
           <data android:scheme="lightning" />
+          <data android:scheme="bluewallet" />
+          <data android:scheme="lapp" />
+          <data android:scheme="blue" />
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />

@@ -216,14 +216,16 @@ export default class Browser extends Component {
     super(props);
     if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
     if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
+    let url;
+    if (props.navigation.getParam('url')) url = props.navigation.getParam('url');
 
     this.state = {
-      url: 'https://bluewallet.io/marketplace/',
+      url: url || 'https://bluewallet.io/marketplace/',
       fromSecret: props.navigation.getParam('fromSecret'),
       fromWallet: props.navigation.getParam('fromWallet'),
       canGoBack: false,
       pageIsLoading: false,
-      stateURL: 'https://bluewallet.io/marketplace/',
+      stateURL: url || 'https://bluewallet.io/marketplace/',
     };
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
   }
@@ -293,7 +295,12 @@ export default class Browser extends Component {
           }
 
           if (json && json.makeInvoice) {
-            let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
+            let amount = Math.max(
+              json.makeInvoice.minimumAmount || 0,
+              json.makeInvoice.maximumAmount || 0,
+              json.makeInvoice.defaultAmount || 0,
+              json.makeInvoice.amount || 0,
+            );
             Alert.alert(
               'Page',
               'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',

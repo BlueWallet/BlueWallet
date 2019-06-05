@@ -1,57 +1,52 @@
-v3.9.2
+v4.0.3
 ======
 
-* ADD: Swedish translation
-* FIX: fetch tx history for large HD wallets (closes #416)
-* FIX: HD wallets not can handle small gaps in hierarchy (closes #388)
-* FIX: JP
-* REF: better Electrum support
+* ADD: HD bech32 wallets (BIP84)
+* FIX: lndhub uri bug
+* FIX: RBF broadcast fix
+* FIX: wont import WIF with uncompressed public key for segwit wallet
+* REF: better LN wallet refresh strategy
 
-v3.9.0
+v4.0.2
 ======
 
-* FIX: all wallets are refreshed when app launches
-* FIX: Send BTC should ignore non-onchain wallets* FIX: all wallets are refreshed when app launches
-* FIX: correct qr scan when importing lndhub qr backup
-* ADD: Finnish translation
-* ADD: Turkish translation
-* ADD: Greek (EL) localization
-* ADD: norwegian translation
+* ADD: new style and colors to add wallet screen
+* ADD: advanced mode in app settings
+* FIX: HD wallet update if it was heavily used externally (closes #495)
+* FIX: improve quality of qr code, users complaining they couldn't read the qr code
+* FIX: lack of spacing in receive QR screen
+* REF: better mnemonic backup screen
+* REF: cached HD addresses generation (speeded up)
+* REF: updated bitcoinjs-lib, HD wallets speed-up
 
-v3.8.3
+v4.0.1
 ======
 
-* REF: better support for different lndhub uris
-* FIX: Send BTC should ignore non-onchain wallets
-* FIX: Deeplink would fail sometimes on cold start (#382)
-* FIX: Fixed an issue when inserting an address after amount.
-* FIX: UI fixes for  transactions list
-* ADD: Haptic feedbacks on error alerts
-* ADD: Read clipboard for transactions
-* ADD: Italian language
+* FIX: watchonly & ln wallet import/load
+* REF: reworded error msg
+* REF: better ln scan qr import
+* REF: electrum batching for getBalance
+* ADD: Support Safello redirect URLs (better Safello integration)
+* ADD: watch-only wallets support HD (xpub, ypub, zpub)
 
-v3.8.2
+v4.0.0
+=======
+
+* ADD: Apple Watch support
+* ADD: preimage info of paid ln tx
+* FIX: better import of ln wallet
+* REF: better offline handling
+
+v3.9.7
 ======
 
-* FIX: Create button was difficult to press
-* ADD: Clipboard detection on app state change to foreground
-* FIX: Statusbar restored
-* ADD: Broadcast TX using Electrum
-* ADD: Blur sensitive views from visibility on app switcher
-* FIX: Hide context menu
-* FIX: Disable third party keyboard on iOS
-* FIX: Disable suggestions
-* ADD: Switch Lightning wallets on send screen.
-* ADD: If providing an LND address in BTC send screen, throw an error.
-* ADD: Chain type in order to determine what type of wallet has been selected.
-* FIX: Handle BitPay BIP70 scenarios where schema isnt present.
-* ADD: Use Electrum to estimate fee
-* FIX: Wallet selection
-* FIX: wallets/list pull-to-refresh animation duration
-* FIX: Text not displayed correctly #165
-* FIX: back button
-* FIX: Fix transaction fee for BIP70 payments
-* REF: buy bitcoin via redirect
-* FIX: Update th_TS
-* ADD: Tap, and hold, on balance to display a Copy balance option
-* FIX: Send BTC should ignore non-onchain wallets
+* ADD: intermediate step asking user to backup his mnemonic
+* ADD: buy bitcoin now happens in builtin webview instead of external browser
+* ADD: new deeplinking scheme
+* FIX: rare crash on app startup
+* FIX: large HD utxo fetch (closes #459)
+* FIX: better ln wallet import
+* FIX: rare hangs when importing wallet via qr
+* REF: Remove old security alert #379
+* REF: more electrum servers
+* REF: lapp browser improv
