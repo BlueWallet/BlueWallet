@@ -190,6 +190,8 @@ module.exports = {
     about: 'BlueWallet について',
     language: '言語',
     currency: '通貨',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: '隠匿設定',
@@ -221,5 +223,20 @@ module.exports = {
     placeholder: '入金依頼',
     expired: '失効',
     sameWalletAsInvoiceError: '以前作成したウォレットと同じウォレットへの支払いはできません。',
+  },
+  pleasebackup: {
+    title: 'ウォレットを作成しています...',
+    text:
+      'すべてのニモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https://electrum.org/) へニモニックを使用してウォレットをリストアすることが可能です。',
+    ok: 'すべてのニモニックを書きとめました',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'この請求書は支払いが行われなかったため無効になりました',
+    has_been_paid: 'この請求書は支払い完了しました',
+    please_pay: '支払う額',
+    sats: 'sats',
+    for: 'メモ:',
+    additional_info: '追加情報',
+    open_direct_channel: 'このノードの直接チャネルを作成:',
   },
 };

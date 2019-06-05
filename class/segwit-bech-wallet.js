@@ -29,7 +29,6 @@ export class SegwitBech32Wallet extends LegacyWallet {
   }
 
   static scriptPubKeyToAddress(scriptPubKey) {
-    const bitcoin = require('bitcoinjs-lib');
     const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
     return bitcoin.address.fromOutputScript(scriptPubKey2, bitcoin.networks.bitcoin);
   }

@@ -1,11 +1,13 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
 import { NativeModules } from 'react-native';
-import bitcoin from 'bitcoinjs-lib';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import signer from '../models/signer';
+const bitcoin = require('bitcoinjs-lib');
+const bitcoin5 = require('bitcoinjs5');
+const HDNode = require('bip32');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -28,13 +30,10 @@ function ypubToXpub(ypub) {
  * @returns {String}
  */
 function nodeToP2shSegwitAddress(hdNode) {
-  const pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
-  const hash = bitcoin.crypto.hash160(pubkeyBuf);
-  const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(hash);
-  const hash2 = bitcoin.crypto.hash160(redeemScript);
-  const scriptPubkey = bitcoin.script.scriptHash.output.encode(hash2);
-
-  return bitcoin.address.fromOutputScript(scriptPubkey);
+  const { address } = bitcoin5.payments.p2sh({
+    redeem: bitcoin5.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+  });
+  return address;
 }
 
 /**
@@ -102,9 +101,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
-    const xpub = ypubToXpub(this.getXpub());
-    const hdNode = bitcoin.HDNode.fromBase58(xpub);
-    const address = nodeToP2shSegwitAddress(hdNode.derive(0).derive(index));
+    if (!this._node0) {
+      const xpub = ypubToXpub(this.getXpub());
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node0 = hdNode.derive(0);
+    }
+    const address = nodeToP2shSegwitAddress(this._node0.derive(index));
 
     return (this.external_addresses_cache[index] = address);
   }
@@ -113,9 +115,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
-    const xpub = ypubToXpub(this.getXpub());
-    const hdNode = bitcoin.HDNode.fromBase58(xpub);
-    const address = nodeToP2shSegwitAddress(hdNode.derive(1).derive(index));
+    if (!this._node1) {
+      const xpub = ypubToXpub(this.getXpub());
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node1 = hdNode.derive(1);
+    }
+    const address = nodeToP2shSegwitAddress(this._node1.derive(index));
 
     return (this.internal_addresses_cache[index] = address);
   }
@@ -133,7 +138,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     // first, getting xpub
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = HDNode.fromSeed(seed);
 
     const path = "m/49'/0'/0'";
     const child = root.derivePath(path).neutered();

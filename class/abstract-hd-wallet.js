@@ -1,7 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 const bip39 = require('bip39');
-const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../BlueElectrum');
 
@@ -18,7 +17,13 @@ export class AbstractHDWallet extends LegacyWallet {
     this._xpub = ''; // cache
     this.usedAddresses = [];
     this._address_to_wif_cache = {};
-    this.gap_limit = 3;
+    this.gap_limit = 20;
+  }
+
+  prepareForSerialization() {
+    // deleting structures that cant be serialized
+    delete this._node0;
+    delete this._node1;
   }
 
   generate() {
@@ -110,11 +115,16 @@ export class AbstractHDWallet extends LegacyWallet {
     // looking for free external address
     let freeAddress = '';
     let c;
-    for (c = 0; c < Math.max(5, this.usedAddresses.length); c++) {
+    for (c = 0; c < this.gap_limit + 1; c++) {
       if (this.next_free_address_index + c < 0) continue;
       let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
       this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
-      let txs = await BlueElectrum.getTransactionsByAddress(address);
+      let txs = [];
+      try {
+        txs = await BlueElectrum.getTransactionsByAddress(address);
+      } catch (Err) {
+        console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
+      }
       if (txs.length === 0) {
         // found free address
         freeAddress = address;
@@ -143,11 +153,16 @@ export class AbstractHDWallet extends LegacyWallet {
     // looking for free internal address
     let freeAddress = '';
     let c;
-    for (c = 0; c < Math.max(5, this.usedAddresses.length); c++) {
+    for (c = 0; c < this.gap_limit + 1; c++) {
       if (this.next_free_change_address_index + c < 0) continue;
       let address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
       this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
-      let txs = await BlueElectrum.getTransactionsByAddress(address);
+      let txs = [];
+      try {
+        txs = await BlueElectrum.getTransactionsByAddress(address);
+      } catch (Err) {
+        console.warn('BlueElectrum.getTransactionsByAddress()', Err.message);
+      }
       if (txs.length === 0) {
         // found free address
         freeAddress = address;
@@ -323,14 +338,14 @@ export class AbstractHDWallet extends LegacyWallet {
     }
 
     // no luck - lets iterate over all addresses we have up to first unused address index
-    for (let c = 0; c <= this.next_free_change_address_index + 3; c++) {
+    for (let c = 0; c <= this.next_free_change_address_index + this.gap_limit; c++) {
       let possibleAddress = this._getInternalAddressByIndex(c);
       if (possibleAddress === address) {
         return (this._address_to_wif_cache[address] = this._getInternalWIFByIndex(c));
       }
     }
 
-    for (let c = 0; c <= this.next_free_address_index + 3; c++) {
+    for (let c = 0; c <= this.next_free_address_index + this.gap_limit; c++) {
       let possibleAddress = this._getExternalAddressByIndex(c);
       if (possibleAddress === address) {
         return (this._address_to_wif_cache[address] = this._getExternalWIFByIndex(c));
@@ -404,29 +419,57 @@ export class AbstractHDWallet extends LegacyWallet {
         // wrong guess. will have to rescan
         if (!completelyEmptyWallet) {
           // so doing binary search for last used address:
-          this.next_free_change_address_index = await binarySearchIterationForInternalAddress(100);
-          this.next_free_address_index = await binarySearchIterationForExternalAddress(100);
+          this.next_free_change_address_index = await binarySearchIterationForInternalAddress(1000);
+          this.next_free_address_index = await binarySearchIterationForExternalAddress(1000);
         }
-      }
-
-      this.usedAddresses = [];
-
-      // generating all involved addresses:
-      for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-        this.usedAddresses.push(this._getExternalAddressByIndex(c));
-      }
-      for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-        this.usedAddresses.push(this._getInternalAddressByIndex(c));
-      }
+      } // end rescanning fresh wallet
 
       // finally fetching balance
-      let balance = await BlueElectrum.multiGetBalanceByAddress(this.usedAddresses);
-      this.balance = new BigNumber(balance.balance).dividedBy(100000000).toNumber();
-      this.unconfirmed_balance = new BigNumber(balance.unconfirmed_balance).dividedBy(100000000).toNumber();
-      this._lastBalanceFetch = +new Date();
+      await this._fetchBalance();
     } catch (err) {
       console.warn(err);
     }
+  }
+
+  async _fetchBalance() {
+    // probing future addressess in hierarchy whether they have any transactions, in case
+    // our 'next free addr' pointers are lagging behind
+    let tryAgain = false;
+    let txs = await BlueElectrum.getTransactionsByAddress(
+      this._getExternalAddressByIndex(this.next_free_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      // whoa, someone uses our wallet outside! better catch up
+      this.next_free_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    txs = await BlueElectrum.getTransactionsByAddress(
+      this._getInternalAddressByIndex(this.next_free_change_address_index + this.gap_limit - 1),
+    );
+    if (txs.length > 0) {
+      this.next_free_change_address_index += this.gap_limit;
+      tryAgain = true;
+    }
+
+    // FIXME: refactor me ^^^ can be batched in single call
+
+    if (tryAgain) return this._fetchBalance();
+
+    // next, business as usuall. fetch balances
+
+    this.usedAddresses = [];
+    // generating all involved addresses:
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      this.usedAddresses.push(this._getExternalAddressByIndex(c));
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      this.usedAddresses.push(this._getInternalAddressByIndex(c));
+    }
+    let balance = await BlueElectrum.multiGetBalanceByAddress(this.usedAddresses);
+    this.balance = balance.balance;
+    this.unconfirmed_balance = balance.unconfirmed_balance;
+    this._lastBalanceFetch = +new Date();
   }
 
   async _fetchUtxoBatch(addresses) {

@@ -10,7 +10,7 @@ let A = require('./analytics');
 let BlueElectrum = require('./BlueElectrum'); // eslint-disable-line
 
 /** @type {AppStorage} */
-let BlueApp = new AppStorage();
+const BlueApp = new AppStorage();
 
 async function startAndDecrypt(retry) {
   console.log('startAndDecrypt');

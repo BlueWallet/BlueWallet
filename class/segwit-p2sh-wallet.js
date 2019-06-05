@@ -26,6 +26,10 @@ export class SegwitP2SHWallet extends LegacyWallet {
     try {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
       let pubKey = keyPair.getPublicKeyBuffer();
+      if (!keyPair.compressed) {
+        console.warn('only compressed public keys are good for segwit');
+        return false;
+      }
       let witnessScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey));
       let scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(witnessScript));
       address = bitcoin.address.fromOutputScript(scriptPubKey);

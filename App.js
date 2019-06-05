@@ -1,5 +1,6 @@
 import React from 'react';
-import { Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View, AsyncStorage } from 'react-native';
+import { Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import Modal from 'react-native-modal';
 import { NavigationActions } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
@@ -94,6 +95,12 @@ export default class App extends React.Component {
     return isValidLightningInvoice;
   }
 
+  isSafelloRedirect(event) {
+    let urlObject = url.parse(event.url, true) // eslint-disable-line
+
+    return !!urlObject.query['safello-state-token'];
+  }
+
   handleOpenURL = event => {
     if (event.url === null) {
       return;
@@ -118,6 +125,21 @@ export default class App extends React.Component {
             routeName: 'ScanLndInvoice',
             params: {
               uri: event.url,
+            },
+          }),
+        );
+    } else if (this.isSafelloRedirect(event)) {
+      let urlObject = url.parse(event.url, true) // eslint-disable-line
+
+      const safelloStateToken = urlObject.query['safello-state-token'];
+
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'BuyBitcoin',
+            params: {
+              uri: event.url,
+              safelloStateToken,
             },
           }),
         );
@@ -194,7 +216,7 @@ export default class App extends React.Component {
   renderClipboardContentModal = () => {
     return (
       <Modal
-        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', false)}
+        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {

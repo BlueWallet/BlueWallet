@@ -25,7 +25,6 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
-import DeviceInfo from 'react-native-device-info';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
 import ImagePicker from 'react-native-image-picker';
@@ -36,6 +35,7 @@ let loc = require('./loc/');
 let BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
+const BigNumber = require('bignumber.js');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;
@@ -93,32 +93,26 @@ export class BitcoinButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-            borderWidth: 0.5,
+            borderColor: BlueApp.settings.hdborderColor,
+            borderWidth: 1,
             borderRadius: 5,
-            backgroundColor: BlueApp.settings.inputBackgroundColor,
+            backgroundColor: (this.props.active && BlueApp.settings.hdbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon
-              name="btc"
-              size={32}
-              type="font-awesome"
-              color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor}
-            />
-            <Text
-              style={{
-                textAlign: 'center',
-                color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-              }}
-            >
-              {loc.wallets.add.bitcoin}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+            <Text style={{ color: BlueApp.settings.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add.bitcoin}</Text>
           </View>
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/bitcoin.png')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -137,32 +131,26 @@ export class LightningButton extends Component {
         <View
           style={{
             // eslint-disable-next-line
-            borderColor: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-            borderWidth: 0.5,
+            borderColor: BlueApp.settings.lnborderColor,
+            borderWidth: 1,
             borderRadius: 5,
-            backgroundColor: BlueApp.settings.inputBackgroundColor,
+            backgroundColor: (this.props.active && BlueApp.settings.lnbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
             width: this.props.style.width,
+            minWidth: this.props.style.width,
             // eslint-disable-next-line
+            minHeight: this.props.style.height,
             height: this.props.style.height,
+            flex: 1,
           }}
         >
-          <View style={{ paddingTop: 30 }}>
-            <Icon
-              name="bolt"
-              size={32}
-              type="font-awesome"
-              color={(this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor}
-            />
-            <Text
-              style={{
-                textAlign: 'center',
-                color: (this.props.active && BlueApp.settings.foregroundColor) || BlueApp.settings.inputBorderColor,
-              }}
-            >
-              {loc.wallets.add.lightning}
-            </Text>
+          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
+            <Text style={{ color: BlueApp.settings.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
           </View>
+          <Image
+            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
+            source={require('./img/addWallet/lightning.png')}
+          />
         </View>
       </TouchableOpacity>
     );
@@ -239,6 +227,14 @@ export class BlueCopyTextToClipboard extends Component {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
     }
     this.state = { hasTappedText: false, address: props.text };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (state.hasTappedText) {
+      return { hasTappedText: state.hasTappedText, address: state.address };
+    } else {
+      return { hasTappedText: state.hasTappedText, address: props.text };
+    }
   }
 
   copyToClipboard = () => {
@@ -404,29 +400,6 @@ export class BlueFormMultiInput extends Component {
   }
 }
 
-export class BlueFormInputAddress extends Component {
-  render() {
-    return (
-      <FormInput
-        {...this.props}
-        inputStyle={{
-          maxWidth: width - 110,
-          color: BlueApp.settings.foregroundColor,
-          fontSize: (isIpad && 10) || ((is.iphone8() && 12) || 14),
-        }}
-        containerStyle={{
-          marginTop: 5,
-          borderColor: BlueApp.settings.inputBorderColor,
-          borderBottomColor: BlueApp.settings.inputBorderColor,
-          borderWidth: 0.5,
-          borderBottomWidth: 0.5,
-          backgroundColor: BlueApp.settings.inputBackgroundColor,
-        }}
-      />
-    );
-  }
-}
-
 export class BlueHeader extends Component {
   render() {
     return (
@@ -560,18 +533,17 @@ export class is {
   static ipad() {
     return isIpad;
   }
-
-  static iphone8() {
-    if (Platform.OS !== 'ios') {
-      return false;
-    }
-    return DeviceInfo.getDeviceId() === 'iPhone10,4';
-  }
 }
 
 export class BlueSpacing20 extends Component {
   render() {
     return <View {...this.props} style={{ height: 20, opacity: 0 }} />;
+  }
+}
+
+export class BlueSpacing10 extends Component {
+  render() {
+    return <View {...this.props} style={{ height: 10, opacity: 0 }} />;
   }
 }
 
@@ -1733,7 +1705,7 @@ export class BlueAddressInput extends Component {
 export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
-    amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     onChangeText: PropTypes.func,
     disabled: PropTypes.bool,
     unit: PropTypes.string,
@@ -1744,8 +1716,15 @@ export class BlueBitcoinAmount extends Component {
   };
 
   render() {
-    const amount = typeof this.props.amount === 'number' ? this.props.amount.toString() : this.props.amount;
-
+    const amount = this.props.amount || 0;
+    let localCurrency = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
+    if (this.props.unit === BitcoinUnit.BTC) {
+      let sat = new BigNumber(amount);
+      sat = sat.multipliedBy(100000000).toString();
+      localCurrency = loc.formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+    } else {
+      localCurrency = loc.formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+    }
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View>
@@ -1788,13 +1767,7 @@ export class BlueBitcoinAmount extends Component {
             </Text>
           </View>
           <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-            <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
-              {loc.formatBalance(
-                this.props.unit === BitcoinUnit.BTC ? amount || 0 : loc.formatBalanceWithoutSuffix(amount || 0, BitcoinUnit.BTC, false),
-                BitcoinUnit.LOCAL_CURRENCY,
-                false,
-              )}
-            </Text>
+            <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>{localCurrency}</Text>
           </View>
         </View>
       </TouchableWithoutFeedback>

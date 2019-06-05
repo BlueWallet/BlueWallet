@@ -9,7 +9,8 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
-  return BlueElectrum.forceDisconnect();
+  BlueElectrum.forceDisconnect();
+  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {
@@ -79,18 +80,27 @@ it('HD (BIP49) can work with a gap', async function() {
   //   console.log('external', c, hd._getExternalAddressByIndex(c));
   // }
   await hd.fetchTransactions();
-  console.log('hd.transactions.length=', hd.transactions.length);
   assert.ok(hd.transactions.length >= 3);
 });
 
 it('Segwit HD (BIP49) can batch fetch many txs', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 240 * 1000;
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   let hd = new HDSegwitP2SHWallet();
-  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ'; // cant fetch txs
+  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
   await hd.fetchBalance();
   await hd.fetchTransactions();
-  assert.ok(hd.transactions.length > 0);
-  console.log('hd.transactions.length=', hd.transactions.length);
+  assert.ok(hd.getTransactions().length === 153);
+});
+
+it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
+  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
+  let hd = new HDSegwitP2SHWallet();
+  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
+  hd.next_free_change_address_index = 40;
+  hd.next_free_address_index = 50;
+  await hd.fetchBalance();
+  await hd.fetchTransactions();
+  assert.strictEqual(hd.getTransactions().length, 153);
 });
 
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
@@ -207,7 +217,7 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   let end = +new Date();
   const took = (end - start) / 1000;
   took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
-  assert.strictEqual(hd.getBalance(), 0.00051432);
+  assert.strictEqual(hd.getBalance(), 51432);
 
   await hd.fetchUtxo();
   assert.ok(hd.utxo.length > 0);

@@ -11,10 +11,10 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
   Platform,
-  AsyncStorage,
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueNavigationStyle,
   BlueButton,
@@ -29,7 +29,7 @@ import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { HDLegacyP2PKHWallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -50,7 +50,6 @@ export default class SendDetails extends Component {
 
   constructor(props) {
     super(props);
-    console.log('props.navigation.state.params=', props.navigation.state.params);
     let address;
     let memo;
     if (props.navigation.state.params) address = props.navigation.state.params.address;
@@ -223,6 +222,7 @@ export default class SendDetails extends Component {
     let availableBalance;
     try {
       availableBalance = new BigNumber(balance);
+      availableBalance = availableBalance.div(100000000); // sat2btc
       availableBalance = availableBalance.minus(amount);
       availableBalance = availableBalance.minus(fee);
       availableBalance = availableBalance.toString(10);
@@ -307,8 +307,6 @@ export default class SendDetails extends Component {
     let error = false;
     let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
 
-    console.log({ requestedSatPerByte });
-
     if (!this.state.amount || this.state.amount === '0' || parseFloat(this.state.amount) === 0) {
       error = loc.send.details.amount_field_is_not_valid;
       console.log('validation error');
@@ -347,9 +345,23 @@ export default class SendDetails extends Component {
     if (error) {
       this.setState({ isLoading: false });
       alert(error);
-      ReactNativeHapticFeedback.trigger('notificationError', false);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       return;
     }
+
+    if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
+      try {
+        await this.createHDBech32Transaction();
+      } catch (Err) {
+        this.setState({ isLoading: false }, () => {
+          alert(Err.message);
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        });
+      }
+      return;
+    }
+
+    // legacy send below
 
     this.setState({ isLoading: true }, async () => {
       let utxo;
@@ -411,7 +423,7 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        ReactNativeHapticFeedback.trigger('notificationError', false);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert(err);
         this.setState({ isLoading: false });
         return;
@@ -434,6 +446,40 @@ export default class SendDetails extends Component {
         }),
       );
     });
+  }
+
+  async createHDBech32Transaction() {
+    /** @type {HDSegwitBech32Wallet} */
+    const wallet = this.state.fromWallet;
+    await wallet.fetchUtxo();
+    const changeAddress = await wallet.getChangeAddressAsync();
+    let satoshis = new BigNumber(this.state.amount).multipliedBy(100000000).toNumber();
+    const requestedSatPerByte = +this.state.fee.toString().replace(/\D/g, '');
+    console.log({ satoshis, requestedSatPerByte, utxo: wallet.getUtxo() });
+
+    let targets = [];
+    targets.push({ address: this.state.address, value: satoshis });
+
+    let { tx, fee } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
+
+    BlueApp.tx_metadata = BlueApp.tx_metadata || {};
+    BlueApp.tx_metadata[tx.getId()] = {
+      txhex: tx.toHex(),
+      memo: this.state.memo,
+    };
+    await BlueApp.saveToDisk();
+
+    this.setState({ isLoading: false }, () =>
+      this.props.navigation.navigate('Confirm', {
+        amount: this.state.amount,
+        fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
+        address: this.state.address,
+        memo: this.state.memo,
+        fromWallet: wallet,
+        tx: tx.toHex(),
+        satoshiPerByte: requestedSatPerByte,
+      }),
+    );
   }
 
   onWalletSelect = wallet => {
@@ -549,7 +595,7 @@ export default class SendDetails extends Component {
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
           <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
           <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
-            {this.state.fromWallet.getBalance()}
+            {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
           </Text>
           <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
             {BitcoinUnit.BTC}

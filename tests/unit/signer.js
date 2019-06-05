@@ -1,5 +1,5 @@
 /* global describe, it */
-
+let bitcoinjs = require('bitcoinjs-lib')
 let assert = require('assert')
 
 describe('unit - signer', function () {
@@ -18,7 +18,6 @@ describe('unit - signer', function () {
       let txhex = signer.createSegwitTransaction(utxos, '1Pb81K1xJnMjUfFgKUbva6gr1HCHXxHVnr', 0.001, 0.0001, 'KyWpryAKPiXXbipxWhtprZjSLVjp22sxbVnJssq2TCNQxs1SuMeD', '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi', 0)
       assert.equal(txhex, '0100000000010115b7e9d1f6b8164a0e95544a94f5b0fbfaadc35f8415acd0ec0e58d5ce8c1a1e0100000017160014f90e5bca5635b84bd828064586bd7eb117fee9a90000000002905f0100000000001976a914f7c6c1f9f6142107ed293c8fbf85fbc49eb5f1b988ace00f97000000000017a9146fbf1cee74734503297e46a0db3e3fbb06f2e9d38702483045022100bd687693e57161282a80affb82f18386cbf319bca72ca2c16320b0f3b087bee802205e22a9a16b86628ea08eab83aebec1348c476e9d0c90cd41aa73c47f50d86aab0121039425479ea581ebc7f55959da8c2e1a1063491768860386335dd4630b5eeacfc500000000')
       // now, testing change addess, destination address, amounts & fees...
-      let bitcoinjs = require('bitcoinjs-lib')
       let tx = bitcoinjs.Transaction.fromHex(txhex)
       assert.equal(bitcoinjs.address.fromOutputScript(tx.outs[0].script), '1Pb81K1xJnMjUfFgKUbva6gr1HCHXxHVnr')
       assert.equal(bitcoinjs.address.fromOutputScript(tx.outs[1].script), '3Bsssbs4ANCGNETvGLJ3Fvri6SiVnH1fbi')
@@ -30,7 +29,6 @@ describe('unit - signer', function () {
     it('should create Replace-By-Fee tx, given txhex', () => {
       let txhex = '0100000000010115b7e9d1f6b8164a0e95544a94f5b0fbfaadc35f8415acd0ec0e58d5ce8c1a1e0100000017160014f90e5bca5635b84bd828064586bd7eb117fee9a90000000002905f0100000000001976a914f7c6c1f9f6142107ed293c8fbf85fbc49eb5f1b988ace00f97000000000017a9146fbf1cee74734503297e46a0db3e3fbb06f2e9d38702483045022100bd687693e57161282a80affb82f18386cbf319bca72ca2c16320b0f3b087bee802205e22a9a16b86628ea08eab83aebec1348c476e9d0c90cd41aa73c47f50d86aab0121039425479ea581ebc7f55959da8c2e1a1063491768860386335dd4630b5eeacfc500000000'
       let signer = require('../../models/signer')
-      let bitcoinjs = require('bitcoinjs-lib')
       let dummyUtxodata = {
         '15b7e9d1f6b8164a0e95544a94f5b0fbfaadc35f8415acd0ec0e58d5ce8c1a1e': { // txid we use output from
           1: 666 // output index and it's value in satoshi
@@ -75,7 +73,7 @@ describe('unit - signer', function () {
       let signer = require('../../models/signer')
       let utxos = [ { 'txid': '160559030484800a77f9b38717bb0217e87bfeb47b92e2e5bad6316ad9d8d360', 'vout': 1, 'address': '3NBtBset4qPD8DZeLw4QbFi6SNjNL8hg7x', 'account': '3NBtBset4qPD8DZeLw4QbFi6SNjNL8hg7x', 'scriptPubKey': 'a914e0d81f03546ab8f29392b488ec62ab355ee7c57387', 'amount': 0.00400000, 'confirmations': 271, 'spendable': false, 'solvable': false, 'safe': true } ]
       let txhex = signer.createSegwitTransaction(utxos, '1Pb81K1xJnMjUfFgKUbva6gr1HCHXxHVnr', 0.003998, 0.000001, 'L4iRvejJG9gRhKVc3rZm5haoyd4EuCi77G91DnXRrvNDqiXktkXh')
-      let bitcoin = require('bitcoinjs-lib')
+      let bitcoin = bitcoinjs
       let tx = bitcoin.Transaction.fromHex(txhex);
       assert.equal(tx.ins.length, 1);
       assert.equal(tx.outs.length, 1); // only 1 output, which means change is neglected

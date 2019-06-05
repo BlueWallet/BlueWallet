@@ -64,7 +64,7 @@ export default class LNDViewInvoice extends Component {
             if (updatedUserInvoice.ispaid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
-              ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
               EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // remote because we want to refetch from server tx list and balance
@@ -75,7 +75,7 @@ export default class LNDViewInvoice extends Component {
               if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 // invoice expired :-(
                 this.setState({ isFetchingInvoices: false });
-                ReactNativeHapticFeedback.trigger('notificationError', false);
+                ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                 clearInterval(this.fetchInvoiceInterval);
                 this.fetchInvoiceInterval = undefined;
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
@@ -116,6 +116,27 @@ export default class LNDViewInvoice extends Component {
       const now = (currentDate.getTime() / 1000) | 0;
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
 
+      if (this.state.showPreimageQr) {
+        return (
+          <SafeBlueArea style={{ flex: 1 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <BlueText>Preimage:</BlueText>
+              <BlueSpacing20 />
+              <QRCode
+                value={(invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && invoice.payment_preimage) || 'none'}
+                logo={require('../../img/qr-code.png')}
+                size={this.state.qrCodeHeight}
+                logoSize={90}
+                color={BlueApp.settings.foregroundColor}
+                logoBackgroundColor={BlueApp.settings.brandingColor}
+              />
+              <BlueSpacing20 />
+              <BlueText>{invoice.payment_preimage}</BlueText>
+            </View>
+          </SafeBlueArea>
+        );
+      }
+
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
@@ -134,7 +155,21 @@ export default class LNDViewInvoice extends Component {
               >
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
-              <BlueText>This invoice has been paid for</BlueText>
+              <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
+              {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && (
+                <View style={{ position: 'absolute', bottom: 0 }}>
+                  <BlueButton
+                    backgroundColor="#FFFFFF"
+                    icon={{
+                      name: 'info',
+                      type: 'entypo',
+                      color: BlueApp.settings.buttonTextColor,
+                    }}
+                    onPress={() => this.setState({ showPreimageQr: true })}
+                    title=" "
+                  />
+                </View>
+              )}
             </View>
           </SafeBlueArea>
         );
@@ -157,7 +192,7 @@ export default class LNDViewInvoice extends Component {
               >
                 <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
-              <BlueText>This invoice was not paid for and has expired</BlueText>
+              <BlueText>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueText>
             </View>
           </SafeBlueArea>
         );
@@ -166,7 +201,7 @@ export default class LNDViewInvoice extends Component {
           return (
             <SafeBlueArea style={{ flex: 1 }}>
               <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <BlueText>'This invoice has been paid for.'</BlueText>
+                <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
               </View>
             </SafeBlueArea>
           );
@@ -198,9 +233,15 @@ export default class LNDViewInvoice extends Component {
             </View>
 
             <BlueSpacing20 />
-            {invoice && invoice.amt && <BlueText>Please pay {invoice.amt} sats</BlueText>}
+            {invoice && invoice.amt && (
+              <BlueText>
+                {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+              </BlueText>
+            )}
             {invoice && invoice.hasOwnProperty('description') && invoice.description.length > 0 && (
-              <BlueText>For: {invoice.description}</BlueText>
+              <BlueText>
+                {loc.lndViewInvoice.for} {invoice.description}
+              </BlueText>
             )}
             <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
 
@@ -208,6 +249,7 @@ export default class LNDViewInvoice extends Component {
               icon={{
                 name: 'share-alternative',
                 type: 'entypo',
+                size: 10,
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={async () => {
@@ -219,14 +261,11 @@ export default class LNDViewInvoice extends Component {
             />
             <BlueSpacing20 />
             <BlueButton
-              backgroundColor="#FFFFFF"
-              icon={{
-                name: 'info',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
+              style={{
+                backgroundColor: BlueApp.settings.brandingColor,
               }}
               onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
-              title="Additional Information"
+              title={loc.lndViewInvoice.additional_info}
             />
           </View>
           <BlueSpacing20 />

@@ -19,7 +19,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
-let loc = require('../../loc');
+const loc = require('../../loc');
 
 export default class ScanLndInvoice extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -38,7 +38,7 @@ export default class ScanLndInvoice extends React.Component {
     super(props);
 
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
-      ReactNativeHapticFeedback.trigger('notificationError', false);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       props.navigation.dismiss();
     } else {
@@ -93,7 +93,7 @@ export default class ScanLndInvoice extends React.Component {
   processInvoice = data => {
     this.setState({ isLoading: true }, async () => {
       if (!this.state.fromWallet) {
-        ReactNativeHapticFeedback.trigger('notificationError', false);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
         return this.props.navigation.goBack();
       }
@@ -133,7 +133,7 @@ export default class ScanLndInvoice extends React.Component {
       } catch (Err) {
         Keyboard.dismiss();
         this.setState({ isLoading: false });
-        ReactNativeHapticFeedback.trigger('notificationError', false);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert(Err.message);
       }
     });
@@ -157,14 +157,14 @@ export default class ScanLndInvoice extends React.Component {
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
           this.setState({ isLoading: false });
-          ReactNativeHapticFeedback.trigger('notificationError', false);
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           return alert('Invoice expired');
         }
 
         const currentUserInvoices = fromWallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
         if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
           this.setState({ isLoading: false });
-          ReactNativeHapticFeedback.trigger('notificationError', false);
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           return alert(loc.lnd.sameWalletAsInvoiceError);
         }
 
@@ -173,7 +173,7 @@ export default class ScanLndInvoice extends React.Component {
         } catch (Err) {
           console.log(Err.message);
           this.setState({ isLoading: false });
-          ReactNativeHapticFeedback.trigger('notificationError', false);
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           return alert(Err.message);
         }
 
@@ -226,7 +226,7 @@ export default class ScanLndInvoice extends React.Component {
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
           <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
           <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
-            {this.state.fromWallet.getBalance()}
+            {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
           </Text>
           <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
             {BitcoinUnit.BTC}

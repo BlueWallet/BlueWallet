@@ -185,6 +185,8 @@ module.exports = {
     about: '关于',
     language: '语言',
     currency: '货币',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: '可否认性',
@@ -214,5 +216,20 @@ module.exports = {
     withdraw: '提取',
     expired: '超时',
     sameWalletAsInvoiceError: '你不能用创建账单的钱包去支付该账单',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

@@ -1,8 +1,7 @@
 import React from 'react';
-import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
-import Camera from 'react-native-camera';
-import Permissions from 'react-native-permissions';
+import { RNCamera } from 'react-native-camera';
 import { SafeBlueArea } from '../../BlueComponents';
 
 export default class CameraExample extends React.Component {
@@ -12,53 +11,49 @@ export default class CameraExample extends React.Component {
 
   state = {
     isLoading: false,
-    hasCameraPermission: null,
   };
 
-  onBarCodeScanned(ret) {
+  onBarCodeScanned = ret => {
     if (this.state.isLoading) return;
     this.setState({ isLoading: true }, () => {
-      const onBarScanned = this.props.navigation.getParam('onBarScanned');
+      const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
       this.props.navigation.goBack();
-      onBarScanned(ret.data);
+      onBarScannedProp(ret.data);
     });
-  } // end
-
-  componentDidMount() {
-    Permissions.request('camera').then(response => {
-      // Response is one of: 'authorized', 'denied', 'restricted', or 'undetermined'
-      this.setState({ hasCameraPermission: response === 'authorized' });
-    });
-  }
+  }; // end
 
   render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
-
-    const { hasCameraPermission } = this.state;
-    if (hasCameraPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      return <View />;
-    } else {
-      return (
-        <SafeBlueArea style={{ flex: 1 }}>
-          <Camera style={{ flex: 1, justifyContent: 'space-between' }} onBarCodeRead={ret => this.onBarCodeScanned(ret)}>
-            <TouchableOpacity
-              style={{ width: 40, height: 80, padding: 14, marginTop: 32 }}
-              onPress={() => this.props.navigation.goBack(null)}
-            >
-              <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
-            </TouchableOpacity>
-          </Camera>
-        </SafeBlueArea>
-      );
-    }
+    return (
+      <SafeBlueArea style={{ flex: 1 }}>
+        <RNCamera
+          captureAudio={false}
+          androidCameraPermissionOptions={{
+            title: 'Permission to use camera',
+            message: 'We need your permission to use your camera',
+            buttonPositive: 'OK',
+            buttonNegative: 'Cancel',
+          }}
+          style={{ flex: 1, justifyContent: 'space-between' }}
+          onBarCodeRead={this.onBarCodeScanned}
+          barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+        />
+        <TouchableOpacity
+          style={{
+            width: 40,
+            height: 40,
+            marginLeft: 24,
+            backgroundColor: '#FFFFFF',
+            justifyContent: 'center',
+            borderRadius: 20,
+            position: 'absolute',
+            top: 64,
+          }}
+          onPress={() => this.props.navigation.goBack(null)}
+        >
+          <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+        </TouchableOpacity>
+      </SafeBlueArea>
+    );
   }
 }
 

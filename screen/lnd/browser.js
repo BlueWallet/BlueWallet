@@ -295,7 +295,12 @@ export default class Browser extends Component {
           }
 
           if (json && json.makeInvoice) {
-            let amount = Math.max(+json.makeInvoice.minimumAmount, +json.makeInvoice.maximumAmount, +json.makeInvoice.defaultAmount);
+            let amount = Math.max(
+              json.makeInvoice.minimumAmount || 0,
+              json.makeInvoice.maximumAmount || 0,
+              json.makeInvoice.defaultAmount || 0,
+              json.makeInvoice.amount || 0,
+            );
             Alert.alert(
               'Page',
               'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',

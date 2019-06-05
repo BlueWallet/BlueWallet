@@ -5,13 +5,11 @@ import TestRenderer from 'react-test-renderer';
 import Settings from './screen/settings/settings';
 import Selftest from './screen/selftest';
 import { BlueHeader } from './BlueComponents';
-import MockStorage from './MockStorage';
 import { FiatUnit } from './models/fiatUnit';
+import AsyncStorage from '@react-native-community/async-storage';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 jest.mock('react-native-qrcode-svg', () => 'Video');
-const AsyncStorage = new MockStorage();
-jest.setMock('AsyncStorage', AsyncStorage);
 jest.useFakeTimers();
 jest.mock('Picker', () => {
   // eslint-disable-next-line import/no-unresolved
@@ -105,7 +103,6 @@ it('Selftest work', () => {
 });
 
 it('Appstorage - loadFromDisk works', async () => {
-  AsyncStorage.storageCache = {}; // cleanup from other tests
   /** @type {AppStorage} */
   let Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
@@ -125,16 +122,14 @@ it('Appstorage - loadFromDisk works', async () => {
 
   // emulating encrypted storage (and testing flag)
 
-  AsyncStorage.storageCache.data = false;
-  AsyncStorage.storageCache.data_encrypted = '1'; // flag
+  await AsyncStorage.setItem('data', false);
+  await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
   let Storage3 = new AppStorage();
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
 });
 
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
-  AsyncStorage.storageCache = {}; // cleanup from other tests
-
   /** @type {AppStorage} */
   let Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
@@ -228,6 +223,12 @@ it('Wallet can fetch UTXO', async () => {
   assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
 });
 
+it('SegwitP2SHWallet can generate segwit P2SH address from WIF', () => {
+  let l = new SegwitP2SHWallet();
+  l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
+  assert.ok(l.getAddress() === '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53', 'expected ' + l.getAddress());
+});
+
 it('Wallet can fetch balance', async () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
   let w = new LegacyWallet();
@@ -236,7 +237,7 @@ it('Wallet can fetch balance', async () => {
   assert.ok(w.getUnconfirmedBalance() === 0);
   assert.ok(w._lastBalanceFetch === 0);
   await w.fetchBalance();
-  assert.ok(w.getBalance() === 0.18262);
+  assert.ok(w.getBalance() === 18262000);
   assert.ok(w.getUnconfirmedBalance() === 0);
   assert.ok(w._lastBalanceFetch > 0);
 });
@@ -302,19 +303,18 @@ it('Wallet can fetch TXs', async () => {
 describe('currency', () => {
   it('fetches exchange rate and saves to AsyncStorage', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
-    AsyncStorage.storageCache = {}; // cleanup from other tests
     let currency = require('./currency');
     await currency.startUpdater();
-    let cur = AsyncStorage.storageCache[AppStorage.EXCHANGE_RATES];
+    let cur = await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES);
     cur = JSON.parse(cur);
     assert.ok(Number.isInteger(cur[currency.STRUCT.LAST_UPDATED]));
     assert.ok(cur[currency.STRUCT.LAST_UPDATED] > 0);
     assert.ok(cur['BTC_USD'] > 0);
 
     // now, setting other currency as default
-    AsyncStorage.storageCache[AppStorage.PREFERRED_CURRENCY] = JSON.stringify(FiatUnit.JPY);
+    await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(FiatUnit.JPY));
     await currency.startUpdater();
-    cur = JSON.parse(AsyncStorage.storageCache[AppStorage.EXCHANGE_RATES]);
+    cur = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
     assert.ok(cur['BTC_JPY'] > 0);
 
     // now setting with a proper setter
@@ -322,7 +322,7 @@ describe('currency', () => {
     await currency.startUpdater();
     let preferred = await currency.getPreferredCurrency();
     assert.strictEqual(preferred.endPointKey, 'EUR');
-    cur = JSON.parse(AsyncStorage.storageCache[AppStorage.EXCHANGE_RATES]);
+    cur = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
     assert.ok(cur['BTC_EUR'] > 0);
   });
 });

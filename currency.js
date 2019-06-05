@@ -1,5 +1,5 @@
 import Frisbee from 'frisbee';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from './class';
 import { FiatUnit } from './models/fiatUnit';
 let BigNumber = require('bignumber.js');

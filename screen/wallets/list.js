@@ -191,6 +191,7 @@ export default class WalletsList extends Component {
           }
           if (wallets[index].fetchUserInvoices) {
             await wallets[index].fetchUserInvoices();
+            await wallets[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
           }
           this.redrawScreen();
           didRefresh = true;
@@ -232,7 +233,7 @@ export default class WalletsList extends Component {
     if (BlueApp.getWallets().length > 1) {
       this.props.navigation.navigate('ReorderWallets');
     } else {
-      ReactNativeHapticFeedback.trigger('notificationError', false);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
     }
   };
 

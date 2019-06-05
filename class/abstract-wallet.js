@@ -42,6 +42,10 @@ export class AbstractWallet {
     return this.label;
   }
 
+  /**
+   *
+   * @returns {number} Available to spend amount, int, in sats
+   */
   getBalance() {
     return this.balance;
   }
@@ -94,8 +98,6 @@ export class AbstractWallet {
   getLatestTransactionTime() {
     return 0;
   }
-
-  getAddress() {}
 
   // createTx () { throw Error('not implemented') }
 }
