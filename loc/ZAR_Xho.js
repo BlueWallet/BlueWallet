@@ -1,7 +1,7 @@
 ﻿module.exports = {
  _: {
    storage_is_encrypted: 'Ukugcinwa kwakho kubhaliwe. Inombolo yokuvula iyadingeka ukuba ichithwe',
-   enter_password: Faka inombolo yokuvula                                                                           ',
+   enter_password: 'Faka inombolo yokuvula',
    bad_password: 'Iphasiwedi engalunganga, zama kwakhona',
    never: 'Ungalingi',
    continue: 'Qhubeka',
@@ -11,8 +11,7 @@
    select_wallet: 'Khetha ingxowa',
    options: 'Ukhetho',
    createBitcoinWallet:
-     'Okwangoku awunayo ingxowa yebitcoin. Ukuze kuxhaswe ingxowa ekhawulezayo, Ingxowa yeBitcoin kufuneka idalwe okanye ikhutshelwe. Ungathanda ukuqhubeka ?
-',
+     'Okwangoku awunayo ingxowa yebitcoin. Ukuze kuxhaswe ingxowa ekhawulezayo, Ingxowa yeBitcoin kufuneka idalwe okanye ikhutshelwe. Ungathanda ukuqhubeka ?',
    list: {
      app_name: 'BlueWallet',
      title: 'Ingxowa',
@@ -41,7 +40,7 @@
      wallet_type: 'uhlobo',
      or: 'okanye',
      import_wallet: 'Ukungenisa ingxowa',
-     imported: ‘ngeniswa',
+     imported: 'ngeniswa',
      coming_soon: 'Kuza ngokukhawuleza',
      lightning: 'Umbane',
      bitcoin: 'Bitcoin',
@@ -55,7 +54,7 @@
      description: 'ukuya kuyo',
      are_you_sure: 'Ingaba uqinisekile?',
      yes_delete: 'Ewe, yisuse',
-     no_cancel: 'Hayi', rhoxisa',
+     no_cancel: 'Hayi, rhoxisa',
      delete: 'Cima',
      save: 'Gcina',
      delete_this_wallet: 'Cima le ngxowa',
@@ -74,7 +73,7 @@
      title: 'ukungenisa',
      explanation:
        "Bhale apha imnemonic yakho, ngundoqo, WIF , okanye nantoni na onayo. BlueWallet uya kwenza konke okusemandleni ukuqiqa ifomathi efanelekileyo kwaye ingenise ingxowa yakho",
-     imported: Ngenisiwe',
+     imported: 'Ngenisiwe',
      error: 'Ayiphumelelanga ukungenisa. Nceda, uqiniseka ukuba idata ehlinzekiweyo iyasebenza.',
      success: 'Iphumelele',
      do_import: 'Ngeniswe',
