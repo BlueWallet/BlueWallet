@@ -130,7 +130,19 @@ async function getTransactionsFullByAddress(address) {
     let full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
     full.address = address;
     for (let input of full.vin) {
-      input.address = SegwitBech32Wallet.witnessToAddress(input.txinwitness[1]);
+      try {
+        if (!input.txinwitness) {
+          // no witness - p2pkh address
+          let chunksIn = bitcoin.script.decompile(Buffer.from(input.scriptSig.hex, 'hex'));
+          let hash = bitcoin.crypto.hash160(chunksIn[chunksIn.length - 1]);
+          input.address = bitcoin.address.toBase58Check(hash, bitcoin.networks.bitcoin.pubKeyHash);
+        } else {
+          input.address = SegwitBech32Wallet.witnessToAddress(input.txinwitness[1]);
+        }
+      } catch (Error) {
+        console.warn(Error);
+        input.addresses = 'unknown';
+      }
       input.addresses = [input.address];
       // now we need to fetch previous TX where this VIN became an output, so we can see its amount
       let prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
