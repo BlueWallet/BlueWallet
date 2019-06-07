@@ -12,32 +12,6 @@ const coinSelectSplit = require('coinselect/split');
 const { RNRandomBytes } = NativeModules;
 
 /**
- * Converts zpub to xpub
- *
- * @param {String} zpub
- * @returns {String} xpub
- */
-function _zpubToXpub(zpub) {
-  let data = b58.decode(zpub);
-  data = data.slice(4);
-  data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
-
-  return b58.encode(data);
-}
-
-/**
- * Creates Segwit Bech32 Bitcoin address
- *
- * @param hdNode
- * @returns {String}
- */
-function _nodeToBech32SegwitAddress(hdNode) {
-  return bitcoin5.payments.p2wpkh({
-    pubkey: hdNode.publicKey,
-  }).address;
-}
-
-/**
  * HD Wallet (BIP39).
  * In particular, BIP84 (Bech32 Native Segwit)
  * @see https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki
@@ -55,6 +29,10 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     this._txs_by_internal_index = {};
 
     this._utxo = [];
+  }
+
+  allowBatchSend() {
+    return true;
   }
 
   /**
@@ -155,24 +133,24 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     }
 
     if (node === 0 && !this._node0) {
-      const xpub = _zpubToXpub(this.getXpub());
+      const xpub = this.constructor._zpubToXpub(this.getXpub());
       const hdNode = HDNode.fromBase58(xpub);
       this._node0 = hdNode.derive(node);
     }
 
     if (node === 1 && !this._node1) {
-      const xpub = _zpubToXpub(this.getXpub());
+      const xpub = this.constructor._zpubToXpub(this.getXpub());
       const hdNode = HDNode.fromBase58(xpub);
       this._node1 = hdNode.derive(node);
     }
 
     let address;
     if (node === 0) {
-      address = _nodeToBech32SegwitAddress(this._node0.derive(index));
+      address = this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index));
     }
 
     if (node === 1) {
-      address = _nodeToBech32SegwitAddress(this._node1.derive(index));
+      address = this.constructor._nodeToBech32SegwitAddress(this._node1.derive(index));
     }
 
     if (node === 0) {
@@ -228,12 +206,13 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     // we should fetch txs for that address
     // OR if some address has unconfirmed balance - should fetch it's txs
     // OR some tx for address is unconfirmed
+    // OR some tx has < 7 confirmations
 
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       // external addresses first
       let hasUnconfirmed = false;
       this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
-      for (let tx of this._txs_by_external_index[c]) hasUnconfirmed = hasUnconfirmed || (!tx.confirmations || tx.confirmations === 0);
+      for (let tx of this._txs_by_external_index[c]) hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
 
       if (hasUnconfirmed || this._txs_by_external_index[c].length === 0 || this._balances_by_external_index[c].u !== 0) {
         this._txs_by_external_index[c] = await BlueElectrum.getTransactionsFullByAddress(this._getExternalAddressByIndex(c));
@@ -244,7 +223,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       // next, internal addresses
       let hasUnconfirmed = false;
       this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
-      for (let tx of this._txs_by_internal_index[c]) hasUnconfirmed = hasUnconfirmed || (!tx.confirmations || tx.confirmations === 0);
+      for (let tx of this._txs_by_internal_index[c]) hasUnconfirmed = hasUnconfirmed || !tx.confirmations || tx.confirmations < 7;
 
       if (hasUnconfirmed || this._txs_by_internal_index[c].length === 0 || this._balances_by_internal_index[c].u !== 0) {
         this._txs_by_internal_index[c] = await BlueElectrum.getTransactionsFullByAddress(this._getInternalAddressByIndex(c));
@@ -488,5 +467,31 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     const tx = txb.build();
     return { tx, inputs, outputs, fee };
+  }
+
+  /**
+   * Creates Segwit Bech32 Bitcoin address
+   *
+   * @param hdNode
+   * @returns {String}
+   */
+  static _nodeToBech32SegwitAddress(hdNode) {
+    return bitcoin5.payments.p2wpkh({
+      pubkey: hdNode.publicKey,
+    }).address;
+  }
+
+  /**
+   * Converts zpub to xpub
+   *
+   * @param {String} zpub
+   * @returns {String} xpub
+   */
+  static _zpubToXpub(zpub) {
+    let data = b58.decode(zpub);
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+    return b58.encode(data);
   }
 }
