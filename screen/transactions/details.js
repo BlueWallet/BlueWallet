@@ -159,7 +159,7 @@ export default class TransactionsDetails extends Component {
                 <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.hash}</BlueText>
                 <TouchableOpacity
                   onPress={() => {
-                    const url = `https://live.blockcypher.com/btc/tx/${this.state.tx.hash}`;
+                    const url = `https://blockstream.info/tx/${this.state.tx.hash}`;
                     Linking.canOpenURL(url).then(supported => {
                       if (supported) {
                         Linking.openURL(url);
