@@ -31,7 +31,7 @@
     "test": "npm run unit && npm run jest && npm run lint",
     "jest": "node node_modules/jest/bin/jest.js tests/integration/*",
     "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ --fix",
-    "unit": "./node_modules/.bin/mocha tests/**/*.js"
+    "unit": "./node_modules/.bin/mocha tests/unit/*"
   },
   "jest": {
     "preset": "react-native",
