@@ -253,7 +253,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
       for (let vin of tx.inputs) {
         // if input (spending) goes from our address - we are loosing!
-        if (vin.address && this.weOwnAddress(vin.address)) {
+        if ((vin.address && this.weOwnAddress(vin.address)) || (vin.addresses && vin.addresses[0] && this.weOwnAddress(vin.addresses[0]))) {
           tx.value -= new BigNumber(vin.value).multipliedBy(100000000).toNumber();
         }
       }

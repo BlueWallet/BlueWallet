@@ -227,10 +227,15 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     for (let tx of hd.getTransactions()) {
       if (tx.hash === 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b') {
         assert.strictEqual(tx.value, -129545);
+        assert.strictEqual(tx.inputs[0].addresses[0], 'bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw');
+        assert.strictEqual(tx.inputs[1].addresses[0], 'bc1qtvh8mjcfdg9224nx4wu3sw7fmmtmy2k3jhdeul');
+        assert.strictEqual(tx.inputs[2].addresses[0], 'bc1qhe03zgvq4fmfw8l2qq2zu4dxyhgyukcz6k2a5w');
         txFound++;
       }
       if (tx.hash === 'e112771fd43962abfe4e4623bf788d6d95ff1bd0f9b56a6a41fb9ed4dacc75f1') {
         assert.strictEqual(tx.value, 1000000);
+        assert.strictEqual(tx.inputs[0].addresses[0], '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+        assert.strictEqual(tx.inputs[1].addresses[0], '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
         txFound++;
       }
       if (tx.hash === 'c94bdec21c72d3441245caa164b00315b131f6b72513369f4be1b00b9fb99cc5') {
@@ -238,10 +243,11 @@ describe('Bech32 Segwit HD (BIP84)', () => {
         txFound++;
       }
       if (tx.hash === '51fc225ddf24f7e124f034637f46442645ca7ea2c442b28124d4bcdd04e30195') {
-        // TODO: one of inputs should be segwit-p2sh
+        assert.strictEqual(tx.inputs[0].addresses[0], '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+        txFound++;
       }
     }
-    assert.strictEqual(txFound, 3);
+    assert.strictEqual(txFound, 4);
 
     await hd.fetchUtxo();
     let changeAddress = await hd.getChangeAddressAsync();
