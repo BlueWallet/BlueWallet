@@ -3,7 +3,7 @@ let assert = require('assert');
 
 describe('Localization', () => {
   it('has all keys in all locales', async () => {
-    let en = require('./loc/en');
+    let en = require('../../loc/en');
     let noErrors = true;
     for (let key1 of Object.keys(en)) {
       for (let key2 of Object.keys(en[key1])) {
@@ -11,7 +11,7 @@ describe('Localization', () => {
 
         for (let lang of ['es', 'pt_BR', 'pt_PT', 'ru', 'ua']) {
           // iteratin all locales except EN
-          let locale = require('./loc/' + lang);
+          let locale = require('../../loc/' + lang);
 
           if (typeof locale[key1] === 'undefined') {
             console.error('Missing: ' + lang + '.' + key1);
