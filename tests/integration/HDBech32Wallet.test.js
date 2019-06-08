@@ -1,9 +1,9 @@
 /* global it, describe, jasmine, afterAll, beforeAll */
-import { HDSegwitBech32Wallet } from './class';
+import { HDSegwitBech32Wallet } from '../../class';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('./BlueElectrum'); // so it connects ASAP
+let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -101,10 +101,15 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     hd.setSecret(process.env.HD_MNEMONIC);
     assert.ok(hd.validateMnemonic());
 
+    assert.strictEqual(hd.timeToRefreshBalance(), true);
+    assert.ok(hd._lastTxFetch === 0);
+    assert.ok(hd._lastBalanceFetch === 0);
     await hd.fetchBalance();
     await hd.fetchTransactions();
+    assert.ok(hd._lastTxFetch > 0);
+    assert.ok(hd._lastBalanceFetch > 0);
+    assert.strictEqual(hd.timeToRefreshBalance(), false);
     assert.strictEqual(hd.getTransactions().length, 4);
-    // console.warn(JSON.stringify(hd.getTransactions(), null, 2));
 
     for (let tx of hd.getTransactions()) {
       assert.ok(tx.hash);
@@ -112,6 +117,26 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       assert.ok(tx.received);
       assert.ok(tx.confirmations > 1);
     }
+  });
+
+  it('can fetch UTXO', async () => {
+    if (!process.env.HD_MNEMONIC) {
+      console.error('process.env.HD_MNEMONIC not set, skipped');
+      return;
+    }
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC);
+    assert.ok(hd.validateMnemonic());
+
+    await hd.fetchBalance();
+    await hd.fetchUtxo();
+    let utxo = hd.getUtxo();
+    assert.strictEqual(utxo.length, 4);
+    assert.ok(utxo[0].txId);
+    assert.ok(utxo[0].vout === 0 || utxo[0].vout === 1);
+    assert.ok(utxo[0].value);
+    assert.ok(utxo[0].address);
   });
 
   it('can generate addresses only via zpub', function() {
@@ -140,5 +165,114 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     let hd2 = new HDSegwitBech32Wallet();
     hd2.setSecret(hd.getSecret());
     assert.ok(hd2.validateMnemonic());
+  });
+
+  it('can catch up with externally modified wallet', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+
+    await hd.fetchBalance();
+    let oldBalance = hd.getBalance();
+
+    await hd.fetchTransactions();
+    let oldTransactions = hd.getTransactions();
+
+    // now, mess with internal state, make it 'obsolete'
+
+    hd._txs_by_external_index['2'].pop();
+    hd._txs_by_internal_index['16'].pop();
+    hd._txs_by_internal_index['17'] = [];
+
+    for (let c = 17; c < 100; c++) hd._balances_by_internal_index[c] = { c: 0, u: 0 };
+    hd._balances_by_external_index['2'].c = 1000000;
+
+    assert.ok(hd.getBalance() !== oldBalance);
+    assert.ok(hd.getTransactions().length !== oldTransactions.length);
+
+    // now, refetch! should get back to normal
+
+    await hd.fetchBalance();
+    assert.strictEqual(hd.getBalance(), oldBalance);
+    await hd.fetchTransactions();
+    assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
+  });
+
+  it('can create transactions', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+
+    let start = +new Date();
+    await hd.fetchBalance();
+    let end = +new Date();
+    end - start > 5000 && console.warn('fetchBalance took', (end - start) / 1000, 'sec');
+
+    start = +new Date();
+    await hd.fetchTransactions();
+    end = +new Date();
+    end - start > 15000 && console.warn('fetchTransactions took', (end - start) / 1000, 'sec');
+
+    let txFound = 0;
+    for (let tx of hd.getTransactions()) {
+      if (tx.hash === 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b') {
+        assert.strictEqual(tx.value, -129545);
+        assert.strictEqual(tx.inputs[0].addresses[0], 'bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw');
+        assert.strictEqual(tx.inputs[1].addresses[0], 'bc1qtvh8mjcfdg9224nx4wu3sw7fmmtmy2k3jhdeul');
+        assert.strictEqual(tx.inputs[2].addresses[0], 'bc1qhe03zgvq4fmfw8l2qq2zu4dxyhgyukcz6k2a5w');
+        txFound++;
+      }
+      if (tx.hash === 'e112771fd43962abfe4e4623bf788d6d95ff1bd0f9b56a6a41fb9ed4dacc75f1') {
+        assert.strictEqual(tx.value, 1000000);
+        assert.strictEqual(tx.inputs[0].addresses[0], '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+        assert.strictEqual(tx.inputs[1].addresses[0], '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+        txFound++;
+      }
+      if (tx.hash === 'c94bdec21c72d3441245caa164b00315b131f6b72513369f4be1b00b9fb99cc5') {
+        assert.strictEqual(tx.inputs[0].addresses[0], '16Nf5X77RbFz9Mb6t2GFqxs3twQN1joBkD');
+        txFound++;
+      }
+      if (tx.hash === '51fc225ddf24f7e124f034637f46442645ca7ea2c442b28124d4bcdd04e30195') {
+        assert.strictEqual(tx.inputs[0].addresses[0], '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+        txFound++;
+      }
+    }
+    assert.strictEqual(txFound, 4);
+
+    await hd.fetchUtxo();
+    let changeAddress = await hd.getChangeAddressAsync();
+    assert.ok(changeAddress && changeAddress.startsWith('bc1'));
+
+    let { tx, inputs, outputs, fee } = hd.createTransaction(
+      hd.getUtxo(),
+      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 101000 }],
+      13,
+      changeAddress,
+    );
+
+    assert.strictEqual(Math.round(fee / tx.byteLength()), 13);
+
+    let totalInput = 0;
+    for (let inp of inputs) {
+      totalInput += inp.value;
+    }
+
+    let totalOutput = 0;
+    for (let outp of outputs) {
+      totalOutput += outp.value;
+    }
+
+    assert.strictEqual(totalInput - totalOutput, fee);
+    assert.strictEqual(outputs[outputs.length - 1].address, changeAddress);
   });
 });

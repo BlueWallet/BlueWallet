@@ -1,11 +1,11 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
-import { LegacyWallet, SegwitP2SHWallet, AppStorage } from './class';
+import { LegacyWallet, SegwitP2SHWallet, AppStorage } from '../../class';
 import TestRenderer from 'react-test-renderer';
-import Settings from './screen/settings/settings';
-import Selftest from './screen/selftest';
-import { BlueHeader } from './BlueComponents';
-import { FiatUnit } from './models/fiatUnit';
+import Settings from '../../screen/settings/settings';
+import Selftest from '../../screen/selftest';
+import { BlueHeader } from '../../BlueComponents';
+import { FiatUnit } from '../../models/fiatUnit';
 import AsyncStorage from '@react-native-community/async-storage';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
@@ -303,7 +303,7 @@ it('Wallet can fetch TXs', async () => {
 describe('currency', () => {
   it('fetches exchange rate and saves to AsyncStorage', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
-    let currency = require('./currency');
+    let currency = require('../../currency');
     await currency.startUpdater();
     let cur = await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES);
     cur = JSON.parse(cur);

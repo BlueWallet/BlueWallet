@@ -7,6 +7,7 @@ import {
   LegacyWallet,
   SegwitP2SHWallet,
   SegwitBech32Wallet,
+  HDSegwitBech32Wallet,
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import WatchConnectivity from '../WatchConnectivity';
@@ -169,6 +170,9 @@ export class AppStorage {
               break;
             case HDSegwitP2SHWallet.type:
               unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
+              break;
+            case HDSegwitBech32Wallet.type:
+              unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
               break;
             case HDLegacyBreadwalletWallet.type:
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);

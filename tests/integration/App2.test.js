@@ -2,7 +2,7 @@
 let assert = require('assert');
 
 it('bip38 decodes', async () => {
-  const bip38 = require('./bip38');
+  const bip38 = require('../../bip38');
   const wif = require('wif');
 
   let encryptedKey = '6PRVWUbkzq2VVjRuv58jpwVjTeN46MeNmzUHqUjQptBJUHGcBakduhrUNc';
@@ -25,7 +25,7 @@ it('bip38 decodes slow', async () => {
     return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
-  const bip38 = require('bip38');
+  const bip38 = require('../../bip38');
   const wif = require('wif');
 
   let encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';

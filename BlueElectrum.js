@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import { SegwitBech32Wallet } from './class';
 const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
@@ -130,12 +129,14 @@ async function getTransactionsFullByAddress(address) {
     let full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
     full.address = address;
     for (let input of full.vin) {
-      input.address = SegwitBech32Wallet.witnessToAddress(input.txinwitness[1]);
-      input.addresses = [input.address];
       // now we need to fetch previous TX where this VIN became an output, so we can see its amount
       let prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
       if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
         input.value = prevTxForVin.vout[input.vout].value;
+        // also, we extract destination address from prev output:
+        if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
+          input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
+        }
       }
     }
 
@@ -184,6 +185,41 @@ async function multiGetBalanceByAddress(addresses, batchsize) {
       ret.balance += +bal.result.confirmed;
       ret.unconfirmed_balance += +bal.result.unconfirmed;
       ret.addresses[scripthash2addr[bal.param]] = bal.result;
+    }
+  }
+
+  return ret;
+}
+
+async function multiGetUtxoByAddress(addresses, batchsize) {
+  batchsize = batchsize || 100;
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  let ret = {};
+
+  let chunks = splitIntoChunks(addresses, batchsize);
+  for (let chunk of chunks) {
+    let scripthashes = [];
+    let scripthash2addr = {};
+    for (let addr of chunk) {
+      let script = bitcoin.address.toOutputScript(addr);
+      let hash = bitcoin.crypto.sha256(script);
+      let reversedHash = Buffer.from(reverse(hash));
+      reversedHash = reversedHash.toString('hex');
+      scripthashes.push(reversedHash);
+      scripthash2addr[reversedHash] = addr;
+    }
+
+    let results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
+
+    for (let utxos of results) {
+      ret[scripthash2addr[utxos.param]] = utxos.result;
+      for (let utxo of ret[scripthash2addr[utxos.param]]) {
+        utxo.address = scripthash2addr[utxos.param];
+        utxo.txId = utxo.tx_hash;
+        utxo.vout = utxo.tx_pos;
+        delete utxo.tx_pos;
+        delete utxo.tx_hash;
+      }
     }
   }
 
@@ -239,6 +275,7 @@ module.exports.getTransactionsFullByAddress = getTransactionsFullByAddress;
 module.exports.waitTillConnected = waitTillConnected;
 module.exports.estimateFees = estimateFees;
 module.exports.broadcast = broadcast;
+module.exports.multiGetUtxoByAddress = multiGetUtxoByAddress;
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
