@@ -29,7 +29,7 @@
     "ios": "react-native run-ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npm run releasenotes2json; npm run podinstall",
     "test": "npm run unit && npm run jest && npm run lint",
-    "jest": "node node_modules/jest/bin/jest.js",
+    "jest": "node node_modules/jest/bin/jest.js tests/integration/*",
     "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ --fix",
     "unit": "./node_modules/.bin/mocha tests/**/*.js"
   },

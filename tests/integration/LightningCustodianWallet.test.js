@@ -1,6 +1,6 @@
 /* global it, describe, jasmine */
 import Frisbee from 'frisbee';
-import { LightningCustodianWallet } from './class';
+import { LightningCustodianWallet } from '../../class';
 let assert = require('assert');
 
 describe('LightningCustodianWallet', () => {
