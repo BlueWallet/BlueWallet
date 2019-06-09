@@ -203,7 +203,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
   });
 
-  it('can create transactions', async () => {
+  it('can fetchBalance, fetchTransactions, fetchUtxo and create transactions', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -222,6 +222,17 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     await hd.fetchTransactions();
     end = +new Date();
     end - start > 15000 && console.warn('fetchTransactions took', (end - start) / 1000, 'sec');
+
+    start = +new Date();
+    await hd.fetchBalance();
+    end = +new Date();
+    end - start > 2000 && console.warn('warm fetchBalance took', (end - start) / 1000, 'sec');
+
+    global.debug = true;
+    start = +new Date();
+    await hd.fetchTransactions();
+    end = +new Date();
+    end - start > 2000 && console.warn('warm fetchTransactions took', (end - start) / 1000, 'sec');
 
     let txFound = 0;
     for (let tx of hd.getTransactions()) {
