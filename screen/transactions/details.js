@@ -44,13 +44,13 @@ export default class TransactionsDetails extends Component {
     let to = [];
     for (let tx of BlueApp.getTransactions()) {
       if (tx.hash === hash) {
-        console.log(tx);
         foundTx = tx;
         for (let input of foundTx.inputs) {
           from = from.concat(input.addresses);
         }
         for (let output of foundTx.outputs) {
-          to = to.concat(output.addresses);
+          if (output.addresses) to = to.concat(output.addresses);
+          if (output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
       }
     }
