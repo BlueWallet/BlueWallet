@@ -33,7 +33,6 @@ export default class ScanQrWif extends React.Component {
     this.lastTimeIveBeenHere = +new Date();
     this.setState({ isLoading: true });
 
-    console.log('onBarCodeScanned', ret);
     if (ret.data[0] === '6') {
       // password-encrypted, need to ask for password and decrypt
       console.log('trying to decrypt...');
