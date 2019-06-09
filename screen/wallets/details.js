@@ -8,6 +8,7 @@ import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wal
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { HDSegwitBech32Wallet } from '../../class';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -144,6 +145,7 @@ export default class WalletDetails extends Component {
 
                 {(this.state.wallet.type === HDLegacyBreadwalletWallet.type ||
                   this.state.wallet.type === HDLegacyP2PKHWallet.type ||
+                  this.state.wallet.type === HDSegwitBech32Wallet.type ||
                   this.state.wallet.type === HDSegwitP2SHWallet.type) && (
                   <React.Fragment>
                     <BlueButton
