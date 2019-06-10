@@ -19,7 +19,8 @@ export default class Language extends Component {
       availableLanguages: [
         { label: 'English', value: 'en' },
         { label: 'Česky (CZ)', value: 'cs_cz' },
-        { label: 'Chinese (ZH)', value: 'zh_cn' },
+        { label: 'Simplified Chinese(ZH)', value: 'zh_cn' },
+        { label: 'Traditional Chinese (TW)', value: 'zh_tw' },
         { label: 'Croatian (HR)', value: 'hr_hr' },
         { label: 'Danish (DK)', value: 'da_dk' },
         { label: 'Norsk (NB)', value: 'nb_no' },

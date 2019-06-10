@@ -28,6 +28,10 @@ dayjs.extend(relativeTime);
         lang = 'zh-cn';
         require('dayjs/locale/zh-cn');
         break;
+      case 'zh_cn':
+        lang = 'zh-tw';
+        require('dayjs/locale/zh-tw');
+        break;
       case 'ru':
         require('dayjs/locale/ru');
         break;
@@ -109,6 +113,7 @@ strings = new Localization({
   hr_hr: require('./hr_HR.js'),
   id_id: require('./id_ID.js'),
   zh_cn: require('./zh_cn.js'),
+  zh_tw: require('./zh_tw.js'),
   sv_se: require('./sv_SE.js'),
   nb_no: require('./nb_NO.js'),
   tr_tr: require('./tr_TR.js'),
