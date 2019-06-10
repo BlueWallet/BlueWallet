@@ -50,7 +50,7 @@ export default class TransactionsDetails extends Component {
         }
         for (let output of foundTx.outputs) {
           if (output.addresses) to = to.concat(output.addresses);
-          if (output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
+          if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
       }
     }
