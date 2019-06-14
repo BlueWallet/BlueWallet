@@ -83,11 +83,11 @@ describe('Watch only wallet', () => {
   it('can fetch balance & transactions from ypub HD', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     let w = new WatchOnlyWallet();
-    w.setSecret('ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy');
+    w.setSecret('ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo');
     await w.fetchBalance();
-    assert.strictEqual(w.getBalance(), 52774);
+    assert.strictEqual(w.getBalance(), 51432);
     await w.fetchTransactions();
-    assert.strictEqual(w.getTransactions().length, 3);
+    assert.strictEqual(w.getTransactions().length, 107);
     assert.ok((await w.getAddressAsync()).startsWith('3'));
   });
 
