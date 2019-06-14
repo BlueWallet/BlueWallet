@@ -226,6 +226,54 @@ async function multiGetUtxoByAddress(addresses, batchsize) {
   return ret;
 }
 
+async function multiGetHistoryByAddress(addresses, batchsize) {
+  batchsize = batchsize || 100;
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  let ret = {};
+
+  let chunks = splitIntoChunks(addresses, batchsize);
+  for (let chunk of chunks) {
+    let scripthashes = [];
+    let scripthash2addr = {};
+    for (let addr of chunk) {
+      let script = bitcoin.address.toOutputScript(addr);
+      let hash = bitcoin.crypto.sha256(script);
+      let reversedHash = Buffer.from(reverse(hash));
+      reversedHash = reversedHash.toString('hex');
+      scripthashes.push(reversedHash);
+      scripthash2addr[reversedHash] = addr;
+    }
+
+    let results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
+
+    for (let history of results) {
+      ret[scripthash2addr[history.param]] = history.result;
+      for (let hist of ret[scripthash2addr[history.param]]) {
+        hist.address = scripthash2addr[history.param];
+      }
+    }
+  }
+
+  return ret;
+}
+
+async function multiGetTransactionByTxid(txids, batchsize) {
+  batchsize = batchsize || 100;
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  let ret = {};
+
+  let chunks = splitIntoChunks(txids, batchsize);
+  for (let chunk of chunks) {
+    let results = await mainClient.blockchainTransaction_getBatch(chunk, true);
+
+    for (let txdata of results) {
+      ret[txdata.param] = txdata.result;
+    }
+  }
+
+  return ret;
+}
+
 /**
  * Simple waiter till `mainConnected` becomes true (which means
  * it Electrum was connected in other function), or timeout 30 sec.
@@ -276,6 +324,8 @@ module.exports.waitTillConnected = waitTillConnected;
 module.exports.estimateFees = estimateFees;
 module.exports.broadcast = broadcast;
 module.exports.multiGetUtxoByAddress = multiGetUtxoByAddress;
+module.exports.multiGetHistoryByAddress = multiGetHistoryByAddress;
+module.exports.multiGetTransactionByTxid = multiGetTransactionByTxid;
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting

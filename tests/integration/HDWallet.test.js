@@ -192,7 +192,7 @@ it('Segwit HD (BIP49) can fetch UTXO', async function() {
   let hd = new HDSegwitP2SHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
-  assert.strictEqual(hd.utxo.length, 12);
+  assert.ok(hd.utxo.length >= 12);
   assert.ok(typeof hd.utxo[0].confirmations === 'number');
   assert.ok(hd.utxo[0].txid);
   assert.ok(hd.utxo[0].vout);
@@ -349,7 +349,7 @@ it('Legacy HD (BIP44) can fetch UTXO', async function() {
   let hd = new HDLegacyP2PKHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
-  assert.strictEqual(hd.utxo.length, 12);
+  assert.ok(hd.utxo.length >= 12);
   assert.ok(typeof hd.utxo[0].confirmations === 'number');
   assert.ok(hd.utxo[0].txid);
   assert.ok(hd.utxo[0].vout);

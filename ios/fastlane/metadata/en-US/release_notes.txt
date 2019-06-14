@@ -1,3 +1,11 @@
+v4.0.4
+======
+
+* ADD: Use Blockstream for tx details in block explorer
+* REF: HD bech32 (BIP84) transaction fetch speedup (batching from electrum server)
+* FIX: correct output addresses display on transactions/details screen
+* FIX: BIP84 (zpub) transaction fetch fails if some inputs are p2pkh, thus wallet import fails
+
 v4.0.3
 ======
 

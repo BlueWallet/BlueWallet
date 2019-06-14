@@ -134,4 +134,54 @@ describe('Electrum', () => {
     assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].value, 50000);
     assert.strictEqual(utxos['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0].address, 'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh');
   });
+
+  it('ElectrumClient can do multiGetHistoryByAddress()', async () => {
+    let histories = await BlueElectrum.multiGetHistoryByAddress(
+      [
+        'bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh',
+        'bc1qvd6w54sydc08z3802svkxr7297ez7cusd6266p',
+        'bc1qwp58x4c9e5cplsnw5096qzdkae036ug7a34x3r',
+        'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy',
+        'bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy', // duplicate intended
+      ],
+      3,
+    );
+
+    assert.ok(
+      histories['bc1qt4t9xl2gmjvxgmp5gev6m8e6s9c85979ta7jeh'][0]['tx_hash'] ===
+        'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
+    );
+    assert.ok(
+      histories['bc1qcg6e26vtzja0h8up5w2m7utex0fsu4v0e0e7uy'][0]['tx_hash'] ===
+        '5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df',
+    );
+    assert.ok(Object.keys(histories).length === 4);
+  });
+
+  it('ElectrumClient can do multiGetHistoryByAddress()', async () => {
+    let txdatas = await BlueElectrum.multiGetTransactionByTxid(
+      [
+        'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
+        '042c9e276c2d06b0b84899771a7f218af90dd60436947c49a844a05d7c104b26',
+        '2cf439be65e7cc7c6e4db721b1c8fcb1cd95ff07cde79a52a73b3d15a12b2eb6',
+        '5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df',
+        '5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df', // duplicate intended
+      ],
+      3,
+    );
+
+    assert.ok(
+      txdatas['ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d'].txid ===
+        'ad00a92409d8982a1d7f877056dbed0c4337d2ebab70b30463e2802279fb936d',
+    );
+    assert.ok(
+      txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].txid ===
+        '5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df',
+    );
+    assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].size);
+    assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].vin);
+    assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].vout);
+    assert.ok(txdatas['5e2fa84148a7389537434b3ad12fcae71ed43ce5fb0f016a7f154a9b99a973df'].blocktime);
+    assert.ok(Object.keys(txdatas).length === 4);
+  });
 });
