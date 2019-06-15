@@ -288,7 +288,16 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
             clonedTx.outputs = tx.vout.slice(0);
             delete clonedTx.vin;
             delete clonedTx.vout;
-            this._txs_by_external_index[c].push(clonedTx);
+
+            // trying to replace tx if it exists already (because it has lower confirmations, for example)
+            let replaced = false;
+            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
+              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
+                replaced = true;
+                this._txs_by_external_index[c][cc] = clonedTx;
+              }
+            }
+            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
           }
         }
         for (let vout of tx.vout) {
@@ -300,7 +309,16 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
             clonedTx.outputs = tx.vout.slice(0);
             delete clonedTx.vin;
             delete clonedTx.vout;
-            this._txs_by_external_index[c].push(clonedTx);
+
+            // trying to replace tx if it exists already (because it has lower confirmations, for example)
+            let replaced = false;
+            for (let cc = 0; cc < this._txs_by_external_index[c].length; cc++) {
+              if (this._txs_by_external_index[c][cc].txid === clonedTx.txid) {
+                replaced = true;
+                this._txs_by_external_index[c][cc] = clonedTx;
+              }
+            }
+            if (!replaced) this._txs_by_external_index[c].push(clonedTx);
           }
         }
       }
@@ -317,7 +335,16 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
             clonedTx.outputs = tx.vout.slice(0);
             delete clonedTx.vin;
             delete clonedTx.vout;
-            this._txs_by_internal_index[c].push(clonedTx);
+
+            // trying to replace tx if it exists already (because it has lower confirmations, for example)
+            let replaced = false;
+            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
+              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
+                replaced = true;
+                this._txs_by_internal_index[c][cc] = clonedTx;
+              }
+            }
+            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
           }
         }
         for (let vout of tx.vout) {
@@ -329,7 +356,16 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
             clonedTx.outputs = tx.vout.slice(0);
             delete clonedTx.vin;
             delete clonedTx.vout;
-            this._txs_by_internal_index[c].push(clonedTx);
+
+            // trying to replace tx if it exists already (because it has lower confirmations, for example)
+            let replaced = false;
+            for (let cc = 0; cc < this._txs_by_internal_index[c].length; cc++) {
+              if (this._txs_by_internal_index[c][cc].txid === clonedTx.txid) {
+                replaced = true;
+                this._txs_by_internal_index[c][cc] = clonedTx;
+              }
+            }
+            if (!replaced) this._txs_by_internal_index[c].push(clonedTx);
           }
         }
       }
