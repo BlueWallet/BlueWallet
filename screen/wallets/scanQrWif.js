@@ -156,6 +156,7 @@ export default class ScanQrWif extends React.Component {
       if (ret.data.includes('@')) {
         const split = ret.data.split('@');
         lnd.setBaseURI(split[1]);
+        lnd.init();
         lnd.setSecret(split[0]);
       }
 
