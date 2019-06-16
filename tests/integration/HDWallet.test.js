@@ -132,7 +132,7 @@ it('can generate Segwit HD (BIP49)', async () => {
 
 it('HD (BIP49) can create TX', async () => {
   if (!process.env.HD_MNEMONIC_BIP49) {
-    console.error('process.env.HD_MNEMONIC not set, skipped');
+    console.error('process.env.HD_MNEMONIC_BIP49 not set, skipped');
     return;
   }
   let hd = new HDSegwitP2SHWallet();

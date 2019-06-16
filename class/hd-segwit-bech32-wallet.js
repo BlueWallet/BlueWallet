@@ -29,6 +29,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     this._txs_by_internal_index = {};
 
     this._utxo = [];
+    this.gap_limit = 50;
   }
 
   allowBatchSend() {
@@ -421,6 +422,103 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     });
   }
 
+  async _binarySearchIterationForInternalAddress(index) {
+    let allAddresses = [];
+    for (let c = 0; c < index; c++) {
+      allAddresses.push(this._getInternalAddressByIndex(c));
+    }
+
+    let addressChunks = this.constructor._splitIntoChunks(allAddresses, this.gap_limit);
+
+    let lastChunkWithUsedAddressesNum = null;
+    let lastHistoriesWithUsedAddresses = null;
+    for (let c = 0; c < addressChunks.length; c++) {
+      let histories = await BlueElectrum.multiGetHistoryByAddress(addressChunks[c]);
+      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+        // in this particular chunk we have used addresses
+        lastChunkWithUsedAddressesNum = c;
+        lastHistoriesWithUsedAddresses = histories;
+      } else {
+        // empty chunk. no sense searching more chunks
+        break;
+      }
+    }
+
+    let lastUsedIndex = 0;
+
+    if (lastHistoriesWithUsedAddresses) {
+      // now searching for last used address in batch lastChunkWithUsedAddressesNum
+      for (
+        let c = lastChunkWithUsedAddressesNum * this.gap_limit;
+        c < lastChunkWithUsedAddressesNum * this.gap_limit + this.gap_limit;
+        c++
+      ) {
+        let address = this._getInternalAddressByIndex(c);
+        if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
+          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unsued
+        }
+      }
+    }
+
+    return lastUsedIndex;
+  }
+
+  async _binarySearchIterationForExternalAddress(index) {
+    let allAddresses = [];
+    for (let c = 0; c < index; c++) {
+      allAddresses.push(this._getExternalAddressByIndex(c));
+    }
+
+    let addressChunks = this.constructor._splitIntoChunks(allAddresses, this.gap_limit);
+
+    let lastChunkWithUsedAddressesNum = null;
+    let lastHistoriesWithUsedAddresses = null;
+    for (let c = 0; c < addressChunks.length; c++) {
+      let histories = await BlueElectrum.multiGetHistoryByAddress(addressChunks[c]);
+      if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
+        // in this particular chunk we have used addresses
+        lastChunkWithUsedAddressesNum = c;
+        lastHistoriesWithUsedAddresses = histories;
+      } else {
+        // empty chunk. no sense searching more chunks
+        break;
+      }
+    }
+
+    let lastUsedIndex = 0;
+
+    if (lastHistoriesWithUsedAddresses) {
+      // now searching for last used address in batch lastChunkWithUsedAddressesNum
+      for (
+        let c = lastChunkWithUsedAddressesNum * this.gap_limit;
+        c < lastChunkWithUsedAddressesNum * this.gap_limit + this.gap_limit;
+        c++
+      ) {
+        let address = this._getExternalAddressByIndex(c);
+        if (lastHistoriesWithUsedAddresses[address] && lastHistoriesWithUsedAddresses[address].length > 0) {
+          lastUsedIndex = Math.max(c, lastUsedIndex) + 1; // point to next, which is supposed to be unsued
+        }
+      }
+    }
+
+    return lastUsedIndex;
+  }
+
+  async fetchBalance() {
+    try {
+      if (this.next_free_change_address_index === 0 && this.next_free_address_index === 0) {
+        // doing binary search for last used address:
+        this.next_free_change_address_index = await this._binarySearchIterationForInternalAddress(1000);
+        this.next_free_address_index = await this._binarySearchIterationForExternalAddress(1000);
+      } // end rescanning fresh wallet
+
+      // finally fetching balance
+      await this._fetchBalance();
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
   async _fetchBalance() {
     // probing future addressess in hierarchy whether they have any transactions, in case
     // our 'next free addr' pointers are lagging behind
@@ -634,5 +732,24 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
 
     return b58.encode(data);
+  }
+
+  static _splitIntoChunks(arr, chunkSize) {
+    let groups = [];
+    let i;
+    for (i = 0; i < arr.length; i += chunkSize) {
+      groups.push(arr.slice(i, i + chunkSize));
+    }
+    return groups;
+  }
+
+  static _getTransactionsFromHistories(histories) {
+    let txs = [];
+    for (let history of Object.values(histories)) {
+      for (let tx of history) {
+        txs.push(tx);
+      }
+    }
+    return txs;
   }
 }
