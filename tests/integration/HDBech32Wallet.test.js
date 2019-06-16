@@ -203,6 +203,21 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
   });
 
+  it('can work with fauty zpub', async () => {
+    if (!process.env.FAULTY_ZPUB) {
+      console.error('process.env.FAULTY_ZPUB not set, skipped');
+      return;
+    }
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    let hd = new HDSegwitBech32Wallet();
+    hd._xpub = process.env.FAULTY_ZPUB;
+
+    await hd.fetchBalance();
+    await hd.fetchTransactions();
+
+    assert.ok(hd.getTransactions().length >= 76);
+  });
+
   it('can fetchBalance, fetchTransactions, fetchUtxo and create transactions', async () => {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
@@ -217,6 +232,9 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     await hd.fetchBalance();
     let end = +new Date();
     end - start > 5000 && console.warn('fetchBalance took', (end - start) / 1000, 'sec');
+
+    assert.ok(hd.next_free_change_address_index > 0);
+    assert.ok(hd.next_free_address_index > 0);
 
     start = +new Date();
     await hd.fetchTransactions();
