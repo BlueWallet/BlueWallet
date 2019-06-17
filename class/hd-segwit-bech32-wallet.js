@@ -29,7 +29,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     this._txs_by_internal_index = {};
 
     this._utxo = [];
-    this.gap_limit = 50;
   }
 
   allowBatchSend() {
@@ -423,17 +422,18 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   async _binarySearchIterationForInternalAddress(index) {
-    let allAddresses = [];
-    for (let c = 0; c < index; c++) {
-      allAddresses.push(this._getInternalAddressByIndex(c));
-    }
-
-    let addressChunks = this.constructor._splitIntoChunks(allAddresses, this.gap_limit);
+    const gerenateChunkAddresses = chunkNum => {
+      let ret = [];
+      for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
+        ret.push(this._getInternalAddressByIndex(c));
+      }
+      return ret;
+    };
 
     let lastChunkWithUsedAddressesNum = null;
     let lastHistoriesWithUsedAddresses = null;
-    for (let c = 0; c < addressChunks.length; c++) {
-      let histories = await BlueElectrum.multiGetHistoryByAddress(addressChunks[c]);
+    for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
+      let histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
       if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
@@ -464,17 +464,18 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   async _binarySearchIterationForExternalAddress(index) {
-    let allAddresses = [];
-    for (let c = 0; c < index; c++) {
-      allAddresses.push(this._getExternalAddressByIndex(c));
-    }
-
-    let addressChunks = this.constructor._splitIntoChunks(allAddresses, this.gap_limit);
+    const gerenateChunkAddresses = chunkNum => {
+      let ret = [];
+      for (let c = this.gap_limit * chunkNum; c < this.gap_limit * (chunkNum + 1); c++) {
+        ret.push(this._getExternalAddressByIndex(c));
+      }
+      return ret;
+    };
 
     let lastChunkWithUsedAddressesNum = null;
     let lastHistoriesWithUsedAddresses = null;
-    for (let c = 0; c < addressChunks.length; c++) {
-      let histories = await BlueElectrum.multiGetHistoryByAddress(addressChunks[c]);
+    for (let c = 0; c < Math.round(index / this.gap_limit); c++) {
+      let histories = await BlueElectrum.multiGetHistoryByAddress(gerenateChunkAddresses(c));
       if (this.constructor._getTransactionsFromHistories(histories).length > 0) {
         // in this particular chunk we have used addresses
         lastChunkWithUsedAddressesNum = c;
@@ -732,15 +733,6 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
 
     return b58.encode(data);
-  }
-
-  static _splitIntoChunks(arr, chunkSize) {
-    let groups = [];
-    let i;
-    for (i = 0; i < arr.length; i += chunkSize) {
-      groups.push(arr.slice(i, i + chunkSize));
-    }
-    return groups;
   }
 
   static _getTransactionsFromHistories(histories) {
