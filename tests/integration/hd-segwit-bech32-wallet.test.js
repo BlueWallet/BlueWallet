@@ -227,6 +227,10 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     let hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
+    assert.strictEqual(
+      hd.getXpub(),
+      'zpub6qoWjSiZRHzSYPGYJ6EzxEXJXP1b2Rj9syWwJZFNCmupMwkbSAWSBk3UvSkJyQLEhQpaBAwvhmNj3HPKpwCJiTBB9Tutt46FtEmjL2DoU3J',
+    );
 
     let start = +new Date();
     await hd.fetchBalance();
@@ -284,7 +288,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     let { tx, inputs, outputs, fee } = hd.createTransaction(
       hd.getUtxo(),
-      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 101000 }],
+      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 51000 }],
       13,
       changeAddress,
     );
@@ -296,6 +300,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       totalInput += inp.value;
     }
 
+    assert.strictEqual(outputs.length, 2);
     let totalOutput = 0;
     for (let outp of outputs) {
       totalOutput += outp.value;
