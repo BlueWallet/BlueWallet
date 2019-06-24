@@ -98,7 +98,7 @@ async function getRandomDynamicPeer() {
  * @param address {String}
  * @returns {Promise<Object>}
  */
-async function getBalanceByAddress(address) {
+module.exports.getBalanceByAddress = async function(address) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   let script = bitcoin.address.toOutputScript(address);
   let hash = bitcoin.crypto.sha256(script);
@@ -106,23 +106,23 @@ async function getBalanceByAddress(address) {
   let balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
   balance.addr = address;
   return balance;
-}
+};
 
 /**
  *
  * @param address {String}
  * @returns {Promise<Array>}
  */
-async function getTransactionsByAddress(address) {
+module.exports.getTransactionsByAddress = async function(address) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   let script = bitcoin.address.toOutputScript(address);
   let hash = bitcoin.crypto.sha256(script);
   let reversedHash = Buffer.from(reverse(hash));
   let history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
   return history;
-}
+};
 
-async function getTransactionsFullByAddress(address) {
+module.exports.getTransactionsFullByAddress = async function(address) {
   let txs = await this.getTransactionsByAddress(address);
   let ret = [];
   for (let tx of txs) {
@@ -153,7 +153,7 @@ async function getTransactionsFullByAddress(address) {
   }
 
   return ret;
-}
+};
 
 /**
  *
@@ -161,7 +161,7 @@ async function getTransactionsFullByAddress(address) {
  * @param batchsize {Number}
  * @returns {Promise<{balance: number, unconfirmed_balance: number, addresses: object}>}
  */
-async function multiGetBalanceByAddress(addresses, batchsize) {
+module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = { balance: 0, unconfirmed_balance: 0, addresses: {} };
@@ -189,9 +189,9 @@ async function multiGetBalanceByAddress(addresses, batchsize) {
   }
 
   return ret;
-}
+};
 
-async function multiGetUtxoByAddress(addresses, batchsize) {
+module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = {};
@@ -224,9 +224,9 @@ async function multiGetUtxoByAddress(addresses, batchsize) {
   }
 
   return ret;
-}
+};
 
-async function multiGetHistoryByAddress(addresses, batchsize) {
+module.exports.multiGetHistoryByAddress = async function(addresses, batchsize) {
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = {};
@@ -255,9 +255,9 @@ async function multiGetHistoryByAddress(addresses, batchsize) {
   }
 
   return ret;
-}
+};
 
-async function multiGetTransactionByTxid(txids, batchsize) {
+module.exports.multiGetTransactionByTxid = async function(txids, batchsize) {
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = {};
@@ -272,7 +272,7 @@ async function multiGetTransactionByTxid(txids, batchsize) {
   }
 
   return ret;
-}
+};
 
 /**
  * Simple waiter till `mainConnected` becomes true (which means
@@ -281,7 +281,7 @@ async function multiGetTransactionByTxid(txids, batchsize) {
  *
  * @returns {Promise<Promise<*> | Promise<*>>}
  */
-async function waitTillConnected() {
+module.exports.waitTillConnected = async function() {
   let waitTillConnectedInterval = false;
   let retriesCounter = 0;
   return new Promise(function(resolve, reject) {
@@ -296,17 +296,17 @@ async function waitTillConnected() {
       }
     }, 1000);
   });
-}
+};
 
-async function estimateFees() {
+module.exports.estimateFees = async function() {
   if (!mainClient) throw new Error('Electrum client is not connected');
   const fast = await mainClient.blockchainEstimatefee(1);
   const medium = await mainClient.blockchainEstimatefee(5);
   const slow = await mainClient.blockchainEstimatefee(10);
   return { fast, medium, slow };
-}
+};
 
-async function broadcast(hex) {
+module.exports.broadcast = async function(hex) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   try {
     const broadcast = await mainClient.blockchainTransaction_broadcast(hex);
@@ -314,18 +314,7 @@ async function broadcast(hex) {
   } catch (error) {
     return error;
   }
-}
-
-module.exports.getBalanceByAddress = getBalanceByAddress;
-module.exports.getTransactionsByAddress = getTransactionsByAddress;
-module.exports.multiGetBalanceByAddress = multiGetBalanceByAddress;
-module.exports.getTransactionsFullByAddress = getTransactionsFullByAddress;
-module.exports.waitTillConnected = waitTillConnected;
-module.exports.estimateFees = estimateFees;
-module.exports.broadcast = broadcast;
-module.exports.multiGetUtxoByAddress = multiGetUtxoByAddress;
-module.exports.multiGetHistoryByAddress = multiGetHistoryByAddress;
-module.exports.multiGetTransactionByTxid = multiGetTransactionByTxid;
+};
 
 module.exports.forceDisconnect = () => {
   mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
@@ -343,28 +332,3 @@ let splitIntoChunks = function(arr, chunkSize) {
   }
   return groups;
 };
-
-/*
-
-
-
-let addr4elect = 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej';
-let script = bitcoin.address.toOutputScript(addr4elect);
-let hash = bitcoin.crypto.sha256(script);
-let reversedHash = Buffer.from(hash.reverse());
-console.log(addr4elect, ' maps to ', reversedHash.toString('hex'));
-console.log(await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex')));
-
-addr4elect = '1BWwXJH3q6PRsizBkSGm2Uw4Sz1urZ5sCj';
-script = bitcoin.address.toOutputScript(addr4elect);
-hash = bitcoin.crypto.sha256(script);
-reversedHash = Buffer.from(hash.reverse());
-console.log(addr4elect, ' maps to ', reversedHash.toString('hex'));
-console.log(await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex')));
-
-// let peers = await mainClient.serverPeers_subscribe();
-// console.log(peers);
-mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
-mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
-mainClient.close();
-// setTimeout(()=>process.exit(), 3000); */
