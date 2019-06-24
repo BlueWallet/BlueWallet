@@ -1,0 +1,182 @@
+/* global it, describe, jasmine, afterAll, beforeAll */
+import { HDSegwitBech32Wallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
+const bitcoin = require('bitcoinjs5');
+global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
+let assert = require('assert');
+global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+let BlueElectrum = require('../../BlueElectrum');
+
+afterAll(async () => {
+  // after all tests we close socket so the test suite can actually terminate
+  BlueElectrum.forceDisconnect();
+  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
+});
+
+beforeAll(async () => {
+  // awaiting for Electrum to be connected. For RN Electrum would naturally connect
+  // while app starts up, but for tests we need to wait for it
+  await BlueElectrum.waitTillConnected();
+});
+
+describe('HDSegwitBech32Transaction', () => {
+  it('can decode & check sequence', async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    let T = new HDSegwitBech32Transaction(
+      '020000000001035b6bd5f35a4ae9fb97da83929d042ee1609aa37e763e1428f31578d2308b5afb0000000000ffffffff66595fc361ad1d5954f7c06e38482d0abf1b981feee7353d854cd25c7f6516e80000000000ffffffffc33a839294313ae2674ce4c574364ff3837d31c8e9c40b030409bff318ddcda10100000000ffffffff02888a01000000000017a914e286d58e53f9247a4710e51232cce0686f16873c87d2880000000000001600140c75ccd91c55c4f54788931d48e6f23909d3a21f024730440220078c59543244d8b642f9ef7a7ea2747ddf34c2937a89fe9641038832f5baebf00220146b116e9a915a6fd9ab855c63b7549d44b8abf1607639aaf67321d045596046012103e73f0f28b3007440783b188facc81e835df195687a6dc5e9fbd775022d27eebc02483045022100e2f3a3064517226dbde0d87733b0179e0bb0cd94968f27961ba66847f4553d3602200ab8a858b7967cdb656816861a8cab46cf86db69be8a285292157b1fe1546872012103d8a20ce5c997b78ebeb0611f12bcf6c6bd797e485ff99253fee0e9794ac73dfd0247304402207dd7833521682e01c399195d37965b84ca6085f5ff62a34e09446e3244760d2702207672b60ec9d307ed502dc023b30d00415c061fd68a7f503738c57ab81419c788012102b8faed0d077eb0523af21e14fe51bd6dcc5a14ba6e800071bac2a3583a9d3a6a00000000',
+    );
+    assert.strictEqual(T.getMaxUsedSequence(), 0xffffffff);
+    assert.strictEqual(T.isSequenceReplaceable(), false);
+
+    T = new HDSegwitBech32Transaction(
+      '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
+    );
+    assert.strictEqual(T.getMaxUsedSequence(), 0);
+    assert.strictEqual(T.isSequenceReplaceable(), true);
+
+    assert.ok((await T.getRemoteConfirmationsNum()) >= 292);
+  });
+
+  it('can tell if its our transaction', async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    assert.ok(hd.validateMnemonic());
+    await hd.fetchTransactions();
+
+    let tt = new HDSegwitBech32Transaction(
+      '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
+      hd,
+    );
+
+    assert.ok(await tt.isOurTransaction());
+
+    tt = new HDSegwitBech32Transaction(
+      '01000000000101e141f756746932f869c7323d941f26e6a1a6817143b97250a51f8c08510547a901000000171600148ba6d02e74c0a6e000e8b174eb2ed44e5ea211a60000000002400d03000000000016001465eb5c39aa6785f69f292fdb41c282ea7799721ff85c09000000000017a914e286d58e53f9247a4710e51232cce0686f16873c8702473044022009a072e3a920708a63bac6452f5ff74a0e918057bb79f9f0fce72494c7edd5c9022000e430179e9051fe37b6ea8ba538b4af94e120dd70fc30aed4e54d5054bc9f9d0121039a421d5eb7c9de6590ae2a471cb556b60de8c6b056beb907dbdc1f5e6092f58800000000',
+      hd,
+    );
+
+    assert.ok(!(await tt.isOurTransaction()));
+  });
+
+  it('can tell tx info', async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    await hd.fetchBalance();
+    await hd.fetchTransactions();
+
+    // 881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e
+    let tt = new HDSegwitBech32Transaction(
+      '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
+      hd,
+    );
+
+    let { fee, feeRate, targets, changeAmount, utxos } = await tt.getInfo();
+    assert.strictEqual(fee, 4464);
+    assert.strictEqual(changeAmount, 103686);
+    assert.strictEqual(feeRate, 12);
+    assert.strictEqual(targets.length, 1);
+    assert.strictEqual(targets[0].value, 200000);
+    assert.strictEqual(targets[0].address, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+    assert.strictEqual(
+      JSON.stringify(utxos),
+      JSON.stringify([
+        {
+          vout: 1,
+          value: 108150,
+          txId: 'f3d7fb23248168c977e8085b6bd5381d73c85da423056a47cbf734b5665615f1',
+          address: 'bc1qahhgjtxexjx9t0e5pjzqwtjnxexzl6f5an38hq',
+        },
+        {
+          vout: 0,
+          value: 200000,
+          txId: '89bcff166c39b3831e03257d4bcc1034dd52c18af46a3eb459e72e692a88a2d8',
+          address: 'bc1qvh44cwd2v7zld8ef9ld5rs5zafmejuslp6yd73',
+        },
+      ]),
+    );
+  });
+
+  it('can do RBF - cancel tx', async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    await hd.fetchBalance();
+    await hd.fetchTransactions();
+
+    // 881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e
+    let tt = new HDSegwitBech32Transaction(
+      '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
+      hd,
+    );
+
+    assert.strictEqual(tt.canCancelTx(), true);
+
+    let { tx } = await tt.createRBFcancelTx(15);
+
+    let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
+    assert.strictEqual(createdTx.ins.length, 2);
+    assert.strictEqual(createdTx.outs.length, 1);
+    let addr = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
+    assert.ok(hd.weOwnAddress(addr));
+
+    let actualFeerate = (108150 + 200000 - createdTx.outs[0].value) / (tx.toHex().length / 2);
+    assert.strictEqual(Math.round(actualFeerate), 15);
+
+    let tt2 = new HDSegwitBech32Transaction(tx.toHex(), hd);
+    assert.strictEqual(tt2.canCancelTx(), false); // newly created cancel tx is not cancellable anymore
+  });
+
+  it('can do RBF - bumpfees tx', async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    await hd.fetchBalance();
+    await hd.fetchTransactions();
+
+    // 881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e
+    let tt = new HDSegwitBech32Transaction(
+      '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
+      hd,
+    );
+
+    assert.strictEqual(tt.canCancelTx(), true);
+
+    let { tx } = await tt.createRBFbumpFee(17);
+
+    let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
+    assert.strictEqual(createdTx.ins.length, 2);
+    assert.strictEqual(createdTx.outs.length, 2);
+    let addr0 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
+    assert.ok(!hd.weOwnAddress(addr0));
+    assert.strictEqual(addr0, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC'); // dest address
+    let addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[1].script);
+    assert.ok(hd.weOwnAddress(addr1));
+
+    let actualFeerate = (108150 + 200000 - (createdTx.outs[0].value + createdTx.outs[1].value)) / (tx.toHex().length / 2);
+    assert.strictEqual(Math.round(actualFeerate), 17);
+
+    let tt2 = new HDSegwitBech32Transaction(tx.toHex(), hd);
+    assert.strictEqual(tt2.canCancelTx(), true); // new tx is still cancellable since we only bumped fees
+  });
+});

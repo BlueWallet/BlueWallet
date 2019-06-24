@@ -646,6 +646,9 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     return false;
   }
 
+  /**
+   * @deprecated
+   */
   createTx(utxos, amount, fee, address) {
     throw new Error('Deprecated');
   }
