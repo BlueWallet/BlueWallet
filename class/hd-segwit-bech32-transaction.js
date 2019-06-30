@@ -133,8 +133,14 @@ export class HDSegwitBech32Transaction {
 
   /**
    * Returns all the info about current transaction which is needed to do a replacement TX
+   * * fee - current tx fee
+   * * utxos - UTXOs current tx consumes
+   * * changeAmount - amount of satoshis that sent to change address (or addresses) we control
+   * * feeRate - sat/byte for current tx
+   * * targets - destination(s) of funds (outputs we do not control)
+   * * unconfirmedUtxos - UTXOs created by this transaction (only the ones we control)
    *
-   * @returns {Promise<{fee: number, utxos: Array, changeAmount: number, feeRate: number, targets: Array}>}
+   * @returns {Promise<{fee: number, utxos: Array, unconfirmedUtxos: Array, changeAmount: number, feeRate: number, targets: Array}>}
    */
   async getInfo() {
     if (!this._wallet) throw new Error('Wallet required for this method');
@@ -189,7 +195,22 @@ export class HDSegwitBech32Transaction {
       }
     }
 
-    return { fee, feeRate, targets, changeAmount, utxos };
+    // lets find outputs we own that current transaction creates. can be used in CPFP
+    let unconfirmedUtxos = [];
+    for (let outp of this._remoteTx.vout) {
+      let address = outp.scriptPubKey.addresses[0];
+      let value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
+      if (this._wallet.weOwnAddress(address)) {
+        unconfirmedUtxos.push({
+          vout: outp.n,
+          value: value,
+          txId: this._txid || this._txDecoded.getId(),
+          address: address,
+        });
+      }
+    }
+
+    return { fee, feeRate, targets, changeAmount, utxos, unconfirmedUtxos };
   }
 
   /**
@@ -212,7 +233,8 @@ export class HDSegwitBech32Transaction {
 
   /**
    * Creates an RBF transaction that can replace previous one and basically cancel it (rewrite
-   * output to the one our wallet controls)
+   * output to the one our wallet controls). Note, this cannot add more utxo in RBF transaction if
+   * newFeerate is too high
    *
    * @param newFeerate {number} Sat/byte. Should be greater than previous tx feerate
    * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
@@ -236,7 +258,8 @@ export class HDSegwitBech32Transaction {
   }
 
   /**
-   * Creates an RBF transaction that can bumps fee of previous one
+   * Creates an RBF transaction that can bumps fee of previous one. Note, this cannot add more utxo in RBF
+   * transaction if newFeerate is too high
    *
    * @param newFeerate {number} Sat/byte
    * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
@@ -255,5 +278,47 @@ export class HDSegwitBech32Transaction {
     // target since fee wont change. removing the amount so `createTransaction` will sendMAX correctly with new feeRate
 
     return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1);
+  }
+
+  /**
+   * Creates a CPFP transaction that can bumps fee of previous one (spends created but not confirmed outputs
+   * that belong to us). Note, this cannot add more utxo in CPFP transaction if newFeerate is too high
+   *
+   * @param newFeerate {number} sat/byte
+   * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
+   */
+  async createCPFPbumpFee(newFeerate) {
+    if (!this._wallet) throw new Error('Wallet required for this method');
+    if (!this._remoteTx) await this._fetchRemoteTx();
+
+    let { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
+
+    if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
+    let myAddress = await this._wallet.getChangeAddressAsync();
+
+    // calculating feerate for CPFP tx so that average between current and CPFP tx will equal newFeerate.
+    // this works well if both txs are +/- equal size in bytes
+    const targetFeeRate = 2 * newFeerate - feeRate;
+
+    let add = 0;
+    while (add <= 128) {
+      var { tx, inputs, outputs, fee } = this._wallet.createTransaction(
+        unconfirmedUtxos,
+        [{ address: myAddress }],
+        targetFeeRate + add,
+        myAddress,
+        0,
+      );
+      let combinedFeeRate = (oldFee + fee) / (this._txhex.length / 2 + tx.toHex().length / 2); // avg
+      if (Math.round(combinedFeeRate) < newFeerate) {
+        add *= 2;
+        if (!add) add = 2;
+      } else {
+        // reached target feerate
+        break;
+      }
+    }
+
+    return { tx, inputs, outputs, fee };
   }
 }

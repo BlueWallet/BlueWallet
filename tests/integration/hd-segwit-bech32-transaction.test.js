@@ -160,4 +160,37 @@ describe('HDSegwitBech32Transaction', () => {
     let tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
     assert.strictEqual(await tt2.canCancelTx(), true); // new tx is still cancellable since we only bumped fees
   });
+
+  it('can do CPFP - bump fees', async function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
+    await hd.fetchBalance();
+    await hd.fetchTransactions();
+
+    let tt = new HDSegwitBech32Transaction(null, '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f', hd);
+    assert.ok(await tt.isToUsTransaction());
+    let { unconfirmedUtxos, fee: oldFee } = await tt.getInfo();
+
+    assert.strictEqual(
+      JSON.stringify(unconfirmedUtxos),
+      JSON.stringify([
+        {
+          vout: 0,
+          value: 200000,
+          txId: '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f',
+          address: 'bc1qvlmgrq0gtatanmas0tswrsknllvupq2g844ss2',
+        },
+      ]),
+    );
+
+    let { tx, fee } = await tt.createCPFPbumpFee(20);
+    let avgFeeRate = (oldFee + fee) / (tt._txhex.length / 2 + tx.toHex().length / 2);
+    assert.ok(Math.round(avgFeeRate) >= 20);
+  });
 });
