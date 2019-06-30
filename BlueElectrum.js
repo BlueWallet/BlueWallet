@@ -257,14 +257,15 @@ module.exports.multiGetHistoryByAddress = async function(addresses, batchsize) {
   return ret;
 };
 
-module.exports.multiGetTransactionByTxid = async function(txids, batchsize) {
+module.exports.multiGetTransactionByTxid = async function(txids, batchsize, verbose) {
   batchsize = batchsize || 100;
+  verbose = verbose !== false;
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = {};
 
   let chunks = splitIntoChunks(txids, batchsize);
   for (let chunk of chunks) {
-    let results = await mainClient.blockchainTransaction_getBatch(chunk, true);
+    let results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
 
     for (let txdata of results) {
       ret[txdata.param] = txdata.result;
@@ -314,6 +315,11 @@ module.exports.broadcast = async function(hex) {
   } catch (error) {
     return error;
   }
+};
+
+module.exports.broadcastV2 = async function(hex) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  return mainClient.blockchainTransaction_broadcast(hex);
 };
 
 module.exports.forceDisconnect = () => {
