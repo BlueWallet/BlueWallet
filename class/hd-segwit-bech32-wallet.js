@@ -46,7 +46,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     for (let bal of Object.values(this._balances_by_internal_index)) {
       ret += bal.c;
     }
-    return ret + this.getUnconfirmedBalance();
+    return ret + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
   }
 
   /**
@@ -273,6 +273,15 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
           txdatas[txid].vin[inpNum].value = vintxdatas[inpTxid].vout[inpVout].value;
         }
       }
+    }
+
+    // now purge all unconfirmed txs from internal hashmaps, since some may be evicted from mempool because they became invalid
+    // or replaced. hashmaps are going to be re-populated anyways, since we fetched TXs for addresses with unconfirmed TXs
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      this._txs_by_external_index[c] = this._txs_by_external_index[c].filter(tx => !!tx.confirmations);
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      this._txs_by_internal_index[c] = this._txs_by_internal_index[c].filter(tx => !!tx.confirmations);
     }
 
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this._txs_by_internal_index && this._txs_by_external_index
@@ -746,5 +755,20 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       }
     }
     return txs;
+  }
+
+  /**
+   * @param {String} txhex
+   * @returns {Promise<boolean>}
+   */
+  async broadcastTx(txhex) {
+    try {
+      let broadcast = await BlueElectrum.broadcastV2(txhex);
+      if (broadcast.indexOf('successfully') !== -1) return true;
+      return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
+    } catch (error) {
+      console.warn(error);
+      return false;
+    }
   }
 }
