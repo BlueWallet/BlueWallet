@@ -10,11 +10,14 @@ const BigNumber = require('bignumber.js');
  */
 export class HDSegwitBech32Transaction {
   /**
-   * @param txhex string Object initialized with txhex
-   * @param wallet {HDSegwitBech32Wallet} If set - a wallet object to which transacton belongs
+   * @param txhex {string|null} Object is initialized with txhex
+   * @param txid {string|null} If txhex not present - txid whould be present
+   * @param wallet {HDSegwitBech32Wallet|null} If set - a wallet object to which transacton belongs
    */
-  constructor(txhex, wallet) {
+  constructor(txhex, txid, wallet) {
+    if (!txhex && !txid) throw new Error('Bad arguments');
     this._txhex = txhex;
+    this._txid = txid;
 
     if (wallet) {
       if (wallet.type === HDSegwitBech32Wallet.type) {
@@ -25,17 +28,32 @@ export class HDSegwitBech32Transaction {
       }
     }
 
-    this._txDecoded = bitcoin.Transaction.fromHex(this._txhex);
+    if (this._txhex) this._txDecoded = bitcoin.Transaction.fromHex(this._txhex);
     this._remoteTx = null;
+  }
+
+  /**
+   * If only txid present - we fetch hex
+   *
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _fetchTxhexAndDecode() {
+    let hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], 10, false);
+    this._txhex = hexes[this._txid];
+    if (!this._txhex) throw new Error("Transaction can't be found in mempool");
+    this._txDecoded = bitcoin.Transaction.fromHex(this._txhex);
   }
 
   /**
    * Returns max used sequence for this transaction. Next RBF transaction
    * should have this sequence + 1
    *
-   * @returns {number}
+   * @returns {Promise<number>}
    */
-  getMaxUsedSequence() {
+  async getMaxUsedSequence() {
+    if (!this._txDecoded) await this._fetchTxhexAndDecode();
+
     let max = 0;
     for (let inp of this._txDecoded.ins) {
       max = Math.max(inp.sequence, max);
@@ -47,21 +65,22 @@ export class HDSegwitBech32Transaction {
   /**
    * Basic check that Sequence num for this TX is replaceable
    *
-   * @returns {boolean}
+   * @returns {Promise<boolean>}
    */
-  isSequenceReplaceable() {
-    return this.getMaxUsedSequence() < bitcoin.Transaction.DEFAULT_SEQUENCE;
+  async isSequenceReplaceable() {
+    return (await this.getMaxUsedSequence()) < bitcoin.Transaction.DEFAULT_SEQUENCE;
   }
 
   /**
    * If internal extended tx data not set - this is a method
-   * to fetch and set this data from electrum
+   * to fetch and set this data from electrum. Its different data from
+   * decoded hex - it contains confirmations etc.
    *
    * @returns {Promise<void>}
    * @private
    */
   async _fetchRemoteTx() {
-    let result = await BlueElectrum.multiGetTransactionByTxid([this._txDecoded.getId()]);
+    let result = await BlueElectrum.multiGetTransactionByTxid([this._txid || this._txDecoded.getId()]);
     this._remoteTx = Object.values(result)[0];
   }
 
@@ -72,13 +91,13 @@ export class HDSegwitBech32Transaction {
    */
   async getRemoteConfirmationsNum() {
     if (!this._remoteTx) await this._fetchRemoteTx();
-    return this._remoteTx.confirmations;
+    return this._remoteTx.confirmations || 0; // stupid undefined
   }
 
   /**
    * Checks that tx belongs to a wallet and also
    * tx value is < 0, which means its a spending transaction
-   * definately initiated by us.
+   * definately initiated by us, can be RBF'ed.
    *
    * @returns {Promise<boolean>}
    */
@@ -86,7 +105,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     let found = false;
     for (let tx of this._wallet.getTransactions()) {
-      if (tx.txid === this._txDecoded.getId()) {
+      if (tx.txid === (this._txid || this._txDecoded.getId())) {
         // its our transaction, and its spending transaction, which means we initiated it
         if (tx.value < 0) found = true;
       }
@@ -94,9 +113,33 @@ export class HDSegwitBech32Transaction {
     return found;
   }
 
+  /**
+   * Checks that tx belongs to a wallet and also
+   * tx value is > 0, which means its a receiving transaction and thus
+   * can be CPFP'ed.
+   *
+   * @returns {Promise<boolean>}
+   */
+  async isToUsTransaction() {
+    if (!this._wallet) throw new Error('Wallet required for this method');
+    let found = false;
+    for (let tx of this._wallet.getTransactions()) {
+      if (tx.txid === (this._txid || this._txDecoded.getId())) {
+        if (tx.value > 0) found = true;
+      }
+    }
+    return found;
+  }
+
+  /**
+   * Returns all the info about current transaction which is needed to do a replacement TX
+   *
+   * @returns {Promise<{fee: number, utxos: Array, changeAmount: number, feeRate: number, targets: Array}>}
+   */
   async getInfo() {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
+    if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
     let prevInputs = [];
     for (let inp of this._txDecoded.ins) {
@@ -147,20 +190,17 @@ export class HDSegwitBech32Transaction {
     }
 
     return { fee, feeRate, targets, changeAmount, utxos };
-
-    // this means...
-    // let maxPossibleFee = fee + changeAmount;
-    // let maxPossibleFeeRate = Math.floor(maxPossibleFee / (this._txhex.length / 2));
-    // console.warn({maxPossibleFeeRate});
   }
 
   /**
-   * Checks if tx has single output and that output belongs to us - that
-   * means we already canceled this tx and we can only bump fees. Or plain all outputs belong to us.
-   * @returns {boolean}
+   * Checks if all outputs belong to us, that
+   * means we already canceled this tx and we can only bump fees
+   *
+   * @returns {Promise<boolean>}
    */
-  canCancelTx() {
+  async canCancelTx() {
     if (!this._wallet) throw new Error('Wallet required for this method');
+    if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
     // if theres at least one output we dont own - we can cancel this transaction!
     for (let outp of this._txDecoded.outs) {
@@ -171,8 +211,11 @@ export class HDSegwitBech32Transaction {
   }
 
   /**
-   * @param newFeerate
-   * @returns {Promise<{outputs: Array, tx: HDSegwitBech32Transaction, inputs: Array, fee: Number}>}
+   * Creates an RBF transaction that can replace previous one and basically cancel it (rewrite
+   * output to the one our wallet controls)
+   *
+   * @param newFeerate {number} Sat/byte. Should be greater than previous tx feerate
+   * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
    */
   async createRBFcancelTx(newFeerate) {
     if (!this._wallet) throw new Error('Wallet required for this method');
@@ -188,23 +231,29 @@ export class HDSegwitBech32Transaction {
       [{ address: myAddress }],
       newFeerate,
       /* meaningless in this context */ myAddress,
-      this.getMaxUsedSequence() + 1,
+      (await this.getMaxUsedSequence()) + 1,
     );
   }
 
   /**
-   * @param newFeerate
-   * @returns {Promise<{outputs: Array, tx: HDSegwitBech32Transaction, inputs: Array, fee: Number}>}
+   * Creates an RBF transaction that can bumps fee of previous one
+   *
+   * @param newFeerate {number} Sat/byte
+   * @returns {Promise<{outputs: Array, tx: Transaction, inputs: Array, fee: Number}>}
    */
   async createRBFbumpFee(newFeerate) {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    let { feeRate, targets, utxos } = await this.getInfo();
+    let { feeRate, targets, changeAmount, utxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     let myAddress = await this._wallet.getChangeAddressAsync();
 
-    return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, this.getMaxUsedSequence() + 1);
+    if (changeAmount === 0) delete targets[0].value;
+    // looks like this was sendMAX transaction (because there was no change), so we cant reuse amount in this
+    // target since fee wont change. removing the amount so `createTransaction` will sendMAX correctly with new feeRate
+
+    return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1);
   }
 }
