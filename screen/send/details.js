@@ -108,7 +108,8 @@ export default class SendDetails extends Component {
               isLoading: false,
             });
           } else {
-            let address, options;
+            let address = '';
+            let options;
             try {
               if (!data.toLowerCase().startsWith('bitcoin:')) {
                 data = `bitcoin:${data}`;
@@ -117,7 +118,11 @@ export default class SendDetails extends Component {
               address = decoded.address;
               options = decoded.options;
             } catch (error) {
-              console.log(error);
+              data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
+              const decoded = bip21.decode(data);
+              decoded.options.amount = 0;
+              address = decoded.address;
+              options = decoded.options;
               this.setState({ isLoading: false });
             }
             console.log(options);
@@ -207,6 +212,7 @@ export default class SendDetails extends Component {
       if (parsedBitcoinUri.hasOwnProperty('options')) {
         if (parsedBitcoinUri.options.hasOwnProperty('amount')) {
           amount = parsedBitcoinUri.options.amount.toString();
+          amount = parsedBitcoinUri.options.amount;
         }
         if (parsedBitcoinUri.options.hasOwnProperty('label')) {
           memo = parsedBitcoinUri.options.label || memo;
