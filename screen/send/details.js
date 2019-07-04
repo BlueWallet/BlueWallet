@@ -46,8 +46,6 @@ export default class SendDetails extends Component {
     title: loc.send.header,
   });
 
-  state = { isLoading: true, fromWallet: undefined };
-
   constructor(props) {
     super(props);
     let address;
@@ -73,12 +71,14 @@ export default class SendDetails extends Component {
         fromSecret = fromWallet.getSecret();
       }
       this.state = {
+        isLoading: true,
         isFeeSelectionModalVisible: false,
         fromAddress,
         fromWallet,
         fromSecret,
         address,
         memo,
+        amount: 0,
         fee: 1,
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         feeSliderValue: 1,
@@ -620,7 +620,7 @@ export default class SendDetails extends Component {
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
-                amount={this.state.amount}
+                amount={this.state.amount.toString()}
                 onChangeText={text => this.setState({ amount: text })}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
@@ -749,6 +749,7 @@ SendDetails.propTypes = {
     getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
+        amount: PropTypes.number,
         address: PropTypes.string,
         fromAddress: PropTypes.string,
         satoshiPerByte: PropTypes.string,
