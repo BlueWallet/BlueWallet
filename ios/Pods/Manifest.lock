@@ -12,27 +12,25 @@ PODS:
   - glog (0.3.5)
   - React (0.59.6):
     - React/Core (= 0.59.6)
-  - react-native-camera (2.6.0):
+  - react-native-camera (2.11.0):
     - React
-    - react-native-camera/RCT (= 2.6.0)
-    - react-native-camera/RN (= 2.6.0)
-  - react-native-camera/RCT (2.6.0):
+    - react-native-camera/RCT (= 2.11.0)
+    - react-native-camera/RN (= 2.11.0)
+  - react-native-camera/RCT (2.11.0):
     - React
-  - react-native-camera/RN (2.6.0):
+  - react-native-camera/RN (2.11.0):
     - React
   - react-native-google-analytics-bridge (7.1.0):
     - react-native-google-analytics-bridge/Core (= 7.1.0)
   - react-native-google-analytics-bridge/Core (7.1.0):
     - React
-  - react-native-haptic-feedback (1.7.1):
-    - React
   - react-native-image-picker (0.28.1):
     - React
-  - react-native-randombytes (3.5.2):
+  - react-native-randombytes (3.5.3):
     - React
-  - react-native-slider (1.1.0):
+  - react-native-slider (1.1.4):
     - React
-  - react-native-webview (5.8.1):
+  - react-native-webview (5.12.1):
     - React
   - React/Core (0.59.6):
     - yoga (= 0.59.6.React)
@@ -81,26 +79,28 @@ PODS:
     - React/Core
     - React/fishhook
     - React/RCTBlob
-  - RNCAsyncStorage (1.3.3):
+  - RNCAsyncStorage (1.5.0):
     - React
-  - RNDeviceInfo (1.6.0):
+  - RNDeviceInfo (2.2.2):
     - React
   - RNFS (2.13.3):
     - React
-  - RNGestureHandler (1.2.0):
+  - RNGestureHandler (1.3.0):
     - React
   - RNRate (1.0.1):
     - React
-  - RNSVG (9.4.0):
+  - RNReactNativeHapticFeedback (1.8.1):
     - React
-  - RNVectorIcons (6.4.2):
+  - RNSVG (9.5.1):
+    - React
+  - RNVectorIcons (6.6.0):
     - React
   - RNWatch (0.2.0):
     - React
   - Sentry (4.1.3):
     - Sentry/Core (= 4.1.3)
   - Sentry/Core (4.1.3)
-  - SentryReactNative (0.42.0):
+  - SentryReactNative (0.43.2):
     - React
     - Sentry (~> 4.1.3)
   - swift_qrcodejs (1.1.1)
@@ -116,7 +116,6 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-google-analytics-bridge (from `../node_modules/react-native-google-analytics-bridge`)
-  - react-native-haptic-feedback (from `../node_modules/react-native-haptic-feedback`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
@@ -136,6 +135,7 @@ DEPENDENCIES:
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNRate (from `../node_modules/react-native-rate/ios`)
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
@@ -165,8 +165,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-google-analytics-bridge:
     :path: "../node_modules/react-native-google-analytics-bridge"
-  react-native-haptic-feedback:
-    :path: "../node_modules/react-native-haptic-feedback"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
@@ -185,6 +183,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNRate:
     :path: "../node_modules/react-native-rate/ios"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -200,33 +200,33 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BVLinearGradient: b0b70acf63ee888829b7c2ebbf6b50e227396e55
+  BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
   DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
   EFQRCode: 07437cfbce3a1e497397a4f3d766c980d8972608
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
-  React: 1d605e098d69bdf08960787f3446f0a9dc2e2ccf
-  react-native-camera: 9c50d7def800895e7991ccda6203929553ceec9c
-  react-native-google-analytics-bridge: 0a86be2860b81a3562fe60ac40c0ad732340046f
-  react-native-haptic-feedback: f675486e3889e3229272158943c1e9e075247e5a
-  react-native-image-picker: f42de90075c5b1af53417af927631d909a1a746e
-  react-native-randombytes: d3184d351604f78e019535178766590188bbc133
-  react-native-slider: 743940825f1fa1b37e8396ffd8cebe41f4967e1f
-  react-native-webview: a42108b827082f8f0333529b0772102031d5960d
-  RNCAsyncStorage: 289488409d0c42f30e12535e3f45c5bd3cfc73d2
-  RNDeviceInfo: 08dd79c5adef48b6dc103bf3ddf208039aa78664
-  RNFS: bbb1a64eb245763daf34aea86f97c97c4e85f74c
-  RNGestureHandler: 7ccf2f3f60458e084f9ada01fbaf610f6fef073c
-  RNRate: 72b5c9c2e62de9a01710918eb83d75fb99b44c7b
-  RNSVG: 4834be1d644eb77f0e3f6de851881b83758a3124
-  RNVectorIcons: 8c52e1e8da1153613fdef44748e865c25556cb9c
-  RNWatch: 394c44f35352309ab414daaadfa3c55a4a5224ee
+  React: 0bb58efca577aa4b3c8f03a9fbf0d9a8ebdb5ac4
+  react-native-camera: 37580137d13b0f2fabd631e4217eb11f0e4d5764
+  react-native-google-analytics-bridge: fac6becc9475cae635bff51382be089ea97bddda
+  react-native-image-picker: fd93361c666f397bdf72f9c6c23f13d2685b9173
+  react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
+  react-native-slider: 9fb33ac32cb788360adb5c38685aa3642bebd93c
+  react-native-webview: 21c396687cb983fadc6ccc0751cc74f554131f3f
+  RNCAsyncStorage: 63407ea82f1b5ac8fc53a0b8c569b08e0516a9e0
+  RNDeviceInfo: a88be26a64ada7cbc2bc0ebbd1662d340304874e
+  RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
+  RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
+  RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
+  RNReactNativeHapticFeedback: ac2f6723cc91fab9df7d670ba50e7d22b697d34f
+  RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
+  RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
+  RNWatch: 09738b339eceb66e4d80a2371633ca5fb380fa42
   Sentry: 4e8a17b61ddd116f89536cc81d567fdee1ebca96
-  SentryReactNative: fc630be25b30c1a494b478ba1fa38f761cc6da20
+  SentryReactNative: 07237139c00366ea2e75ae3e5c566e7a71c27a90
   swift_qrcodejs: 0bacbfe321a99954c7b8e04c75562007ea4e4f7c
-  ToolTipMenu: a01f5df49eb1a1ffbc5e1e81d2ec42b832436421
-  yoga: 128daf064cacaede0c3bb27424b6b4c71052e6cd
+  ToolTipMenu: c158702a26154d892bc9e6eaa7d7382f0f1ee16e
+  yoga: 8dacc3c5977cb8e07c346e203bb5f4ffe01296df
 
-PODFILE CHECKSUM: 40fe32f25e14511848fc633565a8030139a972fa
+PODFILE CHECKSUM: c2a90f3a02ae41b1762bc7546bd4fab5de3a4476
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.7.3

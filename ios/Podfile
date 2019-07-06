@@ -58,9 +58,7 @@ target 'BlueWallet' do
     pod 'RNFS', :path => '../node_modules/react-native-fs'
     
     pod 'react-native-google-analytics-bridge', :path => '../node_modules/react-native-google-analytics-bridge'
-    
-    pod 'react-native-haptic-feedback', :path => '../node_modules/react-native-haptic-feedback'
-    
+        
     pod 'BVLinearGradient', :path => '../node_modules/react-native-linear-gradient'
     
     pod 'RNRate', :path => '../node_modules/react-native-rate/ios'
@@ -81,6 +79,8 @@ target 'BlueWallet' do
     
     pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
     
+  pod 'RNReactNativeHapticFeedback', :path => '../node_modules/react-native-haptic-feedback'
+
 end
 
 target 'BlueWalletTests' do
