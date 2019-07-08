@@ -61,7 +61,7 @@
     "eslint-config-standard-react": "7.0.2",
     "eslint-plugin-prettier": "3.1.0",
     "eslint-plugin-standard": "4.0.0",
-    "frisbee": "3.0.2",
+    "frisbee": "2.0.9",
     "intl": "1.2.5",
     "mocha": "5.2.0",
     "node-libs-react-native": "1.0.3",
