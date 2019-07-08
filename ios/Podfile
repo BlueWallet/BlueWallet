@@ -79,7 +79,7 @@ target 'BlueWallet' do
     
     pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
     
-  pod 'RNReactNativeHapticFeedback', :path => '../node_modules/react-native-haptic-feedback'
+  pod 'react-native-haptic-feedback', :path => '../node_modules/react-native-haptic-feedback'
 
 end
 
