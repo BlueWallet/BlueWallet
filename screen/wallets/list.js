@@ -25,7 +25,7 @@ export default class WalletsList extends Component {
         style={{ marginHorizontal: 16, width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end' }}
         onPress={() => navigation.navigate('Settings')}
       >
-        <Icon size={22} name="ellipsis-h" type="font-awesome" color={BlueApp.settings.foregroundColor} />
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
       </TouchableOpacity>
     ),
   });
