@@ -85,10 +85,10 @@ export default class WalletsList extends Component {
       },
       () => {
         InteractionManager.runAfterInteractions(async () => {
-          await BlueElectrum.waitTillConnected();
-          // more responsive
           let noErr = true;
           try {
+            await BlueElectrum.ping();
+            await BlueElectrum.waitTillConnected();
             let balanceStart = +new Date();
             await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
             let balanceEnd = +new Date();
