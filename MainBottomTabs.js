@@ -25,6 +25,7 @@ import SelectWallet from './screen/wallets/selectWallet';
 import details from './screen/transactions/details';
 import rbf from './screen/transactions/RBF';
 import createrbf from './screen/transactions/RBF-create';
+import cpfp from './screen/transactions/CPFP';
 
 import receiveDetails from './screen/receive/details';
 import setReceiveAmount from './screen/receive/receiveAmount';
@@ -68,6 +69,9 @@ const WalletsStackNavigator = createStackNavigator(
     },
     CreateRBF: {
       screen: createrbf,
+    },
+    CPFP: {
+      screen: cpfp,
     },
     Settings: {
       screen: Settings,
