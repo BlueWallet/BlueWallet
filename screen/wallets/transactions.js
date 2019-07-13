@@ -141,10 +141,11 @@ export default class WalletTransactions extends Component {
         isLoading: true,
       },
       async () => {
-        await BlueElectrum.waitTillConnected();
         let noErr = true;
         let smthChanged = false;
         try {
+          await BlueElectrum.ping();
+          await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
           let wallet = this.state.wallet;
           let balanceStart = +new Date();

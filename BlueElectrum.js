@@ -128,6 +128,16 @@ module.exports.getTransactionsByAddress = async function(address) {
   return history;
 };
 
+module.exports.ping = async function() {
+  try {
+    await mainClient.server_ping();
+  } catch (_) {
+    mainConnected = false;
+    return false;
+  }
+  return true;
+};
+
 module.exports.getTransactionsFullByAddress = async function(address) {
   let txs = await this.getTransactionsByAddress(address);
   let ret = [];

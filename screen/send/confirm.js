@@ -43,6 +43,7 @@ export default class Confirm extends Component {
   broadcast() {
     this.setState({ isLoading: true }, async () => {
       try {
+        await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
         let result = await this.state.fromWallet.broadcastTx(this.state.tx);
         if (result && result.code) {
