@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { View, ActivityIndicator, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import {
   BlueButton,
   SafeBlueArea,
@@ -12,10 +12,17 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const dayjs = require('dayjs');
+
+const buttonStatus = Object.freeze({
+  possible: 1,
+  unknown: 2,
+  notPossible: 3,
+});
 
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
@@ -70,6 +77,7 @@ export default class TransactionsDetails extends Component {
       from,
       to,
       wallet,
+      isCPFPpossible: buttonStatus.unknown,
     };
   }
 
@@ -78,6 +86,21 @@ export default class TransactionsDetails extends Component {
     this.setState({
       isLoading: false,
     });
+
+    await this.checkPossibilityOfCPFP();
+  }
+
+  async checkPossibilityOfCPFP() {
+    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+      return this.setState({ isCPFPpossible: buttonStatus.notPossible });
+    }
+
+    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
+      return this.setState({ isCPFPpossible: buttonStatus.possible });
+    } else {
+      return this.setState({ isCPFPpossible: buttonStatus.notPossible });
+    }
   }
 
   render() {
@@ -101,6 +124,32 @@ export default class TransactionsDetails extends Component {
                         })
                       }
                       title="Replace-By-Fee (RBF)"
+                    />
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                );
+              }
+            })()}
+
+            {(() => {
+              if (this.state.isCPFPpossible === buttonStatus.unknown) {
+                return (
+                  <React.Fragment>
+                    <ActivityIndicator />
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                );
+              } else if (this.state.isCPFPpossible === buttonStatus.possible) {
+                return (
+                  <React.Fragment>
+                    <BlueButton
+                      onPress={() =>
+                        this.props.navigation.navigate('CPFP', {
+                          txid: this.state.tx.hash,
+                          wallet: this.state.wallet,
+                        })
+                      }
+                      title="Bump fee (CPFP)"
                     />
                     <BlueSpacing20 />
                   </React.Fragment>
@@ -183,13 +232,6 @@ export default class TransactionsDetails extends Component {
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.block_height}</BlueText>
-              </React.Fragment>
-            )}
-
-            {this.state.tx.hasOwnProperty('confirmations') && this.state.tx.confirmations > 0 && (
-              <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmations</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.confirmations}</BlueText>
               </React.Fragment>
             )}
 
