@@ -85,6 +85,7 @@ export default class WalletsList extends Component {
       },
       () => {
         InteractionManager.runAfterInteractions(async () => {
+          await BlueElectrum.waitTillConnected();
           // more responsive
           let noErr = true;
           try {

@@ -9,6 +9,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let loc = require('../../loc');
 let EV = require('../../events');
 let currency = require('../../currency');
+let BlueElectrum = require('../../BlueElectrum');
 let Bignumber = require('bignumber.js');
 
 export default class Confirm extends Component {
@@ -42,6 +43,7 @@ export default class Confirm extends Component {
   broadcast() {
     this.setState({ isLoading: true }, async () => {
       try {
+        await BlueElectrum.waitTillConnected();
         let result = await this.state.fromWallet.broadcastTx(this.state.tx);
         if (result && result.code) {
           if (result.code === 1) {

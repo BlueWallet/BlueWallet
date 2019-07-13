@@ -23,18 +23,24 @@ const hardcodedPeers = [
 
 let mainClient = false;
 let mainConnected = false;
+let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
   let usingPeer = await getRandomHardcodedPeer();
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
+    mainClient.onError = function(e) {
+      console.log('ElectrumClient error: ' + e);
+      mainConnected = false;
+    };
     await mainClient.connect();
     const ver = await mainClient.server_version('2.7.11', '1.4');
     let peers = await mainClient.serverPeers_subscribe();
     if (peers && peers.length > 0) {
       console.log('connected to ', ver);
       mainConnected = true;
+      wasConnectedAtLeastOnce = true;
       AsyncStorage.setItem(storageKey, JSON.stringify(peers));
     }
   } catch (e) {
@@ -291,6 +297,13 @@ module.exports.waitTillConnected = async function() {
         clearInterval(waitTillConnectedInterval);
         resolve(true);
       }
+
+      if (wasConnectedAtLeastOnce && mainClient.status === 1) {
+        clearInterval(waitTillConnectedInterval);
+        mainConnected = true;
+        resolve(true);
+      }
+
       if (retriesCounter++ >= 30) {
         clearInterval(waitTillConnectedInterval);
         reject(new Error('Waiting for Electrum connection timeout'));
