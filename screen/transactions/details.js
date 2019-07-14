@@ -121,7 +121,7 @@ export default class TransactionsDetails extends Component {
     }
 
     let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
-    if ((await tx.isOurTransaction()) && /* (await tx.getRemoteConfirmationsNum()) === 0 && FIXME */ (await tx.isSequenceReplaceable())) {
+    if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.possible });
     } else {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
@@ -136,7 +136,8 @@ export default class TransactionsDetails extends Component {
     let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
-      /* (await tx.getRemoteConfirmationsNum()) === 0 && FIXME */ (await tx.isSequenceReplaceable()) &&
+      (await tx.getRemoteConfirmationsNum()) === 0 &&
+      (await tx.isSequenceReplaceable()) &&
       (await tx.canCancelTx())
     ) {
       return this.setState({ isRBFCancelPossible: buttonStatus.possible });
