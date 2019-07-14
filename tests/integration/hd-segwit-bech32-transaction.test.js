@@ -161,31 +161,6 @@ describe('HDSegwitBech32Transaction', () => {
     assert.strictEqual(await tt2.canCancelTx(), true); // new tx is still cancellable since we only bumped fees
   });
 
-  it('can do RBF - bumpfees on cancelled tx', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-    if (!process.env.HD_MNEMONIC_BIP84) {
-      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
-      return;
-    }
-
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
-
-    let tt = new HDSegwitBech32Transaction(null, 'bd68bca0524affd30417dbe0608c4fa60448fe6a73545c9e11600d0408b6b355', hd);
-
-    assert.strictEqual(await tt.canCancelTx(), false);
-
-    let { tx } = await tt.createRBFbumpFee(3);
-
-    let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
-    assert.strictEqual(createdTx.ins.length, 3);
-    assert.strictEqual(createdTx.outs.length, 1);
-    let addr0 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
-    assert.ok(hd.weOwnAddress(addr0));
-  });
-
   it('can do CPFP - bump fees', async function() {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
