@@ -180,6 +180,7 @@ export class HDSegwitBech32Transaction {
 
     let fee = wentIn - wasSpent;
     let feeRate = Math.floor(fee / (this._txhex.length / 2));
+    if (feeRate === 0) feeRate = 1;
 
     // lets take a look at change
     let changeAmount = 0;
@@ -277,6 +278,13 @@ export class HDSegwitBech32Transaction {
     // looks like this was sendMAX transaction (because there was no change), so we cant reuse amount in this
     // target since fee wont change. removing the amount so `createTransaction` will sendMAX correctly with new feeRate
 
+    if (targets.length === 0) {
+      // looks like this was cancelled tx with single change output, so it wasnt included in `this.getInfo()` targets
+      // so we add output paying ourselves:
+      targets.push({ address: this._wallet._getInternalAddressByIndex(this._wallet.next_free_change_address_index) });
+      // not checking emptiness on purpose: it could unpredictably generate too far address because of unconfirmed tx.
+    }
+
     return this._wallet.createTransaction(utxos, targets, newFeerate, myAddress, (await this.getMaxUsedSequence()) + 1);
   }
 
@@ -307,7 +315,7 @@ export class HDSegwitBech32Transaction {
         [{ address: myAddress }],
         targetFeeRate + add,
         myAddress,
-        0,
+        HDSegwitBech32Wallet.defaultRBFSequence,
       );
       let combinedFeeRate = (oldFee + fee) / (this._txhex.length / 2 + tx.toHex().length / 2); // avg
       if (Math.round(combinedFeeRate) < newFeerate) {
