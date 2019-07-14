@@ -78,6 +78,8 @@ export default class TransactionsDetails extends Component {
       to,
       wallet,
       isCPFPpossible: buttonStatus.unknown,
+      isRBFBumpFeePossible: buttonStatus.unknown,
+      isRBFCancelPossible: buttonStatus.unknown,
     };
   }
 
@@ -87,7 +89,17 @@ export default class TransactionsDetails extends Component {
       isLoading: false,
     });
 
-    await this.checkPossibilityOfCPFP();
+    try {
+      await this.checkPossibilityOfCPFP();
+      await this.checkPossibilityOfRBFBumpFee();
+      await this.checkPossibilityOfRBFCancel();
+    } catch (_) {
+      this.setState({
+        isCPFPpossible: buttonStatus.notPossible,
+        isRBFBumpFeePossible: buttonStatus.notPossible,
+        isRBFCancelPossible: buttonStatus.notPossible,
+      });
+    }
   }
 
   async checkPossibilityOfCPFP() {
@@ -96,10 +108,40 @@ export default class TransactionsDetails extends Component {
     }
 
     let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
-    if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
+    if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
       return this.setState({ isCPFPpossible: buttonStatus.possible });
     } else {
       return this.setState({ isCPFPpossible: buttonStatus.notPossible });
+    }
+  }
+
+  async checkPossibilityOfRBFBumpFee() {
+    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+      return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
+    }
+
+    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    if ((await tx.isOurTransaction()) && /* (await tx.getRemoteConfirmationsNum()) === 0 && FIXME */ (await tx.isSequenceReplaceable())) {
+      return this.setState({ isRBFBumpFeePossible: buttonStatus.possible });
+    } else {
+      return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
+    }
+  }
+
+  async checkPossibilityOfRBFCancel() {
+    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+      return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
+    }
+
+    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    if (
+      (await tx.isOurTransaction()) &&
+      /* (await tx.getRemoteConfirmationsNum()) === 0 && FIXME */ (await tx.isSequenceReplaceable()) &&
+      (await tx.canCancelTx())
+    ) {
+      return this.setState({ isRBFCancelPossible: buttonStatus.possible });
+    } else {
+      return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
     }
   }
 
@@ -150,6 +192,58 @@ export default class TransactionsDetails extends Component {
                         })
                       }
                       title="Bump fee (CPFP)"
+                    />
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                );
+              }
+            })()}
+
+            {(() => {
+              if (this.state.isRBFBumpFeePossible === buttonStatus.unknown) {
+                return (
+                  <React.Fragment>
+                    <ActivityIndicator />
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                );
+              } else if (this.state.isRBFBumpFeePossible === buttonStatus.possible) {
+                return (
+                  <React.Fragment>
+                    <BlueButton
+                      onPress={() =>
+                        this.props.navigation.navigate('RBFBumpFee', {
+                          txid: this.state.tx.hash,
+                          wallet: this.state.wallet,
+                        })
+                      }
+                      title="Bump fee (RBF)"
+                    />
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                );
+              }
+            })()}
+
+            {(() => {
+              if (this.state.isRBFCancelPossible === buttonStatus.unknown) {
+                return (
+                  <React.Fragment>
+                    <ActivityIndicator />
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                );
+              } else if (this.state.isRBFCancelPossible === buttonStatus.possible) {
+                return (
+                  <React.Fragment>
+                    <BlueButton
+                      onPress={() =>
+                        this.props.navigation.navigate('RBFCancel', {
+                          txid: this.state.tx.hash,
+                          wallet: this.state.wallet,
+                        })
+                      }
+                      title="Cancel this transaction (RBF)"
                     />
                     <BlueSpacing20 />
                   </React.Fragment>

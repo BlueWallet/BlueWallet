@@ -19,6 +19,7 @@ const { RNRandomBytes } = NativeModules;
 export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static type = 'HDsegwitBech32';
   static typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
+  static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
 
   constructor() {
     super();
@@ -673,7 +674,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || 0;
+    sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
