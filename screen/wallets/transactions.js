@@ -27,6 +27,7 @@ import showPopupMenu from 'react-native-popup-menu-android';
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let EV = require('../../events');
+let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -143,6 +144,8 @@ export default class WalletTransactions extends Component {
         let noErr = true;
         let smthChanged = false;
         try {
+          await BlueElectrum.ping();
+          await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
           let wallet = this.state.wallet;
           let balanceStart = +new Date();

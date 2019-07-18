@@ -188,6 +188,8 @@ module.exports = {
       'Bitte installier Lndhub, um mit deiner eigenen LND Node zu verbinden' +
       ' und setz seine URL hier in den Einstellungen. Lass das Feld leer, um Standard- ' +
       'LndHub\n (lndhub.io) zu verwenden',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Speichern',
     about: 'Über',
     language: 'Sprache',

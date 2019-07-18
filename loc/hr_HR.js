@@ -184,6 +184,8 @@ module.exports = {
       'Za spajanje na tvoj vlastiti LND čvor trebaš instalirati LndHub' +
       ' i upisati njegov URL ovdje. Ostavi prazno za standardni ' +
       'ndHub\n (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Spremi',
     about: 'Informacije',
     language: 'Jezik',

@@ -19,6 +19,7 @@ const { RNRandomBytes } = NativeModules;
 export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static type = 'HDsegwitBech32';
   static typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
+  static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
 
   constructor() {
     super();
@@ -673,7 +674,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || 0;
+    sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
@@ -758,17 +759,15 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   /**
+   * Broadcast txhex. Can throw an exception if failed
+   *
    * @param {String} txhex
    * @returns {Promise<boolean>}
    */
   async broadcastTx(txhex) {
-    try {
-      let broadcast = await BlueElectrum.broadcastV2(txhex);
-      if (broadcast.indexOf('successfully') !== -1) return true;
-      return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
-    } catch (error) {
-      console.warn(error);
-      return false;
-    }
+    let broadcast = await BlueElectrum.broadcastV2(txhex);
+    console.log({ broadcast });
+    if (broadcast.indexOf('successfully') !== -1) return true;
+    return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 }

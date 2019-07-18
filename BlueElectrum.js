@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { AppStorage } from './class';
 const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
@@ -23,18 +24,29 @@ const hardcodedPeers = [
 
 let mainClient = false;
 let mainConnected = false;
+let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
   let usingPeer = await getRandomHardcodedPeer();
+  let savedPeer = await getSavedPeer();
+  if (savedPeer && savedPeer.host && savedPeer.tcp) {
+    usingPeer = savedPeer;
+  }
+
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
+    mainClient.onError = function(e) {
+      console.log('ElectrumClient error: ' + e);
+      mainConnected = false;
+    };
     await mainClient.connect();
     const ver = await mainClient.server_version('2.7.11', '1.4');
     let peers = await mainClient.serverPeers_subscribe();
     if (peers && peers.length > 0) {
       console.log('connected to ', ver);
       mainConnected = true;
+      wasConnectedAtLeastOnce = true;
       AsyncStorage.setItem(storageKey, JSON.stringify(peers));
     }
   } catch (e) {
@@ -61,6 +73,12 @@ connectMain();
  */
 async function getRandomHardcodedPeer() {
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
+}
+
+async function getSavedPeer() {
+  let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
+  let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
+  return { host, tcp: port };
 }
 
 /**
@@ -108,6 +126,15 @@ module.exports.getBalanceByAddress = async function(address) {
   return balance;
 };
 
+module.exports.getConfig = async function() {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  return {
+    host: mainClient.host,
+    port: mainClient.port,
+    status: mainClient.status,
+  };
+};
+
 /**
  *
  * @param address {String}
@@ -120,6 +147,16 @@ module.exports.getTransactionsByAddress = async function(address) {
   let reversedHash = Buffer.from(reverse(hash));
   let history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
   return history;
+};
+
+module.exports.ping = async function() {
+  try {
+    await mainClient.server_ping();
+  } catch (_) {
+    mainConnected = false;
+    return false;
+  }
+  return true;
 };
 
 module.exports.getTransactionsFullByAddress = async function(address) {
@@ -291,6 +328,13 @@ module.exports.waitTillConnected = async function() {
         clearInterval(waitTillConnectedInterval);
         resolve(true);
       }
+
+      if (wasConnectedAtLeastOnce && mainClient.status === 1) {
+        clearInterval(waitTillConnectedInterval);
+        mainConnected = true;
+        resolve(true);
+      }
+
       if (retriesCounter++ >= 30) {
         clearInterval(waitTillConnectedInterval);
         reject(new Error('Waiting for Electrum connection timeout'));
@@ -320,6 +364,28 @@ module.exports.broadcast = async function(hex) {
 module.exports.broadcastV2 = async function(hex) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   return mainClient.blockchainTransaction_broadcast(hex);
+};
+
+/**
+ *
+ * @param host
+ * @param tcpPort
+ * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
+ */
+module.exports.testConnection = async function(host, tcpPort) {
+  let client = new ElectrumClient(tcpPort, host, 'tcp');
+  try {
+    await client.connect();
+    await client.server_version('2.7.11', '1.4');
+    await client.server_ping();
+
+    client.keepAlive = () => {}; // dirty hack to make it stop reconnecting
+    client.reconnect = () => {}; // dirty hack to make it stop reconnecting
+    client.close();
+    return true;
+  } catch (_) {
+    return false;
+  }
 };
 
 module.exports.forceDisconnect = () => {

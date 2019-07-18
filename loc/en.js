@@ -186,6 +186,8 @@ module.exports = {
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +
       " and put its URL here in settings. Leave blank to use BlueWallet's LNDHub (lndhub.io). Wallets created after saving changes will connect to the specified LNDHub.",
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Save',
     about: 'About',
     language: 'Language',
