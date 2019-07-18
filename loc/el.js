@@ -188,6 +188,8 @@ module.exports = {
     lightning_settings_explain:
       'Για να συνδεθείτε στον δικό σας κόμβο LND παρακαλούμε εγκαταστήστε το LndHub' +
       ' και βάλτε το URL του εδώ. Αφήστε το κενό για να χρησιμοποιήσετε το LNDHub της BlueWallet (lndhub.io). Αφού σώσετε τις ρυθμίσεις τυχόν νέα πορτοφόλια που θα δημιουργήσετε θα συνδεθούν στο LNDHub που επιλέξατε.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Σώσε',
     about: 'Σχετικά',
     language: 'Γλώσσα',

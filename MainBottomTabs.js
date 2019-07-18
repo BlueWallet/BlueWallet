@@ -9,6 +9,7 @@ import Currency from './screen/settings/currency';
 import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
+import ElectrumSettings from './screen/settings/electrumSettings';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
@@ -122,6 +123,10 @@ const WalletsStackNavigator = createStackNavigator(
     LightningSettings: {
       screen: LightningSettings,
       path: 'LightningSettings',
+    },
+    ElectrumSettings: {
+      screen: ElectrumSettings,
+      path: 'ElectrumSettings',
     },
     LNDViewInvoice: {
       screen: LNDViewInvoice,
