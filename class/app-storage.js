@@ -18,6 +18,8 @@ export class AppStorage {
   static LANG = 'lang';
   static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
+  static ELECTRUM_HOST = 'electrum_host';
+  static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
 

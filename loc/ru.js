@@ -188,6 +188,8 @@ module.exports = {
       'Чтобы подключиться к своему узлу LND, пожалуйста, установи LndHub' +
       ' и добавь его URL в настройки. Оставь поле пустым, чтобы использоавать стандартный ' +
       'LndHub\n (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Сохранить',
     about: 'О программе',
     language: 'Язык',

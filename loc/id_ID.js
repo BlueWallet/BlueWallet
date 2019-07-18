@@ -185,6 +185,8 @@ module.exports = {
     lightning_settings_explain:
       'Pasang LndHub untuk menghubungkan ke node LND kamu' +
       ' dan masukkan URL di sini. Biarkan kosong untuk menghubungkan ke LndHub standar (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'simpan',
     about: 'Tentang',
     language: 'Bahasa',

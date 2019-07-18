@@ -23,6 +23,10 @@ beforeAll(async () => {
 });
 
 describe('Electrum', () => {
+  it('ElectrumClient can test connection', async () => {
+    assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', '50001'));
+  });
+
   it('ElectrumClient can connect and query', async () => {
     const ElectrumClient = require('electrum-client');
 

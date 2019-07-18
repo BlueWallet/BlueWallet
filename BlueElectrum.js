@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { AppStorage } from './class';
 const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
@@ -27,6 +28,11 @@ let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
   let usingPeer = await getRandomHardcodedPeer();
+  let savedPeer = await getSavedPeer();
+  if (savedPeer && savedPeer.host && savedPeer.tcp) {
+    usingPeer = savedPeer;
+  }
+
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.tcp, usingPeer.host, 'tcp');
@@ -67,6 +73,12 @@ connectMain();
  */
 async function getRandomHardcodedPeer() {
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
+}
+
+async function getSavedPeer() {
+  let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
+  let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
+  return { host, tcp: port };
 }
 
 /**
@@ -112,6 +124,15 @@ module.exports.getBalanceByAddress = async function(address) {
   let balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
   balance.addr = address;
   return balance;
+};
+
+module.exports.getConfig = async function() {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  return {
+    host: mainClient.host,
+    port: mainClient.port,
+    status: mainClient.status,
+  };
 };
 
 /**
@@ -343,6 +364,28 @@ module.exports.broadcast = async function(hex) {
 module.exports.broadcastV2 = async function(hex) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   return mainClient.blockchainTransaction_broadcast(hex);
+};
+
+/**
+ *
+ * @param host
+ * @param tcpPort
+ * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
+ */
+module.exports.testConnection = async function(host, tcpPort) {
+  let client = new ElectrumClient(tcpPort, host, 'tcp');
+  try {
+    await client.connect();
+    await client.server_version('2.7.11', '1.4');
+    await client.server_ping();
+
+    client.keepAlive = () => {}; // dirty hack to make it stop reconnecting
+    client.reconnect = () => {}; // dirty hack to make it stop reconnecting
+    client.close();
+    return true;
+  } catch (_) {
+    return false;
+  }
 };
 
 module.exports.forceDisconnect = () => {
