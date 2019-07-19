@@ -143,6 +143,7 @@ export default class SendDetails extends Component {
   };
 
   async componentDidMount() {
+    console.log('send/details - componentDidMount');
     StatusBar.setBarStyle('dark-content');
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);

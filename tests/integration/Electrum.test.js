@@ -27,6 +27,10 @@ describe('Electrum', () => {
     assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', '50001'));
   });
 
+  it('ElectrumClient can estimate fees', async () => {
+    assert.ok((await BlueElectrum.estimateFee(1)) > 1);
+  });
+
   it('ElectrumClient can connect and query', async () => {
     const ElectrumClient = require('electrum-client');
 
