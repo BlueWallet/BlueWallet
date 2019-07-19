@@ -11,6 +11,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import DeviceInfo from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -141,6 +142,11 @@ export default class About extends Component {
               title="Run self test"
             />
             <BlueTextCentered />
+            <BlueTextCentered>
+              {DeviceInfo.getApplicationName()} ver {DeviceInfo.getVersion()} (build {DeviceInfo.getBuildNumber()})
+            </BlueTextCentered>
+            <BlueTextCentered>{new Date(DeviceInfo.getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
+            <BlueTextCentered>{DeviceInfo.getBundleId()}</BlueTextCentered>
             <BlueTextCentered>
               w, h = {width}, {height}
             </BlueTextCentered>
