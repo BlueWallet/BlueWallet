@@ -42,7 +42,11 @@ export default class ElectrumSettings extends Component {
       this.state.host = this.state.host ? this.state.host : '';
       this.state.port = this.state.port ? this.state.port : '';
       try {
-        if (!(await BlueElectrum.testConnection(this.state.host, this.state.port))) {
+        if (!this.state.host && !this.state.port) {
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
+          alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
+        } else if (!(await BlueElectrum.testConnection(this.state.host, this.state.port))) {
           alert("Can't connect to provided Electrum server");
         } else {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, this.state.host);
