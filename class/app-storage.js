@@ -413,4 +413,14 @@ export class AppStorage {
     }
     return finalBalance;
   }
+
+  /**
+   * Simple async sleeper function
+   *
+   * @param ms {number} Milliseconds to sleep
+   * @returns {Promise<Promise<*> | Promise<*>>}
+   */
+  async sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 }
