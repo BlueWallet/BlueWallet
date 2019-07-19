@@ -17,7 +17,6 @@ import Privacy from '../../Privacy';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-// let EV = require('../../events');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -54,9 +53,17 @@ export default class ReceiveDetails extends Component {
     }
     if (wallet) {
       if (wallet.getAddressAsync) {
-        address = await wallet.getAddressAsync();
+        try {
+          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+        } catch (_) {}
+        if (!address) {
+          // either sleep expired or getAddressAsync threw an exception
+          console.warn('either sleep expired or getAddressAsync threw an exception');
+          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+        } else {
+          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+        }
       }
-      BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
       this.setState({
         address: address,
         addressText: address,

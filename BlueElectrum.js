@@ -3,6 +3,7 @@ import { AppStorage } from './class';
 const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
+let BigNumber = require('bignumber.js');
 
 const storageKey = 'ELECTRUM_PEERS';
 const defaultPeer = { host: 'electrum1.bluewallet.io', tcp: '50001' };
@@ -349,6 +350,25 @@ module.exports.estimateFees = async function() {
   const medium = await mainClient.blockchainEstimatefee(5);
   const slow = await mainClient.blockchainEstimatefee(10);
   return { fast, medium, slow };
+};
+
+/**
+ * Returns the estimated transaction fee to be confirmed within a certain number of blocks
+ *
+ * @param numberOfBlocks {number} The number of blocks to target for confirmation
+ * @returns {Promise<number>} Satoshis per byte
+ */
+module.exports.estimateFee = async function(numberOfBlocks) {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  numberOfBlocks = numberOfBlocks || 1;
+  let coinUnitsPerKilobyte = await mainClient.blockchainEstimatefee(numberOfBlocks);
+  if (coinUnitsPerKilobyte === -1) return 1;
+  return Math.round(
+    new BigNumber(coinUnitsPerKilobyte)
+      .dividedBy(1024)
+      .multipliedBy(100000000)
+      .toNumber(),
+  );
 };
 
 module.exports.broadcast = async function(hex) {
