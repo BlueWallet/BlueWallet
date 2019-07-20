@@ -1,9 +1,11 @@
-//  import Amplitude from 'react-native-amplitude-analytics';
+import amplitude from 'amplitude-js';
 
-// Amplitude.initialize('8b7cf19e8eea3cdcf16340f5fbf16330');
+amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
+  useNativeDeviceInfo: true,
+});
 
 let A = function(event) {
-  // Amplitude.logEvent(event);
+  amplitude.getInstance().logEvent(event);
 };
 
 A.ENUM = {

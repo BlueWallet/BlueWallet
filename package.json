@@ -48,6 +48,7 @@
     "@react-native-community/async-storage": "1.5.1",
     "@react-native-community/slider": "2.0.0-rc.1",
     "@remobile/react-native-qrcode-local-image": "1.0.4",
+    "amplitude-js": "4.7.0-react-native",
     "bignumber.js": "9.0.0",
     "bip21": "2.0.2",
     "bip32": "2.0.3",
