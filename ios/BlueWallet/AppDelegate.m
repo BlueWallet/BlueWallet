@@ -19,7 +19,6 @@
 #import <AppCenterReactNative.h>
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
-#import <AppCenterReactNativePush.h>
 
 @implementation AppDelegate
 
