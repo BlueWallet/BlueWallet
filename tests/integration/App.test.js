@@ -25,6 +25,16 @@ jest.mock('Picker', () => {
     }
   };
 });
+
+jest.mock('amplitude-js', () => ({
+  getInstance: function() {
+    return {
+      init: jest.fn(),
+      logEvent: jest.fn(),
+    };
+  },
+}));
+
 jest.mock('ScrollView', () => {
   const RealComponent = require.requireActual('ScrollView');
   const React = require('React');
