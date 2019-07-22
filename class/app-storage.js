@@ -18,6 +18,8 @@ export class AppStorage {
   static LANG = 'lang';
   static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
+  static ELECTRUM_HOST = 'electrum_host';
+  static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
 
@@ -410,5 +412,15 @@ export class AppStorage {
       finalBalance += wal.balance;
     }
     return finalBalance;
+  }
+
+  /**
+   * Simple async sleeper function
+   *
+   * @param ms {number} Milliseconds to sleep
+   * @returns {Promise<Promise<*> | Promise<*>>}
+   */
+  async sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

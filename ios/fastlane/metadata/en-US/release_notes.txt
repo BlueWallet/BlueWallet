@@ -1,3 +1,13 @@
+v4.1.0
+======
+
+* REF: faster initial HD rescan
+* FIX: ln transaction details screen
+* FIX: import LN wallet with custom lndhub
+* FIX: BIP84 txs with low confirmations not updating
+* FIX: crash
+* REF: Swedish translation updates
+
 v4.0.4
 ======
 
@@ -44,17 +54,3 @@ v4.0.0
 * ADD: preimage info of paid ln tx
 * FIX: better import of ln wallet
 * REF: better offline handling
-
-v3.9.7
-======
-
-* ADD: intermediate step asking user to backup his mnemonic
-* ADD: buy bitcoin now happens in builtin webview instead of external browser
-* ADD: new deeplinking scheme
-* FIX: rare crash on app startup
-* FIX: large HD utxo fetch (closes #459)
-* FIX: better ln wallet import
-* FIX: rare hangs when importing wallet via qr
-* REF: Remove old security alert #379
-* REF: more electrum servers
-* REF: lapp browser improv

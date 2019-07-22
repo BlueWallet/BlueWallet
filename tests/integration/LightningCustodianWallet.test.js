@@ -6,6 +6,23 @@ let assert = require('assert');
 describe('LightningCustodianWallet', () => {
   let l1 = new LightningCustodianWallet();
 
+  it.skip('issue credentials', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    assert.ok(l1.refill_addressess.length === 0);
+    assert.ok(l1._refresh_token_created_ts === 0);
+    assert.ok(l1._access_token_created_ts === 0);
+    l1.balance = 'FAKE';
+
+    await l1.createAccount(false);
+    await l1.authorize();
+
+    assert.ok(l1.access_token);
+    assert.ok(l1.refresh_token);
+    assert.ok(l1._refresh_token_created_ts > 0);
+    assert.ok(l1._access_token_created_ts > 0);
+    console.log(l1.getSecret());
+  });
+
   it('can create, auth and getbtc', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
     assert.ok(l1.refill_addressess.length === 0);

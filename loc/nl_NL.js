@@ -187,6 +187,8 @@ module.exports = {
       'Om verbinding te maken met uw eigen LND-knooppunt' +
       ' installeert u LndHub en zet u de URL hier in de instellingen. ' +
       'Laat dit leeg om de standaard lndHub (lndhub.io) te gebruiken.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Opslaan',
     about: 'Over',
     language: 'Taal',

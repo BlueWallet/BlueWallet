@@ -25,6 +25,16 @@ jest.mock('Picker', () => {
     }
   };
 });
+
+jest.mock('amplitude-js', () => ({
+  getInstance: function() {
+    return {
+      init: jest.fn(),
+      logEvent: jest.fn(),
+    };
+  },
+}));
+
 jest.mock('ScrollView', () => {
   const RealComponent = require.requireActual('ScrollView');
   const React = require('React');
@@ -38,13 +48,6 @@ jest.mock('ScrollView', () => {
   ScrollView.propTypes = RealComponent.propTypes;
   return ScrollView;
 });
-
-jest.mock('react-native-google-analytics-bridge', () => ({
-  GoogleAnalyticsTracker: () => {
-    this.trackEvent = jest.fn();
-    return this;
-  },
-}));
 
 describe('unit - LegacyWallet', function() {
   it('serialize and unserialize work correctly', () => {

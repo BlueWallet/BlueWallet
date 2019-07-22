@@ -9,6 +9,7 @@ import Currency from './screen/settings/currency';
 import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
+import ElectrumSettings from './screen/settings/electrumSettings';
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
@@ -25,6 +26,9 @@ import SelectWallet from './screen/wallets/selectWallet';
 import details from './screen/transactions/details';
 import rbf from './screen/transactions/RBF';
 import createrbf from './screen/transactions/RBF-create';
+import cpfp from './screen/transactions/CPFP';
+import rbfBumpFee from './screen/transactions/RBFBumpFee';
+import rbfCancel from './screen/transactions/RBFCancel';
 
 import receiveDetails from './screen/receive/details';
 import setReceiveAmount from './screen/receive/receiveAmount';
@@ -69,6 +73,15 @@ const WalletsStackNavigator = createStackNavigator(
     CreateRBF: {
       screen: createrbf,
     },
+    CPFP: {
+      screen: cpfp,
+    },
+    RBFBumpFee: {
+      screen: rbfBumpFee,
+    },
+    RBFCancel: {
+      screen: rbfCancel,
+    },
     Settings: {
       screen: Settings,
       path: 'Settings',
@@ -110,6 +123,10 @@ const WalletsStackNavigator = createStackNavigator(
     LightningSettings: {
       screen: LightningSettings,
       path: 'LightningSettings',
+    },
+    ElectrumSettings: {
+      screen: ElectrumSettings,
+      path: 'ElectrumSettings',
     },
     LNDViewInvoice: {
       screen: LNDViewInvoice,

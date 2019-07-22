@@ -17,7 +17,6 @@ import Privacy from '../../Privacy';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-// let EV = require('../../events');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -54,9 +53,17 @@ export default class ReceiveDetails extends Component {
     }
     if (wallet) {
       if (wallet.getAddressAsync) {
-        address = await wallet.getAddressAsync();
+        try {
+          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+        } catch (_) {}
+        if (!address) {
+          // either sleep expired or getAddressAsync threw an exception
+          console.warn('either sleep expired or getAddressAsync threw an exception');
+          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+        } else {
+          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+        }
       }
-      BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
       this.setState({
         address: address,
         addressText: address,
@@ -83,8 +90,8 @@ export default class ReceiveDetails extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{}}>
-          <View style={{ marginTop: 32, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+          <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
             {this.state.bip21encoded === undefined ? (
               <BlueLoading />
             ) : (
@@ -99,7 +106,7 @@ export default class ReceiveDetails extends Component {
               />
             )}
           </View>
-          <View style={{ alignItems: 'center', marginTop: 0 }}>
+          <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
             <BlueCopyTextToClipboard text={this.state.addressText} />
             <BlueButtonLink
               title={loc.receive.details.setAmount}

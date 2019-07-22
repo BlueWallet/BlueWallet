@@ -72,12 +72,14 @@ export default class SendDetails extends Component {
         fromSecret = fromWallet.getSecret();
       }
       this.state = {
+        isLoading: true,
         isFeeSelectionModalVisible: false,
         fromAddress,
         fromWallet,
         fromSecret,
         address,
         memo,
+        amount: 0,
         fee: 1,
         isFeeCustom: true,
         feeFetchStatus: NetworkTransactionFeeStatus.INACTIVE,
@@ -108,7 +110,8 @@ export default class SendDetails extends Component {
               isLoading: false,
             });
           } else {
-            let address, options;
+            let address = '';
+            let options;
             try {
               if (!data.toLowerCase().startsWith('bitcoin:')) {
                 data = `bitcoin:${data}`;
@@ -117,7 +120,11 @@ export default class SendDetails extends Component {
               address = decoded.address;
               options = decoded.options;
             } catch (error) {
-              console.log(error);
+              data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
+              const decoded = bip21.decode(data);
+              decoded.options.amount = 0;
+              address = decoded.address;
+              options = decoded.options;
               this.setState({ isLoading: false });
             }
             console.log(options);
@@ -137,7 +144,8 @@ export default class SendDetails extends Component {
     );
   };
 
-  componentDidMount() {
+  async componentDidMount() {
+    console.log('send/details - componentDidMount');
     StatusBar.setBarStyle('dark-content');
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
@@ -206,6 +214,7 @@ export default class SendDetails extends Component {
       if (parsedBitcoinUri.hasOwnProperty('options')) {
         if (parsedBitcoinUri.options.hasOwnProperty('amount')) {
           amount = parsedBitcoinUri.options.amount.toString();
+          amount = parsedBitcoinUri.options.amount;
         }
         if (parsedBitcoinUri.options.hasOwnProperty('label')) {
           memo = parsedBitcoinUri.options.label || memo;
@@ -677,7 +686,7 @@ export default class SendDetails extends Component {
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
-                amount={this.state.amount}
+                amount={this.state.amount.toString()}
                 onChangeText={text => this.setState({ amount: text })}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
@@ -820,6 +829,7 @@ SendDetails.propTypes = {
     getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
+        amount: PropTypes.number,
         address: PropTypes.string,
         fromAddress: PropTypes.string,
         satoshiPerByte: PropTypes.string,

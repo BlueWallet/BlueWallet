@@ -11,3 +11,4 @@ export * from './watch-only-wallet';
 export * from './lightning-custodian-wallet';
 export * from './abstract-hd-wallet';
 export * from './hd-segwit-bech32-wallet';
+export * from './hd-segwit-bech32-transaction';
