@@ -536,15 +536,15 @@ export default class SendDetails extends Component {
               <TouchableOpacity
                 style={StyleSheet.flatten([
                   styles.feeRow,
-                  { backgroundColor: this.state.fee === this.state.networkTransactionFees.moderate ? '#d2f8d6' : '#FFFFFF' },
+                  { backgroundColor: this.state.fee === this.state.networkTransactionFees.medium ? '#d2f8d6' : '#FFFFFF' },
                 ])}
                 onPress={() =>
-                  this.setState({ fee: this.state.networkTransactionFees.moderate, isFeeCustom: false, isFeeSelectionModalVisible: false })
+                  this.setState({ fee: this.state.networkTransactionFees.medium, isFeeCustom: false, isFeeSelectionModalVisible: false })
                 }
               >
                 <Text style={styles.feeText}>
                   {loc.formatBalance(
-                    parseInt(this.state.networkTransactionFees.moderate * 100000000).toFixed(0),
+                    parseInt(this.state.networkTransactionFees.medium * 100000000).toFixed(0),
                     this.state.fromWallet.preferredBalanceUnit,
                     true,
                   )}
@@ -554,15 +554,15 @@ export default class SendDetails extends Component {
               <TouchableOpacity
                 style={StyleSheet.flatten([
                   styles.feeRow,
-                  { backgroundColor: this.state.fee === this.state.networkTransactionFees.economy ? '#d2f8d6' : '#FFFFFF' },
+                  { backgroundColor: this.state.fee === this.state.networkTransactionFees.slow ? '#d2f8d6' : '#FFFFFF' },
                 ])}
                 onPress={() =>
-                  this.setState({ fee: this.state.networkTransactionFees.economy, isFeeCustom: false, isFeeSelectionModalVisible: false })
+                  this.setState({ fee: this.state.networkTransactionFees.slow, isFeeCustom: false, isFeeSelectionModalVisible: false })
                 }
               >
                 <Text style={styles.feeText}>
                   {loc.formatBalance(
-                    parseInt(this.state.networkTransactionFees.economy * 100000000).toFixed(0),
+                    parseInt(this.state.networkTransactionFees.slow * 100000000).toFixed(0),
                     this.state.fromWallet.preferredBalanceUnit,
                     true,
                   )}

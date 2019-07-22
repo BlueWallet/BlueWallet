@@ -9,10 +9,10 @@ export const NetworkTransactionFeeStatus = Object.freeze({
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
-  constructor(fast = 1, moderate = 1, economy = 1) {
+  constructor(fast = 1, medium = 1, slow = 1) {
     this.fast = fast;
-    this.moderate = moderate;
-    this.economy = economy;
+    this.medium = medium;
+    this.slow = slow;
   }
 }
 
@@ -22,7 +22,7 @@ export default class NetworkTransactionFees {
       try {
         const response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
-          const networkFee = new NetworkTransactionFee(response.fast, response.moderate, response.economy);
+          const networkFee = new NetworkTransactionFee(response.fast, response.medium, response.slow);
           resolve(networkFee);
         } else {
           reject(new Error());
