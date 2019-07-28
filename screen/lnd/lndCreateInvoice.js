@@ -97,6 +97,10 @@ export default class LNDCreateInvoice extends Component {
           throw new Error('Reply from server: ' + reply.reason);
         }
 
+        if (reply.tag !== 'withdrawRequest') {
+          throw new Error('Unsupported lnurl');
+        }
+
         // setting the invoice creating screen with the parameters
         this.setState({
           isLoading: false,
