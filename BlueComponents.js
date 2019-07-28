@@ -1702,6 +1702,29 @@ export class BlueAddressInput extends Component {
   }
 }
 
+export class BlueReadQRButton extends Component {
+  static propTypes = {
+    suffix: PropTypes.string,
+    onBarScanned: PropTypes.func,
+  };
+
+  render() {
+    return (
+      <BlueButton
+        icon={{
+          name: 'qrcode',
+          type: 'font-awesome',
+          color: BlueApp.settings.buttonTextColor,
+        }}
+        title={`${loc.send.details.scan} ${this.props.suffix}`}
+        onPress={() => {
+          NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned });
+        }}
+      />
+    );
+  }
+}
+
 export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,

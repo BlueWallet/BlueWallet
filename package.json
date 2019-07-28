@@ -52,6 +52,7 @@
     "appcenter": "2.1.0",
     "appcenter-analytics": "2.1.0",
     "appcenter-crashes": "2.1.0",
+    "bech32": "^1.1.3",
     "bignumber.js": "9.0.0",
     "bip21": "2.0.2",
     "bip32": "2.0.3",
