@@ -16,6 +16,9 @@
 #import "RNSentry.h" // This is used for versions of react < 0.40
 #endif
 #import "WatchBridge.h"
+#import <AppCenterReactNative.h>
+#import <AppCenterReactNativeAnalytics.h>
+#import <AppCenterReactNativeCrashes.h>
 
 @implementation AppDelegate
 
@@ -40,7 +43,9 @@
   self.session = self.watchBridge.session;
   [self.session activateSession];
   self.session.delegate = self;
-  
+  [AppCenterReactNative register];
+  [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
+  [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
   return YES;
 }
 
