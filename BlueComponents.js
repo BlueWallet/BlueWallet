@@ -1702,7 +1702,7 @@ export class BlueAddressInput extends Component {
   }
 }
 
-export class BlueReadQRButton extends Component {
+export class BlueReadQR extends Component {
   static propTypes = {
     suffix: PropTypes.string,
     onBarScanned: PropTypes.func,
@@ -1710,17 +1710,21 @@ export class BlueReadQRButton extends Component {
 
   render() {
     return (
-      <BlueButton
-        icon={{
-          name: 'qrcode',
-          type: 'font-awesome',
-          color: BlueApp.settings.buttonTextColor,
+      <TouchableOpacity
+        onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned }) }
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          minWidth: width,
+          justifyContent: 'center',
+          alignItems: 'center'
         }}
-        title={`${loc.send.details.scan} ${this.props.suffix}`}
-        onPress={() => {
-          NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned });
-        }}
-      />
+      >
+        <Icon name="qrcode" type="font-awesome" color={BlueApp.settings.buttonTextColor} containerStyle={{ marginRight: 8 }} />
+        <Text style={{color: BlueApp.settings.buttonTextColor, textAlign: 'center'}}>
+          {loc.send.details.scan} {this.props.suffix}
+        </Text>
+      </TouchableOpacity>
     );
   }
 }

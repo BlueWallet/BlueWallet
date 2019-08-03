@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Text } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueReadQRButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueButton, BlueReadQR, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -135,10 +135,10 @@ export default class LNDCreateInvoice extends Component {
     );
   };
 
-  renderScanButton = () => {
+  renderScanClickable = () => {
     return (
-      <View style={{ marginHorizontal: 56, marginVertical: 4, minHeight: 25, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
-        <BlueReadQRButton
+      <View style={{ marginHorizontal: 0, marginVertical: 16, minHeight: 25, alignContent: 'center' }}>
+        <BlueReadQR
           onBarScanned={this.processLnurl}
           suffix="lnurl"
         />
@@ -210,9 +210,9 @@ export default class LNDCreateInvoice extends Component {
               </View>
               <BlueDismissKeyboardInputAccessory />
               {this.renderCreateButton()}
-              {this.renderScanButton()}
             </KeyboardAvoidingView>
           </View>
+          {this.state.lnurlParams ? null : this.renderScanClickable()}
         </View>
       </TouchableWithoutFeedback>
     );
