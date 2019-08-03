@@ -1702,33 +1702,6 @@ export class BlueAddressInput extends Component {
   }
 }
 
-export class BlueReadQR extends Component {
-  static propTypes = {
-    suffix: PropTypes.string,
-    onBarScanned: PropTypes.func,
-  };
-
-  render() {
-    return (
-      <TouchableOpacity
-        onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned }) }
-        style={{
-          flex: 1,
-          flexDirection: 'row',
-          minWidth: width,
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        <Icon name="qrcode" type="font-awesome" color={BlueApp.settings.buttonTextColor} containerStyle={{ marginRight: 8 }} />
-        <Text style={{color: BlueApp.settings.buttonTextColor, textAlign: 'center'}}>
-          {loc.send.details.scan} {this.props.suffix}
-        </Text>
-      </TouchableOpacity>
-    );
-  }
-}
-
 export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
