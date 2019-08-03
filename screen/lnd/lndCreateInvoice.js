@@ -104,7 +104,13 @@ export default class LNDCreateInvoice extends Component {
         // setting the invoice creating screen with the parameters
         this.setState({
           isLoading: false,
-          lnurlParams: {k1: reply.k1, callback: reply.callback, amountIsFixed: reply.amountIsFixed},
+          lnurlParams: {
+            k1: reply.k1,
+            callback: reply.callback,
+            fixed: reply.minWithdrawable === reply.maxWithdrawable,
+            min: reply.minWithdrawable / 1000,
+            max: reply.maxWithdrawable / 1000
+          },
           amount: (reply.maxWithdrawable / 1000).toString(),
           description: reply.defaultDescription,
         });
@@ -158,13 +164,20 @@ export default class LNDCreateInvoice extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onChangeText={text => {
-                  if (this.state.lnurlParams && this.state.lnurlParams.amountIsFixed) {
-                    // in this case we prevent the user from changing the amount
-                    return;
+                  if (this.state.lnurlParams) {
+                    // in this case we prevent the user from changing the amount to < min or > max
+                    let {min, max} = this.state.lnurlParams;
+                    let nextAmount = parseInt(text)
+                    if (nextAmount < min) {
+                      text = min.toString()
+                    } else if (nextAmount > max) {
+                      text = max.toString()
+                    }
                   }
+
                   this.setState({ amount: text });
                 }}
-                disabled={this.state.isLoading || (this.state.lnurlParams && this.state.lnurlParams.amountIsFixed)}
+                disabled={this.state.isLoading || (this.state.lnurlParams && this.state.lnurlParams.fixed)}
                 unit={BitcoinUnit.SATS}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
