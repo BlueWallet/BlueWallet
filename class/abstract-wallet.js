@@ -28,6 +28,7 @@ export class AbstractWallet {
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
     this.chain = Chain.ONCHAIN;
+    this.hideBalance = false;
   }
 
   getTransactions() {

@@ -22,6 +22,7 @@
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2D16E6881FA4F8E400B85C8A /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2D16E6891FA4F8E400B85C8A /* libReact.a */; };
 		2DCD954D1E0B4F2C00145EB5 /* BlueWalletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BlueWalletTests.m */; };
+		3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3208E93822F63279007F5A27 /* AppCenter-Config.plist */; };
 		34582CAA4AD140F7B80C961A /* libTcpSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DF4E6C040764E4BA1ACC1EB /* libTcpSockets.a */; };
 		34CC55B441594DBB95AD1B50 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E8E8CE89B3D142C6A8A56C34 /* Octicons.ttf */; };
 		398DED6337DF58F0ECFD8F2E /* libPods-BlueWalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70089FECE936F9A0AC45B7CE /* libPods-BlueWalletTests.a */; };
@@ -146,6 +147,7 @@
 		2D02E4901E0B4A5D006451C7 /* BlueWallet-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "BlueWallet-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FCC2CD6FF4448229D0CE0F3 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		3208E93822F63279007F5A27 /* AppCenter-Config.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "AppCenter-Config.plist"; sourceTree = "<group>"; };
 		334051161886419EA186F4BA /* FontAwesome.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome.ttf"; sourceTree = "<group>"; };
 		3703B10AAB374CF896CCC2EA /* libBVLinearGradient.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libBVLinearGradient.a; sourceTree = "<group>"; };
 		3F7F1B8332C6439793D55B45 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
@@ -306,6 +308,7 @@
 		13B07FAE1A68108700A75B9A /* BlueWallet */ = {
 			isa = PBXGroup;
 			children = (
+				3208E93822F63279007F5A27 /* AppCenter-Config.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -686,6 +689,7 @@
 				854972E4A6134C14A1D3A5F9 /* FontAwesome5_Regular.ttf in Resources */,
 				D8E3A15E21994BC3AF6CEECE /* FontAwesome5_Solid.ttf in Resources */,
 				66AB95FA29464B0BA106AA67 /* Foundation.ttf in Resources */,
+				3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */,
 				CF81A1855609466D90635511 /* Ionicons.ttf in Resources */,
 				D5B495319D1B4542BE945CEA /* MaterialCommunityIcons.ttf in Resources */,
 				6C313BF9BC3E4BD2A65AA547 /* MaterialIcons.ttf in Resources */,
