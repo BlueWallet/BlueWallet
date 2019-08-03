@@ -1,13 +1,16 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Text } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueReadQR, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
+import { Dimensions, ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, TouchableOpacity, Text } from 'react-native';
+import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let loc = require('../../loc');
+const { width } = Dimensions.get('window');
 
 export default class LNDCreateInvoice extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -108,7 +111,7 @@ export default class LNDCreateInvoice extends Component {
             k1: reply.k1,
             callback: reply.callback,
             fixed: reply.minWithdrawable === reply.maxWithdrawable,
-            min: reply.minWithdrawable / 1000,
+            min: (reply.minWithdrawable || 0) / 1000,
             max: reply.maxWithdrawable / 1000
           },
           amount: (reply.maxWithdrawable / 1000).toString(),
@@ -138,10 +141,20 @@ export default class LNDCreateInvoice extends Component {
   renderScanClickable = () => {
     return (
       <View style={{ marginHorizontal: 0, marginVertical: 16, minHeight: 25, alignContent: 'center' }}>
-        <BlueReadQR
-          onBarScanned={this.processLnurl}
-          suffix="lnurl"
-        />
+        <TouchableOpacity
+          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl }) }
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            minWidth: width,
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}
+        >
+          <Text style={{color: BlueApp.settings.buttonTextColor, textAlign: 'center'}}>
+            {loc.receive.scan_lnurl}
+          </Text>
+        </TouchableOpacity>
       </View>
     );
   };

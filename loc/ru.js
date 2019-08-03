@@ -171,6 +171,7 @@ module.exports = {
       create: 'Создать',
       setAmount: 'Получить сумму',
     },
+    scan_lnurl: 'Scan to receive'
   },
   settings: {
     tabBarLabel: 'Настройки',

@@ -165,6 +165,7 @@ module.exports = {
       create: '作成',
       setAmount: '入金額',
     },
+    scan_lnurl: 'Scan to receive'
   },
   buyBitcoin: {
     header: 'Bitcoin の購入',

@@ -165,6 +165,7 @@ module.exports = {
       create: 'Létrehoz',
       setAmount: 'Fogadandó összeg',
     },
+    scan_lnurl: 'Scan to receive'
   },
   buyBitcoin: {
     header: 'Bitcoin vásárlása',
