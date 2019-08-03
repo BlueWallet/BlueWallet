@@ -10,13 +10,14 @@ import {
   RefreshControl,
   TouchableOpacity,
   StatusBar,
+  StyleSheet,
   Platform,
   Clipboard,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
-import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem } from '../../BlueComponents';
+import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BluePrivateBalance } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
@@ -208,13 +209,40 @@ export default class WalletTransactions extends Component {
     Clipboard.setString(loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
 
-  showAndroidTooltip = () => {
-    showPopupMenu(
-      [{ id: loc.transactions.details.copy, label: loc.transactions.details.copy }],
-      this.handleCopyPress,
-      this.walletBalanceText,
-    );
+  handleBalanceVisibility = async _item => {
+    const wallet = this.state.wallet;
+    wallet.hideBalance = !wallet.hideBalance;
+    this.setState({ wallet });
+    await BlueApp.saveToDisk();
   };
+
+  showAndroidTooltip = () => {
+    showPopupMenu(this.toolTipMenuOptions(), this.handleToolTipSelection, this.walletBalanceText);
+  };
+
+  handleToolTipSelection = item => {
+    if (item === loc.transactions.details.copy || item.id === loc.transactions.details.copy) {
+      this.handleCopyPress();
+    } else if (item === 'balancePrivacy' || item.id === 'balancePrivacy') {
+      this.handleBalanceVisibility();
+    }
+  };
+
+  toolTipMenuOptions() {
+    return Platform.select({
+      // NOT WORKING ATM.
+      // ios: [
+      //   { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
+      //   { text: loc.transactions.details.copy, onPress: this.handleCopyPress },
+      // ],
+      android: this.state.wallet.hideBalance
+        ? [{ id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' }]
+        : [
+            { id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' },
+            { id: loc.transactions.details.copy, label: loc.transactions.details.copy },
+          ],
+    });
+  }
 
   renderWalletHeader = () => {
     return (
@@ -249,26 +277,38 @@ export default class WalletTransactions extends Component {
         {Platform.OS === 'ios' && (
           <ToolTip
             ref={tooltip => (this.tooltip = tooltip)}
-            actions={[{ text: loc.transactions.details.copy, onPress: this.handleCopyPress }]}
+            actions={
+              this.state.wallet.hideBalance
+                ? [{ text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility }]
+                : [
+                    { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
+                    { text: loc.transactions.details.copy, onPress: this.handleCopyPress },
+                  ]
+            }
           />
         )}
         <TouchableOpacity
+          style={styles.balance}
           onPress={() => this.changeWalletBalanceUnit()}
           ref={ref => (this.walletBalanceText = ref)}
           onLongPress={() => (Platform.OS === 'ios' ? this.tooltip.showMenu() : this.showAndroidTooltip())}
         >
-          <Text
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={{
-              backgroundColor: 'transparent',
-              fontWeight: 'bold',
-              fontSize: 36,
-              color: '#fff',
-            }}
-          >
-            {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
-          </Text>
+          {this.state.wallet.hideBalance ? (
+            <BluePrivateBalance />
+          ) : (
+            <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              style={{
+                backgroundColor: 'transparent',
+                fontWeight: 'bold',
+                fontSize: 36,
+                color: '#fff',
+              }}
+            >
+              {loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit(), true).toString()}
+            </Text>
+          )}
         </TouchableOpacity>
         {this.state.wallet.type === LightningCustodianWallet.type && (
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ManageFunds', { fromWallet: this.state.wallet })}>
@@ -513,3 +553,11 @@ WalletTransactions.propTypes = {
     setParams: PropTypes.func,
   }),
 };
+
+const styles = StyleSheet.create({
+  balance: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+});

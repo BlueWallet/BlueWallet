@@ -29,6 +29,7 @@ import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
 import ImagePicker from 'react-native-image-picker';
 import WalletGradient from './class/walletGradient';
+import { BlurView } from '@react-native-community/blur';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let loc = require('./loc/');
 /** @type {AppStorage} */
@@ -203,6 +204,23 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   ) : null,
   headerBackTitle: null,
 });
+
+export const BluePrivateBalance = () => {
+  return Platform.select({
+    ios: (
+      <View style={{ flexDirection: 'row' }}>
+        <BlurView style={styles.balanceBlur} blurType="light" blurAmount={25} />
+        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
+      </View>
+    ),
+    android: (
+      <View style={{ flexDirection: 'row' }}>
+        <View style={{ backgroundColor: '#FFFFFF', opacity: 0.5, height: 30, width: 100, marginRight: 8 }} />
+        <Icon name="eye-slash" type="font-awesome" color="#FFFFFF" />
+      </View>
+    ),
+  });
+};
 
 export const BlueCopyToClipboardButton = ({ stringToCopy }) => {
   return (
@@ -1544,18 +1562,22 @@ export class WalletsCarousel extends Component {
             >
               {item.getLabel()}
             </Text>
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 36,
-                color: BlueApp.settings.inverseForegroundColor,
-              }}
-            >
-              {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-            </Text>
+            {item.hideBalance ? (
+              <BluePrivateBalance />
+            ) : (
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={{
+                  backgroundColor: 'transparent',
+                  fontWeight: 'bold',
+                  fontSize: 36,
+                  color: BlueApp.settings.inverseForegroundColor,
+                }}
+              >
+                {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+              </Text>
+            )}
             <Text style={{ backgroundColor: 'transparent' }} />
             <Text
               numberOfLines={1}
@@ -1774,3 +1796,11 @@ export class BlueBitcoinAmount extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  balanceBlur: {
+    height: 30,
+    width: 100,
+    marginRight: 16,
+  },
+});
