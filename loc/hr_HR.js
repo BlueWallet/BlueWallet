@@ -163,7 +163,7 @@ module.exports = {
       create: 'Stvori',
       setAmount: 'Odredi iznos za primiti',
     },
-    scan_lnurl: 'Scan to receive'
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Kupovina Bitcoina',
