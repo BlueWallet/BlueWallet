@@ -1,11 +1,13 @@
 import amplitude from 'amplitude-js';
+import Analytics from 'appcenter-analytics';
 
 amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
   useNativeDeviceInfo: true,
 });
 
-let A = function(event) {
+let A = event => {
   amplitude.getInstance().logEvent(event);
+  Analytics.trackEvent(event);
 };
 
 A.ENUM = {
