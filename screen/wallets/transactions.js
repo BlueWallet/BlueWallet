@@ -204,7 +204,6 @@ export default class WalletTransactions extends Component {
 
   async onWillBlur() {
     StatusBar.setBarStyle('dark-content');
-    await BlueApp.saveToDisk();
   }
 
   componentWillUnmount() {
@@ -227,7 +226,14 @@ export default class WalletTransactions extends Component {
           onWillBlur={() => this.onWillBlur()}
           onDidFocus={() => this.props.navigation.setParams({ isLoading: false })}
         />
-        <BlueWalletNavigationHeader wallet={this.state.wallet} />
+        <BlueWalletNavigationHeader
+          wallet={this.state.wallet}
+          onWalletUnitChange={wallet =>
+            InteractionManager.runAfterInteractions(async () => {
+              this.setState({ wallet }, () => BlueApp.saveToDisk());
+            })
+          }
+        />
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           {this.state.wallet.type === LightningCustodianWallet.type && (
             <TouchableOpacity

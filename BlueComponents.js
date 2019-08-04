@@ -163,10 +163,11 @@ export class LightningButton extends Component {
 export class BlueWalletNavigationHeader extends Component {
   static propTypes = {
     wallet: PropTypes.shape().isRequired,
+    onWalletUnitChange: PropTypes.func,
   };
 
   static getDerivedStateFromProps(props, _state) {
-    return { wallet: props.wallet };
+    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange };
   }
 
   constructor(props) {
@@ -230,7 +231,9 @@ export class BlueWalletNavigationHeader extends Component {
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
 
-    this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit });
+    this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
+      this.props.onWalletUnitChange(wallet);
+    });
   }
 
   render() {
@@ -241,8 +244,7 @@ export class BlueWalletNavigationHeader extends Component {
       >
         <Image
           source={
-            (LightningCustodianWallet.type === this.state.wallet.type && require('./img/lnd-shape.png')) ||
-            require('./img/btc-shape.png')
+            (LightningCustodianWallet.type === this.state.wallet.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')
           }
           style={{
             width: 99,
