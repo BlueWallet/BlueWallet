@@ -4,5 +4,5 @@ echo $APPCENTER_XCODE_PROJECT
 echo
 if [[ "$APPCENTER_XCODE_PROJECT" == "ios/BlueWallet.xcworkspace" && "$OSTYPE" == "darwin"* ]]; then
         cd ios
-        pod install
+        pod update
 fi
