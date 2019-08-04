@@ -22,6 +22,7 @@ import {
   BlueAddressInput,
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
+  BlueButtonLink,
 } from '../../BlueComponents';
 import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
@@ -72,6 +73,7 @@ export default class SendDetails extends Component {
       }
       this.state = {
         isLoading: true,
+        showSendMax: false,
         isFeeSelectionModalVisible: false,
         fromAddress,
         fromWallet,
@@ -466,6 +468,9 @@ export default class SendDetails extends Component {
 
     let targets = [];
     targets.push({ address: this.state.address, value: satoshis });
+    if (this.state.amount === BitcoinUnit.MAX) {
+      targets = [{ address: this.state.address }];
+    }
 
     let { tx, fee } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
 
@@ -629,8 +634,25 @@ export default class SendDetails extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount.toString()}
                 onChangeText={text => this.setState({ amount: text })}
+                onBlur={() => {
+                  this.setState({ showSendMax: false });
+                }}
+                onFocus={() => {
+                  this.setState({ showSendMax: true });
+                }}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
+              {this.state.showSendMax && this.state.fromWallet.allowSendMax() && (
+                <View>
+                  <BlueButtonLink
+                    title={'send MAX'}
+                    onPress={() => {
+                      console.log('state was set');
+                      this.setState({ amount: 'MAX' });
+                    }}
+                  />
+                </View>
+              )}
               <BlueAddressInput
                 onChangeText={text => {
                   if (!this.processBIP70Invoice(text)) {

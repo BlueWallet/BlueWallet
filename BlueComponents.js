@@ -1923,6 +1923,7 @@ export class BlueBitcoinAmount extends Component {
     } else {
       localCurrency = loc.formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
     }
+    if (amount === BitcoinUnit.MAX) localCurrency = ''; // we dont want to display NaN
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View>
@@ -1938,6 +1939,12 @@ export class BlueBitcoinAmount extends Component {
                   text = '0.';
                 }
                 this.props.onChangeText(text);
+              }}
+              onBlur={() => {
+                if (this.props.onBlur) this.props.onBlur();
+              }}
+              onFocus={() => {
+                if (this.props.onFocus) this.props.onFocus();
               }}
               placeholder="0"
               maxLength={10}
