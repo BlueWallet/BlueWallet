@@ -1,5 +1,6 @@
 /* global it, jasmine, afterAll, beforeAll */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from '../../class';
+import {BitcoinUnit} from "../../models/bitcoinUnits";
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 let bitcoin = require('bitcoinjs-lib');
@@ -177,6 +178,35 @@ it('HD (BIP49) can create TX', async () => {
   chunksIn = bitcoin.script.decompile(tx.outs[0].script);
   toAddress = bitcoin.address.fromOutputScript(chunksIn);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+
+  // testing sendMAX
+  hd.utxo = [
+    {
+      txid: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      vout: 0,
+      amount: 26000,
+      address: '3GgPyzKfWXiaXMbJ9LeEVGetvEXdrX9Ecj',
+      wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
+    },
+    {
+      txid: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+      vout: 0,
+      amount: 26000,
+      address: '3GgPyzKfWXiaXMbJ9LeEVGetvEXdrX9Ecj',
+      wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
+    },
+    {
+      txid: 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
+      vout: 0,
+      amount: 26000,
+      address: '3GgPyzKfWXiaXMbJ9LeEVGetvEXdrX9Ecj',
+      wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
+    },
+  ];
+  txhex = hd.createTx(hd.utxo, BitcoinUnit.MAX, 0.00003, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  tx = bitcoin.Transaction.fromHex(txhex);
+  assert.strictEqual(tx.outs.length, 1);
+  assert.strictEqual(tx.outs[0].value, 75000);
 });
 
 it('Segwit HD (BIP49) can fetch UTXO', async function() {
