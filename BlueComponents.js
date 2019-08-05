@@ -777,11 +777,13 @@ export class BlueUseAllFundsButton extends Component {
             backgroundColor: '#eef0f4',
           }}
         >
-          <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
-            Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
-          </Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+            <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
+              Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
+            </Text>
             {this.props.wallet.allowSendMax() && <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />}
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
             <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
           </View>
         </View>
