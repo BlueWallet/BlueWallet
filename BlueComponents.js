@@ -11,6 +11,7 @@ import {
   Animated,
   ActivityIndicator,
   View,
+  KeyboardAvoidingView,
   UIManager,
   StyleSheet,
   Dimensions,
@@ -765,30 +766,35 @@ export class BlueUseAllFundsButton extends Component {
   };
 
   render() {
-    return (
-      <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            maxHeight: 44,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: '#eef0f4',
-          }}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
-              Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
-            </Text>
-            {this.props.wallet.allowSendMax() && <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />}
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-            <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
-          </View>
+    const inputView = (
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          maxHeight: 44,
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          backgroundColor: '#eef0f4',
+        }}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
+          <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
+            Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
+          </Text>
+          {this.props.wallet.allowSendMax() && this.props.wallet.balance > 0 && (
+            <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />
+          )}
         </View>
-      </InputAccessoryView>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+          <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
+        </View>
+      </View>
     );
+    if (Platform.OS === 'ios') {
+      return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+    } else {
+      return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
+    }
   }
 }
 

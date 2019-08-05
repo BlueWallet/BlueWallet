@@ -22,7 +22,6 @@ import {
   BlueAddressInput,
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
-  BlueButtonLink,
   BlueUseAllFundsButton,
 } from '../../BlueComponents';
 import Slider from '@react-native-community/slider';
@@ -73,7 +72,7 @@ export default class SendDetails extends Component {
         fromSecret = fromWallet.getSecret();
       }
       this.state = {
-        isLoading: true,
+        isLoading: false,
         showSendMax: false,
         isFeeSelectionModalVisible: false,
         fromAddress,
@@ -636,6 +635,8 @@ export default class SendDetails extends Component {
                 amount={this.state.amount.toString()}
                 onChangeText={text => this.setState({ amount: text })}
                 inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
+                onFocus={() => this.setState({ isAmountToolbarVisibleForAndroid: true })}
+                onBlur={() => this.setState({ isAmountToolbarVisibleForAndroid: false })}
               />
               <BlueAddressInput
                 onChangeText={text => {
@@ -720,13 +721,29 @@ export default class SendDetails extends Component {
             </KeyboardAvoidingView>
           </View>
           <BlueDismissKeyboardInputAccessory />
-          <BlueUseAllFundsButton
-            onUseAllPressed={() => {
-              this.setState({ amount: 'MAX' });
-              Keyboard.dismiss();
-            }}
-            wallet={this.state.fromWallet}
-          />
+          {Platform.select({
+            ios: (
+              <BlueUseAllFundsButton
+                onUseAllPressed={() => {
+                  this.setState({ amount: 'MAX' });
+                  Keyboard.dismiss();
+                }}
+                wallet={this.state.fromWallet}
+                visi
+              />
+            ),
+            android: this.state.isAmountToolbarVisibleForAndroid && (
+              <BlueUseAllFundsButton
+                onUseAllPressed={() => {
+                  this.setState({ amount: 'MAX' });
+                  Keyboard.dismiss();
+                }}
+                wallet={this.state.fromWallet}
+                visi
+              />
+            ),
+          })}
+
           {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>
