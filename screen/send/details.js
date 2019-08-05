@@ -23,6 +23,7 @@ import {
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
   BlueButtonLink,
+  BlueUseAllFundsButton,
 } from '../../BlueComponents';
 import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
@@ -634,25 +635,8 @@ export default class SendDetails extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount.toString()}
                 onChangeText={text => this.setState({ amount: text })}
-                onBlur={() => {
-                  this.setState({ showSendMax: false });
-                }}
-                onFocus={() => {
-                  this.setState({ showSendMax: true });
-                }}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
               />
-              {this.state.showSendMax && this.state.fromWallet.allowSendMax() && (
-                <View>
-                  <BlueButtonLink
-                    title={'send MAX'}
-                    onPress={() => {
-                      console.log('state was set');
-                      this.setState({ amount: 'MAX' });
-                    }}
-                  />
-                </View>
-              )}
               <BlueAddressInput
                 onChangeText={text => {
                   if (!this.processBIP70Invoice(text)) {
@@ -736,6 +720,13 @@ export default class SendDetails extends Component {
             </KeyboardAvoidingView>
           </View>
           <BlueDismissKeyboardInputAccessory />
+          <BlueUseAllFundsButton
+            onUseAllPressed={() => {
+              this.setState({ amount: 'MAX' });
+              Keyboard.dismiss();
+            }}
+            wallet={this.state.fromWallet}
+          />
           {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>
