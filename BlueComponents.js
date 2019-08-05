@@ -767,11 +767,23 @@ export class BlueUseAllFundsButton extends Component {
   render() {
     return (
       <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            maxHeight: 44,
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            backgroundColor: '#eef0f4',
+          }}
+        >
           <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
             Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
           </Text>
-          <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+            {this.props.wallet.allowSendMax() && <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />}
+            <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
+          </View>
         </View>
       </InputAccessoryView>
     );
