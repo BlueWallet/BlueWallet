@@ -588,18 +588,24 @@ export default class SendDetails extends Component {
       <View style={{ marginBottom: 24, alignItems: 'center' }}>
         {!this.state.isLoading && (
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center' }}>
+            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
               {loc.wallets.select_wallet.toLowerCase()}
             </Text>
-            <Icon name="angle-right" size={22} type="font-awesome" color="#9aa0aa" />
+            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+        <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            onPress={() =>
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
+            }
+          >
           <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
           <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
             {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
@@ -607,6 +613,7 @@ export default class SendDetails extends Component {
           <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
             {BitcoinUnit.BTC}
           </Text>
+           </TouchableOpacity>
         </View>
       </View>
     );
