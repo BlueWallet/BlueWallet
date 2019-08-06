@@ -46,7 +46,7 @@
   "dependencies": {
     "@babel/preset-env": "7.5.0",
     "@react-native-community/async-storage": "1.5.1",
-    "@react-native-community/blur": "^3.3.1",
+    "@react-native-community/blur": "3.3.1",
     "@react-native-community/slider": "2.0.0-rc.1",
     "@remobile/react-native-qrcode-local-image": "1.0.4",
     "amplitude-js": "4.7.0-react-native",
@@ -102,6 +102,7 @@
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.1.7",
     "react-native-sentry": "0.43.2",
+    "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.8.0",
     "react-native-sortable-list": "0.0.23",
     "react-native-svg": "9.5.1",

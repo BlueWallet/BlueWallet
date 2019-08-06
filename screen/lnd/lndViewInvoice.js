@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { View, Dimensions, Share, ScrollView, BackHandler } from 'react-native';
+import { View, Dimensions, ScrollView, BackHandler, InteractionManager } from 'react-native';
+import Share from 'react-native-share';
 import {
   BlueLoading,
   BlueText,
@@ -127,6 +128,7 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
+                getRef={c => (this.qrCodeSVG = c)}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
               />
@@ -227,6 +229,7 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
+                getRef={c => (this.qrCodeSVG = c)}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
               />
@@ -253,9 +256,19 @@ export default class LNDViewInvoice extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={async () => {
-                Share.share({
-                  message: 'lightning:' + invoice.payment_request,
-                });
+                if (this.qrCodeSVG === undefined) {
+                  Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+                } else {
+                  InteractionManager.runAfterInteractions(async () => {
+                    this.qrCodeSVG.toDataURL(data => {
+                      let shareImageBase64 = {
+                        message: `lightning:${invoice.payment_request}`,
+                        url: `data:image/png;base64,${data}`,
+                      };
+                      Share.open(shareImageBase64).catch(error => console.log(error));
+                    });
+                  });
+                }
               }}
               title={loc.receive.details.share}
             />
