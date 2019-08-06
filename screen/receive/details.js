@@ -107,9 +107,9 @@ export default class ReceiveDetails extends Component {
                 getRef={c => (this.qrCodeSVG = c)}
               />
             )}
+            <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>
           <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
-            <BlueCopyTextToClipboard text={this.state.addressText} />
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
