@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, Share, InteractionManager } from 'react-native';
+import { View, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
@@ -14,6 +14,7 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
+import Share from 'react-native-share';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -103,6 +104,7 @@ export default class ReceiveDetails extends Component {
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
                 ecl={'H'}
+                getRef={c => (this.qrCodeSVG = c)}
               />
             )}
           </View>
@@ -124,9 +126,19 @@ export default class ReceiveDetails extends Component {
                   color: BlueApp.settings.buttonTextColor,
                 }}
                 onPress={async () => {
-                  Share.share({
-                    message: this.state.address,
-                  });
+                  if (this.qrCodeSVG === undefined) {
+                    Share.open({ message: `bitcoin:${this.state.address}` }).catch(error => console.log(error));
+                  } else {
+                    InteractionManager.runAfterInteractions(async () => {
+                      this.qrCodeSVG.toDataURL(data => {
+                        let shareImageBase64 = {
+                          message: `bitcoin:${this.state.address}`,
+                          url: `data:image/png;base64,${data}`,
+                        };
+                        Share.open(shareImageBase64).catch(error => console.log(error));
+                      });
+                    });
+                  }
                 }}
                 title={loc.receive.details.share}
               />
