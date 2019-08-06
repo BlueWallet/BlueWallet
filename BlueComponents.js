@@ -934,11 +934,11 @@ export class BlueTransactionPendingIcon extends Component {
           <View style={stylesBlueIcon.ball}>
             <Icon
               {...this.props}
-              name="ellipsis-h"
+              name="kebab-horizontal"
               size={16}
-              type="font-awesome"
+              type="octicon"
               color={BlueApp.settings.foregroundColor}
-              iconStyle={{ left: 0, top: 6 }}
+              iconStyle={{ left: 0, top: 7 }}
             />
           </View>
         </View>
