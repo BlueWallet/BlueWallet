@@ -9,7 +9,6 @@ import {
   RefreshControl,
   TouchableOpacity,
   StatusBar,
-  StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
