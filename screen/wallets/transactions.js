@@ -9,7 +9,6 @@ import {
   RefreshControl,
   TouchableOpacity,
   StatusBar,
-  StyleSheet,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -392,11 +391,3 @@ WalletTransactions.propTypes = {
     setParams: PropTypes.func,
   }),
 };
-
-const styles = StyleSheet.create({
-  balance: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-});
