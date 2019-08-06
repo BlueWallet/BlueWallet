@@ -392,11 +392,3 @@ WalletTransactions.propTypes = {
     setParams: PropTypes.func,
   }),
 };
-
-const styles = StyleSheet.create({
-  balance: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-});
