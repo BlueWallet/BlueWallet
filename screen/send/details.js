@@ -80,7 +80,6 @@ export default class SendDetails extends Component {
         fromSecret,
         address,
         memo,
-        amount: 0,
         fee: 1,
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         feeSliderValue: 1,
@@ -632,7 +631,7 @@ export default class SendDetails extends Component {
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
-                amount={this.state.amount.toString()}
+                amount={this.state.amount ? this.state.amount.toString() : null}
                 onChangeText={text => this.setState({ amount: text })}
                 inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
                 onFocus={() => this.setState({ isAmountToolbarVisibleForAndroid: true })}
