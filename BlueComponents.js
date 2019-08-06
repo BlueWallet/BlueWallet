@@ -777,16 +777,16 @@ export class BlueUseAllFundsButton extends Component {
           backgroundColor: '#eef0f4',
         }}
       >
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-          <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
-            Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+          <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginLeft: 8, marginRight: 0, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}>
+            {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
           </Text>
           {this.props.wallet.allowSendMax() && this.props.wallet.balance > 0 && (
-            <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />
+            <BlueButtonLink style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }} title="Use All" onPress={this.props.onUseAllPressed} />
           )}
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-          <BlueButtonLink title="Done" onPress={Keyboard.dismiss} />
+          <BlueButtonLink style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }} title="Done" onPress={Keyboard.dismiss} />
         </View>
       </View>
     );
