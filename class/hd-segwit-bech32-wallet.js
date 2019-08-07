@@ -36,6 +36,10 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     return true;
   }
 
+  allowSendMax(): boolean {
+    return true;
+  }
+
   /**
    * @inheritDoc
    */

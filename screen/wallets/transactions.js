@@ -1,15 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import {
-  Text,
-  View,
-  ActivityIndicator,
-  InteractionManager,
-  FlatList,
-  RefreshControl,
-  TouchableOpacity,
-  StatusBar,
-} from 'react-native';
+import { Text, View, ActivityIndicator, InteractionManager, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
 import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BlueWalletNavigationHeader } from '../../BlueComponents';

@@ -1,6 +1,16 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View, TextInput, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, TouchableOpacity, Text } from 'react-native';
+import {
+  Dimensions,
+  ActivityIndicator,
+  View,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  Text,
+} from 'react-native';
 import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
@@ -42,9 +52,9 @@ export default class LNDCreateInvoice extends Component {
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
-          let {callback, k1} = this.state.lnurlParams;
+          let { callback, k1 } = this.state.lnurlParams;
           let callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
-          let resp = await fetch(callbackUrl, {method: 'GET'});
+          let resp = await fetch(callbackUrl, { method: 'GET' });
           if (resp.status >= 300) {
             let text = await resp.text();
             throw new Error(text);
@@ -91,9 +101,9 @@ export default class LNDCreateInvoice extends Component {
 
       // calling the url
       try {
-        let resp = await fetch(url, {method: 'GET'})
+        let resp = await fetch(url, { method: 'GET' });
         if (resp.status >= 300) {
-          throw new Error("Bad response from server");
+          throw new Error('Bad response from server');
         }
         let reply = await resp.json();
         if (reply.status === 'ERROR') {
@@ -112,7 +122,7 @@ export default class LNDCreateInvoice extends Component {
             callback: reply.callback,
             fixed: reply.minWithdrawable === reply.maxWithdrawable,
             min: (reply.minWithdrawable || 0) / 1000,
-            max: reply.maxWithdrawable / 1000
+            max: reply.maxWithdrawable / 1000,
           },
           amount: (reply.maxWithdrawable / 1000).toString(),
           description: reply.defaultDescription,
@@ -124,7 +134,7 @@ export default class LNDCreateInvoice extends Component {
         alert(Err.message);
       }
     });
-  }
+  };
 
   renderCreateButton = () => {
     return (
@@ -142,18 +152,16 @@ export default class LNDCreateInvoice extends Component {
     return (
       <View style={{ marginHorizontal: 0, marginVertical: 16, minHeight: 25, alignContent: 'center' }}>
         <TouchableOpacity
-          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl }) }
+          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl })}
           style={{
             flex: 1,
             flexDirection: 'row',
             minWidth: width,
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
           }}
         >
-          <Text style={{color: BlueApp.settings.buttonTextColor, textAlign: 'center'}}>
-            {loc.receive.scan_lnurl}
-          </Text>
+          <Text style={{ color: BlueApp.settings.buttonTextColor, textAlign: 'center' }}>{loc.receive.scan_lnurl}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -179,12 +187,12 @@ export default class LNDCreateInvoice extends Component {
                 onChangeText={text => {
                   if (this.state.lnurlParams) {
                     // in this case we prevent the user from changing the amount to < min or > max
-                    let {min, max} = this.state.lnurlParams;
-                    let nextAmount = parseInt(text)
+                    let { min, max } = this.state.lnurlParams;
+                    let nextAmount = parseInt(text);
                     if (nextAmount < min) {
-                      text = min.toString()
+                      text = min.toString();
                     } else if (nextAmount > max) {
-                      text = max.toString()
+                      text = max.toString();
                     }
                   }
 

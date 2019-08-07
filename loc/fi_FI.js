@@ -168,7 +168,7 @@ module.exports = {
       create: 'Luo',
       setAmount: 'Vastaanotettava summa',
     },
-    scan_lnurl: 'Scan to receive'
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Osta Bitcoinia',
