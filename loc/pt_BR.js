@@ -169,7 +169,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Valor a receber',
     },
-    scan_lnurl: 'Receber lendo QR'
+    scan_lnurl: 'Receber lendo QR',
   },
   buyBitcoin: {
     header: 'Comprar Bitcoin',

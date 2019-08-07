@@ -168,7 +168,7 @@ module.exports = {
       create: 'Δημιούργησε',
       setAmount: 'Λάβε με ποσό',
     },
-    scan_lnurl: 'Scan to receive'
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Αγόρασε Bitcoin',

@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   View,
   TextInput,
+  Alert,
   StatusBar,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -22,6 +23,7 @@ import {
   BlueAddressInput,
   BlueDismissKeyboardInputAccessory,
   BlueLoading,
+  BlueUseAllFundsButton,
 } from '../../BlueComponents';
 import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
@@ -71,14 +73,14 @@ export default class SendDetails extends Component {
         fromSecret = fromWallet.getSecret();
       }
       this.state = {
-        isLoading: true,
+        isLoading: false,
+        showSendMax: false,
         isFeeSelectionModalVisible: false,
         fromAddress,
         fromWallet,
         fromSecret,
         address,
         memo,
-        amount: 0,
         fee: 1,
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         feeSliderValue: 1,
@@ -466,6 +468,9 @@ export default class SendDetails extends Component {
 
     let targets = [];
     targets.push({ address: this.state.address, value: satoshis });
+    if (this.state.amount === BitcoinUnit.MAX) {
+      targets = [{ address: this.state.address }];
+    }
 
     let { tx, fee } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
 
@@ -627,9 +632,11 @@ export default class SendDetails extends Component {
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
-                amount={this.state.amount.toString()}
+                amount={this.state.amount ? this.state.amount.toString() : null}
                 onChangeText={text => this.setState({ amount: text })}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
+                onFocus={() => this.setState({ isAmountToolbarVisibleForAndroid: true })}
+                onBlur={() => this.setState({ isAmountToolbarVisibleForAndroid: false })}
               />
               <BlueAddressInput
                 onChangeText={text => {
@@ -714,6 +721,56 @@ export default class SendDetails extends Component {
             </KeyboardAvoidingView>
           </View>
           <BlueDismissKeyboardInputAccessory />
+          {Platform.select({
+            ios: (
+              <BlueUseAllFundsButton
+                onUseAllPressed={() => {
+                  ReactNativeHapticFeedback.trigger('notificationWarning');
+                  Alert.alert(
+                    'Use full balance',
+                    `Are you sure you want to use your wallet's full balance for this transaction?`,
+                    [
+                      {
+                        text: loc._.ok,
+                        onPress: async () => {
+                          this.setState({ amount: 'MAX' });
+                        },
+                        style: 'default',
+                      },
+                      { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                    ],
+                    { cancelable: false },
+                  );
+                  Keyboard.dismiss();
+                }}
+                wallet={this.state.fromWallet}
+              />
+            ),
+            android: this.state.isAmountToolbarVisibleForAndroid && (
+              <BlueUseAllFundsButton
+                onUseAllPressed={() => {
+                  Alert.alert(
+                    'Use all funds',
+                    `Are you sure you want to use your all of your wallet's funds for this transaction?`,
+                    [
+                      {
+                        text: loc._.ok,
+                        onPress: async () => {
+                          this.setState({ amount: 'MAX' });
+                        },
+                        style: 'default',
+                      },
+                      { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                    ],
+                    { cancelable: false },
+                  );
+                  Keyboard.dismiss();
+                }}
+                wallet={this.state.fromWallet}
+              />
+            ),
+          })}
+
           {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>
