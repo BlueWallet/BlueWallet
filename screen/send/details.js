@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   View,
   TextInput,
+  Alert,
   StatusBar,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -724,21 +725,48 @@ export default class SendDetails extends Component {
             ios: (
               <BlueUseAllFundsButton
                 onUseAllPressed={() => {
-                  this.setState({ amount: 'MAX' });
+                  ReactNativeHapticFeedback.trigger('notificationWarning');
+                  Alert.alert(
+                    'Use full balance',
+                    `Are you sure you want to use your wallet's full balance for this transaction?`,
+                    [
+                      {
+                        text: loc._.ok,
+                        onPress: async () => {
+                          this.setState({ amount: 'MAX' });
+                        },
+                        style: 'default',
+                      },
+                      { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                    ],
+                    { cancelable: false },
+                  );
                   Keyboard.dismiss();
                 }}
                 wallet={this.state.fromWallet}
-                visi
               />
             ),
             android: this.state.isAmountToolbarVisibleForAndroid && (
               <BlueUseAllFundsButton
                 onUseAllPressed={() => {
-                  this.setState({ amount: 'MAX' });
+                  Alert.alert(
+                    'Use all funds',
+                    `Are you sure you want to use your all of your wallet's funds for this transaction?`,
+                    [
+                      {
+                        text: loc._.ok,
+                        onPress: async () => {
+                          this.setState({ amount: 'MAX' });
+                        },
+                        style: 'default',
+                      },
+                      { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                    ],
+                    { cancelable: false },
+                  );
                   Keyboard.dismiss();
                 }}
                 wallet={this.state.fromWallet}
-                visi
               />
             ),
           })}
