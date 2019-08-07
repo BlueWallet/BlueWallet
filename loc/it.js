@@ -168,7 +168,7 @@ module.exports = {
       create: 'Crea',
       setAmount: 'Ricevi con importo',
     },
-    scan_lnurl: 'Scan to receive'
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Compra Bitcoin',
