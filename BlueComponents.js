@@ -792,7 +792,7 @@ export class BlueUseAllFundsButton extends Component {
           >
             Total:
           </Text>
-          {this.props.wallet.allowSendMax() ? (
+          {this.props.wallet.allowSendMax() && this.props.wallet.getBalance() > 0 ? (
             <BlueButtonLink
               onPress={this.props.onUseAllPressed}
               style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
