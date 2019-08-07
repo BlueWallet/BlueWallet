@@ -790,14 +790,31 @@ export class BlueUseAllFundsButton extends Component {
               paddingBottom: 12,
             }}
           >
-            Total: {loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
+            Total:
           </Text>
-          {this.props.wallet.allowSendMax() && this.props.wallet.getBalance() > 0 && (
+          {this.props.wallet.allowSendMax() ? (
             <BlueButtonLink
-              style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
-              title="Use All"
               onPress={this.props.onUseAllPressed}
+              style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
+              title={`${loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${
+                BitcoinUnit.BTC
+              }`}
             />
+          ) : (
+            <Text
+              style={{
+                color: BlueApp.settings.alternativeTextColor,
+                fontSize: 16,
+                marginLeft: 8,
+                marginRight: 0,
+                paddingRight: 0,
+                paddingLeft: 0,
+                paddingTop: 12,
+                paddingBottom: 12,
+              }}
+            >
+              {loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
+            </Text>
           )}
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
