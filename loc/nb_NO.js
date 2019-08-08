@@ -166,7 +166,7 @@ module.exports = {
       create: 'Lag',
       setAmount: 'Motta med beløp',
     },
-    scan_lnurl: 'Scan to receive'
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Kjøp Bitcoin',

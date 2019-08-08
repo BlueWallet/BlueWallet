@@ -172,7 +172,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Receive with amount',
     },
-    scan_lnurl: 'Receber lendo QR'
+    scan_lnurl: 'Receber lendo QR',
   },
   settings: {
     tabBarLabel: 'Definições',

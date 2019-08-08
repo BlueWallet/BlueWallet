@@ -11,6 +11,7 @@ import {
   Animated,
   ActivityIndicator,
   View,
+  KeyboardAvoidingView,
   UIManager,
   StyleSheet,
   Dimensions,
@@ -765,16 +766,71 @@ export class BlueUseAllFundsButton extends Component {
   };
 
   render() {
-    return (
-      <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ color: BlueApp.settings.alternativeTextColor, fontSize: 16, marginHorizontal: 8 }}>
-            Total: {this.props.wallet.getBalance()} {BitcoinUnit.BTC}
+    const inputView = (
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          maxHeight: 44,
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          backgroundColor: '#eef0f4',
+        }}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
+          <Text
+            style={{
+              color: BlueApp.settings.alternativeTextColor,
+              fontSize: 16,
+              marginLeft: 8,
+              marginRight: 0,
+              paddingRight: 0,
+              paddingLeft: 0,
+              paddingTop: 12,
+              paddingBottom: 12,
+            }}
+          >
+            Total:
           </Text>
-          <BlueButtonLink title="Use All" onPress={this.props.onUseAllPressed} />
+          {this.props.wallet.allowSendMax() && this.props.wallet.getBalance() > 0 ? (
+            <BlueButtonLink
+              onPress={this.props.onUseAllPressed}
+              style={{ marginLeft: 8, paddingRight: 0, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
+              title={`${loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} ${
+                BitcoinUnit.BTC
+              }`}
+            />
+          ) : (
+            <Text
+              style={{
+                color: BlueApp.settings.alternativeTextColor,
+                fontSize: 16,
+                marginLeft: 8,
+                marginRight: 0,
+                paddingRight: 0,
+                paddingLeft: 0,
+                paddingTop: 12,
+                paddingBottom: 12,
+              }}
+            >
+              {loc.formatBalanceWithoutSuffix(this.props.wallet.getBalance(), BitcoinUnit.BTC, true).toString()} {BitcoinUnit.BTC}
+            </Text>
+          )}
         </View>
-      </InputAccessoryView>
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+          <BlueButtonLink
+            style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
+            title="Done"
+            onPress={Keyboard.dismiss}
+          />
+        </View>
+      </View>
     );
+    if (Platform.OS === 'ios') {
+      return <InputAccessoryView nativeID={BlueUseAllFundsButton.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+    } else {
+      return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
+    }
   }
 }
 
@@ -1923,10 +1979,11 @@ export class BlueBitcoinAmount extends Component {
     } else {
       localCurrency = loc.formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
     }
+    if (amount === BitcoinUnit.MAX) localCurrency = ''; // we dont want to display NaN
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
             <TextInput
               {...this.props}
               keyboardType="numeric"
@@ -1938,6 +1995,12 @@ export class BlueBitcoinAmount extends Component {
                   text = '0.';
                 }
                 this.props.onChangeText(text);
+              }}
+              onBlur={() => {
+                if (this.props.onBlur) this.props.onBlur();
+              }}
+              onFocus={() => {
+                if (this.props.onFocus) this.props.onFocus();
               }}
               placeholder="0"
               maxLength={10}

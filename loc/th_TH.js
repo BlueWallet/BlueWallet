@@ -165,7 +165,7 @@ module.exports = {
       create: 'สร้าง',
       setAmount: 'รับด้วยจำนวน',
     },
-    scan_lnurl: 'Scan to receive'
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'ซื้อบิตคอยน์',

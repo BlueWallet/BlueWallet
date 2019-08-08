@@ -94,7 +94,9 @@ export default class ReceiveDetails extends Component {
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
             {this.state.bip21encoded === undefined ? (
-              <BlueLoading />
+              <View style={{ alignItems: 'center', width: 300, height: 300 }}>
+                <BlueLoading />
+              </View>
             ) : (
               <QRCode
                 value={this.state.bip21encoded}
@@ -107,9 +109,9 @@ export default class ReceiveDetails extends Component {
                 getRef={c => (this.qrCodeSVG = c)}
               />
             )}
+            <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>
           <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
-            <BlueCopyTextToClipboard text={this.state.addressText} />
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
