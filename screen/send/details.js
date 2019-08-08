@@ -733,7 +733,8 @@ export default class SendDetails extends Component {
                       {
                         text: loc._.ok,
                         onPress: async () => {
-                          this.setState({ amount: 'MAX' });
+                          Keyboard.dismiss();
+                          this.setState({ amount: BitcoinUnit.MAX });
                         },
                         style: 'default',
                       },
@@ -741,7 +742,6 @@ export default class SendDetails extends Component {
                     ],
                     { cancelable: false },
                   );
-                  Keyboard.dismiss();
                 }}
                 wallet={this.state.fromWallet}
               />
@@ -756,7 +756,8 @@ export default class SendDetails extends Component {
                       {
                         text: loc._.ok,
                         onPress: async () => {
-                          this.setState({ amount: 'MAX' });
+                          Keyboard.dismiss();
+                          this.setState({ amount: BitcoinUnit.MAX });
                         },
                         style: 'default',
                       },
@@ -764,7 +765,6 @@ export default class SendDetails extends Component {
                     ],
                     { cancelable: false },
                   );
-                  Keyboard.dismiss();
                 }}
                 wallet={this.state.fromWallet}
               />
