@@ -164,7 +164,7 @@ export default class SendCreate extends Component {
         this.setState({ isLoading: false });
       } else {
         alert(JSON.stringify(result.result || result.txid));
-        this.props.navigation.navigate('TransactionDetails');
+        this.props.navigation.navigate('TransactionStatus');
       }
     });
   }
