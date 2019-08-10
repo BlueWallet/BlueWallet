@@ -24,6 +24,7 @@ import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 
 import details from './screen/transactions/details';
+import TransactionStatus from './screen/transactions/transactionStatus';
 import rbf from './screen/transactions/RBF';
 import createrbf from './screen/transactions/RBF-create';
 import cpfp from './screen/transactions/CPFP';
@@ -60,6 +61,9 @@ const WalletsStackNavigator = createStackNavigator(
     },
     WalletTransactions: {
       screen: WalletTransactions,
+    },
+    TransactionStatus: {
+      screen: TransactionStatus,
     },
     TransactionDetails: {
       screen: details,

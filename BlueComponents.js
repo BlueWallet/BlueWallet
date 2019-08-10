@@ -1472,7 +1472,7 @@ export class BlueTransactionListItem extends Component {
 
   onPress = () => {
     if (this.props.item.hash) {
-      NavigationService.navigate('TransactionDetails', { hash: this.props.item.hash });
+      NavigationService.navigate('TransactionStatus', { hash: this.props.item.hash });
     } else if (
       this.props.item.type === 'user_invoice' ||
       this.props.item.type === 'payment_request' ||
@@ -1663,7 +1663,7 @@ export class BlueListTransactionItem extends Component {
 
   onPress = () => {
     if (this.props.item.hash) {
-      NavigationService.navigate('TransactionDetails', { hash: this.props.item.hash });
+      NavigationService.navigate('TransactionStatus', { hash: this.props.item.hash });
     } else if (
       this.props.item.type === 'user_invoice' ||
       this.props.item.type === 'payment_request' ||
