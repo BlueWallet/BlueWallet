@@ -133,7 +133,7 @@ export default class LNDViewInvoice extends Component {
                 logoBackgroundColor={BlueApp.settings.brandingColor}
               />
               <BlueSpacing20 />
-              <BlueText>{invoice.payment_preimage}</BlueText>
+              <BlueCopyTextToClipboard text={invoice.payment_preimage} />
             </View>
           </SafeBlueArea>
         );
