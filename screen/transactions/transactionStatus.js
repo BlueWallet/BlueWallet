@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
+import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -142,6 +143,11 @@ export default class TransactionsStatus extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        <Handoff
+          title={`Bitcoin Transaction ${this.state.tx.hash}`}
+          type="io.bluewallet.bluewallet"
+          url={`https://blockstream.info/tx/${this.state.tx.hash}`}
+        />
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <BlueCard>
             <View style={{ alignItems: 'center' }}>

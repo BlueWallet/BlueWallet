@@ -6,6 +6,7 @@ import { NavigationEvents } from 'react-navigation';
 import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BlueWalletNavigationHeader } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class';
+import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -208,6 +209,11 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
+        <Handoff
+          title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
+          type="io.bluewallet.bluewallet"
+          url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
+        />
         <NavigationEvents
           onWillFocus={() => {
             StatusBar.setBarStyle('light-content');
