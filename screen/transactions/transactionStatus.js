@@ -313,7 +313,7 @@ export default class TransactionsStatus extends Component {
                 );
               }
             })()}
-            {() => {
+            {(() => {
               if (this.state.isRBFCancelPossible === buttonStatus.unknown) {
                 return (
                   <React.Fragment>
@@ -340,7 +340,7 @@ export default class TransactionsStatus extends Component {
                   </React.Fragment>
                 );
               }
-            }}
+            })()}
 
             <TouchableOpacity
               style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
