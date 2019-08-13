@@ -131,6 +131,8 @@ PODS:
     - React
   - RNGestureHandler (1.3.0):
     - React
+  - RNHandoff (0.0.3):
+    - React
   - RNRate (1.0.1):
     - React
   - RNShare (2.0.0):
@@ -190,6 +192,7 @@ DEPENDENCIES:
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNRate (from `../node_modules/react-native-rate/ios`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -281,6 +284,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNHandoff:
+    :path: "../node_modules/react-native-handoff"
   RNRate:
     :path: "../node_modules/react-native-rate/ios"
   RNShare:
@@ -339,6 +344,7 @@ SPEC CHECKSUMS:
   RNDeviceInfo: a88be26a64ada7cbc2bc0ebbd1662d340304874e
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
+  RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
