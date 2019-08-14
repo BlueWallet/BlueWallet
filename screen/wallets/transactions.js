@@ -1,5 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
+import { Chain } from '../../models/bitcoinUnits';
 import { Text, View, ActivityIndicator, InteractionManager, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -209,11 +210,13 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
-        <Handoff
-          title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
-        />
+        {this.state.wallet.chain === Chain.ONCHAIN && (
+          <Handoff
+            title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
+            type="io.bluewallet.bluewallet"
+            url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
+          />
+        )}
         <NavigationEvents
           onWillFocus={() => {
             StatusBar.setBarStyle('light-content');
