@@ -43,6 +43,10 @@ export class AbstractWallet {
     return this.label;
   }
 
+  getXpub() {
+    return this._address;
+  }
+
   /**
    *
    * @returns {number} Available to spend amount, int, in sats
