@@ -3,10 +3,10 @@ import 'intl/locale-data/jsonp/en';
 import React from 'react';
 import './shim.js';
 import App from './App';
-import { Sentry } from 'react-native-sentry';
-import { AppRegistry } from 'react-native';
+import {Sentry} from 'react-native-sentry';
+import {AppRegistry} from 'react-native';
 import WalletMigrate from './screen/wallets/walletMigrate';
-import { name as appName } from './app.json';
+import {name as appName} from './app.json';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
 let A = require('./analytics');
@@ -22,13 +22,13 @@ if (!Error.captureStackTrace) {
 class BlueAppComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isMigratingData: true };
+    this.state = {isMigratingData: true};
   }
 
   setIsMigratingData = async () => {
     await BlueApp.startAndDecrypt();
     A(A.ENUM.INIT);
-    this.setState({ isMigratingData: false });
+    this.setState({isMigratingData: false});
   };
 
   render() {

@@ -181,7 +181,7 @@ module.exports = {
     password_explain: 'Add meg a jelszót, amivel majd dekódolhatod a tárhelyet',
     retype_password: 'Jelszó megerősítése',
     passwords_do_not_match: 'A megadott jelszavak különböznek!',
-    encrypt_storage: 'Tárhely titkosítása',
+    security: 'Tárhely titkosítása',
     lightning_settings: 'Lightning Beállítások',
     lightning_settings_explain:
       'Saját LND-csomóponthoz való csatlakozáshoz telepítsd az LndHub-ot' +

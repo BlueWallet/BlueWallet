@@ -1,6 +1,6 @@
-import { LegacyWallet } from './legacy-wallet';
+import {LegacyWallet} from './legacy-wallet';
 import Frisbee from 'frisbee';
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import {BitcoinUnit, Chain} from '../models/bitcoinUnits';
 
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
@@ -88,8 +88,8 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async createAccount(isTest) {
     let response = await this._api.post('/create', {
-      body: { partnerid: 'bluewallet', accounttype: (isTest && 'test') || 'common' },
-      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+      body: {partnerid: 'bluewallet', accounttype: (isTest && 'test') || 'common'},
+      headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
     });
     let json = response.body;
     if (typeof json === 'undefined') {
@@ -109,7 +109,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async payInvoice(invoice, freeAmount = 0) {
     let response = await this._api.post('/payinvoice', {
-      body: { invoice: invoice, amount: freeAmount },
+      body: {invoice: invoice, amount: freeAmount},
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async addInvoice(amt, memo) {
     let response = await this._api.post('/addinvoice', {
-      body: { amt: amt + '', memo: memo },
+      body: {amt: amt + '', memo: memo},
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Content-Type': 'application/json',
@@ -259,8 +259,8 @@ export class LightningCustodianWallet extends LegacyWallet {
       password = this.secret.replace('lndhub://', '').split(':')[1];
     }
     let response = await this._api.post('/auth?type=auth', {
-      body: { login: login, password: password },
-      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+      body: {login: login, password: password},
+      headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
     });
 
     let json = response.body;
@@ -306,8 +306,8 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   async refreshAcessToken() {
     let response = await this._api.post('/auth?type=refresh_token', {
-      body: { refresh_token: this.refresh_token },
-      headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+      body: {refresh_token: this.refresh_token},
+      headers: {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'},
     });
 
     let json = response.body;

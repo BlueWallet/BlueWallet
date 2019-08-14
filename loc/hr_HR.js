@@ -179,7 +179,7 @@ module.exports = {
     password_explain: 'Upiši lozinku koja će dekriptirati spremnik.',
     retype_password: 'Ponovi lozinku',
     passwords_do_not_match: 'Lozinke su različite',
-    encrypt_storage: 'Kriptiraj spremnik',
+    security: 'Kriptiraj spremnik',
     lightning_settings: 'Lightning postavke',
     lightning_settings_explain:
       'Za spajanje na tvoj vlastiti LND čvor trebaš instalirati LndHub' +

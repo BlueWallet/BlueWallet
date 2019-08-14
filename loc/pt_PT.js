@@ -184,7 +184,7 @@ module.exports = {
     password_explain: 'Definir a password para desencriptar o armazenamento',
     retype_password: 'Inserir password novamente',
     passwords_do_not_match: 'Passwords não coincidem',
-    encrypt_storage: 'Encriptar',
+    security: 'Encriptar',
     lightning_settings: 'Lightning settings',
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +

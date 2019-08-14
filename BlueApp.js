@@ -1,7 +1,8 @@
 /**
  * @exports {AppStorage}
  */
-import { AppStorage } from './class';
+import {AppStorage} from './class';
+import {StorageType} from './models/storageType';
 let prompt = require('./prompt');
 let EV = require('./events');
 let currency = require('./currency');
@@ -23,7 +24,9 @@ async function startAndDecrypt(retry) {
       password = await prompt((retry && loc._.bad_password) || loc._.enter_password, loc._.storage_is_encrypted, false);
     } while (!password);
   }
-  let success = await BlueApp.loadFromDisk(password);
+
+  let success =
+    (await BlueApp.loadFromDisk(password, StorageType.PLAUSABLEWALLET)) || (await BlueApp.loadFromDisk(password, StorageType.WALLET));
   if (success) {
     console.log('loaded from disk');
     EV(EV.enum.WALLETS_COUNT_CHANGED);

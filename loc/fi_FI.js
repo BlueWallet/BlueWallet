@@ -184,7 +184,7 @@ module.exports = {
     password_explain: 'Luo salasana, jota käytät tallennustilan salauksen purkamiseen',
     retype_password: 'Salasana uudelleen',
     passwords_do_not_match: 'Salasanat eivät täsmää',
-    encrypt_storage: 'Salaa tallennustila',
+    security: 'Salaa tallennustila',
     lightning_settings: 'Lightning asetukset',
     lightning_settings_explain:
       'Yhdistääksesi omaan LND noodiin, asenna LndHub' +

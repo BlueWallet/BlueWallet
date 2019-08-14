@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
-import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
-import { NavigationEvents } from 'react-navigation';
+import React, {Component} from 'react';
+import {View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView} from 'react-native';
+import {BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem} from '../../BlueComponents';
+import {Icon} from 'react-native-elements';
+import {NavigationEvents} from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import WalletGradient from '../../class/walletGradient';
@@ -14,7 +14,7 @@ let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     headerStyle: {
       backgroundColor: '#FFFFFF',
       borderBottomWidth: 0,
@@ -22,9 +22,8 @@ export default class WalletsList extends Component {
     },
     headerRight: (
       <TouchableOpacity
-        style={{ marginHorizontal: 16, width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end' }}
-        onPress={() => navigation.navigate('Settings')}
-      >
+        style={{marginHorizontal: 16, width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end'}}
+        onPress={() => navigation.navigate('Settings')}>
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
       </TouchableOpacity>
     ),
@@ -147,7 +146,7 @@ export default class WalletsList extends Component {
   onSnapToItem(index) {
     console.log('onSnapToItem', index);
     this.lastSnappedTo = index;
-    this.setState({ lastSnappedTo: index });
+    this.setState({lastSnappedTo: index});
 
     if (index < BlueApp.getWallets().length) {
       // not the last
@@ -222,8 +221,7 @@ export default class WalletsList extends Component {
             fontSize: 24,
             marginVertical: 8,
             color: BlueApp.settings.foregroundColor,
-          }}
-        >
+          }}>
           {loc.transactions.list.title}
         </Text>
       </View>
@@ -234,7 +232,7 @@ export default class WalletsList extends Component {
     if (BlueApp.getWallets().length > 1) {
       this.props.navigation.navigate('ReorderWallets');
     } else {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
     }
   };
 
@@ -246,7 +244,7 @@ export default class WalletsList extends Component {
       return <BlueLoading />;
     }
     return (
-      <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <SafeBlueArea style={{flex: 1, backgroundColor: '#FFFFFF'}}>
         <NavigationEvents
           onWillFocus={() => {
             this.redrawScreen();
@@ -255,8 +253,7 @@ export default class WalletsList extends Component {
         <ScrollView
           refreshControl={
             <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
-          }
-        >
+          }>
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel
             data={this.state.wallets}
@@ -272,14 +269,13 @@ export default class WalletsList extends Component {
             <FlatList
               ListHeaderComponent={this.renderListHeaderComponent}
               ListEmptyComponent={
-                <View style={{ top: 50, height: 100 }}>
+                <View style={{top: 50, height: 100}}>
                   <Text
                     style={{
                       fontSize: 18,
                       color: '#9aa0aa',
                       textAlign: 'center',
-                    }}
-                  >
+                    }}>
                     {loc.wallets.list.empty_txs1}
                   </Text>
                   <Text
@@ -287,8 +283,7 @@ export default class WalletsList extends Component {
                       fontSize: 18,
                       color: '#9aa0aa',
                       textAlign: 'center',
-                    }}
-                  >
+                    }}>
                     {loc.wallets.list.empty_txs2}
                   </Text>
                 </View>

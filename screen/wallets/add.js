@@ -1,6 +1,6 @@
 /* global alert */
-import React, { Component } from 'react';
-import { Alert, Text, LayoutAnimation, ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, View, TextInput } from 'react-native';
+import React, {Component} from 'react';
+import {Alert, Text, LayoutAnimation, ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, View, TextInput} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueTextCentered,
@@ -16,11 +16,11 @@ import {
   BlueSpacing20,
   BlueSpacing10,
 } from '../../BlueComponents';
-import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
+import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import {HDSegwitP2SHWallet} from '../../class/hd-segwit-p2sh-wallet';
+import {LightningCustodianWallet} from '../../class/lightning-custodian-wallet';
+import {AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet} from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 let A = require('../../analytics');
@@ -28,7 +28,7 @@ let A = require('../../analytics');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 export default class WalletsAdd extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.wallets.add.title,
     headerLeft: null,
@@ -72,20 +72,20 @@ export default class WalletsAdd extends Component {
   showAdvancedOptions = () => {
     Keyboard.dismiss();
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-    this.setState({ isAdvancedOptionsEnabled: true });
+    this.setState({isAdvancedOptionsEnabled: true});
   };
 
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{flex: 1, paddingTop: 20}}>
           <ActivityIndicator />
         </View>
       );
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1, paddingTop: 40}}>
         <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
           <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
           <View
@@ -102,8 +102,7 @@ export default class WalletsAdd extends Component {
               alignItems: 'center',
               marginVertical: 16,
               borderRadius: 4,
-            }}
-          >
+            }}>
             <TextInput
               value={this.state.label}
               placeholderTextColor="#81868e"
@@ -111,7 +110,7 @@ export default class WalletsAdd extends Component {
               onChangeText={text => {
                 this.setLabel(text);
               }}
-              style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
+              style={{flex: 1, marginHorizontal: 8, color: '#81868e'}}
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
             />
@@ -126,8 +125,7 @@ export default class WalletsAdd extends Component {
               marginHorizontal: 20,
               borderWidth: 0,
               minHeight: 100,
-            }}
-          >
+            }}>
             <BitcoinButton
               active={this.state.activeBitcoin}
               onPress={() => {
@@ -142,8 +140,8 @@ export default class WalletsAdd extends Component {
                 height: 88,
               }}
             />
-            <View style={{ borderWidth: 0, justifyContent: 'center', marginHorizontal: 8, alignSelf: 'center' }}>
-              <BlueTextCentered style={{ color: '#0c2550' }}>{loc.wallets.add.or}</BlueTextCentered>
+            <View style={{borderWidth: 0, justifyContent: 'center', marginHorizontal: 8, alignSelf: 'center'}}>
+              <BlueTextCentered style={{color: '#0c2550'}}>{loc.wallets.add.or}</BlueTextCentered>
             </View>
             <LightningButton
               active={this.state.activeLightning}
@@ -161,17 +159,16 @@ export default class WalletsAdd extends Component {
             />
           </View>
 
-          <View style={{ marginHorizontal: 20 }}>
+          <View style={{marginHorizontal: 20}}>
             {(() => {
               if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
                 return (
                   <View
                     style={{
                       height: 140,
-                    }}
-                  >
+                    }}>
                     <BlueSpacing20 />
-                    <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
+                    <Text style={{color: '#0c2550', fontWeight: '500'}}>{loc.settings.advanced_options}</Text>
                     <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
                       <RadioButton value={HDSegwitP2SHWallet.type}>
                         <BlueText>{HDSegwitP2SHWallet.typeReadable} - Multiple addresses</BlueText>
@@ -189,13 +186,13 @@ export default class WalletsAdd extends Component {
                 return (
                   <React.Fragment>
                     <BlueSpacing20 />
-                    <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
+                    <Text style={{color: '#0c2550', fontWeight: '500'}}>{loc.settings.advanced_options}</Text>
                     <BlueSpacing20 />
                     <BlueText>Connect to your LNDHub</BlueText>
                     <BlueFormInput
                       value={this.state.walletBaseURI}
                       onChangeText={text => {
-                        this.setState({ walletBaseURI: text });
+                        this.setState({walletBaseURI: text});
                       }}
                       onSubmitEditing={Keyboard.dismiss}
                       placeholder="your node address"
@@ -213,15 +210,14 @@ export default class WalletsAdd extends Component {
                 alignItems: 'center',
                 flex: 1,
                 marginVertical: 32,
-              }}
-            >
+              }}>
               {!this.state.isLoading ? (
                 <BlueButton
                   title={loc.wallets.add.create}
                   disabled={this.state.activeBitcoin === undefined}
                   onPress={() => {
                     this.setState(
-                      { isLoading: true },
+                      {isLoading: true},
                       async () => {
                         let w;
 
@@ -249,7 +245,7 @@ export default class WalletsAdd extends Component {
                               await w.createAccount();
                               await w.authorize();
                             } catch (Err) {
-                              this.setState({ isLoading: false });
+                              this.setState({isLoading: false});
                               console.warn('lnd create failure', Err);
                               return alert(Err);
                               // giving app, not adding anything
@@ -260,7 +256,7 @@ export default class WalletsAdd extends Component {
                             await BlueApp.saveToDisk();
                             EV(EV.enum.WALLETS_COUNT_CHANGED);
                             A(A.ENUM.CREATED_WALLET);
-                            ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                            ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
                             this.props.navigation.dismiss();
                           };
 
@@ -273,7 +269,7 @@ export default class WalletsAdd extends Component {
                                   text: loc.send.details.cancel,
                                   style: 'cancel',
                                   onPress: () => {
-                                    this.setState({ isLoading: false });
+                                    this.setState({isLoading: false});
                                   },
                                 },
                                 {
@@ -284,7 +280,7 @@ export default class WalletsAdd extends Component {
                                   },
                                 },
                               ],
-                              { cancelable: false },
+                              {cancelable: false},
                             );
                           } else {
                             this.createLightningWallet();
@@ -310,7 +306,7 @@ export default class WalletsAdd extends Component {
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
                           A(A.ENUM.CREATED_WALLET);
-                          ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                          ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
                           if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
                             this.props.navigation.navigate('PleaseBackup', {
                               secret: w.getSecret(),

@@ -1,16 +1,16 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
+import {AbstractHDWallet} from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
-import { NativeModules } from 'react-native';
+import {NativeModules} from 'react-native';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import signer from '../models/signer';
-import { BitcoinUnit } from '../models/bitcoinUnits';
+import {BitcoinUnit} from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoin5 = require('bitcoinjs5');
 const HDNode = require('bip32');
 
-const { RNRandomBytes } = NativeModules;
+const {RNRandomBytes} = NativeModules;
 
 /**
  * Converts ypub to xpub
@@ -31,8 +31,8 @@ function ypubToXpub(ypub) {
  * @returns {String}
  */
 function nodeToP2shSegwitAddress(hdNode) {
-  const { address } = bitcoin5.payments.p2sh({
-    redeem: bitcoin5.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+  const {address} = bitcoin5.payments.p2sh({
+    redeem: bitcoin5.payments.p2wpkh({pubkey: hdNode.publicKey}),
   });
   return address;
 }
@@ -159,7 +159,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   async _getTransactionsBatch(addresses) {
-    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+    const api = new Frisbee({baseURI: 'https://blockchain.info'});
     let transactions = [];
     let offset = 0;
 

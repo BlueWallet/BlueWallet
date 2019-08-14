@@ -8,8 +8,8 @@ import {
   HDLegacyP2PKHWallet,
   HDSegwitBech32Wallet,
 } from '../../class';
-import React, { Component } from 'react';
-import { KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React, {Component} from 'react';
+import {KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard} from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -21,7 +21,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import {LightningCustodianWallet} from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 let EV = require('../../events');
@@ -29,7 +29,7 @@ let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default class WalletsImport extends Component {
   static navigationOptions = {
@@ -60,8 +60,8 @@ export default class WalletsImport extends Component {
     if (BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret)) {
       alert('This wallet has been previously imported.');
     } else {
+      ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
       alert(loc.wallets.import.success);
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
@@ -218,7 +218,7 @@ export default class WalletsImport extends Component {
     }
 
     alert(loc.wallets.import.error);
-    ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+    ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
     // Plan:
     // 0. check if its HDSegwitBech32Wallet (BIP84)
     // 1. check if its HDSegwitP2SHWallet (BIP49)
@@ -240,14 +240,14 @@ export default class WalletsImport extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{flex: 1, paddingTop: 20}}>
           <BlueLoading />
         </View>
       );
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1, paddingTop: 40}}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView behavior="position" enabled>
             <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
@@ -266,8 +266,7 @@ export default class WalletsImport extends Component {
         <View
           style={{
             alignItems: 'center',
-          }}
-        >
+          }}>
           <BlueButton
             disabled={!this.state.label}
             title={loc.wallets.import.do_import}
@@ -278,9 +277,9 @@ export default class WalletsImport extends Component {
               if (!this.state.label) {
                 return;
               }
-              this.setState({ isLoading: true }, async () => {
+              this.setState({isLoading: true}, async () => {
                 await this.importMnemonic(this.state.label.trim());
-                this.setState({ isLoading: false });
+                this.setState({isLoading: false});
               });
             }}
           />

@@ -1,5 +1,5 @@
 /* global alert */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   Dimensions,
   ActivityIndicator,
@@ -11,19 +11,19 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
+import {BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import {BitcoinUnit} from '../../models/bitcoinUnits';
 import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let loc = require('../../loc');
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default class LNDCreateInvoice extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.receive.header,
   });
@@ -44,17 +44,17 @@ export default class LNDCreateInvoice extends Component {
   }
 
   async createInvoice() {
-    this.setState({ isLoading: true }, async () => {
+    this.setState({isLoading: true}, async () => {
       try {
         const invoiceRequest = await this.state.fromWallet.addInvoice(this.state.amount, this.state.description);
         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
-          let { callback, k1 } = this.state.lnurlParams;
+          let {callback, k1} = this.state.lnurlParams;
           let callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
-          let resp = await fetch(callbackUrl, { method: 'GET' });
+          let resp = await fetch(callbackUrl, {method: 'GET'});
           if (resp.status >= 300) {
             let text = await resp.text();
             throw new Error(text);
@@ -71,17 +71,17 @@ export default class LNDCreateInvoice extends Component {
           isModal: true,
         });
       } catch (Err) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        this.setState({ isLoading: false });
+        ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
+        this.setState({isLoading: false});
         alert(Err.message);
       }
     });
   }
 
   processLnurl = data => {
-    this.setState({ isLoading: true }, async () => {
+    this.setState({isLoading: true}, async () => {
       if (!this.state.fromWallet) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
         alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
         return this.props.navigation.goBack();
       }
@@ -101,7 +101,7 @@ export default class LNDCreateInvoice extends Component {
 
       // calling the url
       try {
-        let resp = await fetch(url, { method: 'GET' });
+        let resp = await fetch(url, {method: 'GET'});
         if (resp.status >= 300) {
           throw new Error('Bad response from server');
         }
@@ -129,8 +129,8 @@ export default class LNDCreateInvoice extends Component {
         });
       } catch (Err) {
         Keyboard.dismiss();
-        this.setState({ isLoading: false });
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        this.setState({isLoading: false});
+        ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
         alert(Err.message);
       }
     });
@@ -138,7 +138,7 @@ export default class LNDCreateInvoice extends Component {
 
   renderCreateButton = () => {
     return (
-      <View style={{ marginHorizontal: 56, marginVertical: 16, minHeight: 45, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
+      <View style={{marginHorizontal: 56, marginVertical: 16, minHeight: 45, alignContent: 'center', backgroundColor: '#FFFFFF'}}>
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
@@ -150,18 +150,17 @@ export default class LNDCreateInvoice extends Component {
 
   renderScanClickable = () => {
     return (
-      <View style={{ marginHorizontal: 0, marginVertical: 16, minHeight: 25, alignContent: 'center' }}>
+      <View style={{marginHorizontal: 0, marginVertical: 16, minHeight: 25, alignContent: 'center'}}>
         <TouchableOpacity
-          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl })}
+          onPress={() => NavigationService.navigate('ScanQrAddress', {onBarScanned: this.processLnurl})}
           style={{
             flex: 1,
             flexDirection: 'row',
             minWidth: width,
             justifyContent: 'center',
             alignItems: 'center',
-          }}
-        >
-          <Text style={{ color: BlueApp.settings.buttonTextColor, textAlign: 'center' }}>{loc.receive.scan_lnurl}</Text>
+          }}>
+          <Text style={{color: BlueApp.settings.buttonTextColor, textAlign: 'center'}}>{loc.receive.scan_lnurl}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -170,7 +169,7 @@ export default class LNDCreateInvoice extends Component {
   render() {
     if (!this.state.fromWallet) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{flex: 1, paddingTop: 20}}>
           <Text>System error: Source wallet not found (this should never happen)</Text>
         </View>
       );
@@ -178,8 +177,8 @@ export default class LNDCreateInvoice extends Component {
 
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={{flex: 1, justifyContent: 'space-between'}}>
+          <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
@@ -187,7 +186,7 @@ export default class LNDCreateInvoice extends Component {
                 onChangeText={text => {
                   if (this.state.lnurlParams) {
                     // in this case we prevent the user from changing the amount to < min or > max
-                    let { min, max } = this.state.lnurlParams;
+                    let {min, max} = this.state.lnurlParams;
                     let nextAmount = parseInt(text);
                     if (nextAmount < min) {
                       text = min.toString();
@@ -196,7 +195,7 @@ export default class LNDCreateInvoice extends Component {
                     }
                   }
 
-                  this.setState({ amount: text });
+                  this.setState({amount: text});
                 }}
                 disabled={this.state.isLoading || (this.state.lnurlParams && this.state.lnurlParams.fixed)}
                 unit={BitcoinUnit.SATS}
@@ -216,14 +215,13 @@ export default class LNDCreateInvoice extends Component {
                   alignItems: 'center',
                   marginVertical: 8,
                   borderRadius: 4,
-                }}
-              >
+                }}>
                 <TextInput
-                  onChangeText={text => this.setState({ description: text })}
+                  onChangeText={text => this.setState({description: text})}
                   placeholder={loc.receive.details.label}
                   value={this.state.description}
                   numberOfLines={1}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                  style={{flex: 1, marginHorizontal: 8, minHeight: 33}}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}

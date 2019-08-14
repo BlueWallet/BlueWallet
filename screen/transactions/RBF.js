@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import { ActivityIndicator, View, TextInput } from 'react-native';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing, BlueNavigationStyle } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {ActivityIndicator, View, TextInput} from 'react-native';
+import {BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing, BlueNavigationStyle} from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { SegwitBech32Wallet } from '../../class';
+import {SegwitBech32Wallet} from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 
@@ -91,7 +91,7 @@ export default class RBF extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{flex: 1, paddingTop: 20}}>
           <ActivityIndicator />
         </View>
       );
@@ -99,7 +99,7 @@ export default class RBF extends Component {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -115,7 +115,7 @@ export default class RBF extends Component {
 
     if (!this.state.sourceWallet.getAddress) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
           <BlueText>System error: Source wallet not found (this should never happen)</BlueText>
           <BlueButton onPress={() => this.props.navigation.goBack()} title="Back" />
         </SafeBlueArea>
@@ -123,9 +123,9 @@ export default class RBF extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+      <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
         <BlueSpacing />
-        <BlueCard title={'Replace By Fee'} style={{ alignItems: 'center', flex: 1 }}>
+        <BlueCard title={'Replace By Fee'} style={{alignItems: 'center', flex: 1}}>
           <BlueText>RBF allows you to increase fee on already sent but not confirmed transaction, thus speeding up mining</BlueText>
           <BlueSpacing20 />
 
@@ -147,13 +147,12 @@ export default class RBF extends Component {
               alignItems: 'center',
               marginVertical: 8,
               borderRadius: 4,
-            }}
-          >
+            }}>
             <TextInput
-              onChangeText={text => this.setState({ newDestinationAddress: text })}
+              onChangeText={text => this.setState({newDestinationAddress: text})}
               placeholder={'receiver address here'}
               value={this.state.newDestinationAddress}
-              style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
+              style={{flex: 1, minHeight: 33, marginHorizontal: 8}}
             />
           </View>
 
@@ -170,14 +169,13 @@ export default class RBF extends Component {
               alignItems: 'center',
               marginVertical: 8,
               borderRadius: 4,
-            }}
-          >
+            }}>
             <TextInput
-              onChangeText={text => this.setState({ feeDelta: text })}
+              onChangeText={text => this.setState({feeDelta: text})}
               keyboardType={'numeric'}
               placeholder={'fee to add (in BTC)'}
               value={this.state.feeDelta + ''}
-              style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
+              style={{flex: 1, minHeight: 33, marginHorizontal: 8}}
             />
           </View>
         </BlueCard>

@@ -1,12 +1,12 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import { AppStorage } from './class';
+import {AppStorage} from './class';
 const ElectrumClient = require('electrum-client');
 let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
 let BigNumber = require('bignumber.js');
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: 'electrum1.bluewallet.io', tcp: '50001' };
+const defaultPeer = {host: 'electrum1.bluewallet.io', tcp: '50001'};
 const hardcodedPeers = [
   // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
   // { host: 'electrum.be', tcp: '50001' },
@@ -16,11 +16,11 @@ const hardcodedPeers = [
   // { host: 'Bitkoins.nl', tcp: '50001' }, // down
   // { host: 'fullnode.coinkite.com', tcp: '50001' },
   // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
-  { host: 'electrum1.bluewallet.io', tcp: '50001' },
-  { host: 'electrum1.bluewallet.io', tcp: '50001' }, // 2x weight
-  { host: 'electrum2.bluewallet.io', tcp: '50001' },
-  { host: 'electrum3.bluewallet.io', tcp: '50001' },
-  { host: 'electrum3.bluewallet.io', tcp: '50001' }, // 2x weight
+  {host: 'electrum1.bluewallet.io', tcp: '50001'},
+  {host: 'electrum1.bluewallet.io', tcp: '50001'}, // 2x weight
+  {host: 'electrum2.bluewallet.io', tcp: '50001'},
+  {host: 'electrum3.bluewallet.io', tcp: '50001'},
+  {host: 'electrum3.bluewallet.io', tcp: '50001'}, // 2x weight
 ];
 
 let mainClient = false;
@@ -79,7 +79,7 @@ async function getRandomHardcodedPeer() {
 async function getSavedPeer() {
   let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
   let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  return { host, tcp: port };
+  return {host, tcp: port};
 }
 
 /**
@@ -202,7 +202,7 @@ module.exports.getTransactionsFullByAddress = async function(address) {
 module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
-  let ret = { balance: 0, unconfirmed_balance: 0, addresses: {} };
+  let ret = {balance: 0, unconfirmed_balance: 0, addresses: {}};
 
   let chunks = splitIntoChunks(addresses, batchsize);
   for (let chunk of chunks) {
@@ -349,7 +349,7 @@ module.exports.estimateFees = async function() {
   const fast = await mainClient.blockchainEstimatefee(1);
   const medium = await mainClient.blockchainEstimatefee(5);
   const slow = await mainClient.blockchainEstimatefee(10);
-  return { fast, medium, slow };
+  return {fast, medium, slow};
 };
 
 /**

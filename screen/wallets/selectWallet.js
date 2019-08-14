@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList} from 'react-native';
+import {SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance} from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import {LightningCustodianWallet} from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
 /** @type {AppStorage} */
@@ -32,20 +32,18 @@ export default class SelectWallet extends Component {
     });
   }
 
-  _renderItem = ({ item }) => {
+  _renderItem = ({item}) => {
     return (
       <TouchableOpacity
         onPress={() => {
-          ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+          ReactNativeHapticFeedback.trigger('selection', {ignoreAndroidSystemSettings: false});
           this.props.navigation.getParam('onWalletSelect')(item);
-        }}
-      >
+        }}>
         <View
           shadowOpacity={40 / 100}
-          shadowOffset={{ width: 0, height: 0 }}
+          shadowOffset={{width: 0, height: 0}}
           shadowRadius={5}
-          style={{ backgroundColor: 'transparent', padding: 10, marginVertical: 17 }}
-        >
+          style={{backgroundColor: 'transparent', padding: 10, marginVertical: 17}}>
           <LinearGradient
             shadowColor="#000000"
             colors={WalletGradient.gradientsFor(item.type)}
@@ -54,8 +52,7 @@ export default class SelectWallet extends Component {
               borderRadius: 10,
               minHeight: 164,
               elevation: 5,
-            }}
-          >
+            }}>
             <Image
               source={
                 (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
@@ -69,15 +66,14 @@ export default class SelectWallet extends Component {
               }}
             />
 
-            <Text style={{ backgroundColor: 'transparent' }} />
+            <Text style={{backgroundColor: 'transparent'}} />
             <Text
               numberOfLines={1}
               style={{
                 backgroundColor: 'transparent',
                 fontSize: 19,
                 color: '#fff',
-              }}
-            >
+              }}>
               {item.getLabel()}
             </Text>
             {item.hideBalance ? (
@@ -91,20 +87,18 @@ export default class SelectWallet extends Component {
                   fontWeight: 'bold',
                   fontSize: 36,
                   color: '#fff',
-                }}
-              >
+                }}>
                 {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
               </Text>
             )}
-            <Text style={{ backgroundColor: 'transparent' }} />
+            <Text style={{backgroundColor: 'transparent'}} />
             <Text
               numberOfLines={1}
               style={{
                 backgroundColor: 'transparent',
                 fontSize: 13,
                 color: '#fff',
-              }}
-            >
+              }}>
               {loc.wallets.list.latest_transaction}
             </Text>
             <Text
@@ -114,8 +108,7 @@ export default class SelectWallet extends Component {
                 fontWeight: 'bold',
                 fontSize: 16,
                 color: '#fff',
-              }}
-            >
+              }}>
               {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
@@ -127,17 +120,17 @@ export default class SelectWallet extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center', paddingTop: 20 }}>
+        <View style={{flex: 1, justifyContent: 'center', alignContent: 'center', paddingTop: 20}}>
           <ActivityIndicator />
         </View>
       );
     } else if (this.state.data.length <= 0) {
       return (
-        <SafeBlueArea style={{ flex: 1 }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
-            <BlueText style={{ textAlign: 'center' }}>There are currently no Bitcoin wallets available.</BlueText>
+        <SafeBlueArea style={{flex: 1}}>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20}}>
+            <BlueText style={{textAlign: 'center'}}>There are currently no Bitcoin wallets available.</BlueText>
             <BlueSpacing20 />
-            <BlueText style={{ textAlign: 'center' }}>
+            <BlueText style={{textAlign: 'center'}}>
               A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.
             </BlueText>
           </View>
@@ -148,7 +141,7 @@ export default class SelectWallet extends Component {
     return (
       <SafeBlueArea>
         <FlatList
-          style={{ flex: 1 }}
+          style={{flex: 1}}
           extraData={this.state.data}
           data={this.state.data}
           renderItem={this._renderItem}

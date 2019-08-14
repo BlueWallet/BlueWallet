@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
-import { View, ActivityIndicator, Image, Text } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {View, ActivityIndicator, Image, Text} from 'react-native';
+import {SafeBlueArea, BlueNavigationStyle} from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import {LightningCustodianWallet} from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
 let EV = require('../../events');
@@ -13,7 +13,7 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc/');
 
 export default class ReorderWallets extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(
       navigation,
       true,
@@ -67,10 +67,9 @@ export default class ReorderWallets extends Component {
     return (
       <View
         shadowOpacity={40 / 100}
-        shadowOffset={{ width: 0, height: 0 }}
+        shadowOffset={{width: 0, height: 0}}
         shadowRadius={5}
-        style={{ backgroundColor: 'transparent', padding: 10, marginVertical: 17 }}
-      >
+        style={{backgroundColor: 'transparent', padding: 10, marginVertical: 17}}>
         <LinearGradient
           shadowColor="#000000"
           colors={WalletGradient.gradientsFor(item.type)}
@@ -79,8 +78,7 @@ export default class ReorderWallets extends Component {
             borderRadius: 10,
             minHeight: 164,
             elevation: 5,
-          }}
-        >
+          }}>
           <Image
             source={
               (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
@@ -94,15 +92,14 @@ export default class ReorderWallets extends Component {
             }}
           />
 
-          <Text style={{ backgroundColor: 'transparent' }} />
+          <Text style={{backgroundColor: 'transparent'}} />
           <Text
             numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
               fontSize: 19,
               color: '#fff',
-            }}
-          >
+            }}>
             {item.getLabel()}
           </Text>
           <Text
@@ -113,19 +110,17 @@ export default class ReorderWallets extends Component {
               fontWeight: 'bold',
               fontSize: 36,
               color: '#fff',
-            }}
-          >
+            }}>
             {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
           </Text>
-          <Text style={{ backgroundColor: 'transparent' }} />
+          <Text style={{backgroundColor: 'transparent'}} />
           <Text
             numberOfLines={1}
             style={{
               backgroundColor: 'transparent',
               fontSize: 13,
               color: '#fff',
-            }}
-          >
+            }}>
             {loc.wallets.list.latest_transaction}
           </Text>
           <Text
@@ -135,8 +130,7 @@ export default class ReorderWallets extends Component {
               fontWeight: 'bold',
               fontSize: 16,
               color: '#fff',
-            }}
-          >
+            }}>
             {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
@@ -147,7 +141,7 @@ export default class ReorderWallets extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{flex: 1, paddingTop: 20}}>
           <ActivityIndicator />
         </View>
       );
@@ -157,18 +151,18 @@ export default class ReorderWallets extends Component {
       <SafeBlueArea>
         <SortableList
           ref={ref => (this.sortableList = ref)}
-          style={{ flex: 1 }}
+          style={{flex: 1}}
           data={this.state.data}
           renderRow={this._renderItem}
           onChangeOrder={() => {
-            ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
-            this.setState({ hasMovedARow: true });
+            ReactNativeHapticFeedback.trigger('impactMedium', {ignoreAndroidSystemSettings: false});
+            this.setState({hasMovedARow: true});
           }}
           onActivateRow={() => {
-            ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+            ReactNativeHapticFeedback.trigger('selection', {ignoreAndroidSystemSettings: false});
           }}
           onReleaseRow={() => {
-            ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+            ReactNativeHapticFeedback.trigger('impactLight', {ignoreAndroidSystemSettings: false});
           }}
         />
       </SafeBlueArea>

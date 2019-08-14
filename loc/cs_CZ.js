@@ -181,7 +181,7 @@ module.exports = {
     password_explain: 'Vytořte si heslo k zašifrování úložiště.',
     retype_password: 'Heslo znovu',
     passwords_do_not_match: 'Hesla se neshodují',
-    encrypt_storage: 'Zašifrovat úložiště',
+    security: 'Zašifrovat úložiště',
     lightning_settings: 'Lightning settings',
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +

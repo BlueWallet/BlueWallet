@@ -1,16 +1,16 @@
 /* global alert */
-import React, { Component } from 'react';
-import { TouchableOpacity, Linking, View } from 'react-native';
-import { BlueSpacingVariable, BlueNavigationStyle, SafeBlueArea, BlueCard } from '../../BlueComponents';
-import { ListItem } from 'react-native-elements';
+import React, {Component} from 'react';
+import {TouchableOpacity, Linking, View} from 'react-native';
+import {BlueSpacingVariable, BlueNavigationStyle, SafeBlueArea, BlueCard} from '../../BlueComponents';
+import {ListItem} from 'react-native-elements';
 import PropTypes from 'prop-types';
-import { Chain } from '../../models/bitcoinUnits';
+import {Chain} from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class ManageFunds extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.lnd.title,
     headerLeft: null,
@@ -21,7 +21,7 @@ export default class ManageFunds extends Component {
     this.onWalletSelect = this.onWalletSelect.bind(this);
     if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
 
-    this.state = { fromWallet: props.navigation.getParam('fromWallet') };
+    this.state = {fromWallet: props.navigation.getParam('fromWallet')};
   }
 
   async onWalletSelect(wallet) {
@@ -55,20 +55,20 @@ export default class ManageFunds extends Component {
 
   render() {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1}}>
         <BlueSpacingVariable />
 
         <BlueCard>
           <ListItem
-            titleStyle={{ color: BlueApp.settings.foregroundColor }}
+            titleStyle={{color: BlueApp.settings.foregroundColor}}
             component={TouchableOpacity}
             onPress={a => {
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });
+              this.props.navigation.navigate('SelectWallet', {onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN});
             }}
             title={loc.lnd.refill}
           />
           <ListItem
-            titleStyle={{ color: BlueApp.settings.foregroundColor }}
+            titleStyle={{color: BlueApp.settings.foregroundColor}}
             component={TouchableOpacity}
             onPress={a => {
               Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');

@@ -177,14 +177,14 @@ module.exports = {
   settings: {
     tabBarLabel: 'Ajustes',
     header: 'Ajustes',
-    plausible_deniability: 'Negación plausible...',
+    plausible_deniability: 'Negación plausible',
     storage_not_encrypted: 'Almacenamiento: no esta cifrado',
     storage_encrypted: 'Almacenamiento: cifrado',
     password: 'Contraseña',
     password_explain: 'Crea la contraseña que usarás para descifrar el almacenamiento',
     retype_password: 'Ingresa la contraseña nuevamente',
     passwords_do_not_match: 'Contraseñas deben ser iguales',
-    encrypt_storage: 'Cifrar almacenamiento',
+    security: 'Cifrar almacenamiento',
     lightning_settings: 'Lightning settings',
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +

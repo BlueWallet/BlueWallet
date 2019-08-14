@@ -1,4 +1,4 @@
-import { createStackNavigator, createAppContainer } from 'react-navigation';
+import {createStackNavigator, createAppContainer} from 'react-navigation';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -141,7 +141,7 @@ const WalletsStackNavigator = createStackNavigator(
       screen: LNDViewAdditionalInvoiceInformation,
     },
   },
-  { headerBackTitleVisible: false },
+  {headerBackTitleVisible: false},
 );
 
 const CreateTransactionStackNavigator = createStackNavigator({

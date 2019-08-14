@@ -181,7 +181,7 @@ module.exports = {
     password_explain: 'สร้างรหัสผ่านที่จะใช้ในการเข้ารหัสที่เก็บข้อมูล',
     retype_password: 'ใส่รหัสผ่านอีกครั้ง',
     passwords_do_not_match: 'รหัสผ่านไม่ตรงกัน',
-    encrypt_storage: 'เข้ารหัสที่เก็บข้อมูล',
+    security: 'เข้ารหัสที่เก็บข้อมูล',
     lightning_settings: 'การตั้งค่าไลท์นิง',
     lightning_settings_explain:
       'กรณีที่ต้องการต่อเชื่อมไปยังไลท์นิงโนดของท่านเอง กรุณาติดตั้ง LndHub ของท่าน' +

@@ -1,12 +1,12 @@
 /* global alert */
-import React, { Component } from 'react';
-import { Chain } from '../../models/bitcoinUnits';
-import { Text, View, ActivityIndicator, InteractionManager, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import React, {Component} from 'react';
+import {Chain} from '../../models/bitcoinUnits';
+import {Text, View, ActivityIndicator, InteractionManager, FlatList, RefreshControl, TouchableOpacity, StatusBar} from 'react-native';
 import PropTypes from 'prop-types';
-import { NavigationEvents } from 'react-navigation';
-import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BlueWalletNavigationHeader } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
-import { LightningCustodianWallet } from '../../class';
+import {NavigationEvents} from 'react-navigation';
+import {BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BlueWalletNavigationHeader} from '../../BlueComponents';
+import {Icon} from 'react-native-elements';
+import {LightningCustodianWallet} from '../../class';
 import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -15,18 +15,17 @@ let EV = require('../../events');
 let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletTransactions extends Component {
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = ({navigation}) => {
     return {
       headerRight: (
         <TouchableOpacity
           disabled={navigation.getParam('isLoading') === true}
-          style={{ marginHorizontal: 16, minWidth: 150, justifyContent: 'center', alignItems: 'flex-end' }}
+          style={{marginHorizontal: 16, minWidth: 150, justifyContent: 'center', alignItems: 'flex-end'}}
           onPress={() =>
             navigation.navigate('WalletDetails', {
               wallet: navigation.state.params.wallet,
             })
-          }
-        >
+          }>
           <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       ),
@@ -48,7 +47,7 @@ export default class WalletTransactions extends Component {
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
     const wallet = props.navigation.getParam('wallet');
-    this.props.navigation.setParams({ wallet: wallet, isLoading: true });
+    this.props.navigation.setParams({wallet: wallet, isLoading: true});
     this.state = {
       isLoading: true,
       showShowFlatListRefreshControl: false,
@@ -61,7 +60,7 @@ export default class WalletTransactions extends Component {
 
   componentDidMount() {
     // nop
-    this.props.navigation.setParams({ isLoading: false });
+    this.props.navigation.setParams({isLoading: false});
   }
 
   /**
@@ -177,7 +176,7 @@ export default class WalletTransactions extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flex: 1, flexDirection: 'row', height: 50 }}>
+      <View style={{flex: 1, flexDirection: 'row', height: 50}}>
         <Text
           style={{
             flex: 1,
@@ -186,8 +185,7 @@ export default class WalletTransactions extends Component {
             fontWeight: 'bold',
             fontSize: 24,
             color: BlueApp.settings.foregroundColor,
-          }}
-        >
+          }}>
           {loc.transactions.list.title}
         </Text>
       </View>
@@ -207,9 +205,9 @@ export default class WalletTransactions extends Component {
   };
 
   render() {
-    const { navigate } = this.props.navigation;
+    const {navigate} = this.props.navigation;
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1}}>
         {this.state.wallet.chain === Chain.ONCHAIN && (
           <Handoff
             title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
@@ -223,24 +221,23 @@ export default class WalletTransactions extends Component {
             this.redrawScreen();
           }}
           onWillBlur={() => this.onWillBlur()}
-          onDidFocus={() => this.props.navigation.setParams({ isLoading: false })}
+          onDidFocus={() => this.props.navigation.setParams({isLoading: false})}
         />
         <BlueWalletNavigationHeader
           wallet={this.state.wallet}
           onWalletUnitChange={wallet =>
             InteractionManager.runAfterInteractions(async () => {
-              this.setState({ wallet }, () => BlueApp.saveToDisk());
+              this.setState({wallet}, () => BlueApp.saveToDisk());
             })
           }
         />
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
           {this.state.wallet.type === LightningCustodianWallet.type && (
             <TouchableOpacity
               onPress={() => {
                 console.log('navigating to LappBrowser');
-                navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
-              }}
-            >
+                navigate('LappBrowser', {fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet});
+              }}>
               <View
                 style={{
                   margin: 16,
@@ -251,9 +248,8 @@ export default class WalletTransactions extends Component {
                   justifyContent: 'center',
                   alignItems: 'center',
                   alignSelf: 'center',
-                }}
-              >
-                <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
+                }}>
+                <Text style={{color: '#062453', fontSize: 18}}>marketplace</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -277,15 +273,14 @@ export default class WalletTransactions extends Component {
             ListHeaderComponent={this.renderListHeaderComponent}
             ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
-              <View style={{ top: 50, minHeight: 200, paddingHorizontal: 16 }}>
+              <View style={{top: 50, minHeight: 200, paddingHorizontal: 16}}>
                 <Text
                   numberOfLines={0}
                   style={{
                     fontSize: 18,
                     color: '#9aa0aa',
                     textAlign: 'center',
-                  }}
-                >
+                  }}>
                   {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
@@ -293,8 +288,7 @@ export default class WalletTransactions extends Component {
                     fontSize: 18,
                     color: '#9aa0aa',
                     textAlign: 'center',
-                  }}
-                >
+                  }}>
                   {(this.isLightning() && loc.wallets.list.empty_txs2_lightning) || loc.wallets.list.empty_txs2}
                 </Text>
 
@@ -314,8 +308,7 @@ export default class WalletTransactions extends Component {
                         address: this.state.wallet.getAddress(),
                         secret: this.state.wallet.getSecret(),
                       })
-                    }
-                  >
+                    }>
                     {loc.wallets.list.tap_here_to_buy}
                   </Text>
                 )}
@@ -340,17 +333,16 @@ export default class WalletTransactions extends Component {
             minHeight: 48,
             flex: 0.84,
             overflow: 'hidden',
-          }}
-        >
+          }}>
           {(() => {
             if (this.state.wallet.allowReceive()) {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
                     if (this.state.wallet.type === LightningCustodianWallet.type) {
-                      navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
+                      navigate('LNDCreateInvoice', {fromWallet: this.state.wallet});
                     } else {
-                      navigate('ReceiveDetails', { address: this.state.wallet.getAddress(), secret: this.state.wallet.getSecret() });
+                      navigate('ReceiveDetails', {address: this.state.wallet.getAddress(), secret: this.state.wallet.getSecret()});
                     }
                   }}
                 />
@@ -364,7 +356,7 @@ export default class WalletTransactions extends Component {
                 <BlueSendButtonIcon
                   onPress={() => {
                     if (this.state.wallet.type === LightningCustodianWallet.type) {
-                      navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
+                      navigate('ScanLndInvoice', {fromSecret: this.state.wallet.getSecret()});
                     } else {
                       navigate('SendDetails', {
                         fromAddress: this.state.wallet.getAddress(),

@@ -181,7 +181,7 @@ module.exports = {
     password_explain: 'ウォレットの復号に使用するパスワードを作成',
     retype_password: 'パスワードの再入力',
     passwords_do_not_match: 'パスワードが一致しません',
-    encrypt_storage: 'ウォレットの暗号化',
+    security: 'ウォレットの暗号化',
     lightning_settings: 'Lightning 設定',
     lightning_settings_explain:
       '他の LND ノードへ接続するには LndHub をインストール後、' +

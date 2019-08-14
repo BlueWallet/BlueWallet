@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
-import { BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {ScrollView} from 'react-native';
+import {BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 const notes = require('../../release-notes');
@@ -32,7 +32,7 @@ export default class ReleaseNotes extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1}}>
         <ScrollView>
           <BlueCard>
             <BlueText>{this.state.notes}</BlueText>

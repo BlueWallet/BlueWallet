@@ -1,4 +1,4 @@
-import { BitcoinUnit } from './bitcoinUnits';
+import {BitcoinUnit} from './bitcoinUnits';
 import BigNumber from 'bignumber.js';
 let loc = require('../loc');
 

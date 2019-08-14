@@ -184,7 +184,7 @@ module.exports = {
     password_explain: "Crea la password che userai per decriptare l'archivio",
     retype_password: 'Reinserisci password',
     passwords_do_not_match: 'Le password non corrispondono',
-    encrypt_storage: 'Cripta archivio',
+    security: 'Cripta archivio',
     lightning_settings: 'Impostazioni Lightning',
     lightning_settings_explain:
       'Per connetterti al tuo nodo LND personale installa LndHub' +

@@ -1,4 +1,4 @@
-import { LegacyWallet } from './legacy-wallet';
+import {LegacyWallet} from './legacy-wallet';
 const bitcoin = require('bitcoinjs-lib');
 
 export class SegwitBech32Wallet extends LegacyWallet {

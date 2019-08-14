@@ -1,9 +1,9 @@
 /* global alert */
-import React, { Component } from 'react';
-import { ActivityIndicator, TouchableOpacity, StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-elements';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import React, {Component} from 'react';
+import {ActivityIndicator, TouchableOpacity, StyleSheet, View} from 'react-native';
+import {Text} from 'react-native-elements';
+import {BlueButton, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle} from '../../BlueComponents';
+import {BitcoinUnit} from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let loc = require('../../loc');
@@ -41,7 +41,7 @@ export default class Confirm extends Component {
   }
 
   broadcast() {
-    this.setState({ isLoading: true }, async () => {
+    this.setState({isLoading: true}, async () => {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
@@ -62,8 +62,8 @@ export default class Confirm extends Component {
           });
         }
       } catch (error) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        this.setState({ isLoading: false });
+        ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
+        this.setState({isLoading: false});
         alert(error.message);
       }
     });
@@ -71,16 +71,15 @@ export default class Confirm extends Component {
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
+      <SafeBlueArea style={{flex: 1, paddingTop: 19}}>
+        <BlueCard style={{alignItems: 'center', flex: 1}}>
+          <View style={{flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16}}>
             <Text
               style={{
                 color: '#0f5cc0',
                 fontSize: 36,
                 fontWeight: '600',
-              }}
-            >
+              }}>
               {this.state.amount}
             </Text>
             <Text
@@ -91,8 +90,7 @@ export default class Confirm extends Component {
                 paddingBottom: 6,
                 fontWeight: '600',
                 alignSelf: 'flex-end',
-              }}
-            >
+              }}>
               {' ' + BitcoinUnit.BTC}
             </Text>
           </View>
@@ -104,8 +102,7 @@ export default class Confirm extends Component {
               paddingBottom: 6,
               fontWeight: '500',
               alignSelf: 'center',
-            }}
-          >
+            }}>
             {loc.send.create.fee}: {loc.formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
             {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
           </Text>
@@ -116,7 +113,7 @@ export default class Confirm extends Component {
           <BlueSpacing40 />
           {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />}
           <TouchableOpacity
-            style={{ marginVertical: 24 }}
+            style={{marginVertical: 24}}
             onPress={() =>
               this.props.navigation.navigate('CreateTransaction', {
                 amount: this.state.amount,
@@ -126,9 +123,8 @@ export default class Confirm extends Component {
                 tx: this.state.tx,
                 satoshiPerByte: this.state.satoshiPerByte,
               })
-            }
-          >
-            <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>
+            }>
+            <Text style={{color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center'}}>
               {loc.transactions.details.transaction_details}
             </Text>
           </TouchableOpacity>

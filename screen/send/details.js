@@ -1,5 +1,5 @@
 /* global alert */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {
   ActivityIndicator,
   View,
@@ -14,7 +14,7 @@ import {
   Platform,
   Text,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueNavigationStyle,
@@ -28,10 +28,10 @@ import {
 import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
-import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
+import NetworkTransactionFees, {NetworkTransactionFee} from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
+import {BitcoinUnit, Chain} from '../../models/bitcoinUnits';
+import {HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet} from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -43,7 +43,7 @@ let bitcoin = require('bitcoinjs-lib');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.send.header,
   });
@@ -97,7 +97,7 @@ export default class SendDetails extends Component {
    */
   processAddressData = data => {
     this.setState(
-      { isLoading: true },
+      {isLoading: true},
       () => {
         if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
           this.processBIP70Invoice(data);
@@ -125,7 +125,7 @@ export default class SendDetails extends Component {
               decoded.options.amount = 0;
               address = decoded.address;
               options = decoded.options;
-              this.setState({ isLoading: false });
+              this.setState({isLoading: false});
             }
             console.log(options);
             if (btcAddressRx.test(address) || address.indexOf('bc1') === 0) {
@@ -175,19 +175,19 @@ export default class SendDetails extends Component {
           this.processBIP70Invoice(this.props.navigation.state.params.uri);
         } else {
           try {
-            const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
-            this.setState({ address, amount, memo, isLoading: false });
+            const {address, amount, memo} = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
+            this.setState({address, amount, memo, isLoading: false});
           } catch (error) {
             console.log(error);
-            this.setState({ isLoading: false });
+            this.setState({isLoading: false});
             alert('Error: Unable to decode Bitcoin address');
           }
         }
       } else {
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
       }
     } else {
-      this.setState({ isLoading: false });
+      this.setState({isLoading: false});
     }
   }
 
@@ -197,11 +197,11 @@ export default class SendDetails extends Component {
   }
 
   _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true });
+    this.setState({renderWalletSelectionButtonHidden: true});
   };
 
   _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false });
+    this.setState({renderWalletSelectionButtonHidden: false});
   };
 
   decodeBitcoinUri(uri) {
@@ -222,7 +222,7 @@ export default class SendDetails extends Component {
         }
       }
     } catch (_) {}
-    return { address, amount, memo };
+    return {address, amount, memo};
   }
 
   recalculateAvailableBalance(balance, amount, fee) {
@@ -298,21 +298,21 @@ export default class SendDetails extends Component {
               })
               .catch(error => {
                 alert(error.errorMessage);
-                this.setState({ isLoading: false, bip70TransactionExpiration: null });
+                this.setState({isLoading: false, bip70TransactionExpiration: null});
               });
           },
         );
       }
       return true;
     } catch (error) {
-      this.setState({ address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null, amount: 0 });
+      this.setState({address: text.replace(' ', ''), isLoading: false, bip70TransactionExpiration: null, amount: 0});
       return false;
     }
   }
 
   async createTransaction() {
     Keyboard.dismiss();
-    this.setState({ isLoading: true });
+    this.setState({isLoading: true});
     let error = false;
     let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
 
@@ -352,9 +352,9 @@ export default class SendDetails extends Component {
     }
 
     if (error) {
-      this.setState({ isLoading: false });
+      this.setState({isLoading: false});
       alert(error);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
       return;
     }
 
@@ -362,9 +362,9 @@ export default class SendDetails extends Component {
       try {
         await this.createHDBech32Transaction();
       } catch (Err) {
-        this.setState({ isLoading: false }, () => {
+        this.setState({isLoading: false}, () => {
           alert(Err.message);
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
         });
       }
       return;
@@ -372,7 +372,7 @@ export default class SendDetails extends Component {
 
     // legacy send below
 
-    this.setState({ isLoading: true }, async () => {
+    this.setState({isLoading: true}, async () => {
       let utxo;
       let actualSatoshiPerByte;
       let tx, txid;
@@ -410,7 +410,7 @@ export default class SendDetails extends Component {
           let feeSatoshi = new BigNumber(fee).multipliedBy(100000000);
           actualSatoshiPerByte = feeSatoshi.dividedBy(Math.round(tx.length / 2));
           actualSatoshiPerByte = actualSatoshiPerByte.toNumber();
-          console.log({ satoshiPerByte: actualSatoshiPerByte });
+          console.log({satoshiPerByte: actualSatoshiPerByte});
 
           if (Math.round(actualSatoshiPerByte) !== requestedSatPerByte * 1 || Math.floor(actualSatoshiPerByte) < 1) {
             console.log('fee is not correct, retrying');
@@ -432,13 +432,13 @@ export default class SendDetails extends Component {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
         alert(err);
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
         return;
       }
 
-      this.setState({ isLoading: false }, () =>
+      this.setState({isLoading: false}, () =>
         this.props.navigation.navigate('Confirm', {
           amount: this.state.amount,
           // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
@@ -464,15 +464,15 @@ export default class SendDetails extends Component {
     const changeAddress = await wallet.getChangeAddressAsync();
     let satoshis = new BigNumber(this.state.amount).multipliedBy(100000000).toNumber();
     const requestedSatPerByte = +this.state.fee.toString().replace(/\D/g, '');
-    console.log({ satoshis, requestedSatPerByte, utxo: wallet.getUtxo() });
+    console.log({satoshis, requestedSatPerByte, utxo: wallet.getUtxo()});
 
     let targets = [];
-    targets.push({ address: this.state.address, value: satoshis });
+    targets.push({address: this.state.address, value: satoshis});
     if (this.state.amount === BitcoinUnit.MAX) {
-      targets = [{ address: this.state.address }];
+      targets = [{address: this.state.address}];
     }
 
-    let { tx, fee } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
+    let {tx, fee} = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
 
     BlueApp.tx_metadata = BlueApp.tx_metadata || {};
     BlueApp.tx_metadata[tx.getId()] = {
@@ -481,7 +481,7 @@ export default class SendDetails extends Component {
     };
     await BlueApp.saveToDisk();
 
-    this.setState({ isLoading: false }, () =>
+    this.setState({isLoading: false}, () =>
       this.props.navigation.navigate('Confirm', {
         amount: this.state.amount,
         fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
@@ -495,7 +495,7 @@ export default class SendDetails extends Component {
   }
 
   onWalletSelect = wallet => {
-    this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
+    this.setState({fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet}, () => {
       this.props.navigation.pop();
     });
   };
@@ -507,12 +507,11 @@ export default class SendDetails extends Component {
         style={styles.bottomModal}
         onBackdropPress={() => {
           if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-            this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+            this.setState({fee: Number(1), feeSliderValue: Number(1)});
           }
           Keyboard.dismiss();
-          this.setState({ isFeeSelectionModalVisible: false });
-        }}
-      >
+          this.setState({isFeeSelectionModalVisible: false});
+        }}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <TouchableOpacity style={styles.satoshisTextInput} onPress={() => this.textInput.focus()}>
@@ -524,18 +523,18 @@ export default class SendDetails extends Component {
                 value={this.state.fee.toString()}
                 onEndEditing={() => {
                   if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-                    this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+                    this.setState({fee: Number(1), feeSliderValue: Number(1)});
                   }
                 }}
                 onChangeText={value => {
                   let newValue = value.replace(/\D/g, '');
-                  this.setState({ fee: newValue, feeSliderValue: Number(newValue) });
+                  this.setState({fee: newValue, feeSliderValue: Number(newValue)});
                 }}
                 maxLength={9}
                 editable={!this.state.isLoading}
                 placeholderTextColor="#37c0a1"
                 placeholder={this.state.networkTransactionFees.halfHourFee.toString()}
-                style={{ fontWeight: '600', color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right', fontSize: 36 }}
+                style={{fontWeight: '600', color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right', fontSize: 36}}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <Text
@@ -547,25 +546,24 @@ export default class SendDetails extends Component {
                   fontSize: 16,
                   alignSelf: 'flex-end',
                   marginBottom: 14,
-                }}
-              >
+                }}>
                 sat/b
               </Text>
             </TouchableOpacity>
             {this.state.networkTransactionFees.fastestFee > 1 && (
-              <View style={{ flex: 1, marginTop: 32, minWidth: 240, width: 240 }}>
+              <View style={{flex: 1, marginTop: 32, minWidth: 240, width: 240}}>
                 <Slider
-                  onValueChange={value => this.setState({ feeSliderValue: value.toFixed(0), fee: value.toFixed(0) })}
+                  onValueChange={value => this.setState({feeSliderValue: value.toFixed(0), fee: value.toFixed(0)})}
                   minimumValue={1}
                   maximumValue={Number(this.state.networkTransactionFees.fastestFee)}
                   value={Number(this.state.feeSliderValue)}
                   maximumTrackTintColor="#d8d8d8"
                   minimumTrackTintColor="#37c0a1"
-                  style={{ flex: 1 }}
+                  style={{flex: 1}}
                 />
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 }}>
-                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>slow</Text>
-                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>fast</Text>
+                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14}}>
+                  <Text style={{fontWeight: '500', fontSize: 13, color: '#37c0a1'}}>slow</Text>
+                  <Text style={{fontWeight: '500', fontSize: 13, color: '#37c0a1'}}>fast</Text>
                 </View>
               </View>
             )}
@@ -577,7 +575,7 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
+      <View style={{marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44}}>
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
@@ -590,30 +588,24 @@ export default class SendDetails extends Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 24, alignItems: 'center' }}>
+      <View style={{marginBottom: 24, alignItems: 'center'}}>
         {!this.state.isLoading && (
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-            onPress={() =>
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
-            }
-          >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            style={{flexDirection: 'row', alignItems: 'center'}}
+            onPress={() => this.props.navigation.navigate('SelectWallet', {onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN})}>
+            <Text style={{color: '#9aa0aa', fontSize: 14, marginRight: 8}}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+        <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 4}}>
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-            onPress={() =>
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
-            }
-          >
-            <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
-            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+            style={{flexDirection: 'row', alignItems: 'center'}}
+            onPress={() => this.props.navigation.navigate('SelectWallet', {onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN})}>
+            <Text style={{color: '#0c2550', fontSize: 14}}>{this.state.fromWallet.getLabel()}</Text>
+            <Text style={{color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4}}>
               {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
             </Text>
-            <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
+            <Text style={{color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2}}>
               {BitcoinUnit.BTC}
             </Text>
           </TouchableOpacity>
@@ -625,23 +617,23 @@ export default class SendDetails extends Component {
   render() {
     if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{flex: 1, paddingTop: 20}}>
           <BlueLoading />
         </View>
       );
     }
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={{flex: 1, justifyContent: 'space-between'}}>
+          <View style={{flex: 1, backgroundColor: '#FFFFFF'}}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
                 amount={this.state.amount ? this.state.amount.toString() : null}
-                onChangeText={text => this.setState({ amount: text })}
+                onChangeText={text => this.setState({amount: text})}
                 inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
-                onFocus={() => this.setState({ isAmountToolbarVisibleForAndroid: true })}
-                onBlur={() => this.setState({ isAmountToolbarVisibleForAndroid: false })}
+                onFocus={() => this.setState({isAmountToolbarVisibleForAndroid: true})}
+                onBlur={() => this.setState({isAmountToolbarVisibleForAndroid: false})}
               />
               <BlueAddressInput
                 onChangeText={text => {
@@ -653,7 +645,7 @@ export default class SendDetails extends Component {
                     });
                   } else {
                     try {
-                      const { address, amount, memo } = this.decodeBitcoinUri(text);
+                      const {address, amount, memo} = this.decodeBitcoinUri(text);
                       this.setState({
                         address: address || this.state.address,
                         amount: amount || this.state.amount,
@@ -662,7 +654,7 @@ export default class SendDetails extends Component {
                         bip70TransactionExpiration: null,
                       });
                     } catch (_) {
-                      this.setState({ address: text.trim(), isLoading: false, bip70TransactionExpiration: null });
+                      this.setState({address: text.trim(), isLoading: false, bip70TransactionExpiration: null});
                     }
                   }
                 }}
@@ -686,25 +678,23 @@ export default class SendDetails extends Component {
                   alignItems: 'center',
                   marginVertical: 8,
                   borderRadius: 4,
-                }}
-              >
+                }}>
                 <TextInput
-                  onChangeText={text => this.setState({ memo: text })}
+                  onChangeText={text => this.setState({memo: text})}
                   placeholder={loc.send.details.note_placeholder}
                   value={this.state.memo}
                   numberOfLines={1}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                  style={{flex: 1, marginHorizontal: 8, minHeight: 33}}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
               </View>
               <TouchableOpacity
-                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+                onPress={() => this.setState({isFeeSelectionModalVisible: true})}
                 disabled={this.state.isLoading}
-                style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
-              >
-                <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
+                style={{flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center'}}>
+                <Text style={{color: '#81868e', fontSize: 14}}>Fee</Text>
                 <View
                   style={{
                     backgroundColor: '#d2f8d6',
@@ -715,10 +705,9 @@ export default class SendDetails extends Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingHorizontal: 10,
-                  }}
-                >
-                  <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
-                  <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+                  }}>
+                  <Text style={{color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right'}}>{this.state.fee}</Text>
+                  <Text style={{color: '#37c0a1', paddingRight: 4, textAlign: 'left'}}>sat/b</Text>
                 </View>
               </TouchableOpacity>
               {this.renderCreateButton()}
@@ -739,13 +728,13 @@ export default class SendDetails extends Component {
                         text: loc._.ok,
                         onPress: async () => {
                           Keyboard.dismiss();
-                          this.setState({ amount: BitcoinUnit.MAX });
+                          this.setState({amount: BitcoinUnit.MAX});
                         },
                         style: 'default',
                       },
-                      { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                      {text: loc.send.details.cancel, onPress: () => {}, style: 'cancel'},
                     ],
-                    { cancelable: false },
+                    {cancelable: false},
                   );
                 }}
                 wallet={this.state.fromWallet}
@@ -762,13 +751,13 @@ export default class SendDetails extends Component {
                         text: loc._.ok,
                         onPress: async () => {
                           Keyboard.dismiss();
-                          this.setState({ amount: BitcoinUnit.MAX });
+                          this.setState({amount: BitcoinUnit.MAX});
                         },
                         style: 'default',
                       },
-                      { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                      {text: loc.send.details.cancel, onPress: () => {}, style: 'cancel'},
                     ],
-                    { cancelable: false },
+                    {cancelable: false},
                   );
                 }}
                 wallet={this.state.fromWallet}

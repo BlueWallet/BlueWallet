@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import { FlatList, TouchableOpacity } from 'react-native';
-import { BlueLoading, BlueText, SafeBlueArea, BlueListItem, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {FlatList, TouchableOpacity} from 'react-native';
+import {BlueLoading, BlueText, SafeBlueArea, BlueListItem, BlueCard, BlueNavigationStyle} from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { Icon } from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 let loc = require('../../loc');
 
 export default class Language extends Component {
@@ -17,29 +17,29 @@ export default class Language extends Component {
       isLoading: true,
       language: loc.getLanguage(),
       availableLanguages: [
-        { label: 'English', value: 'en' },
-        { label: 'Česky (CZ)', value: 'cs_cz' },
-        { label: 'Chinese (ZH)', value: 'zh_cn' },
-        { label: 'Croatian (HR)', value: 'hr_hr' },
-        { label: 'Danish (DK)', value: 'da_dk' },
-        { label: 'Norsk (NB)', value: 'nb_no' },
-        { label: 'Deutsch (DE)', value: 'de_de' },
-        { label: 'Español (ES)', value: 'es' },
-        { label: 'Italiano (IT)', value: 'it' },
-        { label: 'Suomi (FI)', value: 'fi_fi' },
-        { label: 'Français (FR)', value: 'fr_fr' },
-        { label: 'Indonesia (ID)', value: 'id_id' },
-        { label: 'Magyar (HU)', value: 'hu_hu' },
-        { label: '日本語 (JP)', value: 'jp_jp' },
-        { label: 'Nederlands (NL)', value: 'nl_nl' },
-        { label: 'Portuguese (BR)', value: 'pt_br' },
-        { label: 'Portuguese (PT)', value: 'pt_pt' },
-        { label: 'Русский', value: 'ru' },
-        { label: 'Svenska (SE)', value: 'sv_se' },
-        { label: 'Thai (TH)', value: 'th_th' },
-        { label: 'Українська', value: 'ua' },
-        { label: 'Ελληνικά (EL)', value: 'el' },
-        { label: 'Türkçe (TR)', value: 'tr_tr' },
+        {label: 'English', value: 'en'},
+        {label: 'Česky (CZ)', value: 'cs_cz'},
+        {label: 'Chinese (ZH)', value: 'zh_cn'},
+        {label: 'Croatian (HR)', value: 'hr_hr'},
+        {label: 'Danish (DK)', value: 'da_dk'},
+        {label: 'Norsk (NB)', value: 'nb_no'},
+        {label: 'Deutsch (DE)', value: 'de_de'},
+        {label: 'Español (ES)', value: 'es'},
+        {label: 'Italiano (IT)', value: 'it'},
+        {label: 'Suomi (FI)', value: 'fi_fi'},
+        {label: 'Français (FR)', value: 'fr_fr'},
+        {label: 'Indonesia (ID)', value: 'id_id'},
+        {label: 'Magyar (HU)', value: 'hu_hu'},
+        {label: '日本語 (JP)', value: 'jp_jp'},
+        {label: 'Nederlands (NL)', value: 'nl_nl'},
+        {label: 'Portuguese (BR)', value: 'pt_br'},
+        {label: 'Portuguese (PT)', value: 'pt_pt'},
+        {label: 'Русский', value: 'ru'},
+        {label: 'Svenska (SE)', value: 'sv_se'},
+        {label: 'Thai (TH)', value: 'th_th'},
+        {label: 'Українська', value: 'ua'},
+        {label: 'Ελληνικά (EL)', value: 'el'},
+        {label: 'Türkçe (TR)', value: 'tr_tr'},
       ],
     };
   }
@@ -50,22 +50,21 @@ export default class Language extends Component {
     });
   }
 
-  renderItem = ({ item }) => {
+  renderItem = ({item}) => {
     return (
       <TouchableOpacity
         onPress={() => {
           console.log('setLanguage', item.value);
           loc.saveLanguage(item.value);
-          return this.setState({ language: item.value });
-        }}
-      >
+          return this.setState({language: item.value});
+        }}>
         <BlueListItem
           title={item.label}
           {...(this.state.language === item.value
             ? {
                 rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
               }
-            : { hideChevron: true })}
+            : {hideChevron: true})}
         />
       </TouchableOpacity>
     );
@@ -77,9 +76,9 @@ export default class Language extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1}}>
         <FlatList
-          style={{ flex: 1 }}
+          style={{flex: 1}}
           keyExtractor={(_item, index) => `${index}`}
           data={this.state.availableLanguages}
           extraData={this.state.availableLanguages}

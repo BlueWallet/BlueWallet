@@ -1,10 +1,10 @@
-import { LegacyWallet } from './legacy-wallet';
-import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
-import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
-import { WatchOnlyWallet } from './watch-only-wallet';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import {LegacyWallet} from './legacy-wallet';
+import {HDSegwitP2SHWallet} from './hd-segwit-p2sh-wallet';
+import {LightningCustodianWallet} from './lightning-custodian-wallet';
+import {HDLegacyBreadwalletWallet} from './hd-legacy-breadwallet-wallet';
+import {HDLegacyP2PKHWallet} from './hd-legacy-p2pkh-wallet';
+import {WatchOnlyWallet} from './watch-only-wallet';
+import {HDSegwitBech32Wallet} from './hd-segwit-bech32-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];

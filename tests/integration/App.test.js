@@ -1,11 +1,11 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
-import { LegacyWallet, SegwitP2SHWallet, AppStorage } from '../../class';
+import {LegacyWallet, SegwitP2SHWallet, AppStorage} from '../../class';
 import TestRenderer from 'react-test-renderer';
 import Settings from '../../screen/settings/settings';
 import Selftest from '../../screen/selftest';
-import { BlueHeader } from '../../BlueComponents';
-import { FiatUnit } from '../../models/fiatUnit';
+import {BlueHeader} from '../../BlueComponents';
+import {FiatUnit} from '../../models/fiatUnit';
 import AsyncStorage from '@react-native-community/async-storage';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
@@ -17,8 +17,8 @@ jest.mock('Picker', () => {
   const PropTypes = require('prop-types');
   return class MockPicker extends React.Component {
     static Item = props => React.createElement('Item', props, props.children);
-    static propTypes = { children: PropTypes.any };
-    static defaultProps = { children: '' };
+    static propTypes = {children: PropTypes.any};
+    static defaultProps = {children: ''};
 
     render() {
       return React.createElement('Picker', this.props, this.props.children);

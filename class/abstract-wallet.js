@@ -1,4 +1,4 @@
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import {BitcoinUnit, Chain} from '../models/bitcoinUnits';
 
 export class AbstractWallet {
   static type = 'abstract';

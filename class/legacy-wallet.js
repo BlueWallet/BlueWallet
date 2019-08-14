@@ -1,9 +1,9 @@
-import { AbstractWallet } from './abstract-wallet';
-import { SegwitBech32Wallet } from './';
-import { useBlockcypherTokens } from './constants';
+import {AbstractWallet} from './abstract-wallet';
+import {SegwitBech32Wallet} from './';
+import {useBlockcypherTokens} from './constants';
 import Frisbee from 'frisbee';
-import { NativeModules } from 'react-native';
-const { RNRandomBytes } = NativeModules;
+import {NativeModules} from 'react-native';
+const {RNRandomBytes} = NativeModules;
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
@@ -388,7 +388,7 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     let res = await api.post('/api/v2/send_tx/BTC', {
-      body: { tx_hex: txhex },
+      body: {tx_hex: txhex},
     });
     return res.body;
   }
@@ -403,7 +403,7 @@ export class LegacyWallet extends AbstractWallet {
     });
 
     let res = await api.post('/v1/blockchain/pushtx', {
-      body: { hex: txhex },
+      body: {hex: txhex},
     });
     return res.body;
   }
@@ -417,7 +417,7 @@ export class LegacyWallet extends AbstractWallet {
       },
     });
 
-    let res = await api.post('/v1/btc/main/txs/push', { body: { tx: txhex } });
+    let res = await api.post('/v1/btc/main/txs/push', {body: {tx: txhex}});
     // console.log('blockcypher response', res);
     return res.body;
   }

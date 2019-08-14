@@ -183,7 +183,7 @@ module.exports = {
     password_explain: "Créer le mot de passe utilisé pour déchiffrer l'espace de stockage principal",
     retype_password: 'Re-saisir votre mot de passe',
     passwords_do_not_match: 'Les mots de passe ne correspondent pas',
-    encrypt_storage: 'Chiffrer le stockage',
+    security: 'Chiffrer le stockage',
     lightning_settings: 'Lightning settings',
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +

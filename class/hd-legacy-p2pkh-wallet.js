@@ -1,4 +1,4 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
+import {AbstractHDWallet} from './abstract-hd-wallet';
 import bitcoin from 'bitcoinjs-lib';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';

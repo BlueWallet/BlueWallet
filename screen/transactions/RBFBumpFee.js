@@ -1,9 +1,9 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import {ActivityIndicator, View} from 'react-native';
+import {BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle} from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import {HDSegwitBech32Transaction, HDSegwitBech32Wallet} from '../../class';
 import CPFP from './CPFP';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -26,16 +26,16 @@ export default class RBFBumpFee extends CPFP {
 
   async checkPossibilityOfRBFBumpFee() {
     if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
-      return this.setState({ nonReplaceable: true, isLoading: false });
+      return this.setState({nonReplaceable: true, isLoading: false});
     }
 
     let tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
       let info = await tx.getInfo();
-      return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
+      return this.setState({nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx});
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
-      return this.setState({ nonReplaceable: true, isLoading: false });
+      return this.setState({nonReplaceable: true, isLoading: false});
     }
   }
 
@@ -44,13 +44,13 @@ export default class RBFBumpFee extends CPFP {
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */
       const tx = this.state.tx;
-      this.setState({ isLoading: true });
+      this.setState({isLoading: true});
       try {
-        let { tx: newTx } = await tx.createRBFbumpFee(newFeeRate);
-        this.setState({ stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId() });
-        this.setState({ isLoading: false });
+        let {tx: newTx} = await tx.createRBFbumpFee(newFeeRate);
+        this.setState({stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId()});
+        this.setState({isLoading: false});
       } catch (_) {
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
         alert('Failed: ' + _.message);
       }
     }
@@ -66,7 +66,7 @@ export default class RBFBumpFee extends CPFP {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{flex: 1, paddingTop: 20}}>
           <ActivityIndicator />
         </View>
       );
@@ -82,7 +82,7 @@ export default class RBFBumpFee extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />

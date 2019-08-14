@@ -182,7 +182,7 @@ module.exports = {
     password_explain: 'Create the password you will use to decrypt the storage',
     retype_password: 'Re-type password',
     passwords_do_not_match: 'Passwords do not match',
-    encrypt_storage: 'Encrypt storage',
+    security: 'Security',
     lightning_settings: 'Lightning Settings',
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +
@@ -211,7 +211,7 @@ module.exports = {
     go_back: 'Go Back',
     create_password: 'Create a password',
     create_password_explanation: 'Password for fake storage should not match password for your main storage',
-    password_should_not_match: 'Password for fake storage should not match password for your main storage',
+    password_should_not_match: 'Password is already in use.',
     retype_password: 'Retype password',
     passwords_do_not_match: 'Passwords do not match, try again',
     success: 'Success',

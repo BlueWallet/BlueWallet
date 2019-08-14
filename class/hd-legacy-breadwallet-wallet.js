@@ -1,4 +1,4 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
+import {AbstractHDWallet} from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
 import bitcoin from 'bitcoinjs-lib';
 import bip39 from 'bip39';
@@ -87,7 +87,7 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
    */
   async fetchBalance() {
     try {
-      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+      const api = new Frisbee({baseURI: 'https://blockchain.info'});
 
       let response = await api.get('/balance?active=' + this.getXpub());
 

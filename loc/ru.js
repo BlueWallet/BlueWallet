@@ -183,7 +183,7 @@ module.exports = {
     password_explain: 'Придумай пароль для расшифровки хранилища',
     retype_password: 'Набери пароль повторно',
     passwords_do_not_match: 'Пароли не совпадают',
-    encrypt_storage: 'Зашифровать хранилище',
+    security: 'Зашифровать хранилище',
     lightning_settings: 'Настройки Lightning',
     lightning_settings_explain:
       'Чтобы подключиться к своему узлу LND, пожалуйста, установи LndHub' +

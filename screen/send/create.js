@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { TextInput, ScrollView, Linking, TouchableOpacity, Clipboard, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Text } from 'react-native-elements';
-import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {TextInput, ScrollView, Linking, TouchableOpacity, Clipboard, StyleSheet, TouchableWithoutFeedback, Keyboard} from 'react-native';
+import {Text} from 'react-native-elements';
+import {BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 
@@ -41,11 +41,11 @@ export default class SendCreate extends Component {
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+      <SafeBlueArea style={{flex: 1, paddingTop: 19}}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
-            <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-              <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
+            <BlueCard style={{alignItems: 'center', flex: 1}}>
+              <BlueText style={{color: '#0c2550', fontWeight: '500'}}>{loc.send.create.this_is_hex}</BlueText>
               <TextInput
                 style={{
                   borderColor: '#ebebeb',
@@ -65,11 +65,11 @@ export default class SendCreate extends Component {
                 value={this.state.tx}
               />
 
-              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
-                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+              <TouchableOpacity style={{marginVertical: 24}} onPress={() => Clipboard.setString(this.state.tx)}>
+                <Text style={{color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center'}}>Copy and broadcast later</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
-                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Verify on coinb.in</Text>
+              <TouchableOpacity style={{marginVertical: 24}} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
+                <Text style={{color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center'}}>Verify on coinb.in</Text>
               </TouchableOpacity>
             </BlueCard>
             <BlueCard>

@@ -1,16 +1,16 @@
-import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View } from 'react-native';
+import React, {Component} from 'react';
+import {Dimensions, ActivityIndicator, View} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import {BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const { height, width } = Dimensions.get('window');
+const {height, width} = Dimensions.get('window');
 
 export default class WalletExport extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.wallets.export.title,
     headerLeft: null,
@@ -48,22 +48,22 @@ export default class WalletExport extends Component {
   }
 
   onLayout = () => {
-    const { height } = Dimensions.get('window');
-    this.setState({ qrCodeHeight: height > width ? width - 40 : width / 2 });
+    const {height} = Dimensions.get('window');
+    this.setState({qrCodeHeight: height > width ? width - 40 : width / 2});
   };
 
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }} onLayout={this.onLayout}>
+        <View style={{flex: 1, paddingTop: 20}} onLayout={this.onLayout}>
           <ActivityIndicator />
         </View>
       );
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', paddingHorizontal: 0 }} onLayout={this.onLayout}>
+      <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
+        <View style={{alignItems: 'center', flex: 1, justifyContent: 'center', paddingHorizontal: 0}} onLayout={this.onLayout}>
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
@@ -91,7 +91,7 @@ export default class WalletExport extends Component {
 
           <BlueSpacing20 />
 
-          <BlueText style={{ alignItems: 'center', paddingHorizontal: 8 }}>{this.state.wallet.getSecret()}</BlueText>
+          <BlueText style={{alignItems: 'center', paddingHorizontal: 8}}>{this.state.wallet.getSecret()}</BlueText>
         </View>
       </SafeBlueArea>
     );

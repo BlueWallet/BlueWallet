@@ -1,14 +1,14 @@
 import React from 'react';
-import { Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import {Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Modal from 'react-native-modal';
-import { NavigationActions } from 'react-navigation';
+import {NavigationActions} from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
-import { BlueTextCentered, BlueButton } from './BlueComponents';
+import {BlueTextCentered, BlueButton} from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import url from 'url';
-import { AppStorage, LightningCustodianWallet } from './class';
+import {AppStorage, LightningCustodianWallet} from './class';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -30,7 +30,7 @@ export default class App extends React.Component {
     Linking.getInitialURL()
       .then(url => {
         if (this.hasSchema(url)) {
-          this.handleOpenURL({ url });
+          this.handleOpenURL({url});
         }
       })
       .catch(console.error);
@@ -48,11 +48,11 @@ export default class App extends React.Component {
       if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
         const clipboard = await Clipboard.getString();
         if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
-          this.setState({ isClipboardContentModalVisible: true });
+          this.setState({isClipboardContentModalVisible: true});
         }
-        this.setState({ clipboardContent: clipboard });
+        this.setState({clipboardContent: clipboard});
       }
-      this.setState({ appState: nextAppState });
+      this.setState({appState: nextAppState});
     }
   };
 
@@ -73,14 +73,14 @@ export default class App extends React.Component {
     try {
       bitcoin.address.toOutputScript(address);
       isValidBitcoinAddress = true;
-      this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+      this.setState({clipboardContentModalAddressType: bitcoinModalString});
     } catch (err) {
       isValidBitcoinAddress = false;
     }
     if (!isValidBitcoinAddress) {
       if (address.indexOf('bitcoin:') === 0 || address.indexOf('BITCOIN:') === 0) {
         isValidBitcoinAddress = true;
-        this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+        this.setState({clipboardContentModalAddressType: bitcoinModalString});
       }
     }
     return isValidBitcoinAddress;
@@ -89,7 +89,7 @@ export default class App extends React.Component {
   isLightningInvoice(invoice) {
     let isValidLightningInvoice = false;
     if (invoice.indexOf('lightning:lnb') === 0 || invoice.indexOf('LIGHTNING:lnb') === 0 || invoice.toLowerCase().startsWith('lnb')) {
-      this.setState({ clipboardContentModalAddressType: lightningModalString });
+      this.setState({clipboardContentModalAddressType: lightningModalString});
       isValidLightningInvoice = true;
     }
     return isValidLightningInvoice;
@@ -216,13 +216,12 @@ export default class App extends React.Component {
   renderClipboardContentModal = () => {
     return (
       <Modal
-        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false })}
+        onModalShow={() => ReactNativeHapticFeedback.trigger('impactLight', {ignoreAndroidSystemSettings: false})}
         isVisible={this.state.isClipboardContentModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
-          this.setState({ isClipboardContentModalVisible: false });
-        }}
-      >
+          this.setState({isClipboardContentModalVisible: false});
+        }}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <BlueTextCentered>
@@ -232,16 +231,16 @@ export default class App extends React.Component {
               <BlueButton
                 noMinWidth
                 title={loc.send.details.cancel}
-                onPress={() => this.setState({ isClipboardContentModalVisible: false })}
+                onPress={() => this.setState({isClipboardContentModalVisible: false})}
               />
-              <View style={{ marginHorizontal: 8 }} />
+              <View style={{marginHorizontal: 8}} />
               <BlueButton
                 noMinWidth
                 title="OK"
                 onPress={() => {
-                  this.setState({ isClipboardContentModalVisible: false }, async () => {
+                  this.setState({isClipboardContentModalVisible: false}, async () => {
                     const clipboard = await Clipboard.getString();
-                    setTimeout(() => this.handleOpenURL({ url: clipboard }), 100);
+                    setTimeout(() => this.handleOpenURL({url: clipboard}), 100);
                   });
                 }}
               />
@@ -254,7 +253,7 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1}}>
         <MainBottomTabs
           ref={nav => {
             this.navigator = nav;

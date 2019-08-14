@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { View, Dimensions, ScrollView, BackHandler, InteractionManager } from 'react-native';
+import React, {Component} from 'react';
+import {View, Dimensions, ScrollView, BackHandler, InteractionManager} from 'react-native';
 import Share from 'react-native-share';
 import {
   BlueLoading,
@@ -12,23 +12,23 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { Icon } from 'react-native-elements';
+import {Icon} from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const EV = require('../../events');
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 export default class LNDViewInvoice extends Component {
-  static navigationOptions = ({ navigation }) =>
+  static navigationOptions = ({navigation}) =>
     navigation.getParam('isModal') === true
       ? {
           ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
           title: 'Lightning Invoice',
           headerLeft: null,
         }
-      : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
+      : {...BlueNavigationStyle(), title: 'Lightning Invoice'};
 
   constructor(props) {
     super(props);
@@ -61,11 +61,11 @@ export default class LNDViewInvoice extends Component {
           )[0];
 
           if (typeof updatedUserInvoice !== 'undefined') {
-            this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
+            this.setState({invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request});
             if (updatedUserInvoice.ispaid) {
               // we fetched the invoice, and it is paid :-)
-              this.setState({ isFetchingInvoices: false });
-              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+              this.setState({isFetchingInvoices: false});
+              ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
               clearInterval(this.fetchInvoiceInterval);
               this.fetchInvoiceInterval = undefined;
               EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // remote because we want to refetch from server tx list and balance
@@ -75,8 +75,8 @@ export default class LNDViewInvoice extends Component {
               const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
               if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
                 // invoice expired :-(
-                this.setState({ isFetchingInvoices: false });
-                ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+                this.setState({isFetchingInvoices: false});
+                ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
                 clearInterval(this.fetchInvoiceInterval);
                 this.fetchInvoiceInterval = undefined;
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
@@ -102,8 +102,8 @@ export default class LNDViewInvoice extends Component {
   }
 
   onLayout = () => {
-    const { height } = Dimensions.get('window');
-    this.setState({ qrCodeHeight: height > width ? width - 20 : width / 2 });
+    const {height} = Dimensions.get('window');
+    this.setState({qrCodeHeight: height > width ? width - 20 : width / 2});
   };
 
   render() {
@@ -111,7 +111,7 @@ export default class LNDViewInvoice extends Component {
       return <BlueLoading />;
     }
 
-    const { invoice } = this.state;
+    const {invoice} = this.state;
     if (typeof invoice === 'object') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0;
@@ -119,8 +119,8 @@ export default class LNDViewInvoice extends Component {
 
       if (this.state.showPreimageQr) {
         return (
-          <SafeBlueArea style={{ flex: 1 }}>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <SafeBlueArea style={{flex: 1}}>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <BlueText>Preimage:</BlueText>
               <BlueSpacing20 />
               <QRCode
@@ -141,8 +141,8 @@ export default class LNDViewInvoice extends Component {
 
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         return (
-          <SafeBlueArea style={{ flex: 1 }}>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <SafeBlueArea style={{flex: 1}}>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <View
                 style={{
                   backgroundColor: '#ccddf9',
@@ -153,13 +153,12 @@ export default class LNDViewInvoice extends Component {
                   justifyContent: 'center',
                   marginTop: 43,
                   marginBottom: 53,
-                }}
-              >
+                }}>
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
               <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && (
-                <View style={{ position: 'absolute', bottom: 0 }}>
+                <View style={{position: 'absolute', bottom: 0}}>
                   <BlueButton
                     backgroundColor="#FFFFFF"
                     icon={{
@@ -167,7 +166,7 @@ export default class LNDViewInvoice extends Component {
                       type: 'entypo',
                       color: BlueApp.settings.buttonTextColor,
                     }}
-                    onPress={() => this.setState({ showPreimageQr: true })}
+                    onPress={() => this.setState({showPreimageQr: true})}
                     title=" "
                   />
                 </View>
@@ -178,8 +177,8 @@ export default class LNDViewInvoice extends Component {
       }
       if (invoiceExpiration < now && !invoice.ispaid) {
         return (
-          <SafeBlueArea style={{ flex: 1 }}>
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <SafeBlueArea style={{flex: 1}}>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <View
                 style={{
                   backgroundColor: '#ccddf9',
@@ -190,8 +189,7 @@ export default class LNDViewInvoice extends Component {
                   justifyContent: 'center',
                   marginTop: 43,
                   marginBottom: 53,
-                }}
-              >
+                }}>
                 <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
               <BlueText>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueText>
@@ -201,8 +199,8 @@ export default class LNDViewInvoice extends Component {
       } else if (invoiceExpiration > now && invoice.ispaid) {
         if (invoice.ispaid) {
           return (
-            <SafeBlueArea style={{ flex: 1 }}>
-              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <SafeBlueArea style={{flex: 1}}>
+              <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
               </View>
             </SafeBlueArea>
@@ -221,9 +219,8 @@ export default class LNDViewInvoice extends Component {
               marginTop: 8,
               justifyContent: 'space-between',
             }}
-            onLayout={this.onLayout}
-          >
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
+            onLayout={this.onLayout}>
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16}}>
               <QRCode
                 value={typeof this.state.invoice === 'object' ? invoice.payment_request : invoice}
                 logo={require('../../img/qr-code.png')}
@@ -257,7 +254,7 @@ export default class LNDViewInvoice extends Component {
               }}
               onPress={async () => {
                 if (this.qrCodeSVG === undefined) {
-                  Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+                  Share.open({message: `lightning:${invoice.payment_request}`}).catch(error => console.log(error));
                 } else {
                   InteractionManager.runAfterInteractions(async () => {
                     this.qrCodeSVG.toDataURL(data => {
@@ -277,7 +274,7 @@ export default class LNDViewInvoice extends Component {
               style={{
                 backgroundColor: BlueApp.settings.brandingColor,
               }}
-              onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
+              onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', {fromWallet: this.state.fromWallet})}
               title={loc.lndViewInvoice.additional_info}
             />
           </View>

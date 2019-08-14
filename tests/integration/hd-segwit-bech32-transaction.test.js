@@ -1,5 +1,5 @@
 /* global it, describe, jasmine, afterAll, beforeAll */
-import { HDSegwitBech32Wallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
+import {HDSegwitBech32Wallet, HDSegwitBech32Transaction, SegwitBech32Wallet} from '../../class';
 const bitcoin = require('bitcoinjs5');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
@@ -70,7 +70,7 @@ describe('HDSegwitBech32Transaction', () => {
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
-    let { fee, feeRate, targets, changeAmount, utxos } = await tt.getInfo();
+    let {fee, feeRate, targets, changeAmount, utxos} = await tt.getInfo();
     assert.strictEqual(fee, 4464);
     assert.strictEqual(changeAmount, 103686);
     assert.strictEqual(feeRate, 12);
@@ -112,7 +112,7 @@ describe('HDSegwitBech32Transaction', () => {
 
     assert.strictEqual(await tt.canCancelTx(), true);
 
-    let { tx } = await tt.createRBFcancelTx(15);
+    let {tx} = await tt.createRBFcancelTx(15);
 
     let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
@@ -143,7 +143,7 @@ describe('HDSegwitBech32Transaction', () => {
 
     assert.strictEqual(await tt.canCancelTx(), true);
 
-    let { tx } = await tt.createRBFbumpFee(17);
+    let {tx} = await tt.createRBFbumpFee(17);
 
     let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
@@ -175,7 +175,7 @@ describe('HDSegwitBech32Transaction', () => {
 
     let tt = new HDSegwitBech32Transaction(null, '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f', hd);
     assert.ok(await tt.isToUsTransaction());
-    let { unconfirmedUtxos, fee: oldFee } = await tt.getInfo();
+    let {unconfirmedUtxos, fee: oldFee} = await tt.getInfo();
 
     assert.strictEqual(
       JSON.stringify(unconfirmedUtxos),
@@ -189,7 +189,7 @@ describe('HDSegwitBech32Transaction', () => {
       ]),
     );
 
-    let { tx, fee } = await tt.createCPFPbumpFee(20);
+    let {tx, fee} = await tt.createCPFPbumpFee(20);
     let avgFeeRate = (oldFee + fee) / (tt._txhex.length / 2 + tx.toHex().length / 2);
     assert.ok(Math.round(avgFeeRate) >= 20);
   });

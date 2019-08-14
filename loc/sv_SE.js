@@ -181,7 +181,7 @@ module.exports = {
     password_explain: 'Skapa ett lösenord som du kommer att använda vid dekryptering',
     retype_password: 'Ange lösenord igen',
     passwords_do_not_match: 'Lösenorden är olika!',
-    encrypt_storage: 'Kryptera lagring',
+    security: 'Kryptera lagring',
     lightning_settings: 'Lightning Network',
     lightning_settings_explain:
       'För att ansluta till din egen LND-nod, installera LndHub' +

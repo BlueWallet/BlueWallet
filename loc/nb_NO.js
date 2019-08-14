@@ -182,7 +182,7 @@ module.exports = {
     password_explain: 'Opprett passordet du vil bruke til å dekryptere lagringen',
     retype_password: 'Skriv inn passordet på nytt',
     passwords_do_not_match: 'passordene er ikke like',
-    encrypt_storage: 'Krypter lagring',
+    security: 'Krypter lagring',
     lightning_settings: 'Lightning innstillinger',
     lightning_settings_explain:
       'For å koble til din egen LND-node, vennligst installer LndHub' +

@@ -184,7 +184,7 @@ module.exports = {
     password_explain: 'Δώσε ένα κωδικό για την κρυπτογράφηση του αρχείου',
     retype_password: 'Ξαναδώσε τον κωδικό',
     passwords_do_not_match: 'Οι κωδικοί δεν είναι ίδιοι',
-    encrypt_storage: 'Κρυπτογράφησε το αρχείο',
+    security: 'Κρυπτογράφησε το αρχείο',
     lightning_settings: 'Ρυθμίσεις Lightning',
     lightning_settings_explain:
       'Για να συνδεθείτε στον δικό σας κόμβο LND παρακαλούμε εγκαταστήστε το LndHub' +

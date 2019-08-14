@@ -10,7 +10,7 @@ it('bip38 decodes', async () => {
     encryptedKey,
     'TestingOneTwoThree',
     () => {},
-    { N: 1, r: 8, p: 8 }, // using non-default parameters to speed it up (not-bip38 compliant)
+    {N: 1, r: 8, p: 8}, // using non-default parameters to speed it up (not-bip38 compliant)
   );
 
   assert.strictEqual(

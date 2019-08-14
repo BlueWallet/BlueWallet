@@ -1,5 +1,5 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
-import { NativeModules } from 'react-native';
+import {AbstractHDWallet} from './abstract-hd-wallet';
+import {NativeModules} from 'react-native';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
@@ -9,7 +9,7 @@ const HDNode = require('bip32');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
 
-const { RNRandomBytes } = NativeModules;
+const {RNRandomBytes} = NativeModules;
 
 /**
  * HD Wallet (BIP39).
@@ -686,7 +686,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       algo = coinSelectSplit;
     }
 
-    let { inputs, outputs, fee } = algo(utxos, targets, feeRate);
+    let {inputs, outputs, fee} = algo(utxos, targets, feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
@@ -705,7 +705,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       values[c] = input.value;
       c++;
       if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
-      const p2wpkh = bitcoin5.payments.p2wpkh({ pubkey: keyPair.publicKey });
+      const p2wpkh = bitcoin5.payments.p2wpkh({pubkey: keyPair.publicKey});
       txb.addInput(input.txId, input.vout, sequence, p2wpkh.output); // NOTE: provide the prevOutScript!
     });
 
@@ -723,7 +723,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     }
 
     const tx = txb.build();
-    return { tx, inputs, outputs, fee };
+    return {tx, inputs, outputs, fee};
   }
 
   /**
@@ -770,7 +770,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   async broadcastTx(txhex) {
     let broadcast = await BlueElectrum.broadcastV2(txhex);
-    console.log({ broadcast });
+    console.log({broadcast});
     if (broadcast.indexOf('successfully') !== -1) return true;
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }

@@ -175,14 +175,14 @@ module.exports = {
   },
   settings: {
     header: 'ayarlar',
-    plausible_deniability: 'Makul ret...',
+    plausible_deniability: 'Makul ret',
     storage_not_encrypted: 'Depolama: şifreli değil',
     storage_encrypted: 'Depolama: şifreli',
     password: 'Şifre',
     password_explain: 'Depolamanın şifresini çözmek için kullanacağınız şifreyi oluşturun',
     retype_password: 'Şifrenizi yeniden girin',
     passwords_do_not_match: 'Şifreler eşleşmedi',
-    encrypt_storage: 'Depolamayı şifrele',
+    security: 'Depolamayı şifrele',
     lightning_settings: 'Lightning Ayarları',
     lightning_settings_explain:
       'Kendi LND düğümünüze bağlanmak için lütfen LndHubı yükleyin.' +

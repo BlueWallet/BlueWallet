@@ -1,13 +1,14 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
-import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
-import { RNCamera } from 'react-native-camera';
-import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
+import {ActivityIndicator, Image, View, TouchableOpacity} from 'react-native';
+import {BlueText, SafeBlueArea, BlueButton} from '../../BlueComponents';
+import {RNCamera} from 'react-native-camera';
+import {SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet, HDSegwitBech32Wallet} from '../../class';
 import PropTypes from 'prop-types';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import {HDSegwitP2SHWallet} from '../../class/hd-segwit-p2sh-wallet';
+import {LightningCustodianWallet} from '../../class/lightning-custodian-wallet';
 import bip21 from 'bip21';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
@@ -31,7 +32,7 @@ export default class ScanQrWif extends React.Component {
       return;
     }
     this.lastTimeIveBeenHere = +new Date();
-    this.setState({ isLoading: true });
+    this.setState({isLoading: true});
 
     if (ret.data[0] === '6') {
       // password-encrypted, need to ask for password and decrypt
@@ -55,17 +56,17 @@ export default class ScanQrWif extends React.Component {
         ret.data = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
       } catch (e) {
         console.log(e.message);
-        this.setState({ message: false, isLoading: false });
+        this.setState({message: false, isLoading: false});
         return alert(loc.wallets.scanQrWif.bad_password);
       }
 
-      this.setState({ message: false, isLoading: false });
+      this.setState({message: false, isLoading: false});
     }
 
     for (let w of BlueApp.wallets) {
       if (w.getSecret() === ret.data) {
         // lookig for duplicates
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
         return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
       }
     }
@@ -77,21 +78,22 @@ export default class ScanQrWif extends React.Component {
       for (let w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
-          this.setState({ isLoading: false });
+          this.setState({isLoading: false});
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
-      this.setState({ isLoading: true });
+      this.setState({isLoading: true});
       hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
       await hd.fetchBalance();
       if (hd.getBalance() !== 0) {
         await hd.fetchTransactions();
         BlueApp.wallets.push(hd);
         await BlueApp.saveToDisk();
+        ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
         alert(loc.wallets.import.success);
         this.props.navigation.popToTop();
         setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
         return;
       }
     }
@@ -104,7 +106,7 @@ export default class ScanQrWif extends React.Component {
       for (let w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
-          this.setState({ isLoading: false });
+          this.setState({isLoading: false});
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
@@ -114,10 +116,11 @@ export default class ScanQrWif extends React.Component {
         hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
         BlueApp.wallets.push(hd);
         await BlueApp.saveToDisk();
+        ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
         alert(loc.wallets.import.success);
         this.props.navigation.popToTop();
         setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
         return;
       }
     }
@@ -130,27 +133,29 @@ export default class ScanQrWif extends React.Component {
       for (let w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
-          this.setState({ isLoading: false });
+          this.setState({isLoading: false});
+          ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
-      this.setState({ isLoading: true });
+      this.setState({isLoading: true});
       hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
       BlueApp.wallets.push(hd);
       await hd.fetchBalance();
       await hd.fetchTransactions();
       await BlueApp.saveToDisk();
+      ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
       alert(loc.wallets.import.success);
       this.props.navigation.popToTop();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      this.setState({ isLoading: false });
+      this.setState({isLoading: false});
       return;
     }
     // nope
 
     // is it lndhub?
     if (ret.data.indexOf('blitzhub://') !== -1 || ret.data.indexOf('lndhub://') !== -1) {
-      this.setState({ isLoading: true });
+      this.setState({isLoading: true});
       let lnd = new LightningCustodianWallet();
       lnd.setSecret(ret.data);
       if (ret.data.includes('@')) {
@@ -168,7 +173,7 @@ export default class ScanQrWif extends React.Component {
         await lnd.fetchBalance();
       } catch (Err) {
         console.log(Err);
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
         alert(Err.message);
         return;
       }
@@ -176,10 +181,11 @@ export default class ScanQrWif extends React.Component {
       BlueApp.wallets.push(lnd);
       lnd.setLabel(loc.wallets.import.imported + ' ' + lnd.typeReadable);
       this.props.navigation.popToTop();
+      ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
       alert(loc.wallets.import.success);
       await BlueApp.saveToDisk();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      this.setState({ isLoading: false });
+      this.setState({isLoading: false});
       return;
     }
     // nope
@@ -206,7 +212,7 @@ export default class ScanQrWif extends React.Component {
       await BlueApp.saveToDisk();
       this.props.navigation.popToTop();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      this.setState({ isLoading: false });
+      this.setState({isLoading: false});
       return;
     }
     // nope
@@ -218,7 +224,7 @@ export default class ScanQrWif extends React.Component {
 
     if (newWallet.getAddress() === false && newLegacyWallet.getAddress() === false) {
       alert(loc.wallets.scanQrWif.bad_wif);
-      this.setState({ isLoading: false });
+      this.setState({isLoading: false});
       return;
     }
 
@@ -235,7 +241,7 @@ export default class ScanQrWif extends React.Component {
       return;
     }
 
-    this.setState({ isLoading: true });
+    this.setState({isLoading: true});
     await newLegacyWallet.fetchBalance();
     console.log('newLegacyWallet == ', newLegacyWallet.getBalance());
 
@@ -259,13 +265,13 @@ export default class ScanQrWif extends React.Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20, justifyContent: 'center', alignContent: 'center' }}>
+        <View style={{flex: 1, paddingTop: 20, justifyContent: 'center', alignContent: 'center'}}>
           <ActivityIndicator />
         </View>
       );
     }
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{flex: 1}}>
         {(() => {
           if (this.state.message) {
             return (
@@ -276,13 +282,12 @@ export default class ScanQrWif extends React.Component {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     alignItems: 'center',
-                  }}
-                >
+                  }}>
                   <BlueText>{this.state.message}</BlueText>
                   <BlueButton
-                    icon={{ name: 'ban', type: 'font-awesome' }}
+                    icon={{name: 'ban', type: 'font-awesome'}}
                     onPress={async () => {
-                      this.setState({ message: false });
+                      this.setState({message: false});
                         shold_stop_bip38 = true; // eslint-disable-line
                     }}
                     title={loc.wallets.scanQrWif.cancel}
@@ -292,7 +297,7 @@ export default class ScanQrWif extends React.Component {
             );
           } else {
             return (
-              <SafeBlueArea style={{ flex: 1 }}>
+              <SafeBlueArea style={{flex: 1}}>
                 <RNCamera
                   captureAudio={false}
                   androidCameraPermissionOptions={{
@@ -301,7 +306,7 @@ export default class ScanQrWif extends React.Component {
                     buttonPositive: 'OK',
                     buttonNegative: 'Cancel',
                   }}
-                  style={{ flex: 1, justifyContent: 'space-between' }}
+                  style={{flex: 1, justifyContent: 'space-between'}}
                   onBarCodeRead={this.onBarCodeScanned}
                   barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
                 />
@@ -316,9 +321,8 @@ export default class ScanQrWif extends React.Component {
                     position: 'absolute',
                     top: 64,
                   }}
-                  onPress={() => this.props.navigation.goBack(null)}
-                >
-                  <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+                  onPress={() => this.props.navigation.goBack(null)}>
+                  <Image style={{alignSelf: 'center'}} source={require('../../img/close.png')} />
                 </TouchableOpacity>
               </SafeBlueArea>
             );

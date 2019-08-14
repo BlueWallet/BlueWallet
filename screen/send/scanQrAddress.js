@@ -1,8 +1,8 @@
 import React from 'react';
-import { Image, TouchableOpacity } from 'react-native';
+import {Image, TouchableOpacity} from 'react-native';
 import PropTypes from 'prop-types';
-import { RNCamera } from 'react-native-camera';
-import { SafeBlueArea } from '../../BlueComponents';
+import {RNCamera} from 'react-native-camera';
+import {SafeBlueArea} from '../../BlueComponents';
 
 export default class CameraExample extends React.Component {
   static navigationOptions = {
@@ -15,7 +15,7 @@ export default class CameraExample extends React.Component {
 
   onBarCodeScanned = ret => {
     if (this.state.isLoading) return;
-    this.setState({ isLoading: true }, () => {
+    this.setState({isLoading: true}, () => {
       const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
       this.props.navigation.goBack();
       onBarScannedProp(ret.data);
@@ -24,7 +24,7 @@ export default class CameraExample extends React.Component {
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <SafeBlueArea style={{flex: 1}}>
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -33,7 +33,7 @@ export default class CameraExample extends React.Component {
             buttonPositive: 'OK',
             buttonNegative: 'Cancel',
           }}
-          style={{ flex: 1, justifyContent: 'space-between' }}
+          style={{flex: 1, justifyContent: 'space-between'}}
           onBarCodeRead={this.onBarCodeScanned}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
@@ -48,9 +48,8 @@ export default class CameraExample extends React.Component {
             position: 'absolute',
             top: 64,
           }}
-          onPress={() => this.props.navigation.goBack(null)}
-        >
-          <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+          onPress={() => this.props.navigation.goBack(null)}>
+          <Image style={{alignSelf: 'center'}} source={require('../../img/close.png')} />
         </TouchableOpacity>
       </SafeBlueArea>
     );

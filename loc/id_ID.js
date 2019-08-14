@@ -174,14 +174,14 @@ module.exports = {
   },
   settings: {
     header: 'setting',
-    plausible_deniability: 'Plausible deniability...',
+    plausible_deniability: 'Plausible deniability',
     storage_not_encrypted: 'Penyimpanan: tidak terenkripsi',
     storage_encrypted: 'Penyimpanan: terenkripsi',
     password: 'kata sandi',
     password_explain: 'Buat kata sandi untuk dekripsi penyimpanan',
     retype_password: 'Ulangi kata sandi',
     passwords_do_not_match: 'Kata sandi tidak cocok',
-    encrypt_storage: 'Enkripsi penyimpanan',
+    security: 'Enkripsi penyimpanan',
     lightning_settings: 'Pengaturan Lightning',
     lightning_settings_explain:
       'Pasang LndHub untuk menghubungkan ke node LND kamu' +

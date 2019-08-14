@@ -183,7 +183,7 @@ module.exports = {
     password_explain: 'Erstelle das Passwort zum Entschlüsseln des Speichers',
     retype_password: 'Passwort wiederholen',
     passwords_do_not_match: 'Passwörter stimmen nicht überein',
-    encrypt_storage: 'Speicher verschlüsseln',
+    security: 'Speicher verschlüsseln',
     lightning_settings: 'Lightning Einstellungen',
     lightning_settings_explain:
       'Bitte installier Lndhub, um mit deiner eigenen LND Node zu verbinden' +

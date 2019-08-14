@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert } from 'react-native';
-import { WebView } from 'react-native-webview';
-import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert} from 'react-native';
+import {WebView} from 'react-native-webview';
+import {BlueNavigationStyle, SafeBlueArea} from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 
@@ -15,7 +15,7 @@ let bluewalletResponses = {};
 // eslint-disable-next-line
 var webln = {
   enable: function() {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ enable: true }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({enable: true}));
     return new Promise(function(resolve, reject) {
       resolve(true);
     });
@@ -27,7 +27,7 @@ var webln = {
     });
   },
   sendPayment: function(paymentRequest) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({sendPayment: paymentRequest}));
     return new Promise(function(resolve, reject) {
       /* nop. intentionally, forever hang promise.
 				 lapp page usually asynchroniously checks payment itself, via ajax,
@@ -37,7 +37,7 @@ var webln = {
   },
   makeInvoice: function(RequestInvoiceArgs) {
     var id = Math.random();
-    window.ReactNativeWebView.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
     return new Promise(function(resolve, reject) {
       var interval = setInterval(function() {
         if (bluewalletResponses[id]) {
@@ -206,7 +206,7 @@ window.ReactNativeWebView.postMessage('interval');
 	         `;
 
 export default class Browser extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: 'Lapp Browser',
     headerLeft: null,
@@ -240,7 +240,7 @@ export default class Browser extends Component {
   }
 
   _onNavigationStateChange = webViewState => {
-    this.setState({ canGoBack: webViewState.canGoBack, stateURL: webViewState.url });
+    this.setState({canGoBack: webViewState.canGoBack, stateURL: webViewState.url});
   };
 
   renderWebView = () => {
@@ -248,7 +248,7 @@ export default class Browser extends Component {
       <WebView
         onNavigationStateChange={this._onNavigationStateChange}
         ref={ref => (this.webview = ref)}
-        source={{ uri: this.state.url }}
+        source={{uri: this.state.url}}
         onMessage={e => {
           // this is a handler which receives messages sent from within the browser
           console.log('---- message from the bus:', e.nativeEvent.data);
@@ -275,7 +275,7 @@ export default class Browser extends Component {
               'Page',
               'This page asks for permission to pay an invoice',
               [
-                { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                 {
                   text: 'Pay',
                   onPress: () => {
@@ -290,7 +290,7 @@ export default class Browser extends Component {
                   },
                 },
               ],
-              { cancelable: false },
+              {cancelable: false},
             );
           }
 
@@ -305,7 +305,7 @@ export default class Browser extends Component {
               'Page',
               'This page wants to pay you ' + amount + ' sats (' + json.makeInvoice.defaultMemo + ')',
               [
-                { text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+                {text: 'No thanks', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
                 {
                   text: 'Accept',
                   onPress: async () => {
@@ -315,28 +315,28 @@ export default class Browser extends Component {
                     // this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
                     // Since webview.postMessage is removed from webview, we inject javascript that will manually triger document
                     // event; note how data is passed in 'detail', not 'data'
-                    let jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
+                    let jsonstr = JSON.stringify({bluewalletResponse: {paymentRequest: payreq}, id: json.id});
                     this.webview.injectJavaScript("document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );");
                   },
                 },
               ],
-              { cancelable: false },
+              {cancelable: false},
             );
           }
 
           if (json && json.enable) {
             console.log('webln enabled');
-            this.setState({ weblnEnabled: true });
+            this.setState({weblnEnabled: true});
           }
         }}
         onLoadStart={e => {
           alreadyInjected = false;
           console.log('load start');
-          this.setState({ pageIsLoading: true, weblnEnabled: false });
+          this.setState({pageIsLoading: true, weblnEnabled: false});
         }}
         onLoadEnd={e => {
           console.log('load end');
-          this.setState({ url: e.nativeEvent.url, pageIsLoading: false });
+          this.setState({url: e.nativeEvent.url, pageIsLoading: false});
         }}
         onLoadProgress={e => {
           console.log('progress:', e.nativeEvent.progress);
@@ -353,14 +353,13 @@ export default class Browser extends Component {
   render() {
     return (
       <SafeBlueArea>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44}}>
           <TouchableOpacity
             disabled={!this.state.canGoBack}
             onPress={() => {
               this.webview.goBack();
             }}
-            style={{ marginHorizontal: 8 }}
-          >
+            style={{marginHorizontal: 8}}>
             <Ionicons
               name={'ios-arrow-round-back'}
               size={36}
@@ -372,7 +371,7 @@ export default class Browser extends Component {
             />
           </TouchableOpacity>
 
-          <View style={{ flex: 1, marginHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{flex: 1, marginHorizontal: 8, alignItems: 'center', justifyContent: 'center'}}>
             <View
               style={{
                 flexDirection: 'row',
@@ -386,25 +385,23 @@ export default class Browser extends Component {
                 alignItems: 'center',
                 marginVertical: 8,
                 borderRadius: 4,
-              }}
-            >
+              }}>
               <TextInput
-                onChangeText={text => this.setState({ stateURL: text })}
+                onChangeText={text => this.setState({stateURL: text})}
                 value={this.state.stateURL}
                 numberOfLines={1}
-                style={{ flex: 1, marginLeft: 4, minHeight: 33 }}
+                style={{flex: 1, marginLeft: 4, minHeight: 33}}
                 editable={false}
                 onSubmitEditing={Keyboard.dismiss}
               />
             </View>
           </View>
-          <View style={{ alignContent: 'flex-end', height: 44, flexDirection: 'row', marginHorizontal: 8 }}>
+          <View style={{alignContent: 'flex-end', height: 44, flexDirection: 'row', marginHorizontal: 8}}>
             <TouchableOpacity
               onPress={() => {
                 processedInvoices = {};
-                this.setState({ url: 'https://bluewallet.io/marketplace/' });
-              }}
-            >
+                this.setState({url: 'https://bluewallet.io/marketplace/'});
+              }}>
               <Ionicons
                 name={'ios-home'}
                 size={36}
@@ -418,12 +415,11 @@ export default class Browser extends Component {
             <TouchableOpacity
               onPress={() => {
                 let reloadUrl = this.state.url;
-                this.setState({ url: 'about:blank' });
+                this.setState({url: 'about:blank'});
                 processedInvoices = {};
-                setTimeout(() => this.setState({ url: reloadUrl }), 500);
+                setTimeout(() => this.setState({url: reloadUrl}), 500);
                 // this.webview.reload();
-              }}
-            >
+              }}>
               {!this.state.pageIsLoading ? (
                 <Ionicons
                   name={'ios-sync'}
@@ -435,7 +431,7 @@ export default class Browser extends Component {
                   }}
                 />
               ) : (
-                <View style={{ flex: 1, justifyContent: 'center', paddingLeft: 20, alignContent: 'center' }}>
+                <View style={{flex: 1, justifyContent: 'center', paddingLeft: 20, alignContent: 'center'}}>
                   <ActivityIndicator />
                 </View>
               )}

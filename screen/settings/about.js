@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { ScrollView, Linking, Dimensions } from 'react-native';
+import React, {Component} from 'react';
+import {ScrollView, Linking, Dimensions} from 'react-native';
 import {
   BlueTextCentered,
   BlueLoading,
@@ -12,10 +12,10 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import DeviceInfo from 'react-native-device-info';
-import Rate, { AndroidMarket } from 'react-native-rate';
+import Rate, {AndroidMarket} from 'react-native-rate';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 const loc = require('../../loc/');
 
 export default class About extends Component {
@@ -43,7 +43,7 @@ export default class About extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1}}>
         <ScrollView>
           <BlueCard>
             <BlueTextCentered h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>

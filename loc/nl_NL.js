@@ -182,7 +182,7 @@ module.exports = {
     password_explain: 'Maak een wachtwoord aan dat u wilt gebruiken om de opslag te versleutelen',
     retype_password: 'Geef nogmaals het wachtwoord',
     passwords_do_not_match: 'Wachtwoorden komen niet overeen',
-    encrypt_storage: 'Versleutel opslag',
+    security: 'Versleutel opslag',
     lightning_settings: 'Lightning instellingen',
     lightning_settings_explain:
       'Om verbinding te maken met uw eigen LND-knooppunt' +

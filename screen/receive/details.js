@@ -1,6 +1,6 @@
 /* global alert */
-import React, { Component } from 'react';
-import { View, InteractionManager } from 'react-native';
+import React, {Component} from 'react';
+import {View, InteractionManager} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
@@ -20,7 +20,7 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class ReceiveDetails extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.receive.header,
     headerLeft: null,
@@ -80,7 +80,7 @@ export default class ReceiveDetails extends Component {
 
     InteractionManager.runAfterInteractions(async () => {
       const bip21encoded = bip21.encode(this.state.address);
-      this.setState({ bip21encoded });
+      this.setState({bip21encoded});
     });
   }
 
@@ -90,11 +90,11 @@ export default class ReceiveDetails extends Component {
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
+      <SafeBlueArea style={{flex: 1}}>
+        <View style={{flex: 1, justifyContent: 'space-between'}}>
+          <View style={{marginTop: 32, alignItems: 'center', paddingHorizontal: 16}}>
             {this.state.bip21encoded === undefined ? (
-              <View style={{ alignItems: 'center', width: 300, height: 300 }}>
+              <View style={{alignItems: 'center', width: 300, height: 300}}>
                 <BlueLoading />
               </View>
             ) : (
@@ -111,7 +111,7 @@ export default class ReceiveDetails extends Component {
             )}
             <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>
-          <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
+          <View style={{alignItems: 'center', alignContent: 'flex-end', marginBottom: 24}}>
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
@@ -129,7 +129,7 @@ export default class ReceiveDetails extends Component {
                 }}
                 onPress={async () => {
                   if (this.qrCodeSVG === undefined) {
-                    Share.open({ message: `bitcoin:${this.state.address}` }).catch(error => console.log(error));
+                    Share.open({message: `bitcoin:${this.state.address}`}).catch(error => console.log(error));
                   } else {
                     InteractionManager.runAfterInteractions(async () => {
                       this.qrCodeSVG.toDataURL(data => {

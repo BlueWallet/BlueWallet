@@ -186,7 +186,7 @@ module.exports = {
     password_explain: 'Definir a senha para descriptografar os arquivos',
     retype_password: 'Inserir senha novamente',
     passwords_do_not_match: 'Senhas não coincidem',
-    encrypt_storage: 'Criptografar',
+    security: 'Criptografar',
     lightning_settings: 'Preferências Lightning',
     lightning_settings_explain:
       'Para se conectar ao seu próprio ponto LND, você precisa instalar a aplicação LndHub' +

@@ -181,7 +181,7 @@ module.exports = {
     password_explain: 'Indtast den adgangskode du vil bruge til at kryptere lageret',
     retype_password: 'Gentag adgangskoden',
     passwords_do_not_match: 'Adgangskoden er ikke den samme',
-    encrypt_storage: 'Krypter lager',
+    security: 'Krypter lager',
     lightning_settings: 'Lightning settings',
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +

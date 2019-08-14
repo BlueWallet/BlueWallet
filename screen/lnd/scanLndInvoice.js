@@ -1,6 +1,6 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, View, TouchableWithoutFeedback, TouchableOpacity, Keyboard } from 'react-native';
+import {Text, ActivityIndicator, View, TouchableWithoutFeedback, TouchableOpacity, Keyboard} from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueSpacing20,
@@ -12,9 +12,9 @@ import {
   BlueAddressInput,
   BlueBitcoinAmount,
 } from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { Icon } from 'react-native-elements';
+import {LightningCustodianWallet} from '../../class/lightning-custodian-wallet';
+import {BitcoinUnit, Chain} from '../../models/bitcoinUnits';
+import {Icon} from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -22,7 +22,7 @@ let EV = require('../../events');
 const loc = require('../../loc');
 
 export default class ScanLndInvoice extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.send.header,
     headerLeft: null,
@@ -38,7 +38,7 @@ export default class ScanLndInvoice extends React.Component {
     super(props);
 
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       props.navigation.dismiss();
     } else {
@@ -83,17 +83,17 @@ export default class ScanLndInvoice extends React.Component {
   }
 
   _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true });
+    this.setState({renderWalletSelectionButtonHidden: true});
   };
 
   _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false });
+    this.setState({renderWalletSelectionButtonHidden: false});
   };
 
   processInvoice = data => {
-    this.setState({ isLoading: true }, async () => {
+    this.setState({isLoading: true}, async () => {
       if (!this.state.fromWallet) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
         alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
         return this.props.navigation.goBack();
       }
@@ -132,8 +132,8 @@ export default class ScanLndInvoice extends React.Component {
         });
       } catch (Err) {
         Keyboard.dismiss();
-        this.setState({ isLoading: false });
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        this.setState({isLoading: false});
+        ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
         alert(Err.message);
       }
     });
@@ -156,15 +156,15 @@ export default class ScanLndInvoice extends React.Component {
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
-          this.setState({ isLoading: false });
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          this.setState({isLoading: false});
+          ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
           return alert('Invoice expired');
         }
 
         const currentUserInvoices = fromWallet.user_invoices_raw; // not fetching invoices, as we assume they were loaded previously
         if (currentUserInvoices.some(invoice => invoice.payment_hash === decoded.payment_hash)) {
-          this.setState({ isLoading: false });
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          this.setState({isLoading: false});
+          ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
           return alert(loc.lnd.sameWalletAsInvoiceError);
         }
 
@@ -172,8 +172,8 @@ export default class ScanLndInvoice extends React.Component {
           await fromWallet.payInvoice(this.state.invoice, this.state.decoded.num_satoshis);
         } catch (Err) {
           console.log(Err.message);
-          this.setState({ isLoading: false });
-          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          this.setState({isLoading: false});
+          ReactNativeHapticFeedback.trigger('notificationError', {ignoreAndroidSystemSettings: false});
           return alert(Err.message);
         }
 
@@ -191,7 +191,7 @@ export default class ScanLndInvoice extends React.Component {
     if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb')) {
       this.processInvoice(text);
     } else {
-      this.setState({ decoded: undefined, expiresIn: undefined, destination: text });
+      this.setState({decoded: undefined, expiresIn: undefined, destination: text});
     }
   };
 
@@ -209,26 +209,25 @@ export default class ScanLndInvoice extends React.Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 24, alignItems: 'center' }}>
+      <View style={{marginBottom: 24, alignItems: 'center'}}>
         {!this.state.isLoading && (
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}
+            style={{flexDirection: 'row', alignItems: 'center', marginVertical: 16}}
             onPress={() =>
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
-            }
-          >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center' }}>
+              this.props.navigation.navigate('SelectWallet', {onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN})
+            }>
+            <Text style={{color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center'}}>
               {loc.wallets.select_wallet.toLowerCase()}
             </Text>
             <Icon name="angle-right" size={22} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
-          <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
-          <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+        <View style={{flexDirection: 'row', alignItems: 'center', marginVertical: 4}}>
+          <Text style={{color: '#0c2550', fontSize: 14}}>{this.state.fromWallet.getLabel()}</Text>
+          <Text style={{color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4}}>
             {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
           </Text>
-          <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
+          <Text style={{color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2}}>
             {BitcoinUnit.BTC}
           </Text>
         </View>
@@ -237,7 +236,7 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   onWalletSelect = wallet => {
-    this.setState({ fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
+    this.setState({fromSecret: wallet.getSecret(), fromWallet: wallet}, () => {
       this.props.navigation.pop();
     });
   };
@@ -245,9 +244,9 @@ export default class ScanLndInvoice extends React.Component {
   render() {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <View style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
+        <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1}}>
+          <View style={{flex: 1}}>
+            <View style={{flex: 1}}>
               <BlueBitcoinAmount
                 pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
                 isLoading={this.state.isLoading}
@@ -257,7 +256,7 @@ export default class ScanLndInvoice extends React.Component {
                     text = parseInt(text || 0);
                     let decoded = this.state.decoded;
                     decoded.num_satoshis = text;
-                    this.setState({ decoded: decoded });
+                    this.setState({decoded: decoded});
                   }
                 }}
                 disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
@@ -268,7 +267,7 @@ export default class ScanLndInvoice extends React.Component {
               <BlueCard>
                 <BlueAddressInput
                   onChangeText={text => {
-                    this.setState({ destination: text });
+                    this.setState({destination: text});
                     this.processTextForInvoice(text);
                   }}
                   onBarScanned={this.processInvoice}
@@ -284,14 +283,13 @@ export default class ScanLndInvoice extends React.Component {
                     alignItems: 'center',
                     marginVertical: 8,
                     borderRadius: 4,
-                  }}
-                >
-                  <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
+                  }}>
+                  <Text numberOfLines={0} style={{color: '#81868e', fontWeight: '500', fontSize: 14}}>
                     {this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.description : ''}
                   </Text>
                 </View>
                 {this.state.expiresIn !== undefined && (
-                  <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
+                  <Text style={{color: '#81868e', fontSize: 12, left: 20, top: 10}}>Expires in: {this.state.expiresIn}</Text>
                 )}
                 <BlueSpacing20 />
                 <BlueCard>

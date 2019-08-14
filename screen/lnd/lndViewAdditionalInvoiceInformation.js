@@ -1,6 +1,6 @@
 /* global alert */
-import React, { Component } from 'react';
-import { View, Share } from 'react-native';
+import React, {Component} from 'react';
+import {View, Share} from 'react-native';
 import {
   BlueLoading,
   BlueCopyTextToClipboard,
@@ -17,12 +17,12 @@ let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
 export default class LNDViewAdditionalInvoiceInformation extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(),
     title: 'Additional Information',
   });
 
-  state = { walletInfo: undefined };
+  state = {walletInfo: undefined};
 
   async componentDidMount() {
     const fromWallet = this.props.navigation.getParam('fromWallet');
@@ -32,22 +32,22 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
       alert('Network error');
       return;
     }
-    this.setState({ walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0] });
+    this.setState({walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0]});
   }
 
   render() {
     if (typeof this.state.walletInfo === 'undefined') {
       return (
-        <SafeBlueArea style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <SafeBlueArea style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <BlueLoading />
         </SafeBlueArea>
       );
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+      <SafeBlueArea style={{flex: 1}}>
+        <View style={{flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16}}>
             <QRCode
               value={this.state.walletInfo.uris[0]}
               logo={require('../../img/qr-code.png')}
@@ -60,7 +60,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
             <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
             <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           </View>
-          <View style={{ marginBottom: 25 }}>
+          <View style={{marginBottom: 25}}>
             <BlueButton
               icon={{
                 name: 'share-alternative',

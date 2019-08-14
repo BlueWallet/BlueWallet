@@ -1,8 +1,8 @@
 /** @type {AppStorage}  */
 /* global alert */
-import React, { Component } from 'react';
-import { TextInput, View, ActivtyIndicator } from 'react-native';
-import { FormValidationMessage } from 'react-native-elements';
+import React, {Component} from 'react';
+import {TextInput, View, ActivtyIndicator} from 'react-native';
+import {FormValidationMessage} from 'react-native-elements';
 import {
   BlueLoading,
   BlueSpacing20,
@@ -148,7 +148,7 @@ export default class SendCreate extends Component {
   }
 
   async broadcast() {
-    this.setState({ isLoading: true }, async () => {
+    this.setState({isLoading: true}, async () => {
       console.log('broadcasting', this.state.tx);
       let result = await this.state.fromWallet.broadcastTx(this.state.tx);
       console.log('broadcast result = ', result);
@@ -156,12 +156,12 @@ export default class SendCreate extends Component {
         try {
           result = JSON.parse(result);
         } catch (_) {
-          result = { result };
+          result = {result};
         }
       }
       if (result && result.error) {
         alert(JSON.stringify(result.error));
-        this.setState({ isLoading: false });
+        this.setState({isLoading: false});
       } else {
         alert(JSON.stringify(result.result || result.txid));
         this.props.navigation.navigate('TransactionStatus');
@@ -172,9 +172,9 @@ export default class SendCreate extends Component {
   render() {
     if (this.state.isError) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
           <BlueSpacing />
-          <BlueCard title={'Replace Transaction'} style={{ alignItems: 'center', flex: 1 }}>
+          <BlueCard title={'Replace Transaction'} style={{alignItems: 'center', flex: 1}}>
             <BlueText>Error creating transaction. Invalid address or send amount?</BlueText>
             <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
           </BlueCard>
@@ -189,9 +189,9 @@ export default class SendCreate extends Component {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center' }}>
-            <BlueText h4 style={{ textAlign: 'center' }}>
+        <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
+          <View style={{flex: 1, justifyContent: 'center', alignContent: 'center'}}>
+            <BlueText h4 style={{textAlign: 'center'}}>
               This transaction is not replaceable
             </BlueText>
           </View>
@@ -200,9 +200,9 @@ export default class SendCreate extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+      <SafeBlueArea style={{flex: 1, paddingTop: 20}}>
         <BlueSpacing />
-        <BlueCard title={'Replace Transaction'} style={{ alignItems: 'center', flex: 1 }}>
+        <BlueCard title={'Replace Transaction'} style={{alignItems: 'center', flex: 1}}>
           <BlueText>This is transaction hex, signed and ready to be broadcast to the network. Continue?</BlueText>
 
           <TextInput
@@ -220,7 +220,7 @@ export default class SendCreate extends Component {
 
           <BlueSpacing20 />
 
-          <BlueText style={{ paddingTop: 20 }}>To: {this.state.newDestinationAddress}</BlueText>
+          <BlueText style={{paddingTop: 20}}>To: {this.state.newDestinationAddress}</BlueText>
           <BlueText>Amount: {this.state.amount} BTC</BlueText>
           <BlueText>Fee: {this.state.fee} BTC</BlueText>
           <BlueText>TX size: {this.state.size} Bytes</BlueText>
@@ -229,7 +229,7 @@ export default class SendCreate extends Component {
         {this.state.isLoading ? (
           <ActivtyIndicator />
         ) : (
-          <BlueButton icon={{ name: 'bullhorn', type: 'font-awesome' }} onPress={() => this.broadcast()} title="Broadcast" />
+          <BlueButton icon={{name: 'bullhorn', type: 'font-awesome'}} onPress={() => this.broadcast()} title="Broadcast" />
         )}
       </SafeBlueArea>
     );

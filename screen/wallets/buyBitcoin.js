@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
-import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {BlueNavigationStyle, BlueLoading} from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { WebView } from 'react-native-webview';
+import {WebView} from 'react-native-webview';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class BuyBitcoin extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.buyBitcoin.header,
     headerLeft: null,
@@ -63,7 +63,7 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    const { safelloStateToken } = this.props.navigation.state.params;
+    const {safelloStateToken} = this.props.navigation.state.params;
 
     let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
 

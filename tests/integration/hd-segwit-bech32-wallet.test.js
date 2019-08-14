@@ -1,5 +1,5 @@
 /* global it, describe, jasmine, afterAll, beforeAll */
-import { HDSegwitBech32Wallet } from '../../class';
+import {HDSegwitBech32Wallet} from '../../class';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
@@ -189,7 +189,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     hd._txs_by_internal_index['16'].pop();
     hd._txs_by_internal_index['17'] = [];
 
-    for (let c = 17; c < 100; c++) hd._balances_by_internal_index[c] = { c: 0, u: 0 };
+    for (let c = 17; c < 100; c++) hd._balances_by_internal_index[c] = {c: 0, u: 0};
     hd._balances_by_external_index['2'].c = 1000000;
 
     assert.ok(hd.getBalance() !== oldBalance);
@@ -286,9 +286,9 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     let changeAddress = await hd.getChangeAddressAsync();
     assert.ok(changeAddress && changeAddress.startsWith('bc1'));
 
-    let { tx, inputs, outputs, fee } = hd.createTransaction(
+    let {tx, inputs, outputs, fee} = hd.createTransaction(
       hd.getUtxo(),
-      [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 51000 }],
+      [{address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 51000}],
       13,
       changeAddress,
     );

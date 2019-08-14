@@ -1,34 +1,33 @@
 /* global alert */
-import React, { Component } from 'react';
-import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import React, {Component} from 'react';
+import {ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback} from 'react-native';
+import {BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText} from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
-import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
+import {LightningCustodianWallet} from '../../class/lightning-custodian-wallet';
+import {HDLegacyBreadwalletWallet} from '../../class/hd-legacy-breadwallet-wallet';
+import {HDLegacyP2PKHWallet} from '../../class/hd-legacy-p2pkh-wallet';
+import {HDSegwitP2SHWallet} from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { HDSegwitBech32Wallet } from '../../class';
+import {HDSegwitBech32Wallet} from '../../class';
 let EV = require('../../events');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class WalletDetails extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({navigation}) => ({
     ...BlueNavigationStyle(),
     title: loc.wallets.details.title,
     headerRight: (
       <TouchableOpacity
         disabled={navigation.getParam('isLoading') === true}
-        style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
+        style={{marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center'}}
         onPress={() => {
           if (navigation.state.params.saveAction) {
             navigation.getParam('saveAction')();
           }
-        }}
-      >
-        <Text style={{ color: '#0c2550' }}>{loc.wallets.details.save}</Text>
+        }}>
+        <Text style={{color: '#0c2550'}}>{loc.wallets.details.save}</Text>
       </TouchableOpacity>
     ),
   });
@@ -45,19 +44,19 @@ export default class WalletDetails extends Component {
       wallet,
       address,
     };
-    this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
+    this.props.navigation.setParams({isLoading, saveAction: () => this.setLabel()});
   }
 
   componentDidMount() {
     this.setState({
       isLoading: false,
     });
-    this.props.navigation.setParams({ isLoading: false, saveAction: () => this.setLabel() });
+    this.props.navigation.setParams({isLoading: false, saveAction: () => this.setLabel()});
   }
 
   setLabel() {
-    this.props.navigation.setParams({ isLoading: true });
-    this.setState({ isLoading: true }, async () => {
+    this.props.navigation.setParams({isLoading: true});
+    this.setState({isLoading: true}, async () => {
       this.state.wallet.setLabel(this.state.walletName);
       BlueApp.saveToDisk();
       alert('Wallet updated.');
@@ -68,29 +67,29 @@ export default class WalletDetails extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
           <ActivityIndicator />
         </View>
       );
     }
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <SafeBlueArea style={{flex: 1}}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={{ flex: 1 }}>
-            <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+          <View style={{flex: 1}}>
+            <BlueCard style={{alignItems: 'center', flex: 1}}>
               {(() => {
                 if (this.state.wallet.getAddress()) {
                   return (
                     <React.Fragment>
-                      <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
+                      <Text style={{color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12}}>
                         {loc.wallets.details.address.toLowerCase()}
                       </Text>
-                      <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getAddress()}</Text>
+                      <Text style={{color: '#81868e', fontWeight: '500', fontSize: 14}}>{this.state.wallet.getAddress()}</Text>
                     </React.Fragment>
                   );
                 }
               })()}
-              <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>
+              <Text style={{color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16}}>
                 {loc.wallets.add.wallet_name.toLowerCase()}
               </Text>
 
@@ -106,26 +105,25 @@ export default class WalletDetails extends Component {
                   height: 44,
                   alignItems: 'center',
                   borderRadius: 4,
-                }}
-              >
+                }}>
                 <TextInput
                   placeholder={loc.send.details.note_placeholder}
                   value={this.state.walletName}
-                  onChangeText={text => this.setState({ walletName: text })}
+                  onChangeText={text => this.setState({walletName: text})}
                   numberOfLines={1}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                  style={{flex: 1, marginHorizontal: 8, minHeight: 33}}
                   editable={!this.state.isLoading}
                   underlineColorAndroid="transparent"
                 />
               </View>
 
-              <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
+              <Text style={{color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12}}>
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
-              <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
+              <Text style={{color: '#81868e', fontWeight: '500', fontSize: 14}}>{this.state.wallet.typeReadable}</Text>
               {this.state.wallet.type === LightningCustodianWallet.type && (
                 <React.Fragment>
-                  <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{'connected to'}</Text>
+                  <Text style={{color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12}}>{'connected to'}</Text>
                   <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
                 </React.Fragment>
               )}
@@ -180,9 +178,9 @@ export default class WalletDetails extends Component {
                 <BlueSpacing20 />
 
                 <TouchableOpacity
-                  style={{ alignItems: 'center' }}
+                  style={{alignItems: 'center'}}
                   onPress={() => {
-                    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+                    ReactNativeHapticFeedback.trigger('notificationWarning', {ignoreAndroidSystemSettings: false});
                     Alert.alert(
                       loc.wallets.details.delete + ' ' + loc.wallets.details.title,
                       loc.wallets.details.are_you_sure,
@@ -190,10 +188,10 @@ export default class WalletDetails extends Component {
                         {
                           text: loc.wallets.details.yes_delete,
                           onPress: async () => {
-                            this.props.navigation.setParams({ isLoading: true });
-                            this.setState({ isLoading: true }, async () => {
+                            this.props.navigation.setParams({isLoading: true});
+                            this.setState({isLoading: true}, async () => {
                               BlueApp.deleteWallet(this.state.wallet);
-                              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                              ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
                               await BlueApp.saveToDisk();
                               EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                               EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -202,13 +200,12 @@ export default class WalletDetails extends Component {
                           },
                           style: 'destructive',
                         },
-                        { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
+                        {text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel'},
                       ],
-                      { cancelable: false },
+                      {cancelable: false},
                     );
-                  }}
-                >
-                  <Text style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}>{loc.wallets.details.delete}</Text>
+                  }}>
+                  <Text style={{color: '#d0021b', fontSize: 15, fontWeight: '500'}}>{loc.wallets.details.delete}</Text>
                 </TouchableOpacity>
               </View>
             </BlueCard>

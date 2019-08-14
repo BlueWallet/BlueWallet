@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import { ScrollView, View } from 'react-native';
-import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../BlueComponents';
+import React, {Component} from 'react';
+import {ScrollView, View} from 'react-native';
+import {BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle} from '../BlueComponents';
 import PropTypes from 'prop-types';
-import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
+import {SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet} from '../class';
 let BigNumber = require('bignumber.js');
 let encryption = require('../encryption');
 let bitcoin = require('bitcoinjs-lib');
@@ -295,7 +295,7 @@ export default class Selftest extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1}}>
         <BlueCard>
           <ScrollView>
             <BlueSpacing20 />
@@ -303,13 +303,13 @@ export default class Selftest extends Component {
             {(() => {
               if (this.state.isOk) {
                 return (
-                  <View style={{ alignItems: 'center' }}>
+                  <View style={{alignItems: 'center'}}>
                     <BlueText h4>OK</BlueText>
                   </View>
                 );
               } else {
                 return (
-                  <View style={{ alignItems: 'center' }}>
+                  <View style={{alignItems: 'center'}}>
                     <BlueText h4 numberOfLines={0}>
                       error: {this.state.errorMessage}
                     </BlueText>

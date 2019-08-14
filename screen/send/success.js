@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { View } from 'react-native';
-import { Text, Icon } from 'react-native-elements';
-import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import {View} from 'react-native';
+import {Text, Icon} from 'react-native-elements';
+import {BlueButton, SafeBlueArea, BlueCard} from '../../BlueComponents';
+import {BitcoinUnit} from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 
@@ -26,21 +26,20 @@ export default class Success extends Component {
 
   async componentDidMount() {
     console.log('send/create - componentDidMount');
-    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+    ReactNativeHapticFeedback.trigger('notificationSuccess', {ignoreAndroidSystemSettings: false});
   }
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 76, paddingBottom: 16 }}>
+      <SafeBlueArea style={{flex: 1, paddingTop: 19}}>
+        <BlueCard style={{alignItems: 'center', flex: 1}}>
+          <View style={{flexDirection: 'row', justifyContent: 'center', paddingTop: 76, paddingBottom: 16}}>
             <Text
               style={{
                 color: '#0f5cc0',
                 fontSize: 36,
                 fontWeight: '600',
-              }}
-            >
+              }}>
               {this.state.amount}
             </Text>
             <Text
@@ -51,8 +50,7 @@ export default class Success extends Component {
                 paddingBottom: 6,
                 fontWeight: '600',
                 alignSelf: 'flex-end',
-              }}
-            >
+              }}>
               {' ' + this.state.amountUnit}
             </Text>
           </View>
@@ -65,8 +63,7 @@ export default class Success extends Component {
                 paddingBottom: 6,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}
-            >
+              }}>
               {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
             </Text>
           )}
@@ -80,8 +77,7 @@ export default class Success extends Component {
                 paddingBottom: 6,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}
-            >
+              }}>
               {this.state.invoiceDescription}
             </Text>
           )}
@@ -96,8 +92,7 @@ export default class Success extends Component {
             justifyContent: 'center',
             marginTop: 43,
             marginBottom: 53,
-          }}
-        >
+          }}>
           <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
         </View>
         <BlueCard>

@@ -1,4 +1,4 @@
-import { LegacyWallet } from './legacy-wallet';
+import {LegacyWallet} from './legacy-wallet';
 import Frisbee from 'frisbee';
 const bip39 = require('bip39');
 const bitcoin = require('bitcoinjs-lib');
@@ -220,7 +220,7 @@ export class AbstractHDWallet extends LegacyWallet {
    */
   async fetchTransactions() {
     try {
-      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+      const api = new Frisbee({baseURI: 'https://blockchain.info'});
       this.transactions = [];
       let offset = 0;
 
@@ -503,7 +503,7 @@ export class AbstractHDWallet extends LegacyWallet {
         utxos.push(unspent);
       }
     } catch (err) {
-      console.warn(err, { uri });
+      console.warn(err, {uri});
     }
 
     return utxos;

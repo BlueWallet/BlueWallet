@@ -1,4 +1,4 @@
-import { HDSegwitBech32Wallet, SegwitBech32Wallet } from './';
+import {HDSegwitBech32Wallet, SegwitBech32Wallet} from './';
 const bitcoin = require('bitcoinjs5');
 const BlueElectrum = require('../BlueElectrum');
 const reverse = require('buffer-reverse');
@@ -167,7 +167,7 @@ export class HDSegwitBech32Transaction {
         value = new BigNumber(value).multipliedBy(100000000).toNumber();
         wentIn += value;
         let address = SegwitBech32Wallet.witnessToAddress(inp.witness[inp.witness.length - 1]);
-        utxos.push({ vout: inp.index, value: value, txId: reversedHash, address: address });
+        utxos.push({vout: inp.index, value: value, txId: reversedHash, address: address});
       }
     }
 
@@ -192,7 +192,7 @@ export class HDSegwitBech32Transaction {
         changeAmount += value;
       } else {
         // this is target
-        targets.push({ value: value, address: address });
+        targets.push({value: value, address: address});
       }
     }
 
@@ -211,7 +211,7 @@ export class HDSegwitBech32Transaction {
       }
     }
 
-    return { fee, feeRate, targets, changeAmount, utxos, unconfirmedUtxos };
+    return {fee, feeRate, targets, changeAmount, utxos, unconfirmedUtxos};
   }
 
   /**
@@ -244,14 +244,14 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    let { feeRate, utxos } = await this.getInfo();
+    let {feeRate, utxos} = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     let myAddress = await this._wallet.getChangeAddressAsync();
 
     return this._wallet.createTransaction(
       utxos,
-      [{ address: myAddress }],
+      [{address: myAddress}],
       newFeerate,
       /* meaningless in this context */ myAddress,
       (await this.getMaxUsedSequence()) + 1,
@@ -269,7 +269,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    let { feeRate, targets, changeAmount, utxos } = await this.getInfo();
+    let {feeRate, targets, changeAmount, utxos} = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     let myAddress = await this._wallet.getChangeAddressAsync();
@@ -281,7 +281,7 @@ export class HDSegwitBech32Transaction {
     if (targets.length === 0) {
       // looks like this was cancelled tx with single change output, so it wasnt included in `this.getInfo()` targets
       // so we add output paying ourselves:
-      targets.push({ address: this._wallet._getInternalAddressByIndex(this._wallet.next_free_change_address_index) });
+      targets.push({address: this._wallet._getInternalAddressByIndex(this._wallet.next_free_change_address_index)});
       // not checking emptiness on purpose: it could unpredictably generate too far address because of unconfirmed tx.
     }
 
@@ -299,7 +299,7 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    let { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
+    let {feeRate, fee: oldFee, unconfirmedUtxos} = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
     let myAddress = await this._wallet.getChangeAddressAsync();
@@ -310,9 +310,9 @@ export class HDSegwitBech32Transaction {
 
     let add = 0;
     while (add <= 128) {
-      var { tx, inputs, outputs, fee } = this._wallet.createTransaction(
+      var {tx, inputs, outputs, fee} = this._wallet.createTransaction(
         unconfirmedUtxos,
-        [{ address: myAddress }],
+        [{address: myAddress}],
         targetFeeRate + add,
         myAddress,
         HDSegwitBech32Wallet.defaultRBFSequence,
@@ -327,6 +327,6 @@ export class HDSegwitBech32Transaction {
       }
     }
 
-    return { tx, inputs, outputs, fee };
+    return {tx, inputs, outputs, fee};
   }
 }

@@ -1,17 +1,9 @@
-import React, { Component } from 'react';
-import { ScrollView, Switch, TouchableOpacity } from 'react-native';
-import {
-  BlueText,
-  BlueCard,
-  BlueLoading,
-  SafeBlueArea,
-  BlueNavigationStyle,
-  BlueHeaderDefaultSub,
-  BlueListItem,
-} from '../../BlueComponents';
+import React, {Component} from 'react';
+import {ScrollView, View, Switch, TouchableOpacity} from 'react-native';
+import {BlueText, BlueCard, BlueLoading, SafeBlueArea, BlueNavigationStyle, BlueHeaderDefaultSub, BlueListItem} from '../../BlueComponents';
 import AsyncStorage from '@react-native-community/async-storage';
 import PropTypes from 'prop-types';
-import { AppStorage } from '../../class';
+import {AppStorage} from '../../class';
 let loc = require('../../loc');
 
 export default class Settings extends Component {
@@ -41,7 +33,7 @@ export default class Settings extends Component {
     } else {
       await AsyncStorage.removeItem(AppStorage.ADVANCED_MODE_ENABLED);
     }
-    this.setState({ advancedModeEnabled: value });
+    this.setState({advancedModeEnabled: value});
   }
 
   render() {
@@ -50,11 +42,11 @@ export default class Settings extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{horizontal: 'always'}} style={{flex: 1}}>
         <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
         <ScrollView maxHeight={450}>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('EncryptStorage')}>
-            <BlueListItem title={loc.settings.encrypt_storage} />
+            <BlueListItem title={loc.settings.security} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('LightningSettings')}>
             <BlueListItem title={loc.settings.lightning_settings} />
@@ -68,13 +60,15 @@ export default class Settings extends Component {
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ElectrumSettings')}>
             <BlueListItem title={'Electrum server'} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.setState({ showAdvancedOptions: !this.state.showAdvancedOptions })}>
+          <TouchableOpacity onPress={() => this.setState({showAdvancedOptions: !this.state.showAdvancedOptions})}>
             <BlueListItem title={loc.settings.advanced_options} />
           </TouchableOpacity>
           {this.state.showAdvancedOptions && (
             <BlueCard>
-              <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
-              <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
+              <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
+                <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
+              </View>
             </BlueCard>
           )}
 
