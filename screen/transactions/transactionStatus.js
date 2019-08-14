@@ -324,7 +324,7 @@ export default class TransactionsStatus extends Component {
               } else if (this.state.isRBFCancelPossible === buttonStatus.possible) {
                 return (
                   <React.Fragment>
-                    <TouchableOpacity style={{ marginVertical: 48 }}>
+                    <TouchableOpacity style={{ marginBottom: 48 }}>
                       <Text
                         onPress={() =>
                           this.props.navigation.navigate('RBFCancel', {
@@ -332,7 +332,7 @@ export default class TransactionsStatus extends Component {
                             wallet: this.state.wallet,
                           })
                         }
-                        style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}
+                        style={{ color: '#d0021b', fontSize: 15, fontWeight: '500', textAlign: 'center' }}
                       >
                         {loc.send.details.cancel}
                       </Text>
