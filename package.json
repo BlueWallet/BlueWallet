@@ -101,6 +101,7 @@
     "react-native-qrcode-svg": "5.1.2",
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.1.7",
+    "react-native-secure-key-store": "^2.0.4",
     "react-native-sentry": "0.43.2",
     "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.8.0",

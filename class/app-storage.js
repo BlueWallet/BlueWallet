@@ -11,11 +11,13 @@ import {
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import WatchConnectivity from '../WatchConnectivity';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 const encryption = require('../encryption');
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LANG = 'lang';
+  static WALLETDATA = 'data';
   static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
   static ELECTRUM_HOST = 'electrum_host';
@@ -59,12 +61,11 @@ export class AppStorage {
   async storageIsEncrypted() {
     let data;
     try {
-      data = await AsyncStorage.getItem(AppStorage.FLAG_ENCRYPTED);
+      data = await RNSecureKeyStore.get(AppStorage.FLAG_ENCRYPTED); // drop the flag
     } catch (error) {
       return false;
     }
-
-    return !!data;
+    return data === 1;
   }
 
   /**
@@ -95,7 +96,7 @@ export class AppStorage {
   async encryptStorage(password) {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
-    let data = await AsyncStorage.getItem('data');
+    let data = await RNSecureKeyStore.get(AppStorage.WALLETDATA);
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
     let encrypted = encryption.encrypt(data, password);
@@ -103,8 +104,8 @@ export class AppStorage {
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
     this.cachedPassword = password;
-    await AsyncStorage.setItem('data', data);
-    await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+    await RNSecureKeyStore.set(AppStorage.WALLETDATA, data, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    await RNSecureKeyStore.set(AppStorage.FLAG_ENCRYPTED, true, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
   }
 
   /**
@@ -122,13 +123,13 @@ export class AppStorage {
       tx_metadata: {},
     };
 
-    let buckets = await AsyncStorage.getItem('data');
+    let buckets = await RNSecureKeyStore.get(AppStorage.WALLETDATA);
     buckets = JSON.parse(buckets);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
-    await AsyncStorage.setItem('data', bucketsString);
-    return (await AsyncStorage.getItem('data')) === bucketsString;
+    await RNSecureKeyStore.set(AppStorage.WALLETDATA, bucketsString, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    return RNSecureKeyStore.get(AppStorage.WALLETDATA) === bucketsString;
   }
 
   /**
@@ -140,7 +141,7 @@ export class AppStorage {
    */
   async loadFromDisk(password) {
     try {
-      let data = await AsyncStorage.getItem('data');
+      let data = await RNSecureKeyStore.get(AppStorage.WALLETDATA);
       if (password) {
         data = this.decryptData(data, password);
         if (data) {
@@ -267,7 +268,7 @@ export class AppStorage {
 
     if (this.cachedPassword) {
       // should find the correct bucket, encrypt and then save
-      let buckets = await AsyncStorage.getItem('data');
+      let buckets = await RNSecureKeyStore.get(AppStorage.WALLETDATA);
       buckets = JSON.parse(buckets);
       let newData = [];
       for (let bucket of buckets) {
@@ -279,16 +280,16 @@ export class AppStorage {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
           newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
-          await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+          await RNSecureKeyStore.set(AppStorage.FLAG_ENCRYPTED, true, { accessible: ACCESSIBLE.WHEN_UNLOCKED }); // drop the flag
         }
       }
       data = newData;
     } else {
-      await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
+      await RNSecureKeyStore.set(AppStorage.FLAG_ENCRYPTED, false, { accessible: ACCESSIBLE.WHEN_UNLOCKED }); // drop the flag
     }
     WatchConnectivity.init();
     WatchConnectivity.shared.sendWalletsToWatch();
-    return AsyncStorage.setItem('data', JSON.stringify(data));
+    return RNSecureKeyStore.set(AppStorage.WALLETDATA, JSON.stringify(data), { accessible: ACCESSIBLE.WHEN_UNLOCKED });
   }
 
   /**
