@@ -19,10 +19,10 @@ export default class WalletMigrate extends Component {
   }
 
   async migrateDataToSecureKeystore() {
-    let data = await AsyncStorage.getItem('data');
+    const data = await AsyncStorage.getItem('data');
     if (data) {
       const isEncrypted = await AsyncStorage.getItem('data_encrypted');
-      await RNSecureKeyStore.set('data', JSON.stringify(data), { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+      await RNSecureKeyStore.set('data', data, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
       await RNSecureKeyStore.set('data_encrypted', isEncrypted === 1 || isEncrypted === true || isEncrypted === '1', {
         accessible: ACCESSIBLE.WHEN_UNLOCKED,
       });
