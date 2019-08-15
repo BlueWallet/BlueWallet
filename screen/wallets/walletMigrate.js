@@ -3,17 +3,33 @@ import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import PropTypes from 'prop-types';
 import RNFS from 'react-native-fs';
+import { AppStorage } from '../../class';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 
 const expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
 
 export default class WalletMigrate extends Component {
-  componentDidMount() {
-    this.migrateDataFromExpo();
+  async componentDidMount() {
+    await this.migrateDataFromExpo();
   }
 
   migrationComplete() {
     console.log('Migration was successful. Exiting migration...');
     this.props.onComplete();
+  }
+
+  async migrateDataToSecureKeystore() {
+    let data = await AsyncStorage.getItem('data');
+    if (data) {
+      const isEncrypted = await AsyncStorage.getItem('data_encrypted');
+      await RNSecureKeyStore.set('data', JSON.stringify(data), { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+      await RNSecureKeyStore.set('data_encrypted', isEncrypted === 1 || isEncrypted === true || isEncrypted === '1', {
+        accessible: ACCESSIBLE.WHEN_UNLOCKED,
+      });
+      await AsyncStorage.setItem('dataBackup', data);
+      await AsyncStorage.removeItem('data');
+    }
+    this.migrationComplete();
   }
 
   // Migrate Document directory from Expo
@@ -22,7 +38,7 @@ export default class WalletMigrate extends Component {
 
     if (!expoDirectoryExists) {
       console.log('Expo data was previously migrated. Exiting migration...');
-      this.migrationComplete();
+      await this.migrateDataToSecureKeystore();
       return;
     }
     try {
@@ -78,7 +94,7 @@ export default class WalletMigrate extends Component {
       console.log('An error was encountered when trying to delete /ExponentExperienceData. Exiting migration...');
       console.log(error);
     }
-    this.migrationComplete();
+    await this.migrateDataToSecureKeystore();
   }
 
   render() {

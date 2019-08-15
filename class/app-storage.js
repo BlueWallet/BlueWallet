@@ -65,7 +65,7 @@ export class AppStorage {
     } catch (error) {
       return false;
     }
-    return data === 1;
+    return data === 1 || data === true || data === '1';
   }
 
   /**
@@ -289,6 +289,7 @@ export class AppStorage {
     }
     WatchConnectivity.init();
     WatchConnectivity.shared.sendWalletsToWatch();
+
     return RNSecureKeyStore.set(AppStorage.WALLETDATA, JSON.stringify(data), { accessible: ACCESSIBLE.WHEN_UNLOCKED });
   }
 
