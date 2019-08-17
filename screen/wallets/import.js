@@ -116,6 +116,16 @@ export default class WalletsImport extends Component {
         }
       }
 
+      // case - WIF is valid, just has uncompressed pubkey
+
+      let legacyWallet = new LegacyWallet();
+      legacyWallet.setSecret(text);
+      if (legacyWallet.getAddress()) {
+        await legacyWallet.fetchBalance();
+        await legacyWallet.fetchTransactions();
+        return this._saveWallet(legacyWallet);
+      }
+
       // if we're here - nope, its not a valid WIF
 
       let hd4 = new HDSegwitBech32Wallet();
