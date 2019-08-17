@@ -9,6 +9,7 @@ import WalletMigrate from './screen/wallets/walletMigrate';
 import { name as appName } from './app.json';
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
+let A = require('./analytics');
 if (process.env.NODE_ENV !== 'development') {
   Sentry.config('https://23377936131848ca8003448a893cb622@sentry.io/1295736').install();
 }
@@ -26,6 +27,7 @@ class BlueAppComponent extends React.Component {
 
   setIsMigratingData = async () => {
     await BlueApp.startAndDecrypt();
+    A(A.ENUM.INIT);
     this.setState({ isMigratingData: false });
   };
 
