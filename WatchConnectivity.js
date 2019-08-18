@@ -1,15 +1,18 @@
 import * as watch from 'react-native-watch-connectivity';
-import { InteractionManager } from 'react-native';
+import {InteractionManager, Platform} from 'react-native';
 const loc = require('./loc');
 export default class WatchConnectivity {
   isAppInstalled = false;
   BlueApp = require('./BlueApp');
 
   constructor() {
-    this.getIsWatchAppInstalled();
+    if (Platform.OS === 'ios') {
+      this.getIsWatchAppInstalled();
+    }
   }
 
   getIsWatchAppInstalled() {
+    if (Platform.OS !== 'ios') return;
     watch.getIsWatchAppInstalled((err, isAppInstalled) => {
       if (!err) {
         this.isAppInstalled = isAppInstalled;
@@ -24,7 +27,7 @@ export default class WatchConnectivity {
             message.amount,
             message.description,
           );
-          reply({ invoicePaymentRequest: createInvoiceRequest });
+          reply({invoicePaymentRequest: createInvoiceRequest});
         }
       } else {
         reply(err);
@@ -45,6 +48,7 @@ export default class WatchConnectivity {
   }
 
   async sendWalletsToWatch() {
+    if (Platform.OS !== 'ios') return;
     InteractionManager.runAfterInteractions(async () => {
       if (this.isAppInstalled) {
         const allWallets = this.BlueApp.getWallets();
@@ -113,7 +117,7 @@ export default class WatchConnectivity {
             } else if (transaction.memo) {
               memo = transaction.memo;
             }
-            const watchTX = { type, amount, memo, time: loc.transactionTimeToReadable(transaction.received) };
+            const watchTX = {type, amount, memo, time: loc.transactionTimeToReadable(transaction.received)};
             watchTransactions.push(watchTX);
           }
           wallets.push({
@@ -126,13 +130,13 @@ export default class WatchConnectivity {
           });
         }
 
-        watch.updateApplicationContext({ wallets });
+        watch.updateApplicationContext({wallets});
       }
     });
   }
 }
 
 WatchConnectivity.init = function() {
-  if (WatchConnectivity.shared) return;
+  if (WatchConnectivity.shared || Platform.OS !== 'ios') return;
   WatchConnectivity.shared = new WatchConnectivity();
 };
