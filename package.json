@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "devDependencies": {
     "@babel/core": "^7.5.0",
     "@babel/runtime": "^7.5.1",
@@ -18,7 +18,7 @@
     "flow-bin": "^0.102.0",
     "jest": "^24.8.0",
     "jetifier": "^1.6.3",
-    "metro-react-native-babel-preset": "^0.55.0",
+    "metro-react-native-babel-preset": "^0.56.0",
     "prettier-eslint-cli": "^5.0.0",
     "react-test-renderer": "16.8.6",
     "rn-nodeify": "github:tradle/rn-nodeify"
@@ -102,6 +102,7 @@
     "react-native-qrcode-svg": "5.1.2",
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.1.7",
+    "react-native-secure-key-store": "git+https://github.com/marcosrdz/react-native-secure-key-store.git",
     "react-native-sentry": "0.43.2",
     "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.8.0",

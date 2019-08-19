@@ -133,6 +133,8 @@ PODS:
     - React
   - RNRate (1.0.1):
     - React
+  - RNSecureKeyStore (1.0.0):
+    - React
   - RNShare (2.0.0):
     - React
   - RNSVG (9.5.1):
@@ -191,6 +193,7 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNRate (from `../node_modules/react-native-rate/ios`)
+  - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -283,6 +286,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-handoff"
   RNRate:
     :path: "../node_modules/react-native-rate/ios"
+  RNSecureKeyStore:
+    :path: "../node_modules/react-native-secure-key-store/ios"
   RNShare:
     :path: "../node_modules/react-native-share"
   RNSVG:
@@ -340,6 +345,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
+  RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
