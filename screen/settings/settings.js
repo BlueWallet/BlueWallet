@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Switch, TouchableOpacity } from 'react-native';
 import {
   BlueText,
   BlueCard,
@@ -73,8 +73,10 @@ export default class Settings extends Component {
           </TouchableOpacity>
           {this.state.showAdvancedOptions && (
             <BlueCard>
-              <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
-              <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
+                <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
+              </View>
             </BlueCard>
           )}
 

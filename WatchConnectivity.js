@@ -1,5 +1,5 @@
 import * as watch from 'react-native-watch-connectivity';
-import {InteractionManager, Platform} from 'react-native';
+import { InteractionManager, Platform } from 'react-native';
 const loc = require('./loc');
 export default class WatchConnectivity {
   isAppInstalled = false;
@@ -27,7 +27,7 @@ export default class WatchConnectivity {
             message.amount,
             message.description,
           );
-          reply({invoicePaymentRequest: createInvoiceRequest});
+          reply({ invoicePaymentRequest: createInvoiceRequest });
         }
       } else {
         reply(err);
@@ -117,7 +117,7 @@ export default class WatchConnectivity {
             } else if (transaction.memo) {
               memo = transaction.memo;
             }
-            const watchTX = {type, amount, memo, time: loc.transactionTimeToReadable(transaction.received)};
+            const watchTX = { type, amount, memo, time: loc.transactionTimeToReadable(transaction.received) };
             watchTransactions.push(watchTX);
           }
           wallets.push({
@@ -130,7 +130,7 @@ export default class WatchConnectivity {
           });
         }
 
-        watch.updateApplicationContext({wallets});
+        watch.updateApplicationContext({ wallets });
       }
     });
   }
