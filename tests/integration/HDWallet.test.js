@@ -1,6 +1,6 @@
 /* global it, jasmine, afterAll, beforeAll */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from '../../class';
-import {BitcoinUnit} from "../../models/bitcoinUnits";
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 let bitcoin = require('bitcoinjs-lib');
