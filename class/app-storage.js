@@ -184,6 +184,7 @@ export class AppStorage {
         data = JSON.parse(data);
         if (!data.wallets) return false;
         let wallets = data.wallets;
+        let isWalletWithoutID = false;
         for (let key of wallets) {
           // deciding which type is wallet and instatiating correct object
           let tempObj = JSON.parse(key);
@@ -239,13 +240,22 @@ export class AppStorage {
               break;
           }
           // done
-          if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
+          if (unserializedWallet.id.length === 0) {
+            isWalletWithoutID = true;
+            await unserializedWallet.createID();
+          }
+          if (!this.wallets.some(wallet => wallet.id === unserializedWallet.id)) {
             this.wallets.push(unserializedWallet);
             this.tx_metadata = data.tx_metadata;
           }
         }
+        if (isWalletWithoutID) {
+          await this.saveToDisk();
+        }
+
         WatchConnectivity.init();
         WatchConnectivity.shared && (await WatchConnectivity.shared.sendWalletsToWatch());
+
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data

@@ -96,6 +96,8 @@ PODS:
     - React
   - react-native-slider (2.0.0-rc.1):
     - React
+  - react-native-uuid-generator (6.0.0):
+    - React
   - react-native-webview (6.9.0):
     - React
   - React-RCTActionSheet (0.60.5):
@@ -176,6 +178,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
+  - react-native-uuid-generator (from `../node_modules/react-native-uuid-generator`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -252,6 +255,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
+  react-native-uuid-generator:
+    :path: "../node_modules/react-native-uuid-generator"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
@@ -328,6 +333,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: fd93361c666f397bdf72f9c6c23f13d2685b9173
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: 6d83f7b8076a84e965a43fbdcfcf9dac19cea42e
+  react-native-uuid-generator: 66a6e79816551dd4dcd3ffecb902fa7ffb3d61b8
   react-native-webview: f72ac4078e115dfa741cc588acb1cca25566457d
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90
   React-RCTAnimation: 359ba1b5690b1e87cc173558a78e82d35919333e

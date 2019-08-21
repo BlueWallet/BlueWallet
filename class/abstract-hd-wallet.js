@@ -1,5 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
+import UUIDGenerator from 'react-native-uuid-generator';
 const bip39 = require('bip39');
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../BlueElectrum');
