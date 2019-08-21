@@ -135,8 +135,8 @@ export class AppStorage {
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
     this.cachedPassword = password;
-    await this.setItem('data', data, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
-    await this.setItem(AppStorage.FLAG_ENCRYPTED, '1', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    await this.setItem('data', data);
+    await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
   }
 
   /**
@@ -159,7 +159,7 @@ export class AppStorage {
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
-    await this.setItem('data', bucketsString, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    await this.setItem('data', bucketsString);
     return (await this.getItem('data')) === bucketsString;
   }
 
@@ -311,16 +311,16 @@ export class AppStorage {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
           newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
-          await this.setItem(AppStorage.FLAG_ENCRYPTED, '1', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }
       data = newData;
     } else {
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED }); // drop the flag
+      await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
     WatchConnectivity.init();
     WatchConnectivity.shared && WatchConnectivity.shared.sendWalletsToWatch();
-    return this.setItem('data', JSON.stringify(data), { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    return this.setItem('data', JSON.stringify(data));
   }
 
   /**
