@@ -27,6 +27,7 @@ export default class WalletMigrate extends Component {
           accessible: ACCESSIBLE.WHEN_UNLOCKED,
         });
         await AsyncStorage.removeItem('data');
+        await AsyncStorage.removeItem('data_encrypted');
       }
     } catch (_e) {
       console.log('Nothing to migrate from AsyncStorage.');
