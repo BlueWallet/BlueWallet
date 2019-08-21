@@ -21,12 +21,13 @@ export default class WalletMigrate extends Component {
     try {
       const data = await AsyncStorage.getItem('data');
       if (data) {
-        const isEncrypted = (await AsyncStorage.getItem('data_encrypted')) || '';
+        const isEncrypted = (await AsyncStorage.getItem('data_encrypted')) || '0';
         await RNSecureKeyStore.set('data', data, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
         await RNSecureKeyStore.set('data_encrypted', isEncrypted, {
           accessible: ACCESSIBLE.WHEN_UNLOCKED,
         });
         await AsyncStorage.removeItem('data');
+        await AsyncStorage.removeItem('data_encrypted');
       }
     } catch (_e) {
       console.log('Nothing to migrate from AsyncStorage.');

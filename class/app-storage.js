@@ -96,7 +96,7 @@ export class AppStorage {
       return false;
     }
 
-    return !!data;
+    return data === true || data === '1';
   }
 
   /**
