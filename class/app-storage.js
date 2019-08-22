@@ -91,7 +91,7 @@ export class AppStorage {
   async storageIsEncrypted() {
     let data;
     try {
-      data = await this.getItem(AppStorage.FLAG_ENCRYPTED);
+      data = JSON.parse(await this.getItem(AppStorage.FLAG_ENCRYPTED));
     } catch (error) {
       return false;
     }
