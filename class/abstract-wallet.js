@@ -30,7 +30,7 @@ export class AbstractWallet {
     this.preferredBalanceUnit = BitcoinUnit.BTC;
     this.chain = Chain.ONCHAIN;
     this.hideBalance = false;
-    this.id = '';
+    this.id = undefined;
   }
 
   getTransactions() {
@@ -38,7 +38,7 @@ export class AbstractWallet {
   }
 
   async createID() {
-    if (this.id.length === 0) {
+    if (this.id === undefined) {
       this.id = await UUIDGenerator.getRandomUUID();
     }
   }

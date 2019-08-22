@@ -240,7 +240,7 @@ export class AppStorage {
               break;
           }
           // done
-          if (unserializedWallet.id.length === 0) {
+          if (unserializedWallet.id === undefined) {
             isWalletWithoutID = true;
             await unserializedWallet.createID();
           }
