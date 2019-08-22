@@ -58,11 +58,13 @@ export default class WalletsImport extends Component {
 
   async _saveWallet(w) {
     if (BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret)) {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert('This wallet has been previously imported.');
     } else {
       alert(loc.wallets.import.success);
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
+      await w.setID();
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       EV(EV.enum.WALLETS_COUNT_CHANGED);

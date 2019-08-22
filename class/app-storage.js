@@ -242,7 +242,7 @@ export class AppStorage {
           // done
           if (unserializedWallet.id === undefined) {
             isWalletWithoutID = true;
-            await unserializedWallet.createID();
+            await unserializedWallet.setID();
           }
           if (!this.wallets.some(wallet => wallet.id === unserializedWallet.id)) {
             this.wallets.push(unserializedWallet);

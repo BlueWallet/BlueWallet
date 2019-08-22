@@ -256,7 +256,7 @@ export default class WalletsAdd extends Component {
                             }
                             A(A.ENUM.CREATED_LIGHTNING_WALLET);
                             await w.generate();
-                            await w.createID();
+                            await w.setID();
                             BlueApp.wallets.push(w);
                             await BlueApp.saveToDisk();
                             EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -307,7 +307,7 @@ export default class WalletsAdd extends Component {
                         }
                         if (this.state.activeBitcoin) {
                           await w.generate();
-                          await w.createID();
+                          await w.setID();
                           BlueApp.wallets.push(w);
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);

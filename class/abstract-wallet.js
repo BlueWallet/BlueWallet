@@ -37,12 +37,6 @@ export class AbstractWallet {
     return this.transactions;
   }
 
-  async createID() {
-    if (this.id === undefined) {
-      this.id = await UUIDGenerator.getRandomUUID();
-    }
-  }
-
   /**
    *
    * @returns {string}
@@ -118,6 +112,12 @@ export class AbstractWallet {
 
   getLatestTransactionTime() {
     return 0;
+  }
+
+  async setID() {
+    if (this.id === undefined) {
+      this.id = await UUIDGenerator.getRandomUUID();
+    }
   }
 
   // createTx () { throw Error('not implemented') }
