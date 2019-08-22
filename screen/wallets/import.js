@@ -64,7 +64,7 @@ export default class WalletsImport extends Component {
       alert(loc.wallets.import.success);
       ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
       w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
-      await w.setID();
+      w.setID();
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       EV(EV.enum.WALLETS_COUNT_CHANGED);

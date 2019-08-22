@@ -1,5 +1,5 @@
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-import UUIDGenerator from 'react-native-uuid-generator';
+const createHash = require('create-hash');
 
 export class AbstractWallet {
   static type = 'abstract';
@@ -114,9 +114,16 @@ export class AbstractWallet {
     return 0;
   }
 
-  async setID() {
+  setID() {
     if (this.id === undefined) {
-      this.id = await UUIDGenerator.getRandomUUID();
+      this.id = createHash('rmd160')
+        .update(
+          createHash('sha256')
+            .update(this.getSecret())
+            .digest(),
+        )
+        .digest()
+        .toString('hex');
     }
   }
 
