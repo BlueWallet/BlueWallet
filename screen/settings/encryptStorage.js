@@ -1,9 +1,12 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View } from 'react-native';
-import { FormValidationMessage } from 'react-native-elements';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import { View, Alert, Platform, TouchableOpacity } from 'react-native';
+import { BlueLoading, BlueHeaderDefaultSub, BlueListItem, SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import AsyncStorage from '@react-native-community/async-storage';
+import { AppStorage } from '../../class';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let prompt = require('../../prompt');
@@ -12,8 +15,10 @@ let loc = require('../../loc');
 export default class EncryptStorage extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: loc.settings.encrypt_storage,
+    title: loc.settings.security,
   });
+
+  static deleteWalletAfterUninstall = 'deleteWalletAfterUninstall';
 
   constructor(props) {
     super(props);
@@ -24,11 +29,96 @@ export default class EncryptStorage extends Component {
   }
 
   async componentDidMount() {
+    let deleteWalletsAfterUninstall = true;
+    try {
+      deleteWalletsAfterUninstall = await RNSecureKeyStore.get(EncryptStorage.deleteWalletAfterUninstall);
+      deleteWalletsAfterUninstall =
+        deleteWalletsAfterUninstall === true || deleteWalletsAfterUninstall === '1' || deleteWalletsAfterUninstall === 1;
+    } catch (_e) {
+      deleteWalletsAfterUninstall = true;
+    }
     this.setState({
       isLoading: false,
+      advancedModeEnabled: (await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)) || false,
       storageIsEncrypted: await BlueApp.storageIsEncrypted(),
+      deleteWalletsAfterUninstall,
     });
   }
+
+  decryptStorage = async () => {
+    const password = await prompt(loc.settings.password, loc._.storage_is_encrypted).catch(() => {
+      this.setState({ isLoading: false });
+    });
+    try {
+      await BlueApp.decryptStorage(password);
+      this.setState({
+        isLoading: false,
+        storageIsEncrypted: await BlueApp.storageIsEncrypted(),
+        deleteWalletAfterUninstall: await RNSecureKeyStore.get(EncryptStorage.deleteWalletAfterUninstall),
+      });
+    } catch (e) {
+      console.log(e);
+      alert(loc._.bad_password);
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      this.setState({
+        isLoading: false,
+        storageIsEncrypted: await BlueApp.storageIsEncrypted(),
+        deleteWalletAfterUninstall: await RNSecureKeyStore.get(EncryptStorage.deleteWalletAfterUninstall),
+      });
+    }
+  };
+
+  onDeleteWalletsAfterUninstallSwitch = async value => {
+    await RNSecureKeyStore.setResetOnAppUninstallTo(value);
+    await RNSecureKeyStore.set(EncryptStorage.deleteWalletAfterUninstall, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    this.setState({ deleteWalletsAfterUninstall: value });
+  };
+
+  onEncryptStorageSwitch = value => {
+    this.setState({ isLoading: true }, async () => {
+      if (value === true) {
+        let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
+          this.setState({ isLoading: false });
+          p1 = undefined;
+        });
+        if (!p1) {
+          this.setState({ isLoading: false });
+          return;
+        }
+        let p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+          this.setState({ isLoading: false });
+        });
+        if (p1 === p2) {
+          await BlueApp.encryptStorage(p1);
+          this.setState({
+            isLoading: false,
+            storageIsEncrypted: await BlueApp.storageIsEncrypted(),
+          });
+        } else {
+          this.setState({ isLoading: false });
+          alert(loc.settings.passwords_do_not_match);
+        }
+      } else {
+        Alert.alert(
+          'Decrypt Storage',
+          'Are you sure you want to decrypt your storage?',
+          [
+            {
+              text: loc.send.details.cancel,
+              style: 'cancel',
+              onPress: () => this.setState({ isLoading: false }),
+            },
+            {
+              text: loc._.ok,
+              style: 'destructive',
+              onPress: this.decryptStorage,
+            },
+          ],
+          { cancelable: false },
+        );
+      }
+    });
+  };
 
   render() {
     if (this.state.isLoading) {
@@ -37,61 +127,35 @@ export default class EncryptStorage extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueCard>
-          {(() => {
-            if (this.state.storageIsEncrypted) {
-              return (
-                <View>
-                  <BlueText>{loc.settings.storage_encrypted}</BlueText>
-                  <BlueSpacing20 />
-                  <BlueButton
-                    onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
-                    title={loc.settings.plausible_deniability}
-                  />
-                </View>
-              );
-            } else {
-              return (
-                <View>
-                  <FormValidationMessage>{loc.settings.storage_not_encrypted}</FormValidationMessage>
-                  <BlueSpacing20 />
-                  <BlueButton
-                    icon={{
-                      name: 'shield',
-                      type: 'font-awesome',
-                      color: BlueApp.settings.buttonTextColor,
-                    }}
-                    onPress={async () => {
-                      this.setState({ isLoading: true });
-                      let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
-                        this.setState({ isLoading: false });
-                        p1 = undefined;
-                      });
-                      if (!p1) {
-                        this.setState({ isLoading: false });
-                        return;
-                      }
-                      let p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
-                        this.setState({ isLoading: false });
-                      });
-                      if (p1 === p2) {
-                        await BlueApp.encryptStorage(p1);
-                        this.setState({
-                          isLoading: false,
-                          storageIsEncrypted: await BlueApp.storageIsEncrypted(),
-                        });
-                      } else {
-                        this.setState({ isLoading: false });
-                        alert(loc.settings.passwords_do_not_match);
-                      }
-                    }}
-                    title={loc.settings.encrypt_storage}
-                  />
-                </View>
-              );
-            }
-          })()}
-        </BlueCard>
+        <View>
+          <BlueHeaderDefaultSub leftText="storage" rightComponent={null} />
+          <BlueListItem
+            hideChevron
+            title="Encypted and Password protected"
+            switchButton
+            onSwitch={this.onEncryptStorageSwitch}
+            switched={this.state.storageIsEncrypted}
+          />
+          {Platform.OS === 'ios' && this.state.storageIsEncrypted && (
+            <BlueListItem
+              hideChevron
+              disabled={!this.state.storageIsEncrypted}
+              switchDisabled={!this.state.storageIsEncrypted}
+              title="Delete if BlueWallet is uninstalled"
+              switchButton
+              onSwitch={this.onDeleteWalletsAfterUninstallSwitch}
+              switched={this.state.deleteWalletsAfterUninstall}
+            />
+          )}
+          {this.state.storageIsEncrypted && (
+            <TouchableOpacity
+              disabled={!this.state.storageIsEncrypted}
+              onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
+            >
+              <BlueListItem disabled={!this.state.storageIsEncrypted} title={loc.settings.plausible_deniability} />
+            </TouchableOpacity>
+          )}
+        </View>
       </SafeBlueArea>
     );
   }

@@ -8,8 +8,19 @@ import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 const expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
 
 export default class WalletMigrate extends Component {
-  componentDidMount() {
-    this.migrateDataFromExpo();
+  async componentDidMount() {
+    const firstLaunch = await AsyncStorage.getItem('RnSksIsAppInstalled');
+    if (firstLaunch === undefined || firstLaunch === null || firstLaunch === false || firstLaunch === '') {
+      try {
+        await RNSecureKeyStore.setResetOnAppUninstallTo(false);
+        const deleteWalletsFromKeychain = await RNSecureKeyStore.get('deleteWalletAfterUninstall');
+        if (deleteWalletsFromKeychain) {
+          await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
+        }
+      } catch (_e) {}
+      await AsyncStorage.setItem('RnSksIsAppInstalled', '1');
+    }
+    await this.migrateDataFromExpo();
   }
 
   migrationComplete() {

@@ -211,7 +211,7 @@ module.exports = {
     go_back: 'Go Back',
     create_password: 'Create a password',
     create_password_explanation: 'Password for fake storage should not match password for your main storage',
-    password_should_not_match: 'Password for fake storage should not match password for your main storage',
+    password_should_not_match: 'Password is currently in use. Please, try a different password.',
     retype_password: 'Retype password',
     passwords_do_not_match: 'Passwords do not match, try again',
     success: 'Success',

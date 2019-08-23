@@ -99,6 +99,19 @@ export class AppStorage {
     return !!data;
   }
 
+  async isPasswordInUse(password) {
+    try {
+      let data = await this.getItem('data');
+      data = this.decryptData(data, password);
+      if (data !== null && data !== undefined && data !== false) {
+        return true;
+      }
+    } catch (_e) {
+      return false;
+    }
+    return false;
+  }
+
   /**
    * Iterates through all values of `data` trying to
    * decrypt each one, and returns first one successfully decrypted
@@ -122,6 +135,33 @@ export class AppStorage {
     }
 
     return false;
+  }
+
+  async decryptStorage(password) {
+    try {
+      let storage = await this.getItem('data');
+      if (password) {
+        let parsedStorage = JSON.parse(storage);
+        let mainStorage = parsedStorage[0];
+        mainStorage = JSON.stringify([mainStorage]);
+        let decrypted = this.decryptData(mainStorage, password);
+        if (!decrypted) {
+          throw new Error('Wrong password for main storage.');
+        }
+        const decryptedParsed = JSON.parse(decrypted)
+        if (decrypted.wallets !== null) {
+          this.wallets = decryptedParsed.wallets;
+          this.tx_metadata = decryptedParsed.tx_metadata;
+          this.cachedPassword = undefined;
+          await RNSecureKeyStore.set(AppStorage.FLAG_ENCRYPTED, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          await RNSecureKeyStore.set('deleteWalletAfterUninstall', true, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          return this.saveToDisk();
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      throw new Error(e);
+    }
   }
 
   async encryptStorage(password) {
@@ -289,6 +329,7 @@ export class AppStorage {
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
+      if (typeof key === 'string') key = JSON.parse(key);
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 
