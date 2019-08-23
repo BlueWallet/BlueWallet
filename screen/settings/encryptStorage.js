@@ -58,8 +58,10 @@ export default class EncryptStorage extends Component {
       });
     } catch (e) {
       console.log(e);
-      alert(loc._.bad_password);
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      if (password) {
+        alert(loc._.bad_password);
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });  
+      }
       this.setState({
         isLoading: false,
         storageIsEncrypted: await BlueApp.storageIsEncrypted(),
