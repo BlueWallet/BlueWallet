@@ -15,6 +15,7 @@ import {
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
+import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -79,13 +80,16 @@ export default class ReceiveDetails extends Component {
     }
 
     InteractionManager.runAfterInteractions(async () => {
+      await SystemSetting.saveBrightness();
+      await SystemSetting.setAppBrightness(1.0);
       const bip21encoded = bip21.encode(this.state.address);
       this.setState({ bip21encoded });
     });
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     Privacy.disableBlur();
+    await SystemSetting.restoreBrightness();
   }
 
   render() {
