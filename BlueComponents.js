@@ -1988,11 +1988,21 @@ export class BlueBitcoinAmount extends Component {
               {...this.props}
               keyboardType="numeric"
               onChangeText={text => {
+                text = text.trim();
                 text = text.replace(',', '.');
+                const split = text.split('.');
+                if (split.length >= 2) {
+                  text = `${parseInt(split[0], 10)}.${split[1]}`;
+                }
                 text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
                 text = text.replace(/(\..*)\./g, '$1');
+
                 if (text.startsWith('.')) {
                   text = '0.';
+                }
+                text = text.replace(/(0{1,}.)\./g, '$1');
+                if (this.props.unit !== BitcoinUnit.BTC) {
+                  text = text.replace(/[^0-9.]/g, '');
                 }
                 this.props.onChangeText(text);
               }}
