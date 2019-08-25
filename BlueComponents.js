@@ -1993,6 +1993,8 @@ export class BlueBitcoinAmount extends Component {
                 const split = text.split('.');
                 if (split.length >= 2) {
                   text = `${parseInt(split[0], 10)}.${split[1]}`;
+                } else {
+                  text = `${parseInt(split[0], 10)}`;
                 }
                 text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
                 text = text.replace(/(\..*)\./g, '$1');
