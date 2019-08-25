@@ -9,6 +9,7 @@ import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import url from 'url';
 import { AppStorage, LightningCustodianWallet } from './class';
+import { Chain } from './models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -47,7 +48,14 @@ export default class App extends React.Component {
     if (BlueApp.getWallets().length > 0) {
       if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
         const clipboard = await Clipboard.getString();
-        if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
+        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
+          wallet.chain === Chain.ONCHAIN ? wallet._address === clipboard : wallet.isInvoiceGeneratedByWallet(clipboard),
+        );
+        if (
+          this.state.clipboardContent !== clipboard &&
+          !isAddressFromStoredWallet &&
+          (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))
+        ) {
           this.setState({ isClipboardContentModalVisible: true });
         }
         this.setState({ clipboardContent: clipboard });
