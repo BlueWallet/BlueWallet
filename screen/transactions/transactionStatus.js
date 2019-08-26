@@ -338,7 +338,7 @@ export default class TransactionsStatus extends Component {
                             wallet: this.state.wallet,
                           })
                         }
-                        style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}
+                        style={{ color: '#d0021b', fontSize: 15, fontWeight: '500', textAlign: 'center' }}
                       >
                         {loc.send.details.cancel}
                       </Text>
