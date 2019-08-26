@@ -146,7 +146,7 @@ it('HD (BIP49) can create TX', async () => {
   let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
   assert.strictEqual(
     txhex,
-    '01000000000101e141f756746932f869c7323d941f26e6a1a6817143b97250a51f8c08510547a900000000171600140808fb749f01203cd063e72a96379e40b0c858f5ffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87b45f00000000000017a91451c2c75a20e796ffaff35b453cac8b3a1247ff408702483045022100ecb2edfd434ddf0c773aaed965dfb7e5480d972fe304465be1e35fe756753068022041791f9e2884687198b465846b70b2bacd618e3b6941539053d05f312ea3cae30121039faa75979e2a2a89f8f520c7338f9f586f37b0ca4644779c9e7c2359912b625900000000',
+    '0100000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad15ffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87b45f00000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd8702483045022100f489dfbd372b66348a25f6e9ba1b5eb88a3646efcd75ef1211c96cf46eed692c0220416ac99a94c5f4a076588291d9857fc5b854e02404d69635dc35e82fde3ecd9701210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
   );
 
   txhex = hd.createTx(hd.utxo, 0.000005, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
@@ -185,21 +185,21 @@ it('HD (BIP49) can create TX', async () => {
       txid: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       vout: 0,
       amount: 26000,
-      address: '3GgPyzKfWXiaXMbJ9LeEVGetvEXdrX9Ecj',
+      address: '39SpCj47M88ajRBTbkfaKRgpaX7FTLQJz5',
       wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
     },
     {
       txid: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
       vout: 0,
       amount: 26000,
-      address: '3GgPyzKfWXiaXMbJ9LeEVGetvEXdrX9Ecj',
+      address: '39SpCj47M88ajRBTbkfaKRgpaX7FTLQJz5',
       wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
     },
     {
       txid: 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
       vout: 0,
       amount: 26000,
-      address: '3GgPyzKfWXiaXMbJ9LeEVGetvEXdrX9Ecj',
+      address: '39SpCj47M88ajRBTbkfaKRgpaX7FTLQJz5',
       wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
     },
   ];
