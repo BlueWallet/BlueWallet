@@ -303,7 +303,7 @@ export class BlueWalletNavigationHeader extends Component {
           )}
         </TouchableOpacity>
         {this.state.wallet.type === LightningCustodianWallet.type && (
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('ManageFunds', { fromWallet: this.state.wallet })}>
+          <TouchableOpacity onPress={() => NavigationService.navigate('ManageFunds', { fromWallet: this.state.wallet })}>
             <View
               style={{
                 marginTop: 14,
