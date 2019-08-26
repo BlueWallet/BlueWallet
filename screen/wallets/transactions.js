@@ -50,6 +50,7 @@ export default class WalletTransactions extends Component {
     const wallet = props.navigation.getParam('wallet');
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
+      showMarketplace: true,
       isLoading: true,
       showShowFlatListRefreshControl: false,
       wallet: wallet,
@@ -234,11 +235,14 @@ export default class WalletTransactions extends Component {
           }
         />
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-          {this.state.wallet.type === LightningCustodianWallet.type && (
+          {this.state.showMarketplace && (
             <TouchableOpacity
               onPress={() => {
-                console.log('navigating to LappBrowser');
-                navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
+                if (this.state.wallet.type === LightningCustodianWallet.type) {
+                  navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
+                } else {
+                  navigate('Marketplace', { fromWallet: this.state.wallet });
+                }
               }}
             >
               <View
