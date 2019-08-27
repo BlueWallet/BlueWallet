@@ -3,6 +3,14 @@ import BigNumber from 'bignumber.js';
 let loc = require('../loc');
 
 const BlueElectrum = require('../BlueElectrum');
+
+export const NetworkTransactionFeeType = Object.freeze({
+  FAST: 'Fast',
+  MEDIUM: 'MEDIUM',
+  SLOW: 'SLOW',
+  CUSTOM: 'CUSTOM',
+});
+
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
