@@ -2032,35 +2032,49 @@ export class BlueReplaceFeeSuggestions extends Component {
             </TouchableOpacity>
           </>
         )}
-        <BlueSpacing20 />
-        <BlueText>Custom</BlueText>
-        <View
-          style={{
-            flexDirection: 'row',
-            borderColor: '#d2d2d2',
-            borderBottomColor: '#d2d2d2',
-            borderWidth: 1.0,
-            borderBottomWidth: 0.5,
-            backgroundColor: '#f5f5f5',
-            minHeight: 44,
-            height: 44,
-            alignItems: 'center',
-            marginVertical: 8,
-            borderRadius: 4,
-          }}
-        >
-          <TextInput
-            onChangeText={this.onCustomFeeTextChange}
-            keyboardType={'numeric'}
-            value={this.state.customFeeValue}
-            style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
-            onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
-            defaultValue={`${this.props.transactionMinimum}`}
-            placeholder="Custom sat/b"
-            inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-          />
-          <BlueDismissKeyboardInputAccessory />
-        </View>
+        <TouchableOpacity onPress={() => this.customTextInput.focus()}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: 18, marginRight: 18, alignItems: 'center' }}>
+            <Text style={{ color: BlueApp.settings.foregroundColor, fontSize: 16, fontWeight: '500' }}>Custom</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                minHeight: 44,
+                height: 44,
+                minWidth: 48,
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                marginVertical: 8,
+              }}
+            >
+              <TextInput
+                onChangeText={this.onCustomFeeTextChange}
+                keyboardType={'numeric'}
+                value={this.state.customFeeValue}
+                ref={ref => (this.customTextInput = ref)}
+                maxLength={9}
+                style={{
+                  borderColor: '#d2d2d2',
+                  borderBottomColor: '#d2d2d2',
+                  borderWidth: 1.0,
+                  borderBottomWidth: 0.5,
+                  borderRadius: 4,
+                  minHeight: 33,
+                  maxWidth: 100,
+                  minWidth: 44,
+                  backgroundColor: '#f5f5f5',
+                  textAlign: 'right',
+                }}
+                onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
+                defaultValue={`${this.props.transactionMinimum}`}
+                placeholder="Custom sat/b"
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              />
+              <Text style={{ color: BlueApp.settings.alternativeTextColor, marginHorizontal: 8 }}>sat/b</Text>
+              {this.state.selectedFeeType === NetworkTransactionFeeType.CUSTOM && <Icon name="check" type="font-awesome" color="#0c2550" />}
+            </View>
+            <BlueDismissKeyboardInputAccessory />
+          </View>
+        </TouchableOpacity>
         <BlueText>
           The total fee rate (satoshi per byte) you want to pay should be higher than {this.props.transactionMinimum} sat/byte
         </BlueText>
