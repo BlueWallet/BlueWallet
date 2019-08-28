@@ -271,17 +271,6 @@ export default class WalletsImport extends Component {
         >
           <BlueButton
             disabled={this.state.isLoading}
-            title="Clear"
-            buttonStyle={{
-              width: width / 1.5,
-            }}
-            onPress={async () => {
-              this.setState({ label: '' });
-            }}
-          />
-          <BlueSpacing20 />
-          <BlueButton
-            disabled={this.state.isLoading}
             title="Paste Clipboard"
             buttonStyle={{
               width: width / 1.5,
@@ -289,6 +278,17 @@ export default class WalletsImport extends Component {
             onPress={async () => {
               const clipboard = await Clipboard.getString();
               this.setState({ label: clipboard }, () => Keyboard.dismiss());
+            }}
+          />
+          <BlueSpacing20 />
+          <BlueButton
+            disabled={this.state.isLoading || this.state.label.length <= 0}
+            title="Clear"
+            buttonStyle={{
+              width: width / 1.5,
+            }}
+            onPress={async () => {
+              this.setState({ label: '' });
             }}
           />
           <BlueSpacing20 />
