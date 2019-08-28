@@ -9,7 +9,7 @@ import {
   HDSegwitBech32Wallet,
 } from '../../class';
 import React, { Component } from 'react';
-import { KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { KeyboardAvoidingView, Clipboard, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -255,6 +255,7 @@ export default class WalletsImport extends Component {
             <BlueFormMultiInput
               value={this.state.label}
               placeholder=""
+              contextMenuHidden
               onChangeText={text => {
                 this.setLabel(text);
               }}
@@ -268,6 +269,29 @@ export default class WalletsImport extends Component {
             alignItems: 'center',
           }}
         >
+          <BlueButton
+            disabled={this.state.isLoading}
+            title="Clear"
+            buttonStyle={{
+              width: width / 1.5,
+            }}
+            onPress={async () => {
+              this.setState({ label: '' });
+            }}
+          />
+          <BlueSpacing20 />
+          <BlueButton
+            disabled={this.state.isLoading}
+            title="Paste Clipboard"
+            buttonStyle={{
+              width: width / 1.5,
+            }}
+            onPress={async () => {
+              const clipboard = await Clipboard.getString();
+              this.setState({ label: clipboard }, () => Keyboard.dismiss());
+            }}
+          />
+          <BlueSpacing20 />
           <BlueButton
             disabled={!this.state.label}
             title={loc.wallets.import.do_import}
