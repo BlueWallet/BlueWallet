@@ -270,7 +270,6 @@ export default class WalletsImport extends Component {
           }}
         >
           <BlueButton
-            disabled={this.state.isLoading}
             title="Paste Clipboard"
             buttonStyle={{
               width: width / 1.5,
@@ -282,7 +281,7 @@ export default class WalletsImport extends Component {
           />
           <BlueSpacing20 />
           <BlueButton
-            disabled={this.state.isLoading || this.state.label.length <= 0}
+            disabled={this.state.label.length <= 0}
             title="Clear"
             buttonStyle={{
               width: width / 1.5,
