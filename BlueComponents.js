@@ -561,11 +561,7 @@ export class BlueFormMultiInput extends Component {
       selection: { start: 0, end: 0 },
     };
   }
-
-  onSelectionChange = ({ nativeEvent: { selection, text } }) => {
-    this.setState({ selection: { start: selection.end, end: selection.end } });
-  };
-
+  
   render() {
     return (
       <TextInput
@@ -588,8 +584,6 @@ export class BlueFormMultiInput extends Component {
         spellCheck={false}
         {...this.props}
         selectTextOnFocus={false}
-        onSelectionChange={this.onSelectionChange}
-        selection={this.state.selection}
         keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
       />
     );
