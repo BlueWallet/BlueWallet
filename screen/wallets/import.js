@@ -261,7 +261,7 @@ export default class WalletsImport extends Component {
               onChangeText={text => {
                 this.setLabel(text);
               }}
-              inputAccesorryID={BlueDoneAndDismissKeyboardInputAccessory.inputAccesorryID}
+              inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.inputAccesorryID}
               onFocus={() => this.setState({ isToolbarVisibleForAndroid: true })}
               onBlur={() => this.setState({ isToolbarVisibleForAndroid: false })}
             />
@@ -274,7 +274,7 @@ export default class WalletsImport extends Component {
               onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
             />
           ),
-          android: (this.state.isToolbarVisibleForAndroid &&
+          android: this.state.isToolbarVisibleForAndroid && (
             <BlueDoneAndDismissKeyboardInputAccessory
               onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
               onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
