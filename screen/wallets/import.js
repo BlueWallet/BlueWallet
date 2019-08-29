@@ -9,12 +9,13 @@ import {
   HDSegwitBech32Wallet,
 } from '../../class';
 import React, { Component } from 'react';
-import { KeyboardAvoidingView, Clipboard, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { KeyboardAvoidingView, Platform, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
   BlueFormLabel,
   BlueLoading,
+  BlueDoneAndDismissKeyboardInputAccessory,
   BlueButton,
   SafeBlueArea,
   BlueSpacing20,
@@ -41,6 +42,7 @@ export default class WalletsImport extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      isToolbarVisibleForAndroid: false,
     };
   }
 
@@ -259,9 +261,26 @@ export default class WalletsImport extends Component {
               onChangeText={text => {
                 this.setLabel(text);
               }}
+              inputAccesorryID={BlueDoneAndDismissKeyboardInputAccessory.inputAccesorryID}
+              onFocus={() => this.setState({ isToolbarVisibleForAndroid: true })}
+              onBlur={() => this.setState({ isToolbarVisibleForAndroid: false })}
             />
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
+        {Platform.select({
+          ios: (
+            <BlueDoneAndDismissKeyboardInputAccessory
+              onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
+              onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+            />
+          ),
+          android: (this.state.isToolbarVisibleForAndroid &&
+            <BlueDoneAndDismissKeyboardInputAccessory
+              onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
+              onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+            />
+          ),
+        })}
 
         <BlueSpacing20 />
         <View
@@ -269,28 +288,6 @@ export default class WalletsImport extends Component {
             alignItems: 'center',
           }}
         >
-          <BlueButton
-            title="Paste Clipboard"
-            buttonStyle={{
-              width: width / 1.5,
-            }}
-            onPress={async () => {
-              const clipboard = await Clipboard.getString();
-              this.setState({ label: clipboard }, () => Keyboard.dismiss());
-            }}
-          />
-          <BlueSpacing20 />
-          <BlueButton
-            disabled={this.state.label.length <= 0}
-            title="Clear"
-            buttonStyle={{
-              width: width / 1.5,
-            }}
-            onPress={async () => {
-              this.setState({ label: '' });
-            }}
-          />
-          <BlueSpacing20 />
           <BlueButton
             disabled={!this.state.label}
             title={loc.wallets.import.do_import}

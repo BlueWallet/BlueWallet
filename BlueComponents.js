@@ -561,7 +561,7 @@ export class BlueFormMultiInput extends Component {
       selection: { start: 0, end: 0 },
     };
   }
-  
+
   render() {
     return (
       <TextInput
@@ -849,6 +849,40 @@ export class BlueDismissKeyboardInputAccessory extends Component {
         </View>
       </InputAccessoryView>
     );
+  }
+}
+
+export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
+  static InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
+
+  onPasteTapped = async () => {
+    const clipboard = await Clipboard.getString();
+    this.props.onPasteTapped(clipboard);
+  };
+
+  render() {
+    const inputView = (
+      <View
+        style={{
+          backgroundColor: '#eef0f4',
+          height: 44,
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+        }}
+      >
+        <BlueButtonLink title="Clear" onPress={this.props.onClearTapped} />
+        <BlueButtonLink title="Paste" onPress={this.onPasteTapped} />
+        <BlueButtonLink title="Done" onPress={() => Keyboard.dismiss()} />
+      </View>
+    );
+
+    if (Platform.OS === 'ios') {
+      return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.inputAccessoryViewID}>{inputView}</InputAccessoryView>;
+    } else {
+      return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
+    }
   }
 }
 
