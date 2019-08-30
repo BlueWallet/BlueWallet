@@ -261,26 +261,26 @@ export default class WalletsImport extends Component {
               onChangeText={text => {
                 this.setLabel(text);
               }}
-              inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.inputAccesorryID}
+              inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
               onFocus={() => this.setState({ isToolbarVisibleForAndroid: true })}
               onBlur={() => this.setState({ isToolbarVisibleForAndroid: false })}
             />
+            {Platform.select({
+              ios: (
+                <BlueDoneAndDismissKeyboardInputAccessory
+                  onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
+                  onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+                />
+              ),
+              android: this.state.isToolbarVisibleForAndroid && (
+                <BlueDoneAndDismissKeyboardInputAccessory
+                  onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
+                  onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+                />
+              ),
+            })}
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
-        {Platform.select({
-          ios: (
-            <BlueDoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
-              onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
-            />
-          ),
-          android: this.state.isToolbarVisibleForAndroid && (
-            <BlueDoneAndDismissKeyboardInputAccessory
-              onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
-              onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
-            />
-          ),
-        })}
 
         <BlueSpacing20 />
         <View
