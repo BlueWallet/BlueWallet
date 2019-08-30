@@ -44,7 +44,7 @@ export default class LNDViewInvoice extends Component {
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
     this.fetchInvoiceInterval = undefined;
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   async componentDidMount() {
@@ -96,14 +96,14 @@ export default class LNDViewInvoice extends Component {
   async componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
     await SystemSetting.restoreBrightness();
   }
 
-  handleBackButton() {
+  handleBackButton = () => {
     this.props.navigation.goBack(null);
     return true;
-  }
+  };
 
   onLayout = () => {
     const { height } = Dimensions.get('window');
