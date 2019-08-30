@@ -879,7 +879,7 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
     );
 
     if (Platform.OS === 'ios') {
-      return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.inputAccessoryViewID}>{inputView}</InputAccessoryView>;
+      return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
     } else {
       return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
     }
