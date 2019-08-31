@@ -18,6 +18,7 @@ import {
   Image,
   Keyboard,
   SafeAreaView,
+  InteractionManager,
   InputAccessoryView,
   Clipboard,
   Platform,
@@ -103,7 +104,6 @@ export class BitcoinButton extends Component {
             borderRadius: 5,
             backgroundColor: (this.props.active && BlueApp.settings.hdbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
-            width: this.props.style.width,
             minWidth: this.props.style.width,
             // eslint-disable-next-line
             minHeight: this.props.style.height,
@@ -141,7 +141,6 @@ export class LightningButton extends Component {
             borderRadius: 5,
             backgroundColor: (this.props.active && BlueApp.settings.lnbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
-            width: this.props.style.width,
             minWidth: this.props.style.width,
             // eslint-disable-next-line
             minHeight: this.props.style.height,
@@ -1363,6 +1362,8 @@ export class BlueTransactionListItem extends Component {
     itemPriceUnit: BitcoinUnit.BTC,
   };
 
+  state = { transactionTimeToReadable: '...' };
+
   txMemo = () => {
     if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
       return BlueApp.tx_metadata[this.props.item.hash]['memo'];
@@ -1524,11 +1525,18 @@ export class BlueTransactionListItem extends Component {
     }
   };
 
+  componentDidMount() {
+    InteractionManager.runAfterInteractions(() => {
+      const transactionTimeToReadable = loc.transactionTimeToReadable(this.props.item.received);
+      this.setState({ transactionTimeToReadable });
+    });
+  }
+
   render() {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={this.state.transactionTimeToReadable}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
