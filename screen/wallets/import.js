@@ -9,12 +9,13 @@ import {
   HDSegwitBech32Wallet,
 } from '../../class';
 import React, { Component } from 'react';
-import { KeyboardAvoidingView, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { KeyboardAvoidingView, Platform, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
   BlueFormLabel,
   BlueLoading,
+  BlueDoneAndDismissKeyboardInputAccessory,
   BlueButton,
   SafeBlueArea,
   BlueSpacing20,
@@ -41,6 +42,7 @@ export default class WalletsImport extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      isToolbarVisibleForAndroid: false,
     };
   }
 
@@ -255,10 +257,28 @@ export default class WalletsImport extends Component {
             <BlueFormMultiInput
               value={this.state.label}
               placeholder=""
+              contextMenuHidden
               onChangeText={text => {
                 this.setLabel(text);
               }}
+              inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+              onFocus={() => this.setState({ isToolbarVisibleForAndroid: true })}
+              onBlur={() => this.setState({ isToolbarVisibleForAndroid: false })}
             />
+            {Platform.select({
+              ios: (
+                <BlueDoneAndDismissKeyboardInputAccessory
+                  onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
+                  onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+                />
+              ),
+              android: this.state.isToolbarVisibleForAndroid && (
+                <BlueDoneAndDismissKeyboardInputAccessory
+                  onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
+                  onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+                />
+              ),
+            })}
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
 

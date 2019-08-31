@@ -561,10 +561,6 @@ export class BlueFormMultiInput extends Component {
     };
   }
 
-  onSelectionChange = ({ nativeEvent: { selection, text } }) => {
-    this.setState({ selection: { start: selection.end, end: selection.end } });
-  };
-
   render() {
     return (
       <TextInput
@@ -587,8 +583,6 @@ export class BlueFormMultiInput extends Component {
         spellCheck={false}
         {...this.props}
         selectTextOnFocus={false}
-        onSelectionChange={this.onSelectionChange}
-        selection={this.state.selection}
         keyboardType={Platform.OS === 'android' ? 'visible-password' : 'default'}
       />
     );
@@ -854,6 +848,40 @@ export class BlueDismissKeyboardInputAccessory extends Component {
         </View>
       </InputAccessoryView>
     );
+  }
+}
+
+export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
+  static InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
+
+  onPasteTapped = async () => {
+    const clipboard = await Clipboard.getString();
+    this.props.onPasteTapped(clipboard);
+  };
+
+  render() {
+    const inputView = (
+      <View
+        style={{
+          backgroundColor: '#eef0f4',
+          height: 44,
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+        }}
+      >
+        <BlueButtonLink title="Clear" onPress={this.props.onClearTapped} />
+        <BlueButtonLink title="Paste" onPress={this.onPasteTapped} />
+        <BlueButtonLink title="Done" onPress={() => Keyboard.dismiss()} />
+      </View>
+    );
+
+    if (Platform.OS === 'ios') {
+      return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
+    } else {
+      return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
+    }
   }
 }
 
