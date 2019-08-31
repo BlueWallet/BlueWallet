@@ -103,7 +103,6 @@ export class BitcoinButton extends Component {
             borderRadius: 5,
             backgroundColor: (this.props.active && BlueApp.settings.hdbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
-            width: this.props.style.width,
             minWidth: this.props.style.width,
             // eslint-disable-next-line
             minHeight: this.props.style.height,
@@ -141,7 +140,6 @@ export class LightningButton extends Component {
             borderRadius: 5,
             backgroundColor: (this.props.active && BlueApp.settings.lnbackgroundColor) || BlueApp.settings.brandingColor,
             // eslint-disable-next-line
-            width: this.props.style.width,
             minWidth: this.props.style.width,
             // eslint-disable-next-line
             minHeight: this.props.style.height,
