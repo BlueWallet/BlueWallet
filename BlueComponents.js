@@ -15,6 +15,7 @@ import {
   UIManager,
   StyleSheet,
   Dimensions,
+  InteractionManager,
   Image,
   Keyboard,
   SafeAreaView,
@@ -231,8 +232,10 @@ export class BlueWalletNavigationHeader extends Component {
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
 
-    this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
-      this.props.onWalletUnitChange(wallet);
+    InteractionManager.runAfterInteractions(() => {
+      this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
+        this.props.onWalletUnitChange(wallet);
+      });
     });
   }
 
