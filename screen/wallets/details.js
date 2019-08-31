@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText, BluePrivateBalance } from '../../BlueComponents';
+import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
