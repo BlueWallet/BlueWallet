@@ -15,10 +15,10 @@ import {
   UIManager,
   StyleSheet,
   Dimensions,
-  InteractionManager,
   Image,
   Keyboard,
   SafeAreaView,
+  InteractionManager,
   InputAccessoryView,
   Clipboard,
   Platform,
@@ -232,10 +232,8 @@ export class BlueWalletNavigationHeader extends Component {
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
 
-    InteractionManager.runAfterInteractions(() => {
-      this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
-        this.props.onWalletUnitChange(wallet);
-      });
+    this.setState({ wallet, walletPreviousPreferredUnit: walletPreviousPreferredUnit }, () => {
+      this.props.onWalletUnitChange(wallet);
     });
   }
 
@@ -1336,6 +1334,8 @@ export class BlueTransactionListItem extends Component {
     itemPriceUnit: BitcoinUnit.BTC,
   };
 
+  state = { transactionTimeToReadable: '...' };
+
   txMemo = () => {
     if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
       return BlueApp.tx_metadata[this.props.item.hash]['memo'];
@@ -1497,11 +1497,18 @@ export class BlueTransactionListItem extends Component {
     }
   };
 
+  componentDidMount() {
+    InteractionManager.runAfterInteractions(() => {
+      const transactionTimeToReadable = loc.transactionTimeToReadable(this.props.item.received);
+      this.setState({ transactionTimeToReadable });
+    });
+  }
+
   render() {
     return (
       <BlueListItem
         avatar={this.avatar()}
-        title={loc.transactionTimeToReadable(this.props.item.received)}
+        title={this.state.transactionTimeToReadable}
         subtitle={this.subtitle()}
         onPress={this.onPress}
         badge={{
