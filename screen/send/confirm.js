@@ -1,8 +1,8 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
+import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -11,6 +11,8 @@ let EV = require('../../events');
 let currency = require('../../currency');
 let BlueElectrum = require('../../BlueElectrum');
 let Bignumber = require('bignumber.js');
+/** @type {AppStorage} */
+const BlueApp = require('../../BlueApp');
 
 export default class Confirm extends Component {
   static navigationOptions = () => ({
@@ -23,11 +25,10 @@ export default class Confirm extends Component {
 
     this.state = {
       isLoading: false,
-      amount: props.navigation.getParam('amount'),
       fee: props.navigation.getParam('fee'),
       feeSatoshi: new Bignumber(props.navigation.getParam('fee')).multipliedBy(100000000).toNumber(),
-      address: props.navigation.getParam('address'),
       memo: props.navigation.getParam('memo'),
+      recipients: props.navigation.getParam('recipients'),
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
@@ -37,7 +38,7 @@ export default class Confirm extends Component {
 
   async componentDidMount() {
     console.log('send/confirm - componentDidMount');
-    console.log('address = ', this.state.address);
+    console.log('address = ', this.state.addresses);
   }
 
   broadcast() {
@@ -54,12 +55,17 @@ export default class Confirm extends Component {
         } else {
           console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+          let amount = 0;
+          for (const recipient of this.state.recipients) {
+            amount += recipient.value;
+          }
+          amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           this.props.navigation.navigate('Success', {
             fee: Number(this.state.fee),
-            amount: this.state.amount,
-            address: this.state.address,
+            amount,
             dismissModal: () => this.props.navigation.dismiss(),
           });
+          this.setState({ isLoading: false });
         }
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -69,70 +75,107 @@ export default class Confirm extends Component {
     });
   }
 
+  _renderItem = ({ index, item }) => {
+    return (
+      <>
+        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+          <Text
+            style={{
+              color: '#0f5cc0',
+              fontSize: 36,
+              fontWeight: '600',
+            }}
+          >
+            {item.amount === BitcoinUnit.MAX
+              ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
+              : currency.satoshiToBTC(item.value)}
+          </Text>
+          <Text
+            style={{
+              color: '#0f5cc0',
+              fontSize: 16,
+              marginHorizontal: 4,
+              paddingBottom: 6,
+              fontWeight: '600',
+              alignSelf: 'flex-end',
+            }}
+          >
+            {' ' + BitcoinUnit.BTC}
+          </Text>
+        </View>
+        <BlueCard>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+          <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
+        </BlueCard>
+        {this.state.recipients.length > 1 && (
+          <BlueText style={{ alignSelf: 'flex-end', marginRight: 18, marginVertical: 8 }}>
+            {index + 1} of {this.state.recipients.length}
+          </BlueText>
+        )}
+      </>
+    );
+  };
+
+  renderSeparator = () => {
+    return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, margin: 16 }} />;
+  };
+
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+        <View style={{ marginTop: 16, alignItems: 'center', justifyContent: 'space-between' }}>
+          <FlatList
+            scrollEnabled={this.state.recipients.length > 1}
+            extraData={this.state.recipients}
+            data={this.state.recipients}
+            renderItem={this._renderItem}
+            keyExtractor={(_item, index) => `${index}`}
+            ItemSeparatorComponent={this.renderSeparator}
+            style={{ maxHeight: '55%' }}
+          />
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
-            <Text
-              style={{
-                color: '#0f5cc0',
-                fontSize: 36,
-                fontWeight: '600',
-              }}
-            >
-              {this.state.amount}
-            </Text>
-            <Text
-              style={{
-                color: '#0f5cc0',
-                fontSize: 16,
-                marginHorizontal: 4,
-                paddingBottom: 6,
-                fontWeight: '600',
-                alignSelf: 'flex-end',
-              }}
-            >
-              {' ' + BitcoinUnit.BTC}
-            </Text>
+            <BlueCard>
+              <Text
+                style={{
+                  color: '#37c0a1',
+                  fontSize: 14,
+                  marginHorizontal: 4,
+                  paddingBottom: 6,
+                  fontWeight: '500',
+                  alignSelf: 'center',
+                }}
+              >
+                {loc.send.create.fee}: {loc.formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
+                {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
+              </Text>
+              <BlueSpacing40 />
+              {this.state.isLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
+              )}
+
+              <TouchableOpacity
+                style={{ marginVertical: 24 }}
+                onPress={() =>
+                  this.props.navigation.navigate('CreateTransaction', {
+                    fee: this.state.fee,
+                    recipients: this.state.recipients,
+                    memo: this.state.memo,
+                    tx: this.state.tx,
+                    satoshiPerByte: this.state.satoshiPerByte,
+                    wallet: this.state.fromWallet,
+                    feeSatoshi: this.state.feeSatoshi,
+                  })
+                }
+              >
+                <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>
+                  {loc.transactions.details.transaction_details}
+                </Text>
+              </TouchableOpacity>
+            </BlueCard>
           </View>
-          <Text
-            style={{
-              color: '#37c0a1',
-              fontSize: 14,
-              marginHorizontal: 4,
-              paddingBottom: 6,
-              fontWeight: '500',
-              alignSelf: 'center',
-            }}
-          >
-            {loc.send.create.fee}: {loc.formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)} (
-            {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
-          </Text>
-        </BlueCard>
-        <BlueCard>
-          <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
-          <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
-          <BlueSpacing40 />
-          {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />}
-          <TouchableOpacity
-            style={{ marginVertical: 24 }}
-            onPress={() =>
-              this.props.navigation.navigate('CreateTransaction', {
-                amount: this.state.amount,
-                fee: this.state.fee,
-                address: this.state.address,
-                memo: this.state.memo,
-                tx: this.state.tx,
-                satoshiPerByte: this.state.satoshiPerByte,
-              })
-            }
-          >
-            <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>
-              {loc.transactions.details.transaction_details}
-            </Text>
-          </TouchableOpacity>
-        </BlueCard>
+        </View>
       </SafeBlueArea>
     );
   }
