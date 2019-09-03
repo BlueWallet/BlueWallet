@@ -96,6 +96,8 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
+  - react-native-shake (3.3.0):
+    - React
   - react-native-slider (2.0.0-rc.1):
     - React
   - react-native-webview (6.9.0):
@@ -178,6 +180,7 @@ DEPENDENCIES:
   - react-native-haptic-feedback (from `../node_modules/react-native-haptic-feedback`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
+  - react-native-shake (from `../node_modules/react-native-shake`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -255,6 +258,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
+  react-native-shake:
+    :path: "../node_modules/react-native-shake"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
   react-native-webview:
@@ -333,6 +338,7 @@ SPEC CHECKSUMS:
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: fd93361c666f397bdf72f9c6c23f13d2685b9173
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
+  react-native-shake: 5c20cbd8b9c2267bdcc06d19b1e2a19b8a91182d
   react-native-slider: 6d83f7b8076a84e965a43fbdcfcf9dac19cea42e
   react-native-webview: f72ac4078e115dfa741cc588acb1cca25566457d
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90

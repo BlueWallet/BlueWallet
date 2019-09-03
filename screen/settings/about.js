@@ -13,6 +13,9 @@ import {
 import PropTypes from 'prop-types';
 import DeviceInfo from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
+import RNShake from 'react-native-shake';
+import { AppStorage } from '../../class';
+import AsyncStorage from '@react-native-community/async-storage';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
@@ -28,6 +31,7 @@ export default class About extends Component {
     super(props);
     this.state = {
       isLoading: true,
+      showDebugOptions: false,
     };
   }
 
@@ -35,6 +39,16 @@ export default class About extends Component {
     this.setState({
       isLoading: false,
     });
+    RNShake.addEventListener('ShakeEvent', async () => {
+      const advancedModeEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+      if (advancedModeEnabled) {
+        this.setState({ showDebugOptions: !this.state.showDebugOptions });
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    RNShake.removeEventListener('ShakeEvent');
   }
 
   render() {
@@ -150,6 +164,24 @@ export default class About extends Component {
             <BlueTextCentered>
               w, h = {width}, {height}
             </BlueTextCentered>
+            {this.state.showDebugOptions && (
+              <>
+                <BlueSpacing20 />
+                <BlueButton
+                  onPress={() => {
+                    BlueApp.setItem(AppStorage.FLAG_ENCRYPTED, '');
+                  }}
+                  title="Storage Encrypted Flag ( OFF )"
+                />
+                <BlueSpacing20 />
+                <BlueButton
+                  onPress={() => {
+                    BlueApp.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+                  }}
+                  title="Storage Encrypted Flag ( ON )"
+                />
+              </>
+            )}
           </BlueCard>
         </ScrollView>
       </SafeBlueArea>

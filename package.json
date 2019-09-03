@@ -104,6 +104,7 @@
     "react-native-rate": "1.1.7",
     "react-native-secure-key-store": "git+https://github.com/marcosrdz/react-native-secure-key-store.git",
     "react-native-sentry": "0.43.2",
+    "react-native-shake": "git+https://github.com/marcosrdz/react-native-shake.git",
     "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.8.0",
     "react-native-sortable-list": "0.0.23",
