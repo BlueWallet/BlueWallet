@@ -14,9 +14,7 @@ export default class WalletMigrate extends Component {
       try {
         await RNSecureKeyStore.setResetOnAppUninstallTo(false);
         const deleteWalletsFromKeychain = await RNSecureKeyStore.get('deleteWalletAfterUninstall');
-        if (deleteWalletsFromKeychain) {
-          await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
-        }
+        await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
       } catch (_e) {}
       await AsyncStorage.setItem('RnSksIsAppInstalled', '1');
     }
