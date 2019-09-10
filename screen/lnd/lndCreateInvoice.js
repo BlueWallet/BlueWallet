@@ -33,7 +33,7 @@ export default class LNDCreateInvoice extends Component {
     super(props);
 
     let fromWallet;
-    if (props.navigation.state.params.fromWallet) props.navigation.getParam('fromWallet');
+    if (props.navigation.state.params.fromWallet) fromWallet = props.navigation.getParam('fromWallet');
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
@@ -262,5 +262,11 @@ LNDCreateInvoice.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        uri: PropTypes.string,
+        fromWallet: PropTypes.string,
+      }),
+    }),
   }),
 };
