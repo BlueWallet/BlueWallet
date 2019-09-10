@@ -1,6 +1,16 @@
 Always backup your keys! While your coins are safe, bugs happen, and app
 could sometimes lose your wallets (fixed).
 
+v4.4.1
+======
+
+* FIX: crash on ManageFunds
+* ADD: marketplace for regular onchain btc wallets
+* ADD: WatchApp Complication.
+* FIX: Wallet gradient for Bech32 on watch app
+* FIX: v3.9.8 fails to fill value #470
+* FIX: Don't allow more than one leading zero
+
 v4.4.0
 ======
 
