@@ -153,8 +153,8 @@ export class AppStorage {
           this.wallets = decryptedParsed.wallets;
           this.tx_metadata = decryptedParsed.tx_metadata;
           this.cachedPassword = undefined;
-          await RNSecureKeyStore.set(AppStorage.FLAG_ENCRYPTED, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
-          await RNSecureKeyStore.set('deleteWalletAfterUninstall', '1', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          await this.setItem(AppStorage.FLAG_ENCRYPTED, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          await this.setItem('deleteWalletAfterUninstall', '1', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
           return this.saveToDisk();
         }
       }
