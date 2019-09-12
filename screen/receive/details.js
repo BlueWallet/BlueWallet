@@ -63,8 +63,8 @@ export default class ReceiveDetails extends Component {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
-        }
-        BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+        }  else {
+          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
       }
       this.setState({
         address: address,
