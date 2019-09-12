@@ -58,13 +58,11 @@ export default class ReceiveDetails extends Component {
       if (wallet.getAddressAsync) {
         try {
           address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
-          wallet._address = address;
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
-          wallet._address = address;
         }
         BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
       }

@@ -49,7 +49,7 @@ export default class App extends React.Component {
       if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
-          wallet.chain === Chain.ONCHAIN ? wallet._address === clipboard : wallet.isInvoiceGeneratedByWallet(clipboard),
+          wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
         );
         if (
           this.state.clipboardContent !== clipboard &&
