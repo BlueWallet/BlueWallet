@@ -63,20 +63,21 @@ export default class ReceiveDetails extends Component {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
           address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
-        }  else {
+        } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+        }
+        this.setState({
+          address: address,
+          addressText: address,
+        });
+      } else {
+        alert('There was a problem obtaining your receive address. Please, try again.');
+        this.props.navigation.goBack();
+        this.setState({
+          address,
+          addressText: address,
+        });
       }
-      this.setState({
-        address: address,
-        addressText: address,
-      });
-    } else {
-      alert('There was a problem obtaining your receive address. Please, try again.');
-      this.props.navigation.goBack();
-      this.setState({
-        address,
-        addressText: address,
-      });
     }
 
     InteractionManager.runAfterInteractions(async () => {
