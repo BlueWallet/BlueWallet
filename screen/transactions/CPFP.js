@@ -1,7 +1,16 @@
 /* global alert */
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, Clipboard } from 'react-native';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing, BlueNavigationStyle } from '../../BlueComponents';
+import {
+  BlueSpacing20,
+  BlueReplaceFeeSuggestions,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueSpacing,
+  BlueNavigationStyle,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Icon, Text } from 'react-native-elements';
@@ -216,34 +225,9 @@ export default class CPFP extends Component {
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>{text}</BlueText>
           <BlueSpacing20 />
-
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              alignItems: 'center',
-              marginVertical: 8,
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              onChangeText={text => this.setState({ newFeeRate: text })}
-              keyboardType={'numeric'}
-              placeholder={'total fee rate (satoshi per byte) you want to pay'}
-              value={this.state.newFeeRate + ''}
-              style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
-            />
-          </View>
-
-          <BlueText>Should be higher than {this.state.feeRate} sat/byte</BlueText>
+          <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
           <BlueSpacing />
-          <BlueButton onPress={() => this.createTransaction()} title="Create" />
+          <BlueButton disabled={this.state.newFeeRate <= this.state.feeRate} onPress={() => this.createTransaction()} title="Create" />
         </BlueCard>
       </SafeBlueArea>
     );

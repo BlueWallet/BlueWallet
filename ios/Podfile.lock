@@ -33,6 +33,8 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - RCTSystemSetting (1.7.2):
+    - React
   - React (0.60.5):
     - React-Core (= 0.60.5)
     - React-DevSupport (= 0.60.5)
@@ -163,6 +165,7 @@ DEPENDENCIES:
   - EFQRCode (~> 5.0.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - RCTSystemSetting (from `../node_modules/react-native-system-setting`)
   - React (from `../node_modules/react-native/`)
   - React-Core (from `../node_modules/react-native/React`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
@@ -226,6 +229,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  RCTSystemSetting:
+    :path: "../node_modules/react-native-system-setting"
   React:
     :path: "../node_modules/react-native/"
   React-Core:
@@ -315,6 +320,7 @@ SPEC CHECKSUMS:
   EFQRCode: 07437cfbce3a1e497397a4f3d766c980d8972608
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
+  RCTSystemSetting: 9279ff44c49bb4fb0a5d335a0851852c8f3eda99
   React: 53c53c4d99097af47cf60594b8706b4e3321e722
   React-Core: ba421f6b4f4cbe2fb17c0b6fc675f87622e78a64
   React-cxxreact: 8384287780c4999351ad9b6e7a149d9ed10a2395

@@ -64,7 +64,7 @@ export default class LNDCreateInvoice extends Component {
             throw new Error('Reply from server: ' + reply.reason);
           }
         }
-
+        await BlueApp.saveToDisk();
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
           fromWallet: this.state.fromWallet,

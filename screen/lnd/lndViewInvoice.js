@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
+import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -43,7 +44,7 @@ export default class LNDViewInvoice extends Component {
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
     this.fetchInvoiceInterval = undefined;
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   async componentDidMount() {
@@ -62,6 +63,8 @@ export default class LNDViewInvoice extends Component {
 
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
+            await SystemSetting.saveBrightness();
+            await SystemSetting.setAppBrightness(1.0);
             if (updatedUserInvoice.ispaid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
@@ -90,16 +93,17 @@ export default class LNDViewInvoice extends Component {
     }, 3000);
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+    await SystemSetting.restoreBrightness();
   }
 
-  handleBackButton() {
+  handleBackButton = () => {
     this.props.navigation.goBack(null);
     return true;
-  }
+  };
 
   onLayout = () => {
     const { height } = Dimensions.get('window');
