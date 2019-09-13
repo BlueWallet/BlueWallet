@@ -3,9 +3,9 @@ import { ScrollView, View } from 'react-native';
 import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
+const bitcoin = require('bitcoinjs-lib');
 let BigNumber = require('bignumber.js');
 let encryption = require('../encryption');
-let bitcoin = require('bitcoinjs-lib');
 let BlueElectrum = require('../BlueElectrum');
 
 export default class Selftest extends Component {
@@ -217,16 +217,17 @@ export default class Selftest extends Component {
       let mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
       let seed = bip39.mnemonicToSeed(mnemonic);
-      let root = bitcoin.HDNode.fromSeedBuffer(seed);
+      let root = bitcoin.bip32.fromSeed(seed);
 
       let path = "m/49'/0'/0'/0/0";
       let child = root.derivePath(path);
-
-      let keyhash = bitcoin.crypto.hash160(child.getPublicKeyBuffer());
-      let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
-      let addressBytes = bitcoin.crypto.hash160(scriptSig);
-      let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-      let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
+      let address = bitcoin.payments.p2sh({
+        redeem: bitcoin.payments.p2wpkh({
+          pubkey: child.publicKey,
+          network: bitcoin.networks.bitcoin,
+        }),
+        network: bitcoin.networks.bitcoin,
+      }).address;
 
       if (address !== '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK') {
         errorMessage += 'bip49 is not ok; ';

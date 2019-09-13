@@ -6,13 +6,14 @@
  * https://github.com/Overtorment/Cashier-BTC
  *
  **/
-let bitcoinjs = require('bitcoinjs-lib');
+const bitcoinjs = require('bitcoinjs-lib');
 const toSatoshi = num => parseInt((num * 100000000).toFixed(0));
 
 exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, changeAddress) {
   let feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
   let amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get
   let txb = new bitcoinjs.TransactionBuilder();
+  txb.setVersion(1);
   let unspentAmountSatoshi = 0;
   let ourOutputs = {};
   let outputNum = 0;
@@ -51,7 +52,11 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
   // now, signing every input with a corresponding key
 
   for (let c = 0; c <= outputNum; c++) {
-    txb.sign(c, ourOutputs[c].keyPair);
+    txb.sign({
+      prevOutScriptType: 'p2pkh',
+      vin: c,
+      keyPair: ourOutputs[c].keyPair,
+    });
   }
 
   let tx = txb.build();
@@ -62,6 +67,7 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   let feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
   let amountToOutputSatoshi = parseInt(((amount - fixedFee) * 100000000).toFixed(0)); // how much payee should get
   let txb = new bitcoinjs.TransactionBuilder();
+  txb.setVersion(1);
   let unspentAmountSatoshi = 0;
   let ourOutputs = {};
   let outputNum = 0;
@@ -73,9 +79,9 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
     txb.addInput(unspent.txid, unspent.vout);
     ourOutputs[outputNum] = ourOutputs[outputNum] || {};
     let keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif);
-    let pubKey = keyPair.getPublicKeyBuffer();
-    let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
-    let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(pubKeyHash);
+    let redeemScript = bitcoinjs.payments.p2wpkh({
+      pubkey: keyPair.publicKey,
+    }).output;
     ourOutputs[outputNum].keyPair = keyPair;
     ourOutputs[outputNum].redeemScript = redeemScript;
     ourOutputs[outputNum].amount = unspent.amount;
@@ -106,7 +112,13 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   // now, signing every input with a corresponding key
 
   for (let c = 0; c <= outputNum; c++) {
-    txb.sign(c, ourOutputs[c].keyPair, ourOutputs[c].redeemScript, null, ourOutputs[c].amount);
+    txb.sign({
+      prevOutScriptType: 'p2sh-p2wpkh',
+      vin: c,
+      keyPair: ourOutputs[c].keyPair,
+      redeemScript: ourOutputs[c].redeemScript,
+      witnessValue: ourOutputs[c].amount,
+    });
   }
 
   let tx = txb.build();
@@ -121,11 +133,12 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
 
   let feeInSatoshis = parseInt((fixedFee * 100000000).toFixed(0));
   let keyPair = bitcoinjs.ECPair.fromWIF(WIF);
-  let pubKey = keyPair.getPublicKeyBuffer();
-  let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
-  let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(pubKeyHash);
+  let redeemScript = bitcoinjs.payments.p2wpkh({
+    pubkey: keyPair.publicKey,
+  }).output;
 
   let txb = new bitcoinjs.TransactionBuilder();
+  txb.setVersion(1);
   let unspentAmount = 0;
   for (const unspent of utxos) {
     if (unspent.confirmations < 2) {
@@ -148,7 +161,13 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
   }
 
   for (let c = 0; c < utxos.length; c++) {
-    txb.sign(c, keyPair, redeemScript, null, parseInt((utxos[c].amount * 100000000).toFixed(0)));
+    txb.sign({
+      prevOutScriptType: 'p2sh-p2wpkh',
+      vin: c,
+      keyPair,
+      redeemScript,
+      witnessValue: parseInt((utxos[c].amount * 100000000).toFixed(0)),
+    });
   }
 
   let tx = txb.build();
@@ -172,6 +191,7 @@ exports.createRBFSegwitTransaction = function(txhex, addressReplaceMap, feeDelta
 
   // creating TX
   let txb = new bitcoinjs.TransactionBuilder();
+  txb.setVersion(1);
   for (let unspent of tx.ins) {
     txb.addInput(unspent.hash.reverse().toString('hex'), unspent.index, highestSequence + 1);
   }
@@ -191,14 +211,20 @@ exports.createRBFSegwitTransaction = function(txhex, addressReplaceMap, feeDelta
 
   // signing
   let keyPair = bitcoinjs.ECPair.fromWIF(WIF);
-  let pubKey = keyPair.getPublicKeyBuffer();
-  let pubKeyHash = bitcoinjs.crypto.hash160(pubKey);
-  let redeemScript = bitcoinjs.script.witnessPubKeyHash.output.encode(pubKeyHash);
+  let redeemScript = bitcoinjs.payments.p2wpkh({
+    pubkey: keyPair.publicKey,
+  }).output;
   for (let c = 0; c < tx.ins.length; c++) {
     let txid = tx.ins[c].hash.reverse().toString('hex');
     let index = tx.ins[c].index;
     let amount = utxodata[txid][index];
-    txb.sign(c, keyPair, redeemScript, null, amount);
+    txb.sign({
+      prevOutScriptType: 'p2sh-p2wpkh',
+      vin: c,
+      keyPair,
+      redeemScript,
+      witnessValue: amount,
+    });
   }
 
   let newTx = txb.build();
@@ -207,11 +233,11 @@ exports.createRBFSegwitTransaction = function(txhex, addressReplaceMap, feeDelta
 
 exports.generateNewSegwitAddress = function() {
   let keyPair = bitcoinjs.ECPair.makeRandom();
-  let pubKey = keyPair.getPublicKeyBuffer();
-
-  let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(bitcoinjs.crypto.hash160(pubKey));
-  let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(bitcoinjs.crypto.hash160(witnessScript));
-  let address = bitcoinjs.address.fromOutputScript(scriptPubKey);
+  let address = bitcoinjs.payments.p2sh({
+    redeem: bitcoinjs.payments.p2wpkh({
+      pubkey: keyPair.publicKey,
+    }),
+  }).address;
 
   return {
     address: address,
@@ -236,10 +262,11 @@ exports.URI = function(paymentInfo) {
 
 exports.WIF2segwitAddress = function(WIF) {
   let keyPair = bitcoinjs.ECPair.fromWIF(WIF);
-  let pubKey = keyPair.getPublicKeyBuffer();
-  let witnessScript = bitcoinjs.script.witnessPubKeyHash.output.encode(bitcoinjs.crypto.hash160(pubKey));
-  let scriptPubKey = bitcoinjs.script.scriptHash.output.encode(bitcoinjs.crypto.hash160(witnessScript));
-  return bitcoinjs.address.fromOutputScript(scriptPubKey);
+  return bitcoinjs.payments.p2sh({
+    redeem: bitcoinjs.payments.p2wpkh({
+      pubkey: keyPair.publicKey,
+    }),
+  }).address;
 };
 
 exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, fromAddress) {
@@ -247,6 +274,7 @@ exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, 
   let amountToOutput = toSatoshi(_amount - _fixedFee);
   let pk = bitcoinjs.ECPair.fromWIF(WIF); // eslint-disable-line new-cap
   let txb = new bitcoinjs.TransactionBuilder();
+  txb.setVersion(1);
   let unspentAmount = 0;
   for (const unspent of utxos) {
     if (unspent.confirmations < 2) {
@@ -264,7 +292,11 @@ exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, 
   }
 
   for (let c = 0; c < utxos.length; c++) {
-    txb.sign(c, pk);
+    txb.sign({
+      prevOutScriptType: 'p2pkh',
+      vin: c,
+      keyPair: pk,
+    });
   }
 
   return txb.build().toHex();

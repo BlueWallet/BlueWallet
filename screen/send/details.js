@@ -33,12 +33,12 @@ import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-let bitcoin = require('bitcoinjs-lib');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 

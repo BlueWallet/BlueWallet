@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from './class';
+const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
-let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
 let BigNumber = require('bignumber.js');
 
