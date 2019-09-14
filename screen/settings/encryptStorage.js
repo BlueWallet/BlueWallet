@@ -91,7 +91,7 @@ export default class EncryptStorage extends Component {
       } else {
         Alert.alert(
           'Decrypt Storage',
-          'Are you sure you want to decrypt your storage?',
+          'Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password, and remove your plausible deniability wallets.',
           [
             {
               text: loc.send.details.cancel,
