@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { View, Alert, Platform, TouchableOpacity } from 'react-native';
 import { BlueLoading, BlueHeaderDefaultSub, BlueListItem, SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -18,30 +17,21 @@ export default class EncryptStorage extends Component {
     title: loc.settings.security,
   });
 
-  static deleteWalletAfterUninstall = 'deleteWalletAfterUninstall';
-
   constructor(props) {
     super(props);
     this.state = {
       isLoading: true,
       language: loc.getLanguage(),
+      deleteWalletsAfterUninstall: false,
     };
   }
 
   async componentDidMount() {
-    let deleteWalletsAfterUninstall = true;
-    try {
-      deleteWalletsAfterUninstall = await RNSecureKeyStore.get(EncryptStorage.deleteWalletAfterUninstall);
-      deleteWalletsAfterUninstall =
-        deleteWalletsAfterUninstall === true || deleteWalletsAfterUninstall === '1' || deleteWalletsAfterUninstall === 1;
-    } catch (_e) {
-      deleteWalletsAfterUninstall = true;
-    }
     this.setState({
       isLoading: false,
       advancedModeEnabled: (await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)) || false,
       storageIsEncrypted: await BlueApp.storageIsEncrypted(),
-      deleteWalletsAfterUninstall,
+      deleteWalletsAfterUninstall: await BlueApp.isDeleteWalletAfterUninstallEnabled(),
     });
   }
 
@@ -54,25 +44,23 @@ export default class EncryptStorage extends Component {
       this.setState({
         isLoading: false,
         storageIsEncrypted: await BlueApp.storageIsEncrypted(),
-        deleteWalletAfterUninstall: await RNSecureKeyStore.get(EncryptStorage.deleteWalletAfterUninstall),
+        deleteWalletAfterUninstall: await BlueApp.isDeleteWalletAfterUninstallEnabled(),
       });
     } catch (e) {
-      console.log(e);
       if (password) {
         alert(loc._.bad_password);
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });  
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       }
       this.setState({
         isLoading: false,
         storageIsEncrypted: await BlueApp.storageIsEncrypted(),
-        deleteWalletAfterUninstall: await RNSecureKeyStore.get(EncryptStorage.deleteWalletAfterUninstall),
+        deleteWalletAfterUninstall: await BlueApp.isDeleteWalletAfterUninstallEnabled(),
       });
     }
   };
 
   onDeleteWalletsAfterUninstallSwitch = async value => {
-    await RNSecureKeyStore.setResetOnAppUninstallTo(value);
-    await RNSecureKeyStore.set(EncryptStorage.deleteWalletAfterUninstall, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    await BlueApp.setResetOnAppUninstallTo(value);
     this.setState({ deleteWalletsAfterUninstall: value });
   };
 

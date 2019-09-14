@@ -23,7 +23,7 @@ export class AppStorage {
   static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
-
+  static DELETEWALLETAFTERUNINSTALLKEY = 'deleteWalletAfterUninstall';
   constructor() {
     /** {Array.<AbstractWallet>} */
     this.wallets = [];
@@ -86,6 +86,11 @@ export class AppStorage {
     } else {
       return AsyncStorage.getItem(key);
     }
+  }
+
+  async setResetOnAppUninstallTo(value) {
+    await this.setItem('deleteWalletAfterUninstall', value === true ? '1' : '');
+    await RNSecureKeyStore.setResetOnAppUninstallTo(value);
   }
 
   async storageIsEncrypted() {
@@ -162,6 +167,16 @@ export class AppStorage {
       console.log(e);
       throw new Error(e);
     }
+  }
+
+  async isDeleteWalletAfterUninstallEnabled() {
+    let deleteWalletsAfterUninstall;
+    try {
+      deleteWalletsAfterUninstall = await this.getItem('deleteWalletAfterUninstall');
+    } catch (_e) {
+      deleteWalletsAfterUninstall = true;
+    }
+    return !!deleteWalletsAfterUninstall;
   }
 
   async encryptStorage(password) {

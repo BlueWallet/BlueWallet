@@ -522,6 +522,7 @@ export class BlueListItem extends Component {
         }}
         subtitleStyle={{ color: BlueApp.settings.alternativeTextColor }}
         subtitleNumberOfLines={1}
+        titleNumberOfLines={0}
         {...this.props}
       />
     );

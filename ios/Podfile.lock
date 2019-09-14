@@ -21,7 +21,7 @@ PODS:
   - BVLinearGradient (2.5.4):
     - React
   - DoubleConversion (1.1.6)
-  - EFQRCode (5.0.0):
+  - EFQRCode (5.0.1):
     - swift_qrcodejs (~> 1.1.1)
   - Folly (2018.10.22.00):
     - boost-for-react-native
@@ -317,7 +317,7 @@ SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  EFQRCode: 07437cfbce3a1e497397a4f3d766c980d8972608
+  EFQRCode: 239efec4dd406d9c635dd937525fc40960ce2e9f
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   RCTSystemSetting: 9279ff44c49bb4fb0a5d335a0851852c8f3eda99
