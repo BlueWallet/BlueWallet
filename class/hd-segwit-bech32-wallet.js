@@ -709,6 +709,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       psbt.addInput({
         hash: input.txId,
         index: input.vout,
+        sequence,
         witnessUtxo: {
           script: p2wpkh.output,
           value: input.value,

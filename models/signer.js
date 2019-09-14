@@ -226,7 +226,9 @@ exports.createRBFSegwitTransaction = function(txhex, addressReplaceMap, feeDelta
   let psbt = new bitcoinjs.Psbt();
   psbt.setVersion(1);
   for (let unspent of tx.ins) {
-    let txid = Buffer.from(unspent.hash).reverse().toString('hex');
+    let txid = Buffer.from(unspent.hash)
+      .reverse()
+      .toString('hex');
     let index = unspent.index;
     let amount = utxodata[txid][index];
     psbt.addInput({
