@@ -1,8 +1,8 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
-const bitcoin = require('bitcoinjs-lib');
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import signer from '../models/signer';
+const bitcoin = require('bitcoinjs-lib');
 
 /**
  * HD Wallet (BIP39).

@@ -693,7 +693,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    let txb = new bitcoin.TransactionBuilder();
+    let psbt = new bitcoin.Psbt();
 
     let c = 0;
     let keypairs = {};
@@ -706,7 +706,14 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       c++;
       if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey });
-      txb.addInput(input.txId, input.vout, sequence, p2wpkh.output); // NOTE: provide the prevOutScript!
+      psbt.addInput({
+        hash: input.txId,
+        index: input.vout,
+        witnessUtxo: {
+          script: p2wpkh.output,
+          value: input.value,
+        },
+      });
     });
 
     outputs.forEach(output => {
@@ -715,14 +722,17 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
         output.address = changeAddress;
       }
 
-      txb.addOutput(output.address, output.value);
+      psbt.addOutput({
+        address: output.address,
+        value: output.value,
+      });
     });
 
     for (let cc = 0; cc < c; cc++) {
-      txb.sign(cc, keypairs[cc], null, null, values[cc]); // NOTE: no redeem script
+      psbt.signInput(cc, keypairs[cc]);
     }
 
-    const tx = txb.build();
+    const tx = psbt.finalizeAllInputs().extractTransaction();
     return { tx, inputs, outputs, fee };
   }
 
