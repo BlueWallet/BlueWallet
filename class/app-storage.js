@@ -23,7 +23,7 @@ export class AppStorage {
   static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
-
+  static DELETEWALLETAFTERUNINSTALLKEY = 'deleteWalletAfterUninstall';
   constructor() {
     /** {Array.<AbstractWallet>} */
     this.wallets = [];
@@ -88,6 +88,11 @@ export class AppStorage {
     }
   }
 
+  async setResetOnAppUninstallTo(value) {
+    await this.setItem('deleteWalletAfterUninstall', value === true ? '1' : '');
+    await RNSecureKeyStore.setResetOnAppUninstallTo(value);
+  }
+
   async storageIsEncrypted() {
     let data;
     try {
@@ -97,6 +102,19 @@ export class AppStorage {
     }
 
     return !!data;
+  }
+
+  async isPasswordInUse(password) {
+    try {
+      let data = await this.getItem('data');
+      data = this.decryptData(data, password);
+      if (data !== null && data !== undefined && data !== false) {
+        return true;
+      }
+    } catch (_e) {
+      return false;
+    }
+    return false;
   }
 
   /**
@@ -122,6 +140,43 @@ export class AppStorage {
     }
 
     return false;
+  }
+
+  async decryptStorage(password) {
+    try {
+      let storage = await this.getItem('data');
+      if (password) {
+        let parsedStorage = JSON.parse(storage);
+        let mainStorage = parsedStorage[0];
+        mainStorage = JSON.stringify([mainStorage]);
+        let decrypted = this.decryptData(mainStorage, password);
+        if (!decrypted) {
+          throw new Error('Wrong password for main storage.');
+        }
+        const decryptedParsed = JSON.parse(decrypted);
+        if (decrypted.wallets !== null) {
+          this.wallets = decryptedParsed.wallets;
+          this.tx_metadata = decryptedParsed.tx_metadata;
+          this.cachedPassword = undefined;
+          await this.setItem(AppStorage.FLAG_ENCRYPTED, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          await this.setItem('deleteWalletAfterUninstall', '1', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          return this.saveToDisk();
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      throw new Error(e);
+    }
+  }
+
+  async isDeleteWalletAfterUninstallEnabled() {
+    let deleteWalletsAfterUninstall;
+    try {
+      deleteWalletsAfterUninstall = await this.getItem('deleteWalletAfterUninstall');
+    } catch (_e) {
+      deleteWalletsAfterUninstall = true;
+    }
+    return !!deleteWalletsAfterUninstall;
   }
 
   async encryptStorage(password) {
@@ -289,6 +344,7 @@ export class AppStorage {
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
+      if (typeof key === 'string') key = JSON.parse(key);
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 
