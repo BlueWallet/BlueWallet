@@ -3,8 +3,8 @@ import { NativeModules } from 'react-native';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
+const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../BlueElectrum');
-const bitcoin5 = require('bitcoinjs5');
 const HDNode = require('bip32');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
@@ -693,20 +693,28 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    let txb = new bitcoin5.TransactionBuilder();
+    let psbt = new bitcoin.Psbt();
 
     let c = 0;
     let keypairs = {};
     let values = {};
 
     inputs.forEach(input => {
-      const keyPair = bitcoin5.ECPair.fromWIF(this._getWifForAddress(input.address));
+      const keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address));
       keypairs[c] = keyPair;
       values[c] = input.value;
       c++;
       if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
-      const p2wpkh = bitcoin5.payments.p2wpkh({ pubkey: keyPair.publicKey });
-      txb.addInput(input.txId, input.vout, sequence, p2wpkh.output); // NOTE: provide the prevOutScript!
+      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey });
+      psbt.addInput({
+        hash: input.txId,
+        index: input.vout,
+        sequence,
+        witnessUtxo: {
+          script: p2wpkh.output,
+          value: input.value,
+        },
+      });
     });
 
     outputs.forEach(output => {
@@ -715,14 +723,17 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
         output.address = changeAddress;
       }
 
-      txb.addOutput(output.address, output.value);
+      psbt.addOutput({
+        address: output.address,
+        value: output.value,
+      });
     });
 
     for (let cc = 0; cc < c; cc++) {
-      txb.sign(cc, keypairs[cc], null, null, values[cc]); // NOTE: no redeem script
+      psbt.signInput(cc, keypairs[cc]);
     }
 
-    const tx = txb.build();
+    const tx = psbt.finalizeAllInputs().extractTransaction();
     return { tx, inputs, outputs, fee };
   }
 
@@ -733,7 +744,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * @returns {String}
    */
   static _nodeToBech32SegwitAddress(hdNode) {
-    return bitcoin5.payments.p2wpkh({
+    return bitcoin.payments.p2wpkh({
       pubkey: hdNode.publicKey,
     }).address;
   }

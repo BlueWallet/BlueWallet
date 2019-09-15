@@ -7,7 +7,6 @@ import b58 from 'bs58check';
 import signer from '../models/signer';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
-const bitcoin5 = require('bitcoinjs5');
 const HDNode = require('bip32');
 
 const { RNRandomBytes } = NativeModules;
@@ -19,6 +18,7 @@ const { RNRandomBytes } = NativeModules;
  */
 function ypubToXpub(ypub) {
   let data = b58.decode(ypub);
+  if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
   data = data.slice(4);
   data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
 
@@ -31,8 +31,8 @@ function ypubToXpub(ypub) {
  * @returns {String}
  */
 function nodeToP2shSegwitAddress(hdNode) {
-  const { address } = bitcoin5.payments.p2sh({
-    redeem: bitcoin5.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+  const { address } = bitcoin.payments.p2sh({
+    redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
   });
   return address;
 }
@@ -95,11 +95,11 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = bitcoin.bip32.fromSeed(seed);
     const path = `m/49'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
-    return child.keyPair.toWIF();
+    return bitcoin.ECPair.fromPrivateKey(child.privateKey).toWIF();
   }
 
   _getExternalAddressByIndex(index) {
