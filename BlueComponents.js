@@ -2008,7 +2008,7 @@ export class BlueReplaceFeeSuggestions extends Component {
 
   async componentDidMount() {
     const networkFees = await NetworkTransactionFees.recommendedFees();
-    this.setState({ networkFees });
+    this.setState({ networkFees }, () => this.onFeeSelected(NetworkTransactionFeeType.FAST));
   }
 
   onFeeSelected = selectedFeeType => {
