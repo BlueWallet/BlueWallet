@@ -38,7 +38,7 @@ export default class Confirm extends Component {
 
   async componentDidMount() {
     console.log('send/confirm - componentDidMount');
-    console.log('address = ', this.state.addresses);
+    console.log('address = ', this.state.recipients);
   }
 
   broadcast() {
@@ -56,9 +56,15 @@ export default class Confirm extends Component {
           console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           let amount = 0;
-          for (const recipient of this.state.recipients) {
-            amount += recipient.value;
+          const recipients = this.state.recipients;
+          if (recipients[0].amount === BitcoinUnit.MAX) {
+            amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
+          } else {
+            for (const recipient of recipients) {
+              amount += recipient.value;
+            }
           }
+
           amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           this.props.navigation.navigate('Success', {
             fee: Number(this.state.fee),
