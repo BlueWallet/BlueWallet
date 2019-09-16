@@ -209,22 +209,39 @@ export default class SendDetails extends Component {
 
       if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
         this.setState({
-          fee: cachedNetworkTransactionFees.halfHourFee,
+          fee: cachedNetworkTransactionFees.fastestFee,
           networkTransactionFees: cachedNetworkTransactionFees,
-          feeSliderValue: cachedNetworkTransactionFees.halfHourFee,
+          feeSliderValue: cachedNetworkTransactionFees.fastestFee,
         });
       }
     } catch (_) {}
 
     try {
       let recommendedFees = await NetworkTransactionFees.recommendedFees();
-      if (recommendedFees && recommendedFees.hasOwnProperty('halfHourFee')) {
+      if (recommendedFees && recommendedFees.hasOwnProperty('fastestFee')) {
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
-          fee: recommendedFees.halfHourFee,
+          fee: recommendedFees.fastestFee,
           networkTransactionFees: recommendedFees,
-          feeSliderValue: recommendedFees.halfHourFee,
+          feeSliderValue: recommendedFees.fastestFee,
         });
+
+        if (this.props.navigation.state.params.uri) {
+          if (BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.navigation.state.params.uri)) {
+            this.processBIP70Invoice(this.props.navigation.state.params.uri);
+          } else {
+            try {
+              const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
+              this.setState({ address, amount, memo, isLoading: false });
+            } catch (error) {
+              console.log(error);
+              this.setState({ isLoading: false });
+              alert('Error: Unable to decode Bitcoin address');
+            }
+          }
+        }
+      } else {
+        this.setState({ isLoading: false });
       }
     } catch (_e) {}
   }

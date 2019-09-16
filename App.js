@@ -47,7 +47,7 @@ export default class App extends React.Component {
     if (BlueApp.getWallets().length > 0) {
       if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
         const clipboard = await Clipboard.getString();
-        if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
+        if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard) || this.isLnUrl(clipboard))) {
           this.setState({ isClipboardContentModalVisible: true });
         }
         this.setState({ clipboardContent: clipboard });
@@ -88,11 +88,18 @@ export default class App extends React.Component {
 
   isLightningInvoice(invoice) {
     let isValidLightningInvoice = false;
-    if (invoice.indexOf('lightning:lnb') === 0 || invoice.indexOf('LIGHTNING:lnb') === 0 || invoice.toLowerCase().startsWith('lnb')) {
+    if (invoice.toLowerCase().startsWith('lightning:lnb') || invoice.toLowerCase().startsWith('lnb')) {
       this.setState({ clipboardContentModalAddressType: lightningModalString });
       isValidLightningInvoice = true;
     }
     return isValidLightningInvoice;
+  }
+
+  isLnUrl(text) {
+    if (text.toLowerCase().startsWith('lightning:lnurl') || text.toLowerCase().startsWith('lnurl')) {
+      return true;
+    }
+    return false;
   }
 
   isSafelloRedirect(event) {
@@ -123,6 +130,16 @@ export default class App extends React.Component {
         this.navigator.dispatch(
           NavigationActions.navigate({
             routeName: 'ScanLndInvoice',
+            params: {
+              uri: event.url,
+            },
+          }),
+        );
+    } else if (this.isLnUrl(event.url)) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'LNDCreateInvoice',
             params: {
               uri: event.url,
             },
