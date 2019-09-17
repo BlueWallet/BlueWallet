@@ -764,7 +764,9 @@ export default class SendDetails extends Component {
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
+              {loc.wallets.select_wallet.toLowerCase()}
+            </Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
