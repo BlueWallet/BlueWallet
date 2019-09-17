@@ -155,8 +155,8 @@ export default class LNDViewInvoice extends Component {
                   borderRadius: 60,
                   alignSelf: 'center',
                   justifyContent: 'center',
-                  marginTop: 43,
-                  marginBottom: 53,
+                  marginTop: -100,
+                  marginBottom: 30,
                 }}
               >
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
@@ -192,8 +192,8 @@ export default class LNDViewInvoice extends Component {
                   borderRadius: 60,
                   alignSelf: 'center',
                   justifyContent: 'center',
-                  marginTop: 43,
-                  marginBottom: 53,
+                  marginTop: -100,
+                  marginBottom: 30,
                 }}
               >
                 <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />
