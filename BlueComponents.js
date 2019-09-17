@@ -2003,12 +2003,11 @@ export class BlueAddressInput extends Component {
             );
           }}
           style={{
-            width: 75,
             height: 36,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            backgroundColor: '#bebebe',
+            backgroundColor: '#9AA0AA',
             borderRadius: 4,
             paddingVertical: 4,
             paddingHorizontal: 8,
@@ -2016,7 +2015,7 @@ export class BlueAddressInput extends Component {
           }}
         >
           <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
-          <Text style={{ color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
+          <Text style={{ marginLeft: 4, color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
         </TouchableOpacity>
       </View>
     );

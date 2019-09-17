@@ -255,23 +255,25 @@ export default class ScanLndInvoice extends React.Component {
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
-              <BlueBitcoinAmount
-                pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
-                isLoading={this.state.isLoading}
-                amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
-                onChangeText={text => {
-                  if (typeof this.state.decoded === 'object') {
-                    text = parseInt(text || 0);
-                    let decoded = this.state.decoded;
-                    decoded.num_satoshis = text;
-                    this.setState({ decoded: decoded });
-                  }
-                }}
-                disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
-                unit={BitcoinUnit.SATS}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-              />
-              <BlueSpacing20 />
+              <View style={{ marginTop: 60 }}>
+                <BlueBitcoinAmount
+                  pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
+                  isLoading={this.state.isLoading}
+                  amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
+                  onChangeText={text => {
+                    if (typeof this.state.decoded === 'object') {
+                      text = parseInt(text || 0);
+                      let decoded = this.state.decoded;
+                      decoded.num_satoshis = text;
+                      this.setState({ decoded: decoded });
+                    }
+                  }}
+                  disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
+                  unit={BitcoinUnit.SATS}
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                />
+              </View>
+              
               <BlueCard>
                 <BlueAddressInput
                   onChangeText={text => {
@@ -289,7 +291,7 @@ export default class ScanLndInvoice extends React.Component {
                     flexDirection: 'row',
                     marginHorizontal: 20,
                     alignItems: 'center',
-                    marginVertical: 8,
+                    marginVertical: 0,
                     borderRadius: 4,
                   }}
                 >
@@ -300,7 +302,7 @@ export default class ScanLndInvoice extends React.Component {
                 {this.state.expiresIn !== undefined && (
                   <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
                 )}
-                <BlueSpacing20 />
+                
                 <BlueCard>
                   {this.state.isLoading ? (
                     <View>
@@ -308,11 +310,6 @@ export default class ScanLndInvoice extends React.Component {
                     </View>
                   ) : (
                     <BlueButton
-                      icon={{
-                        name: 'bolt',
-                        type: 'font-awesome',
-                        color: BlueApp.settings.buttonTextColor,
-                      }}
                       title={'Pay'}
                       onPress={() => {
                         this.pay();
@@ -323,6 +320,7 @@ export default class ScanLndInvoice extends React.Component {
                 </BlueCard>
               </BlueCard>
             </View>
+          
 
             {this.renderWalletSelectionButton()}
           </View>
