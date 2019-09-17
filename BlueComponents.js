@@ -382,6 +382,36 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   headerBackTitle: null,
 });
 
+export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuButton = false, advancedOptionsMenuButtonAction) => ({
+  headerStyle: {
+    backgroundColor: BlueApp.settings.brandingColor,
+    borderBottomWidth: 0,
+    elevation: 0,
+  },
+  headerTitleStyle: {
+    fontWeight: '600',
+    color: BlueApp.settings.foregroundColor,
+  },
+  headerTintColor: BlueApp.settings.foregroundColor,
+  headerLeft: (
+    <TouchableOpacity
+      style={{ minWwidth: 40, height: 40, padding: 14 }}
+      onPress={() => {
+        Keyboard.dismiss();
+        navigation.goBack(null);
+      }}
+    >
+      <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
+    </TouchableOpacity>
+  ),
+  headerRight: withAdvancedOptionsMenuButton ? (
+    <TouchableOpacity style={{ minWidth: 40, height: 40, padding: 14 }} onPress={advancedOptionsMenuButtonAction}>
+      <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+    </TouchableOpacity>
+  ) : null,
+  headerBackTitle: null,
+});
+
 export const BluePrivateBalance = () => {
   return Platform.select({
     ios: (
@@ -815,7 +845,7 @@ export class BlueUseAllFundsButton extends Component {
           <BlueButtonLink
             style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
             title="Done"
-            onPress={Keyboard.dismiss}
+            onPress={() => Keyboard.dismiss()}
           />
         </View>
       </View>
@@ -1942,7 +1972,7 @@ export class BlueAddressInput extends Component {
           value={this.props.address}
           style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
           editable={!this.props.isLoading}
-          onSubmitEditing={Keyboard.dismiss}
+          onSubmitEditing={() => Keyboard.dismiss()}
           {...this.props}
         />
         <TouchableOpacity
@@ -2008,7 +2038,7 @@ export class BlueReplaceFeeSuggestions extends Component {
 
   async componentDidMount() {
     const networkFees = await NetworkTransactionFees.recommendedFees();
-    this.setState({ networkFees });
+    this.setState({ networkFees }, () => this.onFeeSelected(NetworkTransactionFeeType.FAST));
   }
 
   onFeeSelected = selectedFeeType => {

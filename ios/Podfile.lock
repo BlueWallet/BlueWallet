@@ -162,7 +162,7 @@ DEPENDENCIES:
   - appcenter-crashes (from `../node_modules/appcenter-crashes`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EFQRCode (~> 5.0.0)
+  - EFQRCode (= 5.0.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - RCTSystemSetting (from `../node_modules/react-native-system-setting`)
@@ -362,6 +362,6 @@ SPEC CHECKSUMS:
   ToolTipMenu: c158702a26154d892bc9e6eaa7d7382f0f1ee16e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: 0367389d52d7644ba1974734bda6b2a9b29d2311
+PODFILE CHECKSUM: 1a39cb1ff2ae237255b84fcbe9415cb089e659c7
 
 COCOAPODS: 1.7.5

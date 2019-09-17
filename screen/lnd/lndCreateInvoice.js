@@ -12,6 +12,7 @@ import {
   Text,
 } from 'react-native';
 import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
+import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -30,9 +31,19 @@ export default class LNDCreateInvoice extends Component {
 
   constructor(props) {
     super(props);
-    // fallback to first wallet if it exists
 
-    const fromWallet = props.navigation.getParam('fromWallet');
+    let fromWallet;
+    if (props.navigation.state.params.fromWallet) fromWallet = props.navigation.getParam('fromWallet');
+
+    // fallback to first wallet if it exists
+    if (!fromWallet) {
+      const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
+      if (lightningWallets.length > 0) {
+        fromWallet = lightningWallets[0];
+        console.warn('warning: using ln wallet index 0');
+      }
+    }
+
     this.state = {
       fromWallet,
       amount: '',
@@ -41,6 +52,12 @@ export default class LNDCreateInvoice extends Component {
       lnurl: '',
       lnurlParams: null,
     };
+  }
+
+  componentDidMount () {
+    if (this.props.navigation.state.params.uri) {
+      this.processLnurl(this.props.navigation.getParam('uri'));
+    }
   }
 
   async createInvoice() {
@@ -245,5 +262,11 @@ LNDCreateInvoice.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
+    state: PropTypes.shape({
+      params: PropTypes.shape({
+        uri: PropTypes.string,
+        fromWallet: PropTypes.string,
+      }),
+    }),
   }),
 };
