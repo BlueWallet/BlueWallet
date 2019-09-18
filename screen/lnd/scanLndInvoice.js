@@ -3,7 +3,6 @@ import React from 'react';
 import { Text, ActivityIndicator, View, TouchableWithoutFeedback, TouchableOpacity, Keyboard } from 'react-native';
 import PropTypes from 'prop-types';
 import {
-  BlueSpacing20,
   BlueButton,
   SafeBlueArea,
   BlueCard,
