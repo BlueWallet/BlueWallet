@@ -1,7 +1,17 @@
 /* global alert */
 import React, { Component } from 'react';
 import { Chain } from '../../models/bitcoinUnits';
-import { Text, View, ActivityIndicator, InteractionManager, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import {
+  Text,
+  Platform,
+  View,
+  ActivityIndicator,
+  InteractionManager,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+  StatusBar,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
 import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BlueWalletNavigationHeader } from '../../BlueComponents';
@@ -51,7 +61,7 @@ export default class WalletTransactions extends Component {
     const wallet = props.navigation.getParam('wallet');
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
-      showMarketplace: true,
+      showMarketplace: Platform.OS !== 'ios',
       isLoading: true,
       showShowFlatListRefreshControl: false,
       wallet: wallet,
@@ -280,7 +290,7 @@ export default class WalletTransactions extends Component {
             ListHeaderComponent={this.renderListHeaderComponent}
             ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
-              <ScrollView style={{ minHeight: 100 }}  contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
+              <ScrollView style={{ minHeight: 100 }} contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
                 <Text
                   numberOfLines={0}
                   style={{
