@@ -199,6 +199,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     await this.getUserInvoices();
   }
 
+  isInvoiceGeneratedByWallet(paymentRequest) {
+    return this.user_invoices_raw.some(invoice => invoice.payment_request === paymentRequest);
+  }
+
   async addInvoice(amt, memo) {
     let response = await this._api.post('/addinvoice', {
       body: { amt: amt + '', memo: memo },

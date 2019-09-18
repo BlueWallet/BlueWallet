@@ -84,6 +84,10 @@ export class AbstractWallet {
     return false;
   }
 
+  weOwnAddress(address) {
+    return this._address === address;
+  }
+
   /**
    * Returns delta of unconfirmed balance. For example, if theres no
    * unconfirmed balance its 0
