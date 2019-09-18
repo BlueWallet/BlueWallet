@@ -1,7 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import { Chain } from '../../models/bitcoinUnits';
-import { Text, View, ActivityIndicator, InteractionManager, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
+import { Platform, Text, View, ActivityIndicator, InteractionManager, FlatList, RefreshControl, TouchableOpacity, StatusBar } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
 import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BlueWalletNavigationHeader } from '../../BlueComponents';
@@ -179,12 +179,13 @@ export default class WalletTransactions extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flex: 1, flexDirection: 'row', height: 50 }}>
+      <View style={{ flex: 1, flexDirection: 'row' }}>
         <Text
           style={{
             flex: 1,
-            marginLeft: 15,
-            marginTop: 10,
+            marginLeft: 16,
+            marginTop: 24,
+            marginBottom: 8,
             fontWeight: 'bold',
             fontSize: 24,
             color: BlueApp.settings.foregroundColor,
@@ -236,7 +237,7 @@ export default class WalletTransactions extends Component {
           }
         />
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-          {this.state.showMarketplace && (
+          {Platform.OS === 'android' && this.state.showMarketplace && (
             <TouchableOpacity
               onPress={() => {
                 if (this.state.wallet.type === LightningCustodianWallet.type) {
@@ -277,6 +278,7 @@ export default class WalletTransactions extends Component {
                 pageSize: this.state.pageSize * 2,
               });
             }}
+
             ListHeaderComponent={this.renderListHeaderComponent}
             ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
