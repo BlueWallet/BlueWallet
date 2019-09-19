@@ -1392,7 +1392,7 @@ export class BlueTransactionListItem extends Component {
     itemPriceUnit: BitcoinUnit.BTC,
   };
 
-  state = { transactionTimeToReadable: '...' };
+  state = { transactionTimeToReadable: '...', subtitleNumberOfLines: 1 };
 
   txMemo = () => {
     if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
@@ -1562,13 +1562,21 @@ export class BlueTransactionListItem extends Component {
     });
   }
 
+  onLongPress = () => {
+    if (this.state.subtitleNumberOfLines === 1) {
+      this.setState({ subtitleNumberOfLines: 0 });
+    }
+  };
+
   render() {
     return (
       <BlueListItem
         avatar={this.avatar()}
         title={this.state.transactionTimeToReadable}
         subtitle={this.subtitle()}
+        subtitleNumberOfLines={this.state.subtitleNumberOfLines}
         onPress={this.onPress}
+        onLongPress={this.onLongPress}
         badge={{
           value: 3,
           textStyle: { color: 'orange' },
