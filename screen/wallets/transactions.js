@@ -189,12 +189,13 @@ export default class WalletTransactions extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flex: 1, flexDirection: 'row', height: 50 }}>
+      <View style={{ flex: 1, flexDirection: 'row' }}>
         <Text
           style={{
             flex: 1,
-            marginLeft: 15,
-            marginTop: 10,
+            marginLeft: 16,
+            marginTop: 24,
+            marginBottom: 8,
             fontWeight: 'bold',
             fontSize: 24,
             color: BlueApp.settings.foregroundColor,
@@ -205,7 +206,7 @@ export default class WalletTransactions extends Component {
       </View>
     );
   };
-
+  
   async onWillBlur() {
     StatusBar.setBarStyle('dark-content');
   }
