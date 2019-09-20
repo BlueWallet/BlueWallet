@@ -111,7 +111,7 @@ module.exports = {
       to: 'Output',
       copy: 'Copy',
       transaction_details: 'Transaction details',
-      show_in_block_explorer: 'Show in block explorer',
+      show_in_block_explorer: 'View in block explorer',
     },
   },
   send: {
@@ -166,6 +166,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Receive with amount',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Buy Bitcoin',
