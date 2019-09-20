@@ -33,6 +33,10 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
+  - lottie-ios (3.0.7)
+  - lottie-react-native (3.1.1):
+    - lottie-ios (~> 3.0.3)
+    - React
   - RCTSystemSetting (1.7.2):
     - React
   - React (0.60.5):
@@ -151,7 +155,7 @@ PODS:
   - SentryReactNative (0.43.2):
     - React
     - Sentry (~> 4.1.3)
-  - swift_qrcodejs (1.1.1)
+  - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.1):
     - React
   - yoga (0.60.5.React)
@@ -165,6 +169,7 @@ DEPENDENCIES:
   - EFQRCode (= 5.0.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - lottie-react-native (from `../node_modules/lottie-react-native`)
   - RCTSystemSetting (from `../node_modules/react-native-system-setting`)
   - React (from `../node_modules/react-native/`)
   - React-Core (from `../node_modules/react-native/React`)
@@ -211,6 +216,7 @@ SPEC REPOS:
     - AppCenterReactNativeShared
     - boost-for-react-native
     - EFQRCode
+    - lottie-ios
     - Sentry
     - swift_qrcodejs
 
@@ -229,6 +235,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
+  lottie-react-native:
+    :path: "../node_modules/lottie-react-native"
   RCTSystemSetting:
     :path: "../node_modules/react-native-system-setting"
   React:
@@ -320,6 +328,8 @@ SPEC CHECKSUMS:
   EFQRCode: 07437cfbce3a1e497397a4f3d766c980d8972608
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
+  lottie-ios: c38c3178ae8c4a8f200661aa5f80b9f1ca7f56b3
+  lottie-react-native: d8caf2aa9ab8bb76312e44997c1c91804a23d44d
   RCTSystemSetting: 9279ff44c49bb4fb0a5d335a0851852c8f3eda99
   React: 53c53c4d99097af47cf60594b8706b4e3321e722
   React-Core: ba421f6b4f4cbe2fb17c0b6fc675f87622e78a64
@@ -358,7 +368,7 @@ SPEC CHECKSUMS:
   RNWatch: c2d3bff3adf9ce06e10eb8c2d75c9043f5df0e35
   Sentry: 4e8a17b61ddd116f89536cc81d567fdee1ebca96
   SentryReactNative: 07237139c00366ea2e75ae3e5c566e7a71c27a90
-  swift_qrcodejs: 0bacbfe321a99954c7b8e04c75562007ea4e4f7c
+  swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: c158702a26154d892bc9e6eaa7d7382f0f1ee16e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
