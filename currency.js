@@ -48,6 +48,8 @@ async function updateExchangeRate() {
     }
   } catch (Err) {
     console.warn(Err);
+    const lastSavedExchangeRate = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
+    exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = lastSavedExchangeRate['BTC_' + preferredFiatCurrency.endPointKey] * 1;
     return;
   }
 
@@ -69,7 +71,7 @@ async function startUpdater() {
 }
 
 function satoshiToLocalCurrency(satoshi) {
-  if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) return satoshi;
+  if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) return '...';
 
   let b = new BigNumber(satoshi);
   b = b
@@ -109,7 +111,7 @@ function BTCToLocalCurrency(bitcoin) {
 function satoshiToBTC(satoshi) {
   let b = new BigNumber(satoshi);
   b = b.dividedBy(100000000);
-  return b.toString(10) + ' BTC';
+  return b.toString(10);
 }
 
 module.exports.updateExchangeRate = updateExchangeRate;

@@ -216,9 +216,22 @@ export default class ScanQrWif extends React.Component {
     let newLegacyWallet = new LegacyWallet();
     newLegacyWallet.setSecret(ret.data);
 
-    if (newWallet.getAddress() === false || newLegacyWallet.getAddress() === false) {
+    if (newWallet.getAddress() === false && newLegacyWallet.getAddress() === false) {
       alert(loc.wallets.scanQrWif.bad_wif);
       this.setState({ isLoading: false });
+      return;
+    }
+
+    if (newWallet.getAddress() === false && newLegacyWallet.getAddress() !== false) {
+      // case - WIF is valid, just has uncompressed pubkey
+      newLegacyWallet.setLabel(loc.wallets.scanQrWif.imported_legacy);
+      BlueApp.wallets.push(newLegacyWallet);
+      alert(loc.wallets.scanQrWif.imported_wif + ret.data + loc.wallets.scanQrWif.with_address + newLegacyWallet.getAddress());
+      await newLegacyWallet.fetchBalance();
+      await newLegacyWallet.fetchTransactions();
+      await BlueApp.saveToDisk();
+      this.props.navigation.popToTop();
+      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
       return;
     }
 

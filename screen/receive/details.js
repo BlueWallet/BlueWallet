@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, Share, InteractionManager } from 'react-native';
+import { View, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
@@ -14,6 +14,9 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
+import Share from 'react-native-share';
+import { ScrollView } from 'react-native-gesture-handler';
+import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -63,37 +66,42 @@ export default class ReceiveDetails extends Component {
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
+        this.setState({
+          address: address,
+          addressText: address,
+        });
+      } else {
+        alert('There was a problem obtaining your receive address. Please, try again.');
+        this.props.navigation.goBack();
+        this.setState({
+          address,
+          addressText: address,
+        });
       }
-      this.setState({
-        address: address,
-        addressText: address,
-      });
-    } else {
-      alert('There was a problem obtaining your receive address. Please, try again.');
-      this.props.navigation.goBack();
-      this.setState({
-        address,
-        addressText: address,
-      });
     }
 
     InteractionManager.runAfterInteractions(async () => {
+      await SystemSetting.saveBrightness();
+      await SystemSetting.setAppBrightness(1.0);
       const bip21encoded = bip21.encode(this.state.address);
       this.setState({ bip21encoded });
     });
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     Privacy.disableBlur();
+    await SystemSetting.restoreBrightness();
   }
 
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
           <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
             {this.state.bip21encoded === undefined ? (
-              <BlueLoading />
+              <View style={{ alignItems: 'center', width: 300, height: 300 }}>
+                <BlueLoading />
+              </View>
             ) : (
               <QRCode
                 value={this.state.bip21encoded}
@@ -103,11 +111,12 @@ export default class ReceiveDetails extends Component {
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
                 ecl={'H'}
+                getRef={c => (this.qrCodeSVG = c)}
               />
             )}
+            <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>
           <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
-            <BlueCopyTextToClipboard text={this.state.addressText} />
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
@@ -124,15 +133,25 @@ export default class ReceiveDetails extends Component {
                   color: BlueApp.settings.buttonTextColor,
                 }}
                 onPress={async () => {
-                  Share.share({
-                    message: this.state.address,
-                  });
+                  if (this.qrCodeSVG === undefined) {
+                    Share.open({ message: `bitcoin:${this.state.address}` }).catch(error => console.log(error));
+                  } else {
+                    InteractionManager.runAfterInteractions(async () => {
+                      this.qrCodeSVG.toDataURL(data => {
+                        let shareImageBase64 = {
+                          message: `bitcoin:${this.state.address}`,
+                          url: `data:image/png;base64,${data}`,
+                        };
+                        Share.open(shareImageBase64).catch(error => console.log(error));
+                      });
+                    });
+                  }
                 }}
                 title={loc.receive.details.share}
               />
             </View>
           </View>
-        </View>
+        </ScrollView>
       </SafeBlueArea>
     );
   }

@@ -166,6 +166,7 @@ module.exports = {
       create: 'Oluştur',
       setAmount: 'Miktar ile al',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin Satın al',

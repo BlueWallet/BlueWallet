@@ -165,6 +165,7 @@ module.exports = {
       create: 'Skapa',
       setAmount: 'Ta emot med belopp',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Köp bitcoin',

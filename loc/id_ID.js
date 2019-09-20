@@ -165,6 +165,7 @@ module.exports = {
       create: 'Buat',
       setAmount: 'Terima sejumlah',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Beli bitcoin',

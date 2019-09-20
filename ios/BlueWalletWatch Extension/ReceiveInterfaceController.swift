@@ -35,7 +35,7 @@ class ReceiveInterfaceController: WKInterfaceController {
           DispatchQueue.main.async {
             if (!invoice.isEmpty) {
               guard let cgImage = EFQRCode.generate(
-                content: "lightning:\(invoice)") else {
+                content: "lightning:\(invoice)", inputCorrectionLevel: .h, pointShape: .circle) else {
                   return
               }
               let image = UIImage(cgImage: cgImage)

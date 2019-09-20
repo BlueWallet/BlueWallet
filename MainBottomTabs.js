@@ -19,11 +19,13 @@ import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
+import Marketplace from './screen/wallets/marketplace';
 import scanQrWif from './screen/wallets/scanQrWif';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 
 import details from './screen/transactions/details';
+import TransactionStatus from './screen/transactions/transactionStatus';
 import rbf from './screen/transactions/RBF';
 import createrbf from './screen/transactions/RBF-create';
 import cpfp from './screen/transactions/CPFP';
@@ -60,6 +62,9 @@ const WalletsStackNavigator = createStackNavigator(
     },
     WalletTransactions: {
       screen: WalletTransactions,
+    },
+    TransactionStatus: {
+      screen: TransactionStatus,
     },
     TransactionDetails: {
       screen: details,
@@ -244,6 +249,9 @@ const MainBottomTabs = createStackNavigator(
     },
     BuyBitcoin: {
       screen: BuyBitcoin,
+    },
+    Marketplace: {
+      screen: Marketplace,
     },
     //
     SendDetails: {

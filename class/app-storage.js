@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import {
   HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
@@ -56,10 +57,41 @@ export class AppStorage {
     };
   }
 
+  /**
+   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
+   * used for cli/tests
+   *
+   * @param key
+   * @param value
+   * @returns {Promise<any>|Promise<any> | Promise<void> | * | Promise | void}
+   */
+  setItem(key, value) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    } else {
+      return AsyncStorage.setItem(key, value);
+    }
+  }
+
+  /**
+   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
+   * used for cli/tests
+   *
+   * @param key
+   * @returns {Promise<any>|*}
+   */
+  getItem(key) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+      return RNSecureKeyStore.get(key);
+    } else {
+      return AsyncStorage.getItem(key);
+    }
+  }
+
   async storageIsEncrypted() {
     let data;
     try {
-      data = await AsyncStorage.getItem(AppStorage.FLAG_ENCRYPTED);
+      data = await this.getItem(AppStorage.FLAG_ENCRYPTED);
     } catch (error) {
       return false;
     }
@@ -95,7 +127,7 @@ export class AppStorage {
   async encryptStorage(password) {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
-    let data = await AsyncStorage.getItem('data');
+    let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
     let encrypted = encryption.encrypt(data, password);
@@ -103,8 +135,8 @@ export class AppStorage {
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
     this.cachedPassword = password;
-    await AsyncStorage.setItem('data', data);
-    await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+    await this.setItem('data', data);
+    await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
   }
 
   /**
@@ -122,13 +154,13 @@ export class AppStorage {
       tx_metadata: {},
     };
 
-    let buckets = await AsyncStorage.getItem('data');
+    let buckets = await this.getItem('data');
     buckets = JSON.parse(buckets);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
-    await AsyncStorage.setItem('data', bucketsString);
-    return (await AsyncStorage.getItem('data')) === bucketsString;
+    await this.setItem('data', bucketsString);
+    return (await this.getItem('data')) === bucketsString;
   }
 
   /**
@@ -140,7 +172,7 @@ export class AppStorage {
    */
   async loadFromDisk(password) {
     try {
-      let data = await AsyncStorage.getItem('data');
+      let data = await this.getItem('data');
       if (password) {
         data = this.decryptData(data, password);
         if (data) {
@@ -213,7 +245,7 @@ export class AppStorage {
           }
         }
         WatchConnectivity.init();
-        await WatchConnectivity.shared.sendWalletsToWatch();
+        WatchConnectivity.shared && (await WatchConnectivity.shared.sendWalletsToWatch());
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -250,7 +282,7 @@ export class AppStorage {
    * If cached password is saved - finds the correct bucket
    * to save to, encrypts and then saves.
    *
-   * @returns {Promise} Result of AsyncStorage save
+   * @returns {Promise} Result of storage save
    */
   async saveToDisk() {
     let walletsToSave = [];
@@ -267,7 +299,7 @@ export class AppStorage {
 
     if (this.cachedPassword) {
       // should find the correct bucket, encrypt and then save
-      let buckets = await AsyncStorage.getItem('data');
+      let buckets = await this.getItem('data');
       buckets = JSON.parse(buckets);
       let newData = [];
       for (let bucket of buckets) {
@@ -279,16 +311,16 @@ export class AppStorage {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
           newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
-          await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+          await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }
       data = newData;
     } else {
-      await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
+      await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
     WatchConnectivity.init();
-    WatchConnectivity.shared.sendWalletsToWatch();
-    return AsyncStorage.setItem('data', JSON.stringify(data));
+    WatchConnectivity.shared && WatchConnectivity.shared.sendWalletsToWatch();
+    return this.setItem('data', JSON.stringify(data));
   }
 
   /**

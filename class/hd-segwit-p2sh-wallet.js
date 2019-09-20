@@ -5,6 +5,7 @@ import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import signer from '../models/signer';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 const bitcoin5 = require('bitcoinjs5');
 const HDNode = require('bip32');
@@ -46,6 +47,10 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   static typeReadable = 'HD SegWit (BIP49 P2SH)';
 
   allowSend() {
+    return true;
+  }
+
+  allowSendMax(): boolean {
     return true;
   }
 
@@ -255,12 +260,29 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     }
   }
 
+  /**
+   *
+   * @param utxos
+   * @param amount Either float (BTC) or string 'MAX' (BitcoinUnit.MAX) to send all
+   * @param fee
+   * @param address
+   * @returns {string}
+   */
   createTx(utxos, amount, fee, address) {
     for (let utxo of utxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
     let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+
+    if (amount === BitcoinUnit.MAX) {
+      amountPlusFee = new BigNumber(0);
+      for (let utxo of utxos) {
+        amountPlusFee = amountPlusFee.plus(utxo.amount);
+      }
+      amountPlusFee = amountPlusFee.dividedBy(100000000).toString(10);
+    }
+
     return signer.createHDSegwitTransaction(
       utxos,
       address,
