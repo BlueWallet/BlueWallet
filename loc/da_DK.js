@@ -165,6 +165,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Modtag med beløb',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Køb Bitcoin',
@@ -186,6 +187,8 @@ module.exports = {
       'To connect to your own LND node please install LndHub' +
       ' and put its URL here in settings. Leave blank to use default ' +
       'ndHub\n (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'save',
     about: 'Andet',
     language: 'Sprog',

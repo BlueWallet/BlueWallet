@@ -163,6 +163,7 @@ module.exports = {
       create: '创建',
       setAmount: '收款金额',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: '购买比特币',
@@ -181,6 +182,8 @@ module.exports = {
     encrypt_storage: '加密存储',
     lightning_settings: '闪电网络设置',
     lightning_settings_explain: '如要要连接你自己的闪电节点请安装LndHub' + ' 并把url地址输入到下面. 空白将使用默认的LndHub (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: '保存',
     about: '关于',
     language: '语言',

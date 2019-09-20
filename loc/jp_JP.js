@@ -165,6 +165,7 @@ module.exports = {
       create: '作成',
       setAmount: '入金額',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin の購入',
@@ -186,6 +187,8 @@ module.exports = {
       '他の LND ノードへ接続するには LndHub をインストール後、' +
       'URL を入力してください。既定の設定を使用するには空欄にします' +
       'ndHub\n (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: '保存',
     about: 'BlueWallet について',
     language: '言語',

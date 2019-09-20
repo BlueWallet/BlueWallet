@@ -165,6 +165,7 @@ module.exports = {
       create: 'สร้าง',
       setAmount: 'รับด้วยจำนวน',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'ซื้อบิตคอยน์',
@@ -186,6 +187,8 @@ module.exports = {
       'กรณีที่ต้องการต่อเชื่อมไปยังไลท์นิงโนดของท่านเอง กรุณาติดตั้ง LndHub ของท่าน' +
       ' และไส่ URL ที่นี่. ระบบจะใช้ LndHub ของ lndhub.io ในกรณืที่ท่าน ' +
       ' ไม่ตั้งค่าใดๆ',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'บันทึก',
     about: 'เกี่ยวกับ',
     language: 'ภาษา',

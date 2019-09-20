@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { View, Dimensions, Share, ScrollView, BackHandler } from 'react-native';
+import { View, Dimensions, ScrollView, BackHandler, InteractionManager } from 'react-native';
+import Share from 'react-native-share';
 import {
   BlueLoading,
   BlueText,
@@ -13,6 +14,7 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
+import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -42,7 +44,7 @@ export default class LNDViewInvoice extends Component {
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
     this.fetchInvoiceInterval = undefined;
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   async componentDidMount() {
@@ -61,6 +63,8 @@ export default class LNDViewInvoice extends Component {
 
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
+            await SystemSetting.saveBrightness();
+            await SystemSetting.setAppBrightness(1.0);
             if (updatedUserInvoice.ispaid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
@@ -89,16 +93,17 @@ export default class LNDViewInvoice extends Component {
     }, 3000);
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+    await SystemSetting.restoreBrightness();
   }
 
-  handleBackButton() {
+  handleBackButton = () => {
     this.props.navigation.goBack(null);
     return true;
-  }
+  };
 
   onLayout = () => {
     const { height } = Dimensions.get('window');
@@ -127,11 +132,12 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
+                getRef={c => (this.qrCodeSVG = c)}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
               />
               <BlueSpacing20 />
-              <BlueText>{invoice.payment_preimage}</BlueText>
+              <BlueCopyTextToClipboard text={invoice.payment_preimage} />
             </View>
           </SafeBlueArea>
         );
@@ -149,8 +155,8 @@ export default class LNDViewInvoice extends Component {
                   borderRadius: 60,
                   alignSelf: 'center',
                   justifyContent: 'center',
-                  marginTop: 43,
-                  marginBottom: 53,
+                  marginTop: -100,
+                  marginBottom: 30,
                 }}
               >
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
@@ -186,8 +192,8 @@ export default class LNDViewInvoice extends Component {
                   borderRadius: 60,
                   alignSelf: 'center',
                   justifyContent: 'center',
-                  marginTop: 43,
-                  marginBottom: 53,
+                  marginTop: -100,
+                  marginBottom: 30,
                 }}
               >
                 <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />
@@ -227,6 +233,7 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
+                getRef={c => (this.qrCodeSVG = c)}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
               />
@@ -253,9 +260,19 @@ export default class LNDViewInvoice extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={async () => {
-                Share.share({
-                  message: 'lightning:' + invoice.payment_request,
-                });
+                if (this.qrCodeSVG === undefined) {
+                  Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
+                } else {
+                  InteractionManager.runAfterInteractions(async () => {
+                    this.qrCodeSVG.toDataURL(data => {
+                      let shareImageBase64 = {
+                        message: `lightning:${invoice.payment_request}`,
+                        url: `data:image/png;base64,${data}`,
+                      };
+                      Share.open(shareImageBase64).catch(error => console.log(error));
+                    });
+                  });
+                }
               }}
               title={loc.receive.details.share}
             />

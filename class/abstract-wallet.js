@@ -28,6 +28,7 @@ export class AbstractWallet {
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
     this.chain = Chain.ONCHAIN;
+    this.hideBalance = false;
   }
 
   getTransactions() {
@@ -40,6 +41,10 @@ export class AbstractWallet {
    */
   getLabel() {
     return this.label;
+  }
+
+  getXpub() {
+    return this._address;
   }
 
   /**
@@ -67,8 +72,20 @@ export class AbstractWallet {
     return true;
   }
 
+  allowSendMax(): boolean {
+    return false;
+  }
+
   allowRBF() {
     return false;
+  }
+
+  allowBatchSend() {
+    return false;
+  }
+
+  weOwnAddress(address) {
+    return this._address === address;
   }
 
   /**

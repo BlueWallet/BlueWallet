@@ -166,6 +166,7 @@ module.exports = {
       create: 'Oluştur',
       setAmount: 'Miktar ile al',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin Satın al',
@@ -186,6 +187,8 @@ module.exports = {
     lightning_settings_explain:
       'Kendi LND düğümünüze bağlanmak için lütfen LndHubı yükleyin.' +
       " ve URL’sini buraya, ayarlara yazın. BlueWallet'in LNDHub (lndhub.io) programını kullanmak için boş bırakın. Değişiklikleri kaydettikten sonra oluşturulan cüzdanlar belirtilen LNDHub'a bağlanacaktır.",
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Kaydet',
     about: 'Hakkında',
     language: 'Dil',

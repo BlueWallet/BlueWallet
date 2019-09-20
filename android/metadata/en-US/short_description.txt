@@ -1,1 +1,0 @@
-A Bitcoin & Lightning wallet for android. Easy to use and secure

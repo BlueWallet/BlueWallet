@@ -4,6 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
+import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -43,9 +44,12 @@ export default class WalletXpub extends Component {
     this.setState({
       isLoading: false,
     });
+    await SystemSetting.saveBrightness();
+    await SystemSetting.setAppBrightness(1.0);
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await SystemSetting.restoreBrightness();
     Privacy.disableBlur();
   }
 

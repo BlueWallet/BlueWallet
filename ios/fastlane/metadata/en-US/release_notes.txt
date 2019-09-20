@@ -1,52 +1,61 @@
-v4.0.3
+Always backup your keys! While your coins are safe, bugs happen, and app
+could sometimes lose your wallets (fixed).
+
+v4.4.1
 ======
 
-* ADD: HD bech32 wallets (BIP84)
-* FIX: lndhub uri bug
-* FIX: RBF broadcast fix
-* FIX: wont import WIF with uncompressed public key for segwit wallet
-* REF: better LN wallet refresh strategy
+* FIX: crash on ManageFunds
+* ADD: marketplace for regular onchain btc wallets
+* ADD: WatchApp Complication.
+* FIX: Wallet gradient for Bech32 on watch app
+* FIX: v3.9.8 fails to fill value #470
+* FIX: Don't allow more than one leading zero
 
-v4.0.2
+v4.4.0
 ======
 
-* ADD: new style and colors to add wallet screen
-* ADD: advanced mode in app settings
-* FIX: HD wallet update if it was heavily used externally (closes #495)
-* FIX: improve quality of qr code, users complaining they couldn't read the qr code
-* FIX: lack of spacing in receive QR screen
-* REF: better mnemonic backup screen
-* REF: cached HD addresses generation (speeded up)
-* REF: updated bitcoinjs-lib, HD wallets speed-up
+* ADD: send MAX (for BIP84 & BIP49)
+* ADD: Scan to receive (lnurl spec)
+* ADD: New TX status screen
+* ADD: Share QRCode along with address
+* ADD: Allow user to hide their balance
+* ADD: KRW Fiat
+* FIX: wallet selector on send view
+* FIX: all data is stored in OS secure keystore
+* FIX: broken LIGHTNING scheme handling
+* FIX: import legacy address by WIF with uncompressed pubkey (closes #590)
+* ADD: Handoff for a transaction and wallets
+* FIX: QR Correctness for watch app
+* FIX: Tap to copy preimage text
+* FIX: Show last saved  exchange rate
 
-v4.0.1
+v4.2.0
 ======
 
-* FIX: watchonly & ln wallet import/load
-* REF: reworded error msg
-* REF: better ln scan qr import
-* REF: electrum batching for getBalance
-* ADD: Support Safello redirect URLs (better Safello integration)
-* ADD: watch-only wallets support HD (xpub, ypub, zpub)
+* ADD: bumpfee (RBF) & cancelTx (RBF) for BIP84 HD wallet
+* ADD: CPFP for BIP84 HD wallets
+* ADD: Electrum server configuration
+* ADD: Hungarian localization
+* ADD: HUF fiat unit
+* FIX: receive address generation with no internet
+* FIX: wait for electrum connection before fetching tx or broadcast
+* FIX: Receive UI jumpiness
+* FIX: iOS App crashes when scaning QR Code
+* FIX: Amount when scanning was not displayed in amount UI
+* FIX: ln transaction details screen
+* FIX: import LN wallet with custom lndhub
+* FIX: BIP84 txs with low confirmations not updating
+* FIX: crash
+* REF: Swedish translation updates
+* REF: better initial HD rescan
 
-v4.0.0
-=======
 
-* ADD: Apple Watch support
-* ADD: preimage info of paid ln tx
-* FIX: better import of ln wallet
-* REF: better offline handling
-
-v3.9.7
+v4.1.0
 ======
 
-* ADD: intermediate step asking user to backup his mnemonic
-* ADD: buy bitcoin now happens in builtin webview instead of external browser
-* ADD: new deeplinking scheme
-* FIX: rare crash on app startup
-* FIX: large HD utxo fetch (closes #459)
-* FIX: better ln wallet import
-* FIX: rare hangs when importing wallet via qr
-* REF: Remove old security alert #379
-* REF: more electrum servers
-* REF: lapp browser improv
+* REF: faster initial HD rescan
+* FIX: ln transaction details screen
+* FIX: import LN wallet with custom lndhub
+* FIX: BIP84 txs with low confirmations not updating
+* FIX: crash
+* REF: Swedish translation updates

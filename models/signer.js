@@ -31,9 +31,8 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
     }
     outputNum++;
   }
-
   if (unspentAmountSatoshi < amountToOutputSatoshi + feeInSatoshis) {
-    throw new Error('Not enough balance. Try to send a smaller amount');
+    throw new Error('Not enough balance. Please, try sending a smaller amount.');
   }
 
   // adding outputs
@@ -88,7 +87,7 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
   }
 
   if (unspentAmountSatoshi < amountToOutputSatoshi + feeInSatoshis) {
-    throw new Error('Not enough balance. Try to send a smaller amount');
+    throw new Error('Not enough balance. Please, try sending a smaller amount.');
   }
 
   // adding outputs

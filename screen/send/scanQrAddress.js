@@ -41,16 +41,16 @@ export default class CameraExample extends React.Component {
           style={{
             width: 40,
             height: 40,
-            marginLeft: 24,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: 'rgba(0,0,0,0.4)',
             justifyContent: 'center',
             borderRadius: 20,
             position: 'absolute',
+            right: 16,
             top: 64,
           }}
           onPress={() => this.props.navigation.goBack(null)}
         >
-          <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+          <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
       </SafeBlueArea>
     );

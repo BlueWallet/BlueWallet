@@ -111,7 +111,7 @@ module.exports = {
       to: 'Output',
       copy: 'Copy',
       transaction_details: 'Transaction details',
-      show_in_block_explorer: 'Show in block explorer',
+      show_in_block_explorer: 'View in block explorer',
     },
   },
   send: {
@@ -166,6 +166,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Receive with amount',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Buy Bitcoin',
@@ -186,6 +187,8 @@ module.exports = {
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +
       " and put its URL here in settings. Leave blank to use BlueWallet's LNDHub (lndhub.io). Wallets created after saving changes will connect to the specified LNDHub.",
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Save',
     about: 'About',
     language: 'Language',

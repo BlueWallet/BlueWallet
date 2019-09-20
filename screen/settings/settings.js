@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Switch, TouchableOpacity } from 'react-native';
 import {
   BlueText,
   BlueCard,
@@ -65,13 +65,18 @@ export default class Settings extends Component {
           <TouchableOpacity onPress={() => this.props.navigation.navigate('Currency')}>
             <BlueListItem title={loc.settings.currency} />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate('ElectrumSettings')}>
+            <BlueListItem title={'Electrum server'} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => this.setState({ showAdvancedOptions: !this.state.showAdvancedOptions })}>
             <BlueListItem title={loc.settings.advanced_options} />
           </TouchableOpacity>
           {this.state.showAdvancedOptions && (
             <BlueCard>
-              <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
-              <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
+                <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
+              </View>
             </BlueCard>
           )}
 

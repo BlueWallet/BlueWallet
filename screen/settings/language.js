@@ -30,6 +30,7 @@ export default class Language extends Component {
         { label: 'Suomi (FI)', value: 'fi_fi' },
         { label: 'Français (FR)', value: 'fr_fr' },
         { label: 'Indonesia (ID)', value: 'id_id' },
+        { label: 'Magyar (HU)', value: 'hu_hu' },
         { label: '日本語 (JP)', value: 'jp_jp' },
         { label: 'Nederlands (NL)', value: 'nl_nl' },
         { label: 'Norsk (NB)', value: 'nb_no' },

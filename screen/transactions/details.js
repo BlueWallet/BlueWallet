@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import {
-  BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueText,
@@ -44,13 +43,13 @@ export default class TransactionsDetails extends Component {
     let to = [];
     for (let tx of BlueApp.getTransactions()) {
       if (tx.hash === hash) {
-        console.log(tx);
         foundTx = tx;
         for (let input of foundTx.inputs) {
           from = from.concat(input.addresses);
         }
         for (let output of foundTx.outputs) {
-          to = to.concat(output.addresses);
+          if (output.addresses) to = to.concat(output.addresses);
+          if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
       }
     }
@@ -90,24 +89,6 @@ export default class TransactionsDetails extends Component {
         <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
         <ScrollView style={{ flex: 1 }}>
           <BlueCard>
-            {(() => {
-              if (this.state.tx.confirmations === 0 && this.state.wallet && this.state.wallet.allowRBF()) {
-                return (
-                  <React.Fragment>
-                    <BlueButton
-                      onPress={() =>
-                        this.props.navigation.navigate('RBF', {
-                          txid: this.state.tx.hash,
-                        })
-                      }
-                      title="Replace-By-Fee (RBF)"
-                    />
-                    <BlueSpacing20 />
-                  </React.Fragment>
-                );
-              }
-            })()}
-
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
                 if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
@@ -159,7 +140,7 @@ export default class TransactionsDetails extends Component {
                 <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.hash}</BlueText>
                 <TouchableOpacity
                   onPress={() => {
-                    const url = `https://live.blockcypher.com/btc/tx/${this.state.tx.hash}`;
+                    const url = `https://blockstream.info/tx/${this.state.tx.hash}`;
                     Linking.canOpenURL(url).then(supported => {
                       if (supported) {
                         Linking.openURL(url);
@@ -183,13 +164,6 @@ export default class TransactionsDetails extends Component {
               <React.Fragment>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.block_height}</BlueText>
-              </React.Fragment>
-            )}
-
-            {this.state.tx.hasOwnProperty('confirmations') && this.state.tx.confirmations > 0 && (
-              <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Confirmations</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.confirmations}</BlueText>
               </React.Fragment>
             )}
 

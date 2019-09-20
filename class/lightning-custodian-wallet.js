@@ -199,6 +199,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     await this.getUserInvoices();
   }
 
+  isInvoiceGeneratedByWallet(paymentRequest) {
+    return this.user_invoices_raw.some(invoice => invoice.payment_request === paymentRequest);
+  }
+
   async addInvoice(amt, memo) {
     let response = await this._api.post('/addinvoice', {
       body: { amt: amt + '', memo: memo },
@@ -362,7 +366,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
-      tx.fromWallet = this.secret;
+      tx.fromWallet = this.getSecret();
       if (tx.amount) {
         // pending tx
         tx.amt = tx.amount * -100000000;

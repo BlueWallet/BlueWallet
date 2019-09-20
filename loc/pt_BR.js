@@ -169,6 +169,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Valor a receber',
     },
+    scan_lnurl: 'Receber lendo QR',
   },
   buyBitcoin: {
     header: 'Comprar Bitcoin',
@@ -191,6 +192,8 @@ module.exports = {
       'Para se conectar ao seu próprio ponto LND, você precisa instalar a aplicação LndHub' +
       ' e copiar sua URL para cá. Deixe em branco para usar a LndHub padrão fornecida pela BlueWallet (lndhub.io).' +
       ' Carteiras criadas após mudanças nestas preferências ficarão ligadas à instância LndHub que estiver especificada.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Salvar',
     about: 'Sobre',
     language: 'Idioma',
