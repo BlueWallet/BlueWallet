@@ -1,9 +1,9 @@
 /* global it, jasmine, afterAll, beforeAll */
 import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+const bitcoin = require('bitcoinjs-lib');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
-let bitcoin = require('bitcoinjs-lib');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
@@ -155,10 +155,8 @@ it('HD (BIP49) can create TX', async () => {
   assert.strictEqual(tx.outs.length, 2);
   assert.strictEqual(tx.outs[0].value, 500);
   assert.strictEqual(tx.outs[1].value, 25400);
-  let chunksIn = bitcoin.script.decompile(tx.outs[0].script);
-  let toAddress = bitcoin.address.fromOutputScript(chunksIn);
-  chunksIn = bitcoin.script.decompile(tx.outs[1].script);
-  let changeAddress = bitcoin.address.fromOutputScript(chunksIn);
+  let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
+  let changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 
@@ -175,8 +173,7 @@ it('HD (BIP49) can create TX', async () => {
   tx = bitcoin.Transaction.fromHex(txhex);
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 1);
-  chunksIn = bitcoin.script.decompile(tx.outs[0].script);
-  toAddress = bitcoin.address.fromOutputScript(chunksIn);
+  toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
 
   // testing sendMAX
@@ -349,10 +346,8 @@ it('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.outs.length, 2);
   assert.strictEqual(tx.outs[0].value, 80000); // payee
   assert.strictEqual(tx.outs[1].value, 19500); // change
-  let chunksIn = bitcoin.script.decompile(tx.outs[0].script);
-  let toAddress = bitcoin.address.fromOutputScript(chunksIn);
-  chunksIn = bitcoin.script.decompile(tx.outs[1].script);
-  let changeAddress = bitcoin.address.fromOutputScript(chunksIn);
+  let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
+  let changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 
