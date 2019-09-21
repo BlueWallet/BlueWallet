@@ -1,8 +1,8 @@
 /* global it, describe, afterAll, beforeAll, jasmine */
+const bitcoin = require('bitcoinjs-lib');
 global.net = require('net');
 let BlueElectrum = require('../../BlueElectrum');
 let assert = require('assert');
-let bitcoin = require('bitcoinjs-lib');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 afterAll(() => {

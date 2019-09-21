@@ -22,7 +22,7 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
     }
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = bitcoin.bip32.fromSeed(seed);
 
     const path = "m/0'";
     const child = root.derivePath(path).neutered();
@@ -36,7 +36,7 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = bitcoin.bip32.fromSeed(seed);
 
     const path = "m/0'/0/" + index;
     const child = root.derivePath(path);
@@ -49,7 +49,7 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = bitcoin.bip32.fromSeed(seed);
 
     const path = "m/0'/1/" + index;
     const child = root.derivePath(path);
@@ -75,7 +75,7 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = bitcoin.bip32.fromSeed(seed);
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
