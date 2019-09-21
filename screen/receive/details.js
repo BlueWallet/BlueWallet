@@ -1,5 +1,6 @@
+/* global alert */
 import React, { Component } from 'react';
-import { View, Share } from 'react-native';
+import { View, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
@@ -13,10 +14,12 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
+import Share from 'react-native-share';
+import { ScrollView } from 'react-native-gesture-handler';
+import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-// let EV = require('../../events');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -31,21 +34,12 @@ export default class ReceiveDetails extends Component {
     let secret = props.navigation.state.params.secret;
 
     this.state = {
-      isLoading: true,
       address: address,
       secret: secret,
       addressText: '',
+      bip21encoded: undefined,
     };
-
-    // EV(EV.enum.RECEIVE_ADDRESS_CHANGED, this.redrawScreen.bind(this));
   }
-
-  /*  redrawScreen(newAddress) {
-    console.log('newAddress =', newAddress);
-    this.setState({
-      address: newAddress,
-    });
-  } */
 
   async componentDidMount() {
     Privacy.enableBlur();
@@ -60,50 +54,69 @@ export default class ReceiveDetails extends Component {
         wallet = w;
       }
     }
-
-    if (wallet && wallet.getAddressAsync) {
-      setTimeout(async () => {
-        address = await wallet.getAddressAsync();
-        BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+    if (wallet) {
+      if (wallet.getAddressAsync) {
+        try {
+          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+        } catch (_) {}
+        if (!address) {
+          // either sleep expired or getAddressAsync threw an exception
+          console.warn('either sleep expired or getAddressAsync threw an exception');
+          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+        } else {
+          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+        }
         this.setState({
           address: address,
           addressText: address,
-          isLoading: false,
         });
-      }, 1);
-    } else {
-      this.setState({
-        isLoading: false,
-        address,
-        addressText: address,
-      });
+      } else {
+        alert('There was a problem obtaining your receive address. Please, try again.');
+        this.props.navigation.goBack();
+        this.setState({
+          address,
+          addressText: address,
+        });
+      }
     }
+
+    InteractionManager.runAfterInteractions(async () => {
+      await SystemSetting.saveBrightness();
+      await SystemSetting.setAppBrightness(1.0);
+      const bip21encoded = bip21.encode(this.state.address);
+      this.setState({ bip21encoded });
+    });
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     Privacy.disableBlur();
+    await SystemSetting.restoreBrightness();
   }
 
   render() {
-    if (this.state.isLoading) {
-      return <BlueLoading />;
-    }
-
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-            <QRCode
-              value={bip21.encode(this.state.address)}
-              logo={require('../../img/qr-code.png')}
-              size={(is.ipad() && 300) || 300}
-              logoSize={90}
-              color={BlueApp.settings.foregroundColor}
-              logoBackgroundColor={BlueApp.settings.brandingColor}
-            />
+        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
+          <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
+            {this.state.bip21encoded === undefined ? (
+              <View style={{ alignItems: 'center', width: 300, height: 300 }}>
+                <BlueLoading />
+              </View>
+            ) : (
+              <QRCode
+                value={this.state.bip21encoded}
+                logo={require('../../img/qr-code.png')}
+                size={(is.ipad() && 300) || 300}
+                logoSize={90}
+                color={BlueApp.settings.foregroundColor}
+                logoBackgroundColor={BlueApp.settings.brandingColor}
+                ecl={'H'}
+                getRef={c => (this.qrCodeSVG = c)}
+              />
+            )}
             <BlueCopyTextToClipboard text={this.state.addressText} />
           </View>
-          <View style={{ flex: 0.2, marginBottom: 24, alignItems: 'center' }}>
+          <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
@@ -112,21 +125,33 @@ export default class ReceiveDetails extends Component {
                 });
               }}
             />
-            <BlueButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={async () => {
-                Share.share({
-                  message: this.state.address,
-                });
-              }}
-              title={loc.receive.details.share}
-            />
+            <View>
+              <BlueButton
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={async () => {
+                  if (this.qrCodeSVG === undefined) {
+                    Share.open({ message: `bitcoin:${this.state.address}` }).catch(error => console.log(error));
+                  } else {
+                    InteractionManager.runAfterInteractions(async () => {
+                      this.qrCodeSVG.toDataURL(data => {
+                        let shareImageBase64 = {
+                          message: `bitcoin:${this.state.address}`,
+                          url: `data:image/png;base64,${data}`,
+                        };
+                        Share.open(shareImageBase64).catch(error => console.log(error));
+                      });
+                    });
+                  }
+                }}
+                title={loc.receive.details.share}
+              />
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </SafeBlueArea>
     );
   }

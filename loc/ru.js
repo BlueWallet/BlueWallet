@@ -23,6 +23,9 @@ module.exports = {
       latest_transaction: 'Последняя транзакция',
       empty_txs1: 'Список транзакций пока пуст',
       empty_txs2: ' ',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Купить Bitcoin',
     },
     reorder: {
@@ -168,6 +171,7 @@ module.exports = {
       create: 'Создать',
       setAmount: 'Получить сумму',
     },
+    scan_lnurl: 'Scan to receive',
   },
   settings: {
     tabBarLabel: 'Настройки',
@@ -185,10 +189,14 @@ module.exports = {
       'Чтобы подключиться к своему узлу LND, пожалуйста, установи LndHub' +
       ' и добавь его URL в настройки. Оставь поле пустым, чтобы использоавать стандартный ' +
       'LndHub\n (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Сохранить',
     about: 'О программе',
     language: 'Язык',
     currency: 'Валюта',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Правдоподобная имитация',
@@ -221,5 +229,20 @@ module.exports = {
     expired: 'Истекший',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError: 'Ты не можешь оплатить счет тем же кошельком, который ты использовал для его создания.',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

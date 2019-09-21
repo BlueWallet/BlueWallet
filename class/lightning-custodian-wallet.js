@@ -1,7 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-let BigNumber = require('bignumber.js');
 
 export class LightningCustodianWallet extends LegacyWallet {
   static type = 'lightningCustodianWallet';
@@ -56,11 +55,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   timeToRefreshBalance() {
-    return (+new Date() - this._lastBalanceFetch) / 1000 > 3600; // 1hr
+    return (+new Date() - this._lastBalanceFetch) / 1000 > 300; // 5 min
   }
 
   timeToRefreshTransaction() {
-    return (+new Date() - this._lastTxFetch) / 1000 > 3600; // 1hr
+    return (+new Date() - this._lastTxFetch) / 1000 > 300; // 5 min
   }
 
   static fromJson(param) {
@@ -198,6 +197,10 @@ export class LightningCustodianWallet extends LegacyWallet {
    */
   async fetchUserInvoices() {
     await this.getUserInvoices();
+  }
+
+  isInvoiceGeneratedByWallet(paymentRequest) {
+    return this.user_invoices_raw.some(invoice => invoice.payment_request === paymentRequest);
   }
 
   async addInvoice(amt, memo) {
@@ -363,7 +366,7 @@ export class LightningCustodianWallet extends LegacyWallet {
     txs = txs.concat(this.pending_transactions_raw.slice(), this.transactions_raw.slice().reverse(), this.user_invoices_raw.slice()); // slice so array is cloned
     // transforming to how wallets/list screen expects it
     for (let tx of txs) {
-      tx.fromWallet = this.secret;
+      tx.fromWallet = this.getSecret();
       if (tx.amount) {
         // pending tx
         tx.amt = tx.amount * -100000000;
@@ -455,7 +458,7 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getBalance() {
-    return new BigNumber(this.balance).dividedBy(100000000).toString(10);
+    return this.balance;
   }
 
   async fetchBalance(noRetry) {

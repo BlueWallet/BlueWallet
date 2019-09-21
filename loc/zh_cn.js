@@ -22,6 +22,9 @@ module.exports = {
       latest_transaction: '最近的转账',
       empty_txs1: '你的转账信息将展示在这里',
       empty_txs2: '当前无信息',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: '点击购买比特币',
     },
     reorder: {
@@ -160,6 +163,7 @@ module.exports = {
       create: '创建',
       setAmount: '收款金额',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: '购买比特币',
@@ -178,10 +182,14 @@ module.exports = {
     encrypt_storage: '加密存储',
     lightning_settings: '闪电网络设置',
     lightning_settings_explain: '如要要连接你自己的闪电节点请安装LndHub' + ' 并把url地址输入到下面. 空白将使用默认的LndHub (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: '保存',
     about: '关于',
     language: '语言',
     currency: '货币',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: '可否认性',
@@ -211,5 +219,20 @@ module.exports = {
     withdraw: '提取',
     expired: '超时',
     sameWalletAsInvoiceError: '你不能用创建账单的钱包去支付该账单',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

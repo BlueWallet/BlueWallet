@@ -4,6 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
+import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -42,15 +43,13 @@ export default class WalletXpub extends Component {
     Privacy.enableBlur();
     this.setState({
       isLoading: false,
-      showQr: false,
     });
-
-    setTimeout(() => {
-      this.setState({ showQr: true });
-    }, 1000);
+    await SystemSetting.saveBrightness();
+    await SystemSetting.setAppBrightness(1.0);
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
+    await SystemSetting.restoreBrightness();
     Privacy.disableBlur();
   }
 
@@ -76,27 +75,16 @@ export default class WalletXpub extends Component {
           </View>
           <BlueSpacing20 />
 
-          {(() => {
-            if (this.state.showQr) {
-              return (
-                <QRCode
-                  value={this.state.xpub}
-                  logo={require('../../img/qr-code.png')}
-                  size={this.state.qrCodeHeight}
-                  logoSize={90}
-                  color={BlueApp.settings.foregroundColor}
-                  logoBackgroundColor={BlueApp.settings.brandingColor}
-                  ecl={'H'}
-                />
-              );
-            } else {
-              return (
-                <View>
-                  <ActivityIndicator />
-                </View>
-              );
-            }
-          })()}
+          <QRCode
+            value={this.state.xpub}
+            logo={require('../../img/qr-code.png')}
+            size={this.state.qrCodeHeight}
+            logoSize={90}
+            color={BlueApp.settings.foregroundColor}
+            logoBackgroundColor={BlueApp.settings.brandingColor}
+            ecl={'H'}
+          />
+
           <BlueSpacing20 />
           <BlueCopyTextToClipboard text={this.state.xpubText} />
         </View>

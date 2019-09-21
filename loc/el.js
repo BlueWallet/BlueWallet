@@ -15,14 +15,19 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'πορτοφόλια',
-      header: 'Ένα πορτοφόλι αποτελείται από ένα μυστικό (το ιδιωτικό κλειδί) και μια διεύθυνση' + 'την οποία μπορείς να δώσεις σε άλλους για να σε πληρώσουν σε αυτήν.',
+      header:
+        'Ένα πορτοφόλι αποτελείται από ένα μυστικό (το ιδιωτικό κλειδί) και μια διεύθυνση' +
+        'την οποία μπορείς να δώσεις σε άλλους για να σε πληρώσουν σε αυτήν.',
       add: 'Πρόσθεσε Πορτοφόλι',
       create_a_wallet: 'Δημιούργησε ένα πορτοφόλι',
-      create_a_wallet1: "Είναι δωρεάν και μπορείς να",
+      create_a_wallet1: 'Είναι δωρεάν και μπορείς να',
       create_a_wallet2: 'δημιουργήσεις όσα θέλεις',
       latest_transaction: 'τελευταία συναλλαγή',
       empty_txs1: 'Οι συναλλαγές θα εμφανιστούν εδώ,',
       empty_txs2: 'καμία συναλλαγή',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Πάτησε εδώ για να αγοράσεις Bitcoin',
     },
     reorder: {
@@ -72,7 +77,7 @@ module.exports = {
     import: {
       title: 'Εισαγωγή',
       explanation:
-        "Γράψε εδώ το μνημονικό (φράση), το ιδιωτικό κλειδί, το WIF, ή ό,τι άλλο έχεις. Το BlueWallet θα προσπαθήσει να μαντέψει το σωστό format και να εισάγει το πορτοφόλι",
+        'Γράψε εδώ το μνημονικό (φράση), το ιδιωτικό κλειδί, το WIF, ή ό,τι άλλο έχεις. Το BlueWallet θα προσπαθήσει να μαντέψει το σωστό format και να εισάγει το πορτοφόλι',
       imported: 'Εισήχθη',
       error: 'Η εισαγωγή απέτυχε. Παρακαλούμε σιγουρευτείτε ότι τα δεδομένα που εισάγετε είναι σωστά.',
       success: 'Επιτυχία',
@@ -163,6 +168,7 @@ module.exports = {
       create: 'Δημιούργησε',
       setAmount: 'Λάβε με ποσό',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Αγόρασε Bitcoin',
@@ -182,11 +188,15 @@ module.exports = {
     lightning_settings: 'Ρυθμίσεις Lightning',
     lightning_settings_explain:
       'Για να συνδεθείτε στον δικό σας κόμβο LND παρακαλούμε εγκαταστήστε το LndHub' +
-      " και βάλτε το URL του εδώ. Αφήστε το κενό για να χρησιμοποιήσετε το LNDHub της BlueWallet (lndhub.io). Αφού σώσετε τις ρυθμίσεις τυχόν νέα πορτοφόλια που θα δημιουργήσετε θα συνδεθούν στο LNDHub που επιλέξατε.",
+      ' και βάλτε το URL του εδώ. Αφήστε το κενό για να χρησιμοποιήσετε το LNDHub της BlueWallet (lndhub.io). Αφού σώσετε τις ρυθμίσεις τυχόν νέα πορτοφόλια που θα δημιουργήσετε θα συνδεθούν στο LNDHub που επιλέξατε.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Σώσε',
     about: 'Σχετικά',
     language: 'Γλώσσα',
     currency: 'Νόμισμα',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Εύλογη δυνατότητα άρνησης',
@@ -195,7 +205,7 @@ module.exports = {
       'κωδικό σας. Για να προστατέψετε τα χρήματά σας, το BlueWallet μπορεί να δημιουργήσει ένα εναλλακτικό ' +
       'κρυπτογραφημένο αρχείο με διαφορετικό κωδικό. Εάν σας υποχρεώσουν, ' +
       'μπορείτε να αποκαλύψετε αυτόν τον δεύτερο κωδικό. Κάποιος που θα τον ' +
-      "βάλει στο BlueWallet θα δει ένα μόνο ένα ψεύτικο αρχείο που μοιάζει " +
+      'βάλει στο BlueWallet θα δει ένα μόνο ένα ψεύτικο αρχείο που μοιάζει ' +
       'κανονικό, προστατεύοντας έτσι το κανονικό σας αρχείο και ' +
       'τα χρήματά σας.',
     help2: 'Το νέο αρχείο θα είναι πλήρως λειτουργικό, και μπορείτε να βάλετε εκεί ' + 'κάποια ελάχιστα χρήματα για να μοιάζει αληθινό.',
@@ -217,5 +227,20 @@ module.exports = {
     expired: 'Έληξε',
     placeholder: 'Τιμολόγιο',
     sameWalletAsInvoiceError: 'Δεν μπορείς να εξοφλήσεις ένα τιμολόγιο από το ίδιο πορτοφόλι με το οποίο δημιουργήθηκε.',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

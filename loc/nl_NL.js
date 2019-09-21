@@ -23,6 +23,9 @@ module.exports = {
       latest_transaction: 'laatste transactie',
       empty_txs1: 'Uw transacties verschijnen hier,',
       empty_txs2: 'geen transacties op dit moment',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Klik hier om Bitcoin te kopen',
     },
     reorder: {
@@ -163,6 +166,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Ontvang met bedrag',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Koop Bitcoin',
@@ -184,10 +188,14 @@ module.exports = {
       'Om verbinding te maken met uw eigen LND-knooppunt' +
       ' installeert u LndHub en zet u de URL hier in de instellingen. ' +
       'Laat dit leeg om de standaard lndHub (lndhub.io) te gebruiken.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Opslaan',
     about: 'Over',
     language: 'Taal',
     currency: 'Valuta',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Plausibele ontkenning',
@@ -220,5 +228,20 @@ module.exports = {
     expired: 'Verlopen',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError: 'U kunt geen factuur betalen met dezelfde portemonnee die is gebruikt om de factuur te maken.',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

@@ -15,7 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'lommebøker',
-      header: 'En lommebok representerer en hemmelighet (privat nøkkel) og en adresse '+' du kan dele for å motta kryptovaluta.',
+      header: 'En lommebok representerer en hemmelighet (privat nøkkel) og en adresse ' + ' du kan dele for å motta kryptovaluta.',
       add: 'Legg til lommebok',
       create_a_wallet: 'Lag en lommebok',
       create_a_wallet1: 'Det er gratis, og du kan lage',
@@ -23,6 +23,9 @@ module.exports = {
       latest_transaction: 'siste transaksjonen',
       empty_txs1: 'Dine transaksjoner vil vises her,',
       empty_txs2: 'ingen for øyeblikket',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Trykk her for å kjøpe Bitcoin',
     },
     reorder: {
@@ -72,7 +75,7 @@ module.exports = {
     import: {
       title: 'importer',
       explanation:
-        "Skriv her din mnemonic, private nøkkel, WIF, eller hva som helst annet. BlueWallet vil gjøre sitt beste for å gjette riktig format og importere lommeboken din",
+        'Skriv her din mnemonic, private nøkkel, WIF, eller hva som helst annet. BlueWallet vil gjøre sitt beste for å gjette riktig format og importere lommeboken din',
       imported: 'importert',
       error: 'Kunne ikke importere. Vennligst vær sikker på at de oppgitte dataene er gyldige.',
       success: 'Suksess',
@@ -163,6 +166,7 @@ module.exports = {
       create: 'Lag',
       setAmount: 'Motta med beløp',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Kjøp Bitcoin',
@@ -182,11 +186,15 @@ module.exports = {
     lightning_settings: 'Lightning innstillinger',
     lightning_settings_explain:
       'For å koble til din egen LND-node, vennligst installer LndHub' +
-      " og legg URLen her i innstillinger. La feltet være tomt for å bruke BlueWallets LNDHub (lndhub.io). Lommebøker opprettet etter lagring av endringer, vil koble til den angitte LNDHub.",
+      ' og legg URLen her i innstillinger. La feltet være tomt for å bruke BlueWallets LNDHub (lndhub.io). Lommebøker opprettet etter lagring av endringer, vil koble til den angitte LNDHub.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Lagre',
     about: 'Om',
     language: 'Språk',
     currency: 'Valuta',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Troverdighet benektelse',
@@ -198,7 +206,7 @@ module.exports = {
       'BlueWallet, det vil låse opp ny "falsk" lagring. Dette vil virke' +
       'troverdig overfor en tredje part, men vil i hemmelighet beholde ' +
       'hovedlageret trygt.',
-    help2: 'Ny lagring vil være fullt funksjonell, og du kan lagre en mindre sum der'+' , slik at det ser mer troverdig ut.',
+    help2: 'Ny lagring vil være fullt funksjonell, og du kan lagre en mindre sum der' + ' , slik at det ser mer troverdig ut.',
     create_fake_storage: 'Lag falsk kryptert lagring',
     go_back: 'Gå tilbake',
     create_password: 'Lag et passord',
@@ -217,5 +225,20 @@ module.exports = {
     expired: 'Utløpt',
     placeholder: 'Faktura',
     sameWalletAsInvoiceError: 'Du kan ikke betale en faktura med samme lommebok som brukes til å lage den.',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

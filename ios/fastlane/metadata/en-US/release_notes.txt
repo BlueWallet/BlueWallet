@@ -1,37 +1,61 @@
-v3.8.3
+Always backup your keys! While your coins are safe, bugs happen, and app
+could sometimes lose your wallets (fixed).
+
+v4.4.1
 ======
 
-* REF: better support for different lndhub uris
-* FIX: Send BTC should ignore non-onchain wallets
-* FIX: Deeplink would fail sometimes on cold start (#382)
-* FIX: Fixed an issue when inserting an address after amount.
-* FIX: UI fixes for  transactions list
-* ADD: Haptic feedbacks on error alerts
-* ADD: Read clipboard for transactions
-* ADD: Italian language
+* FIX: crash on ManageFunds
+* ADD: marketplace for regular onchain btc wallets
+* ADD: WatchApp Complication.
+* FIX: Wallet gradient for Bech32 on watch app
+* FIX: v3.9.8 fails to fill value #470
+* FIX: Don't allow more than one leading zero
 
-v3.8.2
+v4.4.0
 ======
 
-* FIX: Create button was difficult to press
-* ADD: Clipboard detection on app state change to foreground
-* FIX: Statusbar restored
-* ADD: Broadcast TX using Electrum
-* ADD: Blur sensitive views from visibility on app switcher
-* FIX: Hide context menu
-* FIX: Disable third party keyboard on iOS
-* FIX: Disable suggestions
-* ADD: Switch Lightning wallets on send screen.
-* ADD: If providing an LND address in BTC send screen, throw an error.
-* ADD: Chain type in order to determine what type of wallet has been selected.
-* FIX: Handle BitPay BIP70 scenarios where schema isnt present.
-* ADD: Use Electrum to estimate fee
-* FIX: Wallet selection
-* FIX: wallets/list pull-to-refresh animation duration
-* FIX: Text not displayed correctly #165
-* FIX: back button
-* FIX: Fix transaction fee for BIP70 payments
-* REF: buy bitcoin via redirect
-* FIX: Update th_TS
-* ADD: Tap, and hold, on balance to display a Copy balance option
-* FIX: Send BTC should ignore non-onchain wallets
+* ADD: send MAX (for BIP84 & BIP49)
+* ADD: Scan to receive (lnurl spec)
+* ADD: New TX status screen
+* ADD: Share QRCode along with address
+* ADD: Allow user to hide their balance
+* ADD: KRW Fiat
+* FIX: wallet selector on send view
+* FIX: all data is stored in OS secure keystore
+* FIX: broken LIGHTNING scheme handling
+* FIX: import legacy address by WIF with uncompressed pubkey (closes #590)
+* ADD: Handoff for a transaction and wallets
+* FIX: QR Correctness for watch app
+* FIX: Tap to copy preimage text
+* FIX: Show last saved  exchange rate
+
+v4.2.0
+======
+
+* ADD: bumpfee (RBF) & cancelTx (RBF) for BIP84 HD wallet
+* ADD: CPFP for BIP84 HD wallets
+* ADD: Electrum server configuration
+* ADD: Hungarian localization
+* ADD: HUF fiat unit
+* FIX: receive address generation with no internet
+* FIX: wait for electrum connection before fetching tx or broadcast
+* FIX: Receive UI jumpiness
+* FIX: iOS App crashes when scaning QR Code
+* FIX: Amount when scanning was not displayed in amount UI
+* FIX: ln transaction details screen
+* FIX: import LN wallet with custom lndhub
+* FIX: BIP84 txs with low confirmations not updating
+* FIX: crash
+* REF: Swedish translation updates
+* REF: better initial HD rescan
+
+
+v4.1.0
+======
+
+* REF: faster initial HD rescan
+* FIX: ln transaction details screen
+* FIX: import LN wallet with custom lndhub
+* FIX: BIP84 txs with low confirmations not updating
+* FIX: crash
+* REF: Swedish translation updates

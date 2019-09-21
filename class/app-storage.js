@@ -1,4 +1,5 @@
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import {
   HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
@@ -8,16 +9,21 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
   ACINQStrikeLightningWallet,
+  HDSegwitBech32Wallet,
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
-let encryption = require('../encryption');
+import WatchConnectivity from '../WatchConnectivity';
+const encryption = require('../encryption');
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
   static LANG = 'lang';
   static EXCHANGE_RATES = 'currency';
   static LNDHUB = 'lndhub';
+  static ELECTRUM_HOST = 'electrum_host';
+  static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
+  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -27,16 +33,66 @@ export class AppStorage {
     this.settings = {
       brandingColor: '#ffffff',
       foregroundColor: '#0c2550',
-      buttonBackground: '#ffffff',
+      buttonBackgroundColor: '#ccddf9',
       buttonTextColor: '#0c2550',
+      buttonAlternativeTextColor: '#2f5fb3',
+      buttonDisabledBackgroundColor: '#eef0f4',
+      buttonDisabledTextColor: '#9aa0aa',
+      inputBorderColor: '#d2d2d2',
+      inputBackgroundColor: '#f5f5f5',
+      alternativeTextColor: '#9aa0aa',
+      alternativeTextColor2: '#0f5cc0',
+      buttonBlueBackgroundColor: '#ccddf9',
+      incomingBackgroundColor: '#d2f8d6',
+      incomingForegroundColor: '#37c0a1',
+      outgoingBackgroundColor: '#f8d2d2',
+      outgoingForegroundColor: '#d0021b',
+      successColor: '#37c0a1',
+      failedColor: '#ff0000',
+      shadowColor: '#000000',
+      inverseForegroundColor: '#ffffff',
+      hdborderColor: '#68BBE1',
+      hdbackgroundColor: '#ECF9FF',
+      lnborderColor: '#F7C056',
+      lnbackgroundColor: '#FFFAEF',
     };
   }
 
+  /**
+   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
+   * used for cli/tests
+   *
+   * @param key
+   * @param value
+   * @returns {Promise<any>|Promise<any> | Promise<void> | * | Promise | void}
+   */
+  setItem(key, value) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+    } else {
+      return AsyncStorage.setItem(key, value);
+    }
+  }
+
+  /**
+   * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
+   * used for cli/tests
+   *
+   * @param key
+   * @returns {Promise<any>|*}
+   */
+  getItem(key) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+      return RNSecureKeyStore.get(key);
+    } else {
+      return AsyncStorage.getItem(key);
+    }
+  }
+
   async storageIsEncrypted() {
-    // await AsyncStorage.clear();
     let data;
     try {
-      data = await AsyncStorage.getItem(AppStorage.FLAG_ENCRYPTED);
+      data = await this.getItem(AppStorage.FLAG_ENCRYPTED);
     } catch (error) {
       return false;
     }
@@ -72,7 +128,7 @@ export class AppStorage {
   async encryptStorage(password) {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
-    let data = await AsyncStorage.getItem('data');
+    let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
     let encrypted = encryption.encrypt(data, password);
@@ -80,8 +136,8 @@ export class AppStorage {
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
     this.cachedPassword = password;
-    await AsyncStorage.setItem('data', data);
-    await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+    await this.setItem('data', data);
+    await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
   }
 
   /**
@@ -99,12 +155,13 @@ export class AppStorage {
       tx_metadata: {},
     };
 
-    let buckets = await AsyncStorage.getItem('data');
+    let buckets = await this.getItem('data');
     buckets = JSON.parse(buckets);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
-
-    return AsyncStorage.setItem('data', JSON.stringify(buckets));
+    const bucketsString = JSON.stringify(buckets);
+    await this.setItem('data', bucketsString);
+    return (await this.getItem('data')) === bucketsString;
   }
 
   /**
@@ -116,7 +173,7 @@ export class AppStorage {
    */
   async loadFromDisk(password) {
     try {
-      let data = await AsyncStorage.getItem('data');
+      let data = await this.getItem('data');
       if (password) {
         data = this.decryptData(data, password);
         if (data) {
@@ -141,12 +198,16 @@ export class AppStorage {
               break;
             case WatchOnlyWallet.type:
               unserializedWallet = WatchOnlyWallet.fromJson(key);
+              unserializedWallet.init();
               break;
             case HDLegacyP2PKHWallet.type:
               unserializedWallet = HDLegacyP2PKHWallet.fromJson(key);
               break;
             case HDSegwitP2SHWallet.type:
               unserializedWallet = HDSegwitP2SHWallet.fromJson(key);
+              break;
+            case HDSegwitBech32Wallet.type:
+              unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
               break;
             case HDLegacyBreadwalletWallet.type:
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
@@ -187,11 +248,14 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
+        WatchConnectivity.init();
+        WatchConnectivity.shared && (await WatchConnectivity.shared.sendWalletsToWatch());
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
       }
     } catch (error) {
+      console.warn(error.message);
       return false;
     }
   }
@@ -222,12 +286,13 @@ export class AppStorage {
    * If cached password is saved - finds the correct bucket
    * to save to, encrypts and then saves.
    *
-   * @returns {Promise} Result of AsyncStorage save
+   * @returns {Promise} Result of storage save
    */
   async saveToDisk() {
     let walletsToSave = [];
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
+      if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 
@@ -238,7 +303,7 @@ export class AppStorage {
 
     if (this.cachedPassword) {
       // should find the correct bucket, encrypt and then save
-      let buckets = await AsyncStorage.getItem('data');
+      let buckets = await this.getItem('data');
       buckets = JSON.parse(buckets);
       let newData = [];
       for (let bucket of buckets) {
@@ -250,15 +315,16 @@ export class AppStorage {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
           newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
-          await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+          await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }
       data = newData;
     } else {
-      await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
+      await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-
-    return AsyncStorage.setItem('data', JSON.stringify(data));
+    WatchConnectivity.init();
+    WatchConnectivity.shared && WatchConnectivity.shared.sendWalletsToWatch();
+    return this.setItem('data', JSON.stringify(data));
   }
 
   /**
@@ -382,5 +448,15 @@ export class AppStorage {
       finalBalance += wal.balance;
     }
     return finalBalance;
+  }
+
+  /**
+   * Simple async sleeper function
+   *
+   * @param ms {number} Milliseconds to sleep
+   * @returns {Promise<Promise<*> | Promise<*>>}
+   */
+  async sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

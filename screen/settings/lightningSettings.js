@@ -1,7 +1,8 @@
 /* global alert */
 import React, { Component } from 'react';
-import { AsyncStorage, View, TextInput, Linking } from 'react-native';
+import { View, TextInput, Linking } from 'react-native';
 import { AppStorage } from '../../class';
+import AsyncStorage from '@react-native-community/async-storage';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Button } from 'react-native-elements';
@@ -59,8 +60,8 @@ export default class LightningSettings extends Component {
 
         <Button
           icon={{
-            name: 'mark-github',
-            type: 'octicon',
+            name: 'github',
+            type: 'font-awesome',
             color: BlueApp.settings.buttonTextColor,
             backgroundColor: '#FFFFFF',
           }}

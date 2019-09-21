@@ -23,6 +23,8 @@ module.exports = {
       latest_transaction: '最新の取引',
       empty_txs1: 'ここに取引が表示されます',
       empty_txs2: '現在は何もありません',
+      empty_txs1_lightning: 'Lightning ウォレットを日常の取引にご利用ください。手数料は安く、送金はあっという間に完了します。',
+      empty_txs2_lightning: '\n利用を開始するには"資金の管理"をタップしてウォレットへ送金してください。',
       tap_here_to_buy: 'Bitcoin を購入するにはここをタップ',
     },
     reorder: {
@@ -163,6 +165,7 @@ module.exports = {
       create: '作成',
       setAmount: '入金額',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin の購入',
@@ -184,10 +187,14 @@ module.exports = {
       '他の LND ノードへ接続するには LndHub をインストール後、' +
       'URL を入力してください。既定の設定を使用するには空欄にします' +
       'ndHub\n (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: '保存',
     about: 'BlueWallet について',
     language: '言語',
     currency: '通貨',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: '隠匿設定',
@@ -219,5 +226,20 @@ module.exports = {
     placeholder: '入金依頼',
     expired: '失効',
     sameWalletAsInvoiceError: '以前作成したウォレットと同じウォレットへの支払いはできません。',
+  },
+  pleasebackup: {
+    title: 'ウォレットを作成しています...',
+    text:
+      'すべてのニモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https://electrum.org/) へニモニックを使用してウォレットをリストアすることが可能です。',
+    ok: 'すべてのニモニックを書きとめました',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'この請求書は支払いが行われなかったため無効になりました',
+    has_been_paid: 'この請求書は支払い完了しました',
+    please_pay: '支払う額',
+    sats: 'sats',
+    for: 'メモ:',
+    additional_info: '追加情報',
+    open_direct_channel: 'このノードの直接チャネルを作成:',
   },
 };

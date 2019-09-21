@@ -9,7 +9,9 @@ import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { ACINQStrikeLightningWallet } from '../../class';
+import { HDSegwitBech32Wallet } from '../../class';
 let EV = require('../../events');
+let prompt = require('../../prompt');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -63,6 +65,32 @@ export default class WalletDetails extends Component {
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
     });
+  }
+
+  async presentWalletHasBalanceAlert() {
+    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    const walletBalanceConfirmation = await prompt(
+      'Wallet Balance',
+      `This wallet has a balance. Before proceeding, please be aware that you will not be able to recover the funds without this wallet's seed phrase. In order to avoid accidental removal this wallet, please enter your wallet's balance of ${this.state.wallet.getBalance()} satoshis.`,
+      true,
+      'plain-text',
+    );
+    if (Number(walletBalanceConfirmation) === this.state.wallet.getBalance()) {
+      this.props.navigation.setParams({ isLoading: true });
+      this.setState({ isLoading: true }, async () => {
+        BlueApp.deleteWallet(this.state.wallet);
+        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        await BlueApp.saveToDisk();
+        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        this.props.navigation.navigate('Wallets');
+      });
+    } else {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      this.setState({ isLoading: false }, async () => {
+        alert("The provided balance amount does not match this wallet's balance. Please, try again");
+      });
+    }
   }
 
   render() {
@@ -145,6 +173,7 @@ export default class WalletDetails extends Component {
 
                 {(this.state.wallet.type === HDLegacyBreadwalletWallet.type ||
                   this.state.wallet.type === HDLegacyP2PKHWallet.type ||
+                  this.state.wallet.type === HDSegwitBech32Wallet.type ||
                   this.state.wallet.type === HDSegwitP2SHWallet.type) && (
                   <React.Fragment>
                     <BlueButton
@@ -181,7 +210,7 @@ export default class WalletDetails extends Component {
                 <TouchableOpacity
                   style={{ alignItems: 'center' }}
                   onPress={() => {
-                    ReactNativeHapticFeedback.trigger('notificationWarning', false);
+                    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
                     Alert.alert(
                       loc.wallets.details.delete + ' ' + loc.wallets.details.title,
                       loc.wallets.details.are_you_sure,
@@ -189,15 +218,19 @@ export default class WalletDetails extends Component {
                         {
                           text: loc.wallets.details.yes_delete,
                           onPress: async () => {
-                            this.props.navigation.setParams({ isLoading: true });
-                            this.setState({ isLoading: true }, async () => {
-                              BlueApp.deleteWallet(this.state.wallet);
-                              ReactNativeHapticFeedback.trigger('notificationSuccess', false);
-                              await BlueApp.saveToDisk();
-                              EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                              EV(EV.enum.WALLETS_COUNT_CHANGED);
-                              this.props.navigation.navigate('Wallets');
-                            });
+                            if (this.state.wallet.getBalance() > 0) {
+                              this.presentWalletHasBalanceAlert();
+                            } else {
+                              this.props.navigation.setParams({ isLoading: true });
+                              this.setState({ isLoading: true }, async () => {
+                                BlueApp.deleteWallet(this.state.wallet);
+                                ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                                await BlueApp.saveToDisk();
+                                EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                                EV(EV.enum.WALLETS_COUNT_CHANGED);
+                                this.props.navigation.navigate('Wallets');
+                              });
+                            }
                           },
                           style: 'destructive',
                         },

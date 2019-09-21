@@ -117,7 +117,7 @@ export default class SendCreate extends Component {
         BlueApp.tx_metadata[this.state.txid]['last_sequence'] = lastSequence;
 
         // in case new TX get confirmed, we must save metadata under new txid
-        let bitcoin = require('bitcoinjs-lib');
+        let bitcoin = bitcoinjs;
         let txDecoded = bitcoin.Transaction.fromHex(tx);
         let txid = txDecoded.getId();
         BlueApp.tx_metadata[txid] = BlueApp.tx_metadata[this.state.txid];
@@ -153,14 +153,18 @@ export default class SendCreate extends Component {
       let result = await this.state.fromWallet.broadcastTx(this.state.tx);
       console.log('broadcast result = ', result);
       if (typeof result === 'string') {
-        result = JSON.parse(result);
+        try {
+          result = JSON.parse(result);
+        } catch (_) {
+          result = { result };
+        }
       }
       if (result && result.error) {
         alert(JSON.stringify(result.error));
         this.setState({ isLoading: false });
       } else {
         alert(JSON.stringify(result.result || result.txid));
-        this.props.navigation.navigate('TransactionDetails');
+        this.props.navigation.navigate('TransactionStatus');
       }
     });
   }
@@ -225,7 +229,7 @@ export default class SendCreate extends Component {
         {this.state.isLoading ? (
           <ActivtyIndicator />
         ) : (
-          <BlueButton icon={{ name: 'megaphone', type: 'octicon' }} onPress={() => this.broadcast()} title="Broadcast" />
+          <BlueButton icon={{ name: 'bullhorn', type: 'font-awesome' }} onPress={() => this.broadcast()} title="Broadcast" />
         )}
       </SafeBlueArea>
     );

@@ -58,3 +58,5 @@ buck-out/
 #BlueWallet
 release-notes.json
 release-notes.txt
+
+ios/Pods/

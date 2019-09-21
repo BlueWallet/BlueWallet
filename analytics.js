@@ -1,12 +1,17 @@
-//  import Amplitude from 'react-native-amplitude-analytics';
-import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge';
+import amplitude from 'amplitude-js';
+import Analytics from 'appcenter-analytics';
 
-// Amplitude.initialize('8b7cf19e8eea3cdcf16340f5fbf16330');
-const analytics = new GoogleAnalyticsTracker('UA-121673546-1');
+amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
+  useNativeDeviceInfo: true,
+});
 
-let A = function(event) {
-  // Amplitude.logEvent(event);
-  analytics.trackEvent(event, event);
+let A = async event => {
+  amplitude.getInstance().logEvent(event, {});
+  try {
+    Analytics.trackEvent(event);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 A.ENUM = {

@@ -25,6 +25,9 @@ module.exports = {
       latest_transaction: 'Transazioni recenti',
       empty_txs1: 'Le tue transazioni appariranno qui,',
       empty_txs2: 'Nessuna transazione',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Clicca qui per comprare Bitcoin',
     },
     reorder: {
@@ -34,7 +37,7 @@ module.exports = {
       title: 'Aggiungi Portafoglio',
       description:
         'Puoi scansionare il Backup di un Paper-Wallet (in WIF - Wallet Import Format), o creare un nuovo portafoglio. I portafogli Segwit sono supportati di default.',
-      scan: 'Scansiona',
+      scan: 'Scan',
       create: 'Crea',
       label_new_segwit: 'Nuovo SegWit',
       label_new_lightning: 'Nuovo Lightning',
@@ -165,6 +168,7 @@ module.exports = {
       create: 'Crea',
       setAmount: 'Ricevi con importo',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Compra Bitcoin',
@@ -185,10 +189,14 @@ module.exports = {
     lightning_settings_explain:
       'Per connetterti al tuo nodo LND personale installa LndHub' +
       ' e inserisci il suo URL qui nelle impostazioni. Lascialo vuoto per utilizzare il nodo LndHub di default (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Salva',
     about: 'Informazioni',
     language: 'Lingua',
     currency: 'Valuta',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Negazione Plausibile',
@@ -219,5 +227,20 @@ module.exports = {
     expired: 'Scaduto',
     placeholder: 'Fattura',
     sameWalletAsInvoiceError: 'Non puoi pagare una fattura con lo stesso portafoglio utilizzato per crearla.',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

@@ -23,6 +23,9 @@ module.exports = {
       latest_transaction: 'latest transaction',
       empty_txs1: 'Your transactions will appear here,',
       empty_txs2: 'none at the moment',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
     reorder: {
@@ -108,7 +111,7 @@ module.exports = {
       to: 'Output',
       copy: 'Copy',
       transaction_details: 'Transaction details',
-      show_in_block_explorer: 'Show in block explorer',
+      show_in_block_explorer: 'View in block explorer',
     },
   },
   send: {
@@ -163,6 +166,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Receive with amount',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Buy Bitcoin',
@@ -183,10 +187,14 @@ module.exports = {
     lightning_settings_explain:
       'To connect to your own LND node please install LndHub' +
       " and put its URL here in settings. Leave blank to use BlueWallet's LNDHub (lndhub.io). Wallets created after saving changes will connect to the specified LNDHub.",
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Save',
     about: 'About',
     language: 'Language',
     currency: 'Currency',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Plausible Deniability',
@@ -217,5 +225,20 @@ module.exports = {
     expired: 'Expired',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
+  },
+  pleasebackup: {
+    title: 'Your wallet is created...',
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+    ok: 'OK, I wrote this down!',
+  },
+  lndViewInvoice: {
+    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
+    has_been_paid: 'This invoice has been paid for',
+    please_pay: 'Please pay',
+    sats: 'sats',
+    for: 'For:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Open direct channel with this node:',
   },
 };

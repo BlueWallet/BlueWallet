@@ -1,11 +1,14 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
 import Frisbee from 'frisbee';
 import { NativeModules } from 'react-native';
-import bitcoin from 'bitcoinjs-lib';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import signer from '../models/signer';
+import { BitcoinUnit } from '../models/bitcoinUnits';
+const bitcoin = require('bitcoinjs-lib');
+const bitcoin5 = require('bitcoinjs5');
+const HDNode = require('bip32');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -28,13 +31,10 @@ function ypubToXpub(ypub) {
  * @returns {String}
  */
 function nodeToP2shSegwitAddress(hdNode) {
-  const pubkeyBuf = hdNode.keyPair.getPublicKeyBuffer();
-  const hash = bitcoin.crypto.hash160(pubkeyBuf);
-  const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(hash);
-  const hash2 = bitcoin.crypto.hash160(redeemScript);
-  const scriptPubkey = bitcoin.script.scriptHash.output.encode(hash2);
-
-  return bitcoin.address.fromOutputScript(scriptPubkey);
+  const { address } = bitcoin5.payments.p2sh({
+    redeem: bitcoin5.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+  });
+  return address;
 }
 
 /**
@@ -47,6 +47,10 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   static typeReadable = 'HD SegWit (BIP49 P2SH)';
 
   allowSend() {
+    return true;
+  }
+
+  allowSendMax(): boolean {
     return true;
   }
 
@@ -102,9 +106,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
-    const xpub = ypubToXpub(this.getXpub());
-    const hdNode = bitcoin.HDNode.fromBase58(xpub);
-    const address = nodeToP2shSegwitAddress(hdNode.derive(0).derive(index));
+    if (!this._node0) {
+      const xpub = ypubToXpub(this.getXpub());
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node0 = hdNode.derive(0);
+    }
+    const address = nodeToP2shSegwitAddress(this._node0.derive(index));
 
     return (this.external_addresses_cache[index] = address);
   }
@@ -113,9 +120,12 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
-    const xpub = ypubToXpub(this.getXpub());
-    const hdNode = bitcoin.HDNode.fromBase58(xpub);
-    const address = nodeToP2shSegwitAddress(hdNode.derive(1).derive(index));
+    if (!this._node1) {
+      const xpub = ypubToXpub(this.getXpub());
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node1 = hdNode.derive(1);
+    }
+    const address = nodeToP2shSegwitAddress(this._node1.derive(index));
 
     return (this.internal_addresses_cache[index] = address);
   }
@@ -133,7 +143,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     // first, getting xpub
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = HDNode.fromSeed(seed);
 
     const path = "m/49'/0'/0'";
     const child = root.derivePath(path).neutered();
@@ -148,6 +158,73 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return this._xpub;
   }
 
+  async _getTransactionsBatch(addresses) {
+    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+    let transactions = [];
+    let offset = 0;
+
+    while (1) {
+      let response = await api.get('/multiaddr?active=' + addresses + '&n=100&offset=' + offset);
+
+      if (response && response.body) {
+        if (response.body.txs && response.body.txs.length === 0) {
+          break;
+        }
+
+        this._lastTxFetch = +new Date();
+
+        // processing TXs and adding to internal memory
+        if (response.body.txs) {
+          for (let tx of response.body.txs) {
+            let value = 0;
+
+            for (let input of tx.inputs) {
+              // ----- INPUTS
+
+              if (input.prev_out && input.prev_out.addr && this.weOwnAddress(input.prev_out.addr)) {
+                // this is outgoing from us
+                value -= input.prev_out.value;
+              }
+            }
+
+            for (let output of tx.out) {
+              // ----- OUTPUTS
+
+              if (output.addr && this.weOwnAddress(output.addr)) {
+                // this is incoming to us
+                value += output.value;
+              }
+            }
+
+            tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
+            if (response.body.hasOwnProperty('info')) {
+              if (response.body.info.latest_block.height && tx.block_height) {
+                tx.confirmations = response.body.info.latest_block.height - tx.block_height + 1;
+              } else {
+                tx.confirmations = 0;
+              }
+            } else {
+              tx.confirmations = 0;
+            }
+            transactions.push(tx);
+          }
+
+          if (response.body.txs.length < 100) {
+            // this fetch yilded less than page size, thus requesting next batch makes no sense
+            break;
+          }
+        } else {
+          break; // error ?
+        }
+      } else {
+        throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
+      }
+
+      offset += 100;
+    }
+    return transactions;
+  }
+
   /**
    * @inheritDoc
    */
@@ -158,84 +235,54 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
         await this.fetchBalance();
       }
 
-      let addresses = this.usedAddresses.join('|');
-      addresses += '|' + this._getExternalAddressByIndex(this.next_free_address_index);
-      addresses += '|' + this._getInternalAddressByIndex(this.next_free_change_address_index);
-
-      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
       this.transactions = [];
-      let offset = 0;
 
-      while (1) {
-        let response = await api.get('/multiaddr?active=' + addresses + '&n=100&offset=' + offset);
-
-        if (response && response.body) {
-          if (response.body.txs && response.body.txs.length === 0) {
-            break;
-          }
-
-          this._lastTxFetch = +new Date();
-
-          // processing TXs and adding to internal memory
-          if (response.body.txs) {
-            for (let tx of response.body.txs) {
-              let value = 0;
-
-              for (let input of tx.inputs) {
-                // ----- INPUTS
-
-                if (input.prev_out && input.prev_out.addr && this.weOwnAddress(input.prev_out.addr)) {
-                  // this is outgoing from us
-                  value -= input.prev_out.value;
-                }
-              }
-
-              for (let output of tx.out) {
-                // ----- OUTPUTS
-
-                if (output.addr && this.weOwnAddress(output.addr)) {
-                  // this is incoming to us
-                  value += output.value;
-                }
-              }
-
-              tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
-              if (response.body.hasOwnProperty('info')) {
-                if (response.body.info.latest_block.height && tx.block_height) {
-                  tx.confirmations = response.body.info.latest_block.height - tx.block_height + 1;
-                } else {
-                  tx.confirmations = 0;
-                }
-              } else {
-                tx.confirmations = 0;
-              }
-              this.transactions.push(tx);
-            }
-
-            if (response.body.txs.length < 100) {
-              // this fetch yilded less than page size, thus requesting next batch makes no sense
-              break;
-            }
-          } else {
-            break; // error ?
-          }
-        } else {
-          throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
+      let addresses4batch = [];
+      for (let addr of this.usedAddresses) {
+        addresses4batch.push(addr);
+        if (addresses4batch.length >= 45) {
+          let addresses = addresses4batch.join('|');
+          let transactions = await this._getTransactionsBatch(addresses);
+          this.transactions = this.transactions.concat(transactions);
+          addresses4batch = [];
         }
-
-        offset += 100;
       }
+      // final batch
+      for (let c = 0; c <= this.gap_limit; c++) {
+        addresses4batch.push(this._getExternalAddressByIndex(this.next_free_address_index + c));
+        addresses4batch.push(this._getInternalAddressByIndex(this.next_free_change_address_index + c));
+      }
+      let addresses = addresses4batch.join('|');
+      let transactions = await this._getTransactionsBatch(addresses);
+      this.transactions = this.transactions.concat(transactions);
     } catch (err) {
       console.warn(err);
     }
   }
 
+  /**
+   *
+   * @param utxos
+   * @param amount Either float (BTC) or string 'MAX' (BitcoinUnit.MAX) to send all
+   * @param fee
+   * @param address
+   * @returns {string}
+   */
   createTx(utxos, amount, fee, address) {
     for (let utxo of utxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
     let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+
+    if (amount === BitcoinUnit.MAX) {
+      amountPlusFee = new BigNumber(0);
+      for (let utxo of utxos) {
+        amountPlusFee = amountPlusFee.plus(utxo.amount);
+      }
+      amountPlusFee = amountPlusFee.dividedBy(100000000).toString(10);
+    }
+
     return signer.createHDSegwitTransaction(
       utxos,
       address,

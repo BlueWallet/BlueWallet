@@ -6,11 +6,10 @@ let prompt = require('./prompt');
 let EV = require('./events');
 let currency = require('./currency');
 let loc = require('./loc');
-let A = require('./analytics');
 let BlueElectrum = require('./BlueElectrum'); // eslint-disable-line
 
 /** @type {AppStorage} */
-let BlueApp = new AppStorage();
+const BlueApp = new AppStorage();
 
 async function startAndDecrypt(retry) {
   console.log('startAndDecrypt');
@@ -29,8 +28,6 @@ async function startAndDecrypt(retry) {
     console.log('loaded from disk');
     EV(EV.enum.WALLETS_COUNT_CHANGED);
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-    let securityAlert = require('./security-alert');
-    await securityAlert.start();
     // now, lets try to fetch balance and txs for first wallet if it is time for it
     /* let hadToRefresh = false;
     let noErr = true;
@@ -67,7 +64,6 @@ async function startAndDecrypt(retry) {
   }
 }
 
-A(A.ENUM.INIT);
 BlueApp.startAndDecrypt = startAndDecrypt;
 currency.startUpdater();
 

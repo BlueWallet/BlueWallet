@@ -10,6 +10,7 @@ let loc = require('../../loc');
 export default class Success extends Component {
   static navigationOptions = {
     header: null,
+    gesturesEnabled: false,
   };
 
   constructor(props) {
@@ -26,7 +27,7 @@ export default class Success extends Component {
 
   async componentDidMount() {
     console.log('send/create - componentDidMount');
-    ReactNativeHapticFeedback.trigger('notificationSuccess', false);
+    ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
   }
 
   render() {
@@ -67,7 +68,7 @@ export default class Success extends Component {
                 alignSelf: 'center',
               }}
             >
-              {loc.send.create.fee}: {loc.formatBalance(this.state.fee, BitcoinUnit.SATS)}
+              {loc.send.create.fee}: {this.state.fee} {BitcoinUnit.BTC}
             </Text>
           )}
           {this.state.fee <= 0 && (

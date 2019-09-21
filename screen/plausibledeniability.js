@@ -48,7 +48,7 @@ export default class PlausibleDeniability extends Component {
             <BlueButton
               icon={{
                 name: 'shield',
-                type: 'octicon',
+                type: 'font-awesome',
                 color: BlueApp.settings.buttonTextColor,
               }}
               title={loc.plausibledeniability.create_fake_storage}
