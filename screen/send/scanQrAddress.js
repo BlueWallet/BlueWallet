@@ -1,10 +1,14 @@
+/* global alert */
 import React from 'react';
 import { Image, TouchableOpacity } from 'react-native';
 import PropTypes from 'prop-types';
 import { RNCamera } from 'react-native-camera';
 import { SafeBlueArea } from '../../BlueComponents';
+import { Icon } from 'react-native-elements';
+import ImagePicker from 'react-native-image-picker';
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
-export default class CameraExample extends React.Component {
+export default class ScanQRCode extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -13,8 +17,9 @@ export default class CameraExample extends React.Component {
     isLoading: false,
   };
 
-  onBarCodeScanned = ret => {
+  onBarCodeRead = ret => {
     if (this.state.isLoading) return;
+    this.cameraRef.pausePreview();
     this.setState({ isLoading: true }, () => {
       const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
       this.props.navigation.goBack();
@@ -33,8 +38,9 @@ export default class CameraExample extends React.Component {
             buttonPositive: 'OK',
             buttonNegative: 'Cancel',
           }}
+          ref={ref => (this.cameraRef = ref)}
           style={{ flex: 1, justifyContent: 'space-between' }}
-          onBarCodeRead={this.onBarCodeScanned}
+          onBarCodeRead={this.onBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
         <TouchableOpacity
@@ -52,12 +58,47 @@ export default class CameraExample extends React.Component {
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            width: 40,
+            height: 40,
+            backgroundColor: '#FFFFFF',
+            justifyContent: 'center',
+            borderRadius: 20,
+            position: 'absolute',
+            left: 24,
+            bottom: 48,
+          }}
+          onPress={() => {
+            this.cameraRef.pausePreview();
+            ImagePicker.launchImageLibrary(
+              {
+                title: null,
+                mediaType: 'photo',
+                takePhotoButtonTitle: null,
+              },
+              response => {
+                const uri = response.uri.toString().replace('file://', '');
+                LocalQRCode.decode(uri, (error, result) => {
+                  if (!error) {
+                    this.onBarCodeRead({ data: result });
+                  } else {
+                    this.cameraRef.resumePreview();
+                    alert('The selected image does not contain a QR Code.');
+                  }
+                });
+              },
+            );
+          }}
+        >
+          <Icon name="image" type="font-awesome" color="#0c2550" />
+        </TouchableOpacity>
       </SafeBlueArea>
     );
   }
 }
 
-CameraExample.propTypes = {
+ScanQRCode.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     dismiss: PropTypes.func,
