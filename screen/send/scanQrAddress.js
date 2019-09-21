@@ -13,18 +13,13 @@ export default class ScanQRCode extends React.Component {
     header: null,
   };
 
-  state = {
-    isLoading: false,
-  };
+  cameraRef = null;
 
   onBarCodeRead = ret => {
-    if (this.state.isLoading) return;
-    this.cameraRef.pausePreview();
-    this.setState({ isLoading: true }, () => {
-      const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
-      this.props.navigation.goBack();
-      onBarScannedProp(ret.data);
-    });
+    if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
+    const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
+    this.props.navigation.goBack();
+    onBarScannedProp(ret.data);
   }; // end
 
   render() {
@@ -70,7 +65,7 @@ export default class ScanQRCode extends React.Component {
             bottom: 48,
           }}
           onPress={() => {
-            this.cameraRef.pausePreview();
+            if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
             ImagePicker.launchImageLibrary(
               {
                 title: null,
@@ -78,15 +73,19 @@ export default class ScanQRCode extends React.Component {
                 takePhotoButtonTitle: null,
               },
               response => {
-                const uri = response.uri.toString().replace('file://', '');
-                LocalQRCode.decode(uri, (error, result) => {
-                  if (!error) {
-                    this.onBarCodeRead({ data: result });
-                  } else {
-                    this.cameraRef.resumePreview();
-                    alert('The selected image does not contain a QR Code.');
-                  }
-                });
+                if (response.uri) {
+                  const uri = response.uri.toString().replace('file://', '');
+                  LocalQRCode.decode(uri, (error, result) => {
+                    if (!error) {
+                      this.onBarCodeRead({ data: result });
+                    } else {
+                      if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
+                      alert('The selected image does not contain a QR Code.');
+                    }
+                  });
+                } else {
+                  if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
+                }
               },
             );
           }}
