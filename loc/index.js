@@ -28,6 +28,10 @@ dayjs.extend(relativeTime);
         lang = 'zh-cn';
         require('dayjs/locale/zh-cn');
         break;
+      case 'zh_tw':
+        lang = 'zh-tw';
+        require('dayjs/locale/zh-tw');
+        break;
       case 'ru':
         require('dayjs/locale/ru');
         break;
@@ -82,6 +86,10 @@ dayjs.extend(relativeTime);
       case 'tr_tr':
         require('dayjs/locale/tr');
         break;
+      case 'vi_vn':
+        lang = 'vi-vn';
+        require('dayjs/locale/vn');
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
@@ -113,9 +121,13 @@ strings = new Localization({
   hu_hu: require('./hu_HU.js'),
   id_id: require('./id_ID.js'),
   zh_cn: require('./zh_cn.js'),
+  zh_tw: require('./zh_tw.js'),
   sv_se: require('./sv_SE.js'),
   nb_no: require('./nb_NO.js'),
   tr_tr: require('./tr_TR.js'),
+  vi_vn: require('./vi_VN.js'),
+  zar_xho: require('./ZAR_Xho.js'),
+  zar_afr: require('./ZAR_Afr.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
