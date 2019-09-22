@@ -31,6 +31,26 @@ export class SegwitP2SHWallet extends LegacyWallet {
     return pubkeyToP2shSegwitAddress(pubKey);
   }
 
+  /**
+   * Converts script pub key to p2sh address if it can. Returns FALSE if it cant.
+   *
+   * @param scriptPubKey
+   * @returns {boolean|string} Either p2sh address or false
+   */
+  static scriptPubKeyToAddress(scriptPubKey) {
+    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+    let ret;
+    try {
+      ret = bitcoin.payments.p2sh({
+        output: scriptPubKey2,
+        network: bitcoin.networks.bitcoin,
+      }).address;
+    } catch (_) {
+      return false;
+    }
+    return ret;
+  }
+
   getAddress() {
     if (this._address) return this._address;
     let address;
