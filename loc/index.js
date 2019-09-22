@@ -121,6 +121,8 @@ strings = new Localization({
   sv_se: require('./sv_SE.js'),
   nb_no: require('./nb_NO.js'),
   tr_tr: require('./tr_TR.js'),
+  zar_xho: require('./ZAR_Xho.js'),
+  zar_afr: require('./ZAR_Afr.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
