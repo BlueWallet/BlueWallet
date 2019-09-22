@@ -3,9 +3,9 @@ import { SegwitBech32Wallet } from './';
 import { useBlockcypherTokens } from './constants';
 import Frisbee from 'frisbee';
 import { NativeModules } from 'react-native';
+const bitcoin = require('bitcoinjs-lib');
 const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
-const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
 const BlueElectrum = require('../BlueElectrum');
 
@@ -85,7 +85,9 @@ export class LegacyWallet extends AbstractWallet {
     let address;
     try {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
-      address = keyPair.getAddress();
+      address = bitcoin.payments.p2pkh({
+        pubkey: keyPair.publicKey,
+      }).address;
     } catch (err) {
       return false;
     }
