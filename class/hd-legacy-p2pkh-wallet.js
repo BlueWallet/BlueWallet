@@ -3,6 +3,7 @@ import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import signer from '../models/signer';
 const bitcoin = require('bitcoinjs-lib');
+const HDNode = require('bip32');
 
 /**
  * HD Wallet (BIP39).
@@ -50,11 +51,12 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.bip32.fromSeed(seed);
+
+    const root = HDNode.fromSeed(seed);
     const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
-    return child.keyPair.toWIF();
+    return child.toWIF();
   }
 
   _getExternalAddressByIndex(index) {
