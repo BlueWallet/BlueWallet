@@ -87,8 +87,7 @@ dayjs.extend(relativeTime);
         require('dayjs/locale/tr');
         break;
       case 'vi_vn':
-        lang = 'vi-vn';
-        require('dayjs/locale/vn');
+        require('dayjs/locale/vi');
         break;
       default:
         localeForDayJSAvailable = false;
