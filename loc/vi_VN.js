@@ -1,6 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
+    storage_is_encrypted: 'Lưu trữ của bạn được mã hoá. Mật khẩu được yêu cầu để giải mã',
     enter_password: 'Enter password',
     bad_password: 'Bad password, try again',
     never: 'never',

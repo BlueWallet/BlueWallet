@@ -40,6 +40,7 @@ export default class Language extends Component {
         { label: 'Русский', value: 'ru' },
         { label: 'Svenska (SE)', value: 'sv_se' },
         { label: 'Thai (TH)', value: 'th_th' },
+        { label: 'Vietnamese (VN)', value: 'vi_vn' },
         { label: 'Українська', value: 'ua' },
         { label: 'Türkçe (TR)', value: 'tr_tr' },
         { label: 'Xhosa (XHO)', value: 'zar_xho' },

@@ -86,6 +86,10 @@ dayjs.extend(relativeTime);
       case 'tr_tr':
         require('dayjs/locale/tr');
         break;
+      case 'vi_vn':
+        lang = 'vi-vn';
+        require('dayjs/locale/vn');
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
@@ -121,6 +125,7 @@ strings = new Localization({
   sv_se: require('./sv_SE.js'),
   nb_no: require('./nb_NO.js'),
   tr_tr: require('./tr_TR.js'),
+  vi_vn: require('./vi_VN.js'),
   zar_xho: require('./ZAR_Xho.js'),
   zar_afr: require('./ZAR_Afr.js'),
 });
