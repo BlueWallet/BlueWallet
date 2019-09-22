@@ -36,7 +36,7 @@ import receiveDetails from './screen/receive/details';
 import setReceiveAmount from './screen/receive/receiveAmount';
 
 import sendDetails from './screen/send/details';
-import sendScanQrAddress from './screen/send/scanQrAddress';
+import ScanQRCode from './screen/send/scanQrAddress';
 import sendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import Success from './screen/send/success';
@@ -288,7 +288,7 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     ScanQrAddress: {
-      screen: sendScanQrAddress,
+      screen: ScanQRCode,
     },
     LappBrowser: {
       screen: LappBrowser,

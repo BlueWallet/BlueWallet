@@ -19,9 +19,10 @@ export default class Language extends Component {
       availableLanguages: [
         { label: 'English', value: 'en' },
         { label: 'Afrikaans (AFR)', value: 'zar_afr' },
-        { label: 'Česky (CZ)', value: 'cs_cz' },
         { label: 'Chinese (ZH)', value: 'zh_cn' },
+        { label: 'Chinese (TW)', value: 'zh_tw' },
         { label: 'Croatian (HR)', value: 'hr_hr' },
+        { label: 'Česky (CZ)', value: 'cs_cz' },
         { label: 'Danish (DK)', value: 'da_dk' },
         { label: 'Deutsch (DE)', value: 'de_de' },
         { label: 'Español (ES)', value: 'es' },
