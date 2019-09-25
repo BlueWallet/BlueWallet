@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "4.5.0",
+  "version": "4.5.1",
   "devDependencies": {
     "@babel/core": "^7.5.0",
     "@babel/runtime": "^7.5.1",
@@ -84,6 +84,7 @@
     "react": "16.8.6",
     "react-localization": "1.0.13",
     "react-native": "0.60.5",
+    "react-native-biometrics": "^1.6.1",
     "react-native-camera": "3.4.0",
     "react-native-device-info": "2.2.2",
     "react-native-elements": "0.19.0",

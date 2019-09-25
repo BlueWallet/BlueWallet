@@ -9,6 +9,7 @@ import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { HDSegwitBech32Wallet } from '../../class';
+import Biometric from '../../class/biometrics';
 let EV = require('../../events');
 let prompt = require('../../prompt');
 /** @type {AppStorage} */
@@ -75,6 +76,14 @@ export default class WalletDetails extends Component {
       'plain-text',
     );
     if (Number(walletBalanceConfirmation) === this.state.wallet.getBalance()) {
+      const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+      if (isBiometricsEnabled) {
+        if (!(await Biometric.unlockWithBiometrics())) {
+          return;
+        }
+      }
+
       this.props.navigation.setParams({ isLoading: true });
       this.setState({ isLoading: true }, async () => {
         BlueApp.deleteWallet(this.state.wallet);
