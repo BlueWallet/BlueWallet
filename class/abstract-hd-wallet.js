@@ -561,4 +561,12 @@ export class AbstractHDWallet extends LegacyWallet {
 
     return hashmap[addr] === 1;
   }
+
+  _getDerivationPathByAddress(address) {
+    throw new Error('Not implemented');
+  }
+
+  _getNodePubkeyByIndex(address) {
+    throw new Error('Not implemented');
+  }
 }
