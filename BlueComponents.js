@@ -439,10 +439,10 @@ export const BluePrivateBalance = () => {
   });
 };
 
-export const BlueCopyToClipboardButton = ({ stringToCopy }) => {
+export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
   return (
     <TouchableOpacity {...this.props} onPress={() => Clipboard.setString(stringToCopy)}>
-      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{loc.transactions.details.copy}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details.copy}</Text>
     </TouchableOpacity>
   );
 };

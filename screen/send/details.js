@@ -35,7 +35,7 @@ import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet } from '../../class';
+import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 const bitcoin = require('bitcoinjs-lib');
@@ -412,7 +412,8 @@ export default class SendDetails extends Component {
       return;
     }
 
-    if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
+    if (this.state.fromWallet.type === HDSegwitBech32Wallet.type || this.state.fromWallet.type === WatchOnlyWallet.type) {
+      // new send is supported by BIP84 or watchonly with HW wallet support (it uses BIP84 under the hood anyway)
       try {
         await this.createHDBech32Transaction();
       } catch (Err) {
@@ -533,7 +534,22 @@ export default class SendDetails extends Component {
       targets = [{ address: firstTransaction.address, amount: BitcoinUnit.MAX }];
     }
 
-    let { tx, fee } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
+    let { tx, fee, psbt } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
+
+    if (wallet.type === WatchOnlyWallet.type) {
+      // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
+      // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
+      // user whether he wants to broadcast it
+
+      this.setState({ isLoading: false }, () =>
+        this.props.navigation.navigate('PsbtWithHardwareWallet', {
+          memo: this.state.memo,
+          fromWallet: wallet,
+          psbt,
+        }),
+      );
+      return;
+    }
 
     BlueApp.tx_metadata = BlueApp.tx_metadata || {};
     BlueApp.tx_metadata[tx.getId()] = {
