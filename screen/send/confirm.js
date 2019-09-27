@@ -71,7 +71,7 @@ export default class Confirm extends Component {
             amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
           } else {
             for (const recipient of recipients) {
-              amount += recipient.value;
+              amount += recipient.amount ? +recipient.amount : recipient.value;
             }
           }
 
@@ -104,7 +104,7 @@ export default class Confirm extends Component {
           >
             {item.amount === BitcoinUnit.MAX
               ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
-              : currency.satoshiToBTC(item.value)}
+              : item.amount || currency.satoshiToBTC(item.value)}
           </Text>
           <Text
             style={{
