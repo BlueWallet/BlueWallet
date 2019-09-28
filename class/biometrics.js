@@ -5,8 +5,9 @@ export default class Biometric {
   static STORAGEKEY = 'Biometrics';
 
   static async isDeviceBiometricCapable() {
-    if ((await Biometrics.isSensorAvailable()) !== null) {
-      return true;
+    const isDeviceBiometricCapable = await Biometric.biometricType();
+    if (typeof isDeviceBiometricCapable === 'string') {
+      return isDeviceBiometricCapable;
     }
     Biometric.setBiometricUseEnabled(false);
     return false;
