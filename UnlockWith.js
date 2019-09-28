@@ -22,7 +22,7 @@ export default class UnlockWith extends Component {
       if (!biometricType) {
         await BlueApp.startAndDecrypt();
         this.props.onSuccessfullyAuthenticated();
-      } else if (biometricType !== false && !isStorageEncrypted) this.unlockWithBiometrics();
+      } else if (!isStorageEncrypted && typeof biometricType === 'string') this.unlockWithBiometrics();
     });
   }
 
