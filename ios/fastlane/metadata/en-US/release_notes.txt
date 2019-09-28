@@ -1,3 +1,9 @@
+v4.5.2
+======
+
+* FIX: NaN when sending onchain
+* FIX: RBF tx memo porting
+
 v4.5.0
 ======
 
