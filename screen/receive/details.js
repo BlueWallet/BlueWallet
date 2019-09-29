@@ -70,15 +70,12 @@ export default class ReceiveDetails extends Component {
           address: address,
           addressText: address,
         });
-      } else if (wallet.getAddress) {
-        address = wallet.getAddress();
+      } else if (wallet.getAddress && address.trim().length === 0) {
         this.setState({
           address: address,
           addressText: address,
         });
       } else {
-        alert('There was a problem obtaining your receive address. Please, try again.');
-        this.props.navigation.goBack();
         this.setState({
           address,
           addressText: address,

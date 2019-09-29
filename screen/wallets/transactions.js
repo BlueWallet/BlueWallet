@@ -4,21 +4,33 @@ import { Chain } from '../../models/bitcoinUnits';
 import {
   Text,
   Platform,
+  StyleSheet,
   View,
+  Keyboard,
   ActivityIndicator,
   InteractionManager,
   FlatList,
   RefreshControl,
   TouchableOpacity,
   StatusBar,
+  Linking,
+  KeyboardAvoidingView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
-import { BlueSendButtonIcon, BlueReceiveButtonIcon, BlueTransactionListItem, BlueWalletNavigationHeader } from '../../BlueComponents';
+import {
+  BlueSendButtonIcon,
+  BlueListItem,
+  BlueReceiveButtonIcon,
+  BlueTransactionListItem,
+  BlueWalletNavigationHeader,
+} from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class';
 import Handoff from 'react-native-handoff';
 import { ScrollView } from 'react-native-gesture-handler';
+import Modal from 'react-native-modal';
+import NavigationService from '../../NavigationService';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -63,6 +75,7 @@ export default class WalletTransactions extends Component {
     this.state = {
       showMarketplace: Platform.OS !== 'ios',
       isLoading: true,
+      isManageFundsModalVisible: false,
       showShowFlatListRefreshControl: false,
       wallet: wallet,
       dataSource: this.getTransactions(15),
@@ -206,7 +219,101 @@ export default class WalletTransactions extends Component {
       </View>
     );
   };
-  
+
+  renderManageFundsModal = () => {
+    return (
+      <Modal
+        isVisible={this.state.isManageFundsModalVisible}
+        style={styles.bottomModal}
+        onBackdropPress={() => {
+          Keyboard.dismiss();
+          this.setState({ isManageFundsModalVisible: false });
+        }}
+      >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+          <View style={styles.advancedTransactionOptionsModalContent}>
+            <BlueListItem
+              hideChevron
+              component={TouchableOpacity}
+              onPress={a => {
+                const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
+                if (wallets.length === 0) {
+                  alert('In order to proceed, please create a Bitcoin wallet to refill with.');
+                } else {
+                  this.setState({ isManageFundsModalVisible: false });
+                  this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });  
+                }
+              }}
+              title={loc.lnd.refill}
+            />
+            <BlueListItem
+              hideChevron
+              component={TouchableOpacity}
+              onPress={a => {
+                this.setState({ isManageFundsModalVisible: false }, async () => {
+                  /** @type {LightningCustodianWallet} */
+                  let toAddress = false;
+                  if (this.state.wallet.refill_addressess.length > 0) {
+                    toAddress = this.state.wallet.refill_addressess[0];
+                  } else {
+                    try {
+                      await this.state.wallet.fetchBtcAddress();
+                      toAddress = this.state.wallet.refill_addressess[0];
+                    } catch (Err) {
+                      return alert(Err.message);
+                    }
+                  }
+                  this.props.navigation.navigate('ReceiveDetails', {
+                    address: toAddress,
+                    secret: this.state.wallet.getSecret(),
+                  });
+                });
+              }}
+              title={'Refill with External Wallet'}
+            />
+
+            <BlueListItem
+              title={loc.lnd.withdraw}
+              hideChevron
+              component={TouchableOpacity}
+              onPress={a => {
+                this.setState({ isManageFundsModalVisible: false });
+                Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
+              }}
+            />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    );
+  };
+
+  onWalletSelect = async wallet => {
+    NavigationService.navigate('WalletTransactions');
+    /** @type {LightningCustodianWallet} */
+    let toAddress = false;
+    if (this.state.wallet.refill_addressess.length > 0) {
+      toAddress = this.state.wallet.refill_addressess[0];
+    } else {
+      try {
+        await this.state.wallet.fetchBtcAddress();
+        toAddress = this.state.wallet.refill_addressess[0];
+      } catch (Err) {
+        return alert(Err.message);
+      }
+    }
+
+    if (wallet) {
+      this.props.navigation.navigate('SendDetails', {
+        memo: loc.lnd.refill_lnd_balance,
+        fromSecret: wallet.getSecret(),
+        address: toAddress,
+        fromWallet: wallet,
+      });
+    } else {
+      return alert('Internal error');
+    }
+  };
+
   async onWillBlur() {
     StatusBar.setBarStyle('dark-content');
   }
@@ -245,6 +352,7 @@ export default class WalletTransactions extends Component {
               this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
             })
           }
+          onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
         />
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
           {this.state.showMarketplace && (
@@ -343,6 +451,7 @@ export default class WalletTransactions extends Component {
             renderItem={this.renderItem}
             contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
           />
+          {this.renderManageFundsModal()}
         </View>
         <View
           style={{
@@ -396,6 +505,32 @@ export default class WalletTransactions extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 200,
+    height: 200,
+  },
+  advancedTransactionOptionsModalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 130,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+});
 
 WalletTransactions.propTypes = {
   navigation: PropTypes.shape({
