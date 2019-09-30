@@ -244,7 +244,7 @@ export default class WalletTransactions extends Component {
                   this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });  
                 }
               }}
-              title={loc.lnd.refill}
+              title={'Add funds'}
             />
             <BlueListItem
               hideChevron
@@ -269,11 +269,11 @@ export default class WalletTransactions extends Component {
                   });
                 });
               }}
-              title={'Refill with External Wallet'}
+              title={'Add funds using external wallet'}
             />
 
             <BlueListItem
-              title={loc.lnd.withdraw}
+              title={'Exchange'}
               hideChevron
               component={TouchableOpacity}
               onPress={a => {
