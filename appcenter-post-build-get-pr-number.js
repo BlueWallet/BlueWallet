@@ -11,18 +11,21 @@ const req = https.request(
   resp => {
     let data = '';
 
-    // A chunk of data has been recieved.
     resp.on('data', chunk => {
       data += chunk;
     });
 
-    // The whole response has been received
     resp.on('end', () => {
-      const prs = JSON.parse(data);
-      for (let pr of prs) {
-        if (process.env.APPCENTER_BRANCH === pr.head.ref) {
-          console.log(pr.number);
+      try {
+        const prs = JSON.parse(data);
+        for (let pr of prs) {
+          if (process.env.APPCENTER_BRANCH === pr.head.ref) {
+            console.log(pr.number);
+          }
         }
+      } catch (err) {
+        console.log(err);
+        console.log('got json: ', data);
       }
     });
   },
