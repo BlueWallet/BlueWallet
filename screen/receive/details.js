@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import { View, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
@@ -70,7 +69,7 @@ export default class ReceiveDetails extends Component {
           address: address,
           addressText: address,
         });
-      } else if (wallet.getAddress && address.trim().length === 0) {
+      } else if (wallet.getAddress) {
         this.setState({
           address: address,
           addressText: address,
