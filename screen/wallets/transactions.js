@@ -241,39 +241,26 @@ export default class WalletTransactions extends Component {
                   alert('In order to proceed, please create a Bitcoin wallet to refill with.');
                 } else {
                   this.setState({ isManageFundsModalVisible: false });
-                  this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });  
+                  this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });
                 }
               }}
-              title={'Add funds'}
+              title={loc.lnd.refill}
             />
             <BlueListItem
               hideChevron
               component={TouchableOpacity}
               onPress={a => {
-                this.setState({ isManageFundsModalVisible: false }, async () => {
-                  /** @type {LightningCustodianWallet} */
-                  let toAddress = false;
-                  if (this.state.wallet.refill_addressess.length > 0) {
-                    toAddress = this.state.wallet.refill_addressess[0];
-                  } else {
-                    try {
-                      await this.state.wallet.fetchBtcAddress();
-                      toAddress = this.state.wallet.refill_addressess[0];
-                    } catch (Err) {
-                      return alert(Err.message);
-                    }
-                  }
+                this.setState({ isManageFundsModalVisible: false }, () =>
                   this.props.navigation.navigate('ReceiveDetails', {
-                    address: toAddress,
                     secret: this.state.wallet.getSecret(),
-                  });
-                });
+                  }),
+                );
               }}
-              title={'Add funds using external wallet'}
+              title={'Refill with External Wallet'}
             />
 
             <BlueListItem
-              title={'Exchange'}
+              title={loc.lnd.withdraw}
               hideChevron
               component={TouchableOpacity}
               onPress={a => {
