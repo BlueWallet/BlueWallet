@@ -1,12 +1,14 @@
 const https = require('https');
 
+const auth = 'Basic ' + Buffer.from('Overtorment' + ':' + process.env.GITHUB).toString('base64');
+
 const req = https.request(
   {
     hostname: 'api.github.com',
     port: 443,
     path: '/repos/BlueWallet/BlueWallet/pulls',
     method: 'GET',
-    headers: { 'User-Agent': 'BlueWallet bot' },
+    headers: { 'User-Agent': 'BlueWallet bot', Authorization: auth },
   },
   resp => {
     let data = '';
