@@ -44,7 +44,11 @@ export class LightningCustodianWallet extends LegacyWallet {
   }
 
   getAddress() {
-    return '';
+    if (this.refill_addressess.length > 0) {
+      return this.refill_addressess[0];
+    } else {
+      return undefined;
+    }
   }
 
   getSecret() {
@@ -356,6 +360,10 @@ export class LightningCustodianWallet extends LegacyWallet {
     for (let arr of json) {
       this.refill_addressess.push(arr.address);
     }
+  }
+
+  async getAddressAsync() {
+    return this.fetchBtcAddress();
   }
 
   getTransactions() {

@@ -115,7 +115,7 @@ module.exports = {
     },
   },
   send: {
-    header: 'Vertuur',
+    header: 'Verstuur',
     details: {
       title: 'transacties aanmaken',
       amount_field_is_not_valid: 'Bedrag veld is niet geldig',
