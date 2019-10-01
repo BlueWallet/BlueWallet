@@ -41,7 +41,6 @@ import sendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import Success from './screen/send/success';
 
-import ManageFunds from './screen/lnd/manageFunds';
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
@@ -170,21 +169,6 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
 });
 
-const ManageFundsStackNavigator = createStackNavigator({
-  ManageFunds: {
-    screen: ManageFunds,
-  },
-  SelectWallet: {
-    screen: SelectWallet,
-  },
-  SendDetails: {
-    screen: CreateTransactionStackNavigator,
-    navigationOptions: {
-      header: null,
-    },
-  },
-});
-
 const LNDCreateInvoiceStackNavigator = createStackNavigator({
   LNDCreateInvoice: {
     screen: LNDCreateInvoice,
@@ -260,6 +244,12 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
+    SelectWallet: {
+      screen: SelectWallet,
+      navigationOptions: {
+        headerLeft: null,
+      }
+    },
 
     //
 
@@ -275,12 +265,6 @@ const MainBottomTabs = createStackNavigator(
 
     // LND:
 
-    ManageFunds: {
-      screen: ManageFundsStackNavigator,
-      navigationOptions: {
-        header: null,
-      },
-    },
     ScanLndInvoice: {
       screen: LightningScanInvoiceStackNavigator,
       navigationOptions: {

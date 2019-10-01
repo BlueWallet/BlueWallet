@@ -234,6 +234,10 @@ export class BlueWalletNavigationHeader extends Component {
     });
   }
 
+  manageFundsPressed = () => {
+    this.props.onManageFundsPressed();
+  };
+
   render() {
     return (
       <LinearGradient
@@ -300,7 +304,7 @@ export class BlueWalletNavigationHeader extends Component {
           )}
         </TouchableOpacity>
         {this.state.wallet.type === LightningCustodianWallet.type && (
-          <TouchableOpacity onPress={() => NavigationService.navigate('ManageFunds', { fromWallet: this.state.wallet })}>
+          <TouchableOpacity onPress={this.manageFundsPressed}>
             <View
               style={{
                 marginTop: 14,
