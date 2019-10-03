@@ -10,6 +10,8 @@ import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
+import DefaultView from './screen/settings/defaultView';
+
 import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
@@ -98,6 +100,9 @@ const WalletsStackNavigator = createStackNavigator(
         headerTintColor: '#0c2550',
       },
     },
+    SelectWallet: {
+      screen: SelectWallet,
+    },
     Currency: {
       screen: Currency,
     },
@@ -111,6 +116,10 @@ const WalletsStackNavigator = createStackNavigator(
     },
     Selftest: {
       screen: Selftest,
+    },
+    DefaultView: {
+      screen: DefaultView,
+      path: 'DefaultView',
     },
     Language: {
       screen: Language,

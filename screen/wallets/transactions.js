@@ -39,7 +39,7 @@ let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
-    return {
+    return ({
       headerRight: (
         <TouchableOpacity
           disabled={navigation.getParam('isLoading') === true}
@@ -60,7 +60,7 @@ export default class WalletTransactions extends Component {
         shadowRadius: 0,
       },
       headerTintColor: '#FFFFFF',
-    };
+    });
   };
 
   walletBalanceText = null;
