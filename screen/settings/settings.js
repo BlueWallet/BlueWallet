@@ -68,6 +68,7 @@ export default class Settings extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
         <ScrollView maxHeight={450}>
+          <BlueListItem component={TouchableOpacity} onPress={() => this.props.navigation.navigate('DefaultView')} title="On Launch" />
           <TouchableOpacity onPress={() => this.props.navigation.navigate('EncryptStorage')}>
             <BlueListItem title={loc.settings.encrypt_storage} />
           </TouchableOpacity>

@@ -6,6 +6,7 @@ import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import WalletGradient from '../../class/walletGradient';
+import OnAppLaunch from '../../class/onAppLaunch';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -47,10 +48,16 @@ export default class WalletsList extends Component {
 
   componentDidMount() {
     this.redrawScreen();
-
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
     InteractionManager.runAfterInteractions(async () => {
+      const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
+      if (!isViewAllWalletsEnabled) {
+        const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
+        const walletIndex = this.state.wallets.findIndex(wallet => wallet.getID() === selectedDefaultWallet.getID());
+        this.handleClick(walletIndex);
+      }
+
       let noErr = true;
       try {
         await BlueElectrum.waitTillConnected();

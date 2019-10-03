@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
+import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -23,6 +24,7 @@ export default class SelectWallet extends Component {
       isLoading: true,
       data: [],
     };
+    this.chainType = props.navigation.getParam('chainType');
   }
 
   dismissComponent = () => {
@@ -30,7 +32,9 @@ export default class SelectWallet extends Component {
   };
 
   componentDidMount() {
-    const wallets = BlueApp.getWallets().filter(item => item.chain === this.props.navigation.getParam('chainType') && item.allowSend());
+    const wallets = this.chainType
+      ? BlueApp.getWallets().filter(item => item.chain === this.chainType && item.allowSend())
+      : BlueApp.getWallets();
     this.setState({
       data: wallets,
       isLoading: false,
@@ -165,6 +169,7 @@ export default class SelectWallet extends Component {
 }
 
 SelectWallet.propTypes = {
+  chainType: PropTypes.string,
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
