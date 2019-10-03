@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
-import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -164,7 +163,6 @@ export default class SelectWallet extends Component {
 }
 
 SelectWallet.propTypes = {
-  chainType: PropTypes.string,
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     setParams: PropTypes.func,
