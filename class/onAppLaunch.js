@@ -6,7 +6,7 @@ export default class OnAppLaunch {
   static EnabledKey = 'OnAppLaunchEnabledKey';
 
   static async isViewAllWalletsEnabled() {
-    let isEnabled = '1';
+    let isEnabled;
     try {
       const enabled = await AsyncStorage.getItem(OnAppLaunch.EnabledKey);
       isEnabled = enabled;
