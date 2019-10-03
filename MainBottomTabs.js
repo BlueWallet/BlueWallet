@@ -175,6 +175,9 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
   SelectWallet: {
     screen: SelectWallet,
+    navigationOptions: {
+      headerRight: null,
+    },
   },
 });
 
@@ -210,6 +213,9 @@ const LightningScanInvoiceStackNavigator = createStackNavigator({
   },
   SelectWallet: {
     screen: SelectWallet,
+    navigationOptions: {
+      headerRight: null,
+    },
   },
   Success: {
     screen: Success,
@@ -257,7 +263,7 @@ const MainBottomTabs = createStackNavigator(
       screen: SelectWallet,
       navigationOptions: {
         headerLeft: null,
-      }
+      },
     },
 
     //

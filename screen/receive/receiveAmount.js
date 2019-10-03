@@ -13,7 +13,6 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
-import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -51,13 +50,10 @@ export default class ReceiveAmount extends Component {
 
   async componentDidMount() {
     Privacy.enableBlur();
-    await SystemSetting.saveBrightness();
-    await SystemSetting.setAppBrightness(1.0);
   }
 
   async componentWillUnmount() {
     Privacy.disableBlur();
-    await SystemSetting.restoreBrightness();
   }
 
   determineSize = () => {
