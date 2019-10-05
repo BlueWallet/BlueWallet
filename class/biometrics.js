@@ -3,6 +3,8 @@ const BlueApp = require('../BlueApp');
 
 export default class Biometric {
   static STORAGEKEY = 'Biometrics';
+  static FaceID = Biometrics.FaceID;
+  static TouchID = Biometrics.TouchID;
 
   static async isDeviceBiometricCapable() {
     const isDeviceBiometricCapable = await Biometric.biometricType();
@@ -23,14 +25,14 @@ export default class Biometric {
       return !!enabledBiometrics;
     } catch (_e) {
       await BlueApp.setItem(Biometric.STORAGEKEY, '');
-      return !!'';
+      return false;
     }
   }
 
   static async isBiometricUseCapableAndEnabled() {
     const isBiometricUseEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    return !!isBiometricUseEnabled && isDeviceBiometricCapable;
+    return isBiometricUseEnabled && isDeviceBiometricCapable;
   }
 
   static async setBiometricUseEnabled(value) {

@@ -3,7 +3,6 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import PropTypes from 'prop-types';
-import Biometrics from 'react-native-biometrics';
 import { SafeAreaView } from 'react-navigation';
 /** @type {AppStorage} */
 
@@ -52,14 +51,14 @@ export default class UnlockWith extends Component {
           </View>
           <View style={{ flex: 0.1, justifyContent: 'flex-end', marginBottom: 64 }}>
             <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
-              {this.state.biometricType === Biometrics.TouchID && (
+              {this.state.biometricType === Biometric.TouchID && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
                     <Image source={require('./img/fingerprint.png')} style={{ width: 64, height: 64 }} />
                   </TouchableOpacity>
                 </>
               )}
-              {this.state.biometricType === Biometrics.FaceID && (
+              {this.state.biometricType === Biometric.FaceID && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
                     <Image source={require('./img/faceid.png')} style={{ width: 64, height: 64 }} />

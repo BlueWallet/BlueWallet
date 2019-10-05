@@ -85,7 +85,6 @@ export default class WalletMigrate {
       const data = await AsyncStorage.getItem('data');
       if (data) {
         const isEncrypted = (await AsyncStorage.getItem('data_encrypted')) || '';
-        await RNSecureKeyStore.set('Biometrics', '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
         await RNSecureKeyStore.set('data', data, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
         await RNSecureKeyStore.set('data_encrypted', isEncrypted, {
           accessible: ACCESSIBLE.WHEN_UNLOCKED,
