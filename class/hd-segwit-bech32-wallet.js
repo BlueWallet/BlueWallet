@@ -294,7 +294,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       for (let tx of Object.values(txdatas)) {
         for (let vin of tx.vin) {
-          if (vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
+          if (vin.addresses && vin.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
             let clonedTx = Object.assign({}, tx);
@@ -341,7 +341,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
       for (let tx of Object.values(txdatas)) {
         for (let vin of tx.vin) {
-          if (vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
+          if (vin.addresses && vin.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
             let clonedTx = Object.assign({}, tx);
