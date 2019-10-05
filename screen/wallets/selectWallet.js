@@ -11,18 +11,23 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class SelectWallet extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true, navigation.getParam('dismissAcion')),
     title: loc.wallets.select_wallet,
   });
 
   constructor(props) {
     super(props);
+    props.navigation.setParams({ dismissAcion: this.dismissComponent });
     this.state = {
       isLoading: true,
       data: [],
     };
   }
+
+  dismissComponent = () => {
+    this.props.navigation.goBack(null);
+  };
 
   componentDidMount() {
     const wallets = BlueApp.getWallets().filter(item => item.chain === this.props.navigation.getParam('chainType') && item.allowSend());
@@ -162,8 +167,8 @@ export default class SelectWallet extends Component {
 SelectWallet.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
+    goBack: PropTypes.func,
     setParams: PropTypes.func,
-    dismiss: PropTypes.func,
     getParam: PropTypes.func,
   }),
 };

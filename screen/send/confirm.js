@@ -7,6 +7,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
+import { HDSegwitBech32Wallet } from '../../class';
 let loc = require('../../loc');
 let EV = require('../../events');
 let currency = require('../../currency');
@@ -75,7 +76,10 @@ export default class Confirm extends Component {
             }
           }
 
-          amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+          if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
+            amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+          }
+
           this.props.navigation.navigate('Success', {
             fee: Number(this.state.fee),
             amount,
