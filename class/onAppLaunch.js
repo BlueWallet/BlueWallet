@@ -2,24 +2,23 @@ import AsyncStorage from '@react-native-community/async-storage';
 const BlueApp = require('../BlueApp');
 
 export default class OnAppLaunch {
-  static StorageKey = 'OnAppLaunchKey';
-  static EnabledKey = 'OnAppLaunchEnabledKey';
+  static STORAGE_KEY = 'OnAppLaunchKey';
+  static ENABLED_KEY = 'OnAppLaunchEnabledKey';
 
   static async isViewAllWalletsEnabled() {
     let isEnabled;
     try {
-      const enabled = await AsyncStorage.getItem(OnAppLaunch.EnabledKey);
-      isEnabled = enabled;
+      isEnabled = await AsyncStorage.getItem(OnAppLaunch.ENABLED_KEY);
       if (!isEnabled) {
         const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
         if (!selectedDefaultWallet) {
           isEnabled = '1';
-          await AsyncStorage.setItem(OnAppLaunch.EnabledKey, isEnabled);
+          await AsyncStorage.setItem(OnAppLaunch.ENABLED_KEY, isEnabled);
         }
       }
     } catch (_e) {
       isEnabled = '1';
-      await AsyncStorage.setItem(OnAppLaunch.EnabledKey, isEnabled);
+      await AsyncStorage.setItem(OnAppLaunch.ENABLED_KEY, isEnabled);
     }
     return !!isEnabled;
   }
@@ -32,17 +31,17 @@ export default class OnAppLaunch {
         await OnAppLaunch.setSelectedDefaultWallet(firstWallet.getID());
       }
     }
-    await AsyncStorage.setItem(OnAppLaunch.EnabledKey, value === false ? '' : '1');
+    await AsyncStorage.setItem(OnAppLaunch.ENABLED_KEY, value === false ? '' : '1');
   }
 
   static async getSelectedDefaultWallet() {
     let selectedWallet = false;
     try {
-      const selectedWalletID = JSON.parse(await AsyncStorage.getItem(OnAppLaunch.StorageKey));
+      const selectedWalletID = JSON.parse(await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY));
       selectedWallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedWalletID);
       if (!selectedWallet) {
-        await AsyncStorage.setItem(OnAppLaunch.EnabledKey, '');
-        await AsyncStorage.removeItem(OnAppLaunch.StorageKey);
+        await AsyncStorage.setItem(OnAppLaunch.ENABLED_KEY, '');
+        await AsyncStorage.removeItem(OnAppLaunch.STORAGE_KEY);
       }
     } catch (_e) {
       return false;
@@ -51,6 +50,6 @@ export default class OnAppLaunch {
   }
 
   static async setSelectedDefaultWallet(value) {
-    await AsyncStorage.setItem(OnAppLaunch.StorageKey, JSON.stringify(value));
+    await AsyncStorage.setItem(OnAppLaunch.STORAGE_KEY, JSON.stringify(value));
   }
 }
