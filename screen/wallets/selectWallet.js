@@ -23,6 +23,7 @@ export default class SelectWallet extends Component {
       isLoading: true,
       data: [],
     };
+    this.chainType = props.navigation.getParam('chainType');
   }
 
   dismissComponent = () => {
@@ -30,7 +31,9 @@ export default class SelectWallet extends Component {
   };
 
   componentDidMount() {
-    const wallets = BlueApp.getWallets().filter(item => item.chain === this.props.navigation.getParam('chainType') && item.allowSend());
+    const wallets = this.chainType
+      ? BlueApp.getWallets().filter(item => item.chain === this.chainType && item.allowSend())
+      : BlueApp.getWallets();
     this.setState({
       data: wallets,
       isLoading: false,
