@@ -193,6 +193,19 @@ describe('Electrum', () => {
     assert.ok(Object.keys(txdatas).length === 4);
   });
 
+  it.skip('multiGetTransactionByTxid() can work with huge tx', async () => {
+    // electrum cant return verbose output because of "response too large (over 1,000,000 bytes"
+    // for example:
+    // echo '[{"jsonrpc":"2.0","method":"blockchain.transaction.get","params":["484a11c5e086a281413b9192b4f60c06abf745f08c2c28c4b4daefe6df3b9e5c", true],"id":1}]' | nc bitkoins.nl  50001 -i 1
+    // @see https://electrumx.readthedocs.io/en/latest/protocol-methods.html#blockchain-transaction-get
+    //
+    // possible solution: fetch it without verbose and decode locally. unfortunatelly it omits such info as confirmations, time etc
+    // so whoever uses it should be prepared for this.
+    // tbh consumer wallets dont usually work with such big txs, so probably we dont need it
+    let txdatas = await BlueElectrum.multiGetTransactionByTxid(['484a11c5e086a281413b9192b4f60c06abf745f08c2c28c4b4daefe6df3b9e5c']);
+    assert.ok(txdatas['484a11c5e086a281413b9192b4f60c06abf745f08c2c28c4b4daefe6df3b9e5c']);
+  });
+
   it('ElectrumClient can do multiGetHistoryByAddress() to obtain txhex', async () => {
     let txdatas = await BlueElectrum.multiGetTransactionByTxid(
       ['881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e'],
