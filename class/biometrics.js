@@ -16,6 +16,9 @@ export default class Biometric {
   }
 
   static async biometricType() {
+    if (await BlueApp.storageIsEncrypted()) {
+      return null;
+    }
     return Biometrics.isSensorAvailable();
   }
 

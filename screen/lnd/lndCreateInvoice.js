@@ -54,7 +54,7 @@ export default class LNDCreateInvoice extends Component {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     if (this.props.navigation.state.params.uri) {
       this.processLnurl(this.props.navigation.getParam('uri'));
     }

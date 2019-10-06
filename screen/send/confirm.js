@@ -41,6 +41,7 @@ export default class Confirm extends Component {
   async componentDidMount() {
     console.log('send/confirm - componentDidMount');
     console.log('address = ', this.state.recipients);
+    this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
 
   broadcast() {
@@ -49,9 +50,7 @@ export default class Confirm extends Component {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
 
-        const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-        if (isBiometricsEnabled) {
+        if (this.isBiometricUseCapableAndEnabled) {
           if (!(await Biometric.unlockWithBiometrics())) {
             return;
           }
@@ -178,9 +177,8 @@ export default class Confirm extends Component {
               <TouchableOpacity
                 style={{ marginVertical: 24 }}
                 onPress={async () => {
-                  const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
 
-                  if (isBiometricsEnabled) {
+                  if (this.isBiometricUseCapableAndEnabled) {
                     if (!(await Biometric.unlockWithBiometrics())) {
                       return;
                     }
