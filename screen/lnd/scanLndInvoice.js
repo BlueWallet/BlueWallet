@@ -216,9 +216,7 @@ export default class ScanLndInvoice extends React.Component {
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
-              {loc.wallets.select_wallet.toLowerCase()}
-            </Text>
+            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
@@ -272,7 +270,7 @@ export default class ScanLndInvoice extends React.Component {
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
               </View>
-              
+
               <BlueCard>
                 <BlueAddressInput
                   onChangeText={text => {
@@ -301,7 +299,7 @@ export default class ScanLndInvoice extends React.Component {
                 {this.state.expiresIn !== undefined && (
                   <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
                 )}
-                
+
                 <BlueCard>
                   {this.state.isLoading ? (
                     <View>
@@ -319,7 +317,6 @@ export default class ScanLndInvoice extends React.Component {
                 </BlueCard>
               </BlueCard>
             </View>
-          
 
             {this.renderWalletSelectionButton()}
           </View>
