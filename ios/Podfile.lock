@@ -37,7 +37,7 @@ PODS:
   - lottie-react-native (3.1.1):
     - lottie-ios (~> 3.0.3)
     - React
-  - RCTSystemSetting (1.7.2):
+  - RCTSystemSetting (1.7.3):
     - React
   - React (0.60.5):
     - React-Core (= 0.60.5)
@@ -330,7 +330,7 @@ SPEC CHECKSUMS:
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   lottie-ios: c38c3178ae8c4a8f200661aa5f80b9f1ca7f56b3
   lottie-react-native: d8caf2aa9ab8bb76312e44997c1c91804a23d44d
-  RCTSystemSetting: 9279ff44c49bb4fb0a5d335a0851852c8f3eda99
+  RCTSystemSetting: 2870be06565f2398a8786bfe8486ff6880a4326a
   React: 53c53c4d99097af47cf60594b8706b4e3321e722
   React-Core: ba421f6b4f4cbe2fb17c0b6fc675f87622e78a64
   React-cxxreact: 8384287780c4999351ad9b6e7a149d9ed10a2395
