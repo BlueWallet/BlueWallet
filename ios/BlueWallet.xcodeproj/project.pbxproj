@@ -8,10 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* BlueWalletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BlueWalletTests.m */; };
-		01AB943FA0794E91B65F0BFE /* libRCTPrivacySnapshot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */; };
 		036397B3AA70DD314F31661C /* libPods-BlueWalletWatch Extension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 154B05BEF3C3512F67A08374 /* libPods-BlueWalletWatch Extension.a */; };
-		0AF37AC0E67044038B49FB3B /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4D746BBE67E84684848246E2 /* SimpleLineIcons.ttf */; };
-		0B2C4EBFB4CB4960AAD777BC /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 44BC9E3EE0E9476A830CCCB9 /* Entypo.ttf */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -25,17 +22,9 @@
 		3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3208E93822F63279007F5A27 /* AppCenter-Config.plist */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
-		34582CAA4AD140F7B80C961A /* libTcpSockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9DF4E6C040764E4BA1ACC1EB /* libTcpSockets.a */; };
-		34CC55B441594DBB95AD1B50 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E8E8CE89B3D142C6A8A56C34 /* Octicons.ttf */; };
 		398DED6337DF58F0ECFD8F2E /* libPods-BlueWalletTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 70089FECE936F9A0AC45B7CE /* libPods-BlueWalletTests.a */; };
-		3EEBC6F85642487DA7C4EE35 /* AntDesign.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C4496FB303574862B40A878A /* AntDesign.ttf */; };
-		62A1DD9674CD479ABAA3D622 /* Feather.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A9166D490AEF4938BD6621CF /* Feather.ttf */; };
-		66AB95FA29464B0BA106AA67 /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 04466491BA2D4876A71222FC /* Foundation.ttf */; };
-		6C313BF9BC3E4BD2A65AA547 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CF4A4D7AAD974D67A2D62B3E /* MaterialIcons.ttf */; };
-		7140A1CC26204118BA18DFA2 /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47C436B1EF23484B8181DBEA /* Zocial.ttf */; };
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
-		854972E4A6134C14A1D3A5F9 /* FontAwesome5_Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 47564776A7A3427DB36C087D /* FontAwesome5_Regular.ttf */; };
 		906451CAD44154C2950030EC /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 731973BA0AC6EA78962CE5B6 /* libPods-BlueWallet.a */; };
 		B058E2132B704E9E874BDB29 /* libRNRandomBytes-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 253243E162CE4822BF3A3B7D /* libRNRandomBytes-tvOS.a */; };
 		B40D4E34225841EC00428FCC /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E32225841EC00428FCC /* Interface.storyboard */; };
@@ -58,16 +47,9 @@
 		B43D037D225847C500FBAA95 /* WalletInformation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B43D0377225847C500FBAA95 /* WalletInformation.swift */; };
 		B44D665E562B4F289F09D327 /* libRNSVG-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */; };
 		B4EE583C226703320003363C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B40D4E35225841ED00428FCC /* Assets.xcassets */; };
-		C1056BF235EE4E23AAF21975 /* libRCTQRCodeLocalImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B642AFB13483418CAB6FF25E /* libRCTQRCodeLocalImage.a */; };
-		C50F1706310E40F3B28D4856 /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3F7F1B8332C6439793D55B45 /* EvilIcons.ttf */; };
-		CACD479D705745BC8CF1026B /* FontAwesome5_Brands.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5A8F67CF29564E41882ECEF8 /* FontAwesome5_Brands.ttf */; };
 		CE21ACFC6EE18FE5B91A0212 /* libPods-BlueWalletWatch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB0B98D8054B95DEE18B907F /* libPods-BlueWalletWatch.a */; };
-		CF81A1855609466D90635511 /* Ionicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CA741BA794714D3F80251AC9 /* Ionicons.ttf */; };
-		D5B495319D1B4542BE945CEA /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2FCC2CD6FF4448229D0CE0F3 /* MaterialCommunityIcons.ttf */; };
 		D6ED210441144516A0355B4A /* libRNVectorIcons-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E6B44173A8854B6D85D7F933 /* libRNVectorIcons-tvOS.a */; };
-		D8E3A15E21994BC3AF6CEECE /* FontAwesome5_Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 78A87E7251D94144A71A2F67 /* FontAwesome5_Solid.ttf */; };
 		ED2971652150620600B7C4FE /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED2971642150620600B7C4FE /* JavaScriptCore.framework */; };
-		F21429E1449249038A7F3444 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 334051161886419EA186F4BA /* FontAwesome.ttf */; };
 		FBB34FB8F9B248A89346FE61 /* libRNDeviceInfo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EB3338E347F4AFAA8C85C04 /* libRNDeviceInfo-tvOS.a */; };
 /* End PBXBuildFile section */
 
@@ -249,9 +231,6 @@
 				906451CAD44154C2950030EC /* libPods-BlueWallet.a in Frameworks */,
 				782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */,
 				764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */,
-				C1056BF235EE4E23AAF21975 /* libRCTQRCodeLocalImage.a in Frameworks */,
-				34582CAA4AD140F7B80C961A /* libTcpSockets.a in Frameworks */,
-				01AB943FA0794E91B65F0BFE /* libRCTPrivacySnapshot.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -703,22 +682,7 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
-				3EEBC6F85642487DA7C4EE35 /* AntDesign.ttf in Resources */,
-				0B2C4EBFB4CB4960AAD777BC /* Entypo.ttf in Resources */,
-				C50F1706310E40F3B28D4856 /* EvilIcons.ttf in Resources */,
-				62A1DD9674CD479ABAA3D622 /* Feather.ttf in Resources */,
-				F21429E1449249038A7F3444 /* FontAwesome.ttf in Resources */,
-				CACD479D705745BC8CF1026B /* FontAwesome5_Brands.ttf in Resources */,
-				854972E4A6134C14A1D3A5F9 /* FontAwesome5_Regular.ttf in Resources */,
-				D8E3A15E21994BC3AF6CEECE /* FontAwesome5_Solid.ttf in Resources */,
-				66AB95FA29464B0BA106AA67 /* Foundation.ttf in Resources */,
 				3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */,
-				CF81A1855609466D90635511 /* Ionicons.ttf in Resources */,
-				D5B495319D1B4542BE945CEA /* MaterialCommunityIcons.ttf in Resources */,
-				6C313BF9BC3E4BD2A65AA547 /* MaterialIcons.ttf in Resources */,
-				34CC55B441594DBB95AD1B50 /* Octicons.ttf in Resources */,
-				0AF37AC0E67044038B49FB3B /* SimpleLineIcons.ttf in Resources */,
-				7140A1CC26204118BA18DFA2 /* Zocial.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
