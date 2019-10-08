@@ -1,27 +1,27 @@
 PODS:
-  - appcenter (2.3.0):
+  - appcenter (2.4.0):
     - AppCenterReactNativeShared
     - React
-  - appcenter-analytics (2.3.0):
+  - appcenter-analytics (2.4.0):
     - AppCenter/Analytics
     - AppCenterReactNativeShared
     - React
-  - appcenter-crashes (2.3.0):
-    - AppCenter/Crashes (= 2.3.0)
+  - appcenter-crashes (2.4.0):
+    - AppCenter/Crashes
     - AppCenterReactNativeShared
     - React
-  - AppCenter/Analytics (2.3.0):
+  - AppCenter/Analytics (2.4.0):
     - AppCenter/Core
-  - AppCenter/Core (2.3.0)
-  - AppCenter/Crashes (2.3.0):
+  - AppCenter/Core (2.4.0)
+  - AppCenter/Crashes (2.4.0):
     - AppCenter/Core
-  - AppCenterReactNativeShared (2.3.0):
-    - AppCenter/Core (= 2.3.0)
+  - AppCenterReactNativeShared (2.4.0):
+    - AppCenter/Core (= 2.4.0)
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.4):
     - React
   - DoubleConversion (1.1.6)
-  - EFQRCode (5.0.0):
+  - EFQRCode (5.1.0):
     - swift_qrcodejs (~> 1.1.1)
   - Folly (2018.10.22.00):
     - boost-for-react-native
@@ -127,6 +127,10 @@ PODS:
     - React-Core (= 0.60.5)
   - React-RCTWebSocket (0.60.5):
     - React-Core (= 0.60.5)
+  - ReactNativePrivacySnapshot (1.0.0):
+    - React
+  - RemobileReactNativeQrcodeLocalImage (1.0.4):
+    - React
   - RNCAsyncStorage (1.5.1):
     - React
   - RNDeviceInfo (2.2.2):
@@ -156,17 +160,19 @@ PODS:
     - React
     - Sentry (~> 4.1.3)
   - swift_qrcodejs (1.1.2)
+  - TcpSockets (3.3.1):
+    - React
   - ToolTipMenu (5.2.1):
     - React
   - yoga (0.60.5.React)
 
 DEPENDENCIES:
-  - appcenter (from `../node_modules/appcenter`)
-  - appcenter-analytics (from `../node_modules/appcenter-analytics`)
-  - appcenter-crashes (from `../node_modules/appcenter-crashes`)
+  - appcenter (from `../node_modules/appcenter/ios`)
+  - appcenter-analytics (from `../node_modules/appcenter-analytics/ios`)
+  - appcenter-crashes (from `../node_modules/appcenter-crashes/ios`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EFQRCode (= 5.0.0)
+  - EFQRCode (= 5.1.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
@@ -195,6 +201,8 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-RCTWebSocket (from `../node_modules/react-native/Libraries/WebSocket`)
+  - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
+  - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
@@ -207,6 +215,7 @@ DEPENDENCIES:
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
   - SentryReactNative (from `../node_modules/react-native-sentry`)
+  - TcpSockets (from `../node_modules/react-native-tcp`)
   - ToolTipMenu (from `../node_modules/react-native-tooltip`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -222,11 +231,11 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   appcenter:
-    :path: "../node_modules/appcenter"
+    :path: "../node_modules/appcenter/ios"
   appcenter-analytics:
-    :path: "../node_modules/appcenter-analytics"
+    :path: "../node_modules/appcenter-analytics/ios"
   appcenter-crashes:
-    :path: "../node_modules/appcenter-crashes"
+    :path: "../node_modules/appcenter-crashes/ios"
   BVLinearGradient:
     :path: "../node_modules/react-native-linear-gradient"
   DoubleConversion:
@@ -287,6 +296,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   React-RCTWebSocket:
     :path: "../node_modules/react-native/Libraries/WebSocket"
+  ReactNativePrivacySnapshot:
+    :path: "../node_modules/react-native-privacy-snapshot"
+  RemobileReactNativeQrcodeLocalImage:
+    :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
   RNDeviceInfo:
@@ -311,21 +324,23 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-watch-connectivity"
   SentryReactNative:
     :path: "../node_modules/react-native-sentry"
+  TcpSockets:
+    :path: "../node_modules/react-native-tcp"
   ToolTipMenu:
     :path: "../node_modules/react-native-tooltip"
   yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AppCenter: 9784d2fc998c9bd0b8fbaf4fb9ed69526d12ce1a
-  appcenter: e55cb133b100379be61158f511082196b8022424
-  appcenter-analytics: 9db55feacae3ca037c310d31620760ae054d50c6
-  appcenter-crashes: 47c9257ce4c9a7625face00f77908e69fa459394
-  AppCenterReactNativeShared: 7ac481cba7f926848a7be76dca4dcb2692df3b06
+  AppCenter: 49a9ffe114c00e2bf5374aeda816d47eabf1978a
+  appcenter: 4072e79b8d037d99056e6fc6556224b4525b5829
+  appcenter-analytics: 94be52eca805d586207d710aac95e0ddca8b3ddb
+  appcenter-crashes: 30caece47856aee7c4c7449d4f4dae2d69795bd6
+  AppCenterReactNativeShared: 57a66e6539e9abe6079ba8f93a002bc3f95788cc
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  EFQRCode: 07437cfbce3a1e497397a4f3d766c980d8972608
+  EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   lottie-ios: c38c3178ae8c4a8f200661aa5f80b9f1ca7f56b3
@@ -355,6 +370,8 @@ SPEC CHECKSUMS:
   React-RCTText: b074d89033583d4f2eb5faf7ea2db3a13c7553a2
   React-RCTVibration: 2105b2e0e2b66a6408fc69a46c8a7fb5b2fdade0
   React-RCTWebSocket: cd932a16b7214898b6b7f788c8bddb3637246ac4
+  ReactNativePrivacySnapshot: 997ae09976798149feed5ba1719d9230b17edd39
+  RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 2808c378f6a70f22f66eeb6c11a8d69f326dd795
   RNDeviceInfo: a88be26a64ada7cbc2bc0ebbd1662d340304874e
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
@@ -369,9 +386,10 @@ SPEC CHECKSUMS:
   Sentry: 4e8a17b61ddd116f89536cc81d567fdee1ebca96
   SentryReactNative: 07237139c00366ea2e75ae3e5c566e7a71c27a90
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
+  TcpSockets: c5a7c1a459b5e4b0964d64aa2f47202d6c9d1b73
   ToolTipMenu: c158702a26154d892bc9e6eaa7d7382f0f1ee16e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: 1a39cb1ff2ae237255b84fcbe9415cb089e659c7
+PODFILE CHECKSUM: c433da8e416a8df290dce0f6ecf8df544c50a90a
 
 COCOAPODS: 1.7.5
