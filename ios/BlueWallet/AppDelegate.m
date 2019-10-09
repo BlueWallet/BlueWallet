@@ -20,6 +20,7 @@
 #import <AppCenterReactNative.h>
 #import <AppCenterReactNativeAnalytics.h>
 #import <AppCenterReactNativeCrashes.h>
+#import <AppCenterReactNativePush.h>
 
 @implementation AppDelegate
 
@@ -28,6 +29,12 @@
   [AppCenterReactNative register];
   [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
   [AppCenterReactNativeCrashes registerWithAutomaticProcessing];
+  [AppCenterReactNativePush register];
+  
+  if (@available(iOS 10.0, *)) {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate = self;
+  }
   
   NSURL *jsCodeLocation;
 
@@ -48,6 +55,7 @@
   self.session = self.watchBridge.session;
   [self.session activateSession];
   self.session.delegate = self;
+  
   return YES;
 }
 
@@ -57,6 +65,31 @@
 
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier {
   return NO;
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+      willPresentNotification:(UNNotification *)notification
+        withCompletionHandler:(void (^)(UNNotificationPresentationOptions options)) completionHandler API_AVAILABLE(ios(10.0)) {
+
+    // Do something, e.g. set a BOOL @property to track the foreground state.
+    self.didReceiveNotificationInForeground = YES;
+
+    // Complete handling the notification.
+    completionHandler(UNNotificationPresentationOptionNone);
+}
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+    didReceiveNotificationResponse:(UNNotificationResponse *)response
+            withCompletionHandler:(void (^)(void))completionHandler API_AVAILABLE(ios(10.0)) {
+
+  // Perform the task associated with the action.
+  if ([[response actionIdentifier] isEqualToString:UNNotificationDefaultActionIdentifier]) {
+
+    // User tapped on notification
+  }
+
+  // Complete handling the notification.
+  completionHandler();
 }
 
 - (void)sessionDidDeactivate:(WCSession *)session {

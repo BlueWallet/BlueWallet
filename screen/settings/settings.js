@@ -29,7 +29,7 @@ export default class Settings extends Component {
   }
 
   async componentDidMount() {
-    let advancedModeEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    const advancedModeEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
     this.setState({
       isLoading: false,
       advancedModeEnabled,
@@ -57,6 +57,11 @@ export default class Settings extends Component {
           {BlueApp.getWallets().length > 1 && (
             <BlueListItem component={TouchableOpacity} onPress={() => this.props.navigation.navigate('DefaultView')} title="On Launch" />
           )}
+          <BlueListItem
+            component={TouchableOpacity}
+            title="Notifications"
+            onPress={() => this.props.navigation.navigate('SettingsNotifications')}
+          />
           <TouchableOpacity onPress={() => this.props.navigation.navigate('EncryptStorage')}>
             <BlueListItem title={loc.settings.encrypt_storage} />
           </TouchableOpacity>
@@ -96,6 +101,5 @@ export default class Settings extends Component {
 Settings.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
   }),
 };

@@ -62,9 +62,9 @@
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCameraUsageDescription</key>
 	<string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This alert should not show up as we do not require this data</string>
 	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This alert should not show up as we do not require this data</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
@@ -93,6 +93,12 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

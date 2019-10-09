@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "541972087747",
+    "firebase_url": "https://bluewallet-a33f1.firebaseio.com",
+    "project_id": "bluewallet-a33f1",
+    "storage_bucket": "bluewallet-a33f1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:541972087747:android:ee6cc9c4a1be5b37df3376",
+        "android_client_info": {
+          "package_name": "io.bluewallet.bluewallet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "541972087747-20h4jb8vovckcdr56skfigcf3odocg64.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLYHQwXTcvPlSgT7bIEoCxqdRSqMNMuac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "541972087747-20h4jb8vovckcdr56skfigcf3odocg64.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

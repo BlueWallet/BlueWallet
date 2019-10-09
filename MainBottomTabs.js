@@ -48,6 +48,7 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
+import SettingsNotifications from './screen/settings/notifications';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -140,6 +141,10 @@ const WalletsStackNavigator = createStackNavigator(
     ElectrumSettings: {
       screen: ElectrumSettings,
       path: 'ElectrumSettings',
+    },
+    SettingsNotifications: {
+      screen: SettingsNotifications,
+      path: 'SettingsNotifications',
     },
     LNDViewInvoice: {
       screen: LNDViewInvoice,

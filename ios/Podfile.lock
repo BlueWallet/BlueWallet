@@ -10,10 +10,16 @@ PODS:
     - AppCenter/Crashes
     - AppCenterReactNativeShared
     - React
+  - appcenter-push (2.4.0):
+    - AppCenter/Push
+    - AppCenterReactNativeShared
+    - React
   - AppCenter/Analytics (2.4.0):
     - AppCenter/Core
   - AppCenter/Core (2.4.0)
   - AppCenter/Crashes (2.4.0):
+    - AppCenter/Core
+  - AppCenter/Push (2.4.0):
     - AppCenter/Core
   - AppCenterReactNativeShared (2.4.0):
     - AppCenter/Core (= 2.4.0)
@@ -160,7 +166,7 @@ PODS:
     - React
     - Sentry (~> 4.1.3)
   - swift_qrcodejs (1.1.2)
-  - TcpSockets (3.3.1):
+  - TcpSockets (3.3.2):
     - React
   - ToolTipMenu (5.2.1):
     - React
@@ -170,6 +176,7 @@ DEPENDENCIES:
   - appcenter (from `../node_modules/appcenter/ios`)
   - appcenter-analytics (from `../node_modules/appcenter-analytics/ios`)
   - appcenter-crashes (from `../node_modules/appcenter-crashes/ios`)
+  - appcenter-push (from `../node_modules/appcenter-push/ios`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EFQRCode (= 5.1.0)
@@ -236,6 +243,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/appcenter-analytics/ios"
   appcenter-crashes:
     :path: "../node_modules/appcenter-crashes/ios"
+  appcenter-push:
+    :path: "../node_modules/appcenter-push/ios"
   BVLinearGradient:
     :path: "../node_modules/react-native-linear-gradient"
   DoubleConversion:
@@ -336,6 +345,7 @@ SPEC CHECKSUMS:
   appcenter: 4072e79b8d037d99056e6fc6556224b4525b5829
   appcenter-analytics: 94be52eca805d586207d710aac95e0ddca8b3ddb
   appcenter-crashes: 30caece47856aee7c4c7449d4f4dae2d69795bd6
+  appcenter-push: f6c62e8e55cf09f53076674c185df72f68ea9dd7
   AppCenterReactNativeShared: 57a66e6539e9abe6079ba8f93a002bc3f95788cc
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
@@ -386,7 +396,7 @@ SPEC CHECKSUMS:
   Sentry: 4e8a17b61ddd116f89536cc81d567fdee1ebca96
   SentryReactNative: 07237139c00366ea2e75ae3e5c566e7a71c27a90
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
-  TcpSockets: c5a7c1a459b5e4b0964d64aa2f47202d6c9d1b73
+  TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
   ToolTipMenu: c158702a26154d892bc9e6eaa7d7382f0f1ee16e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
