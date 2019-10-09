@@ -43,8 +43,6 @@ export default class ReceiveDetails extends Component {
 
   async componentDidMount() {
     Privacy.enableBlur();
-    await SystemSetting.saveBrightness();
-    await SystemSetting.setAppBrightness(1.0);
     console.log('receive/details - componentDidMount');
 
     /**  @type {AbstractWallet}   */
@@ -108,7 +106,10 @@ export default class ReceiveDetails extends Component {
 
     InteractionManager.runAfterInteractions(async () => {
       const bip21encoded = bip21.encode(this.state.address);
-      this.setState({ bip21encoded });
+      this.setState({ bip21encoded }, async () => {
+        await SystemSetting.saveBrightness();
+        await SystemSetting.setAppBrightness(1.0);
+      });
     });
   }
 
