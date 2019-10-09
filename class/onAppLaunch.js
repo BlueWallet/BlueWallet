@@ -6,9 +6,15 @@ export default class OnAppLaunch {
 
   static async isViewAllWalletsEnabled() {
     try {
-      const selectedDefaultWallet = await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY);
-      return selectedDefaultWallet === '' || selectedDefaultWallet === null;
+      const selectedDefaultWallet = JSON.parse(await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY)) || '';
+      console.warn(selectedDefaultWallet);
+      if (selectedDefaultWallet === '') {
+        return true;
+      } else {
+        return false;
+      }
     } catch (_e) {
+      console.warn('landed here')
       return true;
     }
   }
@@ -17,8 +23,8 @@ export default class OnAppLaunch {
     if (!value) {
       const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
       if (!selectedDefaultWallet) {
-        const firstWallet = BlueApp.getWallets()[0];
-        await OnAppLaunch.setSelectedDefaultWallet(firstWallet.getID());
+        const firstWallet = BlueApp.getWallets()[0].getID();
+        await OnAppLaunch.setSelectedDefaultWallet(firstWallet);
       }
     } else {
       await AsyncStorage.setItem(OnAppLaunch.STORAGE_KEY, '');
