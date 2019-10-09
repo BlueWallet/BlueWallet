@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
@@ -41,9 +42,13 @@ export default class DefaultView extends Component {
   };
 
   onWalletSelectValueChanged = async wallet => {
-    await OnAppLaunch.setViewAllWalletsEnabled(false);
-    await OnAppLaunch.setSelectedDefaultWallet(wallet.getID());
-    this.setState({ defaultWalletLabel: wallet.getLabel(), viewAllWalletsEnabled: false }, () => this.props.navigation.pop());
+    try {
+      const walletID = wallet.getID();
+      await OnAppLaunch.setSelectedDefaultWallet(walletID);
+      this.setState({ defaultWalletLabel: wallet.getLabel(), viewAllWalletsEnabled: false }, () => this.props.navigation.pop());
+    } catch (e) {
+      alert(e);
+    }
   };
 
   render() {
