@@ -433,6 +433,7 @@ export default class WalletTransactions extends Component {
             refreshControl={
               <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
             }
+            extraData={this.state.dataSource}
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
             renderItem={this.renderItem}

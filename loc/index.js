@@ -188,7 +188,7 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
  * @param toUnit {String} Value from models/bitcoinUnits.js
  * @returns {string}
  */
-strings.formatBalanceWithoutSuffix = (balance, toUnit, withFormatting = false) => {
+strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = false) => {
   if (toUnit === undefined) {
     return balance;
   }
