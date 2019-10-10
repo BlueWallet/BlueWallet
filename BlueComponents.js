@@ -32,6 +32,7 @@ import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
+import Biometric from './class/biometrics';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -178,6 +179,15 @@ export class BlueWalletNavigationHeader extends Component {
 
   handleBalanceVisibility = async _item => {
     const wallet = this.state.wallet;
+
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled && wallet.hideBalance) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return this.props.navigation.goBack();
+      }
+    }
+
     wallet.hideBalance = !wallet.hideBalance;
     this.setState({ wallet });
     await BlueApp.saveToDisk();

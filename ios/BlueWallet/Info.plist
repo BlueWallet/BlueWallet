@@ -56,6 +56,8 @@
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>In order to confirm your identity, we need your permission to use FaceID.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCalendarsUsageDescription</key>

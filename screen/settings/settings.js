@@ -12,6 +12,7 @@ import {
 import AsyncStorage from '@react-native-community/async-storage';
 import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
+import Biometric from '../../class/biometrics';
 const BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
@@ -25,14 +26,19 @@ export default class Settings extends Component {
     this.state = {
       isLoading: true,
       language: loc.getLanguage(),
+      biometrics: { isDeviceBiometricCapable: false, isBiometricsEnabled: false },
     };
   }
 
   async componentDidMount() {
-    let advancedModeEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    const advancedModeEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
+    const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
+    const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     this.setState({
       isLoading: false,
       advancedModeEnabled,
+      biometrics: { isBiometricsEnabled, isDeviceBiometricCapable, biometricsType },
     });
   }
 
@@ -44,6 +50,15 @@ export default class Settings extends Component {
     }
     this.setState({ advancedModeEnabled: value });
   }
+
+  onUseBiometricSwitch = async value => {
+    let isBiometricsEnabled = this.state.biometrics;
+    if (await Biometric.unlockWithBiometrics()) {
+      isBiometricsEnabled.isBiometricsEnabled = value;
+      await Biometric.setBiometricUseEnabled(value);
+      this.setState({ biometrics: isBiometricsEnabled });
+    }
+  };
 
   render() {
     if (this.state.isLoading) {
@@ -60,6 +75,15 @@ export default class Settings extends Component {
           <TouchableOpacity onPress={() => this.props.navigation.navigate('EncryptStorage')}>
             <BlueListItem title={loc.settings.encrypt_storage} />
           </TouchableOpacity>
+          {this.state.biometrics.isDeviceBiometricCapable && (
+            <BlueListItem
+              hideChevron
+              title={`Use ${this.state.biometrics.biometricsType}`}
+              switchButton
+              onSwitch={this.onUseBiometricSwitch}
+              switched={this.state.biometrics.isBiometricsEnabled}
+            />
+          )}
           <TouchableOpacity onPress={() => this.props.navigation.navigate('LightningSettings')}>
             <BlueListItem title={loc.settings.lightning_settings} />
           </TouchableOpacity>

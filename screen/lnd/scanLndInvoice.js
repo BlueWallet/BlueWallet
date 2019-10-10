@@ -15,6 +15,7 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
@@ -141,6 +142,14 @@ export default class ScanLndInvoice extends React.Component {
   async pay() {
     if (!this.state.hasOwnProperty('decoded')) {
       return null;
+    }
+
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
     }
 
     this.setState(
