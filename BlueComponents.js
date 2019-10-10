@@ -1384,16 +1384,14 @@ export class NewWalletPanel extends Component {
 
 export const BlueTransactionListItem = (item, itemPriceUnit = BitcoinUnit.BTC) => {
   item = item.item;
+  const calculateTimeLabel = () => {
+    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
+    return setTransactionTimeToReadable(transactionTimeToReadable);
+  };
+  const interval = setInterval(() => calculateTimeLabel(), 60000);
 
   useEffect(() => {
-    const calculateTimeLabel = () => {
-      const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
-      return setTransactionTimeToReadable(transactionTimeToReadable);
-    };
     calculateTimeLabel();
-    const interval = setInterval(() => {
-      calculateTimeLabel();
-    }, 60000);
     return () => clearInterval(interval);
   }, [item]);
 
