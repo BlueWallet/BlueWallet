@@ -7,14 +7,12 @@ export default class OnAppLaunch {
   static async isViewAllWalletsEnabled() {
     try {
       const selectedDefaultWallet = JSON.parse(await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY)) || '';
-      console.warn(selectedDefaultWallet);
       if (selectedDefaultWallet === '') {
         return true;
       } else {
         return false;
       }
     } catch (_e) {
-      console.warn('landed here')
       return true;
     }
   }
