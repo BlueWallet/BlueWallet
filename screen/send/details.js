@@ -123,6 +123,7 @@ export default class SendDetails extends Component {
           memo: bip70.memo,
           feeSliderValue: bip70.feeSliderValue,
           fee: bip70.fee,
+          isLoading: false,
           bip70TransactionExpiration: bip70.bip70TransactionExpiration,
         });
       } else {
@@ -163,6 +164,8 @@ export default class SendDetails extends Component {
               bip70TransactionExpiration: null,
               isLoading: false,
             });
+          } else {
+            this.setState({ isLoading: false });
           }
         }
       }
