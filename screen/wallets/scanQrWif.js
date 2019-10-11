@@ -25,6 +25,12 @@ export default class ScanQrWif extends React.Component {
 
   onBarCodeScanned = async ret => {
     if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
+    if (+new Date() - this.lastTimeIveBeenHere < 6000) {
+      this.lastTimeIveBeenHere = +new Date();
+      return;
+    }
+    this.lastTimeIveBeenHere = +new Date();
+    this.setState({ isLoading: true });
     if (ret.data[0] === '6') {
       // password-encrypted, need to ask for password and decrypt
       console.log('trying to decrypt...');
