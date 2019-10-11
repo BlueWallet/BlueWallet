@@ -68,7 +68,7 @@ export default class Settings extends Component {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
-        <ScrollView maxHeight={450}>
+        <ScrollView>
           {BlueApp.getWallets().length > 1 && (
             <BlueListItem component={TouchableOpacity} onPress={() => this.props.navigation.navigate('DefaultView')} title="On Launch" />
           )}

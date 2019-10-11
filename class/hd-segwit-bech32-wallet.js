@@ -114,10 +114,11 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * Get internal/external WIF by wallet index
    * @param {Boolean} internal
    * @param {Number} index
-   * @returns {*}
+   * @returns {string|false} Either string WIF or FALSE if error happened
    * @private
    */
   _getWIFByIndex(internal, index) {
+    if (!this.secret) return false;
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
     const root = HDNode.fromSeed(seed);
@@ -164,6 +165,30 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     if (node === 1) {
       return (this.internal_addresses_cache[index] = address);
+    }
+  }
+
+  _getNodePubkeyByIndex(node, index) {
+    index = index * 1; // cast to int
+
+    if (node === 0 && !this._node0) {
+      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node0 = hdNode.derive(node);
+    }
+
+    if (node === 1 && !this._node1) {
+      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node1 = hdNode.derive(node);
+    }
+
+    if (node === 0) {
+      return this._node0.derive(index).publicKey;
+    }
+
+    if (node === 1) {
+      return this._node1.derive(index).publicKey;
     }
   }
 
@@ -650,6 +675,29 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     return this._utxo;
   }
 
+  _getDerivationPathByAddress(address) {
+    const path = "m/84'/0'/0'";
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      if (this._getExternalAddressByIndex(c) === address) return path + '/0/' + c;
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      if (this._getInternalAddressByIndex(c) === address) return path + '/1/' + c;
+    }
+
+    return false;
+  }
+
+  _getPubkeyByAddress(address) {
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      if (this._getExternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(0, c);
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      if (this._getInternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(1, c);
+    }
+
+    return false;
+  }
+
   weOwnAddress(address) {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return true;
@@ -674,9 +722,10 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * @param feeRate {Number} satoshi per byte
    * @param changeAddress {String} Excessive coins will go back to that address
    * @param sequence {Number} Used in RBF
-   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number}}
+   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
+   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence) {
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false) {
     if (!changeAddress) throw new Error('No change address provided');
     sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
 
@@ -700,16 +749,35 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     let values = {};
 
     inputs.forEach(input => {
-      const keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address));
-      keypairs[c] = keyPair;
+      let keyPair;
+      if (!skipSigning) {
+        // skiping signing related stuff
+        keyPair = bitcoin.ECPair.fromWIF(this._getWifForAddress(input.address));
+        keypairs[c] = keyPair;
+      }
       values[c] = input.value;
       c++;
-      if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
-      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey: keyPair.publicKey });
+      if (!skipSigning) {
+        // skiping signing related stuff
+        if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
+      }
+      let pubkey = this._getPubkeyByAddress(input.address);
+      let masterFingerprint = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+      // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
+      // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
+      let path = this._getDerivationPathByAddress(input.address);
+      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
       psbt.addInput({
         hash: input.txId,
         index: input.vout,
         sequence,
+        bip32Derivation: [
+          {
+            masterFingerprint,
+            path,
+            pubkey,
+          },
+        ],
         witnessUtxo: {
           script: p2wpkh.output,
           value: input.value,
@@ -719,22 +787,63 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     outputs.forEach(output => {
       // if output has no address - this is change output
+      let change = false;
       if (!output.address) {
+        change = true;
         output.address = changeAddress;
       }
 
-      psbt.addOutput({
+      let path = this._getDerivationPathByAddress(output.address);
+      let pubkey = this._getPubkeyByAddress(output.address);
+      let masterFingerprint = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+      // this is not correct fingerprint, as we dont know realfingerprint - we got zpub with 84/0, but fingerpting
+      // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
+
+      let outputData = {
         address: output.address,
         value: output.value,
-      });
+      };
+
+      if (change) {
+        outputData['bip32Derivation'] = [
+          {
+            masterFingerprint,
+            path,
+            pubkey,
+          },
+        ];
+      }
+
+      psbt.addOutput(outputData);
     });
 
-    for (let cc = 0; cc < c; cc++) {
-      psbt.signInput(cc, keypairs[cc]);
+    if (!skipSigning) {
+      // skiping signing related stuff
+      for (let cc = 0; cc < c; cc++) {
+        psbt.signInput(cc, keypairs[cc]);
+      }
     }
 
-    const tx = psbt.finalizeAllInputs().extractTransaction();
-    return { tx, inputs, outputs, fee };
+    let tx;
+    if (!skipSigning) {
+      tx = psbt.finalizeAllInputs().extractTransaction();
+    }
+    return { tx, inputs, outputs, fee, psbt };
+  }
+
+  /**
+   * Combines 2 PSBTs into final transaction from which you can
+   * get HEX and broadcast
+   *
+   * @param base64one {string}
+   * @param base64two {string}
+   * @returns {Transaction}
+   */
+  combinePsbt(base64one, base64two) {
+    const final1 = bitcoin.Psbt.fromBase64(base64one);
+    const final2 = bitcoin.Psbt.fromBase64(base64two);
+    final1.combine(final2);
+    return final1.finalizeAllInputs().extractTransaction();
   }
 
   /**

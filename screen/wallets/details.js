@@ -1,6 +1,16 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Switch,
+} from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -8,8 +18,8 @@ import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wal
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { HDSegwitBech32Wallet } from '../../class';
 import Biometric from '../../class/biometrics';
+import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 let EV = require('../../events');
 let prompt = require('../../prompt');
 /** @type {AppStorage} */
@@ -39,18 +49,18 @@ export default class WalletDetails extends Component {
     super(props);
 
     const wallet = props.navigation.getParam('wallet');
-    const address = wallet.getAddress();
     const isLoading = true;
     this.state = {
       isLoading,
       walletName: wallet.getLabel(),
       wallet,
-      address,
+      useWithHardwareWallet: !!wallet.use_with_hardware_wallet,
     };
     this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
   }
 
   componentDidMount() {
+    console.log('wallets/details componentDidMount');
     this.setState({
       isLoading: false,
     });
@@ -99,6 +109,14 @@ export default class WalletDetails extends Component {
         alert("The provided balance amount does not match this wallet's balance. Please, try again");
       });
     }
+  }
+
+  async onUseWithHardwareWalletSwitch(value) {
+    this.setState((state, props) => {
+      let wallet = state.wallet;
+      wallet.use_with_hardware_wallet = !!value;
+      return { useWithHardwareWallet: !!value, wallet };
+    });
   }
 
   render() {
@@ -167,6 +185,17 @@ export default class WalletDetails extends Component {
               )}
               <View>
                 <BlueSpacing20 />
+
+                {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
+                  <React.Fragment>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <BlueText>{'Use with hardware wallet'}</BlueText>
+                      <Switch value={this.state.useWithHardwareWallet} onValueChange={value => this.onUseWithHardwareWalletSwitch(value)} />
+                    </View>
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                )}
+
                 <BlueButton
                   onPress={() =>
                     this.props.navigation.navigate('WalletExport', {
@@ -264,7 +293,6 @@ WalletDetails.propTypes = {
     getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string,
         secret: PropTypes.string,
       }),
     }),

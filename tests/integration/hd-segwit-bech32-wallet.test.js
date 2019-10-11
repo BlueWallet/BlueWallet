@@ -40,6 +40,11 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd._getInternalAddressByIndex(0), 'bc1q8c6fshw2dlwun7ekn9qwf37cu2rn755upcp6el');
     assert.ok(hd._getInternalAddressByIndex(0) !== hd._getInternalAddressByIndex(1));
 
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(0)), "m/84'/0'/0'/0/0");
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getExternalAddressByIndex(1)), "m/84'/0'/0'/0/1");
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/84'/0'/0'/1/0");
+    assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(1)), "m/84'/0'/0'/1/1");
+
     assert.ok(hd._lastBalanceFetch === 0);
     await hd.fetchBalance();
     assert.strictEqual(hd.getBalance(), 0);

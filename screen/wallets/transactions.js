@@ -461,7 +461,7 @@ export default class WalletTransactions extends Component {
                     if (this.state.wallet.type === LightningCustodianWallet.type) {
                       navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
                     } else {
-                      navigate('ReceiveDetails', { address: this.state.wallet.getAddress(), secret: this.state.wallet.getSecret() });
+                      navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
                     }
                   }}
                 />
