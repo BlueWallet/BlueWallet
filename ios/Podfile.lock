@@ -160,7 +160,7 @@ PODS:
     - React
     - Sentry (~> 4.1.3)
   - swift_qrcodejs (1.1.2)
-  - TcpSockets (3.3.1):
+  - TcpSockets (3.3.2):
     - React
   - ToolTipMenu (5.2.1):
     - React
@@ -386,7 +386,7 @@ SPEC CHECKSUMS:
   Sentry: 4e8a17b61ddd116f89536cc81d567fdee1ebca96
   SentryReactNative: 07237139c00366ea2e75ae3e5c566e7a71c27a90
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
-  TcpSockets: c5a7c1a459b5e4b0964d64aa2f47202d6c9d1b73
+  TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
   ToolTipMenu: c158702a26154d892bc9e6eaa7d7382f0f1ee16e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 

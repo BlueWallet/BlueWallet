@@ -1382,21 +1382,19 @@ export class NewWalletPanel extends Component {
   }
 }
 
-export const BlueTransactionListItem = (item, itemPriceUnit = BitcoinUnit.BTC) => {
-  item = item.item;
+export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
   const calculateTimeLabel = () => {
     const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
     return setTransactionTimeToReadable(transactionTimeToReadable);
   };
   const interval = setInterval(() => calculateTimeLabel(), 60000);
+  const [transactionTimeToReadable, setTransactionTimeToReadable] = useState('...');
+  const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
 
   useEffect(() => {
     calculateTimeLabel();
     return () => clearInterval(interval);
-  }, [item]);
-
-  const [transactionTimeToReadable, setTransactionTimeToReadable] = useState('...');
-  const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
+  }, [item, itemPriceUnit]);
 
   const txMemo = () => {
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash]['memo']) {
