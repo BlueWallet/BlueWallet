@@ -288,28 +288,32 @@ export default class WalletsImport extends Component {
             alignItems: 'center',
           }}
         >
-          <BlueButton
-            disabled={!this.state.label}
-            title={loc.wallets.import.do_import}
-            buttonStyle={{
-              width: width / 1.5,
-            }}
-            onPress={async () => {
-              if (!this.state.label) {
-                return;
-              }
-              this.setState({ isLoading: true }, async () => {
-                await this.importMnemonic(this.state.label.trim());
-                this.setState({ isLoading: false });
-              });
-            }}
-          />
-          <BlueButtonLink
-            title={loc.wallets.import.scan_qr}
-            onPress={() => {
-              this.props.navigation.navigate('ScanQrWif');
-            }}
-          />
+          {this.state.isToolbarVisibleForAndroid ? null : (
+            <>
+              <BlueButton
+                disabled={!this.state.label}
+                title={loc.wallets.import.do_import}
+                buttonStyle={{
+                  width: width / 1.5,
+                }}
+                onPress={async () => {
+                  if (!this.state.label) {
+                    return;
+                  }
+                  this.setState({ isLoading: true }, async () => {
+                    await this.importMnemonic(this.state.label.trim());
+                    this.setState({ isLoading: false });
+                  });
+                }}
+              />
+              <BlueButtonLink
+                title={loc.wallets.import.scan_qr}
+                onPress={() => {
+                  this.props.navigation.navigate('ScanQrWif');
+                }}
+              />
+            </>
+          )}
         </View>
       </SafeBlueArea>
     );

@@ -594,12 +594,6 @@ export class BlueFormInput extends Component {
 }
 
 export class BlueFormMultiInput extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selection: { start: 0, end: 0 },
-    };
-  }
 
   render() {
     return (
@@ -615,7 +609,7 @@ export class BlueFormMultiInput extends Component {
           borderWidth: 0.5,
           borderBottomWidth: 0.5,
           backgroundColor: BlueApp.settings.inputBackgroundColor,
-          height: 200,
+          height: 185,
           color: BlueApp.settings.foregroundColor,
         }}
         autoCorrect={false}

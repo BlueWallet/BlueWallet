@@ -765,7 +765,7 @@ export default class SendDetails extends Component {
   };
 
   renderCreateButton = () => {
-    return (
+    return this.state.isAmountToolbarVisibleForAndroid ? null : (
       <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
         {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.createTransaction()} title={'Next'} />}
       </View>
