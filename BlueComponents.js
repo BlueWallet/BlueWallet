@@ -3,7 +3,7 @@
 import React, { Component, useEffect, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import { Icon, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
+import { Icon, Input, Text, Header, List, ListItem } from 'react-native-elements';
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -33,9 +33,9 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
-let loc = require('./loc/');
+const loc = require('./loc/');
 /** @type {AppStorage} */
-let BlueApp = require('./BlueApp');
+const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
@@ -570,14 +570,14 @@ export class BlueListItem extends Component {
 
 export class BlueFormLabel extends Component {
   render() {
-    return <FormLabel {...this.props} labelStyle={{ color: BlueApp.settings.foregroundColor, fontWeight: '400' }} />;
+    return <Text style={{ color: BlueApp.settings.foregroundColor, fontWeight: '400' }} />;
   }
 }
 
 export class BlueFormInput extends Component {
   render() {
     return (
-      <FormInput
+      <Input
         {...this.props}
         inputStyle={{ color: BlueApp.settings.foregroundColor, maxWidth: width - 105 }}
         containerStyle={{
@@ -648,46 +648,44 @@ export class BlueHeader extends Component {
 export class BlueHeaderDefaultSub extends Component {
   render() {
     return (
-      <SafeAreaView style={{ backgroundColor: BlueApp.settings.brandingColor }}>
-        <Header
-          backgroundColor={BlueApp.settings.brandingColor}
-          outerContainerStyles={{
-            borderBottomColor: 'transparent',
-            borderBottomWidth: 0,
-          }}
-          statusBarProps={{ barStyle: 'default' }}
-          leftComponent={
-            <Text
-              adjustsFontSizeToFit
-              style={{
-                fontWeight: 'bold',
-                fontSize: 34,
-                color: BlueApp.settings.foregroundColor,
-              }}
-            >
-              {
-                // eslint-disable-next-line
+      <Header
+        backgroundColor={BlueApp.settings.brandingColor}
+        outerContainerStyles={{
+          borderBottomColor: 'transparent',
+          borderBottomWidth: 0,
+        }}
+        statusBarProps={{ barStyle: 'default' }}
+        leftComponent={
+          <Text
+            adjustsFontSizeToFit
+            style={{
+              fontWeight: 'bold',
+              fontSize: 34,
+              color: BlueApp.settings.foregroundColor,
+            }}
+          >
+            {
+              // eslint-disable-next-line
                 this.props.leftText
-              }
-            </Text>
-          }
-          rightComponent={
-            <TouchableOpacity
-              onPress={() => {
-                // eslint-disable-next-line
+            }
+          </Text>
+        }
+        rightComponent={
+          <TouchableOpacity
+            onPress={() => {
+              // eslint-disable-next-line
                 if (this.props.onClose) this.props.onClose();
-              }}
-            >
-              <View style={stylesBlueIcon.box}>
-                <View style={stylesBlueIcon.ballTransparrent}>
-                  <Image source={require('./img/close.png')} />
-                </View>
+            }}
+          >
+            <View style={stylesBlueIcon.box}>
+              <View style={stylesBlueIcon.ballTransparrent}>
+                <Image source={require('./img/close.png')} />
               </View>
-            </TouchableOpacity>
-          }
-          {...this.props}
-        />
-      </SafeAreaView>
+            </View>
+          </TouchableOpacity>
+        }
+        {...this.props}
+      />
     );
   }
 }
@@ -699,7 +697,7 @@ export class BlueHeaderDefaultMain extends Component {
         <Header
           {...this.props}
           backgroundColor={BlueApp.settings.brandingColor}
-          outerContainerStyles={{
+          containerStyle={{
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
           }}
@@ -711,6 +709,7 @@ export class BlueHeaderDefaultMain extends Component {
                 fontWeight: 'bold',
                 fontSize: 34,
                 color: BlueApp.settings.foregroundColor,
+                width: 150,
               }}
             >
               {
@@ -725,6 +724,7 @@ export class BlueHeaderDefaultMain extends Component {
               style={{
                 height: 48,
                 alignSelf: 'flex-end',
+                marginBottom: 10,
               }}
             >
               <BluePlusIcon />
@@ -1013,7 +1013,7 @@ export class BluePlusIcon extends Component {
           <View style={stylesBlueIcon.ball}>
             <Ionicons
               {...this.props}
-              name={'ios-add'}
+              name="ios-add"
               size={26}
               style={{
                 color: BlueApp.settings.foregroundColor,
@@ -1311,7 +1311,7 @@ export class BluePlusIconDimmed extends Component {
           <View style={stylesBlueIcon.ballDimmed}>
             <Ionicons
               {...this.props}
-              name={'ios-add'}
+              name="ios-add"
               size={26}
               style={{
                 color: 'white',
@@ -1407,8 +1407,8 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   }, [item, itemPriceUnit]);
 
   const txMemo = () => {
-    if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash]['memo']) {
-      return BlueApp.tx_metadata[item.hash]['memo'];
+    if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
+      return BlueApp.tx_metadata[item.hash].memo;
     }
     return '';
   };
@@ -1565,18 +1565,14 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
 
   return (
     <BlueListItem
-      avatar={avatar()}
+      leftAvatar={avatar()}
       title={transactionTimeToReadable}
       titleNumberOfLines={subtitleNumberOfLines}
       subtitle={subtitle()}
       subtitleNumberOfLines={subtitleNumberOfLines}
       onPress={onPress}
+      containerStyle={{ backgroundColor: BlueApp.settings.brandingColor }}
       onLongPress={onLongPress}
-      badge={{
-        value: 3,
-        textStyle: { color: 'orange' },
-        containerStyle: { marginTop: 0 },
-      }}
       hideChevron
       rightTitle={rowTitle()}
       rightTitleStyle={rowTitleStyle()}
@@ -1595,8 +1591,8 @@ export class BlueListTransactionItem extends Component {
   };
 
   txMemo = () => {
-    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
-      return BlueApp.tx_metadata[this.props.item.hash]['memo'];
+    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash].memo) {
+      return BlueApp.tx_metadata[this.props.item.hash].memo;
     }
     return '';
   };
@@ -1788,10 +1784,10 @@ export class WalletsCarousel extends Component {
   }
 
   _renderItem({ item, index }) {
-    let scaleValue = new Animated.Value(1.0);
-    let props = { duration: 50 };
+    const scaleValue = new Animated.Value(1.0);
+    const props = { duration: 50 };
     if (Platform.OS === 'android') {
-      props['useNativeDriver'] = true;
+      props.useNativeDriver = true;
     }
     this.onPressedIn = () => {
       props.toValue = 0.9;
@@ -2051,7 +2047,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             <BlueText>Suggestions</BlueText>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}>
               <BlueListItem
-                title={'Fast'}
+                title="Fast"
                 rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
                   ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
@@ -2060,7 +2056,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}>
               <BlueListItem
-                title={'Medium'}
+                title="Medium"
                 rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
                   ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
@@ -2069,7 +2065,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}>
               <BlueListItem
-                title={'Slow'}
+                title="Slow"
                 rightTitle={`${this.state.networkFees.hourFee} sat/b`}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
                   ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
@@ -2094,7 +2090,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             >
               <TextInput
                 onChangeText={this.onCustomFeeTextChange}
-                keyboardType={'numeric'}
+                keyboardType="numeric"
                 value={this.state.customFeeValue}
                 ref={ref => (this.customTextInput = ref)}
                 maxLength={9}
