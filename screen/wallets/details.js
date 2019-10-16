@@ -33,7 +33,7 @@ export default class WalletDetails extends Component {
     headerRight: (
       <TouchableOpacity
         disabled={navigation.getParam('isLoading') === true}
-        style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
+        style={{ marginHorizontal: 16, height: 40, width: 120, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
           if (navigation.state.params.saveAction) {
             navigation.getParam('saveAction')();
