@@ -1,3 +1,19 @@
+v4.6.0
+======
+
+* ADD: Optional biometrics unlock (this does not exclude full encryption)
+* ADD: Cryptoadvance HW wallet support (for BIP84) via PSBT and QR codes
+* ADD: LN Refill with external wallet
+* ADD: Default into wallet on launch
+* FIX: NaN when sending onchain
+* FIX: zero on send success screen
+* FIX: Time shown for top-most transaction
+* FIX: minor issue with scanQrWif
+* FIX: typo on NL language
+* FIX: better wallet export QR readability
+* FIX: RBF tx memo porting
+* REF: better initial HD rescan
+
 v4.5.2
 ======
 
@@ -40,41 +56,3 @@ v4.4.1
 * FIX: Wallet gradient for Bech32 on watch app
 * FIX: v3.9.8 fails to fill value #470
 * FIX: Don't allow more than one leading zero
-
-v4.4.0
-======
-
-* ADD: send MAX (for BIP84 & BIP49)
-* ADD: Scan to receive (lnurl spec)
-* ADD: New TX status screen
-* ADD: Share QRCode along with address
-* ADD: Allow user to hide their balance
-* ADD: KRW Fiat
-* FIX: wallet selector on send view
-* FIX: all data is stored in OS secure keystore
-* FIX: broken LIGHTNING scheme handling
-* FIX: import legacy address by WIF with uncompressed pubkey (closes #590)
-* ADD: Handoff for a transaction and wallets
-* FIX: QR Correctness for watch app
-* FIX: Tap to copy preimage text
-* FIX: Show last saved  exchange rate
-
-v4.2.0
-======
-
-* ADD: bumpfee (RBF) & cancelTx (RBF) for BIP84 HD wallet
-* ADD: CPFP for BIP84 HD wallets
-* ADD: Electrum server configuration
-* ADD: Hungarian localization
-* ADD: HUF fiat unit
-* FIX: receive address generation with no internet
-* FIX: wait for electrum connection before fetching tx or broadcast
-* FIX: Receive UI jumpiness
-* FIX: iOS App crashes when scaning QR Code
-* FIX: Amount when scanning was not displayed in amount UI
-* FIX: ln transaction details screen
-* FIX: import LN wallet with custom lndhub
-* FIX: BIP84 txs with low confirmations not updating
-* FIX: crash
-* REF: Swedish translation updates
-* REF: better initial HD rescan
