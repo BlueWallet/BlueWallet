@@ -393,8 +393,11 @@ export default class Browser extends Component {
                 value={this.state.stateURL}
                 numberOfLines={1}
                 style={{ flex: 1, marginLeft: 4, minHeight: 33 }}
-                editable={false}
-                onSubmitEditing={Keyboard.dismiss}
+                editable
+                onSubmitEditing={() => {
+                  Keyboard.dismiss();
+                  this.setState({ url: this.state.stateURL });
+                }}
               />
             </View>
           </View>
