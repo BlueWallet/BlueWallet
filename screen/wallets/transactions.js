@@ -73,7 +73,9 @@ export default class WalletTransactions extends Component {
     const wallet = props.navigation.getParam('wallet');
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
-      showMarketplace: Platform.OS !== 'ios',
+      showMarketplace: Platform.OS === 'ios' ? wallet.getBalance() > 0 : true,
+      isIos: Platform.OS === 'ios',
+      isAndroid: Platform.OS !== 'ios',
       isLoading: true,
       isManageFundsModalVisible: false,
       showShowFlatListRefreshControl: false,
@@ -342,7 +344,7 @@ export default class WalletTransactions extends Component {
           onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
         />
         <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-          {this.state.showMarketplace && (
+          {this.state.showMarketplace && this.state.isAndroid && (
             <TouchableOpacity
               onPress={() => {
                 if (this.state.wallet.type === LightningCustodianWallet.type) {
@@ -362,6 +364,32 @@ export default class WalletTransactions extends Component {
                   alignItems: 'center',
                 }}
               >
+                <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+          {this.state.showMarketplace && this.state.isIos && (
+            <TouchableOpacity
+              onPress={async () => {
+                if (this.state.wallet.type === LightningCustodianWallet.type) {
+                  Linking.openURL('https://bluewallet.io/marketplace/');
+                } else {
+                  let address = await this.state.wallet.getAddressAsync();
+                  Linking.openURL('https://bluewallet.io/marketplace-btc/?address=' + address);
+                }
+              }}
+            >
+              <View
+                style={{
+                  margin: 16,
+                  backgroundColor: '#f2f2f2',
+                  borderRadius: 9,
+                  minHeight: 49,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
                 <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
               </View>
             </TouchableOpacity>
