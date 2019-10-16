@@ -46,8 +46,8 @@ class BlueAppComponent extends React.Component {
   };
 
   onSuccessfullyAuthenticated = () => {
-    this.setState({ successfullyAuthenticated: true })
-  }
+    this.setState({ successfullyAuthenticated: true });
+  };
 
   render() {
     if (this.state.isMigratingData) {
@@ -62,7 +62,11 @@ class BlueAppComponent extends React.Component {
       );
     } else {
       if (this.state.onAnimationFinished) {
-        return this.state.successfullyAuthenticated ? <App /> : <UnlockWith onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated} />;
+        return this.state.successfullyAuthenticated ? (
+          <App />
+        ) : (
+          <UnlockWith onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated} />
+        );
       } else {
         return (
           <LottieView

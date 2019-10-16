@@ -177,7 +177,6 @@ export default class Confirm extends Component {
               <TouchableOpacity
                 style={{ marginVertical: 24 }}
                 onPress={async () => {
-
                   if (this.isBiometricUseCapableAndEnabled) {
                     if (!(await Biometric.unlockWithBiometrics())) {
                       return;
