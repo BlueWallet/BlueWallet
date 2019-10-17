@@ -84,10 +84,6 @@ export default class WalletTransactions extends Component {
   }
 
   componentDidMount() {
-    // nop
-    this.state.wallet.getBalance = () => {
-      return 1;
-    };
     this.props.navigation.setParams({ isLoading: false });
   }
 
