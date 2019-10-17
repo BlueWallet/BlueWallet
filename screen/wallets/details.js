@@ -33,7 +33,7 @@ export default class WalletDetails extends Component {
     headerRight: (
       <TouchableOpacity
         disabled={navigation.getParam('isLoading') === true}
-        style={{ marginHorizontal: 16, height: 40, width: 120, justifyContent: 'center', alignItems: 'center' }}
+        style={{ marginHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
           if (navigation.state.params.saveAction) {
             navigation.getParam('saveAction')();
@@ -86,14 +86,6 @@ export default class WalletDetails extends Component {
       'plain-text',
     );
     if (Number(walletBalanceConfirmation) === this.state.wallet.getBalance()) {
-      const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
-      if (isBiometricsEnabled) {
-        if (!(await Biometric.unlockWithBiometrics())) {
-          return;
-        }
-      }
-
       this.props.navigation.setParams({ isLoading: true });
       this.setState({ isLoading: true }, async () => {
         BlueApp.deleteWallet(this.state.wallet);
@@ -255,6 +247,13 @@ export default class WalletDetails extends Component {
                         {
                           text: loc.wallets.details.yes_delete,
                           onPress: async () => {
+                            const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+                            if (isBiometricsEnabled) {
+                              if (!(await Biometric.unlockWithBiometrics())) {
+                                return;
+                              }
+                            }
                             if (this.state.wallet.getBalance() > 0) {
                               this.presentWalletHasBalanceAlert();
                             } else {
