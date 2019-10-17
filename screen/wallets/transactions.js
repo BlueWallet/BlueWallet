@@ -85,6 +85,9 @@ export default class WalletTransactions extends Component {
 
   componentDidMount() {
     // nop
+    this.state.wallet.getBalance = () => {
+      return 1;
+    };
     this.props.navigation.setParams({ isLoading: false });
   }
 
@@ -287,7 +290,6 @@ export default class WalletTransactions extends Component {
         >
           <View
             style={{
-              margin: 16,
               backgroundColor: '#f2f2f2',
               borderRadius: 9,
               minHeight: 49,
@@ -310,21 +312,19 @@ export default class WalletTransactions extends Component {
                 Linking.openURL('https://bluewallet.io/marketplace-btc/?address=' + address);
               }
             }}
+            style={{
+              backgroundColor: '#f2f2f2',
+              borderRadius: 9,
+              minHeight: 49,
+              flex: 1,
+              paddingHorizontal: 8,
+              justifyContent: 'center',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
           >
-            <View
-              style={{
-                margin: 16,
-                backgroundColor: '#f2f2f2',
-                borderRadius: 9,
-                minHeight: 49,
-                justifyContent: 'center',
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
-              <Text style={{ color: '#062453', fontSize: 18, marginHorizontal: 8 }}>marketplace</Text>
-            </View>
+            <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
+            <Text style={{ color: '#062453', fontSize: 18, marginHorizontal: 8 }}>marketplace</Text>
           </TouchableOpacity>
         ) : null,
     });
@@ -397,8 +397,8 @@ export default class WalletTransactions extends Component {
           }
           onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
         />
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-          {this.renderMarketplaceButton()}
+        <View style={{ backgroundColor: '#FFFFFF' }}>
+          <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>{this.renderMarketplaceButton()}</View>
           <FlatList
             onEndReachedThreshold={0.3}
             onEndReached={() => {
