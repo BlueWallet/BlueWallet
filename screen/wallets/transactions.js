@@ -283,18 +283,18 @@ export default class WalletTransactions extends Component {
               this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
             }
           }}
+          style={{
+            backgroundColor: '#f2f2f2',
+            borderRadius: 9,
+            minHeight: 49,
+            flex: 1,
+            paddingHorizontal: 8,
+            justifyContent: 'center',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
         >
-          <View
-            style={{
-              backgroundColor: '#f2f2f2',
-              borderRadius: 9,
-              minHeight: 49,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
-          </View>
+          <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
         </TouchableOpacity>
       ),
       ios:
