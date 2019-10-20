@@ -1,3 +1,12 @@
+v4.7.0
+======
+
+* ADD: external marketplace link
+* FIX: electrum connection
+* FIX: Now able to use biometrics with encrypted storage (not for unlocking)
+* FIX: LApp marketplace address is now editable
+* FIX: single address watch-only wallet Receive button crash
+
 v4.6.0
 ======
 
@@ -46,13 +55,3 @@ v4.5.0
 * FIX: Seed phrase import issues
 * FIX: Increased speed for wallet unit change
 * FIX: Fixed UI for transaction status
-
-v4.4.1
-======
-
-* FIX: crash on ManageFunds
-* ADD: marketplace for regular onchain btc wallets
-* ADD: WatchApp Complication.
-* FIX: Wallet gradient for Bech32 on watch app
-* FIX: v3.9.8 fails to fill value #470
-* FIX: Don't allow more than one leading zero
