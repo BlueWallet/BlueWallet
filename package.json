@@ -41,7 +41,10 @@
     "preset": "react-native",
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
-    }
+    },
+    "setupFiles": [
+      "./tests/setup.js"
+  ]
   },
   "dependencies": {
     "@babel/preset-env": "7.5.0",

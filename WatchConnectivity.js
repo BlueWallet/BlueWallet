@@ -1,4 +1,4 @@
-import * as watch from 'react-native-watch-connectivity';
+import * as Watch from 'react-native-watch-connectivity';
 import { InteractionManager, Platform } from 'react-native';
 const loc = require('./loc');
 export default class WatchConnectivity {
@@ -13,13 +13,13 @@ export default class WatchConnectivity {
 
   getIsWatchAppInstalled() {
     if (Platform.OS !== 'ios') return;
-    watch.getIsWatchAppInstalled((err, isAppInstalled) => {
+    Watch.getIsWatchAppInstalled((err, isAppInstalled) => {
       if (!err) {
         this.isAppInstalled = isAppInstalled;
         this.sendWalletsToWatch();
       }
     });
-    watch.subscribeToMessages(async (err, message, reply) => {
+    Watch.subscribeToMessages(async (err, message, reply) => {
       if (!err) {
         if (message.request === 'createInvoice') {
           const createInvoiceRequest = await this.handleLightningInvoiceCreateRequest(
@@ -131,7 +131,7 @@ export default class WatchConnectivity {
           });
         }
 
-        watch.updateApplicationContext({ wallets });
+        Watch.updateApplicationContext({ wallets });
       }
     });
   }
