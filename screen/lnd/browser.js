@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -402,21 +402,23 @@ export default class Browser extends Component {
             </View>
           </View>
           <View style={{ alignContent: 'flex-end', height: 44, flexDirection: 'row', marginHorizontal: 8 }}>
-            <TouchableOpacity
-              onPress={() => {
-                processedInvoices = {};
-                this.setState({ url: 'https://bluewallet.io/marketplace/' });
-              }}
-            >
-              <Ionicons
-                name={'ios-home'}
-                size={36}
-                style={{
-                  color: this.state.weblnEnabled ? 'green' : 'red',
-                  backgroundColor: 'transparent',
+            {Platform.OS !== 'ios' && ( // on iOS lappbrowser opens blank page, thus, no HOME button
+              <TouchableOpacity
+                onPress={() => {
+                  processedInvoices = {};
+                  this.setState({ url: 'https://bluewallet.io/marketplace/' });
                 }}
-              />
-            </TouchableOpacity>
+              >
+                <Ionicons
+                  name={'ios-home'}
+                  size={36}
+                  style={{
+                    color: this.state.weblnEnabled ? 'green' : 'red',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+              </TouchableOpacity>
+            )}
 
             <TouchableOpacity
               onPress={() => {
