@@ -41,7 +41,10 @@
     "preset": "react-native",
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
-    }
+    },
+    "setupFiles": [
+      "./tests/setup.js"
+  ]
   },
   "dependencies": {
     "@babel/preset-env": "7.5.0",
@@ -114,7 +117,7 @@
     "react-native-tcp": "git+https://github.com/aprock/react-native-tcp.git",
     "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
     "react-native-vector-icons": "6.6.0",
-    "react-native-watch-connectivity": "0.2.1",
+    "react-native-watch-connectivity": "0.3.2",
     "react-native-webview": "6.9.0",
     "react-navigation": "3.11.0",
     "react-test-render": "1.1.2",
