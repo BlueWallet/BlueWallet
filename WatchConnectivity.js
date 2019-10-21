@@ -57,7 +57,8 @@ export default class WatchConnectivity {
           let receiveAddress = '';
           if (wallet.allowReceive()) {
             if (wallet.getAddressAsync) {
-              receiveAddress = await wallet.getAddressAsync();
+              await wallet.getAddressAsync();
+              receiveAddress = wallet.getAddress();
             } else {
               receiveAddress = wallet.getAddress();
             }
