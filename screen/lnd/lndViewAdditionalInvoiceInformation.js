@@ -12,7 +12,6 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import QRCode from 'react-native-qrcode-svg';
-import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -34,12 +33,6 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
       return;
     }
     this.setState({ walletInfo: fromWallet.info_raw, addressText: fromWallet.info_raw.uris[0] });
-    await SystemSetting.saveBrightness();
-    await SystemSetting.setAppBrightness(1.0);
-  }
-
-  async componentWillUnmount() {
-    await SystemSetting.restoreBrightness();
   }
 
   render() {
