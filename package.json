@@ -89,7 +89,7 @@
     "react-native": "0.60.5",
     "react-native-biometrics": "git+https://github.com/BlueWallet/react-native-biometrics.git",
     "react-native-camera": "3.4.0",
-    "react-native-device-info": "2.2.2",
+    "react-native-device-info": "4.0.1",
     "react-native-elements": "0.19.0",
     "react-native-flexi-radio-button": "0.2.2",
     "react-native-fs": "2.13.3",

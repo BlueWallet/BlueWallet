@@ -135,7 +135,7 @@ PODS:
     - React
   - RNCAsyncStorage (1.5.1):
     - React
-  - RNDeviceInfo (2.2.2):
+  - RNDeviceInfo (4.0.1):
     - React
   - RNFS (2.13.3):
     - React
@@ -374,7 +374,7 @@ SPEC CHECKSUMS:
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 2808c378f6a70f22f66eeb6c11a8d69f326dd795
-  RNDeviceInfo: a88be26a64ada7cbc2bc0ebbd1662d340304874e
+  RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
