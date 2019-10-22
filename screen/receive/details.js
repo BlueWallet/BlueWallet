@@ -15,7 +15,6 @@ import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
 import { ScrollView } from 'react-native-gesture-handler';
-import SystemSetting from 'react-native-system-setting';
 import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -97,16 +96,12 @@ export default class ReceiveDetails extends Component {
 
     InteractionManager.runAfterInteractions(async () => {
       const bip21encoded = bip21.encode(this.state.address);
-      this.setState({ bip21encoded }, async () => {
-        await SystemSetting.saveBrightness();
-        await SystemSetting.setAppBrightness(1.0);
-      });
+      this.setState({ bip21encoded });
     });
   }
 
   async componentWillUnmount() {
     Privacy.disableBlur();
-    await SystemSetting.restoreBrightness();
   }
 
   render() {
