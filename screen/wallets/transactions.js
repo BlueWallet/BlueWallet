@@ -333,7 +333,7 @@ export default class WalletTransactions extends Component {
           this.props.navigation.navigate('LappBrowser', {
             fromSecret: this.state.wallet.getSecret(),
             fromWallet: this.state.wallet,
-            url: '',
+            url: 'https://duckduckgo.com',
           });
         }}
         style={{
