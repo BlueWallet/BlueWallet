@@ -9,6 +9,7 @@
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
     "babel-preset-flow": "^6.23.0",
+    "detox": "^14.5.0",
     "eslint": "^6.0.1",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.0",
@@ -136,6 +137,19 @@
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify"
+  },
+  "detox": {
+    "configurations": {
+      "ios.sim.release": {
+        "binaryPath": "ios/build/Build/Products/Release-iphonesimulator/BlueWallet.app",
+        "build": "xcodebuild clean build -workspace ios/BlueWallet.xcworkspace -scheme BlueWallet -configuration Release -derivedDataPath ios/build  -sdk iphonesimulator13.1",
+        "type": "ios.simulator",
+        "device": {
+          "type": "iPhone 11"
+        }
+      }
+    },
+    "test-runner": "jest"
   },
   "browser": {
     "path": "path-browserify",

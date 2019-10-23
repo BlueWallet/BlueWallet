@@ -253,7 +253,7 @@ export default class WalletsList extends Component {
       return <BlueLoading />;
     }
     return (
-      <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }} testID="WalletsList" accessible>
         <NavigationEvents
           onWillFocus={() => {
             this.redrawScreen();
