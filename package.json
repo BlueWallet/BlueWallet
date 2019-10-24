@@ -38,7 +38,9 @@
     "unit": "./node_modules/.bin/mocha tests/unit/*"
   },
   "jest": {
-    "preset": "react-native",
+    "preset": "react-native", "transformIgnorePatterns" : [
+      "node_modules/(?!(jest-)?react-native|react-navigation|(?!(@react-native-community/async-storage/lib)))"
+    ],
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
     },
