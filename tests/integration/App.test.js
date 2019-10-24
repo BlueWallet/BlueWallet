@@ -7,6 +7,7 @@ import Selftest from '../../screen/selftest';
 import { BlueHeader } from '../../BlueComponents';
 import { FiatUnit } from '../../models/fiatUnit';
 import AsyncStorage from '@react-native-community/async-storage';
+import { Picker, ScrollView } from 'react-native';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 jest.mock('react-native-qrcode-svg', () => 'Video');

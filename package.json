@@ -39,7 +39,7 @@
   },
   "jest": {
     "preset": "react-native", "transformIgnorePatterns" : [
-      "node_modules/(?!(jest-)?react-native|react-navigation|(?!(@react-native-community/async-storage/lib)))"
+      "node_modules/(?!(jest-)?react-navigation|(?!(@react-native-community/async-storage/lib)))"
     ],
     "transform": {
       "^.+\\.js$": "<rootDir>/node_modules/react-native/jest/preprocessor.js"
