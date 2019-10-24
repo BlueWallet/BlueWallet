@@ -73,7 +73,6 @@ export default class WalletTransactions extends Component {
     const wallet = props.navigation.getParam('wallet');
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
-      showMarketplace: Platform.OS !== 'ios',
       isLoading: true,
       isManageFundsModalVisible: false,
       showShowFlatListRefreshControl: false,
@@ -85,7 +84,6 @@ export default class WalletTransactions extends Component {
   }
 
   componentDidMount() {
-    // nop
     this.props.navigation.setParams({ isLoading: false });
   }
 
@@ -274,6 +272,87 @@ export default class WalletTransactions extends Component {
     );
   };
 
+  renderMarketplaceButton = () => {
+    return Platform.select({
+      android: (
+        <TouchableOpacity
+          onPress={() => {
+            if (this.state.wallet.type === LightningCustodianWallet.type) {
+              this.props.navigation.navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
+            } else {
+              this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
+            }
+          }}
+          style={{
+            backgroundColor: '#f2f2f2',
+            borderRadius: 9,
+            minHeight: 49,
+            flex: 1,
+            paddingHorizontal: 8,
+            justifyContent: 'center',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
+        </TouchableOpacity>
+      ),
+      ios:
+        this.state.wallet.getBalance() > 0 ? (
+          <TouchableOpacity
+            onPress={async () => {
+              if (this.state.wallet.type === LightningCustodianWallet.type) {
+                Linking.openURL('https://bluewallet.io/marketplace/');
+              } else {
+                let address = await this.state.wallet.getAddressAsync();
+                Linking.openURL('https://bluewallet.io/marketplace-btc/?address=' + address);
+              }
+            }}
+            style={{
+              backgroundColor: '#f2f2f2',
+              borderRadius: 9,
+              minHeight: 49,
+              flex: 1,
+              paddingHorizontal: 8,
+              justifyContent: 'center',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
+            <Text style={{ color: '#062453', fontSize: 18, marginHorizontal: 8 }}>marketplace</Text>
+          </TouchableOpacity>
+        ) : null,
+    });
+  };
+
+  renderLappBrowserButton = () => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.props.navigation.navigate('LappBrowser', {
+            fromSecret: this.state.wallet.getSecret(),
+            fromWallet: this.state.wallet,
+            url: 'https://duckduckgo.com',
+          });
+        }}
+        style={{
+          marginLeft: 5,
+          backgroundColor: '#f2f2f2',
+          borderRadius: 9,
+          minHeight: 49,
+          flex: 1,
+          paddingHorizontal: 8,
+          justifyContent: 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <Text style={{ color: '#062453', fontSize: 18 }}>LApp Browser</Text>
+      </TouchableOpacity>
+    );
+  };
+
   onWalletSelect = async wallet => {
     NavigationService.navigate('WalletTransactions');
     /** @type {LightningCustodianWallet} */
@@ -341,31 +420,21 @@ export default class WalletTransactions extends Component {
           }
           onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
         />
-        <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-          {this.state.showMarketplace && (
-            <TouchableOpacity
-              onPress={() => {
-                if (this.state.wallet.type === LightningCustodianWallet.type) {
-                  navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
-                } else {
-                  navigate('Marketplace', { fromWallet: this.state.wallet });
-                }
-              }}
-            >
-              <View
-                style={{
-                  margin: 16,
-                  backgroundColor: '#f2f2f2',
-                  borderRadius: 9,
-                  minHeight: 49,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
-              </View>
-            </TouchableOpacity>
-          )}
+        <View style={{ backgroundColor: '#FFFFFF' }}>
+          <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
+            {/*
+            So the idea here, due to Apple banning native Lapp marketplace, is:
+            On Android everythins works as it worked before. Single "Marketplace" button that leads to LappBrowser that
+            opens /marketplace/ url of offchain wallet type, and /marketplace-btc/ for onchain.
+            On iOS its more complicated - we have one button that opens same page _externally_ (in Safari), and second
+            button that opens actual LappBrowser but with _blank_ page. This is important to not trigger Apple.
+            Blank page is also the way Trust Wallet does it with Dapp Browser.
+
+            For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
+           */}
+            {this.renderMarketplaceButton()}
+            {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
+          </View>
           <FlatList
             onEndReachedThreshold={0.3}
             onEndReached={() => {

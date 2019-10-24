@@ -124,4 +124,12 @@ export class AbstractWallet {
   }
 
   // createTx () { throw Error('not implemented') }
+
+  getAddress() {
+    throw Error('not implemented');
+  }
+
+  getAddressAsync() {
+    return new Promise(resolve => resolve(this.getAddress()));
+  }
 }

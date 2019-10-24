@@ -1,22 +1,22 @@
 PODS:
-  - appcenter (2.4.0):
+  - appcenter (2.5.0):
     - AppCenterReactNativeShared
     - React
-  - appcenter-analytics (2.4.0):
+  - appcenter-analytics (2.5.0):
     - AppCenter/Analytics
     - AppCenterReactNativeShared
     - React
-  - appcenter-crashes (2.4.0):
+  - appcenter-crashes (2.5.0):
     - AppCenter/Crashes
     - AppCenterReactNativeShared
     - React
-  - AppCenter/Analytics (2.4.0):
+  - AppCenter/Analytics (2.5.0):
     - AppCenter/Core
-  - AppCenter/Core (2.4.0)
-  - AppCenter/Crashes (2.4.0):
+  - AppCenter/Core (2.5.0)
+  - AppCenter/Crashes (2.5.0):
     - AppCenter/Core
-  - AppCenterReactNativeShared (2.4.0):
-    - AppCenter/Core (= 2.4.0)
+  - AppCenterReactNativeShared (2.5.0):
+    - AppCenter/Core (= 2.5.0)
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.6):
     - React
@@ -46,8 +46,6 @@ PODS:
     - lottie-ios (~> 3.1.3)
     - React
   - RCTRequired (0.61.2)
-  - RCTSystemSetting (1.7.3):
-    - React
   - RCTTypeSafety (0.61.2):
     - FBLazyVector (= 0.61.2)
     - Folly (= 2018.10.22.00)
@@ -214,13 +212,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.7.1):
+  - react-native-camera (3.8.0):
     - React
-    - react-native-camera/RCT (= 3.7.1)
-    - react-native-camera/RN (= 3.7.1)
-  - react-native-camera/RCT (3.7.1):
+    - react-native-camera/RCT (= 3.8.0)
+    - react-native-camera/RN (= 3.8.0)
+  - react-native-camera/RCT (3.8.0):
     - React
-  - react-native-camera/RN (3.7.1):
+  - react-native-camera/RN (3.8.0):
     - React
   - react-native-image-picker (1.1.0):
     - React
@@ -230,7 +228,7 @@ PODS:
     - React
   - react-native-watch-connectivity (0.3.2):
     - React
-  - react-native-webview (7.4.2):
+  - react-native-webview (7.4.3):
     - React
   - React-RCTActionSheet (0.61.2):
     - React-Core/RCTActionSheetHeaders (= 0.61.2)
@@ -273,9 +271,9 @@ PODS:
     - React
   - RNCAsyncStorage (1.6.2):
     - React
-  - RNDeviceInfo (3.1.4):
+  - RNDeviceInfo (5.0.1):
     - React
-  - RNFS (2.14.1):
+  - RNFS (2.16.1):
     - React
   - RNGestureHandler (1.4.1):
     - React
@@ -291,7 +289,7 @@ PODS:
     - React
   - RNShare (2.0.0):
     - React
-  - RNSVG (9.11.1):
+  - RNSVG (9.13.2):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -321,7 +319,6 @@ DEPENDENCIES:
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
-  - RCTSystemSetting (from `../node_modules/react-native-system-setting`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
   - React-Core (from `../node_modules/react-native/`)
@@ -403,8 +400,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/lottie-react-native"
   RCTRequired:
     :path: "../node_modules/react-native/Libraries/RCTRequired"
-  RCTSystemSetting:
-    :path: "../node_modules/react-native-system-setting"
   RCTTypeSafety:
     :path: "../node_modules/react-native/Libraries/TypeSafety"
   React:
@@ -495,11 +490,11 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AppCenter: 49a9ffe114c00e2bf5374aeda816d47eabf1978a
-  appcenter: 4072e79b8d037d99056e6fc6556224b4525b5829
-  appcenter-analytics: 94be52eca805d586207d710aac95e0ddca8b3ddb
-  appcenter-crashes: 30caece47856aee7c4c7449d4f4dae2d69795bd6
-  AppCenterReactNativeShared: 57a66e6539e9abe6079ba8f93a002bc3f95788cc
+  AppCenter: 637f180deefc61e8ab3f94223869ee50f61dabea
+  appcenter: bde9923b687332a25607fc1aa9577c9361cfed85
+  appcenter-analytics: 0ee7a35def715d4bce58ec435f54161770195166
+  appcenter-crashes: 9f9c5647dba19026ff09509576fb7233f69697ff
+  AppCenterReactNativeShared: 99e7f662ec66b1cb41306ecf357aabac35931c08
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
@@ -511,7 +506,6 @@ SPEC CHECKSUMS:
   lottie-ios: 496ac5cea1bbf1a7bd1f1f472f3232eb1b8d744b
   lottie-react-native: b123a79529cc732201091f585c62c89bb4747252
   RCTRequired: c639d59ed389cfb1f1203f65c2ea946d8ec586e2
-  RCTSystemSetting: 2870be06565f2398a8786bfe8486ff6880a4326a
   RCTTypeSafety: dc23fb655d6c77667c78e327bf661bc11e3b8aec
   React: 7e586e5d7bec12b91c1a096826b0fc9ab1da7865
   React-Core: 8ddb9770b4a30a6ab4a754e6ed5ec76454e3d699
@@ -522,12 +516,12 @@ SPEC CHECKSUMS:
   React-jsinspector: 111d7d342b07a904c400592e02a2b958f1098b60
   react-native-biometrics: 4aaf49f9f8bd28c6aa3ec53534ca1b6b00486f6a
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 574d8c9b8bfe08af65c12da2a1ade397a6374152
+  react-native-camera: 3e52a28e4f437b566302e574bed0f77eeab3f737
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: 8c34e319ec3a3ca9ef9466e4248fd091b5610b57
   react-native-watch-connectivity: 5333c7054ff667130fd93f504a3d6bb35e87cabd
-  react-native-webview: 5e82a4853e16e02bb6cb184ae4892df71c200571
+  react-native-webview: dbfec7f16f09a71ea53731bdf5f86ae70eac4313
   React-RCTActionSheet: 89b037c0fb7d2671607cb645760164e7e0c013f6
   React-RCTAnimation: e3cefa93c38c004c318f7ec04b883eb14b8b8235
   React-RCTBlob: d26ac0e313fbf14e7203473fd593ccaaeee8329e
@@ -541,8 +535,8 @@ SPEC CHECKSUMS:
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 5ae4d57458804e99f73d427214442a6b10a53856
-  RNDeviceInfo: 9e88577c51bd42f65275e53bb0de0a0f728ed6b8
-  RNFS: a8fbe7060fa49157d819466404794ad9c58e58cf
+  RNDeviceInfo: abb9b4a1815e120d80429a07f68179b3dd42dc58
+  RNFS: 795866388a01de4e470f3b1041a99cf20a343844
   RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNRate: d44a8bca6ee08f5d890ecccddaec2810955ffbb3
@@ -550,7 +544,7 @@ SPEC CHECKSUMS:
   RNReanimated: 6abbbae2e5e72609d85aabd92a982a94566885f1
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
-  RNSVG: be27aa7c58819f97399388ae53d7fa0572f32c7f
+  RNSVG: c0ee15672ff52cdbd7bc8d1d8ba488601bd5db02
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   Sentry: 4e8a17b61ddd116f89536cc81d567fdee1ebca96
   SentryReactNative: 07237139c00366ea2e75ae3e5c566e7a71c27a90

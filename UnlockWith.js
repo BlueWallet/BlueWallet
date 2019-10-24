@@ -18,9 +18,8 @@ export default class UnlockWith extends Component {
     }
     const isStorageEncrypted = await BlueApp.storageIsEncrypted();
     this.setState({ biometricType, isStorageEncrypted }, async () => {
-      if (!biometricType) {
-        await BlueApp.startAndDecrypt();
-        this.props.onSuccessfullyAuthenticated();
+      if (!biometricType || isStorageEncrypted) {
+        this.unlockWithKey();
       } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
     });
   }
@@ -29,7 +28,10 @@ export default class UnlockWith extends Component {
     this.props.onSuccessfullyAuthenticated();
   };
 
-  unlockWithBiometrics = () => {
+  unlockWithBiometrics = async () => {
+    if (await BlueApp.storageIsEncrypted()) {
+      this.unlockWithKey();
+    }
     this.setState({ isAuthenticating: true }, async () => {
       if (await Biometric.unlockWithBiometrics()) {
         await BlueApp.startAndDecrypt();
@@ -58,14 +60,14 @@ export default class UnlockWith extends Component {
           </View>
           <View style={{ flex: 0.2, justifyContent: 'flex-end', marginBottom: 58 }}>
             <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
-              {this.state.biometricType === Biometric.TouchID && (
+              {this.state.biometricType === Biometric.TouchID && !this.state.isStorageEncrypted && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
                     <Image source={require('./img/fingerprint.png')} style={{ width: 64, height: 64 }} />
                   </TouchableOpacity>
                 </>
               )}
-              {this.state.biometricType === Biometric.FaceID && (
+              {this.state.biometricType === Biometric.FaceID && !this.state.isStorageEncrypted && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
                     <Image source={require('./img/faceid.png')} style={{ width: 64, height: 64 }} />

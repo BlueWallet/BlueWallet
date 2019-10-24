@@ -104,6 +104,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   async getAddressAsync() {
+    if (this.isAddressValid(this.secret)) return new Promise(resolve => resolve(this.secret));
     if (this._hdWalletInstance) return this._hdWalletInstance.getAddressAsync();
     throw new Error('Not initialized');
   }
