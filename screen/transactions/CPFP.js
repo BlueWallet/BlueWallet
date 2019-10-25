@@ -16,11 +16,11 @@ import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Icon, Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
-let EV = require('../../events');
-let BlueElectrum = require('../../BlueElectrum');
-let loc = require('../../loc');
+const EV = require('../../events');
+const BlueElectrum = require('../../BlueElectrum');
+const loc = require('../../loc');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+const BlueApp = require('../../BlueApp');
 
 export default class CPFP extends Component {
   static navigationOptions = () => ({
@@ -48,7 +48,7 @@ export default class CPFP extends Component {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
-        let result = await this.state.wallet.broadcastTx(this.state.txhex);
+        const result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
           console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
@@ -86,9 +86,9 @@ export default class CPFP extends Component {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
-      let info = await tx.getInfo();
+      const info = await tx.getInfo();
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
@@ -103,7 +103,7 @@ export default class CPFP extends Component {
       const tx = this.state.tx;
       this.setState({ isLoading: true });
       try {
-        let { tx: newTx } = await tx.createCPFPbumpFee(newFeeRate);
+        const { tx: newTx } = await tx.createCPFPbumpFee(newFeeRate);
         this.setState({ stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId() });
         this.setState({ isLoading: false });
       } catch (_) {

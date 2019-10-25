@@ -5,7 +5,7 @@ import { Text, Icon } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
-let loc = require('../../loc');
+const loc = require('../../loc');
 
 export default class Success extends Component {
   static navigationOptions = {

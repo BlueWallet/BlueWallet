@@ -4,7 +4,7 @@ import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacin
 import PropTypes from 'prop-types';
 import { SegwitBech32Wallet } from '../../class';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+const BlueApp = require('../../BlueApp');
 
 export default class RBF extends Component {
   static navigationOptions = () => ({
@@ -19,8 +19,8 @@ export default class RBF extends Component {
 
     let sourceWallet;
     let sourceTx;
-    for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
+    for (const w of BlueApp.getWallets()) {
+      for (const t of w.getTransactions()) {
         if (t.hash === txid) {
           // found our source wallet
           sourceWallet = w;
@@ -32,7 +32,7 @@ export default class RBF extends Component {
 
     let destinationAddress;
 
-    for (let o of sourceTx.outputs) {
+    for (const o of sourceTx.outputs) {
       if (!o.addresses && o.script) {
         // probably bech32 output, so we need to decode address
         o.addresses = [SegwitBech32Wallet.scriptPubKeyToAddress(o.script)];
@@ -69,12 +69,12 @@ export default class RBF extends Component {
   }
 
   async componentDidMount() {
-    let startTime = Date.now();
+    const startTime = Date.now();
     console.log('transactions/RBF - componentDidMount');
     this.setState({
       isLoading: false,
     });
-    let endTime = Date.now();
+    const endTime = Date.now();
     console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
   }
 
@@ -125,7 +125,7 @@ export default class RBF extends Component {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
-        <BlueCard title={'Replace By Fee'} style={{ alignItems: 'center', flex: 1 }}>
+        <BlueCard title="Replace By Fee" style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>RBF allows you to increase fee on already sent but not confirmed transaction, thus speeding up mining</BlueText>
           <BlueSpacing20 />
 
@@ -151,7 +151,7 @@ export default class RBF extends Component {
           >
             <TextInput
               onChangeText={text => this.setState({ newDestinationAddress: text })}
-              placeholder={'receiver address here'}
+              placeholder="receiver address here"
               value={this.state.newDestinationAddress}
               style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
             />
@@ -174,8 +174,8 @@ export default class RBF extends Component {
           >
             <TextInput
               onChangeText={text => this.setState({ feeDelta: text })}
-              keyboardType={'numeric'}
-              placeholder={'fee to add (in BTC)'}
+              keyboardType="numeric"
+              placeholder="fee to add (in BTC)"
               value={this.state.feeDelta + ''}
               style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
             />

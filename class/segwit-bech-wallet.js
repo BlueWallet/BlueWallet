@@ -9,7 +9,7 @@ export class SegwitBech32Wallet extends LegacyWallet {
     if (this._address) return this._address;
     let address;
     try {
-      let keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
       address = bitcoin.payments.p2wpkh({
         pubkey: keyPair.publicKey,
       }).address;

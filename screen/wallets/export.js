@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
 
 export default class WalletExport extends Component {
@@ -20,10 +20,10 @@ export default class WalletExport extends Component {
   constructor(props) {
     super(props);
 
-    let address = props.navigation.state.params.address;
-    let secret = props.navigation.state.params.secret;
+    const address = props.navigation.state.params.address;
+    const secret = props.navigation.state.params.secret;
     let wallet;
-    for (let w of BlueApp.getWallets()) {
+    for (const w of BlueApp.getWallets()) {
       if ((address && w.getAddress() === address) || w.getSecret() === secret) {
         // found our wallet
         wallet = w;
@@ -56,7 +56,7 @@ export default class WalletExport extends Component {
     Privacy.disableBlur();
   }
 
-  onLayout = () => {
+  handleOnLayout = () => {
     const { height } = Dimensions.get('window');
     this.setState({ qrCodeHeight: height > width ? width - 40 : width / 2 });
   };
@@ -64,7 +64,7 @@ export default class WalletExport extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }} onLayout={this.onLayout}>
+        <View style={{ flex: 1, paddingTop: 20 }} onLayout={this.handleOnLayout}>
           <ActivityIndicator />
         </View>
       );
@@ -72,7 +72,7 @@ export default class WalletExport extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', paddingHorizontal: 0 }} onLayout={this.onLayout}>
+        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', paddingHorizontal: 0 }} onLayout={this.handleOnLayout}>
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
@@ -95,7 +95,7 @@ export default class WalletExport extends Component {
             logoSize={70}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
+            ecl="H"
           />
 
           <BlueSpacing20 />

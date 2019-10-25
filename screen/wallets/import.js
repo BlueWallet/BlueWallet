@@ -25,11 +25,11 @@ import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
-let EV = require('../../events');
-let A = require('../../analytics');
+const EV = require('../../events');
+const A = require('../../analytics');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class WalletsImport extends Component {
@@ -77,7 +77,7 @@ export default class WalletsImport extends Component {
     try {
       // is it lightning custodian?
       if (text.indexOf('blitzhub://') !== -1 || text.indexOf('lndhub://') !== -1) {
-        let lnd = new LightningCustodianWallet();
+        const lnd = new LightningCustodianWallet();
         if (text.includes('@')) {
           const split = text.split('@');
           lnd.setBaseURI(split[1]);
@@ -97,12 +97,12 @@ export default class WalletsImport extends Component {
 
       // trying other wallet types
 
-      let segwitWallet = new SegwitP2SHWallet();
+      const segwitWallet = new SegwitP2SHWallet();
       segwitWallet.setSecret(text);
       if (segwitWallet.getAddress()) {
         // ok its a valid WIF
 
-        let legacyWallet = new LegacyWallet();
+        const legacyWallet = new LegacyWallet();
         legacyWallet.setSecret(text);
 
         await legacyWallet.fetchBalance();
@@ -120,7 +120,7 @@ export default class WalletsImport extends Component {
 
       // case - WIF is valid, just has uncompressed pubkey
 
-      let legacyWallet = new LegacyWallet();
+      const legacyWallet = new LegacyWallet();
       legacyWallet.setSecret(text);
       if (legacyWallet.getAddress()) {
         await legacyWallet.fetchBalance();
@@ -130,7 +130,7 @@ export default class WalletsImport extends Component {
 
       // if we're here - nope, its not a valid WIF
 
-      let hd4 = new HDSegwitBech32Wallet();
+      const hd4 = new HDSegwitBech32Wallet();
       hd4.setSecret(text);
       if (hd4.validateMnemonic()) {
         await hd4.fetchBalance();
@@ -140,7 +140,7 @@ export default class WalletsImport extends Component {
         }
       }
 
-      let hd1 = new HDLegacyBreadwalletWallet();
+      const hd1 = new HDLegacyBreadwalletWallet();
       hd1.setSecret(text);
       if (hd1.validateMnemonic()) {
         await hd1.fetchBalance();
@@ -150,7 +150,7 @@ export default class WalletsImport extends Component {
         }
       }
 
-      let hd2 = new HDSegwitP2SHWallet();
+      const hd2 = new HDSegwitP2SHWallet();
       hd2.setSecret(text);
       if (hd2.validateMnemonic()) {
         await hd2.fetchBalance();
@@ -160,7 +160,7 @@ export default class WalletsImport extends Component {
         }
       }
 
-      let hd3 = new HDLegacyP2PKHWallet();
+      const hd3 = new HDLegacyP2PKHWallet();
       hd3.setSecret(text);
       if (hd3.validateMnemonic()) {
         await hd3.fetchBalance();
@@ -204,7 +204,7 @@ export default class WalletsImport extends Component {
 
       // not valid? maybe its a watch-only address?
 
-      let watchOnly = new WatchOnlyWallet();
+      const watchOnly = new WatchOnlyWallet();
       watchOnly.setSecret(text);
       if (watchOnly.valid()) {
         await watchOnly.fetchTransactions();
@@ -239,6 +239,10 @@ export default class WalletsImport extends Component {
     }); /* also, a hack to make screen update new typed text */
   }
 
+  handleKeyboardDismiss = () => {
+    Keyboard.dismiss();
+  };
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -250,7 +254,7 @@ export default class WalletsImport extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback onPress={this.handleKeyboardDismiss} accessible={false}>
           <KeyboardAvoidingView behavior="position" enabled>
             <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
             <BlueSpacing20 />

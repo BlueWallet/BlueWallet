@@ -98,10 +98,10 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
     try {
       const api = new Frisbee({ baseURI: 'https://blockchain.info' });
 
-      let response = await api.get('/balance?active=' + this.getXpub());
+      const response = await api.get('/balance?active=' + this.getXpub());
 
       if (response && response.body) {
-        for (let xpub of Object.keys(response.body)) {
+        for (const xpub of Object.keys(response.body)) {
           this.balance = response.body[xpub].final_balance / 100000000;
         }
         this._lastBalanceFetch = +new Date();

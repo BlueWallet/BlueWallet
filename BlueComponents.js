@@ -33,9 +33,9 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
-let loc = require('./loc/');
+const loc = require('./loc/');
 /** @type {AppStorage} */
-let BlueApp = require('./BlueApp');
+const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
@@ -50,12 +50,12 @@ export class BlueButton extends Component {
   render() {
     let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueApp.settings.buttonBackgroundColor;
     let fontColor = BlueApp.settings.buttonTextColor;
-    if (this.props.hasOwnProperty('disabled') && this.props.disabled === true) {
+    if (this.props.disabled && this.props.disabled === true) {
       backgroundColor = BlueApp.settings.buttonDisabledBackgroundColor;
       fontColor = BlueApp.settings.buttonDisabledTextColor;
     }
     let buttonWidth = width / 1.5;
-    if (this.props.hasOwnProperty('noMinWidth')) {
+    if (this.props.noMinWidth) {
       buttonWidth = 0;
     }
     return (
@@ -243,7 +243,7 @@ export class BlueWalletNavigationHeader extends Component {
     });
   }
 
-  manageFundsPressed = () => {
+  handleManageFundsPressed = () => {
     this.props.onManageFundsPressed();
   };
 
@@ -285,7 +285,8 @@ export class BlueWalletNavigationHeader extends Component {
                 : [
                     { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
                     { text: loc.transactions.details.copy, onPress: this.handleCopyPress },
-                  ]
+                    // eslint-disable-next-line prettier/prettier
+            ]
             }
           />
         )}
@@ -313,7 +314,7 @@ export class BlueWalletNavigationHeader extends Component {
           )}
         </TouchableOpacity>
         {this.state.wallet.type === LightningCustodianWallet.type && (
-          <TouchableOpacity onPress={this.manageFundsPressed}>
+          <TouchableOpacity onPress={this.handleManageFundsPressed}>
             <View
               style={{
                 marginTop: 14,
@@ -472,7 +473,7 @@ export class BlueCopyTextToClipboard extends Component {
     }
   }
 
-  copyToClipboard = () => {
+  handleCopyToClipboard = () => {
     this.setState({ hasTappedText: true }, () => {
       Clipboard.setString(this.props.text);
       this.setState({ address: loc.wallets.xpub.copiedToClipboard }, () => {
@@ -486,7 +487,7 @@ export class BlueCopyTextToClipboard extends Component {
   render() {
     return (
       <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-        <TouchableOpacity onPress={this.copyToClipboard} disabled={this.state.hasTappedText}>
+        <TouchableOpacity onPress={this.handleCopyToClipboard} disabled={this.state.hasTappedText}>
           <Animated.Text style={styleCopyTextToClipboard.address} numberOfLines={0}>
             {this.state.address}
           </Animated.Text>
@@ -894,7 +895,7 @@ export class BlueDismissKeyboardInputAccessory extends Component {
 export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
   static InputAccessoryViewID = 'BlueDoneAndDismissKeyboardInputAccessory';
 
-  onPasteTapped = async () => {
+  handleOnPasteTapped = async () => {
     const clipboard = await Clipboard.getString();
     this.props.onPasteTapped(clipboard);
   };
@@ -912,7 +913,7 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
         }}
       >
         <BlueButtonLink title="Clear" onPress={this.props.onClearTapped} />
-        <BlueButtonLink title="Paste" onPress={this.onPasteTapped} />
+        <BlueButtonLink title="Paste" onPress={this.handleOnPasteTapped} />
         <BlueButtonLink title="Done" onPress={() => Keyboard.dismiss()} />
       </View>
     );
@@ -1013,7 +1014,7 @@ export class BluePlusIcon extends Component {
           <View style={stylesBlueIcon.ball}>
             <Ionicons
               {...this.props}
-              name={'ios-add'}
+              name="ios-add"
               size={26}
               style={{
                 color: BlueApp.settings.foregroundColor,
@@ -1311,7 +1312,7 @@ export class BluePlusIconDimmed extends Component {
           <View style={stylesBlueIcon.ballDimmed}>
             <Ionicons
               {...this.props}
-              name={'ios-add'}
+              name="ios-add"
               size={26}
               style={{
                 color: 'white',
@@ -1407,8 +1408,8 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   }, [item, itemPriceUnit]);
 
   const txMemo = () => {
-    if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash]['memo']) {
-      return BlueApp.tx_metadata[item.hash]['memo'];
+    if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
+      return BlueApp.tx_metadata[item.hash].memo;
     }
     return '';
   };
@@ -1542,7 +1543,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
-          if (wallet.hasOwnProperty('secret')) {
+          if (wallet.secret) {
             return wallet.getSecret() === item.fromWallet;
           }
         }
@@ -1595,8 +1596,8 @@ export class BlueListTransactionItem extends Component {
   };
 
   txMemo = () => {
-    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
-      return BlueApp.tx_metadata[this.props.item.hash]['memo'];
+    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash].memo) {
+      return BlueApp.tx_metadata[this.props.item.hash].memo;
     }
     return '';
   };
@@ -1730,7 +1731,7 @@ export class BlueListTransactionItem extends Component {
     );
   };
 
-  onPress = () => {
+  handleOnPress = () => {
     if (this.props.item.hash) {
       NavigationService.navigate('TransactionStatus', { hash: this.props.item.hash });
     } else if (
@@ -1740,7 +1741,7 @@ export class BlueListTransactionItem extends Component {
     ) {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
-          if (wallet.hasOwnProperty('secret')) {
+          if (wallet.secret) {
             return wallet.getSecret() === this.props.item.fromWallet;
           }
         }
@@ -1759,7 +1760,7 @@ export class BlueListTransactionItem extends Component {
         avatar={this.avatar()}
         title={loc.transactionTimeToReadable(this.props.item.received)}
         subtitle={this.subtitle()}
-        onPress={this.onPress}
+        onPress={this.handleOnPress}
         badge={{
           value: 3,
           textStyle: { color: 'orange' },
@@ -1788,16 +1789,16 @@ export class WalletsCarousel extends Component {
   }
 
   _renderItem({ item, index }) {
-    let scaleValue = new Animated.Value(1.0);
-    let props = { duration: 50 };
+    const scaleValue = new Animated.Value(1.0);
+    const props = { duration: 50 };
     if (Platform.OS === 'android') {
-      props['useNativeDriver'] = true;
+      props.useNativeDriver = true;
     }
-    this.onPressedIn = () => {
+    this.handleOnPressedIn = () => {
       props.toValue = 0.9;
       Animated.spring(scaleValue, props).start();
     };
-    this.onPressedOut = () => {
+    this.handleOnPressedOut = () => {
       props.toValue = 1.0;
       Animated.spring(scaleValue, props).start();
     };
@@ -1822,8 +1823,8 @@ export class WalletsCarousel extends Component {
         shadowRadius={5}
       >
         <TouchableWithoutFeedback
-          onPressIn={this.onPressedIn}
-          onPressOut={this.onPressedOut}
+          onPressIn={this.handleOnPressedIn}
+          onPressOut={this.handleOnPressedOut}
           onLongPress={WalletsCarousel.handleLongPress}
           onPress={() => {
             if (WalletsCarousel.handleClick) {
@@ -2037,7 +2038,7 @@ export class BlueReplaceFeeSuggestions extends Component {
     }
   };
 
-  onCustomFeeTextChange = customFee => {
+  handleOnCustomFeeTextChange = customFee => {
     this.setState({ customFeeValue: Number(customFee), selectedFeeType: NetworkTransactionFeeType.CUSTOM }, () => {
       this.onFeeSelected(NetworkTransactionFeeType.CUSTOM);
     });
@@ -2051,7 +2052,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             <BlueText>Suggestions</BlueText>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}>
               <BlueListItem
-                title={'Fast'}
+                title="Fast"
                 rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
                   ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
@@ -2060,7 +2061,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}>
               <BlueListItem
-                title={'Medium'}
+                title="Medium"
                 rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
                   ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
@@ -2069,7 +2070,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}>
               <BlueListItem
-                title={'Slow'}
+                title="Slow"
                 rightTitle={`${this.state.networkFees.hourFee} sat/b`}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
                   ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
@@ -2093,8 +2094,8 @@ export class BlueReplaceFeeSuggestions extends Component {
               }}
             >
               <TextInput
-                onChangeText={this.onCustomFeeTextChange}
-                keyboardType={'numeric'}
+                onChangeText={this.handleOnCustomFeeTextChange}
+                keyboardType="numeric"
                 value={this.state.customFeeValue}
                 ref={ref => (this.customTextInput = ref)}
                 maxLength={9}

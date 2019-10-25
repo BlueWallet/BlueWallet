@@ -9,12 +9,12 @@ import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import bip21 from 'bip21';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let EV = require('../../events');
-let bip38 = require('../../bip38');
-let wif = require('wif');
-let prompt = require('../../prompt');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const EV = require('../../events');
+const bip38 = require('../../bip38');
+const wif = require('wif');
+const prompt = require('../../prompt');
+const loc = require('../../loc');
 
 export default class ScanQrWif extends React.Component {
   static navigationOptions = {
@@ -23,7 +23,7 @@ export default class ScanQrWif extends React.Component {
 
   state = { isLoading: false };
 
-  onBarCodeScanned = async ret => {
+  handleOnBarCodeScanned = async ret => {
     if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
     if (+new Date() - this.lastTimeIveBeenHere < 6000) {
       this.lastTimeIveBeenHere = +new Date();
@@ -39,13 +39,13 @@ export default class ScanQrWif extends React.Component {
         message: loc.wallets.scanQrWif.decoding,
       });
       shold_stop_bip38 = undefined; // eslint-disable-line
-      let password = await prompt(loc.wallets.scanQrWif.input_password, loc.wallets.scanQrWif.password_explain);
+      const password = await prompt(loc.wallets.scanQrWif.input_password, loc.wallets.scanQrWif.password_explain);
       if (!password) {
         return;
       }
-      let that = this;
+      const that = this;
       try {
-        let decryptedKey = await bip38.decrypt(ret.data, password, function(status) {
+        const decryptedKey = await bip38.decrypt(ret.data, password, function(status) {
           that.setState({
             message: loc.wallets.scanQrWif.decoding + '... ' + status.percent.toString().substr(0, 4) + ' %',
           });
@@ -61,7 +61,7 @@ export default class ScanQrWif extends React.Component {
       this.setState({ message: false, isLoading: false });
     }
 
-    for (let w of BlueApp.wallets) {
+    for (const w of BlueApp.wallets) {
       if (w.getSecret() === ret.data) {
         // lookig for duplicates
         this.setState({ isLoading: false });
@@ -74,7 +74,7 @@ export default class ScanQrWif extends React.Component {
     let hd = new HDSegwitBech32Wallet();
     hd.setSecret(ret.data);
     if (hd.validateMnemonic()) {
-      for (let w of BlueApp.wallets) {
+      for (const w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
           this.setState({ isLoading: false });
@@ -102,7 +102,7 @@ export default class ScanQrWif extends React.Component {
     hd = new HDLegacyP2PKHWallet();
     hd.setSecret(ret.data);
     if (hd.validateMnemonic()) {
-      for (let w of BlueApp.wallets) {
+      for (const w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
           this.setState({ isLoading: false });
@@ -129,7 +129,7 @@ export default class ScanQrWif extends React.Component {
     hd = new HDSegwitP2SHWallet();
     hd.setSecret(ret.data);
     if (hd.validateMnemonic()) {
-      for (let w of BlueApp.wallets) {
+      for (const w of BlueApp.wallets) {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
           this.setState({ isLoading: false });
@@ -154,7 +154,7 @@ export default class ScanQrWif extends React.Component {
     // is it lndhub?
     if (ret.data.indexOf('blitzhub://') !== -1 || ret.data.indexOf('lndhub://') !== -1) {
       this.setState({ isLoading: true });
-      let lnd = new LightningCustodianWallet();
+      const lnd = new LightningCustodianWallet();
       lnd.setSecret(ret.data);
       if (ret.data.includes('@')) {
         const split = ret.data.split('@');
@@ -189,7 +189,7 @@ export default class ScanQrWif extends React.Component {
     // nope
 
     // is it just address..?
-    let watchOnly = new WatchOnlyWallet();
+    const watchOnly = new WatchOnlyWallet();
     let watchAddr = ret.data;
 
     // Is it BIP21 format?
@@ -215,9 +215,9 @@ export default class ScanQrWif extends React.Component {
     }
     // nope
 
-    let newWallet = new SegwitP2SHWallet();
+    const newWallet = new SegwitP2SHWallet();
     newWallet.setSecret(ret.data);
-    let newLegacyWallet = new LegacyWallet();
+    const newLegacyWallet = new LegacyWallet();
     newLegacyWallet.setSecret(ret.data);
 
     if (newWallet.getAddress() === false && newLegacyWallet.getAddress() === false) {
@@ -307,7 +307,7 @@ export default class ScanQrWif extends React.Component {
                     buttonNegative: 'Cancel',
                   }}
                   style={{ flex: 1, justifyContent: 'space-between' }}
-                  onBarCodeRead={this.onBarCodeScanned}
+                  onBarCodeRead={this.handleOnBarCodeScanned}
                   ref={ref => (this.cameraRef = ref)}
                   barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
                 />

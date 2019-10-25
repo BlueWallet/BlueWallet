@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+const BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
 
@@ -98,7 +98,7 @@ export default class About extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                let options = {
+                const options = {
                   AppleAppID: '1376878040',
                   GooglePackageName: 'io.bluewallet.bluewallet',
                   preferredAndroidMarket: AndroidMarket.Google,

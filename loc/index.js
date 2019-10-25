@@ -6,6 +6,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 const dayjs = require('dayjs');
 const currency = require('../currency');
 const BigNumber = require('bignumber.js');
+// eslint-disable-next-line prefer-const
 let strings;
 dayjs.extend(relativeTime);
 

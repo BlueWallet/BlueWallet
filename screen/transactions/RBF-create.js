@@ -15,14 +15,15 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const bitcoinjs = require('bitcoinjs-lib');
-let BigNumber = require('bignumber.js');
-let BlueApp = require('../../BlueApp');
+const BigNumber = require('bignumber.js');
+const BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(null, false),
     title: 'Create RBF',
   });
+
   constructor(props) {
     super(props);
     console.log('send/create constructor');
@@ -42,11 +43,11 @@ export default class SendCreate extends Component {
   async componentDidMount() {
     console.log('RBF-create - componentDidMount');
 
-    let utxo = [];
+    const utxo = [];
 
     let lastSequence = 0;
     let totalInputAmountSatoshi = 0;
-    for (let input of this.state.sourceTx.inputs) {
+    for (const input of this.state.sourceTx.inputs) {
       if (input.sequence > lastSequence) {
         lastSequence = input.sequence;
       }
@@ -69,7 +70,7 @@ export default class SendCreate extends Component {
       // lastSequence = 1
     }
 
-    let txMetadata = BlueApp.tx_metadata[this.state.txid];
+    const txMetadata = BlueApp.tx_metadata[this.state.txid];
     if (txMetadata) {
       if (txMetadata.last_sequence) {
         lastSequence = Math.max(lastSequence, txMetadata.last_sequence);
@@ -81,7 +82,7 @@ export default class SendCreate extends Component {
     let changeAddress;
     let transferAmount;
     let totalOutputAmountSatoshi = 0;
-    for (let o of this.state.sourceTx.outputs) {
+    for (const o of this.state.sourceTx.outputs) {
       totalOutputAmountSatoshi += o.value;
       if (o.addresses[0] === this.state.fromWallet.getAddress()) {
         // change
@@ -114,14 +115,14 @@ export default class SendCreate extends Component {
       try {
         tx = this.state.fromWallet.createTx(utxo, transferAmount, newFee, this.state.newDestinationAddress, false, lastSequence);
         BlueApp.tx_metadata[this.state.txid] = txMetadata || {};
-        BlueApp.tx_metadata[this.state.txid]['last_sequence'] = lastSequence;
+        BlueApp.tx_metadata[this.state.txid].last_sequence = lastSequence;
 
         // in case new TX get confirmed, we must save metadata under new txid
-        let bitcoin = bitcoinjs;
-        let txDecoded = bitcoin.Transaction.fromHex(tx);
-        let txid = txDecoded.getId();
+        const bitcoin = bitcoinjs;
+        const txDecoded = bitcoin.Transaction.fromHex(tx);
+        const txid = txDecoded.getId();
         BlueApp.tx_metadata[txid] = BlueApp.tx_metadata[this.state.txid];
-        BlueApp.tx_metadata[txid]['txhex'] = tx;
+        BlueApp.tx_metadata[txid].txhex = tx;
         //
         BlueApp.saveToDisk();
         console.log('BlueApp.txMetadata[this.state.txid]', BlueApp.tx_metadata[this.state.txid]);
@@ -135,7 +136,7 @@ export default class SendCreate extends Component {
 
       let newFeeSatoshi = new BigNumber(newFee);
       newFeeSatoshi = parseInt(newFeeSatoshi.multipliedBy(100000000));
-      let satoshiPerByte = Math.round(newFeeSatoshi / (tx.length / 2));
+      const satoshiPerByte = Math.round(newFeeSatoshi / (tx.length / 2));
       this.setState({
         isLoading: false,
         size: Math.round(tx.length / 2),
@@ -174,7 +175,7 @@ export default class SendCreate extends Component {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
           <BlueSpacing />
-          <BlueCard title={'Replace Transaction'} style={{ alignItems: 'center', flex: 1 }}>
+          <BlueCard title="Replace Transaction" style={{ alignItems: 'center', flex: 1 }}>
             <BlueText>Error creating transaction. Invalid address or send amount?</BlueText>
             <FormValidationMessage>{this.state.errorMessage}</FormValidationMessage>
           </BlueCard>
@@ -202,7 +203,7 @@ export default class SendCreate extends Component {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
-        <BlueCard title={'Replace Transaction'} style={{ alignItems: 'center', flex: 1 }}>
+        <BlueCard title="Replace Transaction" style={{ alignItems: 'center', flex: 1 }}>
           <BlueText>This is transaction hex, signed and ready to be broadcast to the network. Continue?</BlueText>
 
           <TextInput

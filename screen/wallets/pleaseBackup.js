@@ -3,7 +3,7 @@ import { ActivityIndicator, View, BackHandler, Text } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
-let loc = require('../../loc');
+const loc = require('../../loc');
 
 export default class PleaseBackup extends Component {
   static navigationOptions = ({ navigation }) => ({

@@ -7,8 +7,8 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export default class SelectWallet extends Component {
   static navigationOptions = ({ navigation }) => ({

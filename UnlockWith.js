@@ -19,8 +19,8 @@ export default class UnlockWith extends Component {
     const isStorageEncrypted = await BlueApp.storageIsEncrypted();
     this.setState({ biometricType, isStorageEncrypted }, async () => {
       if (!biometricType || isStorageEncrypted) {
-        this.unlockWithKey();
-      } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
+        this.handleUnlockWithKey();
+      } else if (typeof biometricType === 'string') this.handleUnlockWithBiometrics();
     });
   }
 
@@ -28,9 +28,9 @@ export default class UnlockWith extends Component {
     this.props.onSuccessfullyAuthenticated();
   };
 
-  unlockWithBiometrics = async () => {
+  handleUnlockWithBiometrics = async () => {
     if (await BlueApp.storageIsEncrypted()) {
-      this.unlockWithKey();
+      this.handleUnlockWithKey();
     }
     this.setState({ isAuthenticating: true }, async () => {
       if (await Biometric.unlockWithBiometrics()) {
@@ -41,7 +41,7 @@ export default class UnlockWith extends Component {
     });
   };
 
-  unlockWithKey = () => {
+  handleUnlockWithKey = () => {
     this.setState({ isAuthenticating: true }, async () => {
       await BlueApp.startAndDecrypt();
       this.props.onSuccessfullyAuthenticated();
@@ -62,14 +62,14 @@ export default class UnlockWith extends Component {
             <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
               {this.state.biometricType === Biometric.TouchID && !this.state.isStorageEncrypted && (
                 <>
-                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
+                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.handleUnlockWithBiometrics}>
                     <Image source={require('./img/fingerprint.png')} style={{ width: 64, height: 64 }} />
                   </TouchableOpacity>
                 </>
               )}
               {this.state.biometricType === Biometric.FaceID && !this.state.isStorageEncrypted && (
                 <>
-                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
+                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.handleUnlockWithBiometrics}>
                     <Image source={require('./img/faceid.png')} style={{ width: 64, height: 64 }} />
                   </TouchableOpacity>
                 </>
@@ -79,7 +79,7 @@ export default class UnlockWith extends Component {
               )}
               {this.state.isStorageEncrypted && (
                 <>
-                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithKey}>
+                  <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.handleUnlockWithKey}>
                     <Icon name="key" size={64} type="font-awesome" />
                   </TouchableOpacity>
                 </>

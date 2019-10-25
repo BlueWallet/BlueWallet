@@ -1,6 +1,6 @@
 import { BitcoinUnit } from './bitcoinUnits';
 import BigNumber from 'bignumber.js';
-let loc = require('../loc');
+const loc = require('../loc');
 
 const BlueElectrum = require('../BlueElectrum');
 
@@ -23,9 +23,10 @@ export class NetworkTransactionFee {
 
 export default class NetworkTransactionFees {
   static recommendedFees() {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
-        let response = await BlueElectrum.estimateFees();
+        const response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
           const fast = loc.formatBalanceWithoutSuffix(
             new BigNumber(response.fast)

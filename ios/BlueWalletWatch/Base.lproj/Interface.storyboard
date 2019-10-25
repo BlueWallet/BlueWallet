@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14490.70" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
-    <device id="watch44" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15400" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+    <device id="watch44"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14490.21"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15400"/>
     </dependencies>
     <scenes>
         <!--BlueWallet-->
@@ -163,9 +161,9 @@
         <!--ReceiveInterfaceController-->
         <scene sceneID="tQ7-Qr-5i4">
             <objects>
-                <controller identifier="ReceiveInterfaceController" fullBounds="YES" fullScreen="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="ReceiveInterfaceController" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <imageView height="1" alignment="left" id="Dnb-sM-wdN"/>
+                        <imageView height="1" heightAdjustment="-12" alignment="left" id="Dnb-sM-wdN"/>
                         <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
                             <items>
                                 <imageView width="60" height="60" alignment="center" image="loadingIndicator" contentMode="scaleAspectFit" id="nQb-s6-ySB"/>
@@ -335,5 +333,10 @@
             <point key="canvasLocation" x="220" y="1029"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="loadingIndicator" width="108" height="108"/>
+        <image name="pendingConfirmation" width="12" height="12"/>
+        <image name="walletHD" width="249" height="100.5"/>
+    </resources>
     <color key="tintColor" red="0.40784313725490196" green="0.73333333333333328" blue="0.88235294117647056" alpha="1" colorSpace="calibratedRGB"/>
 </document>

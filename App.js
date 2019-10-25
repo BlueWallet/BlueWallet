@@ -10,6 +10,14 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import url from 'url';
 import { AppStorage, LightningCustodianWallet } from './class';
 import { Chain } from './models/bitcoinUnits';
+import * as Sentry from '@sentry/react-native';
+
+if (process.env.NODE_ENV !== 'development') {
+  Sentry.init({
+    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
+  });
+}
+
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -173,12 +181,13 @@ export default class App extends React.Component {
       console.log('parsed', urlObject);
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
+          let haveLnWallet = false;
+          let lnWallet;
           switch (urlObject.host) {
             case 'openlappbrowser':
               console.log('opening LAPP', urlObject.query.url);
               // searching for LN wallet:
-              let haveLnWallet = false;
-              for (let w of BlueApp.getWallets()) {
+              for (const w of BlueApp.getWallets()) {
                 if (w.type === LightningCustodianWallet.type) {
                   haveLnWallet = true;
                 }
@@ -186,11 +195,11 @@ export default class App extends React.Component {
 
               if (!haveLnWallet) {
                 // need to create one
-                let w = new LightningCustodianWallet();
+                const w = new LightningCustodianWallet();
                 w.setLabel(this.state.label || w.typeReadable);
 
                 try {
-                  let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                  const lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
                   if (lndhub) {
                     w.setBaseURI(lndhub);
                     w.init();
@@ -207,8 +216,7 @@ export default class App extends React.Component {
 
               // now, opening lapp browser and navigating it to URL.
               // looking for a LN wallet:
-              let lnWallet;
-              for (let w of BlueApp.getWallets()) {
+              for (const w of BlueApp.getWallets()) {
                 if (w.type === LightningCustodianWallet.type) {
                   lnWallet = w;
                   break;

@@ -7,10 +7,10 @@ import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
-let EV = require('../../events');
+const EV = require('../../events');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc/');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc/');
 
 export default class ReorderWallets extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -35,7 +35,7 @@ export default class ReorderWallets extends Component {
     this.props.navigation.setParams({
       customCloseButtonFunction: async () => {
         if (this.sortableList.state.data.length === this.state.data.length && this.state.hasMovedARow) {
-          let newWalletsOrderArray = [];
+          const newWalletsOrderArray = [];
           this.sortableList.state.order.forEach(element => {
             newWalletsOrderArray.push(this.state.data[element]);
           });

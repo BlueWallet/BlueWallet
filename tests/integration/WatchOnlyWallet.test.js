@@ -1,8 +1,8 @@
 /* global it, describe, jasmine, afterAll, beforeAll  */
 import { WatchOnlyWallet } from '../../class';
-let assert = require('assert');
+const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -18,7 +18,7 @@ beforeAll(async () => {
 
 describe('Watch only wallet', () => {
   it('can fetch balance', async () => {
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
     await w.fetchBalance();
     assert.ok(w.getBalance() > 16);
@@ -44,16 +44,16 @@ describe('Watch only wallet', () => {
 
   it('can fetch complex TXs', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 120 * 1000;
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
     await w.fetchTransactions();
-    for (let tx of w.getTransactions()) {
+    for (const tx of w.getTransactions()) {
       assert.ok(tx.value, 'incorrect tx.value');
     }
   });
 
   it('can validate address', async () => {
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
     assert.ok(w.valid());
     w.setSecret('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2');
@@ -71,7 +71,7 @@ describe('Watch only wallet', () => {
 
   it('can fetch balance & transactions from zpub HD', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
     await w.fetchBalance();
     assert.strictEqual(w.getBalance(), 200000);
@@ -81,7 +81,7 @@ describe('Watch only wallet', () => {
   });
 
   it('can create PSBT base64 without signature for HW wallet', async () => {
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
     // zpub provided by Stepan @ CryptoAdvance
     w.init();
@@ -98,7 +98,7 @@ describe('Watch only wallet', () => {
     ];
     // hardcoding utxo so we wont have to call w.fetchUtxo() and w.getUtxo()
 
-    let { psbt } = await w.createTransaction(
+    const { psbt } = await w.createTransaction(
       utxos,
       [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 5000 }],
       1,
@@ -112,7 +112,7 @@ describe('Watch only wallet', () => {
   });
 
   it('can combine signed PSBT and prepare it for broadcast', async () => {
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
     w.init();
     const signedPsbt =
@@ -130,7 +130,7 @@ describe('Watch only wallet', () => {
 
   it('can fetch balance & transactions from ypub HD', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('ypub6Y9u3QCRC1HkZv3stNxcQVwmw7vC7KX5Ldz38En5P88RQbesP2oy16hNyQocVCfYRQPxdHcd3pmu9AFhLv7NdChWmw5iNLryZ2U6EEHdnfo');
     await w.fetchBalance();
     assert.strictEqual(w.getBalance(), 51432);
@@ -141,7 +141,7 @@ describe('Watch only wallet', () => {
 
   it('can fetch balance & transactions from xpub HD', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps');
     await w.fetchBalance();
     assert.strictEqual(w.getBalance(), 0);
@@ -152,7 +152,7 @@ describe('Watch only wallet', () => {
 
   it('can fetch large HD', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 500 * 1000;
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('ypub6WnnYxkQCGeowv4BXq9Y9PHaXgHMJg9TkFaDJkunhcTAfbDw8z3LvV9kFNHGjeVaEoGdsSJgaMWpUBvYvpYGMJd43gTK5opecVVkvLwKttx');
     await w.fetchBalance();
 

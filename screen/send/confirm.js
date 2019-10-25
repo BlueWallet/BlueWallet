@@ -8,11 +8,11 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { HDSegwitBech32Wallet } from '../../class';
-let loc = require('../../loc');
-let EV = require('../../events');
-let currency = require('../../currency');
-let BlueElectrum = require('../../BlueElectrum');
-let Bignumber = require('bignumber.js');
+const loc = require('../../loc');
+const EV = require('../../events');
+const currency = require('../../currency');
+const BlueElectrum = require('../../BlueElectrum');
+const Bignumber = require('bignumber.js');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 
@@ -56,7 +56,7 @@ export default class Confirm extends Component {
           }
         }
 
-        let result = await this.state.fromWallet.broadcastTx(this.state.tx);
+        const result = await this.state.fromWallet.broadcastTx(this.state.tx);
         if (result && result.code) {
           if (result.code === 1) {
             const message = result.message.split('\n');

@@ -5,8 +5,8 @@ import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-let loc = require('../../loc');
-let BlueElectrum = require('../../BlueElectrum');
+const loc = require('../../loc');
+const BlueElectrum = require('../../BlueElectrum');
 
 export default class ElectrumSettings extends Component {
   static navigationOptions = () => ({
@@ -23,8 +23,8 @@ export default class ElectrumSettings extends Component {
   }
 
   async componentDidMount() {
-    let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-    let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
+    const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
+    const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
 
     this.setState({
       isLoading: false,
@@ -37,7 +37,7 @@ export default class ElectrumSettings extends Component {
     });
   }
 
-  save = () => {
+  handleSave = () => {
     this.setState({ isLoading: true }, async () => {
       this.state.host = this.state.host ? this.state.host : '';
       this.state.port = this.state.port ? this.state.port : '';
@@ -80,7 +80,7 @@ export default class ElectrumSettings extends Component {
             }}
           >
             <TextInput
-              placeholder={'host, for example 111.222.333.444'}
+              placeholder="host, for example 111.222.333.444"
               value={this.state.host}
               onChangeText={text => this.setState({ host: text })}
               numberOfLines={1}
@@ -105,7 +105,7 @@ export default class ElectrumSettings extends Component {
             }}
           >
             <TextInput
-              placeholder={'TCP port, usually 50001'}
+              placeholder="TCP port, usually 50001"
               value={this.state.port}
               onChangeText={text => this.setState({ port: text })}
               numberOfLines={1}
@@ -116,7 +116,7 @@ export default class ElectrumSettings extends Component {
           </View>
 
           <BlueSpacing20 />
-          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
+          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.handleSave} title={loc.settings.save} />}
         </BlueCard>
 
         <BlueCard>

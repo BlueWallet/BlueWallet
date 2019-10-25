@@ -14,7 +14,7 @@ export default class Marketplace extends Component {
   constructor(props) {
     super(props);
     if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
-    let fromWallet = props.navigation.getParam('fromWallet');
+    const fromWallet = props.navigation.getParam('fromWallet');
 
     this.state = {
       url: '',
@@ -32,7 +32,7 @@ export default class Marketplace extends Component {
       address = this.state.fromWallet.getAddress();
     }
 
-    let url = 'https://bluewallet.io/marketplace-btc/?address=' + address; // default
+    const url = 'https://bluewallet.io/marketplace-btc/?address=' + address; // default
 
     this.setState({
       url,
@@ -48,7 +48,7 @@ export default class Marketplace extends Component {
     return true;
   }
 
-  _onNavigationStateChange = webViewState => {
+  handleONavigationStateChange = webViewState => {
     this.setState({ canGoBack: webViewState.canGoBack });
   };
 
@@ -60,7 +60,7 @@ export default class Marketplace extends Component {
     return (
       <WebView
         ref={ref => (this.webview = ref)}
-        onNavigationStateChange={this._onNavigationStateChange}
+        onNavigationStateChange={this.handleONavigationStateChange}
         source={{
           uri: this.state.url,
         }}

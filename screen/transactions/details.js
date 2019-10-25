@@ -12,8 +12,8 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
@@ -21,8 +21,8 @@ function onlyUnique(value, index, self) {
 }
 
 function arrDiff(a1, a2) {
-  let ret = [];
-  for (let v of a2) {
+  const ret = [];
+  for (const v of a2) {
     if (a1.indexOf(v) === -1) {
       ret.push(v);
     }
@@ -37,17 +37,17 @@ export default class TransactionsDetails extends Component {
 
   constructor(props) {
     super(props);
-    let hash = props.navigation.state.params.hash;
+    const hash = props.navigation.state.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (let tx of BlueApp.getTransactions()) {
+    for (const tx of BlueApp.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
-        for (let input of foundTx.inputs) {
+        for (const input of foundTx.inputs) {
           from = from.concat(input.addresses);
         }
-        for (let output of foundTx.outputs) {
+        for (const output of foundTx.outputs) {
           if (output.addresses) to = to.concat(output.addresses);
           if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
@@ -55,8 +55,8 @@ export default class TransactionsDetails extends Component {
     }
 
     let wallet = false;
-    for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
+    for (const w of BlueApp.getWallets()) {
+      for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
           wallet = w;
@@ -80,7 +80,7 @@ export default class TransactionsDetails extends Component {
   }
 
   render() {
-    if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
+    if (this.state.isLoading || !this.state.tx) {
       return <BlueLoading />;
     }
 
@@ -91,10 +91,10 @@ export default class TransactionsDetails extends Component {
           <BlueCard>
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
+                if (BlueApp.tx_metadata[this.state.tx.hash].memo) {
                   return (
                     <View>
-                      <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</BlueText>
+                      <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash].memo}</BlueText>
                       <BlueSpacing20 />
                     </View>
                   );
@@ -102,18 +102,18 @@ export default class TransactionsDetails extends Component {
               }
             })()}
 
-            {this.state.hasOwnProperty('from') && (
-              <React.Fragment>
+            {this.state.from && (
+              <>
                 <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
                   <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
                 </View>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.hasOwnProperty('to') && (
-              <React.Fragment>
+            {this.state.to && (
+              <>
                 <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
                   <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
@@ -121,18 +121,18 @@ export default class TransactionsDetails extends Component {
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>
                   {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
                 </BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('fee') && (
-              <React.Fragment>
+            {this.state.tx.fee && (
+              <>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.send.create.fee}</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.fee + ' sats'}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('hash') && (
-              <React.Fragment>
+            {this.state.tx.hash && (
+              <>
                 <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
                   <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
@@ -150,35 +150,35 @@ export default class TransactionsDetails extends Component {
                 >
                   <BlueText style={{ marginBottom: 26, color: '#2f5fb3' }}>{loc.transactions.details.show_in_block_explorer}</BlueText>
                 </TouchableOpacity>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('received') && (
-              <React.Fragment>
+            {this.state.tx.received && (
+              <>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('block_height') && this.state.tx.block_height > 0 && (
-              <React.Fragment>
+            {this.state.tx.block_height && this.state.tx.block_height > 0 && (
+              <>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.block_height}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('inputs') && (
-              <React.Fragment>
+            {this.state.tx.inputs && (
+              <>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Inputs</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('outputs') && this.state.tx.outputs.length > 0 && (
-              <React.Fragment>
+            {this.state.tx.outputs && this.state.tx.outputs.length > 0 && (
+              <>
                 <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Outputs</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
-              </React.Fragment>
+              </>
             )}
           </BlueCard>
         </ScrollView>

@@ -8,7 +8,7 @@ function EV(eventName, arg, isExclusive) {
   if (typeof arg !== 'function') {
     // then its an argument
     console.log('got event', eventName, '...');
-    for (let cc of EV.callbacks[eventName]) {
+    for (const cc of EV.callbacks[eventName]) {
       console.log('dispatching event', eventName);
       cc(arg);
     }

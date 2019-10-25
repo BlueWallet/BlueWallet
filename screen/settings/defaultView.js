@@ -26,11 +26,11 @@ export default class DefaultView extends Component {
     this.setState({ viewAllWalletsEnabled, defaultWalletLabel });
   }
 
-  selectWallet = () => {
+  handleOnSelectWallet = () => {
     this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelectValueChanged });
   };
 
-  onViewAllWalletsSwitchValueChanged = async value => {
+  handleOnViewAllWalletsSwitchValueChanged = async value => {
     await OnAppLaunch.setViewAllWalletsEnabled(value);
     if (value) {
       return this.setState({ viewAllWalletsEnabled: true, defaultWalletLabel: '' });
@@ -56,13 +56,13 @@ export default class DefaultView extends Component {
             switchButton
             swithchEnabled={BlueApp.getWallets().length > 0}
             switched={this.state.viewAllWalletsEnabled}
-            onSwitch={this.onViewAllWalletsSwitchValueChanged}
+            onSwitch={this.handleOnViewAllWalletsSwitchValueChanged}
           />
           {!this.state.viewAllWalletsEnabled && (
             <BlueListItem
               title="Default into"
               component={TouchableOpacity}
-              onPress={this.selectWallet}
+              onPress={this.handleOnSelectWallet}
               rightTitle={this.state.defaultWalletLabel}
             />
           )}

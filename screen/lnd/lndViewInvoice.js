@@ -15,7 +15,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const EV = require('../../events');
 const { width, height } = Dimensions.get('window');
@@ -38,7 +38,7 @@ export default class LNDViewInvoice extends Component {
       invoice,
       fromWallet,
       isLoading: typeof invoice === 'string',
-      addressText: typeof invoice === 'object' && invoice.hasOwnProperty('payment_request') ? invoice.payment_request : invoice,
+      addressText: typeof invoice === 'object' && invoice.payment_request ? invoice.payment_request : invoice,
       isFetchingInvoices: true,
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
@@ -101,7 +101,7 @@ export default class LNDViewInvoice extends Component {
     return true;
   };
 
-  onLayout = () => {
+  handleOnLayout = () => {
     const { height } = Dimensions.get('window');
     this.setState({ qrCodeHeight: height > width ? width - 20 : width / 2 });
   };
@@ -116,7 +116,6 @@ export default class LNDViewInvoice extends Component {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0;
       const invoiceExpiration = invoice.timestamp + invoice.expire_time;
-
       if (this.state.showPreimageQr) {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
@@ -211,6 +210,15 @@ export default class LNDViewInvoice extends Component {
       }
     }
     // Invoice has not expired, nor has it been paid for.
+    const invoiceDescription =
+      invoice.description && invoice.description.length > 0 ? (
+        <BlueText>
+          {loc.lndViewInvoice.for}
+          {invoice.description}
+        </BlueText>
+      ) : (
+        <></>
+      );
     return (
       <SafeBlueArea>
         <ScrollView>
@@ -221,7 +229,7 @@ export default class LNDViewInvoice extends Component {
               marginTop: 8,
               justifyContent: 'space-between',
             }}
-            onLayout={this.onLayout}
+            onLayout={this.handleOnLayout}
           >
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 }}>
               <QRCode
@@ -241,12 +249,8 @@ export default class LNDViewInvoice extends Component {
                 {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
               </BlueText>
             )}
-            {invoice && invoice.hasOwnProperty('description') && invoice.description.length > 0 && (
-              <BlueText>
-                {loc.lndViewInvoice.for} {invoice.description}
-              </BlueText>
-            )}
-            <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
+            {invoiceDescription}
+            <BlueCopyTextToClipboard text={invoice.payment_request} />
 
             <BlueButton
               icon={{
@@ -261,7 +265,7 @@ export default class LNDViewInvoice extends Component {
                 } else {
                   InteractionManager.runAfterInteractions(async () => {
                     this.qrCodeSVG.toDataURL(data => {
-                      let shareImageBase64 = {
+                      const shareImageBase64 = {
                         message: `lightning:${invoice.payment_request}`,
                         url: `data:image/png;base64,${data}`,
                       };

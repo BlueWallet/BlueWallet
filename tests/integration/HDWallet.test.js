@@ -3,9 +3,9 @@ import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBread
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
-let assert = require('assert');
+const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(() => {
@@ -40,9 +40,9 @@ it('can convert witness to address', () => {
 });
 
 it('can create a Segwit HD (BIP49)', async function() {
-  let mnemonic =
+  const mnemonic =
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd.setSecret(mnemonic);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
   assert.strictEqual('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
@@ -64,15 +64,15 @@ it('can create a Segwit HD (BIP49)', async function() {
   );
 
   // checking that internal pointer and async address getter return the same address
-  let freeAddress = await hd.getAddressAsync();
+  const freeAddress = await hd.getAddressAsync();
   assert.strictEqual(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
-  let freeChangeAddress = await hd.getChangeAddressAsync();
+  const freeChangeAddress = await hd.getChangeAddressAsync();
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), freeChangeAddress);
 });
 
 it('HD (BIP49) can work with a gap', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6XRzrn3HB1tjhhvrHbk1vnXCecZEdXohGzCk3GXwwbDoJ3VBzZ34jNGWbC6WrS7idXrYjjXEzcPDX5VqnHEnuNf5VAXgLfSaytMkJ2rwVqy'; // has gap
   await hd.fetchBalance();
 
@@ -89,7 +89,7 @@ it('HD (BIP49) can work with a gap', async function() {
 
 it('Segwit HD (BIP49) can batch fetch many txs', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
   await hd.fetchBalance();
   await hd.fetchTransactions();
@@ -98,7 +98,7 @@ it('Segwit HD (BIP49) can batch fetch many txs', async function() {
 
 it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
   hd.next_free_change_address_index = 40;
   hd.next_free_address_index = 50;
@@ -108,8 +108,8 @@ it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagg
 });
 
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
-  let ypub = 'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp';
-  let hd = new HDSegwitP2SHWallet();
+  const ypub = 'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp';
+  const hd = new HDSegwitP2SHWallet();
   hd._xpub = ypub;
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
   assert.strictEqual('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
@@ -117,11 +117,11 @@ it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
 });
 
 it('can generate Segwit HD (BIP49)', async () => {
-  let hd = new HDSegwitP2SHWallet();
-  let hashmap = {};
+  const hd = new HDSegwitP2SHWallet();
+  const hashmap = {};
   for (let c = 0; c < 1000; c++) {
     await hd.generate();
-    let secret = hd.getSecret();
+    const secret = hd.getSecret();
     if (hashmap[secret]) {
       throw new Error('Duplicate secret generated!');
     }
@@ -129,7 +129,7 @@ it('can generate Segwit HD (BIP49)', async () => {
     assert.ok(secret.split(' ').length === 12 || secret.split(' ').length === 24);
   }
 
-  let hd2 = new HDSegwitP2SHWallet();
+  const hd2 = new HDSegwitP2SHWallet();
   hd2.setSecret(hd.getSecret());
   assert.ok(hd2.validateMnemonic());
 });
@@ -139,7 +139,7 @@ it('HD (BIP49) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC_BIP49 not set, skipped');
     return;
   }
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49);
   assert.ok(hd.validateMnemonic());
 
@@ -159,7 +159,7 @@ it('HD (BIP49) can create TX', async () => {
   assert.strictEqual(tx.outs[0].value, 500);
   assert.strictEqual(tx.outs[1].value, 25400);
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
-  let changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
+  const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 
@@ -210,7 +210,7 @@ it('HD (BIP49) can create TX', async () => {
 });
 
 it('Segwit HD (BIP49) can fetch UTXO', async function() {
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
   assert.ok(hd.utxo.length >= 12);
@@ -230,12 +230,12 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
     return;
   }
 
-  let hd = new HDSegwitP2SHWallet();
+  const hd = new HDSegwitP2SHWallet();
   hd.setSecret(process.env.HD_MNEMONIC_BIP49_MANY_TX);
   assert.ok(hd.validateMnemonic());
-  let start = +new Date();
+  const start = +new Date();
   await hd.fetchBalance();
-  let end = +new Date();
+  const end = +new Date();
   const took = (end - start) / 1000;
   took > 15 && console.warn('took', took, "sec to fetch huge HD wallet's balance");
   assert.strictEqual(hd.getBalance(), 51432);
@@ -255,7 +255,7 @@ it('can work with malformed mnemonic', () => {
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
   let hd = new HDSegwitP2SHWallet();
   hd.setSecret(mnemonic);
-  let seed1 = hd.getMnemonicToSeedHex();
+  const seed1 = hd.getMnemonicToSeedHex();
   assert.ok(hd.validateMnemonic());
 
   mnemonic = 'hell';
@@ -269,7 +269,7 @@ it('can work with malformed mnemonic', () => {
     '    honey  risk   juice    trip     orient      galaxy win !situate ;; shoot   ;;;   anchor Bounce remind\nhorse \n traffic exotic since escape mimic ramp skin judge owner topple erode ';
   hd = new HDSegwitP2SHWallet();
   hd.setSecret(mnemonic);
-  let seed2 = hd.getMnemonicToSeedHex();
+  const seed2 = hd.getMnemonicToSeedHex();
   assert.strictEqual(seed1, seed2);
   assert.ok(hd.validateMnemonic());
 });
@@ -280,8 +280,8 @@ it('can create a Legacy HD (BIP44)', async function() {
     return;
   }
 
-  let mnemonic = process.env.HD_MNEMONIC_BREAD;
-  let hd = new HDLegacyP2PKHWallet();
+  const mnemonic = process.env.HD_MNEMONIC_BREAD;
+  const hd = new HDLegacyP2PKHWallet();
   hd.setSecret(mnemonic);
   assert.strictEqual(hd.validateMnemonic(), true);
   assert.strictEqual(hd._getExternalAddressByIndex(0), '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
@@ -306,18 +306,18 @@ it('can create a Legacy HD (BIP44)', async function() {
   assert.strictEqual(hd.next_free_address_index, 1);
   assert.strictEqual(hd.next_free_change_address_index, 1);
 
-  for (let tx of hd.getTransactions()) {
+  for (const tx of hd.getTransactions()) {
     assert.ok(tx.value === 1000 || tx.value === 1377 || tx.value === -1377 || tx.value === -1000);
   }
 
   // checking that internal pointer and async address getter return the same address
-  let freeAddress = await hd.getAddressAsync();
+  const freeAddress = await hd.getAddressAsync();
   assert.strictEqual(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
 });
 
 it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
-  let xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
-  let hd = new HDLegacyP2PKHWallet();
+  const xpub = 'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
+  const hd = new HDLegacyP2PKHWallet();
   hd._xpub = xpub;
   assert.strictEqual(hd._getExternalAddressByIndex(0), '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
   assert.strictEqual(hd._getInternalAddressByIndex(0), '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX');
@@ -330,7 +330,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  let hd = new HDLegacyP2PKHWallet();
+  const hd = new HDLegacyP2PKHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
 
@@ -349,8 +349,8 @@ it('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.outs.length, 2);
   assert.strictEqual(tx.outs[0].value, 80000); // payee
   assert.strictEqual(tx.outs[1].value, 19500); // change
-  let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
-  let changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
+  const toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
+  const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 
@@ -365,7 +365,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
 });
 
 it('Legacy HD (BIP44) can fetch UTXO', async function() {
-  let hd = new HDLegacyP2PKHWallet();
+  const hd = new HDLegacyP2PKHWallet();
   hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
   await hd.fetchUtxo();
   assert.ok(hd.utxo.length >= 12);
@@ -385,7 +385,7 @@ it('HD breadwallet works', async function() {
     return;
   }
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
-  let hdBread = new HDLegacyBreadwalletWallet();
+  const hdBread = new HDLegacyBreadwalletWallet();
   hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
 
   assert.strictEqual(hdBread.validateMnemonic(), true);
@@ -403,7 +403,7 @@ it('HD breadwallet works', async function() {
   await hdBread.fetchTransactions();
   assert.ok(hdBread._lastTxFetch > 0);
   assert.strictEqual(hdBread.transactions.length, 177);
-  for (let tx of hdBread.getTransactions()) {
+  for (const tx of hdBread.getTransactions()) {
     assert.ok(tx.confirmations);
   }
 
@@ -411,7 +411,7 @@ it('HD breadwallet works', async function() {
   assert.strictEqual(hdBread.next_free_change_address_index, 118);
 
   // checking that internal pointer and async address getter return the same address
-  let freeAddress = await hdBread.getAddressAsync();
+  const freeAddress = await hdBread.getAddressAsync();
   assert.strictEqual(hdBread._getExternalAddressByIndex(hdBread.next_free_address_index), freeAddress);
 });
 
@@ -465,7 +465,7 @@ it('can convert blockchain.info TX to blockcypher TX format', () => {
       },
     ],
   };
-  let blockcyphertx = HDSegwitP2SHWallet.convertTx(blockchaininfotx);
+  const blockcyphertx = HDSegwitP2SHWallet.convertTx(blockchaininfotx);
   assert.ok(blockcyphertx.received); // time
   assert.ok(blockcyphertx.hash);
   assert.ok(blockcyphertx.value);

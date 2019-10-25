@@ -2,9 +2,9 @@ import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from './class';
 import { FiatUnit } from './models/fiatUnit';
-let BigNumber = require('bignumber.js');
+const BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
-let exchangeRates = {};
+const exchangeRates = {};
 
 const STRUCT = {
   LAST_UPDATED: 'LAST_UPDATED',
@@ -41,7 +41,7 @@ async function updateExchangeRate() {
     const api = new Frisbee({
       baseURI: 'https://api.coindesk.com',
     });
-    let response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
+    const response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
     json = JSON.parse(response.body);
     if (!json || !json.bpi || !json.bpi[preferredFiatCurrency.endPointKey] || !json.bpi[preferredFiatCurrency.endPointKey].rate_float) {
       throw new Error('Could not update currency rate: ' + response.err);

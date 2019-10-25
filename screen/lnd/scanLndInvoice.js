@@ -17,8 +17,8 @@ import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let EV = require('../../events');
+const BlueApp = require('../../BlueApp');
+const EV = require('../../events');
 const loc = require('../../loc');
 
 export default class ScanLndInvoice extends React.Component {
@@ -54,7 +54,7 @@ export default class ScanLndInvoice extends React.Component {
         }
       }
 
-      for (let w of BlueApp.getWallets()) {
+      for (const w of BlueApp.getWallets()) {
         if (w.getSecret() === fromSecret) {
           fromWallet = w;
           break;
@@ -90,7 +90,7 @@ export default class ScanLndInvoice extends React.Component {
     this.setState({ renderWalletSelectionButtonHidden: false });
   };
 
-  processInvoice = data => {
+  handleProcessInvoice = data => {
     this.setState({ isLoading: true }, async () => {
       if (!this.state.fromWallet) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -99,7 +99,7 @@ export default class ScanLndInvoice extends React.Component {
       }
 
       // handling BIP21 w/BOLT11 support
-      let ind = data.indexOf('lightning=');
+      const ind = data.indexOf('lightning=');
       if (ind !== -1) {
         data = data.substring(ind + 10).split('&')[0];
       }
@@ -110,7 +110,7 @@ export default class ScanLndInvoice extends React.Component {
       /**
        * @type {LightningCustodianWallet}
        */
-      let w = this.state.fromWallet;
+      const w = this.state.fromWallet;
       let decoded;
       try {
         decoded = await w.decodeInvoice(data);
@@ -140,7 +140,7 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   async pay() {
-    if (!this.state.hasOwnProperty('decoded')) {
+    if (!this.state.decoded) {
       return null;
     }
 
@@ -157,12 +157,12 @@ export default class ScanLndInvoice extends React.Component {
         isLoading: true,
       },
       async () => {
-        let decoded = this.state.decoded;
+        const decoded = this.state.decoded;
 
         /** @type {LightningCustodianWallet} */
-        let fromWallet = this.state.fromWallet;
+        const fromWallet = this.state.fromWallet;
 
-        let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+        const expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
           this.setState({ isLoading: false });
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -197,7 +197,7 @@ export default class ScanLndInvoice extends React.Component {
 
   processTextForInvoice = text => {
     if (text.toLowerCase().startsWith('lnb') || text.toLowerCase().startsWith('lightning:lnb')) {
-      this.processInvoice(text);
+      this.handleProcessInvoice(text);
     } else {
       this.setState({ decoded: undefined, expiresIn: undefined, destination: text });
     }
@@ -207,7 +207,7 @@ export default class ScanLndInvoice extends React.Component {
     if (typeof this.state.decoded !== 'object') {
       return true;
     } else {
-      if (!this.state.decoded.hasOwnProperty('num_satoshis')) {
+      if (!this.state.decoded.num_satoshis) {
         return true;
       }
     }
@@ -221,8 +221,9 @@ export default class ScanLndInvoice extends React.Component {
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
-            onPress={() =>
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+            onPress={
+              () => this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+              // eslint-disable-next-line react/jsx-curly-newline
             }
           >
             <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
@@ -232,8 +233,9 @@ export default class ScanLndInvoice extends React.Component {
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
-            onPress={() =>
-              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+            onPress={
+              () => this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+              // eslint-disable-next-line react/jsx-curly-newline
             }
           >
             <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
@@ -255,9 +257,13 @@ export default class ScanLndInvoice extends React.Component {
     });
   };
 
+  handleKeyboardDismiss = () => {
+    Keyboard.dismiss();
+  };
+
   render() {
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <TouchableWithoutFeedback onPress={this.handleKeyboardDismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
@@ -269,7 +275,7 @@ export default class ScanLndInvoice extends React.Component {
                   onChangeText={text => {
                     if (typeof this.state.decoded === 'object') {
                       text = parseInt(text || 0);
-                      let decoded = this.state.decoded;
+                      const decoded = this.state.decoded;
                       decoded.num_satoshis = text;
                       this.setState({ decoded: decoded });
                     }
@@ -286,7 +292,7 @@ export default class ScanLndInvoice extends React.Component {
                     this.setState({ destination: text });
                     this.processTextForInvoice(text);
                   }}
-                  onBarScanned={this.processInvoice}
+                  onBarScanned={this.handleProcessInvoice}
                   address={this.state.destination}
                   isLoading={this.state.isLoading}
                   placeholder={loc.lnd.placeholder}
@@ -302,7 +308,7 @@ export default class ScanLndInvoice extends React.Component {
                   }}
                 >
                   <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
-                    {this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.description : ''}
+                    {this.state.decoded !== undefined ? this.state.decoded.description : ''}
                   </Text>
                 </View>
                 {this.state.expiresIn !== undefined && (
@@ -316,7 +322,7 @@ export default class ScanLndInvoice extends React.Component {
                     </View>
                   ) : (
                     <BlueButton
-                      title={'Pay'}
+                      title="Pay"
                       onPress={() => {
                         this.pay();
                       }}

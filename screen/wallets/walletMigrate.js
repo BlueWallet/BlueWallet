@@ -49,12 +49,12 @@ export default class WalletMigrate {
           if (file.name === 'manifest.json') {
             const manifestFile = await RNFS.readFile(file.path);
             const manifestFileParsed = JSON.parse(manifestFile);
-            if (manifestFileParsed.hasOwnProperty('data')) {
+            if (manifestFileParsed.data) {
               if (typeof manifestFileParsed.data === 'string') {
                 await AsyncStorage.setItem('data', manifestFileParsed.data);
               }
             }
-            if (manifestFileParsed.hasOwnProperty('data_encrypted')) {
+            if (manifestFileParsed.data_encrypted) {
               if (typeof manifestFileParsed.data_encrypted === 'string') {
                 await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
               }

@@ -25,7 +25,7 @@ const req = https.request(
     resp.on('end', () => {
       try {
         const prs = JSON.parse(data);
-        for (let pr of prs) {
+        for (const pr of prs) {
           if (branch === pr.head.ref) {
             console.log(pr.number);
           }

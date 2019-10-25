@@ -3,8 +3,8 @@ import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -15,8 +15,8 @@ export default class BuyBitcoin extends Component {
 
   constructor(props) {
     super(props);
-    let address = props.navigation.state.params.address;
-    let secret = props.navigation.state.params.secret;
+    const address = props.navigation.state.params.address;
+    const secret = props.navigation.state.params.secret;
 
     this.state = {
       isLoading: true,
@@ -32,7 +32,7 @@ export default class BuyBitcoin extends Component {
     /**  @type {AbstractWallet}   */
     let wallet;
     let address = this.state.address;
-    for (let w of BlueApp.getWallets()) {
+    for (const w of BlueApp.getWallets()) {
       if ((address && w.getAddress() === this.state.address) || w.getSecret() === this.state.secret) {
         // found our wallet
         wallet = w;

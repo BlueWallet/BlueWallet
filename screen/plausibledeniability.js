@@ -4,10 +4,10 @@ import { ScrollView } from 'react-native';
 import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
-let BlueApp = require('../BlueApp');
-let prompt = require('../prompt');
-let EV = require('../events');
-let loc = require('../loc');
+const BlueApp = require('../BlueApp');
+const prompt = require('../prompt');
+const EV = require('../events');
+const loc = require('../loc');
 
 export default class PlausibleDeniability extends Component {
   static navigationOptions = {
@@ -53,7 +53,7 @@ export default class PlausibleDeniability extends Component {
               }}
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
-                let p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
+                const p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
                 if (p1 === BlueApp.cachedPassword) {
                   return alert(loc.plausibledeniability.password_should_not_match);
                 }
@@ -62,7 +62,7 @@ export default class PlausibleDeniability extends Component {
                   return;
                 }
 
-                let p2 = await prompt(loc.plausibledeniability.retype_password);
+                const p2 = await prompt(loc.plausibledeniability.retype_password);
                 if (p1 !== p2) {
                   return alert(loc.plausibledeniability.passwords_do_not_match);
                 }

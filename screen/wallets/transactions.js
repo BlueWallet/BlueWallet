@@ -32,10 +32,10 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
-let EV = require('../../events');
-let BlueElectrum = require('../../BlueElectrum');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
+const EV = require('../../events');
+const BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -44,10 +44,12 @@ export default class WalletTransactions extends Component {
         <TouchableOpacity
           disabled={navigation.getParam('isLoading') === true}
           style={{ marginHorizontal: 16, minWidth: 150, justifyContent: 'center', alignItems: 'flex-end' }}
-          onPress={() =>
-            navigation.navigate('WalletDetails', {
-              wallet: navigation.state.params.wallet,
-            })
+          onPress={
+            () =>
+              navigation.navigate('WalletDetails', {
+                wallet: navigation.state.params.wallet,
+              })
+            // eslint-disable-next-line react/jsx-curly-newline
           }
         >
           <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
@@ -91,7 +93,7 @@ export default class WalletTransactions extends Component {
    * Forcefully fetches TXs and balance for wallet
    */
   refreshTransactionsFunction() {
-    let that = this;
+    const that = this;
     setTimeout(function() {
       that.refreshTransactions();
     }, 4000); // giving a chance to remote server to propagate
@@ -105,9 +107,9 @@ export default class WalletTransactions extends Component {
    * @returns {Array}
    */
   getTransactions(limit = Infinity) {
-    let wallet = this.props.navigation.getParam('wallet');
+    const wallet = this.props.navigation.getParam('wallet');
     let txs = wallet.getTransactions();
-    for (let tx of txs) {
+    for (const tx of txs) {
       tx.sort_ts = +new Date(tx.received);
     }
     txs = txs.sort(function(a, b) {
@@ -129,7 +131,7 @@ export default class WalletTransactions extends Component {
   }
 
   isLightning() {
-    let w = this.state.wallet;
+    const w = this.state.wallet;
     if (w && w.type === LightningCustodianWallet.type) {
       return true;
     }
@@ -154,14 +156,14 @@ export default class WalletTransactions extends Component {
           await BlueElectrum.ping();
           await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
-          let wallet = this.state.wallet;
-          let balanceStart = +new Date();
+          const wallet = this.state.wallet;
+          const balanceStart = +new Date();
           const oldBalance = wallet.getBalance();
           await wallet.fetchBalance();
           if (oldBalance !== wallet.getBalance()) smthChanged = true;
-          let balanceEnd = +new Date();
+          const balanceEnd = +new Date();
           console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          let start = +new Date();
+          const start = +new Date();
           const oldTxLen = wallet.getTransactions().length;
           await wallet.fetchTransactions();
           if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
@@ -171,7 +173,7 @@ export default class WalletTransactions extends Component {
           if (wallet.fetchUserInvoices) {
             await wallet.fetchUserInvoices();
           }
-          let end = +new Date();
+          const end = +new Date();
           console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
         } catch (err) {
           noErr = false;
@@ -254,7 +256,7 @@ export default class WalletTransactions extends Component {
                   }),
                 );
               }}
-              title={'Refill with External Wallet'}
+              title="Refill with External Wallet"
             />
 
             <BlueListItem
@@ -304,7 +306,7 @@ export default class WalletTransactions extends Component {
               if (this.state.wallet.type === LightningCustodianWallet.type) {
                 Linking.openURL('https://bluewallet.io/marketplace/');
               } else {
-                let address = await this.state.wallet.getAddressAsync();
+                const address = await this.state.wallet.getAddressAsync();
                 Linking.openURL('https://bluewallet.io/marketplace-btc/?address=' + address);
               }
             }}
@@ -413,10 +415,12 @@ export default class WalletTransactions extends Component {
         />
         <BlueWalletNavigationHeader
           wallet={this.state.wallet}
-          onWalletUnitChange={wallet =>
-            InteractionManager.runAfterInteractions(async () => {
-              this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
-            })
+          onWalletUnitChange={
+            wallet =>
+              InteractionManager.runAfterInteractions(async () => {
+                this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
+              })
+            // eslint-disable-next-line react/jsx-curly-newline
           }
           onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
         />
@@ -487,11 +491,13 @@ export default class WalletTransactions extends Component {
                       textAlign: 'center',
                       textDecorationLine: 'underline',
                     }}
-                    onPress={() =>
-                      this.props.navigation.navigate('BuyBitcoin', {
-                        address: this.state.wallet.getAddress(),
-                        secret: this.state.wallet.getSecret(),
-                      })
+                    onPress={
+                      () =>
+                        this.props.navigation.navigate('BuyBitcoin', {
+                          address: this.state.wallet.getAddress(),
+                          secret: this.state.wallet.getSecret(),
+                        })
+                      // eslint-disable-next-line react/jsx-curly-newline
                     }
                   >
                     {loc.wallets.list.tap_here_to_buy}

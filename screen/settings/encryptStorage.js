@@ -5,9 +5,9 @@ import { FormValidationMessage } from 'react-native-elements';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let prompt = require('../../prompt');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const prompt = require('../../prompt');
+const loc = require('../../loc');
 
 export default class EncryptStorage extends Component {
   static navigationOptions = () => ({
@@ -71,7 +71,7 @@ export default class EncryptStorage extends Component {
                         this.setState({ isLoading: false });
                         return;
                       }
-                      let p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+                      const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
                         this.setState({ isLoading: false });
                       });
                       if (p1 === p2) {

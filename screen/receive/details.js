@@ -17,8 +17,8 @@ import Share from 'react-native-share';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -29,7 +29,7 @@ export default class ReceiveDetails extends Component {
 
   constructor(props) {
     super(props);
-    let secret = props.navigation.state.params.secret || '';
+    const secret = props.navigation.state.params.secret || '';
 
     this.state = {
       secret: secret,
@@ -45,7 +45,7 @@ export default class ReceiveDetails extends Component {
     {
       let address;
       let wallet;
-      for (let w of BlueApp.getWallets()) {
+      for (const w of BlueApp.getWallets()) {
         if (w.getSecret() === this.state.secret) {
           // found our wallet
           wallet = w;
@@ -121,7 +121,7 @@ export default class ReceiveDetails extends Component {
                 logoSize={90}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
-                ecl={'H'}
+                ecl="H"
                 getRef={c => (this.qrCodeSVG = c)}
               />
             )}
@@ -149,7 +149,7 @@ export default class ReceiveDetails extends Component {
                   } else {
                     InteractionManager.runAfterInteractions(async () => {
                       this.qrCodeSVG.toDataURL(data => {
-                        let shareImageBase64 = {
+                        const shareImageBase64 = {
                           message: `bitcoin:${this.state.address}`,
                           url: `data:image/png;base64,${data}`,
                         };

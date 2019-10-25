@@ -7,12 +7,12 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import WalletGradient from '../../class/walletGradient';
 import OnAppLaunch from '../../class/onAppLaunch';
-let EV = require('../../events');
-let A = require('../../analytics');
+const EV = require('../../events');
+const A = require('../../analytics');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
-let BlueElectrum = require('../../BlueElectrum');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
+const BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -61,13 +61,13 @@ export default class WalletsList extends Component {
       let noErr = true;
       try {
         await BlueElectrum.waitTillConnected();
-        let balanceStart = +new Date();
+        const balanceStart = +new Date();
         await BlueApp.fetchWalletBalances();
-        let balanceEnd = +new Date();
+        const balanceEnd = +new Date();
         console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
-        let start = +new Date();
+        const start = +new Date();
         await BlueApp.fetchWalletTransactions();
-        let end = +new Date();
+        const end = +new Date();
         console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
       } catch (_) {
         noErr = false;
@@ -96,13 +96,13 @@ export default class WalletsList extends Component {
           try {
             await BlueElectrum.ping();
             await BlueElectrum.waitTillConnected();
-            let balanceStart = +new Date();
+            const balanceStart = +new Date();
             await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
-            let balanceEnd = +new Date();
+            const balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-            let start = +new Date();
+            const start = +new Date();
             await BlueApp.fetchWalletTransactions(this.lastSnappedTo || 0);
-            let end = +new Date();
+            const end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
             noErr = false;
@@ -131,15 +131,15 @@ export default class WalletsList extends Component {
   }
 
   txMemo(hash) {
-    if (BlueApp.tx_metadata[hash] && BlueApp.tx_metadata[hash]['memo']) {
-      return BlueApp.tx_metadata[hash]['memo'];
+    if (BlueApp.tx_metadata[hash] && BlueApp.tx_metadata[hash].memo) {
+      return BlueApp.tx_metadata[hash].memo;
     }
     return '';
   }
 
   handleClick(index) {
     console.log('click', index);
-    let wallet = BlueApp.wallets[index];
+    const wallet = BlueApp.wallets[index];
     if (wallet) {
       this.props.navigation.navigate('WalletTransactions', {
         wallet: wallet,
@@ -172,12 +172,12 @@ export default class WalletsList extends Component {
    */
   async lazyRefreshWallet(index) {
     /** @type {Array.<AbstractWallet>} wallets */
-    let wallets = BlueApp.getWallets();
+    const wallets = BlueApp.getWallets();
     if (!wallets[index]) {
       return;
     }
 
-    let oldBalance = wallets[index].getBalance();
+    const oldBalance = wallets[index].getBalance();
     let noErr = true;
     let didRefresh = false;
 
@@ -237,7 +237,7 @@ export default class WalletsList extends Component {
     );
   };
 
-  handleLongPress = () => {
+  onLongPress = () => {
     if (BlueApp.getWallets().length > 1) {
       this.props.navigation.navigate('ReorderWallets');
     } else {
@@ -248,6 +248,7 @@ export default class WalletsList extends Component {
   _renderItem = data => {
     return <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
   };
+
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
@@ -270,7 +271,7 @@ export default class WalletsList extends Component {
             handleClick={index => {
               this.handleClick(index);
             }}
-            handleLongPress={this.handleLongPress}
+            handleLongPress={this.onLongPress}
             onSnapToItem={index => {
               this.onSnapToItem(index);
             }}

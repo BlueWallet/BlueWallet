@@ -11,7 +11,7 @@ let lastTimeTriedToPay = 0;
 /// ///////////////////////////////////////////////////////////////////////
 // this code has no use in RN, it gets copypasted in webview injected code
 //
-let bluewalletResponses = {};
+const bluewalletResponses = {};
 // eslint-disable-next-line
 var webln = {
   enable: function() {
@@ -239,14 +239,14 @@ export default class Browser extends Component {
     return true;
   }
 
-  _onNavigationStateChange = webViewState => {
+  handleOnNavigationStateChange = webViewState => {
     this.setState({ canGoBack: webViewState.canGoBack, stateURL: webViewState.url });
   };
 
   renderWebView = () => {
     return (
       <WebView
-        onNavigationStateChange={this._onNavigationStateChange}
+        onNavigationStateChange={this.handleOnNavigationStateChange}
         ref={ref => (this.webview = ref)}
         source={{ uri: this.state.url }}
         onMessage={e => {
@@ -295,7 +295,7 @@ export default class Browser extends Component {
           }
 
           if (json && json.makeInvoice) {
-            let amount = Math.max(
+            const amount = Math.max(
               json.makeInvoice.minimumAmount || 0,
               json.makeInvoice.maximumAmount || 0,
               json.makeInvoice.defaultAmount || 0,
@@ -315,7 +315,7 @@ export default class Browser extends Component {
                     // this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
                     // Since webview.postMessage is removed from webview, we inject javascript that will manually triger document
                     // event; note how data is passed in 'detail', not 'data'
-                    let jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
+                    const jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
                     this.webview.injectJavaScript("document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );");
                   },
                 },
@@ -362,7 +362,7 @@ export default class Browser extends Component {
             style={{ marginHorizontal: 8 }}
           >
             <Ionicons
-              name={'ios-arrow-round-back'}
+              name="ios-arrow-round-back"
               size={36}
               style={{
                 color: this.state.canGoBack ? 'red' : 'gray',
@@ -410,7 +410,7 @@ export default class Browser extends Component {
                 }}
               >
                 <Ionicons
-                  name={'ios-home'}
+                  name="ios-home"
                   size={36}
                   style={{
                     color: this.state.weblnEnabled ? 'green' : 'red',
@@ -422,7 +422,7 @@ export default class Browser extends Component {
 
             <TouchableOpacity
               onPress={() => {
-                let reloadUrl = this.state.url;
+                const reloadUrl = this.state.url;
                 this.setState({ url: 'about:blank' });
                 processedInvoices = {};
                 setTimeout(() => this.setState({ url: reloadUrl }), 500);
@@ -431,7 +431,7 @@ export default class Browser extends Component {
             >
               {!this.state.pageIsLoading ? (
                 <Ionicons
-                  name={'ios-sync'}
+                  name="ios-sync"
                   size={36}
                   style={{
                     color: 'red',

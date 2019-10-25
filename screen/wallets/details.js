@@ -20,11 +20,11 @@ import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
-let EV = require('../../events');
-let prompt = require('../../prompt');
+const EV = require('../../events');
+const prompt = require('../../prompt');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export default class WalletDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -105,11 +105,15 @@ export default class WalletDetails extends Component {
 
   async onUseWithHardwareWalletSwitch(value) {
     this.setState((state, props) => {
-      let wallet = state.wallet;
+      const wallet = state.wallet;
       wallet.use_with_hardware_wallet = !!value;
       return { useWithHardwareWallet: !!value, wallet };
     });
   }
+
+  handleKeyboardDismiss = () => {
+    Keyboard.dismiss();
+  };
 
   render() {
     if (this.state.isLoading) {
@@ -121,18 +125,18 @@ export default class WalletDetails extends Component {
     }
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback onPress={this.handleKeyboardDismiss} accessible={false}>
           <View style={{ flex: 1 }}>
             <BlueCard style={{ alignItems: 'center', flex: 1 }}>
               {(() => {
                 if (this.state.wallet.getAddress()) {
                   return (
-                    <React.Fragment>
+                    <>
                       <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
                         {loc.wallets.details.address.toLowerCase()}
                       </Text>
                       <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getAddress()}</Text>
-                    </React.Fragment>
+                    </>
                   );
                 }
               })()}
@@ -170,30 +174,32 @@ export default class WalletDetails extends Component {
               </Text>
               <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
               {this.state.wallet.type === LightningCustodianWallet.type && (
-                <React.Fragment>
-                  <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{'connected to'}</Text>
+                <>
+                  <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>connected to</Text>
                   <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
-                </React.Fragment>
+                </>
               )}
               <View>
                 <BlueSpacing20 />
 
                 {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
-                  <React.Fragment>
+                  <>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <BlueText>{'Use with hardware wallet'}</BlueText>
+                      <BlueText>Use with hardware wallet</BlueText>
                       <Switch value={this.state.useWithHardwareWallet} onValueChange={value => this.onUseWithHardwareWalletSwitch(value)} />
                     </View>
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 )}
 
                 <BlueButton
-                  onPress={() =>
-                    this.props.navigation.navigate('WalletExport', {
-                      address: this.state.wallet.getAddress(),
-                      secret: this.state.wallet.getSecret(),
-                    })
+                  onPress={
+                    () =>
+                      this.props.navigation.navigate('WalletExport', {
+                        address: this.state.wallet.getAddress(),
+                        secret: this.state.wallet.getSecret(),
+                      })
+                    // eslint-disable-next-line react/jsx-curly-newline
                   }
                   title={loc.wallets.details.export_backup}
                 />
@@ -204,18 +210,20 @@ export default class WalletDetails extends Component {
                   this.state.wallet.type === HDLegacyP2PKHWallet.type ||
                   this.state.wallet.type === HDSegwitBech32Wallet.type ||
                   this.state.wallet.type === HDSegwitP2SHWallet.type) && (
-                  <React.Fragment>
+                  // eslint-disable-next-line react/jsx-indent
+                  <>
                     <BlueButton
-                      onPress={() =>
-                        this.props.navigation.navigate('WalletXpub', {
-                          secret: this.state.wallet.getSecret(),
-                        })
+                      onPress={
+                        () =>
+                          this.props.navigation.navigate('WalletXpub', {
+                            secret: this.state.wallet.getSecret(),
+                          })
+                        // eslint-disable-next-line react/jsx-curly-newline
                       }
                       title={loc.wallets.details.show_xpub}
                     />
-
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 )}
 
                 {this.state.wallet.type !== LightningCustodianWallet.type && (
@@ -225,11 +233,13 @@ export default class WalletDetails extends Component {
                       type: 'font-awesome',
                       color: BlueApp.settings.buttonTextColor,
                     }}
-                    onPress={() =>
-                      this.props.navigation.navigate('BuyBitcoin', {
-                        address: this.state.wallet.getAddress(),
-                        secret: this.state.wallet.getSecret(),
-                      })
+                    onPress={
+                      () =>
+                        this.props.navigation.navigate('BuyBitcoin', {
+                          address: this.state.wallet.getAddress(),
+                          secret: this.state.wallet.getSecret(),
+                        })
+                      // eslint-disable-next-line react/jsx-curly-newline
                     }
                     title={loc.wallets.details.buy_bitcoin}
                   />

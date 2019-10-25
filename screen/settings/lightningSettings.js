@@ -8,8 +8,8 @@ import PropTypes from 'prop-types';
 import { Button } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export default class LightningSettings extends Component {
   static navigationOptions = () => ({
@@ -25,7 +25,7 @@ export default class LightningSettings extends Component {
   }
 
   async componentDidMount() {
-    let URI = await AsyncStorage.getItem(AppStorage.LNDHUB);
+    const URI = await AsyncStorage.getItem(AppStorage.LNDHUB);
 
     this.setState({
       isLoading: false,
@@ -33,7 +33,7 @@ export default class LightningSettings extends Component {
     });
   }
 
-  save = () => {
+  handleOnSave = () => {
     this.setState({ isLoading: true }, async () => {
       this.state.URI = this.state.URI ? this.state.URI : '';
       try {
@@ -102,7 +102,7 @@ export default class LightningSettings extends Component {
           </View>
 
           <BlueSpacing20 />
-          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
+          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.handleOnSave} title={loc.settings.save} />}
         </BlueCard>
       </SafeBlueArea>
     );

@@ -80,10 +80,14 @@ export default class SendCreate extends Component {
     return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, marginVertical: 16 }} />;
   };
 
+  handleKeyboardDismiss = () => {
+    Keyboard.dismiss();
+  };
+
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <TouchableWithoutFeedback onPress={this.handleKeyboardDismiss} accessible={false}>
           <ScrollView>
             <BlueCard style={{ alignItems: 'center', flex: 1 }}>
               <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>

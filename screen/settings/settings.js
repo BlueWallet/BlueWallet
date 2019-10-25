@@ -14,7 +14,7 @@ import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
 import Biometric from '../../class/biometrics';
 const BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const loc = require('../../loc');
 
 export default class Settings extends Component {
   static navigationOptions = {
@@ -51,8 +51,8 @@ export default class Settings extends Component {
     this.setState({ advancedModeEnabled: value });
   }
 
-  onUseBiometricSwitch = async value => {
-    let isBiometricsEnabled = this.state.biometrics;
+  handleOnUseBiometricSwitch = async value => {
+    const isBiometricsEnabled = this.state.biometrics;
     if (await Biometric.unlockWithBiometrics()) {
       isBiometricsEnabled.isBiometricsEnabled = value;
       await Biometric.setBiometricUseEnabled(value);
@@ -80,7 +80,7 @@ export default class Settings extends Component {
               hideChevron
               title={`Use ${this.state.biometrics.biometricsType}`}
               switchButton
-              onSwitch={this.onUseBiometricSwitch}
+              onSwitch={this.handleOnUseBiometricSwitch}
               switched={this.state.biometrics.isBiometricsEnabled}
             />
           )}
@@ -94,7 +94,7 @@ export default class Settings extends Component {
             <BlueListItem title={loc.settings.currency} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.props.navigation.navigate('ElectrumSettings')}>
-            <BlueListItem title={'Electrum server'} />
+            <BlueListItem title="Electrum server" />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => this.setState({ showAdvancedOptions: !this.state.showAdvancedOptions })}>
             <BlueListItem title={loc.settings.advanced_options} />

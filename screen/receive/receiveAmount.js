@@ -14,8 +14,8 @@ import {
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 export default class ReceiveAmount extends Component {
@@ -37,7 +37,7 @@ export default class ReceiveAmount extends Component {
 
   constructor(props) {
     super(props);
-    let address = props.navigation.state.params.address;
+    const address = props.navigation.state.params.address;
 
     this.state = {
       address: address,
@@ -120,7 +120,7 @@ export default class ReceiveAmount extends Component {
             logoSize={90}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'Q'}
+            ecl="Q"
           />
         </View>
         <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>

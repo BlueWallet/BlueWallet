@@ -84,11 +84,11 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   }
 
   createTx(utxos, amount, fee, address) {
-    for (let utxo of utxos) {
+    for (const utxo of utxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+    const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
     return signer.createHDTransaction(
       utxos,
       address,

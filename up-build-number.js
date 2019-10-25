@@ -1,4 +1,4 @@
-let fs = require('fs');
+const fs = require('fs');
 var appjson = require('./app.json');
 appjson.expo.ios.buildNumber++;
 appjson.expo.ios.buildNumber = appjson.expo.ios.buildNumber + ''; // casting to string

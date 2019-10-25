@@ -1,18 +1,15 @@
 import * as Watch from 'react-native-watch-connectivity';
-import { InteractionManager, Platform } from 'react-native';
+import { InteractionManager } from 'react-native';
 const loc = require('./loc');
 export default class WatchConnectivity {
   isAppInstalled = false;
   BlueApp = require('./BlueApp');
 
   constructor() {
-    if (Platform.OS === 'ios') {
-      this.getIsWatchAppInstalled();
-    }
+    this.getIsWatchAppInstalled();
   }
 
   getIsWatchAppInstalled() {
-    if (Platform.OS !== 'ios') return;
     Watch.getIsWatchAppInstalled((err, isAppInstalled) => {
       if (!err) {
         this.isAppInstalled = isAppInstalled;
@@ -48,29 +45,36 @@ export default class WatchConnectivity {
   }
 
   async sendWalletsToWatch() {
-    if (Platform.OS !== 'ios') return;
     InteractionManager.runAfterInteractions(async () => {
       if (this.isAppInstalled) {
         const allWallets = this.BlueApp.getWallets();
-        let wallets = [];
+        const wallets = [];
         for (const wallet of allWallets) {
           let receiveAddress = '';
           if (wallet.allowReceive()) {
             if (wallet.getAddressAsync) {
               await wallet.getAddressAsync();
-              receiveAddress = wallet.getAddress();
+              const address = wallet.getAddress();
+              if (address.length === 0) {
+                receiveAddress = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+              } else {
+                receiveAddress = address;
+              }
             } else {
               receiveAddress = wallet.getAddress();
             }
           }
-          let transactions = wallet.getTransactions(10);
-          let watchTransactions = [];
+          if (receiveAddress.length === 0) {
+            continue;
+          }
+          const transactions = wallet.getTransactions(10);
+          const watchTransactions = [];
           for (const transaction of transactions) {
             let type = 'pendingConfirmation';
             let memo = '';
             let amount = 0;
 
-            if (transaction.hasOwnProperty('confirmations') && !transaction.confirmations > 0) {
+            if (transaction.confirmations && transaction.confirmations < 1) {
               type = 'pendingConfirmation';
             } else if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
               const currentDate = new Date();
@@ -113,8 +117,8 @@ export default class WatchConnectivity {
             } else {
               amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
             }
-            if (this.BlueApp.tx_metadata[transaction.hash] && this.BlueApp.tx_metadata[transaction.hash]['memo']) {
-              memo = this.BlueApp.tx_metadata[transaction.hash]['memo'];
+            if (this.BlueApp.tx_metadata[transaction.hash] && this.BlueApp.tx_metadata[transaction.hash].memo) {
+              memo = this.BlueApp.tx_metadata[transaction.hash].memo;
             } else if (transaction.memo) {
               memo = transaction.memo;
             }
@@ -138,6 +142,6 @@ export default class WatchConnectivity {
 }
 
 WatchConnectivity.init = function() {
-  if (WatchConnectivity.shared || Platform.OS !== 'ios') return;
+  if (WatchConnectivity.shared) return;
   WatchConnectivity.shared = new WatchConnectivity();
 };

@@ -37,7 +37,7 @@ export class LegacyWallet extends AbstractWallet {
    * @return {boolean}
    */
   timeToRefreshTransaction() {
-    for (let tx of this.transactions) {
+    for (const tx of this.transactions) {
       if (tx.confirmations < 7) {
         return true;
       }
@@ -46,7 +46,7 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async generate() {
-    let that = this;
+    const that = this;
     return new Promise(function(resolve) {
       if (typeof RNRandomBytes === 'undefined') {
         // CLI/CI environment
@@ -67,7 +67,7 @@ export class LegacyWallet extends AbstractWallet {
         if (err) throw new Error(err);
         that.secret = bitcoin.ECPair.makeRandom({
           rng: function(length) {
-            let b = Buffer.from(bytes, 'base64');
+            const b = Buffer.from(bytes, 'base64');
             return b;
           },
         }).toWIF();
@@ -84,7 +84,7 @@ export class LegacyWallet extends AbstractWallet {
     if (this._address) return this._address;
     let address;
     try {
-      let keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
       }).address;
@@ -108,10 +108,10 @@ export class LegacyWallet extends AbstractWallet {
         baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/',
       });
 
-      let response = await api.get(
+      const response = await api.get(
         this.getAddress() + '/balance' + ((useBlockcypherTokens && '?token=' + this.getRandomBlockcypherToken()) || ''),
       );
-      let json = response.body;
+      const json = response.body;
       if (typeof json === 'undefined' || typeof json.final_balance === 'undefined') {
         throw new Error('Could not fetch balance from API: ' + response.err + ' ' + JSON.stringify(response.body));
       }
@@ -154,7 +154,7 @@ export class LegacyWallet extends AbstractWallet {
         }
         json.txrefs = json.txrefs || []; // case when source address is empty (or maxheight too high, no txs)
 
-        for (let txref of json.txrefs) {
+        for (const txref of json.txrefs) {
           maxHeight = Math.max(maxHeight, txref.block_height) + 1;
           if (typeof txref.spent !== 'undefined' && txref.spent === false) {
             this.utxo.push(txref);
@@ -184,14 +184,14 @@ export class LegacyWallet extends AbstractWallet {
       let after = 0;
       let before = 100500100;
 
-      for (let oldTx of this.getTransactions()) {
+      for (const oldTx of this.getTransactions()) {
         if (oldTx.block_height && oldTx.confirmations < 7) {
           after = Math.max(after, oldTx.block_height);
         }
       }
 
       while (1) {
-        let response = await api.get(
+        const response = await api.get(
           'v1/btc/main/addrs/' +
             this.getAddress() +
             '/full?after=' +
@@ -201,34 +201,34 @@ export class LegacyWallet extends AbstractWallet {
             '&limit=50' +
             ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
         );
-        let json = response.body;
+        const json = response.body;
         if (typeof json === 'undefined' || !json.txs) {
           throw new Error('Could not fetch transactions from API:' + response.err);
         }
 
-        let alreadyFetchedTransactions = this.transactions;
+        const alreadyFetchedTransactions = this.transactions;
         this.transactions = json.txs;
         this._lastTxFetch = +new Date();
 
         // now, calculating value per each transaction...
-        for (let tx of this.transactions) {
+        for (const tx of this.transactions) {
           if (tx.block_height) {
             before = Math.min(before, tx.block_height); // so next time we fetch older TXs
           }
 
           // now, if we dont have enough outputs or inputs in response we should collect them from API:
           if (tx.next_outputs) {
-            let newOutputs = await this._fetchAdditionalOutputs(tx.next_outputs);
+            const newOutputs = await this._fetchAdditionalOutputs(tx.next_outputs);
             tx.outputs = tx.outputs.concat(newOutputs);
           }
           if (tx.next_inputs) {
-            let newInputs = await this._fetchAdditionalInputs(tx.next_inputs);
+            const newInputs = await this._fetchAdditionalInputs(tx.next_inputs);
             tx.inputs = tx.inputs.concat(newInputs);
           }
 
           // how much came in...
           let value = 0;
-          for (let out of tx.outputs) {
+          for (const out of tx.outputs) {
             if (out && out.addresses && out.addresses.indexOf(this.getAddress()) !== -1) {
               // found our address in outs of this TX
               value += out.value;
@@ -239,14 +239,14 @@ export class LegacyWallet extends AbstractWallet {
 
           // how much came out
           value = 0;
-          for (let inp of tx.inputs) {
+          for (const inp of tx.inputs) {
             if (!inp.addresses) {
               // console.log('inp.addresses empty');
               // console.log('got witness', inp.witness); // TODO
 
               inp.addresses = [];
               if (inp.witness && inp.witness[1]) {
-                let address = SegwitBech32Wallet.witnessToAddress(inp.witness[1]);
+                const address = SegwitBech32Wallet.witnessToAddress(inp.witness[1]);
                 inp.addresses.push(address);
               } else {
                 inp.addresses.push('???');
@@ -263,11 +263,11 @@ export class LegacyWallet extends AbstractWallet {
 
         this.transactions = alreadyFetchedTransactions.concat(this.transactions);
 
-        let txsUnconf = [];
-        let txs = [];
-        let hashPresent = {};
+        const txsUnconf = [];
+        const txs = [];
+        const hashPresent = {};
         // now, rearranging TXs. unconfirmed go first:
-        for (let tx of this.transactions.reverse()) {
+        for (const tx of this.transactions.reverse()) {
           if (hashPresent[tx.hash]) continue;
           hashPresent[tx.hash] = 1;
           if (tx.block_height && tx.block_height === -1) {
@@ -311,8 +311,8 @@ export class LegacyWallet extends AbstractWallet {
       await (() => new Promise(resolve => setTimeout(resolve, 1000)))();
       nextOutputs = nextOutputs.replace(baseURI, '');
 
-      let response = await api.get(nextOutputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
-      let json = response.body;
+      const response = await api.get(nextOutputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
+      const json = response.body;
       if (typeof json === 'undefined') {
         throw new Error('Could not fetch transactions from API:' + response.err);
       }
@@ -340,8 +340,8 @@ export class LegacyWallet extends AbstractWallet {
       await (() => new Promise(resolve => setTimeout(resolve, 1000)))();
       nextInputs = nextInputs.replace(baseURI, '');
 
-      let response = await api.get(nextInputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
-      let json = response.body;
+      const response = await api.get(nextInputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
+      const json = response.body;
       if (typeof json === 'undefined') {
         throw new Error('Could not fetch transactions from API:' + response.err);
       }
@@ -375,7 +375,7 @@ export class LegacyWallet extends AbstractWallet {
       },
     });
 
-    let res = await api.get('/broadcast/' + txhex);
+    const res = await api.get('/broadcast/' + txhex);
     console.log('response btczen', res.body);
     return res.body;
   }
@@ -389,7 +389,7 @@ export class LegacyWallet extends AbstractWallet {
       },
     });
 
-    let res = await api.post('/api/v2/send_tx/BTC', {
+    const res = await api.post('/api/v2/send_tx/BTC', {
       body: { tx_hex: txhex },
     });
     return res.body;
@@ -404,7 +404,7 @@ export class LegacyWallet extends AbstractWallet {
       },
     });
 
-    let res = await api.post('/v1/blockchain/pushtx', {
+    const res = await api.post('/v1/blockchain/pushtx', {
       body: { hex: txhex },
     });
     return res.body;
@@ -419,7 +419,7 @@ export class LegacyWallet extends AbstractWallet {
       },
     });
 
-    let res = await api.post('/v1/btc/main/txs/push', { body: { tx: txhex } });
+    const res = await api.post('/v1/btc/main/txs/push', { body: { tx: txhex } });
     // console.log('blockcypher response', res);
     return res.body;
   }
@@ -437,7 +437,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   createTx(utxos, amount, fee, toAddress, memo) {
     // transforming UTXOs fields to how module expects it
-    for (let u of utxos) {
+    for (const u of utxos) {
       u.confirmations = 6; // hack to make module accept 0 confirmations
       u.txid = u.tx_hash;
       u.vout = u.tx_output_n;
@@ -446,7 +446,7 @@ export class LegacyWallet extends AbstractWallet {
       u.amount = u.amount.toString(10);
     }
     // console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+    const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
     return signer.createTransaction(utxos, toAddress, amountPlusFee, fee, this.getSecret(), this.getAddress());
   }
 
@@ -455,7 +455,7 @@ export class LegacyWallet extends AbstractWallet {
       return 0;
     }
     let max = 0;
-    for (let tx of this.getTransactions()) {
+    for (const tx of this.getTransactions()) {
       max = Math.max(new Date(tx.received) * 1, max);
     }
 
@@ -465,7 +465,7 @@ export class LegacyWallet extends AbstractWallet {
   getRandomBlockcypherToken() {
     return (array => {
       for (let i = array.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
+        const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
       }
       return array[0];

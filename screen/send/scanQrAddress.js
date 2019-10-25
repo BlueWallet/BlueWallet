@@ -15,7 +15,7 @@ export default class ScanQRCode extends React.Component {
 
   cameraRef = null;
 
-  onBarCodeRead = ret => {
+  handleOnBarCodeRead = ret => {
     if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
     const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
     this.props.navigation.goBack();
@@ -35,7 +35,7 @@ export default class ScanQRCode extends React.Component {
           }}
           ref={ref => (this.cameraRef = ref)}
           style={{ flex: 1, justifyContent: 'space-between' }}
-          onBarCodeRead={this.onBarCodeRead}
+          onBarCodeRead={this.handleOnBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
         <TouchableOpacity
