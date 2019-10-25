@@ -5,6 +5,7 @@ import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../.
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 
@@ -40,6 +41,13 @@ export default class RBFBumpFee extends CPFP {
   }
 
   async createTransaction() {
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
     const newFeeRate = parseInt(this.state.newFeeRate);
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */

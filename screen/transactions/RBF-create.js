@@ -14,6 +14,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Biometric from '../../class/biometrics';
 const bitcoinjs = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
 const BlueApp = require('../../BlueApp');
@@ -149,6 +150,13 @@ export default class SendCreate extends Component {
   }
 
   async broadcast() {
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
     this.setState({ isLoading: true }, async () => {
       console.log('broadcasting', this.state.tx);
       let result = await this.state.fromWallet.broadcastTx(this.state.tx);

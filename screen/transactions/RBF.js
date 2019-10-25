@@ -3,6 +3,7 @@ import { ActivityIndicator, View, TextInput } from 'react-native';
 import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitBech32Wallet } from '../../class';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 
@@ -78,7 +79,14 @@ export default class RBF extends Component {
     console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
   }
 
-  createTransaction() {
+  async createTransaction() {
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
     this.props.navigation.navigate('CreateRBF', {
       feeDelta: this.state.feeDelta,
       newDestinationAddress: this.state.newDestinationAddress,

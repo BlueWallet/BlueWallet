@@ -15,6 +15,7 @@ import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Icon, Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 const EV = require('../../events');
 const BlueElectrum = require('../../BlueElectrum');
@@ -43,7 +44,13 @@ export default class CPFP extends Component {
     };
   }
 
-  broadcast() {
+  async broadcast() {
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
     this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
@@ -97,6 +104,12 @@ export default class CPFP extends Component {
   }
 
   async createTransaction() {
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
     const newFeeRate = parseInt(this.state.newFeeRate);
     if (newFeeRate > this.state.feeRate) {
       /** @type {HDSegwitBech32Transaction} */
