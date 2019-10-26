@@ -100,12 +100,12 @@ export default class SendDetails extends Component {
     }
   }
 
-  renderNavigationHeader() {
+  renderNavigationHeader(forceHideAdvancedOptionsMenu = false) {
     this.props.navigation.setParams({
-      withAdvancedOptionsMenuButton: this.state.fromWallet.allowBatchSend(),
+      withAdvancedOptionsMenuButton: forceHideAdvancedOptionsMenu ? false : this.state.fromWallet.allowBatchSend(),
       advancedOptionsMenuButtonAction: () => {
         Keyboard.dismiss();
-        this.setState({ isAdvancedTransactionOptionsVisible: true });
+        this.setState({ isAdvancedTransactionOptionsVisible: !forceHideAdvancedOptionsMenu });
       },
     });
   }
@@ -117,6 +117,7 @@ export default class SendDetails extends Component {
    */
   handleProcessAddressData = data => {
     this.setState({ isLoading: true }, async () => {
+      this.renderNavigationHeader(true);
       if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
         const bip70 = await this.processBIP70Invoice(data);
         this.setState({
@@ -169,6 +170,7 @@ export default class SendDetails extends Component {
             this.setState({ isLoading: false });
           }
         }
+        this.renderNavigationHeader();
       }
     });
   };
@@ -356,6 +358,7 @@ export default class SendDetails extends Component {
 
   async createTransaction() {
     Keyboard.dismiss();
+    this.renderNavigationHeader(true);
     this.setState({ isLoading: true });
     let error = false;
     const requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
@@ -411,6 +414,7 @@ export default class SendDetails extends Component {
     }
 
     if (error) {
+      this.renderNavigationHeader();
       return;
     }
 
@@ -421,6 +425,7 @@ export default class SendDetails extends Component {
       } catch (Err) {
         this.setState({ isLoading: false }, () => {
           alert(Err.message);
+          this.renderNavigationHeader();
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         });
       }
@@ -430,6 +435,7 @@ export default class SendDetails extends Component {
     // legacy send below
 
     this.setState({ isLoading: true }, async () => {
+      this.renderNavigationHeader(false);
       let utxo;
       let actualSatoshiPerByte;
       let tx, txid;
@@ -451,6 +457,7 @@ export default class SendDetails extends Component {
           console.log('try #', tries, 'fee=', fee);
           if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), firstTransaction.amount, fee) < 0) {
             // we could not add any fee. user is trying to send all he's got. that wont work
+            this.renderNavigationHeader();
             throw new Error(loc.send.details.total_exceeds_balance);
           }
 
@@ -488,13 +495,14 @@ export default class SendDetails extends Component {
         };
         await BlueApp.saveToDisk();
       } catch (err) {
+        this.renderNavigationHeader();
         console.log(err);
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         alert(err);
         this.setState({ isLoading: false });
         return;
       }
-
+      this.renderNavigationHeader();
       this.setState({ isLoading: false }, () =>
         this.props.navigation.navigate('Confirm', {
           recipients: [firstTransaction],
@@ -542,7 +550,7 @@ export default class SendDetails extends Component {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
-
+      this.renderNavigationHeader();
       this.setState({ isLoading: false }, () =>
         this.props.navigation.navigate('PsbtWithHardwareWallet', {
           memo: this.state.memo,
@@ -559,6 +567,7 @@ export default class SendDetails extends Component {
       memo: this.state.memo,
     };
     await BlueApp.saveToDisk();
+    this.renderNavigationHeader();
     this.setState({ isLoading: false }, () =>
       this.props.navigation.navigate('Confirm', {
         fee: new BigNumber(fee).dividedBy(100000000).toNumber(),

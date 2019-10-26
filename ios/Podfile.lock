@@ -102,7 +102,7 @@ PODS:
     - React
   - react-native-watch-connectivity (0.3.2):
     - React
-  - react-native-webview (6.9.0):
+  - react-native-webview (7.4.3):
     - React
   - React-RCTActionSheet (0.60.5):
     - React-Core (= 0.60.5)
@@ -152,7 +152,7 @@ PODS:
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
     - React
-  - RNSVG (9.13.2):
+  - RNSVG (9.13.3):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -359,7 +359,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: 8c34e319ec3a3ca9ef9466e4248fd091b5610b57
   react-native-watch-connectivity: 5333c7054ff667130fd93f504a3d6bb35e87cabd
-  react-native-webview: f72ac4078e115dfa741cc588acb1cca25566457d
+  react-native-webview: dbfec7f16f09a71ea53731bdf5f86ae70eac4313
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90
   React-RCTAnimation: 359ba1b5690b1e87cc173558a78e82d35919333e
   React-RCTBlob: 5e2b55f76e9a1c7ae52b826923502ddc3238df24
@@ -382,7 +382,7 @@ SPEC CHECKSUMS:
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 2803ba8c8129dcf26b79e9b4d8c80168be6e4390
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
-  RNSVG: c0ee15672ff52cdbd7bc8d1d8ba488601bd5db02
+  RNSVG: f6177f8d7c095fada7cfee2e4bb7388ba426064c
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   Sentry: 5d312a04e369154aeac616214f4dfc3cbcc8b296
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
