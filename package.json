@@ -108,6 +108,7 @@
     "react-native-qrcode-svg": "5.2.0",
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.1.10",
+    "react-native-screens": "2.0.0-alpha.6",
     "react-native-secure-key-store": "git+https://github.com/marcosrdz/react-native-secure-key-store.git",
     "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.8.2",
