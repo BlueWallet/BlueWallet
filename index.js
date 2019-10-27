@@ -8,7 +8,6 @@ import { name as appName } from './app.json';
 import App from './App';
 import LottieView from 'lottie-react-native';
 import UnlockWith from './UnlockWith.js';
-import 'react-native-gesture-handler';
 
 /** @type {AppStorage} */
 const A = require('./analytics');
