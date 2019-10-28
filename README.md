@@ -36,8 +36,23 @@ Community: [telegram group](https://t.me/bluewallet)
 git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
 npm install
-npm start android
 ``` 
+
+* To run on Android:
+
+```
+npm start android
+```
+
+* To run on iOS:
+
+```
+cd ios
+pod install
+cd ..
+npm start ios
+```
+
 
 ## TESTS
 
@@ -45,7 +60,7 @@ npm start android
 npm run test
 ```
 
-## Q&A
+## QA
 
 Builds automated and tested with BrowserStack
 
