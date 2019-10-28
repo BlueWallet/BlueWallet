@@ -16,7 +16,13 @@ export default class Biometric {
   }
 
   static async biometricType() {
-    return Biometrics.isSensorAvailable();
+    try {
+      const isSensorAvailable = await Biometrics.isSensorAvailable();
+      return isSensorAvailable;
+    } catch (e) {
+      console.log(e);
+    }
+    return false;
   }
 
   static async isBiometricUseEnabled() {
