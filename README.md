@@ -45,6 +45,14 @@ npm start android
 npm run test
 ```
 
+## Q&A
+
+Builds automated and tested with BrowserStack
+
+<a href="https://www.browserstack.com/"><img src="https://i.imgur.com/syscHCN.png" width="160px"></a>
+
+
+
 
 ## MOTIVATION TO BUILD IT
 
