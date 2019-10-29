@@ -88,19 +88,6 @@ export class AppStorage {
     }
   }
 
-  async getData() {
-    try {
-      const data = await this.getItem('data');
-      return data;
-    } catch (e) {
-      console.log('getData error:');
-      console.log(e);
-      const data = { wallets: [], tx_metadata: [] };
-      await this.setItem('data', JSON.stringify(data));
-      return data;
-    }
-  }
-
   async storageIsEncrypted() {
     let data;
     try {
@@ -122,7 +109,7 @@ export class AppStorage {
   decryptData(data, password) {
     data = JSON.parse(data);
     let decrypted;
-    for (const value of data) {
+    for (let value of data) {
       try {
         decrypted = encryption.decrypt(value, password);
       } catch (e) {
@@ -143,7 +130,7 @@ export class AppStorage {
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
-    const encrypted = encryption.encrypt(data, password);
+    let encrypted = encryption.encrypt(data, password);
     data = [];
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
@@ -162,7 +149,7 @@ export class AppStorage {
     this.wallets = [];
     this.tx_metadata = {};
 
-    const data = {
+    let data = {
       wallets: [],
       tx_metadata: {},
     };
@@ -185,7 +172,7 @@ export class AppStorage {
    */
   async loadFromDisk(password) {
     try {
-      let data = await this.getData();
+      let data = await this.getItem('data');
       if (password) {
         data = this.decryptData(data, password);
         if (data) {
@@ -196,10 +183,10 @@ export class AppStorage {
       if (data !== null) {
         data = JSON.parse(data);
         if (!data.wallets) return false;
-        const wallets = data.wallets;
-        for (const key of wallets) {
+        let wallets = data.wallets;
+        for (let key of wallets) {
           // deciding which type is wallet and instatiating correct object
-          const tempObj = JSON.parse(key);
+          let tempObj = JSON.parse(key);
           let unserializedWallet;
           switch (tempObj.type) {
             case SegwitBech32Wallet.type:
@@ -276,9 +263,9 @@ export class AppStorage {
    * @param wallet {AbstractWallet}
    */
   deleteWallet(wallet) {
-    const secret = wallet.getSecret();
-    const tempWallets = [];
-    for (const value of this.wallets) {
+    let secret = wallet.getSecret();
+    let tempWallets = [];
+    for (let value of this.wallets) {
       if (value.getSecret() === secret) {
         // the one we should delete
         // nop
@@ -298,8 +285,8 @@ export class AppStorage {
    * @returns {Promise} Result of storage save
    */
   async saveToDisk() {
-    const walletsToSave = [];
-    for (const key of this.wallets) {
+    let walletsToSave = [];
+    for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
@@ -314,9 +301,9 @@ export class AppStorage {
       // should find the correct bucket, encrypt and then save
       let buckets = await this.getItem('data');
       buckets = JSON.parse(buckets);
-      const newData = [];
-      for (const bucket of buckets) {
-        const decrypted = encryption.decrypt(bucket, this.cachedPassword);
+      let newData = [];
+      for (let bucket of buckets) {
+        let decrypted = encryption.decrypt(bucket, this.cachedPassword);
         if (!decrypted) {
           // no luck decrypting, its not our bucket
           newData.push(bucket);
@@ -348,13 +335,13 @@ export class AppStorage {
     console.log('fetchWalletBalances for wallet#', index);
     if (index || index === 0) {
       let c = 0;
-      for (const wallet of this.wallets) {
+      for (let wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchBalance();
         }
       }
     } else {
-      for (const wallet of this.wallets) {
+      for (let wallet of this.wallets) {
         await wallet.fetchBalance();
       }
     }
@@ -374,7 +361,7 @@ export class AppStorage {
     console.log('fetchWalletTransactions for wallet#', index);
     if (index || index === 0) {
       let c = 0;
-      for (const wallet of this.wallets) {
+      for (let wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {
@@ -386,7 +373,7 @@ export class AppStorage {
         }
       }
     } else {
-      for (const wallet of this.wallets) {
+      for (let wallet of this.wallets) {
         await wallet.fetchTransactions();
         if (wallet.fetchPendingTransactions) {
           await wallet.fetchPendingTransactions();
@@ -418,7 +405,7 @@ export class AppStorage {
     if (index || index === 0) {
       let txs = [];
       let c = 0;
-      for (const wallet of this.wallets) {
+      for (let wallet of this.wallets) {
         if (c++ === index) {
           txs = txs.concat(wallet.getTransactions());
         }
@@ -427,15 +414,15 @@ export class AppStorage {
     }
 
     let txs = [];
-    for (const wallet of this.wallets) {
-      const walletTransactions = wallet.getTransactions();
-      for (const t of walletTransactions) {
+    for (let wallet of this.wallets) {
+      let walletTransactions = wallet.getTransactions();
+      for (let t of walletTransactions) {
         t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
       }
       txs = txs.concat(walletTransactions);
     }
 
-    for (const t of txs) {
+    for (let t of txs) {
       t.sort_ts = +new Date(t.received);
     }
 
@@ -453,7 +440,7 @@ export class AppStorage {
    */
   getBalance() {
     let finalBalance = 0;
-    for (const wal of this.wallets) {
+    for (let wal of this.wallets) {
       finalBalance += wal.balance;
     }
     return finalBalance;
