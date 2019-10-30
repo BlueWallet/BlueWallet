@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { ScrollView, View, Switch, TouchableOpacity } from 'react-native';
 import {
   BlueText,
@@ -10,116 +10,97 @@ import {
   BlueListItem,
 } from '../../BlueComponents';
 import AsyncStorage from '@react-native-community/async-storage';
-import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
 import Biometric from '../../class/biometrics';
+import { useNavigation } from 'react-navigation-hooks';
 const BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const loc = require('../../loc');
 
-export default class Settings extends Component {
-  static navigationOptions = {
-    ...BlueNavigationStyle,
-  };
+export const Settings = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [advancedModeEnabled, setAdvancedModeEnabled] = useState(false);
+  const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
+  const { navigate } = useNavigation();
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      isLoading: true,
-      language: loc.getLanguage(),
-      biometrics: { isDeviceBiometricCapable: false, isBiometricsEnabled: false },
-    };
-  }
+  useEffect(() => {
+    (async () => {
+      setAdvancedModeEnabled(!!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)));
+      const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
+      const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
+      const biometricsType = (await Biometric.biometricType()) || 'biometrics';
+      setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
+      setIsLoading(false);
+    })();
+  });
 
-  async componentDidMount() {
-    const advancedModeEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
-    const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
-    const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-    const biometricsType = (await Biometric.biometricType()) || 'biometrics';
-    this.setState({
-      isLoading: false,
-      advancedModeEnabled,
-      biometrics: { isBiometricsEnabled, isDeviceBiometricCapable, biometricsType },
-    });
-  }
-
-  async onAdvancedModeSwitch(value) {
+  const onAdvancedModeSwitch = async value => {
     if (value) {
       await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, '1');
     } else {
       await AsyncStorage.removeItem(AppStorage.ADVANCED_MODE_ENABLED);
     }
-    this.setState({ advancedModeEnabled: value });
-  }
+    setAdvancedModeEnabled(value);
+  };
 
-  onUseBiometricSwitch = async value => {
-    let isBiometricsEnabled = this.state.biometrics;
+  const onUseBiometricSwitch = async value => {
+    let isBiometricsEnabled = biometrics;
     if (await Biometric.unlockWithBiometrics()) {
       isBiometricsEnabled.isBiometricsEnabled = value;
       await Biometric.setBiometricUseEnabled(value);
-      this.setState({ biometrics: isBiometricsEnabled });
+      setBiometrics(isBiometricsEnabled);
     }
   };
 
+  const onShowAdvancedOptions = () => {
+    setShowAdvancedOptions(!showAdvancedOptions);
+  };
+
+  return isLoading ? (
+    <BlueLoading />
+  ) : (
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
+      <ScrollView>
+        {BlueApp.getWallets().length > 1 && (
+          <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
+        )}
+        <BlueListItem title={loc.settings.encrypt_storage} onPress={() => navigate('EncryptStorage')} component={TouchableOpacity} />
+        {biometrics.isDeviceBiometricCapable && (
+          <BlueListItem
+            hideChevron
+            title={`Use ${biometrics.biometricsType}`}
+            switchButton
+            onSwitch={onUseBiometricSwitch}
+            switched={biometrics.isBiometricsEnabled}
+          />
+        )}
+        <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
+        <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} />
+        <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} />
+        <BlueListItem title={'Electrum server'} component={TouchableOpacity} onPress={() => navigate('ElectrumSettings')} />
+        <BlueListItem title={loc.settings.advanced_options} component={TouchableOpacity} onPress={onShowAdvancedOptions} />
+        {showAdvancedOptions && (
+          <BlueCard>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
+              <Switch value={advancedModeEnabled} onValueChange={onAdvancedModeSwitch} />
+            </View>
+          </BlueCard>
+        )}
+
+        <BlueListItem title={loc.settings.about} component={TouchableOpacity} onPress={() => navigate('About')} />
+      </ScrollView>
+    </SafeBlueArea>
+  );
+};
+
+export default class SettingsContainer extends Component {
+  static navigationOptions = {
+    ...BlueNavigationStyle,
+  };
+
   render() {
-    if (this.state.isLoading) {
-      return <BlueLoading />;
-    }
-
-    return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
-        <ScrollView>
-          {BlueApp.getWallets().length > 1 && (
-            <BlueListItem component={TouchableOpacity} onPress={() => this.props.navigation.navigate('DefaultView')} title="On Launch" />
-          )}
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('EncryptStorage')}>
-            <BlueListItem title={loc.settings.encrypt_storage} />
-          </TouchableOpacity>
-          {this.state.biometrics.isDeviceBiometricCapable && (
-            <BlueListItem
-              hideChevron
-              title={`Use ${this.state.biometrics.biometricsType}`}
-              switchButton
-              onSwitch={this.onUseBiometricSwitch}
-              switched={this.state.biometrics.isBiometricsEnabled}
-            />
-          )}
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('LightningSettings')}>
-            <BlueListItem title={loc.settings.lightning_settings} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Language')}>
-            <BlueListItem title={loc.settings.language} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('Currency')}>
-            <BlueListItem title={loc.settings.currency} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('ElectrumSettings')}>
-            <BlueListItem title={'Electrum server'} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.setState({ showAdvancedOptions: !this.state.showAdvancedOptions })}>
-            <BlueListItem title={loc.settings.advanced_options} />
-          </TouchableOpacity>
-          {this.state.showAdvancedOptions && (
-            <BlueCard>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
-                <Switch value={this.state.advancedModeEnabled} onValueChange={value => this.onAdvancedModeSwitch(value)} />
-              </View>
-            </BlueCard>
-          )}
-
-          <TouchableOpacity onPress={() => this.props.navigation.navigate('About')}>
-            <BlueListItem title={loc.settings.about} />
-          </TouchableOpacity>
-        </ScrollView>
-      </SafeBlueArea>
-    );
+    return <Settings />;
   }
 }
-
-Settings.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
