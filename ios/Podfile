@@ -1,13 +1,14 @@
 
 # Uncomment the next line to define a global platform for your project
-platform :ios, '10.0'
+platform :ios, '9.0'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 workspace 'BlueWallet'
 post_install do |installer|
     installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
-            puts "Setting Swift Version setting for #{target.name}..."
+            puts "Setting Swift Version and deployment target setting for #{target.name}..."
             config.build_settings['SWIFT_VERSION'] = '4.2'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
         end
     end
 end
@@ -43,7 +44,7 @@ target 'BlueWallet' do
     # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
     #  use_frameworks!
     project 'BlueWallet.xcodeproj'
-    platform :ios, '10.0'
+    platform :ios, '9.0'
     # Pods for BlueWallet
     # React Native requirements
     
@@ -60,13 +61,13 @@ target 'BlueWalletWatch' do
     # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
     #  use_frameworks!
     # Pods for BlueWalletWatch
-    platform :watchos, '5.1'
+    platform :watchos, '5.0'
 end
 
 target 'BlueWalletWatch Extension' do
     # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
     #  use_frameworks!
-    platform :watchos, '5.1'
+    platform :watchos, '5.0'
     pod 'EFQRCode', '5.1.0'
     # Pods for BlueWalletWatch Extension
 end

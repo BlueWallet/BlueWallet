@@ -2,7 +2,6 @@ import 'intl';
 import 'intl/locale-data/jsonp/en';
 import React from 'react';
 import './shim.js';
-import { Sentry } from 'react-native-sentry';
 import { AppRegistry } from 'react-native';
 import WalletMigrate from './screen/wallets/walletMigrate';
 import { name as appName } from './app.json';
@@ -11,10 +10,7 @@ import LottieView from 'lottie-react-native';
 import UnlockWith from './UnlockWith.js';
 
 /** @type {AppStorage} */
-let A = require('./analytics');
-if (process.env.NODE_ENV !== 'development') {
-  Sentry.config('https://23377936131848ca8003448a893cb622@sentry.io/1295736').install();
-}
+const A = require('./analytics');
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
