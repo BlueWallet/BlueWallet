@@ -1,3 +1,11 @@
+v4.7.1
+======
+
+* ADD: Lapp browser
+* FIX: White screen on boot
+* FIX: Lightning wallet was not shown on Watch app
+* DEL: Auto brightenss
+
 v4.7.0
 ======
 
@@ -28,30 +36,3 @@ v4.5.2
 
 * FIX: NaN when sending onchain
 * FIX: RBF tx memo porting
-
-v4.5.0
-======
-
-* ADD: Batch send TX
-* ADD: handle lnurl clicks
-* ADD: Afrikaans and Xhosa Translation
-* ADD: Chinese traditional language
-* ADD: Go straight to camera for scan.
-* ADD: Vietnamise
-* ADD: Splash screen animation
-* ADD: Auto adjust screen brightness on screens with QRCode.
-* ADD: Provide fee bump suggestions.
-* REF: Use PSBT for segwit wallets
-* FIX: Allow custom lndhub http calls
-* FIX: Marketplace App Store Guidelines
-* FIX: Remove launch screen icon
-* FIX: Fix Send Max
-* FIX: Don't display send modal if address belongs to self
-* FIX: Select fastest fee by default
-* FIX: Fixed BIP70 processing
-* FIX: pt_PT translation
-* FIX: Varios UI fixes to accomodate additional screen sizes
-* FIX: Add warning to or restrict delete wallet option when it has balance
-* FIX: Seed phrase import issues
-* FIX: Increased speed for wallet unit change
-* FIX: Fixed UI for transaction status
