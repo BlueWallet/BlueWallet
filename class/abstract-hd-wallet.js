@@ -1,7 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
-const bip39 = require('bip39');
 const bitcoin = require('bitcoinjs-lib');
+const bip39 = require('bip39');
 const BlueElectrum = require('../BlueElectrum');
 
 export class AbstractHDWallet extends LegacyWallet {
@@ -498,8 +498,7 @@ export class AbstractHDWallet extends LegacyWallet {
         unspent.vout = unspent.tx_output_n;
         unspent.amount = unspent.value;
 
-        let chunksIn = bitcoin.script.decompile(Buffer.from(unspent.script, 'hex'));
-        unspent.address = bitcoin.address.fromOutputScript(chunksIn);
+        unspent.address = bitcoin.address.fromOutputScript(Buffer.from(unspent.script, 'hex'));
         utxos.push(unspent);
       }
     } catch (err) {
@@ -561,5 +560,13 @@ export class AbstractHDWallet extends LegacyWallet {
     }
 
     return hashmap[addr] === 1;
+  }
+
+  _getDerivationPathByAddress(address) {
+    throw new Error('Not implemented');
+  }
+
+  _getNodePubkeyByIndex(address) {
+    throw new Error('Not implemented');
   }
 }

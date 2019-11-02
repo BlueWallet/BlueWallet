@@ -1,5 +1,5 @@
 /* global describe, it */
-let bitcoinjs = require('bitcoinjs-lib')
+const bitcoinjs = require('bitcoinjs-lib');
 let assert = require('assert')
 
 describe('unit - signer', function () {
@@ -30,8 +30,8 @@ describe('unit - signer', function () {
       let txhex = '0100000000010115b7e9d1f6b8164a0e95544a94f5b0fbfaadc35f8415acd0ec0e58d5ce8c1a1e0100000017160014f90e5bca5635b84bd828064586bd7eb117fee9a90000000002905f0100000000001976a914f7c6c1f9f6142107ed293c8fbf85fbc49eb5f1b988ace00f97000000000017a9146fbf1cee74734503297e46a0db3e3fbb06f2e9d38702483045022100bd687693e57161282a80affb82f18386cbf319bca72ca2c16320b0f3b087bee802205e22a9a16b86628ea08eab83aebec1348c476e9d0c90cd41aa73c47f50d86aab0121039425479ea581ebc7f55959da8c2e1a1063491768860386335dd4630b5eeacfc500000000'
       let signer = require('../../models/signer')
       let dummyUtxodata = {
-        '15b7e9d1f6b8164a0e95544a94f5b0fbfaadc35f8415acd0ec0e58d5ce8c1a1e': { // txid we use output from
-          1: 666 // output index and it's value in satoshi
+        '1e1a8cced5580eecd0ac15845fc3adfafbb0f5944a54950e4a16b8f6d1e9b715': { // txid we use output from
+          1: 10000000 // output index and it's value in satoshi
         }
       }
       let newhex = signer.createRBFSegwitTransaction(txhex, {'1Pb81K1xJnMjUfFgKUbva6gr1HCHXxHVnr': '3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'}, 0.0001, 'KyWpryAKPiXXbipxWhtprZjSLVjp22sxbVnJssq2TCNQxs1SuMeD', dummyUtxodata)

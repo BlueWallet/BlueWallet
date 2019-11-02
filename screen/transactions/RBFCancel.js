@@ -63,15 +63,14 @@ export default class RBFCancel extends CPFP {
   }
 
   onSuccessBroadcast() {
+    // porting metadata, if any
+    BlueApp.tx_metadata[this.state.newTxid] = BlueApp.tx_metadata[this.state.txid] || {};
+
     // porting tx memo
-    if (BlueApp.tx_metadata[this.state.txid]) {
-      BlueApp.tx_metadata[this.state.newTxid] = BlueApp.tx_metadata[this.state.txid];
-      if (BlueApp.tx_metadata[this.state.newTxid]['memo']) {
-        BlueApp.tx_metadata[this.state.newTxid]['memo'] = 'Cancelled: ' + BlueApp.tx_metadata[this.state.newTxid]['memo'];
-      }
+    if (BlueApp.tx_metadata[this.state.newTxid]['memo']) {
+      BlueApp.tx_metadata[this.state.newTxid]['memo'] = 'Cancelled: ' + BlueApp.tx_metadata[this.state.newTxid]['memo'];
     } else {
-      // no old metadata
-      BlueApp.tx_metadata[this.state.newTxid] = { memo: 'Cancelled transaction' };
+      BlueApp.tx_metadata[this.state.newTxid]['memo'] = 'Cancelled transaction';
     }
   }
 

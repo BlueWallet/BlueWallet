@@ -338,7 +338,7 @@ export default class TransactionsStatus extends Component {
                         }
                         style={{ color: '#d0021b', fontSize: 15, fontWeight: '500', textAlign: 'center' }}
                       >
-                        {loc.send.details.cancel}
+                        {'Cancel Transaction'}
                       </Text>
                     </TouchableOpacity>
                   </React.Fragment>

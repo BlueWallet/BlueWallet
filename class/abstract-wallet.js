@@ -1,5 +1,5 @@
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-
+const createHash = require('create-hash');
 export class AbstractWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
@@ -29,6 +29,13 @@ export class AbstractWallet {
     this.preferredBalanceUnit = BitcoinUnit.BTC;
     this.chain = Chain.ONCHAIN;
     this.hideBalance = false;
+  }
+
+  getID() {
+    return createHash('sha256')
+      .update(this.getSecret())
+      .digest()
+      .toString('hex');
   }
 
   getTransactions() {
@@ -84,6 +91,10 @@ export class AbstractWallet {
     return false;
   }
 
+  weOwnAddress(address) {
+    return this._address === address;
+  }
+
   /**
    * Returns delta of unconfirmed balance. For example, if theres no
    * unconfirmed balance its 0
@@ -113,4 +124,12 @@ export class AbstractWallet {
   }
 
   // createTx () { throw Error('not implemented') }
+
+  getAddress() {
+    throw Error('not implemented');
+  }
+
+  getAddressAsync() {
+    return new Promise(resolve => resolve(this.getAddress()));
+  }
 }

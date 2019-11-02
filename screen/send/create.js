@@ -1,11 +1,25 @@
 import React, { Component } from 'react';
-import { TextInput, ScrollView, Linking, TouchableOpacity, Clipboard, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Text } from 'react-native-elements';
+import {
+  TextInput,
+  FlatList,
+  ScrollView,
+  Linking,
+  TouchableOpacity,
+  Clipboard,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Text,
+  View,
+} from 'react-native';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
-
-let loc = require('../../loc');
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+/** @type {AppStorage} */
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
+const currency = require('../../currency');
 
 export default class SendCreate extends Component {
   static navigationOptions = () => ({
@@ -19,25 +33,52 @@ export default class SendCreate extends Component {
 
     this.state = {
       isLoading: false,
-      amount: props.navigation.getParam('amount'),
       fee: props.navigation.getParam('fee'),
-      address: props.navigation.getParam('address'),
-      memo: props.navigation.getParam('memo'),
+      recipients: props.navigation.getParam('recipients'),
+      memo: props.navigation.getParam('memo') || '',
       size: Math.round(props.navigation.getParam('tx').length / 2),
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
+      wallet: props.navigation.getParam('wallet'),
+      feeSatoshi: props.navigation.getParam('feeSatoshi'),
     };
   }
 
   async componentDidMount() {
     Privacy.enableBlur();
     console.log('send/create - componentDidMount');
-    console.log('address = ', this.state.address);
   }
 
   componentWillUnmount() {
     Privacy.disableBlur();
   }
+
+  _renderItem = ({ index, item }) => {
+    return (
+      <>
+        <View>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
+          <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
+          <Text style={styles.transactionDetailsSubtitle}>
+            {item.amount === BitcoinUnit.MAX
+              ? currency.satoshiToBTC(this.state.wallet.getBalance()) - this.state.fee
+              : item.amount || currency.satoshiToBTC(item.value)}{' '}
+            {BitcoinUnit.BTC}
+          </Text>
+          {this.state.recipients.length > 1 && (
+            <BlueText style={{ alignSelf: 'flex-end' }}>
+              {index + 1} of {this.state.recipients.length}
+            </BlueText>
+          )}
+        </View>
+      </>
+    );
+  };
+
+  renderSeparator = () => {
+    return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, marginVertical: 16 }} />;
+  };
 
   render() {
     return (
@@ -73,23 +114,30 @@ export default class SendCreate extends Component {
               </TouchableOpacity>
             </BlueCard>
             <BlueCard>
-              <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
-              <Text style={styles.transactionDetailsSubtitle}>{this.state.address}</Text>
-
-              <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
-              <Text style={styles.transactionDetailsSubtitle}>{this.state.amount} BTC</Text>
-
+              <FlatList
+                scrollEnabled={this.state.recipients.length > 1}
+                extraData={this.state.recipients}
+                data={this.state.recipients}
+                renderItem={this._renderItem}
+                keyExtractor={(_item, index) => `${index}`}
+                ItemSeparatorComponent={this.renderSeparator}
+              />
               <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
-              <Text style={styles.transactionDetailsSubtitle}>{this.state.fee} BTC</Text>
+              <Text style={styles.transactionDetailsSubtitle}>
+                {this.state.fee} {BitcoinUnit.BTC}
+              </Text>
 
               <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
               <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
 
               <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
               <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
-
-              <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
-              <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
+              {this.state.memo.length > 0 && (
+                <>
+                  <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
+                  <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
+                </>
+              )}
             </BlueCard>
           </ScrollView>
         </TouchableWithoutFeedback>

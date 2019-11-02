@@ -1,14 +1,16 @@
-import React, { Component } from 'react';
-import { View, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
-import PropTypes from 'prop-types';
 import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 
-const expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
+export default class WalletMigrate {
+  static expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
 
-export default class WalletMigrate extends Component {
-  async componentDidMount() {
+  constructor(onComplete) {
+    this.onComplete = onComplete;
+  }
+
+  // 0: Let's start!
+  async start() {
     const firstLaunch = await AsyncStorage.getItem('RnSksIsAppInstalled');
     if (firstLaunch === undefined || firstLaunch === null || firstLaunch === false || firstLaunch === '') {
       try {
@@ -18,33 +20,10 @@ export default class WalletMigrate extends Component {
       } catch (_e) {}
       await AsyncStorage.setItem('RnSksIsAppInstalled', '1');
     }
-    await this.migrateDataFromExpo();
+    return this.migrateDataFromExpo();
   }
 
-  migrationComplete() {
-    console.log('Migration was successful. Exiting migration...');
-    this.props.onComplete();
-  }
-
-  async migrateDataToSecureKeystore() {
-    try {
-      const data = await AsyncStorage.getItem('data');
-      if (data) {
-        const isEncrypted = (await AsyncStorage.getItem('data_encrypted')) || '';
-        await RNSecureKeyStore.set('data', data, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
-        await RNSecureKeyStore.set('data_encrypted', isEncrypted, {
-          accessible: ACCESSIBLE.WHEN_UNLOCKED,
-        });
-        await AsyncStorage.removeItem('data');
-        await AsyncStorage.removeItem('data_encrypted');
-      }
-    } catch (_e) {
-      console.log('Nothing to migrate from AsyncStorage.');
-    }
-    this.migrationComplete();
-  }
-
-  // Migrate Document directory from Expo
+  // 1: Migrate Document directory from Expo
   async migrateDataFromExpo() {
     const expoDirectoryExists = await RNFS.exists(RNFS.DocumentDirectoryPath + '/ExponentExperienceData');
 
@@ -61,7 +40,7 @@ export default class WalletMigrate extends Component {
       console.log('/RCTAsyncLocalStorage_V1 does not exist. Continuing...');
     }
     try {
-      await RNFS.copyFile(expoDataDirectory, RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1');
+      await RNFS.copyFile(WalletMigrate.expoDataDirectory, RNFS.DocumentDirectoryPath + '/RCTAsyncLocalStorage_V1');
     } catch (error) {
       console.log('An error was encountered when trying to copy Expo data to /RCTAsyncLocalStorage_V1. Exiting migration...');
       console.log(error);
@@ -72,7 +51,7 @@ export default class WalletMigrate extends Component {
       console.log('An error was encountered when trying to delete .DS_Store. Continuing migration...');
       console.log(error);
     }
-    const files = await RNFS.readDir(expoDataDirectory);
+    const files = await RNFS.readDir(WalletMigrate.expoDataDirectory);
     for (const file of files) {
       try {
         if (file.isFile()) {
@@ -109,15 +88,28 @@ export default class WalletMigrate extends Component {
     await this.migrateDataToSecureKeystore();
   }
 
-  render() {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center', backgroundColor: '#ffffff' }}>
-        <ActivityIndicator />
-      </View>
-    );
+  // 2: Migrate Data from AsyncStorage to RNSecureKeyStore
+  async migrateDataToSecureKeystore() {
+    try {
+      const data = await AsyncStorage.getItem('data');
+      if (data) {
+        const isEncrypted = (await AsyncStorage.getItem('data_encrypted')) || '';
+        await RNSecureKeyStore.set('data', data, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+        await RNSecureKeyStore.set('data_encrypted', isEncrypted, {
+          accessible: ACCESSIBLE.WHEN_UNLOCKED,
+        });
+        await AsyncStorage.removeItem('data');
+        await AsyncStorage.removeItem('data_encrypted');
+      }
+    } catch (_e) {
+      console.log('Nothing to migrate from AsyncStorage.');
+    }
+    this.migrationComplete();
+  }
+  
+  // 3: We're done!
+  migrationComplete() {
+    console.log('Migration was successful. Exiting migration...');
+    this.onComplete();
   }
 }
-
-WalletMigrate.propTypes = {
-  onComplete: PropTypes.func,
-};

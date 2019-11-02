@@ -115,7 +115,7 @@ module.exports = {
     },
   },
   send: {
-    header: 'Vertuur',
+    header: 'Verstuur',
     details: {
       title: 'transacties aanmaken',
       amount_field_is_not_valid: 'Bedrag veld is niet geldig',
@@ -232,7 +232,7 @@ module.exports = {
   pleasebackup: {
     title: 'Your wallet is created...',
     text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
     ok: 'OK, I wrote this down!',
   },
   lndViewInvoice: {

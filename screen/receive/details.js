@@ -1,6 +1,5 @@
-/* global alert */
 import React, { Component } from 'react';
-import { View, InteractionManager } from 'react-native';
+import { View, InteractionManager, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
@@ -15,8 +14,7 @@ import {
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
-import { ScrollView } from 'react-native-gesture-handler';
-import SystemSetting from 'react-native-system-setting';
+import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -30,11 +28,9 @@ export default class ReceiveDetails extends Component {
 
   constructor(props) {
     super(props);
-    let address = props.navigation.state.params.address;
-    let secret = props.navigation.state.params.secret;
+    let secret = props.navigation.state.params.secret || '';
 
     this.state = {
-      address: address,
       secret: secret,
       addressText: '',
       bip21encoded: undefined,
@@ -45,44 +41,59 @@ export default class ReceiveDetails extends Component {
     Privacy.enableBlur();
     console.log('receive/details - componentDidMount');
 
-    /**  @type {AbstractWallet}   */
-    let wallet;
-    let address = this.state.address;
-    for (let w of BlueApp.getWallets()) {
-      if ((address && w.getAddress() === this.state.address) || w.getSecret() === this.state.secret) {
-        // found our wallet
-        wallet = w;
-      }
-    }
-    if (wallet) {
-      if (wallet.getAddressAsync) {
-        try {
-          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
-        } catch (_) {}
-        if (!address) {
-          // either sleep expired or getAddressAsync threw an exception
-          console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
-        } else {
-          BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+    {
+      let address;
+      let wallet;
+      for (let w of BlueApp.getWallets()) {
+        if (w.getSecret() === this.state.secret) {
+          // found our wallet
+          wallet = w;
         }
       }
-      this.setState({
-        address: address,
-        addressText: address,
-      });
-    } else {
-      alert('There was a problem obtaining your receive address. Please, try again.');
-      this.props.navigation.goBack();
-      this.setState({
-        address,
-        addressText: address,
-      });
+      if (wallet) {
+        if (wallet.getAddressAsync) {
+          if (wallet.chain === Chain.ONCHAIN) {
+            try {
+              address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+            } catch (_) {}
+            if (!address) {
+              // either sleep expired or getAddressAsync threw an exception
+              console.warn('either sleep expired or getAddressAsync threw an exception');
+              address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+            } else {
+              BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+            }
+            this.setState({
+              address: address,
+              addressText: address,
+            });
+          } else if (wallet.chain === Chain.OFFCHAIN) {
+            try {
+              await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+              address = wallet.getAddress();
+            } catch (_) {}
+            if (!address) {
+              // either sleep expired or getAddressAsync threw an exception
+              console.warn('either sleep expired or getAddressAsync threw an exception');
+              address = wallet.getAddress();
+            } else {
+              BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+            }
+          }
+          this.setState({
+            address: address,
+            addressText: address,
+          });
+        } else if (wallet.getAddress) {
+          this.setState({
+            address: wallet.getAddress(),
+            addressText: wallet.getAddress(),
+          });
+        }
+      }
     }
 
     InteractionManager.runAfterInteractions(async () => {
-      await SystemSetting.saveBrightness();
-      await SystemSetting.setAppBrightness(1.0);
       const bip21encoded = bip21.encode(this.state.address);
       this.setState({ bip21encoded });
     });
@@ -90,7 +101,6 @@ export default class ReceiveDetails extends Component {
 
   async componentWillUnmount() {
     Privacy.disableBlur();
-    await SystemSetting.restoreBrightness();
   }
 
   render() {
@@ -163,7 +173,6 @@ ReceiveDetails.propTypes = {
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string,
         secret: PropTypes.string,
       }),
     }),

@@ -1,27 +1,27 @@
 PODS:
-  - appcenter (2.3.0):
+  - appcenter (2.5.0):
     - AppCenterReactNativeShared
     - React
-  - appcenter-analytics (2.3.0):
+  - appcenter-analytics (2.5.0):
     - AppCenter/Analytics
     - AppCenterReactNativeShared
     - React
-  - appcenter-crashes (2.3.0):
-    - AppCenter/Crashes (= 2.3.0)
+  - appcenter-crashes (2.5.0):
+    - AppCenter/Crashes
     - AppCenterReactNativeShared
     - React
-  - AppCenter/Analytics (2.3.0):
+  - AppCenter/Analytics (2.5.0):
     - AppCenter/Core
-  - AppCenter/Core (2.3.0)
-  - AppCenter/Crashes (2.3.0):
+  - AppCenter/Core (2.5.0)
+  - AppCenter/Crashes (2.5.0):
     - AppCenter/Core
-  - AppCenterReactNativeShared (2.3.0):
-    - AppCenter/Core (= 2.3.0)
+  - AppCenterReactNativeShared (2.5.0):
+    - AppCenter/Core (= 2.5.0)
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.4):
     - React
   - DoubleConversion (1.1.6)
-  - EFQRCode (5.0.1):
+  - EFQRCode (5.1.0):
     - swift_qrcodejs (~> 1.1.1)
   - Folly (2018.10.22.00):
     - boost-for-react-native
@@ -33,7 +33,9 @@ PODS:
     - DoubleConversion
     - glog
   - glog (0.3.5)
-  - RCTSystemSetting (1.7.2):
+  - lottie-ios (3.0.7)
+  - lottie-react-native (3.1.1):
+    - lottie-ios (~> 3.0.3)
     - React
   - React (0.60.5):
     - React-Core (= 0.60.5)
@@ -80,23 +82,27 @@ PODS:
     - React-cxxreact (= 0.60.5)
     - React-jsi (= 0.60.5)
   - React-jsinspector (0.60.5)
+  - react-native-biometrics (1.6.1):
+    - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (2.11.1):
+  - react-native-camera (3.4.0):
     - React
-    - react-native-camera/RCT (= 2.11.1)
-    - react-native-camera/RN (= 2.11.1)
-  - react-native-camera/RCT (2.11.1):
+    - react-native-camera/RCT (= 3.4.0)
+    - react-native-camera/RN (= 3.4.0)
+  - react-native-camera/RCT (3.4.0):
     - React
-  - react-native-camera/RN (2.11.1):
+  - react-native-camera/RN (3.4.0):
     - React
   - react-native-haptic-feedback (1.7.1):
     - React
-  - react-native-image-picker (0.28.1):
+  - react-native-image-picker (1.1.0):
     - React
   - react-native-randombytes (3.5.3):
     - React
   - react-native-slider (2.0.0-rc.1):
+    - React
+  - react-native-watch-connectivity (0.3.2):
     - React
   - react-native-webview (6.9.0):
     - React
@@ -123,9 +129,13 @@ PODS:
     - React-Core (= 0.60.5)
   - React-RCTWebSocket (0.60.5):
     - React-Core (= 0.60.5)
-  - RNCAsyncStorage (1.5.1):
+  - ReactNativePrivacySnapshot (1.0.0):
     - React
-  - RNDeviceInfo (2.2.2):
+  - RemobileReactNativeQrcodeLocalImage (1.0.4):
+    - React
+  - RNCAsyncStorage (1.6.2):
+    - React
+  - RNDeviceInfo (4.0.1):
     - React
   - RNFS (2.13.3):
     - React
@@ -137,35 +147,35 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
+  - RNSentry (1.0.9):
+    - React
+    - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
     - React
   - RNSVG (9.5.1):
     - React
   - RNVectorIcons (6.6.0):
     - React
-  - RNWatch (0.2.1):
+  - Sentry (4.4.1):
+    - Sentry/Core (= 4.4.1)
+  - Sentry/Core (4.4.1)
+  - swift_qrcodejs (1.1.2)
+  - TcpSockets (3.3.2):
     - React
-  - Sentry (4.1.3):
-    - Sentry/Core (= 4.1.3)
-  - Sentry/Core (4.1.3)
-  - SentryReactNative (0.43.2):
-    - React
-    - Sentry (~> 4.1.3)
-  - swift_qrcodejs (1.1.1)
   - ToolTipMenu (5.2.1):
     - React
   - yoga (0.60.5.React)
 
 DEPENDENCIES:
-  - appcenter (from `../node_modules/appcenter`)
-  - appcenter-analytics (from `../node_modules/appcenter-analytics`)
-  - appcenter-crashes (from `../node_modules/appcenter-crashes`)
+  - appcenter (from `../node_modules/appcenter/ios`)
+  - appcenter-analytics (from `../node_modules/appcenter-analytics/ios`)
+  - appcenter-crashes (from `../node_modules/appcenter-crashes/ios`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EFQRCode (~> 5.0.0)
+  - EFQRCode (= 5.1.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - RCTSystemSetting (from `../node_modules/react-native-system-setting`)
+  - lottie-react-native (from `../node_modules/lottie-react-native`)
   - React (from `../node_modules/react-native/`)
   - React-Core (from `../node_modules/react-native/React`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
@@ -173,12 +183,14 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-haptic-feedback (from `../node_modules/react-native-haptic-feedback`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
+  - react-native-watch-connectivity (from `../node_modules/react-native-watch-connectivity`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -190,6 +202,8 @@ DEPENDENCIES:
   - React-RCTText (from `../node_modules/react-native/Libraries/Text`)
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - React-RCTWebSocket (from `../node_modules/react-native/Libraries/WebSocket`)
+  - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
+  - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
@@ -197,11 +211,11 @@ DEPENDENCIES:
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNRate (from `../node_modules/react-native-rate/ios`)
   - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
-  - RNWatch (from `../node_modules/react-native-watch-connectivity`)
-  - SentryReactNative (from `../node_modules/react-native-sentry`)
+  - TcpSockets (from `../node_modules/react-native-tcp`)
   - ToolTipMenu (from `../node_modules/react-native-tooltip`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -211,16 +225,17 @@ SPEC REPOS:
     - AppCenterReactNativeShared
     - boost-for-react-native
     - EFQRCode
+    - lottie-ios
     - Sentry
     - swift_qrcodejs
 
 EXTERNAL SOURCES:
   appcenter:
-    :path: "../node_modules/appcenter"
+    :path: "../node_modules/appcenter/ios"
   appcenter-analytics:
-    :path: "../node_modules/appcenter-analytics"
+    :path: "../node_modules/appcenter-analytics/ios"
   appcenter-crashes:
-    :path: "../node_modules/appcenter-crashes"
+    :path: "../node_modules/appcenter-crashes/ios"
   BVLinearGradient:
     :path: "../node_modules/react-native-linear-gradient"
   DoubleConversion:
@@ -229,8 +244,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/Folly.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
-  RCTSystemSetting:
-    :path: "../node_modules/react-native-system-setting"
+  lottie-react-native:
+    :path: "../node_modules/lottie-react-native"
   React:
     :path: "../node_modules/react-native/"
   React-Core:
@@ -245,6 +260,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-biometrics:
+    :path: "../node_modules/react-native-biometrics"
   react-native-blur:
     :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
@@ -257,6 +274,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
+  react-native-watch-connectivity:
+    :path: "../node_modules/react-native-watch-connectivity"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
@@ -279,6 +298,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/Libraries/Vibration"
   React-RCTWebSocket:
     :path: "../node_modules/react-native/Libraries/WebSocket"
+  ReactNativePrivacySnapshot:
+    :path: "../node_modules/react-native-privacy-snapshot"
+  RemobileReactNativeQrcodeLocalImage:
+    :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
   RNDeviceInfo:
@@ -293,34 +316,35 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-rate/ios"
   RNSecureKeyStore:
     :path: "../node_modules/react-native-secure-key-store/ios"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   RNShare:
     :path: "../node_modules/react-native-share"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
-  RNWatch:
-    :path: "../node_modules/react-native-watch-connectivity"
-  SentryReactNative:
-    :path: "../node_modules/react-native-sentry"
+  TcpSockets:
+    :path: "../node_modules/react-native-tcp"
   ToolTipMenu:
     :path: "../node_modules/react-native-tooltip"
   yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AppCenter: 9784d2fc998c9bd0b8fbaf4fb9ed69526d12ce1a
-  appcenter: e55cb133b100379be61158f511082196b8022424
-  appcenter-analytics: 9db55feacae3ca037c310d31620760ae054d50c6
-  appcenter-crashes: 47c9257ce4c9a7625face00f77908e69fa459394
-  AppCenterReactNativeShared: 7ac481cba7f926848a7be76dca4dcb2692df3b06
+  AppCenter: 637f180deefc61e8ab3f94223869ee50f61dabea
+  appcenter: bde9923b687332a25607fc1aa9577c9361cfed85
+  appcenter-analytics: 0ee7a35def715d4bce58ec435f54161770195166
+  appcenter-crashes: 9f9c5647dba19026ff09509576fb7233f69697ff
+  AppCenterReactNativeShared: 99e7f662ec66b1cb41306ecf357aabac35931c08
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  EFQRCode: 239efec4dd406d9c635dd937525fc40960ce2e9f
+  EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  RCTSystemSetting: 9279ff44c49bb4fb0a5d335a0851852c8f3eda99
+  lottie-ios: c38c3178ae8c4a8f200661aa5f80b9f1ca7f56b3
+  lottie-react-native: d8caf2aa9ab8bb76312e44997c1c91804a23d44d
   React: 53c53c4d99097af47cf60594b8706b4e3321e722
   React-Core: ba421f6b4f4cbe2fb17c0b6fc675f87622e78a64
   React-cxxreact: 8384287780c4999351ad9b6e7a149d9ed10a2395
@@ -328,12 +352,14 @@ SPEC CHECKSUMS:
   React-jsi: 4d8c9efb6312a9725b18d6fc818ffc103f60fec2
   React-jsiexecutor: 90ad2f9db09513fc763bc757fdc3c4ff8bde2a30
   React-jsinspector: e08662d1bf5b129a3d556eb9ea343a3f40353ae4
+  react-native-biometrics: 4aaf49f9f8bd28c6aa3ec53534ca1b6b00486f6a
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 96a3c81f27da57b816fbb6808dde20dc96d1431e
+  react-native-camera: 203091b4bf99d48b788a0682ad573e8718724893
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
-  react-native-image-picker: fd93361c666f397bdf72f9c6c23f13d2685b9173
+  react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: 6d83f7b8076a84e965a43fbdcfcf9dac19cea42e
+  react-native-watch-connectivity: 5333c7054ff667130fd93f504a3d6bb35e87cabd
   react-native-webview: f72ac4078e115dfa741cc588acb1cca25566457d
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90
   React-RCTAnimation: 359ba1b5690b1e87cc173558a78e82d35919333e
@@ -345,23 +371,25 @@ SPEC CHECKSUMS:
   React-RCTText: b074d89033583d4f2eb5faf7ea2db3a13c7553a2
   React-RCTVibration: 2105b2e0e2b66a6408fc69a46c8a7fb5b2fdade0
   React-RCTWebSocket: cd932a16b7214898b6b7f788c8bddb3637246ac4
-  RNCAsyncStorage: 2808c378f6a70f22f66eeb6c11a8d69f326dd795
-  RNDeviceInfo: a88be26a64ada7cbc2bc0ebbd1662d340304874e
+  ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
+  RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
+  RNCAsyncStorage: 5ae4d57458804e99f73d427214442a6b10a53856
+  RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
+  RNSentry: 2803ba8c8129dcf26b79e9b4d8c80168be6e4390
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
-  RNWatch: c2d3bff3adf9ce06e10eb8c2d75c9043f5df0e35
-  Sentry: 4e8a17b61ddd116f89536cc81d567fdee1ebca96
-  SentryReactNative: 07237139c00366ea2e75ae3e5c566e7a71c27a90
-  swift_qrcodejs: 0bacbfe321a99954c7b8e04c75562007ea4e4f7c
-  ToolTipMenu: c158702a26154d892bc9e6eaa7d7382f0f1ee16e
+  Sentry: 5d312a04e369154aeac616214f4dfc3cbcc8b296
+  swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
+  TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
+  ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: 0367389d52d7644ba1974734bda6b2a9b29d2311
+PODFILE CHECKSUM: 4ac476f363ad99e4ad854f97a5c1854ea0423bf6
 
 COCOAPODS: 1.7.5

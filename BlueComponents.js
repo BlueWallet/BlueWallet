@@ -1,7 +1,6 @@
 /* eslint react/prop-types: 0 */
-/* global alert */
 /** @type {AppStorage} */
-import React, { Component } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import { Icon, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
@@ -18,7 +17,6 @@ import {
   Image,
   Keyboard,
   SafeAreaView,
-  InteractionManager,
   InputAccessoryView,
   Clipboard,
   Platform,
@@ -29,13 +27,12 @@ import { LightningCustodianWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
-import ImagePicker from 'react-native-image-picker';
 import WalletGradient from './class/walletGradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+import Biometric from './class/biometrics';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -182,6 +179,15 @@ export class BlueWalletNavigationHeader extends Component {
 
   handleBalanceVisibility = async _item => {
     const wallet = this.state.wallet;
+
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled && wallet.hideBalance) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return this.props.navigation.goBack();
+      }
+    }
+
     wallet.hideBalance = !wallet.hideBalance;
     this.setState({ wallet });
     await BlueApp.saveToDisk();
@@ -236,6 +242,10 @@ export class BlueWalletNavigationHeader extends Component {
       this.props.onWalletUnitChange(wallet);
     });
   }
+
+  manageFundsPressed = () => {
+    this.props.onManageFundsPressed();
+  };
 
   render() {
     return (
@@ -303,7 +313,7 @@ export class BlueWalletNavigationHeader extends Component {
           )}
         </TouchableOpacity>
         {this.state.wallet.type === LightningCustodianWallet.type && (
-          <TouchableOpacity onPress={() => NavigationService.navigate('ManageFunds', { fromWallet: this.state.wallet })}>
+          <TouchableOpacity onPress={this.manageFundsPressed}>
             <View
               style={{
                 marginTop: 14,
@@ -382,6 +392,36 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   headerBackTitle: null,
 });
 
+export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuButton = false, advancedOptionsMenuButtonAction) => ({
+  headerStyle: {
+    backgroundColor: BlueApp.settings.brandingColor,
+    borderBottomWidth: 0,
+    elevation: 0,
+  },
+  headerTitleStyle: {
+    fontWeight: '600',
+    color: BlueApp.settings.foregroundColor,
+  },
+  headerTintColor: BlueApp.settings.foregroundColor,
+  headerLeft: (
+    <TouchableOpacity
+      style={{ minWwidth: 40, height: 40, padding: 14 }}
+      onPress={() => {
+        Keyboard.dismiss();
+        navigation.goBack(null);
+      }}
+    >
+      <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
+    </TouchableOpacity>
+  ),
+  headerRight: withAdvancedOptionsMenuButton ? (
+    <TouchableOpacity style={{ minWidth: 40, height: 40, padding: 14 }} onPress={advancedOptionsMenuButtonAction}>
+      <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+    </TouchableOpacity>
+  ) : null,
+  headerBackTitle: null,
+});
+
 export const BluePrivateBalance = () => {
   return Platform.select({
     ios: (
@@ -399,10 +439,10 @@ export const BluePrivateBalance = () => {
   });
 };
 
-export const BlueCopyToClipboardButton = ({ stringToCopy }) => {
+export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
   return (
     <TouchableOpacity {...this.props} onPress={() => Clipboard.setString(stringToCopy)}>
-      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{loc.transactions.details.copy}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details.copy}</Text>
     </TouchableOpacity>
   );
 };
@@ -816,7 +856,7 @@ export class BlueUseAllFundsButton extends Component {
           <BlueButtonLink
             style={{ paddingRight: 8, paddingLeft: 0, paddingTop: 12, paddingBottom: 12 }}
             title="Done"
-            onPress={Keyboard.dismiss}
+            onPress={() => Keyboard.dismiss()}
           />
         </View>
       </View>
@@ -1353,27 +1393,28 @@ export class NewWalletPanel extends Component {
   }
 }
 
-export class BlueTransactionListItem extends Component {
-  static propTypes = {
-    item: PropTypes.shape().isRequired,
-    itemPriceUnit: PropTypes.string,
+export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
+  const calculateTimeLabel = () => {
+    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
+    return setTransactionTimeToReadable(transactionTimeToReadable);
   };
+  const interval = setInterval(() => calculateTimeLabel(), 60000);
+  const [transactionTimeToReadable, setTransactionTimeToReadable] = useState('...');
+  const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
 
-  static defaultProps = {
-    itemPriceUnit: BitcoinUnit.BTC,
-  };
+  useEffect(() => {
+    calculateTimeLabel();
+    return () => clearInterval(interval);
+  }, [item, itemPriceUnit]);
 
-  state = { transactionTimeToReadable: '...' };
-
-  txMemo = () => {
-    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
-      return BlueApp.tx_metadata[this.props.item.hash]['memo'];
+  const txMemo = () => {
+    if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash]['memo']) {
+      return BlueApp.tx_metadata[item.hash]['memo'];
     }
     return '';
   };
 
-  rowTitle = () => {
-    const item = this.props.item;
+  const rowTitle = () => {
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
       if (isNaN(item.value)) {
         item.value = '0';
@@ -1383,21 +1424,20 @@ export class BlueTransactionListItem extends Component {
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+        return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+          return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, this.props.itemPriceUnit, true).toString();
+      return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
   };
 
-  rowTitleStyle = () => {
-    const item = this.props.item;
+  const rowTitleStyle = () => {
     let color = BlueApp.settings.successColor;
 
     if (item.type === 'user_invoice' || item.type === 'payment_request') {
@@ -1425,9 +1465,9 @@ export class BlueTransactionListItem extends Component {
     };
   };
 
-  avatar = () => {
+  const avatar = () => {
     // is it lightning refill tx?
-    if (this.props.item.category === 'receive' && this.props.item.confirmations < 3) {
+    if (item.category === 'receive' && item.confirmations < 3) {
       return (
         <View style={{ width: 25 }}>
           <BlueTransactionPendingIcon />
@@ -1435,14 +1475,14 @@ export class BlueTransactionListItem extends Component {
       );
     }
 
-    if (this.props.item.type && this.props.item.type === 'bitcoind_tx') {
+    if (item.type && item.type === 'bitcoind_tx') {
       return (
         <View style={{ width: 25 }}>
           <BlueTransactionOnchainIcon />
         </View>
       );
     }
-    if (this.props.item.type === 'paid_invoice') {
+    if (item.type === 'paid_invoice') {
       // is it lightning offchain payment?
       return (
         <View style={{ width: 25 }}>
@@ -1451,11 +1491,11 @@ export class BlueTransactionListItem extends Component {
       );
     }
 
-    if (this.props.item.type === 'user_invoice' || this.props.item.type === 'payment_request') {
-      if (!this.props.item.ispaid) {
+    if (item.type === 'user_invoice' || item.type === 'payment_request') {
+      if (!item.ispaid) {
         const currentDate = new Date();
         const now = (currentDate.getTime() / 1000) | 0;
-        const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
+        const invoiceExpiration = item.timestamp + item.expire_time;
         if (invoiceExpiration < now) {
           return (
             <View style={{ width: 25 }}>
@@ -1472,13 +1512,13 @@ export class BlueTransactionListItem extends Component {
       }
     }
 
-    if (!this.props.item.confirmations) {
+    if (!item.confirmations) {
       return (
         <View style={{ width: 25 }}>
           <BlueTransactionPendingIcon />
         </View>
       );
-    } else if (this.props.item.value < 0) {
+    } else if (item.value < 0) {
       return (
         <View style={{ width: 25 }}>
           <BlueTransactionOutgoingIcon />
@@ -1493,32 +1533,24 @@ export class BlueTransactionListItem extends Component {
     }
   };
 
-  subtitle = () => {
-    return (
-      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
-      this.txMemo() +
-      (this.props.item.memo || '')
-    );
+  const subtitle = () => {
+    return (item.confirmations < 7 ? loc.transactions.list.conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
   };
 
-  onPress = () => {
-    if (this.props.item.hash) {
-      NavigationService.navigate('TransactionStatus', { hash: this.props.item.hash });
-    } else if (
-      this.props.item.type === 'user_invoice' ||
-      this.props.item.type === 'payment_request' ||
-      this.props.item.type === 'paid_invoice'
-    ) {
+  const onPress = () => {
+    if (item.hash) {
+      NavigationService.navigate('TransactionStatus', { hash: item.hash });
+    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
           if (wallet.hasOwnProperty('secret')) {
-            return wallet.getSecret() === this.props.item.fromWallet;
+            return wallet.getSecret() === item.fromWallet;
           }
         }
       });
       if (lightningWallet.length === 1) {
         NavigationService.navigate('LNDViewInvoice', {
-          invoice: this.props.item,
+          invoice: item,
           fromWallet: lightningWallet[0],
           isModal: false,
         });
@@ -1526,32 +1558,32 @@ export class BlueTransactionListItem extends Component {
     }
   };
 
-  componentDidMount() {
-    InteractionManager.runAfterInteractions(() => {
-      const transactionTimeToReadable = loc.transactionTimeToReadable(this.props.item.received);
-      this.setState({ transactionTimeToReadable });
-    });
-  }
+  const onLongPress = () => {
+    if (subtitleNumberOfLines === 1) {
+      setSubtitleNumberOfLines(0);
+    }
+  };
 
-  render() {
-    return (
-      <BlueListItem
-        avatar={this.avatar()}
-        title={this.state.transactionTimeToReadable}
-        subtitle={this.subtitle()}
-        onPress={this.onPress}
-        badge={{
-          value: 3,
-          textStyle: { color: 'orange' },
-          containerStyle: { marginTop: 0 },
-        }}
-        hideChevron
-        rightTitle={this.rowTitle()}
-        rightTitleStyle={this.rowTitleStyle()}
-      />
-    );
-  }
-}
+  return (
+    <BlueListItem
+      avatar={avatar()}
+      title={transactionTimeToReadable}
+      titleNumberOfLines={subtitleNumberOfLines}
+      subtitle={subtitle()}
+      subtitleNumberOfLines={subtitleNumberOfLines}
+      onPress={onPress}
+      onLongPress={onLongPress}
+      badge={{
+        value: 3,
+        textStyle: { color: 'orange' },
+        containerStyle: { marginTop: 0 },
+      }}
+      hideChevron
+      rightTitle={rowTitle()}
+      rightTitleStyle={rowTitleStyle()}
+    />
+  );
+};
 
 export class BlueListTransactionItem extends Component {
   static propTypes = {
@@ -1943,43 +1975,21 @@ export class BlueAddressInput extends Component {
           value={this.props.address}
           style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
           editable={!this.props.isLoading}
-          onSubmitEditing={Keyboard.dismiss}
+          onSubmitEditing={() => Keyboard.dismiss()}
           {...this.props}
         />
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
+            NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned });
             Keyboard.dismiss();
-            ImagePicker.showImagePicker(
-              {
-                title: null,
-                mediaType: 'photo',
-                takePhotoButtonTitle: null,
-                customButtons: [{ name: 'navigatetoQRScan', title: 'Use Camera' }],
-              },
-              response => {
-                if (response.customButton) {
-                  NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned });
-                } else if (response.uri) {
-                  const uri = response.uri.toString().replace('file://', '');
-                  LocalQRCode.decode(uri, (error, result) => {
-                    if (!error) {
-                      this.props.onBarScanned(result);
-                    } else {
-                      alert('The selected image does not contain a QR Code.');
-                    }
-                  });
-                }
-              },
-            );
           }}
           style={{
-            width: 75,
             height: 36,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            backgroundColor: '#bebebe',
+            backgroundColor: '#9AA0AA',
             borderRadius: 4,
             paddingVertical: 4,
             paddingHorizontal: 8,
@@ -1987,7 +1997,7 @@ export class BlueAddressInput extends Component {
           }}
         >
           <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
-          <Text style={{ color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
+          <Text style={{ marginLeft: 4, color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -2009,7 +2019,7 @@ export class BlueReplaceFeeSuggestions extends Component {
 
   async componentDidMount() {
     const networkFees = await NetworkTransactionFees.recommendedFees();
-    this.setState({ networkFees });
+    this.setState({ networkFees }, () => this.onFeeSelected(NetworkTransactionFeeType.FAST));
   }
 
   onFeeSelected = selectedFeeType => {

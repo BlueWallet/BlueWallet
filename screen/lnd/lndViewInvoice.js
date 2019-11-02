@@ -14,7 +14,6 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
-import SystemSetting from 'react-native-system-setting';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -63,8 +62,6 @@ export default class LNDViewInvoice extends Component {
 
           if (typeof updatedUserInvoice !== 'undefined') {
             this.setState({ invoice: updatedUserInvoice, isLoading: false, addressText: updatedUserInvoice.payment_request });
-            await SystemSetting.saveBrightness();
-            await SystemSetting.setAppBrightness(1.0);
             if (updatedUserInvoice.ispaid) {
               // we fetched the invoice, and it is paid :-)
               this.setState({ isFetchingInvoices: false });
@@ -97,7 +94,6 @@ export default class LNDViewInvoice extends Component {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
-    await SystemSetting.restoreBrightness();
   }
 
   handleBackButton = () => {
@@ -155,8 +151,8 @@ export default class LNDViewInvoice extends Component {
                   borderRadius: 60,
                   alignSelf: 'center',
                   justifyContent: 'center',
-                  marginTop: 43,
-                  marginBottom: 53,
+                  marginTop: -100,
+                  marginBottom: 30,
                 }}
               >
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
@@ -192,8 +188,8 @@ export default class LNDViewInvoice extends Component {
                   borderRadius: 60,
                   alignSelf: 'center',
                   justifyContent: 'center',
-                  marginTop: 43,
-                  marginBottom: 53,
+                  marginTop: -100,
+                  marginBottom: 30,
                 }}
               >
                 <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />

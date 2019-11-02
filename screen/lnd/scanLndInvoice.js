@@ -3,7 +3,6 @@ import React from 'react';
 import { Text, ActivityIndicator, View, TouchableWithoutFeedback, TouchableOpacity, Keyboard } from 'react-native';
 import PropTypes from 'prop-types';
 import {
-  BlueSpacing20,
   BlueButton,
   SafeBlueArea,
   BlueCard,
@@ -16,6 +15,7 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
@@ -144,6 +144,14 @@ export default class ScanLndInvoice extends React.Component {
       return null;
     }
 
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
+
     this.setState(
       {
         isLoading: true,
@@ -209,28 +217,33 @@ export default class ScanLndInvoice extends React.Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 24, alignItems: 'center' }}>
+      <View style={{ marginBottom: 16, alignItems: 'center' }}>
         {!this.state.isLoading && (
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 16 }}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, paddingHorizontal: 16, alignSelf: 'center' }}>
-              {loc.wallets.select_wallet.toLowerCase()}
-            </Text>
-            <Icon name="angle-right" size={22} type="font-awesome" color="#9aa0aa" />
+            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
-          <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
-          <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
-            {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.BTC, false)}
-          </Text>
-          <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
-            {BitcoinUnit.BTC}
-          </Text>
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            onPress={() =>
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+            }
+          >
+            <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
+            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+            </Text>
+            <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
+              {BitcoinUnit.SATS}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     );
@@ -248,23 +261,25 @@ export default class ScanLndInvoice extends React.Component {
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
           <View style={{ flex: 1 }}>
             <View style={{ flex: 1 }}>
-              <BlueBitcoinAmount
-                pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
-                isLoading={this.state.isLoading}
-                amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
-                onChangeText={text => {
-                  if (typeof this.state.decoded === 'object') {
-                    text = parseInt(text || 0);
-                    let decoded = this.state.decoded;
-                    decoded.num_satoshis = text;
-                    this.setState({ decoded: decoded });
-                  }
-                }}
-                disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
-                unit={BitcoinUnit.SATS}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-              />
-              <BlueSpacing20 />
+              <View style={{ marginTop: 60 }}>
+                <BlueBitcoinAmount
+                  pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
+                  isLoading={this.state.isLoading}
+                  amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
+                  onChangeText={text => {
+                    if (typeof this.state.decoded === 'object') {
+                      text = parseInt(text || 0);
+                      let decoded = this.state.decoded;
+                      decoded.num_satoshis = text;
+                      this.setState({ decoded: decoded });
+                    }
+                  }}
+                  disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
+                  unit={BitcoinUnit.SATS}
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                />
+              </View>
+
               <BlueCard>
                 <BlueAddressInput
                   onChangeText={text => {
@@ -282,7 +297,7 @@ export default class ScanLndInvoice extends React.Component {
                     flexDirection: 'row',
                     marginHorizontal: 20,
                     alignItems: 'center',
-                    marginVertical: 8,
+                    marginVertical: 0,
                     borderRadius: 4,
                   }}
                 >
@@ -293,7 +308,7 @@ export default class ScanLndInvoice extends React.Component {
                 {this.state.expiresIn !== undefined && (
                   <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
                 )}
-                <BlueSpacing20 />
+
                 <BlueCard>
                   {this.state.isLoading ? (
                     <View>
@@ -301,11 +316,6 @@ export default class ScanLndInvoice extends React.Component {
                     </View>
                   ) : (
                     <BlueButton
-                      icon={{
-                        name: 'bolt',
-                        type: 'font-awesome',
-                        color: BlueApp.settings.buttonTextColor,
-                      }}
                       title={'Pay'}
                       onPress={() => {
                         this.pay();
