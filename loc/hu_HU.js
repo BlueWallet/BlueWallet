@@ -228,8 +228,7 @@ module.exports = {
     title: 'A tárcád elkészült...',
     text:
       'Kérlek írd le az alábbi emlékeztető szavakat egy papírlapra, és tedd el egy biztonságos helyre. ' +
-      'Ez egy biztonsági mentés, amellyel helyreállíthatod a tárcádat egy másik eszközön. Helyreállításhoz ' +
-      'használhatod az Electrum tárcát (https://electrum.org/) az asztali számítógépeden.',
+      'Ez egy biztonsági mentés, amellyel helyreállíthatod a tárcádat egy másik eszközön.',
     ok: 'Rendben, leírtam!',
   },
   lndViewInvoice: {

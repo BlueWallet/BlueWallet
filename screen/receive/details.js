@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, InteractionManager } from 'react-native';
+import { View, InteractionManager, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
@@ -14,7 +14,6 @@ import {
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
-import { ScrollView } from 'react-native-gesture-handler';
 import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');

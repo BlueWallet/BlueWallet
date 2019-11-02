@@ -233,7 +233,7 @@ module.exports = {
   pleasebackup: {
     title: 'A sua wallet foi criada...',
     text:
-      'Por favor escreva esta frase mnemónica numa folha de papel. É o seu backup e pode usá-lo para restaurar a sua wallet noutro device. Pode usar o Electrum wallet em desktop (https://electrum.org/) para restaurar a sua wallet.',
+      'Por favor escreva esta frase mnemónica numa folha de papel. É o seu backup e pode usá-lo para restaurar a sua wallet noutro device.',
     ok: 'OK, eu escrevi-a num papel!',
   },
   lndViewInvoice: {
