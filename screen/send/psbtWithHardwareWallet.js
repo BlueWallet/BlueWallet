@@ -61,7 +61,7 @@ export default class PsbtWithHardwareWallet extends Component {
     console.log('send/psbtWithHardwareWallet - componentDidMount');
   }
 
-  broadcast() {
+  broadcast = () => {
     this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
@@ -87,7 +87,7 @@ export default class PsbtWithHardwareWallet extends Component {
         alert(error.message);
       }
     });
-  }
+  };
 
   _renderScanner() {
     return (
