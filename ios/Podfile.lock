@@ -10,13 +10,13 @@ PODS:
     - AppCenter/Crashes
     - AppCenterReactNativeShared
     - React
-  - AppCenter/Analytics (2.5.0):
+  - AppCenter/Analytics (2.5.1):
     - AppCenter/Core
-  - AppCenter/Core (2.5.0)
-  - AppCenter/Crashes (2.5.0):
+  - AppCenter/Core (2.5.1)
+  - AppCenter/Crashes (2.5.1):
     - AppCenter/Core
-  - AppCenterReactNativeShared (2.5.0):
-    - AppCenter/Core (= 2.5.0)
+  - AppCenterReactNativeShared (2.6.0):
+    - AppCenter/Core (= 2.5.1)
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.4):
     - React
@@ -133,6 +133,8 @@ PODS:
     - React
   - RNCAsyncStorage (1.6.2):
     - React
+  - RNDefaultPreference (1.4.1):
+    - React
   - RNDeviceInfo (4.0.1):
     - React
   - RNFS (2.13.3):
@@ -140,6 +142,8 @@ PODS:
   - RNGestureHandler (1.3.0):
     - React
   - RNHandoff (0.0.3):
+    - React
+  - RNQuickAction (0.3.12):
     - React
   - RNRate (1.0.1):
     - React
@@ -156,9 +160,9 @@ PODS:
     - React
   - RNWatch (0.4.1):
     - React
-  - Sentry (4.4.1):
-    - Sentry/Core (= 4.4.1)
-  - Sentry/Core (4.4.1)
+  - Sentry (4.4.2):
+    - Sentry/Core (= 4.4.2)
+  - Sentry/Core (4.4.2)
   - swift_qrcodejs (1.1.2)
   - TcpSockets (3.3.2):
     - React
@@ -204,10 +208,12 @@ DEPENDENCIES:
   - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNHandoff (from `../node_modules/react-native-handoff`)
+  - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate/ios`)
   - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
@@ -302,6 +308,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
+  RNDefaultPreference:
+    :path: "../node_modules/react-native-default-preference"
   RNDeviceInfo:
     :path: "../node_modules/react-native-device-info"
   RNFS:
@@ -310,6 +318,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNHandoff:
     :path: "../node_modules/react-native-handoff"
+  RNQuickAction:
+    :path: "../node_modules/react-native-quick-actions"
   RNRate:
     :path: "../node_modules/react-native-rate/ios"
   RNSecureKeyStore:
@@ -332,11 +342,11 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AppCenter: 637f180deefc61e8ab3f94223869ee50f61dabea
+  AppCenter: fddcbac6e4baae3d93a196ceb0bfe0e4ce407dec
   appcenter: bde9923b687332a25607fc1aa9577c9361cfed85
   appcenter-analytics: 0ee7a35def715d4bce58ec435f54161770195166
   appcenter-crashes: 9f9c5647dba19026ff09509576fb7233f69697ff
-  AppCenterReactNativeShared: 99e7f662ec66b1cb41306ecf357aabac35931c08
+  AppCenterReactNativeShared: d5e360f8a4cb5126d29e31ab98051d2f070ba631
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
@@ -373,10 +383,12 @@ SPEC CHECKSUMS:
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 5ae4d57458804e99f73d427214442a6b10a53856
+  RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
+  RNQuickAction: eca9a5dd04b5cdf8a0dd32d8be8844dc33aba2bd
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 2803ba8c8129dcf26b79e9b4d8c80168be6e4390
@@ -384,7 +396,7 @@ SPEC CHECKSUMS:
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
-  Sentry: 5d312a04e369154aeac616214f4dfc3cbcc8b296
+  Sentry: bba998b0fb157fdd6596aa73290a9d67ae47be79
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
   ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e
