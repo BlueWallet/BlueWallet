@@ -65,8 +65,6 @@ export default class WatchConnectivity {
     }
 
     return InteractionManager.runAfterInteractions(async () => {
-      console.warn(WatchConnectivity.shared.isAppInstalled);
-
       if (WatchConnectivity.shared.isAppInstalled) {
         let wallets = [];
 

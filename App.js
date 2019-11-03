@@ -1,5 +1,5 @@
 import React from 'react';
-import { Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Linking, DeviceEventEmitter, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Modal from 'react-native-modal';
 import { NavigationActions } from 'react-navigation';
@@ -10,8 +10,9 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import url from 'url';
 import { AppStorage, LightningCustodianWallet } from './class';
 import { Chain } from './models/bitcoinUnits';
-
+import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
+import OnAppLaunch from './class/onAppLaunch';
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -36,17 +37,70 @@ export default class App extends React.Component {
     clipboardContent: '',
   };
 
-  componentDidMount() {
-    Linking.getInitialURL()
-      .then(url => {
+  async componentDidMount() {
+    Linking.addEventListener('url', this.handleOpenURL);
+    AppState.addEventListener('change', this._handleAppStateChange);
+    QuickActions.popInitialAction().then(this.popInitialAction);
+    DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
+  }
+
+  popInitialAction = async data => {
+    if (data) {
+      // eslint-disable-next-line no-unused-expressions
+      this.navigator.dismiss;
+      const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+      this.navigator.dispatch(
+        NavigationActions.navigate({
+          key: `WalletTransactions-${wallet.getID()}`,
+          routeName: 'WalletTransactions',
+          params: {
+            wallet,
+          },
+        }),
+      );
+    } else {
+      const url = await Linking.getInitialURL();
+      if (url) {
         if (this.hasSchema(url)) {
           this.handleOpenURL({ url });
         }
-      })
-      .catch(console.error);
-    Linking.addEventListener('url', this.handleOpenURL);
-    AppState.addEventListener('change', this._handleAppStateChange);
-  }
+      } else {
+        const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
+        if (!isViewAllWalletsEnabled) {
+          // eslint-disable-next-line no-unused-expressions
+          this.navigator.dismiss;
+          const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
+          const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
+          if (wallet) {
+            this.navigator.dispatch(
+              NavigationActions.navigate({
+                routeName: 'WalletTransactions',
+                key: `WalletTransactions-${wallet.getID()}`,
+                params: {
+                  wallet,
+                },
+              }),
+            );
+          }
+        }
+      }
+    }
+  };
+
+  walletQuickActions = data => {
+    const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+    // eslint-disable-next-line no-unused-expressions
+    this.navigator.dismiss;
+    this.navigator.dispatch(
+      NavigationActions.navigate({
+        routeName: 'WalletTransactions',
+        key: `WalletTransactions-${wallet.getID()}`,
+        params: {
+          wallet,
+        },
+      }),
+    );
+  };
 
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
