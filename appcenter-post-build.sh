@@ -16,5 +16,5 @@ if [ -f $FILENAME ]; then
     echo App url: $APPURL
     PR=`node appcenter-post-build-get-pr-number.js`
     echo PR: $PR
-    curl -X POST --data "{\"body\":\"Test this build in browser:\n\n(ﾉ◕ヮ◕)ﾉ*:・ﾟ✧ $APPURL\n\n(posted automatically)\"}"  -u "Overtorment:$GITHUB" "https://api.github.com/repos/BlueWallet/BlueWallet/issues/$PR/comments"
+    curl -X POST --data "{\"body\":\"This was a triumph. I'm making a note here: HUGE SUCCESS.\n\n [android] $APPURL\"}"  -u "$GITHUB_USERNAME:$GITHUB" "https://api.github.com/repos/BlueWallet/BlueWallet/issues/$PR/comments"
 fi
