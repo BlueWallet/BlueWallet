@@ -149,7 +149,7 @@ export class AppStorage {
         let parsedStorage = JSON.parse(storage);
         let mainStorage = parsedStorage[0];
         mainStorage = JSON.stringify([mainStorage]);
-        let decrypted = this.decryptData(mainStorage, password);
+        const decrypted = this.decryptData(mainStorage, password);
         if (!decrypted) {
           throw new Error('Wrong password for main storage.');
         }
@@ -160,7 +160,10 @@ export class AppStorage {
           this.cachedPassword = undefined;
           await this.setItem(AppStorage.FLAG_ENCRYPTED, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
           await this.setItem('deleteWalletAfterUninstall', '1', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
-          return this.saveToDisk();
+          await this.saveToDisk();
+          this.wallets = [];
+          this.tx_metadata = [];
+          return this.loadFromDisk();
         }
       }
     } catch (e) {
@@ -343,8 +346,8 @@ export class AppStorage {
     let walletsToSave = [];
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
-      if (key.prepareForSerialization) key.prepareForSerialization();
       if (typeof key === 'string') key = JSON.parse(key);
+      if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 

@@ -41,11 +41,7 @@ export default class EncryptStorage extends Component {
     });
     try {
       await BlueApp.decryptStorage(password);
-      this.setState({
-        isLoading: false,
-        storageIsEncrypted: await BlueApp.storageIsEncrypted(),
-        deleteWalletAfterUninstall: await BlueApp.isDeleteWalletAfterUninstallEnabled(),
-      });
+      this.props.navigation.popToTop();
     } catch (e) {
       if (password) {
         alert(loc._.bad_password);
@@ -154,6 +150,7 @@ export default class EncryptStorage extends Component {
 EncryptStorage.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
+    popToTop: PropTypes.func,
     goBack: PropTypes.func,
   }),
 };
