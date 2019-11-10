@@ -24,7 +24,7 @@ let loc = require('../../loc');
 export default class EncryptStorage extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: loc.settings.security,
+    title: 'Security',
   });
 
   constructor(props) {
