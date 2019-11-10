@@ -662,7 +662,7 @@ export class BlueHeaderDefaultSub extends Component {
               adjustsFontSizeToFit
               style={{
                 fontWeight: 'bold',
-                fontSize: 34,
+                fontSize: 30,
                 color: BlueApp.settings.foregroundColor,
               }}
             >
