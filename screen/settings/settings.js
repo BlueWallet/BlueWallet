@@ -11,7 +11,6 @@ import {
 } from '../../BlueComponents';
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../../class';
-import Biometric from '../../class/biometrics';
 import { useNavigation } from 'react-navigation-hooks';
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -20,16 +19,11 @@ export const Settings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [advancedModeEnabled, setAdvancedModeEnabled] = useState(false);
-  const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
   const { navigate } = useNavigation();
 
   useEffect(() => {
     (async () => {
       setAdvancedModeEnabled(!!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)));
-      const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
-      const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-      const biometricsType = (await Biometric.biometricType()) || 'biometrics';
-      setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
       setIsLoading(false);
     })();
   });
@@ -41,15 +35,6 @@ export const Settings = () => {
       await AsyncStorage.removeItem(AppStorage.ADVANCED_MODE_ENABLED);
     }
     setAdvancedModeEnabled(value);
-  };
-
-  const onUseBiometricSwitch = async value => {
-    let isBiometricsEnabled = biometrics;
-    if (await Biometric.unlockWithBiometrics()) {
-      isBiometricsEnabled.isBiometricsEnabled = value;
-      await Biometric.setBiometricUseEnabled(value);
-      setBiometrics(isBiometricsEnabled);
-    }
   };
 
   const onShowAdvancedOptions = () => {
@@ -65,16 +50,7 @@ export const Settings = () => {
         {BlueApp.getWallets().length > 1 && (
           <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
         )}
-        <BlueListItem title={loc.settings.encrypt_storage} onPress={() => navigate('EncryptStorage')} component={TouchableOpacity} />
-        {biometrics.isDeviceBiometricCapable && (
-          <BlueListItem
-            hideChevron
-            title={`Use ${biometrics.biometricsType}`}
-            switchButton
-            onSwitch={onUseBiometricSwitch}
-            switched={biometrics.isBiometricsEnabled}
-          />
-        )}
+        <BlueListItem title="Security" onPress={() => navigate('EncryptStorage')} component={TouchableOpacity} />
         <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
         <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} />
         <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} />

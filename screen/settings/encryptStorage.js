@@ -1,11 +1,21 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, Alert, Platform, TouchableOpacity } from 'react-native';
-import { BlueLoading, BlueHeaderDefaultSub, BlueListItem, SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
+import { ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
+import {
+  BlueLoading,
+  BlueHeaderDefaultSub,
+  BlueListItem,
+  SafeBlueArea,
+  BlueNavigationStyle,
+  BlueSpacing20,
+  BlueCard,
+  BlueText,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let prompt = require('../../prompt');
@@ -23,15 +33,20 @@ export default class EncryptStorage extends Component {
       isLoading: true,
       language: loc.getLanguage(),
       deleteWalletsAfterUninstall: false,
+      biometrics: { isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' },
     };
   }
 
   async componentDidMount() {
+    const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
+    const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
+    const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     this.setState({
       isLoading: false,
       advancedModeEnabled: (await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)) || false,
       storageIsEncrypted: await BlueApp.storageIsEncrypted(),
       deleteWalletsAfterUninstall: await BlueApp.isDeleteWalletAfterUninstallEnabled(),
+      biometrics: { isBiometricsEnabled, isDeviceBiometricCapable, biometricsType },
     });
   }
 
@@ -106,6 +121,15 @@ export default class EncryptStorage extends Component {
     });
   };
 
+  onUseBiometricSwitch = async value => {
+    let isBiometricsEnabled = this.state.biometrics;
+    if (await Biometric.unlockWithBiometrics()) {
+      isBiometricsEnabled.isBiometricsEnabled = value;
+      await Biometric.setBiometricUseEnabled(value);
+      this.setState({ biometrics: isBiometricsEnabled });
+    }
+  };
+
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
@@ -113,7 +137,26 @@ export default class EncryptStorage extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <View>
+        <ScrollView>
+          {this.state.biometrics.isDeviceBiometricCapable && (
+            <>
+              <BlueHeaderDefaultSub leftText="biometrics" rightComponent={null} />
+              <BlueListItem
+                hideChevron
+                title={`Use ${this.state.biometrics.biometricsType}`}
+                switchButton
+                onSwitch={this.onUseBiometricSwitch}
+                switched={this.state.biometrics.isBiometricsEnabled}
+              />
+              <BlueCard>
+              <BlueText>
+                Biometrics will be used to confirm your identity prior to making a transaction, unlocking, exporting or deleting wallet.
+                Biometrics will not be used to unlock an encrypted storage.
+              </BlueText>
+              </BlueCard>
+              <BlueSpacing20 />
+            </>
+          )}
           <BlueHeaderDefaultSub leftText="storage" rightComponent={null} />
           <BlueListItem
             hideChevron
@@ -141,7 +184,7 @@ export default class EncryptStorage extends Component {
               <BlueListItem disabled={!this.state.storageIsEncrypted} title={loc.settings.plausible_deniability} />
             </TouchableOpacity>
           )}
-        </View>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
