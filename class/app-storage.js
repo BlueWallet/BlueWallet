@@ -143,32 +143,16 @@ export class AppStorage {
   }
 
   async decryptStorage(password) {
-    try {
-      let storage = await this.getItem('data');
-      if (password) {
-        let parsedStorage = JSON.parse(storage);
-        let mainStorage = parsedStorage[0];
-        mainStorage = JSON.stringify([mainStorage]);
-        const decrypted = this.decryptData(mainStorage, password);
-        if (!decrypted) {
-          throw new Error('Wrong password for main storage.');
-        }
-        const decryptedParsed = JSON.parse(decrypted);
-        if (decrypted.wallets !== null) {
-          this.wallets = decryptedParsed.wallets;
-          this.tx_metadata = decryptedParsed.tx_metadata;
-          this.cachedPassword = undefined;
-          await this.setItem(AppStorage.FLAG_ENCRYPTED, '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
-          await this.setItem('deleteWalletAfterUninstall', '1', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
-          await this.saveToDisk();
-          this.wallets = [];
-          this.tx_metadata = [];
-          return this.loadFromDisk();
-        }
-      }
-    } catch (e) {
-      console.log(e);
-      throw new Error(e);
+    if (password === this.cachedPassword) {
+      this.cachedPassword = undefined;
+      await this.setItem(AppStorage.FLAG_ENCRYPTED, '');
+      await this.setItem('deleteWalletAfterUninstall', '1');
+      await this.saveToDisk();
+      this.wallets = [];
+      this.tx_metadata = [];
+      return this.loadFromDisk();
+    } else {
+      throw new Error('Wrong password. Please, try again.');
     }
   }
 
