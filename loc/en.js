@@ -130,7 +130,7 @@ module.exports = {
       cancel: 'Cancel',
       scan: 'Scan',
       send: 'Send',
-      create: 'Create',
+      create: 'Create Invoice',
       remaining_balance: 'Remaining balance',
     },
     confirm: {
