@@ -1,42 +1,51 @@
 import * as Watch from 'react-native-watch-connectivity';
-import { InteractionManager, Platform } from 'react-native';
+import { InteractionManager } from 'react-native';
 const loc = require('./loc');
 export default class WatchConnectivity {
   isAppInstalled = false;
-  BlueApp = require('./BlueApp');
+  static shared = new WatchConnectivity();
+  wallets;
+  fetchTransactionsFunction = () => {};
 
   constructor() {
-    if (Platform.OS === 'ios') {
-      this.getIsWatchAppInstalled();
-    }
+    this.getIsWatchAppInstalled();
   }
 
   getIsWatchAppInstalled() {
-    if (Platform.OS !== 'ios') return;
     Watch.getIsWatchAppInstalled((err, isAppInstalled) => {
       if (!err) {
-        this.isAppInstalled = isAppInstalled;
-        this.sendWalletsToWatch();
-      }
-    });
-    Watch.subscribeToMessages(async (err, message, reply) => {
-      if (!err) {
-        if (message.request === 'createInvoice') {
-          const createInvoiceRequest = await this.handleLightningInvoiceCreateRequest(
-            message.walletIndex,
-            message.amount,
-            message.description,
-          );
-          reply({ invoicePaymentRequest: createInvoiceRequest });
-        }
-      } else {
-        reply(err);
+        WatchConnectivity.shared.isAppInstalled = isAppInstalled;
+        Watch.subscribeToWatchState((err, watchState) => {
+          if (!err) {
+            if (watchState === 'Activated') {
+              WatchConnectivity.shared.sendWalletsToWatch();
+            }
+          }
+        });
+        Watch.subscribeToMessages(async (err, message, reply) => {
+          if (!err) {
+            if (message.request === 'createInvoice') {
+              const createInvoiceRequest = await this.handleLightningInvoiceCreateRequest(
+                message.walletIndex,
+                message.amount,
+                message.description,
+              );
+              reply({ invoicePaymentRequest: createInvoiceRequest });
+            } else if (message.message === 'sendApplicationContext') {
+              await WatchConnectivity.shared.sendWalletsToWatch(WatchConnectivity.shared.wallets);
+            } else if (message.message === 'fetchTransactions') {
+              await WatchConnectivity.shared.fetchTransactionsFunction();
+            }
+          } else {
+            reply(err);
+          }
+        });
       }
     });
   }
 
   async handleLightningInvoiceCreateRequest(walletIndex, amount, description) {
-    const wallet = this.BlueApp.getWallets()[walletIndex];
+    const wallet = WatchConnectivity.shared.wallets[walletIndex];
     if (wallet.allowReceive() && amount > 0 && description.trim().length > 0) {
       try {
         const invoiceRequest = await wallet.addInvoice(amount, description);
@@ -47,18 +56,31 @@ export default class WatchConnectivity {
     }
   }
 
-  async sendWalletsToWatch() {
-    if (Platform.OS !== 'ios') return;
-    InteractionManager.runAfterInteractions(async () => {
-      if (this.isAppInstalled) {
-        const allWallets = this.BlueApp.getWallets();
+  async sendWalletsToWatch(allWallets) {
+    if (allWallets === undefined && WatchConnectivity.shared.wallets !== undefined) {
+      allWallets = WatchConnectivity.shared.wallets;
+    }
+    if (allWallets && allWallets.length === 0) {
+      return;
+    }
+
+    return InteractionManager.runAfterInteractions(async () => {
+      console.warn(WatchConnectivity.shared.isAppInstalled);
+
+      if (WatchConnectivity.shared.isAppInstalled) {
         let wallets = [];
+
         for (const wallet of allWallets) {
           let receiveAddress = '';
           if (wallet.allowReceive()) {
             if (wallet.getAddressAsync) {
-              await wallet.getAddressAsync();
-              receiveAddress = wallet.getAddress();
+              try {
+                await wallet.getAddressAsync();
+                receiveAddress = wallet.getAddress();
+              } catch (error) {
+                console.log(error);
+                receiveAddress = wallet.getAddress();
+              }
             } else {
               receiveAddress = wallet.getAddress();
             }
@@ -70,7 +92,7 @@ export default class WatchConnectivity {
             let memo = '';
             let amount = 0;
 
-            if (transaction.hasOwnProperty('confirmations') && !transaction.confirmations > 0) {
+            if (transaction.hasOwnProperty('confirmations') && !(transaction.confirmations > 0)) {
               type = 'pendingConfirmation';
             } else if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
               const currentDate = new Date();
@@ -92,9 +114,7 @@ export default class WatchConnectivity {
               type = 'received';
             }
             if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
-              if (isNaN(transaction.value)) {
-                amount = '0';
-              }
+              amount = isNaN(transaction.value) ? '0' : amount;
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
               const invoiceExpiration = transaction.timestamp + transaction.expire_time;
@@ -113,8 +133,8 @@ export default class WatchConnectivity {
             } else {
               amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
             }
-            if (this.BlueApp.tx_metadata[transaction.hash] && this.BlueApp.tx_metadata[transaction.hash]['memo']) {
-              memo = this.BlueApp.tx_metadata[transaction.hash]['memo'];
+            if (WatchConnectivity.shared.tx_metadata[transaction.hash] && WatchConnectivity.shared.tx_metadata[transaction.hash]['memo']) {
+              memo = WatchConnectivity.shared.tx_metadata[transaction.hash]['memo'];
             } else if (transaction.memo) {
               memo = transaction.memo;
             }
@@ -130,14 +150,9 @@ export default class WatchConnectivity {
             transactions: watchTransactions,
           });
         }
-
-        Watch.updateApplicationContext({ wallets });
+        Watch.updateApplicationContext({ wallets, randomID: Math.floor(Math.random() * 11) });
+        return { wallets };
       }
     });
   }
 }
-
-WatchConnectivity.init = function() {
-  if (WatchConnectivity.shared || Platform.OS !== 'ios') return;
-  WatchConnectivity.shared = new WatchConnectivity();
-};

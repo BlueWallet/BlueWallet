@@ -7,6 +7,7 @@
 //
 
 import WatchKit
+import WatchConnectivity
 import Foundation
 import EFQRCode
 
@@ -16,19 +17,22 @@ class ReceiveInterfaceController: WKInterfaceController {
   @IBOutlet weak var imageInterface: WKInterfaceImage!
   private var wallet: Wallet?
   private var isRenderingQRCode: Bool?
+  private var receiveMethod: String = "receive"
   @IBOutlet weak var loadingIndicator: WKInterfaceGroup!
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
-    guard let identifier = context as? Int, WatchDataSource.shared.wallets.count > identifier else {
+    guard let passedContext = context as? (Int, String), WatchDataSource.shared.wallets.count >= passedContext.0   else {
       pop()
       return
     }
+    let identifier = passedContext.0
     let wallet = WatchDataSource.shared.wallets[identifier]
     self.wallet = wallet
+    receiveMethod = passedContext.1
     NotificationCenter.default.addObserver(forName: SpecifyInterfaceController.NotificationName.createQRCode, object: nil, queue: nil) { [weak self] (notification) in
       self?.isRenderingQRCode = true
-      if let wallet = self?.wallet, wallet.type == "lightningCustodianWallet", let object = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let amount = object.amount {
+      if let wallet = self?.wallet, wallet.type == "lightningCustodianWallet", self?.receiveMethod == "createInvoice", let object = notification.object as? SpecifyInterfaceController.SpecificQRCodeContent, let amount = object.amount {
         self?.imageInterface.setHidden(true)
         self?.loadingIndicator.setHidden(false)
         WatchDataSource.requestLightningInvoice(walletIdentifier: identifier, amount: amount, description: object.description, responseHandler: { (invoice) in
@@ -43,6 +47,7 @@ class ReceiveInterfaceController: WKInterfaceController {
               self?.imageInterface.setHidden(false)
               self?.imageInterface.setImage(nil)
               self?.imageInterface.setImage(image)
+              WCSession.default.sendMessage(["message": "fetchTransactions"], replyHandler: nil, errorHandler: nil)
             } else {
               self?.pop()
               self?.presentAlert(withTitle: "Error", message: "Unable to create invoice. Please, make sure your iPhone is paired and nearby.", preferredStyle: .alert, actions: [WKAlertAction(title: "OK", style: .default, handler: { [weak self] in
@@ -83,7 +88,7 @@ class ReceiveInterfaceController: WKInterfaceController {
     }
     
     guard !wallet.receiveAddress.isEmpty, let cgImage = EFQRCode.generate(
-      content: wallet.receiveAddress) else {
+      content: wallet.receiveAddress), receiveMethod != "createInvoice" else {
         return
     }
     
@@ -93,7 +98,7 @@ class ReceiveInterfaceController: WKInterfaceController {
   
   override func didAppear() {
     super.didAppear()
-    if wallet?.type == "lightningCustodianWallet" {
+    if wallet?.type == "lightningCustodianWallet" && receiveMethod == "createInvoice" {
       if isRenderingQRCode == nil {
         presentController(withName: SpecifyInterfaceController.identifier, context: wallet?.identifier)
         isRenderingQRCode = false

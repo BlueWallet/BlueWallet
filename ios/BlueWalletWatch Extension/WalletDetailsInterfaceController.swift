@@ -16,10 +16,12 @@ class WalletDetailsInterfaceController: WKInterfaceController {
   static let identifier = "WalletDetailsInterfaceController"
   @IBOutlet weak var walletBasicsGroup: WKInterfaceGroup!
   @IBOutlet weak var walletBalanceLabel: WKInterfaceLabel!
+  @IBOutlet weak var createInvoiceButton: WKInterfaceButton!
   @IBOutlet weak var walletNameLabel: WKInterfaceLabel!
   @IBOutlet weak var receiveButton: WKInterfaceButton!
   @IBOutlet weak var noTransactionsLabel: WKInterfaceLabel!
   @IBOutlet weak var transactionsTable: WKInterfaceTable!
+  
   
   override func awake(withContext context: Any?) {
     super.awake(withContext: context)
@@ -32,7 +34,7 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     walletBalanceLabel.setText(wallet.balance)
     walletNameLabel.setText(wallet.label) 
     walletBasicsGroup.setBackgroundImageNamed(WalletGradient(rawValue: wallet.type)?.imageString)
-
+    createInvoiceButton.setHidden(wallet.type != "lightningCustodianWallet")
     processWalletsTable()
   }
   
@@ -40,11 +42,13 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     super.willActivate()
     transactionsTable.setHidden(wallet?.transactions.isEmpty ?? true)
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
+    receiveButton.setHidden(wallet?.receiveAddress.isEmpty ?? true)
   }
   
   @IBAction func receiveMenuItemTapped() {
-    presentController(withName: ReceiveInterfaceController.identifier, context: wallet)
+    presentController(withName: ReceiveInterfaceController.identifier, context: (wallet, "receive"))
   }
+  
   
   @objc private func processWalletsTable() {
     transactionsTable.setNumberOfRows(wallet?.transactions.count ?? 0, withRowType: TransactionTableRow.identifier)
@@ -61,8 +65,12 @@ class WalletDetailsInterfaceController: WKInterfaceController {
     noTransactionsLabel.setHidden(!(wallet?.transactions.isEmpty ?? false))
   }
   
+  @IBAction func createInvoiceTapped() {
+    pushController(withName: ReceiveInterfaceController.identifier, context: (wallet?.identifier, "createInvoice"))
+  }
+  
   override func contextForSegue(withIdentifier segueIdentifier: String) -> Any? {
-    return wallet?.identifier
+    return (wallet?.identifier, "receive")
   }
   
 }

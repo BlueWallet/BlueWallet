@@ -138,7 +138,7 @@ export class AbstractHDWallet extends LegacyWallet {
       freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
       this.next_free_address_index += c + 1; // now points to the one _after_
     }
-
+    this._address = freeAddress;
     return freeAddress;
   }
 
@@ -176,7 +176,7 @@ export class AbstractHDWallet extends LegacyWallet {
       freeAddress = this._getExternalAddressByIndex(this.next_free_address_index + c); // we didnt check this one, maybe its free
       this.next_free_address_index += c + 1; // now points to the one _after_
     }
-
+    this._address = freeAddress;
     return freeAddress;
   }
 
@@ -187,7 +187,7 @@ export class AbstractHDWallet extends LegacyWallet {
    * @return {string}
    */
   getAddress() {
-    return '';
+    return this._address;
   }
 
   _getExternalWIFByIndex(index) {
