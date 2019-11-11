@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   InteractionManager,
   FlatList,
+  ScrollView,
   RefreshControl,
   TouchableOpacity,
   StatusBar,
@@ -28,7 +29,6 @@ import {
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class';
 import Handoff from 'react-native-handoff';
-import { ScrollView } from 'react-native-gesture-handler';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
 /** @type {AppStorage} */

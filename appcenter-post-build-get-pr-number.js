@@ -1,6 +1,6 @@
 const https = require('https');
 
-const auth = 'Basic ' + Buffer.from('Overtorment' + ':' + process.env.GITHUB).toString('base64');
+const auth = 'Basic ' + Buffer.from(process.env.GITHUB).toString('base64');
 
 const branch = require('child_process')
   .execSync('git ls-remote --heads origin | grep $(git rev-parse HEAD) | cut -d / -f 3')
