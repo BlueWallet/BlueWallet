@@ -164,13 +164,13 @@ export default class WalletTransactions extends Component {
           let start = +new Date();
           const oldTxLen = wallet.getTransactions().length;
           await wallet.fetchTransactions();
-          if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
           if (wallet.fetchPendingTransactions) {
             await wallet.fetchPendingTransactions();
           }
           if (wallet.fetchUserInvoices) {
             await wallet.fetchUserInvoices();
           }
+          if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
           let end = +new Date();
           console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
         } catch (err) {

@@ -116,7 +116,7 @@
     "react-native-tcp": "git+https://github.com/aprock/react-native-tcp.git",
     "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
     "react-native-vector-icons": "6.6.0",
-    "react-native-watch-connectivity": "0.3.2",
+    "react-native-watch-connectivity": "0.4.1",
     "react-native-webview": "6.9.0",
     "react-navigation": "3.11.0",
     "react-navigation-hooks": "1.1.0",

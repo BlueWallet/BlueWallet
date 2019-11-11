@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="14490.70" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
-    <device id="watch44" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15505" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+    <device id="watch44"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="14490.21"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
     </dependencies>
     <scenes>
         <!--BlueWallet-->
         <scene sceneID="aou-V4-d1y">
             <objects>
-                <controller title="BlueWallet" fullBounds="YES" id="AgC-eL-Hgc" customClass="InterfaceController" customModule="BlueWalletWatch" customModuleProvider="target">
+                <controller title="BlueWallet" id="AgC-eL-Hgc" customClass="InterfaceController" customModule="BlueWalletWatch" customModuleProvider="target">
                     <items>
                         <table alignment="left" id="jUH-JS-ccp">
                             <items>
@@ -74,12 +72,20 @@
                                 </group>
                             </items>
                         </group>
-                        <button width="1" alignment="left" title="Receive" id="bPO-h8-ccD">
+                        <button width="1" alignment="left" hidden="YES" title="Receive" id="bPO-h8-ccD">
                             <color key="titleColor" red="0.18431372549019609" green="0.37254901960784315" blue="0.70196078431372544" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" red="0.80000000000000004" green="0.8666666666666667" blue="0.97647058823529409" alpha="1" colorSpace="calibratedRGB"/>
                             <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
                             <connections>
                                 <segue destination="egq-Yw-qK5" kind="push" identifier="ReceiveInterfaceController" id="zEG-Xi-Smb"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" hidden="YES" title="Create Invoice" id="7bc-tt-Pab" userLabel="Create Invoice">
+                            <color key="titleColor" red="0.1843137255" green="0.37254901959999998" blue="0.70196078429999997" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" red="0.80000000000000004" green="0.86666666670000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
+                            <connections>
+                                <action selector="createInvoiceTapped" destination="XWa-4i-Abg" id="0YZ-PF-kAC"/>
                             </connections>
                         </button>
                         <label alignment="center" verticalAlignment="bottom" text="No Transactions" textAlignment="left" id="pi4-Bk-Jiq"/>
@@ -125,6 +131,7 @@
                         </table>
                     </items>
                     <connections>
+                        <outlet property="createInvoiceButton" destination="7bc-tt-Pab" id="CcN-EV-pnQ"/>
                         <outlet property="noTransactionsLabel" destination="pi4-Bk-Jiq" id="zft-Hw-KuZ"/>
                         <outlet property="receiveButton" destination="bPO-h8-ccD" id="xBq-42-9qP"/>
                         <outlet property="transactionsTable" destination="nyQ-lX-DX0" id="N1x-px-s08"/>
@@ -163,9 +170,9 @@
         <!--ReceiveInterfaceController-->
         <scene sceneID="tQ7-Qr-5i4">
             <objects>
-                <controller identifier="ReceiveInterfaceController" fullBounds="YES" fullScreen="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="ReceiveInterfaceController" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
                     <items>
-                        <imageView height="1" alignment="left" id="Dnb-sM-wdN"/>
+                        <imageView height="0.90000000000000002" alignment="left" id="Dnb-sM-wdN"/>
                         <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
                             <items>
                                 <imageView width="60" height="60" alignment="center" image="loadingIndicator" contentMode="scaleAspectFit" id="nQb-s6-ySB"/>
@@ -209,7 +216,7 @@
                         <separator alignment="left" alpha="0.0" id="i7u-PI-g7Q">
                             <color key="color" red="0.63137254899999995" green="0.63137254899999995" blue="0.63137254899999995" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
                         </separator>
-                        <button width="1" alignment="left" verticalAlignment="bottom" title="Create" id="6eh-lx-UEe">
+                        <button width="1" alignment="left" verticalAlignment="bottom" title="Create" enabled="NO" id="6eh-lx-UEe">
                             <color key="titleColor" red="0.1843137255" green="0.37254901959999998" blue="0.70196078429999997" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" red="0.80000000000000004" green="0.86666666670000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
                             <fontDescription key="font" type="system" weight="medium" pointSize="16"/>
@@ -220,6 +227,7 @@
                     </items>
                     <connections>
                         <outlet property="amountButton" destination="0Hm-hv-Yi3" id="9DN-zh-BGB"/>
+                        <outlet property="createButton" destination="6eh-lx-UEe" id="1T3-m4-oVN"/>
                         <outlet property="descriptionButton" destination="fcI-6Z-moQ" id="a7M-ZD-Zsi"/>
                     </connections>
                 </controller>
@@ -335,5 +343,10 @@
             <point key="canvasLocation" x="220" y="1029"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="loadingIndicator" width="108" height="108"/>
+        <image name="pendingConfirmation" width="12" height="12"/>
+        <image name="walletHD" width="249" height="100.5"/>
+    </resources>
     <color key="tintColor" red="0.40784313725490196" green="0.73333333333333328" blue="0.88235294117647056" alpha="1" colorSpace="calibratedRGB"/>
 </document>
