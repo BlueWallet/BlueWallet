@@ -7,7 +7,7 @@ import { WatchOnlyWallet } from './watch-only-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 
 export default class WalletGradient {
-  static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];
+  static hdSegwitP2SHWallet = ['#FFD700', '#8E7B00'];
   static hdSegwitBech32Wallet = ['#68bbe1', '#3b73d4'];
   static watchOnlyWallet = ['#7d7d7d', '#4a4a4a'];
   static legacyWallet = ['#40fad1', '#15be98'];

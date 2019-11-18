@@ -146,7 +146,7 @@ export default class TransactionsStatus extends Component {
         <Handoff
           title={`Bitcoin Transaction ${this.state.tx.hash}`}
           type="io.bluewallet.bluewallet"
-          url={`https://blockstream.info/tx/${this.state.tx.hash}`}
+          url={`https://explorer.bitcoinroyale.org/tx/${this.state.tx.hash}`}
         />
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <BlueCard>
@@ -244,7 +244,7 @@ export default class TransactionsStatus extends Component {
               }}
             >
               <Text style={{ color: '#9aa0aa', fontSize: 11 }}>
-                {this.state.tx.confirmations > 6 ? '6+' : this.state.tx.confirmations} confirmations
+                {this.state.tx.confirmations} confirmations
               </Text>
             </View>
           </BlueCard>

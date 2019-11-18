@@ -142,23 +142,6 @@ export default class WalletsAdd extends Component {
                 height: 88,
               }}
             />
-            <View style={{ borderWidth: 0, justifyContent: 'center', marginHorizontal: 8, alignSelf: 'center' }}>
-              <BlueTextCentered style={{ color: '#0c2550' }}>{loc.wallets.add.or}</BlueTextCentered>
-            </View>
-            <LightningButton
-              active={this.state.activeLightning}
-              onPress={() => {
-                Keyboard.dismiss();
-                this.setState({
-                  activeBitcoin: false,
-                  activeLightning: true,
-                });
-              }}
-              style={{
-                width: '45%',
-                height: 88,
-              }}
-            />
           </View>
 
           <View style={{ marginHorizontal: 20 }}>

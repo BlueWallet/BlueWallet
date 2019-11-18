@@ -41,6 +41,7 @@ export class AbstractHDWallet extends LegacyWallet {
     let uniq = {};
     let txs = [];
     for (let tx of this.transactions) {
+      console.warn('getTx, hash=', tx.hash);
       if (uniq[tx.hash]) continue;
       uniq[tx.hash] = 1;
       txs.push(AbstractHDWallet.convertTx(tx));
@@ -53,37 +54,9 @@ export class AbstractHDWallet extends LegacyWallet {
     // console.log('converting', tx);
     var clone = Object.assign({}, tx);
     clone.received = new Date(clone.time * 1000).toISOString();
-    clone.outputs = clone.out;
     if (clone.confirmations === undefined) {
       clone.confirmations = 0;
     }
-    for (let o of clone.outputs) {
-      o.addresses = [o.addr];
-    }
-    for (let i of clone.inputs) {
-      if (i.prev_out && i.prev_out.addr) {
-        i.addresses = [i.prev_out.addr];
-      }
-    }
-
-    if (!clone.value) {
-      let value = 0;
-      for (let inp of clone.inputs) {
-        if (inp.prev_out && inp.prev_out.xpub) {
-          // our owned
-          value -= inp.prev_out.value;
-        }
-      }
-
-      for (let out of clone.out) {
-        if (out.xpub) {
-          // to us
-          value += out.value;
-        }
-      }
-      clone.value = value;
-    }
-
     return clone;
   }
 
@@ -219,98 +192,27 @@ export class AbstractHDWallet extends LegacyWallet {
    * @returns {Promise<void>}
    */
   async fetchTransactions() {
-    try {
-      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
+     try {
       this.transactions = [];
-      let offset = 0;
-
-      while (1) {
-        let response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
-
-        if (response && response.body) {
-          if (response.body.txs && response.body.txs.length === 0) {
-            break;
-          }
-
-          let latestBlock = false;
-          if (response.body.info && response.body.info.latest_block) {
-            latestBlock = response.body.info.latest_block.height;
-          }
-
-          this._lastTxFetch = +new Date();
-
-          // processing TXs and adding to internal memory
-          if (response.body.txs) {
-            for (let tx of response.body.txs) {
+      this._lastTxFetch = +new Date();
+      for (let address of this.usedAddresses) {
+          txs = await BlueElectrum.getTransactionsFullByAddress(address)
+          for (let tx of txs) {
               let value = 0;
-
-              for (let input of tx.inputs) {
-                // ----- INPUTS
-                if (input.prev_out.xpub) {
-                  // sent FROM US
-                  value -= input.prev_out.value;
-
-                  // setting internal caches to help ourselves in future...
-                  let path = input.prev_out.xpub.path.split('/');
-                  if (path[path.length - 2] === '1') {
-                    // change address
-                    this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                    // setting to point to last maximum known change address + 1
-                  }
-                  if (path[path.length - 2] === '0') {
-                    // main (aka external) address
-                    this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                    // setting to point to last maximum known main address + 1
-                  }
-                  // done with cache
-                }
-              }
-
+              for (let input of tx.vin) {
+                  value -= input.value;
+	      }
               for (let output of tx.out) {
-                // ----- OUTPUTS
-                if (output.xpub) {
-                  // sent TO US (change)
-                  value += output.value;
-
-                  // setting internal caches to help ourselves in future...
-                  let path = output.xpub.path.split('/');
-                  if (path[path.length - 2] === '1') {
-                    // change address
-                    this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
-                    // setting to point to last maximum known change address + 1
+                  if (weOwnAddress(output.addresses)) {
+                      value += output.value;
                   }
-                  if (path[path.length - 2] === '0') {
-                    // main (aka external) address
-                    this.next_free_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_address_index);
-                    // setting to point to last maximum known main address + 1
-                  }
-                  // done with cache
-                }
               }
-
-              tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
-              if (!tx.confirmations && latestBlock) {
-                tx.confirmations = latestBlock - tx.block_height + 1;
-              }
-
-              this.transactions.push(tx);
-            }
-
-            if (response.body.txs.length < 100) {
-              // this fetch yilded less than page size, thus requesting next batch makes no sense
-              break;
-            }
-          } else {
-            break; // error ?
-          }
-        } else {
-          throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
+           }
+           tx.value = value; // new BigNumber(value*100000000).toString() * 1;
+           this.transactions.push(tx);
         }
-
-        offset += 100;
-      }
-    } catch (err) {
-      console.warn(err);
+    } catch (Err) {
+      console.warn(Err.message);
     }
   }
 
@@ -473,38 +375,13 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   async _fetchUtxoBatch(addresses) {
-    const api = new Frisbee({
-      baseURI: 'https://blockchain.info',
-    });
 
-    addresses = addresses.join('|');
-    let utxos = [];
-
-    let response;
-    let uri;
+    let utxos;
     try {
-      uri = 'https://blockchain.info' + '/unspent?active=' + addresses + '&limit=1000';
-      response = await api.get('/unspent?active=' + addresses + '&limit=1000');
-      // this endpoint does not support offset of some kind o_O
-      // so doing only one call
-      let json = response.body;
-      if (typeof json === 'undefined' || typeof json.unspent_outputs === 'undefined') {
-        throw new Error('Could not fetch UTXO from API ' + response.err);
-      }
-
-      for (let unspent of json.unspent_outputs) {
-        // a lil transform for signer module
-        unspent.txid = unspent.tx_hash_big_endian;
-        unspent.vout = unspent.tx_output_n;
-        unspent.amount = unspent.value;
-
-        unspent.address = bitcoin.address.fromOutputScript(Buffer.from(unspent.script, 'hex'));
-        utxos.push(unspent);
-      }
-    } catch (err) {
-      console.warn(err, { uri });
+      utxos = await BlueElectrum.multiGetUtxoByAddress(addresses, 100);
+    } catch (Err) {
+      console.warn('getUtxo', Err.message);
     }
-
     return utxos;
   }
 

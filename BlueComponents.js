@@ -557,7 +557,7 @@ export class BlueListItem extends Component {
         }}
         titleStyle={{
           color: BlueApp.settings.foregroundColor,
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: '500',
         }}
         subtitleStyle={{ color: BlueApp.settings.alternativeTextColor }}
@@ -1423,16 +1423,16 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
       const invoiceExpiration = item.timestamp + item.expire_time;
 
       if (invoiceExpiration > now) {
-        return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+        return loc.formatBalance(item.value && item.value, itemPriceUnit, true).toString();
       } else if (invoiceExpiration < now) {
         if (item.ispaid) {
-          return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+          return loc.formatBalance(item.value && item.value, itemPriceUnit, true).toString();
         } else {
           return loc.lnd.expired;
         }
       }
     } else {
-      return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
+      return loc.formatBalance(item.value && item.value, itemPriceUnit, true).toString();
     }
   };
 
@@ -1453,13 +1453,14 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
           color = BlueApp.settings.failedColor;
         }
       }
-    } else if (item.value / 100000000 < 0) {
-      color = BlueApp.settings.foregroundColor;
+    } else if (item.value < 0) {
+      // color = BlueApp.settings.foregroundColor;
+      color = '#c93a3a';
     }
 
     return {
       fontWeight: '600',
-      fontSize: 16,
+      fontSize: 14,
       color: color,
     };
   };
@@ -1533,7 +1534,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   };
 
   const subtitle = () => {
-    return (item.confirmations < 7 ? loc.transactions.list.conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
+    return (loc.transactions.list.conf + ': ' + item.confirmations + ' ') + txMemo() + (item.memo || '');
   };
 
   const onPress = () => {
@@ -1649,7 +1650,7 @@ export class BlueListTransactionItem extends Component {
 
     return {
       fontWeight: '600',
-      fontSize: 16,
+      fontSize: 14,
       color: color,
     };
   };

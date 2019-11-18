@@ -134,13 +134,13 @@ export default class TransactionsDetails extends Component {
             {this.state.tx.hasOwnProperty('hash') && (
               <React.Fragment>
                 <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-                  <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
+                  <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Transaction ID</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
                 </View>
                 <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.hash}</BlueText>
                 <TouchableOpacity
                   onPress={() => {
-                    const url = `https://blockstream.info/tx/${this.state.tx.hash}`;
+                    const url = `https://explorer.bitcoinroyale.org/tx/${this.state.tx.hash}`;
                     Linking.canOpenURL(url).then(supported => {
                       if (supported) {
                         Linking.openURL(url);
@@ -155,7 +155,7 @@ export default class TransactionsDetails extends Component {
 
             {this.state.tx.hasOwnProperty('received') && (
               <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
+                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Date & time</BlueText>
                 <BlueText style={{ marginBottom: 26, color: 'grey' }}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
               </React.Fragment>
             )}

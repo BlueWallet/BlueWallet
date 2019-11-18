@@ -8,6 +8,7 @@ import signer from '../models/signer';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
+const BlueElectrum = require('../BlueElectrum');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -159,68 +160,29 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   }
 
   async _getTransactionsBatch(addresses) {
-    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-    let transactions = [];
-    let offset = 0;
-
-    while (1) {
-      let response = await api.get('/multiaddr?active=' + addresses + '&n=100&offset=' + offset);
-
-      if (response && response.body) {
-        if (response.body.txs && response.body.txs.length === 0) {
-          break;
-        }
-
-        this._lastTxFetch = +new Date();
-
-        // processing TXs and adding to internal memory
-        if (response.body.txs) {
-          for (let tx of response.body.txs) {
-            let value = 0;
-
-            for (let input of tx.inputs) {
-              // ----- INPUTS
-
-              if (input.prev_out && input.prev_out.addr && this.weOwnAddress(input.prev_out.addr)) {
-                // this is outgoing from us
-                value -= input.prev_out.value;
+    try {
+      transactions = [];
+      this._lastTxFetch = +new Date();
+      for (let address of addresses) {
+          txs = await BlueElectrum.getTransactionsFullByAddress(address)
+          for (let tx of txs) {
+              let value = 0;
+              for (let input of tx.inputs) {
+                  if (this.weOwnAddress(input.addresses)) {
+                      value -= input.value;
+                  }
+	      }
+              for (let output of tx.outputs) {
+                  if (this.weOwnAddress(output.addresses)) {
+                      value += output.value;
+                  }
               }
-            }
-
-            for (let output of tx.out) {
-              // ----- OUTPUTS
-
-              if (output.addr && this.weOwnAddress(output.addr)) {
-                // this is incoming to us
-                value += output.value;
-              }
-            }
-
-            tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
-            if (response.body.hasOwnProperty('info')) {
-              if (response.body.info.latest_block.height && tx.block_height) {
-                tx.confirmations = response.body.info.latest_block.height - tx.block_height + 1;
-              } else {
-                tx.confirmations = 0;
-              }
-            } else {
-              tx.confirmations = 0;
-            }
-            transactions.push(tx);
+              tx.value = value; // new BigNumber(value*100000000).toString() * 1;
+              transactions.push(tx);
           }
-
-          if (response.body.txs.length < 100) {
-            // this fetch yilded less than page size, thus requesting next batch makes no sense
-            break;
-          }
-        } else {
-          break; // error ?
-        }
-      } else {
-        throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
       }
-
-      offset += 100;
+    } catch (Err) {
+      console.warn(Err.message);
     }
     return transactions;
   }
@@ -241,8 +203,8 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       for (let addr of this.usedAddresses) {
         addresses4batch.push(addr);
         if (addresses4batch.length >= 45) {
-          let addresses = addresses4batch.join('|');
-          let transactions = await this._getTransactionsBatch(addresses);
+          //let addresses = addresses4batch.join('|');
+          let transactions = await this._getTransactionsBatch(addresses4batch);
           this.transactions = this.transactions.concat(transactions);
           addresses4batch = [];
         }
@@ -252,11 +214,11 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
         addresses4batch.push(this._getExternalAddressByIndex(this.next_free_address_index + c));
         addresses4batch.push(this._getInternalAddressByIndex(this.next_free_change_address_index + c));
       }
-      let addresses = addresses4batch.join('|');
-      let transactions = await this._getTransactionsBatch(addresses);
+      // let addresses = addresses4batch.join('|');
+      let transactions = await this._getTransactionsBatch(addresses4batch);
       this.transactions = this.transactions.concat(transactions);
-    } catch (err) {
-      console.warn(err);
+    } catch (Err) {
+      console.warn(Err.message);
     }
   }
 

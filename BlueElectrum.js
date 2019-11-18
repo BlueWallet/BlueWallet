@@ -6,21 +6,9 @@ let reverse = require('buffer-reverse');
 let BigNumber = require('bignumber.js');
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: 'electrum1.bluewallet.io', tcp: '50001' };
+const defaultPeer = { host: '157.245.199.114', tcp: '50001' };
 const hardcodedPeers = [
-  // { host: 'noveltybobble.coinjoined.com', tcp: '50001' }, // down
-  // { host: 'electrum.be', tcp: '50001' },
-  // { host: 'node.ispol.sk', tcp: '50001' }, // down
-  // { host: '139.162.14.142', tcp: '50001' },
-  // { host: 'electrum.coinucopia.io', tcp: '50001' }, // SLOW
-  // { host: 'Bitkoins.nl', tcp: '50001' }, // down
-  // { host: 'fullnode.coinkite.com', tcp: '50001' },
-  // { host: 'preperfect.eleCTruMioUS.com', tcp: '50001' }, // down
-  { host: 'electrum1.bluewallet.io', tcp: '50001' },
-  { host: 'electrum1.bluewallet.io', tcp: '50001' }, // 2x weight
-  { host: 'electrum2.bluewallet.io', tcp: '50001' },
-  { host: 'electrum3.bluewallet.io', tcp: '50001' },
-  { host: 'electrum3.bluewallet.io', tcp: '50001' }, // 2x weight
+   { host: '157.245.199.114', tcp: '50001' },
 ];
 
 let mainClient = false;
@@ -185,7 +173,6 @@ module.exports.getTransactionsFullByAddress = async function(address) {
     delete full.vin;
     delete full.vout;
     delete full.hex; // compact
-    delete full.hash; // compact
     ret.push(full);
   }
 
@@ -232,6 +219,7 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
   batchsize = batchsize || 100;
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = {};
+  let res = []
 
   let chunks = splitIntoChunks(addresses, batchsize);
   for (let chunk of chunks) {
@@ -252,15 +240,18 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
       ret[scripthash2addr[utxos.param]] = utxos.result;
       for (let utxo of ret[scripthash2addr[utxos.param]]) {
         utxo.address = scripthash2addr[utxos.param];
-        utxo.txId = utxo.tx_hash;
+        utxo.txid = utxo.tx_hash;
         utxo.vout = utxo.tx_pos;
+	utxo.amount = utxo.value;
+	delete utxo.value;
         delete utxo.tx_pos;
         delete utxo.tx_hash;
+        res.push(utxo);
       }
     }
   }
 
-  return ret;
+  return res;
 };
 
 module.exports.multiGetHistoryByAddress = async function(addresses, batchsize) {
