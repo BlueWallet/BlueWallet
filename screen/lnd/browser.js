@@ -396,7 +396,11 @@ export default class Browser extends Component {
                 editable
                 onSubmitEditing={() => {
                   Keyboard.dismiss();
-                  this.setState({ url: this.state.stateURL });
+                  let url = this.state.stateURL;
+                  if (!url.toLowerCase().startsWith('http://') && !url.toLowerCase().startsWith('https://')) {
+                    url = 'https://' + url;
+                  }
+                  this.setState({ url });
                 }}
               />
             </View>
