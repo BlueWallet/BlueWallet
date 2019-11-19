@@ -143,32 +143,48 @@ export default class LNDViewInvoice extends Component {
         return (
           <SafeBlueArea style={{ flex: 1 }}>
             <View style={{ flex: 2, flexDirection: 'column', justifyContent: 'center' }}>
-              {(invoice.type === 'paid_invoice') && invoice.value && (
+              {invoice.type === 'paid_invoice' && invoice.value && (
                 <View style={{ flexDirection: 'row', justifyContent: 'center', paddingBottom: 8 }}>
-                  <Text style={{ color: '#0f5cc0', fontSize: 32, fontWeight: '600' }}>
-                    {invoice.value}
-                  </Text>
-                  <Text style={{ color: '#0f5cc0', fontSize: 16, marginHorizontal: 4, paddingBottom: 3, fontWeight: '600', alignSelf: 'flex-end' }}>
+                  <Text style={{ color: '#0f5cc0', fontSize: 32, fontWeight: '600' }}>{invoice.value}</Text>
+                  <Text
+                    style={{
+                      color: '#0f5cc0',
+                      fontSize: 16,
+                      marginHorizontal: 4,
+                      paddingBottom: 3,
+                      fontWeight: '600',
+                      alignSelf: 'flex-end',
+                    }}
+                  >
                     {loc.lndViewInvoice.sats}
                   </Text>
                 </View>
               )}
-              {(invoice.type === 'user_invoice') && invoice.amt && (
+              {invoice.type === 'user_invoice' && invoice.amt && (
                 <View style={{ flexDirection: 'row', justifyContent: 'center', paddingBottom: 8 }}>
-                  <Text style={{ color: '#0f5cc0', fontSize: 32, fontWeight: '600' }}>
-                    {invoice.amt}
-                  </Text>
-                  <Text style={{ color: '#0f5cc0', fontSize: 16, marginHorizontal: 4, paddingBottom: 3, fontWeight: '600', alignSelf: 'flex-end' }}>
+                  <Text style={{ color: '#0f5cc0', fontSize: 32, fontWeight: '600' }}>{invoice.amt}</Text>
+                  <Text
+                    style={{
+                      color: '#0f5cc0',
+                      fontSize: 16,
+                      marginHorizontal: 4,
+                      paddingBottom: 3,
+                      fontWeight: '600',
+                      alignSelf: 'flex-end',
+                    }}
+                  >
                     {loc.lndViewInvoice.sats}
                   </Text>
                 </View>
               )}
-              {!invoice.ispaid && invoice.memo && invoice.memo.length > 0 &&  (
-                <Text style={{ color: '#9aa0aa', fontSize: 14, marginHorizontal: 4, paddingBottom: 6, fontWeight: '400', alignSelf: 'center' }}>
+              {!invoice.ispaid && invoice.memo && invoice.memo.length > 0 && (
+                <Text
+                  style={{ color: '#9aa0aa', fontSize: 14, marginHorizontal: 4, paddingBottom: 6, fontWeight: '400', alignSelf: 'center' }}
+                >
                   {invoice.memo}
                 </Text>
               )}
-           </View>
+            </View>
 
             <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
               <View
@@ -186,7 +202,6 @@ export default class LNDViewInvoice extends Component {
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
               <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
-              
             </View>
             <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 24, alignItems: 'center' }}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && (
@@ -194,14 +209,11 @@ export default class LNDViewInvoice extends Component {
                   style={{ flexDirection: 'row', alignItems: 'center' }}
                   onPress={() => this.setState({ showPreimageQr: true })}
                 >
-                  <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
-                    {loc.send.create.details}
-                  </Text>
+                  <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.send.create.details}</Text>
                   <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
                 </TouchableOpacity>
               )}
             </View>
-              
           </SafeBlueArea>
         );
       }
