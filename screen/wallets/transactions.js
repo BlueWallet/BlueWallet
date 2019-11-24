@@ -28,7 +28,6 @@ import {
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { LightningCustodianWallet } from '../../class';
 import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
