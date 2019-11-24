@@ -9,7 +9,7 @@
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
     "babel-preset-flow": "^6.23.0",
-    "detox": "14.7.1",
+    "detox": "14.8.1",
     "eslint": "^6.0.1",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.0",
