@@ -4,7 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
-import SystemSetting from 'react-native-system-setting';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -39,16 +39,21 @@ export default class WalletExport extends Component {
 
   async componentDidMount() {
     Privacy.enableBlur();
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return this.props.navigation.goBack();
+      }
+    }
+
     this.setState({
       isLoading: false,
     });
-    await SystemSetting.saveBrightness();
-    await SystemSetting.setAppBrightness(1.0);
   }
 
   async componentWillUnmount() {
     Privacy.disableBlur();
-    await SystemSetting.restoreBrightness();
   }
 
   onLayout = () => {
@@ -87,7 +92,7 @@ export default class WalletExport extends Component {
             value={this.state.wallet.getSecret()}
             logo={require('../../img/qr-code.png')}
             size={this.state.qrCodeHeight}
-            logoSize={90}
+            logoSize={70}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
             ecl={'H'}

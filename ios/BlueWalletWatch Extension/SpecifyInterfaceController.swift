@@ -14,6 +14,8 @@ class SpecifyInterfaceController: WKInterfaceController {
   static let identifier = "SpecifyInterfaceController"
   @IBOutlet weak var descriptionButton: WKInterfaceButton!
   @IBOutlet weak var amountButton: WKInterfaceButton!
+  @IBOutlet weak var createButton: WKInterfaceButton!
+  
   struct SpecificQRCodeContent {
     var amount: Double?
     var description: String?
@@ -36,6 +38,7 @@ class SpecifyInterfaceController: WKInterfaceController {
     }
     let wallet = WatchDataSource.shared.wallets[identifier]
     self.wallet = wallet
+    self.createButton.setAlpha(0.5)
     self.specifiedQRContent.bitcoinUnit = wallet.type == "lightningCustodianWallet" ? .SATS : .BTC
     NotificationCenter.default.addObserver(forName: NumericKeypadInterfaceController.NotificationName.keypadDataChanged, object: nil, queue: nil) { [weak self] (notification) in
       guard let amountObject = notification.object as? [String], !amountObject.isEmpty else { return }
@@ -53,6 +56,10 @@ class SpecifyInterfaceController: WKInterfaceController {
       if let amountDouble = Double(title), let keyPadType = self?.specifiedQRContent.bitcoinUnit {
         self?.specifiedQRContent.amount = amountDouble
         self?.amountButton.setTitle("\(title) \(keyPadType)")
+        
+        let isShouldCreateButtonBeEnabled = amountDouble > 0 && !title.isEmpty
+        self?.createButton.setEnabled(isShouldCreateButtonBeEnabled)
+        self?.createButton.setAlpha(isShouldCreateButtonBeEnabled ? 1.0 : 0.5)
         }
       }
     }

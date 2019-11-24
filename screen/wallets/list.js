@@ -5,7 +5,6 @@ import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import WalletGradient from '../../class/walletGradient';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -47,7 +46,6 @@ export default class WalletsList extends Component {
 
   componentDidMount() {
     this.redrawScreen();
-
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
     InteractionManager.runAfterInteractions(async () => {
@@ -136,7 +134,7 @@ export default class WalletsList extends Component {
     if (wallet) {
       this.props.navigation.navigate('WalletTransactions', {
         wallet: wallet,
-        headerColor: WalletGradient.headerColorFor(wallet.type),
+        key: `WalletTransactions-${wallet.getID()}`,
       });
     } else {
       // if its out of index - this must be last card with incentive to create wallet
@@ -259,6 +257,7 @@ export default class WalletsList extends Component {
         >
           <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
           <WalletsCarousel
+            removeClippedSubviews={false}
             data={this.state.wallets}
             handleClick={index => {
               this.handleClick(index);

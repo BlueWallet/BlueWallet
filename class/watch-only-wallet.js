@@ -8,8 +8,25 @@ export class WatchOnlyWallet extends LegacyWallet {
   static type = 'watchOnly';
   static typeReadable = 'Watch-only';
 
+  constructor() {
+    super();
+    this.use_with_hardware_wallet = false;
+  }
+
   allowSend() {
-    return false;
+    return !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSend();
+  }
+
+  allowBatchSend() {
+    return (
+      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowBatchSend()
+    );
+  }
+
+  allowSendMax() {
+    return (
+      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSendMax()
+    );
   }
 
   getAddress() {
@@ -48,6 +65,10 @@ export class WatchOnlyWallet extends LegacyWallet {
       for (let k of Object.keys(this._hdWalletInstance)) {
         hdWalletInstance[k] = this._hdWalletInstance[k];
       }
+
+      // deleting properties that cant survive serialization/deserialization:
+      delete hdWalletInstance._node1;
+      delete hdWalletInstance._node0;
     }
     this._hdWalletInstance = hdWalletInstance;
   }
@@ -83,7 +104,51 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   async getAddressAsync() {
+    if (this.isAddressValid(this.secret)) return new Promise(resolve => resolve(this.secret));
     if (this._hdWalletInstance) return this._hdWalletInstance.getAddressAsync();
     throw new Error('Not initialized');
+  }
+
+  async _getExternalAddressByIndex(index) {
+    if (this._hdWalletInstance) return this._hdWalletInstance._getExternalAddressByIndex(index);
+    throw new Error('Not initialized');
+  }
+
+  async getChangeAddressAsync() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getChangeAddressAsync();
+    throw new Error('Not initialized');
+  }
+
+  async fetchUtxo() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.fetchUtxo();
+    throw new Error('Not initialized');
+  }
+
+  getUtxo() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.getUtxo();
+    throw new Error('Not initialized');
+  }
+
+  combinePsbt(base64one, base64two) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.combinePsbt(base64one, base64two);
+    throw new Error('Not initialized');
+  }
+
+  broadcastTx(hex) {
+    if (this._hdWalletInstance) return this._hdWalletInstance.broadcastTx(hex);
+    throw new Error('Not initialized');
+  }
+
+  /**
+   * signature of this method is the same ad BIP84 createTransaction, BUT this method should be used to create
+   * unsinged PSBT to be used with HW wallet (or other external signer)
+   * @see HDSegwitBech32Wallet.createTransaction
+   */
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence) {
+    if (this._hdWalletInstance instanceof HDSegwitBech32Wallet) {
+      return this._hdWalletInstance.createTransaction(utxos, targets, feeRate, changeAddress, sequence, true);
+    } else {
+      throw new Error('Not a zpub watch-only wallet, cant create PSBT (or just not initialized)');
+    }
   }
 }

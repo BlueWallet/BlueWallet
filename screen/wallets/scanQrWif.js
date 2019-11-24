@@ -21,18 +21,16 @@ export default class ScanQrWif extends React.Component {
     header: null,
   };
 
-  state = {
-    isLoading: false,
-  };
+  state = { isLoading: false };
 
   onBarCodeScanned = async ret => {
+    if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
     if (+new Date() - this.lastTimeIveBeenHere < 6000) {
       this.lastTimeIveBeenHere = +new Date();
       return;
     }
     this.lastTimeIveBeenHere = +new Date();
     this.setState({ isLoading: true });
-
     if (ret.data[0] === '6') {
       // password-encrypted, need to ask for password and decrypt
       console.log('trying to decrypt...');
@@ -55,6 +53,7 @@ export default class ScanQrWif extends React.Component {
         ret.data = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
       } catch (e) {
         console.log(e.message);
+        if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
         this.setState({ message: false, isLoading: false });
         return alert(loc.wallets.scanQrWif.bad_password);
       }
@@ -66,6 +65,7 @@ export default class ScanQrWif extends React.Component {
       if (w.getSecret() === ret.data) {
         // lookig for duplicates
         this.setState({ isLoading: false });
+        if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
         return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
       }
     }
@@ -78,6 +78,7 @@ export default class ScanQrWif extends React.Component {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
           this.setState({ isLoading: false });
+          if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
@@ -105,6 +106,7 @@ export default class ScanQrWif extends React.Component {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
           this.setState({ isLoading: false });
+          if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
@@ -131,6 +133,7 @@ export default class ScanQrWif extends React.Component {
         if (w.getSecret() === hd.getSecret()) {
           // lookig for duplicates
           this.setState({ isLoading: false });
+          if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
           return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
         }
       }
@@ -169,6 +172,7 @@ export default class ScanQrWif extends React.Component {
       } catch (Err) {
         console.log(Err);
         this.setState({ isLoading: false });
+        if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
         alert(Err.message);
         return;
       }
@@ -218,6 +222,7 @@ export default class ScanQrWif extends React.Component {
 
     if (newWallet.getAddress() === false && newLegacyWallet.getAddress() === false) {
       alert(loc.wallets.scanQrWif.bad_wif);
+      if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
       this.setState({ isLoading: false });
       return;
     }
@@ -303,6 +308,7 @@ export default class ScanQrWif extends React.Component {
                   }}
                   style={{ flex: 1, justifyContent: 'space-between' }}
                   onBarCodeRead={this.onBarCodeScanned}
+                  ref={ref => (this.cameraRef = ref)}
                   barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
                 />
                 <TouchableOpacity

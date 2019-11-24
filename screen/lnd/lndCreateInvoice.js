@@ -54,7 +54,7 @@ export default class LNDCreateInvoice extends Component {
     };
   }
 
-  componentDidMount () {
+  componentDidMount() {
     if (this.props.navigation.state.params.uri) {
       this.processLnurl(this.props.navigation.getParam('uri'));
     }
@@ -159,7 +159,7 @@ export default class LNDCreateInvoice extends Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton disabled={!this.state.amount > 0} onPress={() => this.createInvoice()} title={loc.send.details.create} />
+          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details.create} />
         )}
       </View>
     );

@@ -14,8 +14,8 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+const bitcoinjs = require('bitcoinjs-lib');
 let BigNumber = require('bignumber.js');
-let bitcoinjs = require('bitcoinjs-lib');
 let BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {

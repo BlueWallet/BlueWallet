@@ -2,19 +2,15 @@ import 'intl';
 import 'intl/locale-data/jsonp/en';
 import React from 'react';
 import './shim.js';
-import App from './App';
-import { Sentry } from 'react-native-sentry';
 import { AppRegistry } from 'react-native';
 import WalletMigrate from './screen/wallets/walletMigrate';
 import { name as appName } from './app.json';
+import App from './App';
 import LottieView from 'lottie-react-native';
+import UnlockWith from './UnlockWith.js';
 
 /** @type {AppStorage} */
-const BlueApp = require('./BlueApp');
-let A = require('./analytics');
-if (process.env.NODE_ENV !== 'development') {
-  Sentry.config('https://23377936131848ca8003448a893cb622@sentry.io/1295736').install();
-}
+const A = require('./analytics');
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
@@ -24,7 +20,7 @@ if (!Error.captureStackTrace) {
 class BlueAppComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isMigratingData: true, onAnimationFinished: false };
+    this.state = { isMigratingData: true, onAnimationFinished: false, successfullyAuthenticated: false };
   }
 
   componentDidMount() {
@@ -33,7 +29,6 @@ class BlueAppComponent extends React.Component {
   }
 
   setIsMigratingData = async () => {
-    await BlueApp.startAndDecrypt();
     A(A.ENUM.INIT);
     this.setState({ isMigratingData: false });
   };
@@ -44,6 +39,10 @@ class BlueAppComponent extends React.Component {
     } else {
       this.setState({ onAnimationFinished: true });
     }
+  };
+
+  onSuccessfullyAuthenticated = () => {
+    this.setState({ successfullyAuthenticated: true });
   };
 
   render() {
@@ -59,7 +58,11 @@ class BlueAppComponent extends React.Component {
       );
     } else {
       if (this.state.onAnimationFinished) {
-        return <App />;
+        return this.state.successfullyAuthenticated ? (
+          <App />
+        ) : (
+          <UnlockWith onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated} />
+        );
       } else {
         return (
           <LottieView

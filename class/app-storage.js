@@ -13,6 +13,7 @@ import {
 } from './';
 import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import WatchConnectivity from '../WatchConnectivity';
+import DeviceQuickActions from './quickActions';
 const encryption = require('../encryption');
 
 export class AppStorage {
@@ -138,6 +139,8 @@ export class AppStorage {
     this.cachedPassword = password;
     await this.setItem('data', data);
     await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
+    DeviceQuickActions.clearShortcutItems();
+    DeviceQuickActions.removeAllWallets();
   }
 
   /**
@@ -248,8 +251,15 @@ export class AppStorage {
             this.tx_metadata = data.tx_metadata;
           }
         }
-        WatchConnectivity.init();
-        WatchConnectivity.shared && (await WatchConnectivity.shared.sendWalletsToWatch());
+        WatchConnectivity.shared.wallets = this.wallets;
+        WatchConnectivity.shared.tx_metadata = this.tx_metadata;
+        WatchConnectivity.shared.fetchTransactionsFunction = async () => {
+          await this.fetchWalletTransactions();
+          await this.saveToDisk();
+        };
+        await WatchConnectivity.shared.sendWalletsToWatch(this.wallets);
+        DeviceQuickActions.setWallets(this.wallets);
+        DeviceQuickActions.setQuickActions();
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -269,6 +279,7 @@ export class AppStorage {
   deleteWallet(wallet) {
     let secret = wallet.getSecret();
     let tempWallets = [];
+
     for (let value of this.wallets) {
       if (value.getSecret() === secret) {
         // the one we should delete
@@ -322,8 +333,11 @@ export class AppStorage {
     } else {
       await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
-    WatchConnectivity.init();
-    WatchConnectivity.shared && WatchConnectivity.shared.sendWalletsToWatch();
+    WatchConnectivity.shared.wallets = this.wallets;
+    WatchConnectivity.shared.tx_metadata = this.tx_metadata;
+    WatchConnectivity.shared.sendWalletsToWatch();
+    DeviceQuickActions.setWallets(this.wallets);
+    DeviceQuickActions.setQuickActions();
     return this.setItem('data', JSON.stringify(data));
   }
 

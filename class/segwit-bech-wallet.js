@@ -10,9 +10,9 @@ export class SegwitBech32Wallet extends LegacyWallet {
     let address;
     try {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
-      let pubKey = keyPair.getPublicKeyBuffer();
-      let scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey));
-      address = bitcoin.address.fromOutputScript(scriptPubKey);
+      address = bitcoin.payments.p2wpkh({
+        pubkey: keyPair.publicKey,
+      }).address;
     } catch (err) {
       return false;
     }
@@ -23,13 +23,29 @@ export class SegwitBech32Wallet extends LegacyWallet {
 
   static witnessToAddress(witness) {
     const pubKey = Buffer.from(witness, 'hex');
-    const pubKeyHash = bitcoin.crypto.hash160(pubKey);
-    const scriptPubKey = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash);
-    return bitcoin.address.fromOutputScript(scriptPubKey, bitcoin.networks.bitcoin);
+    return bitcoin.payments.p2wpkh({
+      pubkey: pubKey,
+      network: bitcoin.networks.bitcoin,
+    }).address;
   }
 
+  /**
+   * Converts script pub key to bech32 address if it can. Returns FALSE if it cant.
+   *
+   * @param scriptPubKey
+   * @returns {boolean|string} Either bech32 address or false
+   */
   static scriptPubKeyToAddress(scriptPubKey) {
     const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
-    return bitcoin.address.fromOutputScript(scriptPubKey2, bitcoin.networks.bitcoin);
+    let ret;
+    try {
+      ret = bitcoin.payments.p2wpkh({
+        output: scriptPubKey2,
+        network: bitcoin.networks.bitcoin,
+      }).address;
+    } catch (_) {
+      return false;
+    }
+    return ret;
   }
 }

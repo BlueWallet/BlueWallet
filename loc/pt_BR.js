@@ -235,8 +235,7 @@ module.exports = {
     title: 'Sua carteira foi criada...',
     text:
       'Por favor anote num pedaço de papel essa seqüência de palavras, elas serão o seu backup e você as pode usar para' +
-      ' recuperar a sua carteira em outros dispositivos. Por exemplo, você pode usar o programa Electrum para desktops' +
-      ' (https://electrum.org/) para acessar esta mesma carteira.',
+      ' recuperar a sua carteira em outros dispositivos.',
     ok: 'Certo, já anotei!',
   },
   lndViewInvoice: {

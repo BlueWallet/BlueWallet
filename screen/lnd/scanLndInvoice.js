@@ -1,6 +1,15 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, View, TouchableWithoutFeedback, TouchableOpacity, Keyboard } from 'react-native';
+import {
+  Text,
+  ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
+  View,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  Keyboard,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueButton,
@@ -15,6 +24,7 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
@@ -143,6 +153,14 @@ export default class ScanLndInvoice extends React.Component {
       return null;
     }
 
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
+
     this.setState(
       {
         isLoading: true,
@@ -208,7 +226,7 @@ export default class ScanLndInvoice extends React.Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 16, alignItems: 'center' }}>
+      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'center' }}>
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -216,9 +234,7 @@ export default class ScanLndInvoice extends React.Component {
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
-              {loc.wallets.select_wallet.toLowerCase()}
-            </Text>
+            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
@@ -252,8 +268,8 @@ export default class ScanLndInvoice extends React.Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <View style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, justifyContent: 'space-between' }}>
+            <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
               <View style={{ marginTop: 60 }}>
                 <BlueBitcoinAmount
                   pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
@@ -272,7 +288,7 @@ export default class ScanLndInvoice extends React.Component {
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
               </View>
-              
+
               <BlueCard>
                 <BlueAddressInput
                   onChangeText={text => {
@@ -301,7 +317,7 @@ export default class ScanLndInvoice extends React.Component {
                 {this.state.expiresIn !== undefined && (
                   <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
                 )}
-                
+
                 <BlueCard>
                   {this.state.isLoading ? (
                     <View>
@@ -318,8 +334,7 @@ export default class ScanLndInvoice extends React.Component {
                   )}
                 </BlueCard>
               </BlueCard>
-            </View>
-          
+            </KeyboardAvoidingView>
 
             {this.renderWalletSelectionButton()}
           </View>

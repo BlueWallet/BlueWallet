@@ -23,9 +23,8 @@ module.exports = {
       latest_transaction: 'ธุรกรรมล่าสุด',
       empty_txs1: 'ธุรกรรมจะปรากฏที่นี่,',
       empty_txs2: 'ไม่มี ณ ขณะนี้',
-      empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs1_lightning: 'ควรใช้ไลท์นิงเน็ตเวิร์คสำหรับธุรกรรมประจำวันเท่านั้น ธุรกรรมทันใจและมีค่าธรรมเนียมน้อยมาก',
+      empty_txs2_lightning: '\nแตะที่ "จัดการเงิน" เพื่อเริ่มใช้งาน และเติมเงิน',
       tap_here_to_buy: 'กดที่นี่เพื่อซื้อบิตคอยน์',
     },
     reorder: {
@@ -229,7 +228,7 @@ module.exports = {
   pleasebackup: {
     title: 'Your wallet is created...',
     text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
     ok: 'OK, I wrote this down!',
   },
   lndViewInvoice: {

@@ -113,10 +113,11 @@ it('Wallet can fetch UTXO', async () => {
   assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
 });
 
-it('SegwitP2SHWallet can generate segwit P2SH address from WIF', () => {
+it('SegwitP2SHWallet can generate segwit P2SH address from WIF', async () => {
   let l = new SegwitP2SHWallet();
   l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
   assert.ok(l.getAddress() === '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53', 'expected ' + l.getAddress());
+  assert.ok(l.getAddress() === (await l.getAddressAsync()));
 });
 
 it('Wallet can fetch balance', async () => {

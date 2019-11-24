@@ -229,7 +229,7 @@ module.exports = {
   pleasebackup: {
     title: 'Din plånbok har skapats...',
     text:
-      'Innan du går vidare, var snäll och skriv ned dessa ord på ett papper och förvara på ett säkert ställe. De är din backup och säkerställer att du kan återställa din plånbok igen om något händer. Den går att återställa även i andra plånböcker såsom t.ex. Electrum (https://electrum.org/).',
+      'Innan du går vidare, var snäll och skriv ned dessa ord på ett papper och förvara på ett säkert ställe. De är din backup och säkerställer att du kan återställa din plånbok igen om något händer.',
     ok: 'OK, jag har skrivit ned orden!',
   },
   lndViewInvoice: {

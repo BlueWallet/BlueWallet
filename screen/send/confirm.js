@@ -6,6 +6,8 @@ import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNaviga
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Biometric from '../../class/biometrics';
+import { HDSegwitBech32Wallet } from '../../class';
 let loc = require('../../loc');
 let EV = require('../../events');
 let currency = require('../../currency');
@@ -39,6 +41,7 @@ export default class Confirm extends Component {
   async componentDidMount() {
     console.log('send/confirm - componentDidMount');
     console.log('address = ', this.state.recipients);
+    this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
 
   broadcast() {
@@ -46,6 +49,13 @@ export default class Confirm extends Component {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
+
+        if (this.isBiometricUseCapableAndEnabled) {
+          if (!(await Biometric.unlockWithBiometrics())) {
+            return;
+          }
+        }
+
         let result = await this.state.fromWallet.broadcastTx(this.state.tx);
         if (result && result.code) {
           if (result.code === 1) {
@@ -61,11 +71,14 @@ export default class Confirm extends Component {
             amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
           } else {
             for (const recipient of recipients) {
-              amount += recipient.value;
+              amount += recipient.amount ? +recipient.amount : recipient.value;
             }
           }
 
-          amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+          if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
+            amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+          }
+
           this.props.navigation.navigate('Success', {
             fee: Number(this.state.fee),
             amount,
@@ -94,7 +107,7 @@ export default class Confirm extends Component {
           >
             {item.amount === BitcoinUnit.MAX
               ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
-              : currency.satoshiToBTC(item.value)}
+              : item.amount || currency.satoshiToBTC(item.value)}
           </Text>
           <Text
             style={{
@@ -163,7 +176,13 @@ export default class Confirm extends Component {
 
               <TouchableOpacity
                 style={{ marginVertical: 24 }}
-                onPress={() =>
+                onPress={async () => {
+                  if (this.isBiometricUseCapableAndEnabled) {
+                    if (!(await Biometric.unlockWithBiometrics())) {
+                      return;
+                    }
+                  }
+
                   this.props.navigation.navigate('CreateTransaction', {
                     fee: this.state.fee,
                     recipients: this.state.recipients,
@@ -172,8 +191,8 @@ export default class Confirm extends Component {
                     satoshiPerByte: this.state.satoshiPerByte,
                     wallet: this.state.fromWallet,
                     feeSatoshi: this.state.feeSatoshi,
-                  })
-                }
+                  });
+                }}
               >
                 <Text style={{ color: '#0c2550', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>
                   {loc.transactions.details.transaction_details}

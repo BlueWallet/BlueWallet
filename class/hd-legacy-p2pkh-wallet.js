@@ -1,8 +1,9 @@
 import { AbstractHDWallet } from './abstract-hd-wallet';
-import bitcoin from 'bitcoinjs-lib';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import signer from '../models/signer';
+const bitcoin = require('bitcoinjs-lib');
+const HDNode = require('bip32');
 
 /**
  * HD Wallet (BIP39).
@@ -23,7 +24,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     }
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = bitcoin.bip32.fromSeed(seed);
 
     const path = "m/44'/0'/0'";
     const child = root.derivePath(path).neutered();
@@ -50,22 +51,22 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+
+    const root = HDNode.fromSeed(seed);
     const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
-    return child.keyPair.toWIF();
+    return child.toWIF();
   }
 
   _getExternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
-    const node = bitcoin.HDNode.fromBase58(this.getXpub());
-    const address = node
-      .derive(0)
-      .derive(index)
-      .getAddress();
+    const node = bitcoin.bip32.fromBase58(this.getXpub());
+    const address = bitcoin.payments.p2pkh({
+      pubkey: node.derive(0).derive(index).publicKey,
+    }).address;
 
     return (this.external_addresses_cache[index] = address);
   }
@@ -74,11 +75,10 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
-    const node = bitcoin.HDNode.fromBase58(this.getXpub());
-    const address = node
-      .derive(1)
-      .derive(index)
-      .getAddress();
+    const node = bitcoin.bip32.fromBase58(this.getXpub());
+    const address = bitcoin.payments.p2pkh({
+      pubkey: node.derive(1).derive(index).publicKey,
+    }).address;
 
     return (this.internal_addresses_cache[index] = address);
   }
