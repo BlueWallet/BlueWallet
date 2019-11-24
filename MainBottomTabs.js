@@ -64,6 +64,8 @@ const WalletsStackNavigator = createStackNavigator(
     },
     WalletTransactions: {
       screen: WalletTransactions,
+      path: 'WalletTransactions',
+      routeName: 'WalletTransactions',
     },
     TransactionStatus: {
       screen: TransactionStatus,

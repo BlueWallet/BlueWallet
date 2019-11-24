@@ -1,6 +1,15 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, View, TouchableWithoutFeedback, TouchableOpacity, Keyboard } from 'react-native';
+import {
+  Text,
+  ActivityIndicator,
+  Platform,
+  KeyboardAvoidingView,
+  View,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  Keyboard,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueButton,
@@ -217,7 +226,7 @@ export default class ScanLndInvoice extends React.Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 16, alignItems: 'center' }}>
+      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'center' }}>
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -259,8 +268,8 @@ export default class ScanLndInvoice extends React.Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <View style={{ flex: 1 }}>
-            <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, justifyContent: 'space-between' }}>
+            <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
               <View style={{ marginTop: 60 }}>
                 <BlueBitcoinAmount
                   pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
@@ -325,7 +334,7 @@ export default class ScanLndInvoice extends React.Component {
                   )}
                 </BlueCard>
               </BlueCard>
-            </View>
+            </KeyboardAvoidingView>
 
             {this.renderWalletSelectionButton()}
           </View>

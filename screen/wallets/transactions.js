@@ -26,6 +26,7 @@ import {
   BlueTransactionListItem,
   BlueWalletNavigationHeader,
 } from '../../BlueComponents';
+import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class';
 import Handoff from 'react-native-handoff';
@@ -54,7 +55,7 @@ export default class WalletTransactions extends Component {
         </TouchableOpacity>
       ),
       headerStyle: {
-        backgroundColor: navigation.getParam('headerColor'),
+        backgroundColor: WalletGradient.headerColorFor(navigation.state.params.wallet.type),
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
@@ -354,29 +355,28 @@ export default class WalletTransactions extends Component {
   };
 
   onWalletSelect = async wallet => {
-    NavigationService.navigate('WalletTransactions');
-    /** @type {LightningCustodianWallet} */
-    let toAddress = false;
-    if (this.state.wallet.refill_addressess.length > 0) {
-      toAddress = this.state.wallet.refill_addressess[0];
-    } else {
-      try {
-        await this.state.wallet.fetchBtcAddress();
-        toAddress = this.state.wallet.refill_addressess[0];
-      } catch (Err) {
-        return alert(Err.message);
-      }
-    }
-
     if (wallet) {
+      NavigationService.navigate('WalletTransactions', {
+        key: `WalletTransactions-${wallet.getID()}`,
+      });
+      /** @type {LightningCustodianWallet} */
+      let toAddress = false;
+      if (this.state.wallet.refill_addressess.length > 0) {
+        toAddress = this.state.wallet.refill_addressess[0];
+      } else {
+        try {
+          await this.state.wallet.fetchBtcAddress();
+          toAddress = this.state.wallet.refill_addressess[0];
+        } catch (Err) {
+          return alert(Err.message);
+        }
+      }
       this.props.navigation.navigate('SendDetails', {
         memo: loc.lnd.refill_lnd_balance,
         fromSecret: wallet.getSecret(),
         address: toAddress,
         fromWallet: wallet,
       });
-    } else {
-      return alert('Internal error');
     }
   };
 

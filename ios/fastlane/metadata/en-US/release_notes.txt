@@ -1,3 +1,18 @@
+v4.8.0
+======
+
+* ADD: Today Extension and Quick Actions
+* ADD: Send max option on advanced menu
+* ADD: Add Onchain address view for Lightning
+* FIX: Allow textfield to be visible above keyboard
+* FIX: lapp browser when typing URL without https scheme it doesnt work
+* ADD: Value and memo to the success screen fix logic for both sent and receive
+* FIX: layout for small devices with flexbox
+* FIX: Dont allow zero invoices to enable create invoice button
+* FIX: Change create button on Receive LN payment should be create invoice
+* FIX: Update for watch
+
+
 v4.7.1
 ======
 
@@ -32,9 +47,3 @@ v4.6.0
 * FIX: better wallet export QR readability
 * FIX: RBF tx memo porting
 * REF: better initial HD rescan
-
-v4.5.2
-======
-
-* FIX: NaN when sending onchain
-* FIX: RBF tx memo porting
