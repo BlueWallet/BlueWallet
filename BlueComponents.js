@@ -1735,7 +1735,6 @@ export class BlueListTransactionItem extends Component {
         const currentDate = new Date();
         const now = (currentDate.getTime() / 1000) | 0;
         const invoiceExpiration = this.props.item.timestamp + this.props.item.expire_time;
-        console.warn(invoiceExpiration);
         if (invoiceExpiration < now) {
           return (
             <View style={{ width: 25 }}>

@@ -115,7 +115,7 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
   }
 
   getBalance() {
-    return new BigNumber(this.balance).dividedBy(100000000).toString(10);
+    return this.balance;
   }
 
   async authenticate() {
