@@ -11,7 +11,14 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
+import {
+  BlueNavigationStyle,
+  BlueSpacing20,
+  BlueTextCentered,
+  BlueButton,
+  BlueBitcoinAmount,
+  BlueDismissKeyboardInputAccessory,
+} from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
