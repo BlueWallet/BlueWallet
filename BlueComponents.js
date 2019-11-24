@@ -1436,11 +1436,11 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
       if (isNaN(item.amount_satoshi)) {
         item.amount_satoshi = '0';
       }
-      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+      const expectedExpiration = dayjs(item.updated + 3600000);
       if (expectedExpiration.isBefore(dayjs())) {
         return loc.lnd.expired;
       }
-      return loc.formatBalanceWithoutSuffix(item.amount_satoshi, this.props.itemPriceUnit, true).toString();
+      return loc.formatBalanceWithoutSuffix(item.amount_satoshi, itemPriceUnit, true).toString();
     } else {
       return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
@@ -1464,7 +1464,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
         }
       }
     } else if (item.object === 'charge') {
-      const expectedExpiration = dayjs(this.props.item.updated + 3600000);
+      const expectedExpiration = dayjs(item.updated + 3600000);
       if (expectedExpiration.isBefore(dayjs())) {
         color = '#FF0000';
       } else {
@@ -1529,7 +1529,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
     }
 
     if (item.object === 'charge') {
-      if (this.props.item.paid) {
+      if (item.paid) {
         return (
           <View style={{ width: 25 }}>
             <BlueTransactionOffchainIncomingIcon />
@@ -1574,8 +1574,8 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   };
 
   const subtitle = () => {
-    if (this.props.item.object === 'charge') {
-      return this.props.item.description;
+    if (item.object === 'charge') {
+      return item.description;
     } else {
       return (item.confirmations < 7 ? loc.transactions.list.conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
     }
@@ -1584,7 +1584,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   const onPress = () => {
     if (item.hash) {
       NavigationService.navigate('TransactionStatus', { hash: item.hash });
-    } else if (item.type === charge || item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+    } else if (item.type === 'charge' || item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
           if (wallet.hasOwnProperty('secret')) {
