@@ -28,12 +28,12 @@ import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
 import WalletGradient from './class/walletGradient';
-const dayjs = require('dayjs');
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+const dayjs = require('dayjs');
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -1395,7 +1395,7 @@ export class NewWalletPanel extends Component {
 
 export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
   const calculateTimeLabel = () => {
-    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
+    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received || item.created);
     return setTransactionTimeToReadable(transactionTimeToReadable);
   };
   const interval = setInterval(() => calculateTimeLabel(), 60000);
@@ -1584,10 +1584,15 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   const onPress = () => {
     if (item.hash) {
       NavigationService.navigate('TransactionStatus', { hash: item.hash });
-    } else if (item.type === 'charge' || item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+    } else if (
+      item.type === 'user_invoice' ||
+      item.type === 'payment_request' ||
+      item.type === 'paid_invoice' ||
+      (item.object && item.object === 'charge')
+    ) {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
-          if (wallet.hasOwnProperty('secret')) {
+          if (wallet.secret) {
             return wallet.getSecret() === item.fromWallet;
           }
         }
