@@ -131,7 +131,7 @@ export default class WalletTransactions extends Component {
 
   isLightning() {
     let w = this.state.wallet;
-    if (w && w.type === LightningCustodianWallet.type) {
+    if (w && w.chain === Chain.OFFCHAIN) {
       return true;
     }
 
@@ -201,7 +201,7 @@ export default class WalletTransactions extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flex: 1, flexDirection: 'row' }}>
+      <View style={{ flex: 1 }}>
         <Text
           style={{
             flex: 1,
@@ -215,6 +215,20 @@ export default class WalletTransactions extends Component {
         >
           {loc.transactions.list.title}
         </Text>
+        <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
+          {/*
+            So the idea here, due to Apple banning native Lapp marketplace, is:
+            On Android everythins works as it worked before. Single "Marketplace" button that leads to LappBrowser that
+            opens /marketplace/ url of offchain wallet type, and /marketplace-btc/ for onchain.
+            On iOS its more complicated - we have one button that opens same page _externally_ (in Safari), and second
+            button that opens actual LappBrowser but with _blank_ page. This is important to not trigger Apple.
+            Blank page is also the way Trust Wallet does it with Dapp Browser.
+
+            For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
+           */}
+          {this.renderMarketplaceButton()}
+          {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
+        </View>
       </View>
     );
   };
@@ -420,22 +434,9 @@ export default class WalletTransactions extends Component {
           }
           onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
         />
-        <View style={{ backgroundColor: '#FFFFFF' }}>
-          <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
-            {/*
-            So the idea here, due to Apple banning native Lapp marketplace, is:
-            On Android everythins works as it worked before. Single "Marketplace" button that leads to LappBrowser that
-            opens /marketplace/ url of offchain wallet type, and /marketplace-btc/ for onchain.
-            On iOS its more complicated - we have one button that opens same page _externally_ (in Safari), and second
-            button that opens actual LappBrowser but with _blank_ page. This is important to not trigger Apple.
-            Blank page is also the way Trust Wallet does it with Dapp Browser.
-
-            For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
-           */}
-            {this.renderMarketplaceButton()}
-            {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
-          </View>
+        <View style={{ backgroundColor: '#FFFFFF', flex: 1 }}>
           <FlatList
+            ListHeaderComponent={this.renderListHeaderComponent}
             onEndReachedThreshold={0.3}
             onEndReached={() => {
               // pagination in works. in this block we will add more txs to flatlist
@@ -452,7 +453,6 @@ export default class WalletTransactions extends Component {
                 pageSize: this.state.pageSize * 2,
               });
             }}
-            ListHeaderComponent={this.renderListHeaderComponent}
             ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
               <ScrollView style={{ minHeight: 100 }} contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
@@ -527,7 +527,7 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
-                    if (this.state.wallet.type === LightningCustodianWallet.type) {
+                    if (this.state.wallet.chain === Chain.OFFCHAIN) {
                       navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
                     } else {
                       navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
@@ -543,7 +543,7 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueSendButtonIcon
                   onPress={() => {
-                    if (this.state.wallet.type === LightningCustodianWallet.type) {
+                    if (this.state.wallet.chain === Chain.OFFCHAIN) {
                       navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
                     } else {
                       navigate('SendDetails', {

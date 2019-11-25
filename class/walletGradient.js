@@ -4,6 +4,7 @@ import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { WatchOnlyWallet } from './watch-only-wallet';
+import { ACINQStrikeLightningWallet } from './acinqStrikeWallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 
 export default class WalletGradient {
@@ -15,6 +16,7 @@ export default class WalletGradient {
   static hdLegacyBreadWallet = ['#fe6381', '#f99c42'];
   static defaultGradients = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
+  static acinqStrikeWallet = ['#1A63DF', '#0A4873'];
   static createWallet = ['#eef0f4', '#eef0f4'];
 
   static gradientsFor(type) {
@@ -40,6 +42,9 @@ export default class WalletGradient {
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
+        break;
+      case ACINQStrikeLightningWallet.type:
+        gradient = WalletGradient.acinqStrikeWallet;
         break;
       case 'CreateWallet':
         gradient = WalletGradient.createWallet;
@@ -74,6 +79,9 @@ export default class WalletGradient {
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
+        break;
+      case ACINQStrikeLightningWallet.type:
+        gradient = WalletGradient.acinqStrikeWallet;
         break;
       case 'CreateWallet':
         gradient = WalletGradient.createWallet;

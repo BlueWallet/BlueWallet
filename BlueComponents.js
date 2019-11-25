@@ -23,7 +23,7 @@ import {
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet } from './class';
+import { LightningCustodianWallet, ACINQStrikeLightningWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
@@ -33,6 +33,7 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+const dayjs = require('dayjs');
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -1394,7 +1395,7 @@ export class NewWalletPanel extends Component {
 
 export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
   const calculateTimeLabel = () => {
-    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
+    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received || item.created);
     return setTransactionTimeToReadable(transactionTimeToReadable);
   };
   const interval = setInterval(() => calculateTimeLabel(), 60000);
@@ -1431,6 +1432,15 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
           return loc.lnd.expired;
         }
       }
+    } else if (item.object === 'charge') {
+      if (isNaN(item.amount_satoshi)) {
+        item.amount_satoshi = '0';
+      }
+      const expectedExpiration = dayjs(item.updated + 3600000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        return loc.lnd.expired;
+      }
+      return loc.formatBalanceWithoutSuffix(item.amount_satoshi, itemPriceUnit, true).toString();
     } else {
       return loc.formatBalanceWithoutSuffix(item.value && item.value, itemPriceUnit, true).toString();
     }
@@ -1452,6 +1462,13 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
         } else {
           color = BlueApp.settings.failedColor;
         }
+      }
+    } else if (item.object === 'charge') {
+      const expectedExpiration = dayjs(item.updated + 3600000);
+      if (expectedExpiration.isBefore(dayjs())) {
+        color = '#FF0000';
+      } else {
+        color = '#37c0a1';
       }
     } else if (item.value / 100000000 < 0) {
       color = BlueApp.settings.foregroundColor;
@@ -1511,6 +1528,30 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
       }
     }
 
+    if (item.object === 'charge') {
+      if (item.paid) {
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionOffchainIncomingIcon />
+          </View>
+        );
+      } else {
+        const expectedExpiration = dayjs(item.updated + 3600000);
+        if (expectedExpiration.isBefore(dayjs())) {
+          return (
+            <View style={{ width: 25 }}>
+              <BlueTransactionExpiredIcon />
+            </View>
+          );
+        }
+        return (
+          <View style={{ width: 25 }}>
+            <BlueTransactionPendingIcon />
+          </View>
+        );
+      }
+    }
+
     if (!item.confirmations) {
       return (
         <View style={{ width: 25 }}>
@@ -1533,16 +1574,25 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   };
 
   const subtitle = () => {
-    return (item.confirmations < 7 ? loc.transactions.list.conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
+    if (item.object === 'charge') {
+      return item.description;
+    } else {
+      return (item.confirmations < 7 ? loc.transactions.list.conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
+    }
   };
 
   const onPress = () => {
     if (item.hash) {
       NavigationService.navigate('TransactionStatus', { hash: item.hash });
-    } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
+    } else if (
+      item.type === 'user_invoice' ||
+      item.type === 'payment_request' ||
+      item.type === 'paid_invoice' ||
+      (item.object && item.object === 'charge')
+    ) {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
-          if (wallet.hasOwnProperty('secret')) {
+          if (wallet.secret) {
             return wallet.getSecret() === item.fromWallet;
           }
         }
@@ -1842,7 +1892,11 @@ export class WalletsCarousel extends Component {
             }}
           >
             <Image
-              source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
+              source={
+                ((LightningCustodianWallet.type === item.type || ACINQStrikeLightningWallet.type === item.type) &&
+                  require('./img/lnd-shape.png')) ||
+                require('./img/btc-shape.png')
+              }
               style={{
                 width: 99,
                 height: 94,
