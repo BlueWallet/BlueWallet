@@ -90,22 +90,25 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
   async getUserCharges() {
     let response = await this._api.get('/charges');
     let json = response.body;
+    let userChargesRaw = [];
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
     } else if (json && json.code) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
-    this.user_charges_raw = json.sort((a, b) => {
+    userChargesRaw = json.sort((a, b) => {
       return a.created < b.created;
     });
 
     this.balance = 0;
-    this.user_charges_raw.forEach(charge => {
+    userChargesRaw.forEach(charge => {
       charge.fromWallet = this.secret;
       if (charge.paid === true) {
         this.balance += charge.amount_satoshi;
       }
     });
+
+    this.user_charges_raw = userChargesRaw;
     return this.user_charges_raw;
   }
 
