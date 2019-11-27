@@ -5,11 +5,12 @@ export default class Biometric {
   static STORAGEKEY = 'Biometrics';
   static FaceID = Biometrics.FaceID;
   static TouchID = Biometrics.TouchID;
+  static Biometrics = Biometrics.Biometrics;
 
   static async isDeviceBiometricCapable() {
-    const isDeviceBiometricCapable = await Biometric.biometricType();
-    if (typeof isDeviceBiometricCapable === 'string') {
-      return isDeviceBiometricCapable;
+    const isDeviceBiometricCapable = await Biometrics.isSensorAvailable();
+    if (isDeviceBiometricCapable.available) {
+      return true;
     }
     Biometric.setBiometricUseEnabled(false);
     return false;
@@ -18,7 +19,7 @@ export default class Biometric {
   static async biometricType() {
     try {
       const isSensorAvailable = await Biometrics.isSensorAvailable();
-      return isSensorAvailable;
+      return isSensorAvailable.biometryType;
     } catch (e) {
       console.log(e);
     }
@@ -49,8 +50,8 @@ export default class Biometric {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       try {
-        await Biometrics.simplePrompt('Please confirm your identity.');
-        return true;
+        const isConfirmed = await Biometrics.simplePrompt({ promptMessage: 'Please confirm your identity.' });
+        return isConfirmed.success;
       } catch (_e) {
         return false;
       }
