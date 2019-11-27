@@ -1,6 +1,6 @@
 
 # Uncomment the next line to define a global platform for your project
-platform :ios, '9.0'
+platform :ios, '10.0'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 workspace 'BlueWallet'
 post_install do |installer|
@@ -8,7 +8,7 @@ post_install do |installer|
         target.build_configurations.each do |config|
             puts "Setting Swift Version and deployment target setting for #{target.name}..."
             config.build_settings['SWIFT_VERSION'] = '4.2'
-            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
         end
     end
 end
@@ -44,7 +44,7 @@ target 'BlueWallet' do
     # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
     #  use_frameworks!
     project 'BlueWallet.xcodeproj'
-    platform :ios, '9.0'
+    platform :ios, '10.0'
     # Pods for BlueWallet
     # React Native requirements
     
