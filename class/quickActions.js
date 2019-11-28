@@ -6,7 +6,7 @@ export default class DeviceQuickActions {
   wallets;
 
   static setWallets(wallets) {
-    DeviceQuickActions.shared.wallets = wallets;
+    DeviceQuickActions.shared.wallets = wallets.slice(0, 4);
   }
 
   static removeAllWallets() {
