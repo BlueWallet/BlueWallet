@@ -53,7 +53,7 @@
     "@react-native-community/slider": "2.0.0-rc.1",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
     "@sentry/react-native": "1.0.9",
-    "amplitude-js": "5.6.0",
+    "amplitude-js": "5.7.0",
     "appcenter": "2.6.0",
     "appcenter-analytics": "2.6.0",
     "appcenter-crashes": "2.6.0",
