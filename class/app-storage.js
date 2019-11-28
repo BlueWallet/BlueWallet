@@ -455,7 +455,7 @@ export class AppStorage {
   getBalance() {
     let finalBalance = 0;
     for (let wal of this.wallets) {
-      finalBalance += wal.balance;
+      finalBalance += wal.getBalance();
     }
     return finalBalance;
   }
