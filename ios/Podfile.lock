@@ -82,7 +82,7 @@ PODS:
     - React-cxxreact (= 0.60.5)
     - React-jsi (= 0.60.5)
   - React-jsinspector (0.60.5)
-  - react-native-biometrics (1.6.1):
+  - react-native-biometrics (2.0.0):
     - React
   - react-native-blur (0.8.0):
     - React
@@ -362,7 +362,7 @@ SPEC CHECKSUMS:
   React-jsi: 4d8c9efb6312a9725b18d6fc818ffc103f60fec2
   React-jsiexecutor: 90ad2f9db09513fc763bc757fdc3c4ff8bde2a30
   React-jsinspector: e08662d1bf5b129a3d556eb9ea343a3f40353ae4
-  react-native-biometrics: 4aaf49f9f8bd28c6aa3ec53534ca1b6b00486f6a
+  react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 203091b4bf99d48b788a0682ad573e8718724893
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
@@ -402,6 +402,6 @@ SPEC CHECKSUMS:
   ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: 4ac476f363ad99e4ad854f97a5c1854ea0423bf6
+PODFILE CHECKSUM: f93db402b02d7f01a8bc51d9b2cc10a39391b081
 
 COCOAPODS: 1.7.5
