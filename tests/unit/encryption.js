@@ -5,19 +5,28 @@ let c = require('../../encryption')
 describe('unit - encryption', function () {
 
   it('encrypts and decrypts', function () {
-    let crypted = c.encrypt('data', 'password');
-    let decrypted = c.decrypt(crypted, 'password');
+    const data2encrypt = 'really long data string bla bla really long data string bla bla really long data string bla bla';
+    const crypted = c.encrypt(data2encrypt, 'password');
+    const decrypted = c.decrypt(crypted, 'password');
 
     assert.ok(crypted);
     assert.ok(decrypted);
-    assert.equal(decrypted, 'data');
-    assert.ok(crypted !== 'data');
+    assert.equal(decrypted, data2encrypt);
+    assert.ok(crypted !== data2encrypt);
 
     let decryptedWithBadPassword
     try {
       decryptedWithBadPassword = c.decrypt(crypted, 'passwordBad');
     } catch (e) {}
     assert.ok(!decryptedWithBadPassword)
+
+    let exceptionRaised = false;
+    try {
+      c.encrypt('yolo', 'password');
+    } catch (_) {
+      exceptionRaised = true;
+    }
+    assert.ok(exceptionRaised);
   })
 
   it('handles ok malformed data', function() {
