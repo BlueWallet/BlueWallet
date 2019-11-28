@@ -28,7 +28,7 @@ import {
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet, ACINQStrikeLightningWallet } from '../../class';
 import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
@@ -107,6 +107,7 @@ export default class WalletTransactions extends Component {
    */
   getTransactions(limit = Infinity) {
     let wallet = this.props.navigation.getParam('wallet');
+
     let txs = wallet.getTransactions();
     for (let tx of txs) {
       tx.sort_ts = +new Date(tx.received);
@@ -438,9 +439,13 @@ export default class WalletTransactions extends Component {
           <FlatList
             ListHeaderComponent={this.renderListHeaderComponent}
             onEndReachedThreshold={0.3}
-            onEndReached={() => {
+            onEndReached={async () => {
               // pagination in works. in this block we will add more txs to flatlist
               // so as user scrolls closer to bottom it will render mode transactions
+              if (this.state.wallet.type === ACINQStrikeLightningWallet.type) {
+                const page = Math.ceil((this.state.dataSource.length || 0) / 30) - 1;
+                await this.state.wallet.fetchTransactions(page);
+              }
 
               if (this.getTransactions(Infinity).length < this.state.limit) {
                 // all list rendered. nop

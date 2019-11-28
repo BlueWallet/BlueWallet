@@ -77,8 +77,8 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     return json;
   }
 
-  async fetchTransactions() {
-    const usercharges = await this.getUserCharges();
+  async fetchTransactions(page = 0) {
+    const usercharges = await this.getUserCharges(page);
     return usercharges;
   }
 
@@ -87,18 +87,20 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
     return transactions;
   }
 
-  async getUserCharges() {
-    let response = await this._api.get('/charges');
+  async getUserCharges(page = 0) {
+    let response = await this._api.get(`/charges?page=${page}`);
     let json = response.body;
-    let userChargesRaw = [];
+    let userChargesRaw = this.user_charges_raw;
     if (typeof json === 'undefined') {
       throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.originalResponse));
     } else if (json.code) {
       throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
     }
-    userChargesRaw = json.sort((a, b) => {
-      return a.created < b.created;
-    });
+    userChargesRaw = userChargesRaw.concat(
+      json.sort((a, b) => {
+        return a.created < b.created;
+      }),
+    );
 
     this.balance = 0;
     userChargesRaw.forEach(charge => {
@@ -108,7 +110,8 @@ export class ACINQStrikeLightningWallet extends LegacyWallet {
       }
     });
 
-    this.user_charges_raw = userChargesRaw;
+    this.user_charges_raw = [...new Set(userChargesRaw)];
+
     return this.user_charges_raw;
   }
 
