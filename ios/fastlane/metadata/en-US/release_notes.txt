@@ -1,3 +1,9 @@
+v4.8.1
+======
+
+* FIX: Updated biometrics
+* FIX: Import QR Code from screenshot not working
+
 v4.8.0
 ======
 
