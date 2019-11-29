@@ -70,7 +70,7 @@ export class AppStorage {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
     } else {
-      return AsyncStorage.setItem(key, value);
+      return AsyncStorage.setItem(key, JSON.stringify(value));
     }
   }
 
