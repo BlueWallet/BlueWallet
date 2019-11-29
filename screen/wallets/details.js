@@ -1,6 +1,16 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View, Text, TextInput, Alert, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import {
+  ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Switch,
+} from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -8,8 +18,10 @@ import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wal
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { HDSegwitBech32Wallet } from '../../class';
+import Biometric from '../../class/biometrics';
+import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 let EV = require('../../events');
+let prompt = require('../../prompt');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -21,7 +33,7 @@ export default class WalletDetails extends Component {
     headerRight: (
       <TouchableOpacity
         disabled={navigation.getParam('isLoading') === true}
-        style={{ marginHorizontal: 16, height: 40, width: 40, justifyContent: 'center', alignItems: 'center' }}
+        style={{ marginHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
           if (navigation.state.params.saveAction) {
             navigation.getParam('saveAction')();
@@ -37,18 +49,18 @@ export default class WalletDetails extends Component {
     super(props);
 
     const wallet = props.navigation.getParam('wallet');
-    const address = wallet.getAddress();
     const isLoading = true;
     this.state = {
       isLoading,
       walletName: wallet.getLabel(),
       wallet,
-      address,
+      useWithHardwareWallet: !!wallet.use_with_hardware_wallet,
     };
     this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
   }
 
   componentDidMount() {
+    console.log('wallets/details componentDidMount');
     this.setState({
       isLoading: false,
     });
@@ -62,6 +74,40 @@ export default class WalletDetails extends Component {
       BlueApp.saveToDisk();
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
+    });
+  }
+
+  async presentWalletHasBalanceAlert() {
+    ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+    const walletBalanceConfirmation = await prompt(
+      'Wallet Balance',
+      `This wallet has a balance. Before proceeding, please be aware that you will not be able to recover the funds without this wallet's seed phrase. In order to avoid accidental removal this wallet, please enter your wallet's balance of ${this.state.wallet.getBalance()} satoshis.`,
+      true,
+      'plain-text',
+    );
+    if (Number(walletBalanceConfirmation) === this.state.wallet.getBalance()) {
+      this.props.navigation.setParams({ isLoading: true });
+      this.setState({ isLoading: true }, async () => {
+        BlueApp.deleteWallet(this.state.wallet);
+        ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+        await BlueApp.saveToDisk();
+        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+        EV(EV.enum.WALLETS_COUNT_CHANGED);
+        this.props.navigation.navigate('Wallets');
+      });
+    } else {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      this.setState({ isLoading: false }, async () => {
+        alert("The provided balance amount does not match this wallet's balance. Please, try again");
+      });
+    }
+  }
+
+  async onUseWithHardwareWalletSwitch(value) {
+    this.setState((state, props) => {
+      let wallet = state.wallet;
+      wallet.use_with_hardware_wallet = !!value;
+      return { useWithHardwareWallet: !!value, wallet };
     });
   }
 
@@ -131,6 +177,17 @@ export default class WalletDetails extends Component {
               )}
               <View>
                 <BlueSpacing20 />
+
+                {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
+                  <React.Fragment>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <BlueText>{'Use with hardware wallet'}</BlueText>
+                      <Switch value={this.state.useWithHardwareWallet} onValueChange={value => this.onUseWithHardwareWalletSwitch(value)} />
+                    </View>
+                    <BlueSpacing20 />
+                  </React.Fragment>
+                )}
+
                 <BlueButton
                   onPress={() =>
                     this.props.navigation.navigate('WalletExport', {
@@ -190,15 +247,26 @@ export default class WalletDetails extends Component {
                         {
                           text: loc.wallets.details.yes_delete,
                           onPress: async () => {
-                            this.props.navigation.setParams({ isLoading: true });
-                            this.setState({ isLoading: true }, async () => {
-                              BlueApp.deleteWallet(this.state.wallet);
-                              ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-                              await BlueApp.saveToDisk();
-                              EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                              EV(EV.enum.WALLETS_COUNT_CHANGED);
-                              this.props.navigation.navigate('Wallets');
-                            });
+                            const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+                            if (isBiometricsEnabled) {
+                              if (!(await Biometric.unlockWithBiometrics())) {
+                                return;
+                              }
+                            }
+                            if (this.state.wallet.getBalance() > 0) {
+                              this.presentWalletHasBalanceAlert();
+                            } else {
+                              this.props.navigation.setParams({ isLoading: true });
+                              this.setState({ isLoading: true }, async () => {
+                                BlueApp.deleteWallet(this.state.wallet);
+                                ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                                await BlueApp.saveToDisk();
+                                EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                                EV(EV.enum.WALLETS_COUNT_CHANGED);
+                                this.props.navigation.navigate('Wallets');
+                              });
+                            }
                           },
                           style: 'destructive',
                         },
@@ -224,7 +292,6 @@ WalletDetails.propTypes = {
     getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string,
         secret: PropTypes.string,
       }),
     }),

@@ -2,6 +2,8 @@ import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from './class';
 import { FiatUnit } from './models/fiatUnit';
+import DefaultPreference from 'react-native-default-preference';
+import DeviceQuickActions from './class/quickActions';
 let BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
 let exchangeRates = {};
@@ -19,10 +21,17 @@ const STRUCT = {
  */
 async function setPrefferedCurrency(item) {
   await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(item));
+  await DefaultPreference.setName('group.io.bluewallet.bluewallet');
+  await DefaultPreference.set('preferredCurrency', item.endPointKey);
+  await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
+  DeviceQuickActions.setQuickActions();
 }
 
 async function getPreferredCurrency() {
-  return JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
+  let preferredCurrency = await JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
+  await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
+  await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
+  return preferredCurrency;
 }
 
 async function updateExchangeRate() {
@@ -48,6 +57,8 @@ async function updateExchangeRate() {
     }
   } catch (Err) {
     console.warn(Err);
+    const lastSavedExchangeRate = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
+    exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = lastSavedExchangeRate['BTC_' + preferredFiatCurrency.endPointKey] * 1;
     return;
   }
 
@@ -55,6 +66,7 @@ async function updateExchangeRate() {
   exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = json.bpi[preferredFiatCurrency.endPointKey].rate_float * 1;
   await AsyncStorage.setItem(AppStorage.EXCHANGE_RATES, JSON.stringify(exchangeRates));
   await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(preferredFiatCurrency));
+  DeviceQuickActions.setQuickActions();
 }
 
 let interval = false;
@@ -69,7 +81,10 @@ async function startUpdater() {
 }
 
 function satoshiToLocalCurrency(satoshi) {
-  if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) return satoshi;
+  if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) {
+    startUpdater();
+    return '...';
+  }
 
   let b = new BigNumber(satoshi);
   b = b
@@ -109,7 +124,7 @@ function BTCToLocalCurrency(bitcoin) {
 function satoshiToBTC(satoshi) {
   let b = new BigNumber(satoshi);
   b = b.dividedBy(100000000);
-  return b.toString(10) + ' BTC';
+  return b.toString(10);
 }
 
 module.exports.updateExchangeRate = updateExchangeRate;

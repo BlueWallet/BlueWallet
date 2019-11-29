@@ -1,6 +1,6 @@
 /* global it, describe, jasmine, afterAll, beforeAll */
-import { HDSegwitBech32Wallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
-const bitcoin = require('bitcoinjs5');
+import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
+const bitcoin = require('bitcoinjs-lib');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
@@ -148,7 +148,7 @@ describe('HDSegwitBech32Transaction', () => {
     let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
     assert.strictEqual(createdTx.outs.length, 2);
-    let addr0 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
+    let addr0 = SegwitP2SHWallet.scriptPubKeyToAddress(createdTx.outs[0].script);
     assert.ok(!hd.weOwnAddress(addr0));
     assert.strictEqual(addr0, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC'); // dest address
     let addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[1].script);

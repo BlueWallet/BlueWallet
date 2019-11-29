@@ -111,7 +111,7 @@ module.exports = {
       to: 'A',
       copy: 'Copiar',
       transaction_details: 'Detalles de la transacción',
-      show_in_block_explorer: 'Show in block explorer',
+      show_in_block_explorer: 'Mostrar en explorador de bloques',
     },
   },
   send: {
@@ -167,6 +167,7 @@ module.exports = {
       create: 'Create',
       setAmount: 'Receive with amount',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Buy Bitcoin',
@@ -231,7 +232,7 @@ module.exports = {
   pleasebackup: {
     title: 'Your wallet is created...',
     text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device. You can use Electrum wallet on desktop (https://electrum.org/) to restore the same wallet.",
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
     ok: 'OK, I wrote this down!',
   },
   lndViewInvoice: {

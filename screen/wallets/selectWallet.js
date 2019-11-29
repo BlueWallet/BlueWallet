@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20 } from '../../BlueComponents';
+import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
@@ -11,21 +11,29 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class SelectWallet extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
+  static navigationOptions = ({ navigation }) => ({
+    ...BlueNavigationStyle(navigation, true, navigation.getParam('dismissAcion')),
     title: loc.wallets.select_wallet,
   });
 
   constructor(props) {
     super(props);
+    props.navigation.setParams({ dismissAcion: this.dismissComponent });
     this.state = {
       isLoading: true,
       data: [],
     };
+    this.chainType = props.navigation.getParam('chainType');
   }
 
+  dismissComponent = () => {
+    this.props.navigation.goBack(null);
+  };
+
   componentDidMount() {
-    const wallets = BlueApp.getWallets().filter(item => item.chain === this.props.navigation.getParam('chainType') && item.allowSend());
+    const wallets = this.chainType
+      ? BlueApp.getWallets().filter(item => item.chain === this.chainType && item.allowSend())
+      : BlueApp.getWallets();
     this.setState({
       data: wallets,
       isLoading: false,
@@ -80,18 +88,22 @@ export default class SelectWallet extends Component {
             >
               {item.getLabel()}
             </Text>
-            <Text
-              numberOfLines={1}
-              adjustsFontSizeToFit
-              style={{
-                backgroundColor: 'transparent',
-                fontWeight: 'bold',
-                fontSize: 36,
-                color: '#fff',
-              }}
-            >
-              {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-            </Text>
+            {item.hideBalance ? (
+              <BluePrivateBalance />
+            ) : (
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={{
+                  backgroundColor: 'transparent',
+                  fontWeight: 'bold',
+                  fontSize: 36,
+                  color: '#fff',
+                }}
+              >
+                {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+              </Text>
+            )}
             <Text style={{ backgroundColor: 'transparent' }} />
             <Text
               numberOfLines={1}
@@ -158,8 +170,8 @@ export default class SelectWallet extends Component {
 SelectWallet.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
+    goBack: PropTypes.func,
     setParams: PropTypes.func,
-    dismiss: PropTypes.func,
     getParam: PropTypes.func,
   }),
 };

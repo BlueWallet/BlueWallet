@@ -1,5 +1,5 @@
 import React from 'react';
-import { Linking, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Linking, DeviceEventEmitter, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import Modal from 'react-native-modal';
 import { NavigationActions } from 'react-navigation';
@@ -9,6 +9,17 @@ import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import url from 'url';
 import { AppStorage, LightningCustodianWallet } from './class';
+import { Chain } from './models/bitcoinUnits';
+import QuickActions from 'react-native-quick-actions';
+import * as Sentry from '@sentry/react-native';
+import OnAppLaunch from './class/onAppLaunch';
+
+if (process.env.NODE_ENV !== 'development') {
+  Sentry.init({
+    dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
+  });
+}
+
 const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
@@ -26,17 +37,70 @@ export default class App extends React.Component {
     clipboardContent: '',
   };
 
-  componentDidMount() {
-    Linking.getInitialURL()
-      .then(url => {
+  async componentDidMount() {
+    Linking.addEventListener('url', this.handleOpenURL);
+    AppState.addEventListener('change', this._handleAppStateChange);
+    QuickActions.popInitialAction().then(this.popInitialAction);
+    DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
+  }
+
+  popInitialAction = async data => {
+    if (data) {
+      // eslint-disable-next-line no-unused-expressions
+      this.navigator.dismiss;
+      const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+      this.navigator.dispatch(
+        NavigationActions.navigate({
+          key: `WalletTransactions-${wallet.getID()}`,
+          routeName: 'WalletTransactions',
+          params: {
+            wallet,
+          },
+        }),
+      );
+    } else {
+      const url = await Linking.getInitialURL();
+      if (url) {
         if (this.hasSchema(url)) {
           this.handleOpenURL({ url });
         }
-      })
-      .catch(console.error);
-    Linking.addEventListener('url', this.handleOpenURL);
-    AppState.addEventListener('change', this._handleAppStateChange);
-  }
+      } else {
+        const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
+        if (!isViewAllWalletsEnabled) {
+          // eslint-disable-next-line no-unused-expressions
+          this.navigator.dismiss;
+          const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
+          const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
+          if (wallet) {
+            this.navigator.dispatch(
+              NavigationActions.navigate({
+                routeName: 'WalletTransactions',
+                key: `WalletTransactions-${wallet.getID()}`,
+                params: {
+                  wallet,
+                },
+              }),
+            );
+          }
+        }
+      }
+    }
+  };
+
+  walletQuickActions = data => {
+    const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
+    // eslint-disable-next-line no-unused-expressions
+    this.navigator.dismiss;
+    this.navigator.dispatch(
+      NavigationActions.navigate({
+        routeName: 'WalletTransactions',
+        key: `WalletTransactions-${wallet.getID()}`,
+        params: {
+          wallet,
+        },
+      }),
+    );
+  };
 
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
@@ -47,7 +111,14 @@ export default class App extends React.Component {
     if (BlueApp.getWallets().length > 0) {
       if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
         const clipboard = await Clipboard.getString();
-        if (this.state.clipboardContent !== clipboard && (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard))) {
+        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
+          wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
+        );
+        if (
+          !isAddressFromStoredWallet &&
+          this.state.clipboardContent !== clipboard &&
+          (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard) || this.isLnUrl(clipboard))
+        ) {
           this.setState({ isClipboardContentModalVisible: true });
         }
         this.setState({ clipboardContent: clipboard });
@@ -88,11 +159,18 @@ export default class App extends React.Component {
 
   isLightningInvoice(invoice) {
     let isValidLightningInvoice = false;
-    if (invoice.indexOf('lightning:lnb') === 0 || invoice.indexOf('LIGHTNING:lnb') === 0 || invoice.toLowerCase().startsWith('lnb')) {
+    if (invoice.toLowerCase().startsWith('lightning:lnb') || invoice.toLowerCase().startsWith('lnb')) {
       this.setState({ clipboardContentModalAddressType: lightningModalString });
       isValidLightningInvoice = true;
     }
     return isValidLightningInvoice;
+  }
+
+  isLnUrl(text) {
+    if (text.toLowerCase().startsWith('lightning:lnurl') || text.toLowerCase().startsWith('lnurl')) {
+      return true;
+    }
+    return false;
   }
 
   isSafelloRedirect(event) {
@@ -123,6 +201,16 @@ export default class App extends React.Component {
         this.navigator.dispatch(
           NavigationActions.navigate({
             routeName: 'ScanLndInvoice',
+            params: {
+              uri: event.url,
+            },
+          }),
+        );
+    } else if (this.isLnUrl(event.url)) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'LNDCreateInvoice',
             params: {
               uri: event.url,
             },

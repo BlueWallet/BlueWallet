@@ -4,6 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
+import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -40,12 +41,20 @@ export default class WalletXpub extends Component {
 
   async componentDidMount() {
     Privacy.enableBlur();
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return this.props.navigation.goBack();
+      }
+    }
+
     this.setState({
       isLoading: false,
     });
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     Privacy.disableBlur();
   }
 

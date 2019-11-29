@@ -3,9 +3,9 @@ import { ScrollView, View } from 'react-native';
 import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
+const bitcoin = require('bitcoinjs-lib');
 let BigNumber = require('bignumber.js');
 let encryption = require('../encryption');
-let bitcoin = require('bitcoinjs-lib');
 let BlueElectrum = require('../BlueElectrum');
 
 export default class Selftest extends Component {
@@ -166,7 +166,7 @@ export default class Selftest extends Component {
           block_height: 514991,
           tx_input_n: -1,
           tx_output_n: 2,
-          value: 546,
+          value: 110000,
           ref_balance: 546,
           spent: false,
           confirmations: 9,
@@ -185,7 +185,7 @@ export default class Selftest extends Component {
       }
       if (
         tx !==
-        '0100000000010123c3e0950eabb2b5c1a956e9d003c516fc29ff529211bd552be719fb78ea5e0f0200000017160014597ce022baa887799951e0496c769d9cc0c759dc0000000001a0860100000000001976a914ff715fb722cb10646d80709aeac7f2f4ee00278f88ac0247304402202507d6b05ab19c7fdee217e97fddab80d481d7b2a103c00cecfc634bf897188d02205fa62ad413b6e441f99f94d7d8f9cd4ba51a1d928cbdec6873fa915236dd6d92012103aea0dfd576151cb399347aa6732f8fdf027b9ea3ea2e65fb754803f776e0a50900000000'
+        '0100000000010123c3e0950eabb2b5c1a956e9d003c516fc29ff529211bd552be719fb78ea5e0f0200000017160014597ce022baa887799951e0496c769d9cc0c759dc0000000001a0860100000000001976a914ff715fb722cb10646d80709aeac7f2f4ee00278f88ac02473044022075670317a0e5b5d4eef154b03db97396a64cbc6ef3b576d98367e1a83c1c488002206d6df1e8085fd711d6ea264de3803340f80fa2c6e30683879d9ad40f3228c56c012103aea0dfd576151cb399347aa6732f8fdf027b9ea3ea2e65fb754803f776e0a50900000000'
       ) {
         errorMessage += 'created tx hex doesnt match; ';
         isOk = false;
@@ -217,16 +217,17 @@ export default class Selftest extends Component {
       let mnemonic =
         'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
       let seed = bip39.mnemonicToSeed(mnemonic);
-      let root = bitcoin.HDNode.fromSeedBuffer(seed);
+      let root = bitcoin.bip32.fromSeed(seed);
 
       let path = "m/49'/0'/0'/0/0";
       let child = root.derivePath(path);
-
-      let keyhash = bitcoin.crypto.hash160(child.getPublicKeyBuffer());
-      let scriptSig = bitcoin.script.witnessPubKeyHash.output.encode(keyhash);
-      let addressBytes = bitcoin.crypto.hash160(scriptSig);
-      let outputScript = bitcoin.script.scriptHash.output.encode(addressBytes);
-      let address = bitcoin.address.fromOutputScript(outputScript, bitcoin.networks.bitcoin);
+      let address = bitcoin.payments.p2sh({
+        redeem: bitcoin.payments.p2wpkh({
+          pubkey: child.publicKey,
+          network: bitcoin.networks.bitcoin,
+        }),
+        network: bitcoin.networks.bitcoin,
+      }).address;
 
       if (address !== '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK') {
         errorMessage += 'bip49 is not ok; ';
@@ -258,7 +259,7 @@ export default class Selftest extends Component {
         //
 
         let hd3 = new HDSegwitP2SHWallet();
-        hd3._xpub = 'ypub6WaPs4JNUvfJoNyZZvRCYTutJiKcYJSiiDCEUNwwvGr76XkaXDuR5gVVcKE1NUxw7Sn2MWLSLrfF2nnk455GmWfK9fUYDXvWba7Zz1E5iX2';
+        hd3._xpub = 'ypub6Wb82D7F38b48uzRVyTwydMCPcos4njzygPRCJ4x1enm6EA5YUthtWgJUPYiFTs7Sk53q8rJ9d1SJ2fBNqsyhjUTDR7gyF1SXbBnaa9xcQj';
         await hd3.fetchBalance();
         if (hd3.getBalance() !== 26000) throw new Error('Could not fetch HD balance');
         await hd3.fetchTransactions();

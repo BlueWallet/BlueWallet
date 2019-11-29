@@ -1,5 +1,5 @@
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-
+const createHash = require('create-hash');
 export class AbstractWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
@@ -28,6 +28,14 @@ export class AbstractWallet {
     this._lastBalanceFetch = 0;
     this.preferredBalanceUnit = BitcoinUnit.BTC;
     this.chain = Chain.ONCHAIN;
+    this.hideBalance = false;
+  }
+
+  getID() {
+    return createHash('sha256')
+      .update(this.getSecret())
+      .digest()
+      .toString('hex');
   }
 
   getTransactions() {
@@ -40,6 +48,10 @@ export class AbstractWallet {
    */
   getLabel() {
     return this.label;
+  }
+
+  getXpub() {
+    return this._address;
   }
 
   /**
@@ -67,12 +79,20 @@ export class AbstractWallet {
     return true;
   }
 
+  allowSendMax(): boolean {
+    return false;
+  }
+
   allowRBF() {
     return false;
   }
 
   allowBatchSend() {
     return false;
+  }
+
+  weOwnAddress(address) {
+    return this._address === address;
   }
 
   /**
@@ -104,4 +124,12 @@ export class AbstractWallet {
   }
 
   // createTx () { throw Error('not implemented') }
+
+  getAddress() {
+    throw Error('not implemented');
+  }
+
+  getAddressAsync() {
+    return new Promise(resolve => resolve(this.getAddress()));
+  }
 }

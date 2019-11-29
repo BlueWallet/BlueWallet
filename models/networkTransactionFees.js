@@ -5,6 +5,12 @@ export const NetworkTransactionFeeStatus = Object.freeze({
   FETCHING: 'FETCHING',
   INACTIVE: 'INACTIVE',
 });
+export const NetworkTransactionFeeType = Object.freeze({
+  FAST: 'Fast',
+  MEDIUM: 'MEDIUM',
+  SLOW: 'SLOW',
+  CUSTOM: 'CUSTOM',
+});
 
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';

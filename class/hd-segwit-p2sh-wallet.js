@@ -5,8 +5,8 @@ import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import signer from '../models/signer';
+import { BitcoinUnit } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
-const bitcoin5 = require('bitcoinjs5');
 const HDNode = require('bip32');
 
 const { RNRandomBytes } = NativeModules;
@@ -18,6 +18,7 @@ const { RNRandomBytes } = NativeModules;
  */
 function ypubToXpub(ypub) {
   let data = b58.decode(ypub);
+  if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
   data = data.slice(4);
   data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
 
@@ -30,8 +31,8 @@ function ypubToXpub(ypub) {
  * @returns {String}
  */
 function nodeToP2shSegwitAddress(hdNode) {
-  const { address } = bitcoin5.payments.p2sh({
-    redeem: bitcoin5.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+  const { address } = bitcoin.payments.p2sh({
+    redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
   });
   return address;
 }
@@ -46,6 +47,10 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   static typeReadable = 'HD SegWit (BIP49 P2SH)';
 
   allowSend() {
+    return true;
+  }
+
+  allowSendMax(): boolean {
     return true;
   }
 
@@ -90,11 +95,11 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
   _getWIFByIndex(internal, index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.HDNode.fromSeedBuffer(seed);
+    const root = bitcoin.bip32.fromSeed(seed);
     const path = `m/49'/0'/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
-    return child.keyPair.toWIF();
+    return bitcoin.ECPair.fromPrivateKey(child.privateKey).toWIF();
   }
 
   _getExternalAddressByIndex(index) {
@@ -255,12 +260,29 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     }
   }
 
+  /**
+   *
+   * @param utxos
+   * @param amount Either float (BTC) or string 'MAX' (BitcoinUnit.MAX) to send all
+   * @param fee
+   * @param address
+   * @returns {string}
+   */
   createTx(utxos, amount, fee, address) {
     for (let utxo of utxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
     let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+
+    if (amount === BitcoinUnit.MAX) {
+      amountPlusFee = new BigNumber(0);
+      for (let utxo of utxos) {
+        amountPlusFee = amountPlusFee.plus(utxo.amount);
+      }
+      amountPlusFee = amountPlusFee.dividedBy(100000000).toString(10);
+    }
+
     return signer.createHDSegwitTransaction(
       utxos,
       address,

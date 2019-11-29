@@ -48,11 +48,11 @@ export default class ReceiveAmount extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     Privacy.enableBlur();
   }
 
-  componentWillUnmount() {
+  async componentWillUnmount() {
     Privacy.disableBlur();
   }
 

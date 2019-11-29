@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from './class';
+const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
-let bitcoin = require('bitcoinjs-lib');
 let reverse = require('buffer-reverse');
 let BigNumber = require('bignumber.js');
 
@@ -43,12 +43,11 @@ async function connectMain() {
     };
     await mainClient.connect();
     const ver = await mainClient.server_version('2.7.11', '1.4');
-    let peers = await mainClient.serverPeers_subscribe();
-    if (peers && peers.length > 0) {
+    if (ver && ver[0]) {
       console.log('connected to ', ver);
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
-      AsyncStorage.setItem(storageKey, JSON.stringify(peers));
+      // AsyncStorage.setItem(storageKey, JSON.stringify(peers));  TODO: refactor
     }
   } catch (e) {
     mainConnected = false;

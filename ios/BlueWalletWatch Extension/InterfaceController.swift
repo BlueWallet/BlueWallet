@@ -19,7 +19,6 @@ class InterfaceController: WKInterfaceController {
   override func willActivate() {
     // This method is called when watch view controller is about to be visible to user
     super.willActivate()
-    WCSession.default.sendMessage(["message" : "sendApplicationContext"], replyHandler: nil, errorHandler: nil)
     
     if (WatchDataSource.shared.wallets.isEmpty) {
       loadingIndicatorGroup.setHidden(true)
@@ -31,8 +30,6 @@ class InterfaceController: WKInterfaceController {
   }
   
   @objc private func processWalletsTable() {
-    loadingIndicatorGroup.setHidden(false)
-    walletsTable.setHidden(true)
     walletsTable.setNumberOfRows(WatchDataSource.shared.wallets.count, withRowType: WalletInformation.identifier)
     
     for index in 0..<walletsTable.numberOfRows {
@@ -45,7 +42,6 @@ class InterfaceController: WKInterfaceController {
       controller.balance = wallet.balance
       controller.type = WalletGradient(rawValue: wallet.type) ?? .SegwitHD
     }
-    loadingIndicatorGroup.setHidden(true)
     noWalletsAvailableLabel.setHidden(!WatchDataSource.shared.wallets.isEmpty)
     walletsTable.setHidden(WatchDataSource.shared.wallets.isEmpty)
   }

@@ -14,8 +14,8 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+const bitcoinjs = require('bitcoinjs-lib');
 let BigNumber = require('bignumber.js');
-let bitcoinjs = require('bitcoinjs-lib');
 let BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {
@@ -164,7 +164,7 @@ export default class SendCreate extends Component {
         this.setState({ isLoading: false });
       } else {
         alert(JSON.stringify(result.result || result.txid));
-        this.props.navigation.navigate('TransactionDetails');
+        this.props.navigation.navigate('TransactionStatus');
       }
     });
   }

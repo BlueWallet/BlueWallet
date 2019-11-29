@@ -3,6 +3,21 @@ const bitcoin = require('bitcoinjs-lib');
 const signer = require('../models/signer');
 const BigNumber = require('bignumber.js');
 
+/**
+ * Creates Segwit P2SH Bitcoin address
+ * @param pubkey
+ * @param network
+ * @returns {String}
+ */
+function pubkeyToP2shSegwitAddress(pubkey, network) {
+  network = network || bitcoin.networks.bitcoin;
+  const { address } = bitcoin.payments.p2sh({
+    redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
+    network,
+  });
+  return address;
+}
+
 export class SegwitP2SHWallet extends LegacyWallet {
   static type = 'segwitP2SH';
   static typeReadable = 'SegWit (P2SH)';
@@ -13,11 +28,27 @@ export class SegwitP2SHWallet extends LegacyWallet {
 
   static witnessToAddress(witness) {
     const pubKey = Buffer.from(witness, 'hex');
-    const pubKeyHash = bitcoin.crypto.hash160(pubKey);
-    const redeemScript = bitcoin.script.witnessPubKeyHash.output.encode(pubKeyHash);
-    const redeemScriptHash = bitcoin.crypto.hash160(redeemScript);
-    const scriptPubkey = bitcoin.script.scriptHash.output.encode(redeemScriptHash);
-    return bitcoin.address.fromOutputScript(scriptPubkey, bitcoin.networks.bitcoin);
+    return pubkeyToP2shSegwitAddress(pubKey);
+  }
+
+  /**
+   * Converts script pub key to p2sh address if it can. Returns FALSE if it cant.
+   *
+   * @param scriptPubKey
+   * @returns {boolean|string} Either p2sh address or false
+   */
+  static scriptPubKeyToAddress(scriptPubKey) {
+    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+    let ret;
+    try {
+      ret = bitcoin.payments.p2sh({
+        output: scriptPubKey2,
+        network: bitcoin.networks.bitcoin,
+      }).address;
+    } catch (_) {
+      return false;
+    }
+    return ret;
   }
 
   getAddress() {
@@ -25,14 +56,12 @@ export class SegwitP2SHWallet extends LegacyWallet {
     let address;
     try {
       let keyPair = bitcoin.ECPair.fromWIF(this.secret);
-      let pubKey = keyPair.getPublicKeyBuffer();
+      let pubKey = keyPair.publicKey;
       if (!keyPair.compressed) {
         console.warn('only compressed public keys are good for segwit');
         return false;
       }
-      let witnessScript = bitcoin.script.witnessPubKeyHash.output.encode(bitcoin.crypto.hash160(pubKey));
-      let scriptPubKey = bitcoin.script.scriptHash.output.encode(bitcoin.crypto.hash160(witnessScript));
-      address = bitcoin.address.fromOutputScript(scriptPubKey);
+      address = pubkeyToP2shSegwitAddress(pubKey);
     } catch (err) {
       return false;
     }
