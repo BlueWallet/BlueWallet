@@ -57,7 +57,7 @@ export default class WatchConnectivity {
   }
 
   async sendWalletsToWatch(allWallets) {
-    if (allWallets === undefined && WatchConnectivity.shared.wallets !== undefined) {
+    if (allWallets === undefined && Array.isArray(WatchConnectivity.shared.wallets)) {
       allWallets = WatchConnectivity.shared.wallets;
     }
     if (allWallets && allWallets.length === 0) {

@@ -67,10 +67,16 @@ export class AppStorage {
    * @returns {Promise<any>|Promise<any> | Promise<void> | * | Promise | void}
    */
   setItem(key, value) {
-    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
-    } else {
-      return AsyncStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+    if (key && value) {
+      try {
+        if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+          return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+        } else {
+          return AsyncStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+        }
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
@@ -82,10 +88,14 @@ export class AppStorage {
    * @returns {Promise<any>|*}
    */
   getItem(key) {
-    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.get(key);
-    } else {
-      return AsyncStorage.getItem(key);
+    try {
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        return RNSecureKeyStore.get(key);
+      } else {
+        return AsyncStorage.getItem(key);
+      }
+    } catch (e) {
+      console.log(e);
     }
   }
 
