@@ -44,7 +44,7 @@ export default class WatchConnectivity {
     });
   }
 
-  async handleLightningInvoiceCreateRequest(walletIndex, amount, description) {
+  async handleLightningInvoiceCreateRequest(walletIndex, amount, description = '') {
     const wallet = WatchConnectivity.shared.wallets[walletIndex];
     if (wallet.allowReceive() && amount > 0 && description.trim().length > 0) {
       try {
@@ -57,10 +57,12 @@ export default class WatchConnectivity {
   }
 
   async sendWalletsToWatch(allWallets) {
-    if (allWallets === undefined && WatchConnectivity.shared.wallets !== undefined) {
+    if (allWallets === undefined && Array.isArray(WatchConnectivity.shared.wallets)) {
       allWallets = WatchConnectivity.shared.wallets;
+    } else {
+      return;
     }
-    if (allWallets && allWallets.length === 0) {
+    if (allWallets.length === 0) {
       return;
     }
 
