@@ -9,6 +9,7 @@ import App from './App';
 import LottieView from 'lottie-react-native';
 import UnlockWith from './UnlockWith.js';
 
+/** @type {AppStorage} */
 const A = require('./analytics');
 
 if (!Error.captureStackTrace) {
