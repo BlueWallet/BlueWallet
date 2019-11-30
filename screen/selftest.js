@@ -202,13 +202,12 @@ export default class Selftest extends Component {
       }
 
       //
-
-      let crypted = encryption.encrypt('data', 'password');
+      const data2encrypt = 'really long data string';
+      let crypted = encryption.encrypt(data2encrypt, 'password');
       let decrypted = encryption.decrypt(crypted, 'password');
 
-      if (decrypted !== 'data' && crypted && decrypted) {
-        errorMessage += 'encryption lib is not ok; ';
-        isOk = false;
+      if (decrypted !== data2encrypt && crypted && decrypted) {
+        throw new Error('encryption lib is not ok');
       }
 
       //
