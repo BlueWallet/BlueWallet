@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import { AppStorage } from './class';
+//import { AppStorage } from './class/app-storage';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 let reverse = require('buffer-reverse');
@@ -17,7 +17,7 @@ let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
   let usingPeer = await getRandomHardcodedPeer();
-  let savedPeer = await getSavedPeer();
+  let savedPeer = null;
   if (savedPeer && savedPeer.host && savedPeer.tcp) {
     usingPeer = savedPeer;
   }
@@ -63,11 +63,11 @@ async function getRandomHardcodedPeer() {
   return hardcodedPeers[(hardcodedPeers.length * Math.random()) | 0];
 }
 
-async function getSavedPeer() {
-  let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-  let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-  return { host, tcp: port };
-}
+//async function getSavedPeer() {
+  //let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
+  //let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
+  //return { host, tcp: port };
+//}
 
 /**
  * Returns random electrum server out of list of servers
@@ -147,13 +147,20 @@ module.exports.ping = async function() {
   return true;
 };
 
-module.exports.getTransactionsFullByAddress = async function(address) {
-  let txs = await this.getTransactionsByAddress(address);
+module.exports.multiGetTransactionsFullByAddress = async function(addresses) {
+  let addrTxMap = await this.multiGetHistoryByAddress(addresses)
+  let txList = [];
   let ret = [];
-  for (let tx of txs) {
-    let full = await mainClient.blockchainTransaction_get(tx.tx_hash, true);
-    full.address = address;
+  for (let addr in addrTxMap) {
+    for (let tx of addrTxMap[addr]) {
+      txList.push(tx.tx_hash);
+    }
+  }
+  let txfull = await this.multiGetTransactionByTxid(txList);
+  for (let txid in txfull) {
+    let full = txfull[txid];
     for (let input of full.vin) {
+      if (!input.txid) continue;
       // now we need to fetch previous TX where this VIN became an output, so we can see its amount
       let prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
       if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
@@ -164,7 +171,6 @@ module.exports.getTransactionsFullByAddress = async function(address) {
         }
       }
     }
-
     for (let output of full.vout) {
       if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
     }
@@ -172,12 +178,41 @@ module.exports.getTransactionsFullByAddress = async function(address) {
     full.outputs = full.vout;
     delete full.vin;
     delete full.vout;
-    delete full.hex; // compact
+    delete full.hex;
     ret.push(full);
   }
-
   return ret;
 };
+
+module.exports.multiGetTransactionsFullByTxid = async function(txid_list) {
+  let ret = [];
+  let txfull = await this.multiGetTransactionByTxid(txid_list);
+  for (let txid in txfull) {
+    let full = txfull[txid];
+    for (let input of full.vin) {
+      if (!input.txid) continue;
+      // now we need to fetch previous TX where this VIN became an output, so we can see its amount
+      let prevTxForVin = await mainClient.blockchainTransaction_get(input.txid, true);
+      if (prevTxForVin && prevTxForVin.vout && prevTxForVin.vout[input.vout]) {
+        input.value = prevTxForVin.vout[input.vout].value;
+        // also, we extract destination address from prev output:
+        if (prevTxForVin.vout[input.vout].scriptPubKey && prevTxForVin.vout[input.vout].scriptPubKey.addresses) {
+          input.addresses = prevTxForVin.vout[input.vout].scriptPubKey.addresses;
+        }
+      }
+    }
+    for (let output of full.vout) {
+      if (output.scriptPubKey && output.scriptPubKey.addresses) output.addresses = output.scriptPubKey.addresses;
+    }
+    full.inputs = full.vin;
+    full.outputs = full.vout;
+    delete full.vin;
+    delete full.vout;
+    delete full.hex;
+    ret.push(full);
+  }
+  return ret
+}
 
 /**
  *
@@ -220,7 +255,7 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = {};
   let res = []
-
+  let uniq = {};
   let chunks = splitIntoChunks(addresses, batchsize);
   for (let chunk of chunks) {
     let scripthashes = [];
@@ -240,12 +275,8 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
       ret[scripthash2addr[utxos.param]] = utxos.result;
       for (let utxo of ret[scripthash2addr[utxos.param]]) {
         utxo.address = scripthash2addr[utxos.param];
-        utxo.txid = utxo.tx_hash;
+        utxo.txId = utxo.tx_hash;
         utxo.vout = utxo.tx_pos;
-	utxo.amount = utxo.value;
-	delete utxo.value;
-        delete utxo.tx_pos;
-        delete utxo.tx_hash;
         res.push(utxo);
       }
     }
@@ -294,7 +325,6 @@ module.exports.multiGetTransactionByTxid = async function(txids, batchsize, verb
   let chunks = splitIntoChunks(txids, batchsize);
   for (let chunk of chunks) {
     let results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
-
     for (let txdata of results) {
       ret[txdata.param] = txdata.result;
     }
@@ -336,9 +366,12 @@ module.exports.waitTillConnected = async function() {
 
 module.exports.estimateFees = async function() {
   if (!mainClient) throw new Error('Electrum client is not connected');
-  const fast = await mainClient.blockchainEstimatefee(1);
-  const medium = await mainClient.blockchainEstimatefee(5);
-  const slow = await mainClient.blockchainEstimatefee(10);
+  let fast = await mainClient.blockchainEstimatefee(1);
+  let medium = await mainClient.blockchainEstimatefee(5);
+  let slow = await mainClient.blockchainEstimatefee(10);
+  if (fast < 1) fast = 1;
+  if (medium < 1) medium = 1;
+  if (slow < 1) slow = 1;
   return { fast, medium, slow };
 };
 
@@ -352,7 +385,7 @@ module.exports.estimateFee = async function(numberOfBlocks) {
   if (!mainClient) throw new Error('Electrum client is not connected');
   numberOfBlocks = numberOfBlocks || 1;
   let coinUnitsPerKilobyte = await mainClient.blockchainEstimatefee(numberOfBlocks);
-  if (coinUnitsPerKilobyte === -1) return 1;
+  if (coinUnitsPerKilobyte < 1) return 1;
   return Math.round(
     new BigNumber(coinUnitsPerKilobyte)
       .dividedBy(1024)

@@ -28,7 +28,6 @@ import {
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
-import { LightningCustodianWallet } from '../../class';
 import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
@@ -129,15 +128,6 @@ export default class WalletTransactions extends Component {
     });
   }
 
-  isLightning() {
-    let w = this.state.wallet;
-    if (w && w.type === LightningCustodianWallet.type) {
-      return true;
-    }
-
-    return false;
-  }
-
   /**
    * Forcefully fetches TXs and balance for wallet
    */
@@ -219,141 +209,6 @@ export default class WalletTransactions extends Component {
     );
   };
 
-  renderManageFundsModal = () => {
-    return (
-      <Modal
-        isVisible={this.state.isManageFundsModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isManageFundsModalVisible: false });
-        }}
-      >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={styles.advancedTransactionOptionsModalContent}>
-            <BlueListItem
-              hideChevron
-              component={TouchableOpacity}
-              onPress={a => {
-                const wallets = [...BlueApp.getWallets().filter(item => item.chain === Chain.ONCHAIN && item.allowSend())];
-                if (wallets.length === 0) {
-                  alert('In order to proceed, please create a Bitcoin wallet to refill with.');
-                } else {
-                  this.setState({ isManageFundsModalVisible: false });
-                  this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN });
-                }
-              }}
-              title={loc.lnd.refill}
-            />
-            <BlueListItem
-              hideChevron
-              component={TouchableOpacity}
-              onPress={a => {
-                this.setState({ isManageFundsModalVisible: false }, () =>
-                  this.props.navigation.navigate('ReceiveDetails', {
-                    secret: this.state.wallet.getSecret(),
-                  }),
-                );
-              }}
-              title={'Refill with External Wallet'}
-            />
-
-            <BlueListItem
-              title={loc.lnd.withdraw}
-              hideChevron
-              component={TouchableOpacity}
-              onPress={a => {
-                this.setState({ isManageFundsModalVisible: false });
-                Linking.openURL('https://zigzag.io/?utm_source=integration&utm_medium=bluewallet&utm_campaign=withdrawLink');
-              }}
-            />
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
-    );
-  };
-
-  renderMarketplaceButton = () => {
-    return Platform.select({
-      android: (
-        <TouchableOpacity
-          onPress={() => {
-            if (this.state.wallet.type === LightningCustodianWallet.type) {
-              this.props.navigation.navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
-            } else {
-              this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
-            }
-          }}
-          style={{
-            backgroundColor: '#f2f2f2',
-            borderRadius: 9,
-            minHeight: 49,
-            flex: 1,
-            paddingHorizontal: 8,
-            justifyContent: 'center',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
-        </TouchableOpacity>
-      ),
-      ios:
-        this.state.wallet.getBalance() > 0 ? (
-          <TouchableOpacity
-            onPress={async () => {
-              if (this.state.wallet.type === LightningCustodianWallet.type) {
-                Linking.openURL('https://bluewallet.io/marketplace/');
-              } else {
-                let address = await this.state.wallet.getAddressAsync();
-                Linking.openURL('https://bluewallet.io/marketplace-btc/?address=' + address);
-              }
-            }}
-            style={{
-              backgroundColor: '#f2f2f2',
-              borderRadius: 9,
-              minHeight: 49,
-              flex: 1,
-              paddingHorizontal: 8,
-              justifyContent: 'center',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
-            <Text style={{ color: '#062453', fontSize: 18, marginHorizontal: 8 }}>marketplace</Text>
-          </TouchableOpacity>
-        ) : null,
-    });
-  };
-
-  renderLappBrowserButton = () => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          this.props.navigation.navigate('LappBrowser', {
-            fromSecret: this.state.wallet.getSecret(),
-            fromWallet: this.state.wallet,
-            url: 'https://duckduckgo.com',
-          });
-        }}
-        style={{
-          marginLeft: 5,
-          backgroundColor: '#f2f2f2',
-          borderRadius: 9,
-          minHeight: 49,
-          flex: 1,
-          paddingHorizontal: 8,
-          justifyContent: 'center',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <Text style={{ color: '#062453', fontSize: 18 }}>LApp Browser</Text>
-      </TouchableOpacity>
-    );
-  };
-
   onWalletSelect = async wallet => {
     if (wallet) {
       NavigationService.navigate('WalletTransactions', {
@@ -418,22 +273,9 @@ export default class WalletTransactions extends Component {
               this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
             })
           }
-          onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
         />
         <View style={{ backgroundColor: '#FFFFFF' }}>
           <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
-            {/*
-            So the idea here, due to Apple banning native Lapp marketplace, is:
-            On Android everythins works as it worked before. Single "Marketplace" button that leads to LappBrowser that
-            opens /marketplace/ url of offchain wallet type, and /marketplace-btc/ for onchain.
-            On iOS its more complicated - we have one button that opens same page _externally_ (in Safari), and second
-            button that opens actual LappBrowser but with _blank_ page. This is important to not trigger Apple.
-            Blank page is also the way Trust Wallet does it with Dapp Browser.
-
-            For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
-           */}
-            {this.renderMarketplaceButton()}
-            {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
           </View>
           <FlatList
             onEndReachedThreshold={0.3}
@@ -464,7 +306,7 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
+                  {true && loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
                   style={{
@@ -473,30 +315,11 @@ export default class WalletTransactions extends Component {
                     textAlign: 'center',
                   }}
                 >
-                  {(this.isLightning() && loc.wallets.list.empty_txs2_lightning) || loc.wallets.list.empty_txs2}
+                  {true && loc.wallets.list.empty_txs2}
                 </Text>
 
                 <Text />
                 <Text />
-
-                {!this.isLightning() && (
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      color: '#9aa0aa',
-                      textAlign: 'center',
-                      textDecorationLine: 'underline',
-                    }}
-                    onPress={() =>
-                      this.props.navigation.navigate('BuyBitcoin', {
-                        address: this.state.wallet.getAddress(),
-                        secret: this.state.wallet.getSecret(),
-                      })
-                    }
-                  >
-                    {loc.wallets.list.tap_here_to_buy}
-                  </Text>
-                )}
               </ScrollView>
             }
             refreshControl={
@@ -508,7 +331,6 @@ export default class WalletTransactions extends Component {
             renderItem={this.renderItem}
             contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
           />
-          {this.renderManageFundsModal()}
         </View>
         <View
           style={{
@@ -527,11 +349,7 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
-                    if (this.state.wallet.type === LightningCustodianWallet.type) {
-                      navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
-                    } else {
                       navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
-                    }
                   }}
                 />
               );
@@ -543,16 +361,13 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueSendButtonIcon
                   onPress={() => {
-                    if (this.state.wallet.type === LightningCustodianWallet.type) {
-                      navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
-                    } else {
                       navigate('SendDetails', {
                         fromAddress: this.state.wallet.getAddress(),
                         fromSecret: this.state.wallet.getSecret(),
                         fromWallet: this.state.wallet,
                       });
                     }
-                  }}
+                  }
                 />
               );
             }

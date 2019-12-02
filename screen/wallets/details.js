@@ -13,8 +13,6 @@ import {
 } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -169,12 +167,6 @@ export default class WalletDetails extends Component {
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
               <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
-              {this.state.wallet.type === LightningCustodianWallet.type && (
-                <React.Fragment>
-                  <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{'connected to'}</Text>
-                  <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
-                </React.Fragment>
-              )}
               <View>
                 <BlueSpacing20 />
 
@@ -200,8 +192,7 @@ export default class WalletDetails extends Component {
 
                 <BlueSpacing20 />
 
-                {(this.state.wallet.type === HDLegacyBreadwalletWallet.type ||
-                  this.state.wallet.type === HDLegacyP2PKHWallet.type ||
+                {(this.state.wallet.type === HDLegacyP2PKHWallet.type ||
                   this.state.wallet.type === HDSegwitBech32Wallet.type ||
                   this.state.wallet.type === HDSegwitP2SHWallet.type) && (
                   <React.Fragment>
@@ -218,7 +209,7 @@ export default class WalletDetails extends Component {
                   </React.Fragment>
                 )}
 
-                {this.state.wallet.type !== LightningCustodianWallet.type && (
+                {(
                   <BlueButton
                     icon={{
                       name: 'shopping-cart',

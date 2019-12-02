@@ -26,10 +26,9 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     const seed = bip39.mnemonicToSeed(mnemonic);
     const root = bitcoin.bip32.fromSeed(seed);
 
-    const path = "m/44'/0'/0'";
+    const path = "m/44'/440'/0'";
     const child = root.derivePath(path).neutered();
     this._xpub = child.toBase58();
-
     return this._xpub;
   }
 
@@ -48,39 +47,32 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
    * @returns {*}
    * @private
    */
-  _getWIFByIndex(internal, index) {
+  _getWIFByIndex(index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
 
     const root = HDNode.fromSeed(seed);
-    const path = `m/44'/0'/0'/${internal ? 1 : 0}/${index}`;
+    const path = `m/44'/440'/0'/0/${index}`;
     const child = root.derivePath(path);
 
     return child.toWIF();
   }
 
-  _getExternalAddressByIndex(index) {
-    index = index * 1; // cast to int
-    if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-
-    const node = bitcoin.bip32.fromBase58(this.getXpub());
-    const address = bitcoin.payments.p2pkh({
-      pubkey: node.derive(0).derive(index).publicKey,
-    }).address;
-
-    return (this.external_addresses_cache[index] = address);
-  }
-
-  _getInternalAddressByIndex(index) {
-    index = index * 1; // cast to int
-    if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-
-    const node = bitcoin.bip32.fromBase58(this.getXpub());
-    const address = bitcoin.payments.p2pkh({
-      pubkey: node.derive(1).derive(index).publicKey,
-    }).address;
-
-    return (this.internal_addresses_cache[index] = address);
+  generateAddresses() {
+    let node = bitcoin.bip32.fromBase58(this.getXpub());;
+    for (let index = 0; index <this.num_addresses; index++) {
+      let address = bitcoin.payments.p2pkh({
+        pubkey: node.derive(0).derive(index).publicKey,
+      }).address;
+      this._address.push(address);
+      this._address_to_wif_cache[address] = this._getWIFByIndex(index);
+      this._addr_balances[address] = {
+        total: 0,
+        c: 0,
+        u: 0,
+      };
+    }
+    console.warn(this._address);
   }
 
   createTx(utxos, amount, fee, address) {
@@ -94,7 +86,7 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
       address,
       amountPlusFee,
       fee,
-      this._getInternalAddressByIndex(this.next_free_change_address_index),
+      this.getAddressForTransaction(),
     );
   }
 }

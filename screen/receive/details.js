@@ -51,15 +51,15 @@ export default class ReceiveDetails extends Component {
         }
       }
       if (wallet) {
-        if (wallet.getAddressAsync) {
+        if (wallet.getAddressForTransaction) {
           if (wallet.chain === Chain.ONCHAIN) {
             try {
-              address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+              address = await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
             } catch (_) {}
             if (!address) {
               // either sleep expired or getAddressAsync threw an exception
               console.warn('either sleep expired or getAddressAsync threw an exception');
-              address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+              address = wallet.getAddressForTransaction();
             } else {
               BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
             }
@@ -69,7 +69,7 @@ export default class ReceiveDetails extends Component {
             });
           } else if (wallet.chain === Chain.OFFCHAIN) {
             try {
-              await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+              await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
               address = wallet.getAddress();
             } catch (_) {}
             if (!address) {

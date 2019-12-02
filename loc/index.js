@@ -168,17 +168,18 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
-    const value = balance; //new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return (value > 0 ? '+' : '') + removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
+    const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
+    return (value >= 0 ? '' : '-') + removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     return (
-      (balance < 0 ? '-' : '+') +
+      (balance < 0 ? '-' : '') +
       (withFormatting ? new Intl.NumberFormat().format(balance.toString()).replace(/[^0-9]/g, ' ') : balance) +
       ' ' +
       BitcoinUnit.SATS
     );
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-    return currency.satoshiToLocalCurrency(balance);
+    return ' ';
+    //return currency.satoshiToLocalCurrency(balance);
   }
 };
 
@@ -194,12 +195,13 @@ strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = fals
   }
   if (balance !== 0) {
     if (toUnit === BitcoinUnit.BTC) {
-      const value = balance; // new BigNumber(balance).dividedBy(100000000).toFixed(8);
+      const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
       return removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
-      return (balance < 0 ? '-' : '+') + (withFormatting ? new Intl.NumberFormat().format(balance).replace(/[^0-9]/g, ' ') : balance);
+      return (balance < 0 ? '-' : '') + (withFormatting ? new Intl.NumberFormat().format(balance).replace(/[^0-9]/g, ' ') : balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      return currency.satoshiToLocalCurrency(balance);
+      return ' ';
+      //return currency.satoshiToLocalCurrency(balance);
     }
   }
   return balance.toString();

@@ -4,7 +4,6 @@ import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
 let EV = require('../../events');
@@ -83,7 +82,7 @@ export default class ReorderWallets extends Component {
         >
           <Image
             source={
-              (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
+              (require('../../img/btc-shape.png'))
             }
             style={{
               width: 99,

@@ -89,10 +89,6 @@ export class SegwitP2SHWallet extends LegacyWallet {
     }
     // transforming UTXOs fields to how module expects it
     for (let u of utxos) {
-      u.confirmations = 6; // hack to make module accept 0 confirmations
-      u.txid = u.tx_hash;
-      u.vout = u.tx_output_n;
-      u.amount = new BigNumber(u.value);
       u.amount = u.amount.dividedBy(100000000);
       u.amount = u.amount.toString(10);
     }

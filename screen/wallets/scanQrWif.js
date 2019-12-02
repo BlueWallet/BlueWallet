@@ -6,7 +6,6 @@ import { RNCamera } from 'react-native-camera';
 import { SegwitP2SHWallet, LegacyWallet, WatchOnlyWallet, HDLegacyP2PKHWallet, HDSegwitBech32Wallet } from '../../class';
 import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import bip21 from 'bip21';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -69,6 +68,45 @@ export default class ScanQrWif extends React.Component {
         return alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
       }
     }
+
+    // is it just address..?
+    let watchOnly = new WatchOnlyWallet();
+    let watchAddr = ret.data;
+
+    // Is it BIP21 format?
+    if (ret.data.indexOf('bitcoin:') === 0 || ret.data.indexOf('BITCOIN:') === 0) {
+      try {
+        watchAddr = bip21.decode(ret.data).address;
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    // Or is it a bare address?
+    // TODO: remove these hardcodes
+    if (ret.data.indexOf('Y') === 0
+      || ret.data.indexOf('R') === 0 
+      || ret.data.indexOf('royale') === 0 ) {
+      try {
+        watchAddr = ret.data;
+      } catch (err) {
+        console.log(err.message);
+      }
+    }
+
+    if (watchOnly.setSecret(watchAddr) && watchOnly.valid()) {
+      watchOnly.setLabel(loc.wallets.scanQrWif.imported_watchonly);
+      BlueApp.wallets.push(watchOnly);
+      alert(loc.wallets.scanQrWif.imported_watchonly + loc.wallets.scanQrWif.with_address + watchOnly.getAddress());
+      await watchOnly.fetchBalance();
+      await watchOnly.fetchTransactions();
+      await BlueApp.saveToDisk();
+      this.props.navigation.popToTop();
+      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
+      this.setState({ isLoading: false });
+      return;
+    }
+    // nope
 
     // is it HD BIP84 mnemonic?
     let hd = new HDSegwitBech32Wallet();
@@ -144,70 +182,6 @@ export default class ScanQrWif extends React.Component {
       await hd.fetchTransactions();
       await BlueApp.saveToDisk();
       alert(loc.wallets.import.success);
-      this.props.navigation.popToTop();
-      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      this.setState({ isLoading: false });
-      return;
-    }
-    // nope
-
-    // is it lndhub?
-    if (ret.data.indexOf('blitzhub://') !== -1 || ret.data.indexOf('lndhub://') !== -1) {
-      this.setState({ isLoading: true });
-      let lnd = new LightningCustodianWallet();
-      lnd.setSecret(ret.data);
-      if (ret.data.includes('@')) {
-        const split = ret.data.split('@');
-        lnd.setBaseURI(split[1]);
-        lnd.init();
-        lnd.setSecret(split[0]);
-      }
-
-      try {
-        await lnd.authorize();
-        await lnd.fetchTransactions();
-        await lnd.fetchUserInvoices();
-        await lnd.fetchPendingTransactions();
-        await lnd.fetchBalance();
-      } catch (Err) {
-        console.log(Err);
-        this.setState({ isLoading: false });
-        if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
-        alert(Err.message);
-        return;
-      }
-
-      BlueApp.wallets.push(lnd);
-      lnd.setLabel(loc.wallets.import.imported + ' ' + lnd.typeReadable);
-      this.props.navigation.popToTop();
-      alert(loc.wallets.import.success);
-      await BlueApp.saveToDisk();
-      setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-      this.setState({ isLoading: false });
-      return;
-    }
-    // nope
-
-    // is it just address..?
-    let watchOnly = new WatchOnlyWallet();
-    let watchAddr = ret.data;
-
-    // Is it BIP21 format?
-    if (ret.data.indexOf('bitcoin:') === 0 || ret.data.indexOf('BITCOIN:') === 0) {
-      try {
-        watchAddr = bip21.decode(ret.data).address;
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    if (watchOnly.setSecret(watchAddr) && watchOnly.valid()) {
-      watchOnly.setLabel(loc.wallets.scanQrWif.imported_watchonly);
-      BlueApp.wallets.push(watchOnly);
-      alert(loc.wallets.scanQrWif.imported_watchonly + loc.wallets.scanQrWif.with_address + watchOnly.getAddress());
-      await watchOnly.fetchBalance();
-      await watchOnly.fetchTransactions();
-      await BlueApp.saveToDisk();
       this.props.navigation.popToTop();
       setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
       this.setState({ isLoading: false });

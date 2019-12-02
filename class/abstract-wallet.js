@@ -19,10 +19,11 @@ export class AbstractWallet {
     this.typeReadable = this.constructor.typeReadable;
     this.label = '';
     this.secret = ''; // private key or recovery phrase
-    this.balance = 0;
-    this.unconfirmed_balance = 0;
+    this.balance = 0; // SAT
+    this.unconfirmed_balance = 0; // SAT
     this.transactions = [];
-    this._address = false; // cache
+    this.unconfirmed_transactions = [];
+    this._address = false;
     this.utxo = [];
     this._lastTxFetch = 0;
     this._lastBalanceFetch = 0;
@@ -39,7 +40,7 @@ export class AbstractWallet {
   }
 
   getTransactions() {
-    return this.transactions;
+    return this.unconfirmed_transactions.concat(this.transactions);
   }
 
   /**
@@ -92,7 +93,7 @@ export class AbstractWallet {
   }
 
   weOwnAddress(address) {
-    return this._address === address;
+    return this.getAddress() === address;
   }
 
   /**
@@ -131,5 +132,9 @@ export class AbstractWallet {
 
   getAddressAsync() {
     return new Promise(resolve => resolve(this.getAddress()));
+  }
+
+  getUtxo() {
+    return this.utxo;
   }
 }

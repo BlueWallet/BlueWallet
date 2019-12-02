@@ -247,7 +247,7 @@ export class HDSegwitBech32Transaction {
     let { feeRate, utxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
-    let myAddress = await this._wallet.getChangeAddressAsync();
+    let myAddress = await this._wallet.getAddressForTransaction();
 
     return this._wallet.createTransaction(
       utxos,
@@ -272,7 +272,7 @@ export class HDSegwitBech32Transaction {
     let { feeRate, targets, changeAmount, utxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
-    let myAddress = await this._wallet.getChangeAddressAsync();
+    let myAddress = await this._wallet.getAddressForTransaction();
 
     if (changeAmount === 0) delete targets[0].value;
     // looks like this was sendMAX transaction (because there was no change), so we cant reuse amount in this
@@ -281,7 +281,7 @@ export class HDSegwitBech32Transaction {
     if (targets.length === 0) {
       // looks like this was cancelled tx with single change output, so it wasnt included in `this.getInfo()` targets
       // so we add output paying ourselves:
-      targets.push({ address: this._wallet._getInternalAddressByIndex(this._wallet.next_free_change_address_index) });
+      targets.push({ address: this._wallet.getAddressForTransaction() });
       // not checking emptiness on purpose: it could unpredictably generate too far address because of unconfirmed tx.
     }
 
@@ -302,7 +302,7 @@ export class HDSegwitBech32Transaction {
     let { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
-    let myAddress = await this._wallet.getChangeAddressAsync();
+    let myAddress = await this._wallet.getAddressForTransaction();
 
     // calculating feerate for CPFP tx so that average between current and CPFP tx will equal newFeerate.
     // this works well if both txs are +/- equal size in bytes

@@ -22,7 +22,6 @@ import {
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
 import NavigationService from './NavigationService';
@@ -120,42 +119,7 @@ export class BitcoinButton extends Component {
   }
 }
 
-export class LightningButton extends Component {
-  render() {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          // eslint-disable-next-line
-          if (this.props.onPress) this.props.onPress();
-        }}
-      >
-        <View
-          style={{
-            // eslint-disable-next-line
-            borderColor: BlueApp.settings.lnborderColor,
-            borderWidth: 1,
-            borderRadius: 5,
-            backgroundColor: (this.props.active && BlueApp.settings.lnbackgroundColor) || BlueApp.settings.brandingColor,
-            // eslint-disable-next-line
-            minWidth: this.props.style.width,
-            // eslint-disable-next-line
-            minHeight: this.props.style.height,
-            height: this.props.style.height,
-            flex: 1,
-          }}
-        >
-          <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-            <Text style={{ color: BlueApp.settings.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
-          </View>
-          <Image
-            style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
-            source={require('./img/addWallet/lightning.png')}
-          />
-        </View>
-      </TouchableOpacity>
-    );
-  }
-}
+
 
 export class BlueWalletNavigationHeader extends Component {
   static propTypes = {
@@ -227,12 +191,9 @@ export class BlueWalletNavigationHeader extends Component {
       wallet.preferredBalanceUnit = BitcoinUnit.SATS;
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     } else if (walletPreviousPreferredUnit === BitcoinUnit.SATS) {
-      wallet.preferredBalanceUnit = BitcoinUnit.LOCAL_CURRENCY;
+      wallet.preferredBalanceUnit = BitcoinUnit.BitcoinUnit.BTC;
       walletPreviousPreferredUnit = BitcoinUnit.SATS;
-    } else if (walletPreviousPreferredUnit === BitcoinUnit.LOCAL_CURRENCY) {
-      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
-      walletPreviousPreferredUnit = BitcoinUnit.BTC;
-    } else {
+     } else {
       wallet.preferredBalanceUnit = BitcoinUnit.BTC;
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     }
@@ -254,7 +215,7 @@ export class BlueWalletNavigationHeader extends Component {
       >
         <Image
           source={
-            (LightningCustodianWallet.type === this.state.wallet.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')
+            (require('./img/btc-shape.png'))
           }
           style={{
             width: 99,
@@ -311,34 +272,6 @@ export class BlueWalletNavigationHeader extends Component {
             </Text>
           )}
         </TouchableOpacity>
-        {this.state.wallet.type === LightningCustodianWallet.type && (
-          <TouchableOpacity onPress={this.manageFundsPressed}>
-            <View
-              style={{
-                marginTop: 14,
-                marginBottom: 10,
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                borderRadius: 9,
-                minWidth: 119,
-                minHeight: 39,
-                width: 119,
-                height: 39,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text
-                style={{
-                  fontWeight: '500',
-                  fontSize: 14,
-                  color: '#FFFFFF',
-                }}
-              >
-                {loc.lnd.title}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
       </LinearGradient>
     );
   }
@@ -1533,7 +1466,8 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
   };
 
   const subtitle = () => {
-    return (loc.transactions.list.conf + ': ' + item.confirmations + ' ') + txMemo() + (item.memo || '');
+    return loc.transactions.list.conf + ': ' + (item.confirmations < 7 ? item.confirmations : '6')+ '/6 ' + txMemo() + (item.memo || '');
+
   };
 
   const onPress = () => {
@@ -1842,7 +1776,7 @@ export class WalletsCarousel extends Component {
             }}
           >
             <Image
-              source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
+              source={require('./img/btc-shape.png')}
               style={{
                 width: 99,
                 height: 94,
@@ -2211,9 +2145,6 @@ export class BlueBitcoinAmount extends Component {
             >
               {' ' + this.props.unit}
             </Text>
-          </View>
-          <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-            <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>{localCurrency}</Text>
           </View>
         </View>
       </TouchableWithoutFeedback>

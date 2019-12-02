@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import {
-  HDLegacyBreadwalletWallet,
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
   WatchOnlyWallet,
@@ -10,7 +9,6 @@ import {
   SegwitBech32Wallet,
   HDSegwitBech32Wallet,
 } from './';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quickActions';
 const encryption = require('../encryption');
@@ -211,31 +209,6 @@ export class AppStorage {
             case HDSegwitBech32Wallet.type:
               unserializedWallet = HDSegwitBech32Wallet.fromJson(key);
               break;
-            case HDLegacyBreadwalletWallet.type:
-              unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
-              break;
-            case LightningCustodianWallet.type:
-              /** @type {LightningCustodianWallet} */
-              unserializedWallet = LightningCustodianWallet.fromJson(key);
-              let lndhub = false;
-              try {
-                lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
-              } catch (Error) {
-                console.warn(Error);
-              }
-
-              if (unserializedWallet.baseURI) {
-                unserializedWallet.setBaseURI(unserializedWallet.baseURI); // not really necessary, just for the sake of readability
-                console.log('using saved uri for for ln wallet:', unserializedWallet.baseURI);
-              } else if (lndhub) {
-                console.log('using wallet-wide settings ', lndhub, 'for ln wallet');
-                unserializedWallet.setBaseURI(lndhub);
-              } else {
-                console.log('using default', LightningCustodianWallet.defaultBaseUri, 'for ln wallet');
-                unserializedWallet.setBaseURI(LightningCustodianWallet.defaultBaseUri);
-              }
-              unserializedWallet.init();
-              break;
             case LegacyWallet.type:
             default:
               unserializedWallet = LegacyWallet.fromJson(key);
@@ -369,7 +342,7 @@ export class AppStorage {
    *
    * @param index {Integer} Index of the wallet in this.wallets array,
    *                        blank to fetch from all wallets
-   * @return {Promise.<void>}
+   * @return {Promise.<void>} 
    */
   async fetchWalletTransactions(index) {
     console.log('fetchWalletTransactions for wallet#', index);
@@ -377,7 +350,7 @@ export class AppStorage {
       let c = 0;
       for (let wallet of this.wallets) {
         if (c++ === index) {
-          await wallet.fetchTransactions();
+          await wallet.updateTransactions();
           if (wallet.fetchPendingTransactions) {
             await wallet.fetchPendingTransactions();
           }
@@ -388,7 +361,7 @@ export class AppStorage {
       }
     } else {
       for (let wallet of this.wallets) {
-        await wallet.fetchTransactions();
+        await wallet.updateTransactions();
         if (wallet.fetchPendingTransactions) {
           await wallet.fetchPendingTransactions();
         }

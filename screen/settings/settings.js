@@ -75,7 +75,6 @@ export const Settings = () => {
             switched={biometrics.isBiometricsEnabled}
           />
         )}
-        <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
         <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} />
         <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} />
         <BlueListItem title={'Electrum server'} component={TouchableOpacity} onPress={() => navigate('ElectrumSettings')} />

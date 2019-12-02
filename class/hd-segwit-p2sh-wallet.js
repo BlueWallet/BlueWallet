@@ -51,7 +51,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return true;
   }
 
-  allowSendMax(): boolean {
+  allowSendMax(){
     return true;
   }
 
@@ -63,7 +63,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
         // crypto should be provided globally by test launcher
         return crypto.randomBytes(32, (err, buf) => { // eslint-disable-line
           if (err) throw err;
-          that.secret = bip39.entropyToMnemonic(buf.toString('hex'));
+          that.setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
           resolve();
         });
       }
@@ -72,18 +72,10 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       RNRandomBytes.randomBytes(32, (err, bytes) => {
         if (err) throw new Error(err);
         let b = Buffer.from(bytes, 'base64').toString('hex');
-        that.secret = bip39.entropyToMnemonic(b);
+        that.setSecret(bip39.entropyToMnemonic(b));
         resolve();
       });
     });
-  }
-
-  _getExternalWIFByIndex(index) {
-    return this._getWIFByIndex(false, index);
-  }
-
-  _getInternalWIFByIndex(index) {
-    return this._getWIFByIndex(true, index);
   }
 
   /**
@@ -93,42 +85,14 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
    * @returns {*}
    * @private
    */
-  _getWIFByIndex(internal, index) {
+  _getWIFByIndex(index) {
     const mnemonic = this.secret;
     const seed = bip39.mnemonicToSeed(mnemonic);
     const root = bitcoin.bip32.fromSeed(seed);
-    const path = `m/49'/0'/0'/${internal ? 1 : 0}/${index}`;
+    const path = `m/49'/440'/0'/0/${index}`;
     const child = root.derivePath(path);
 
     return bitcoin.ECPair.fromPrivateKey(child.privateKey).toWIF();
-  }
-
-  _getExternalAddressByIndex(index) {
-    index = index * 1; // cast to int
-    if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-
-    if (!this._node0) {
-      const xpub = ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
-      this._node0 = hdNode.derive(0);
-    }
-    const address = nodeToP2shSegwitAddress(this._node0.derive(index));
-
-    return (this.external_addresses_cache[index] = address);
-  }
-
-  _getInternalAddressByIndex(index) {
-    index = index * 1; // cast to int
-    if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-
-    if (!this._node1) {
-      const xpub = ypubToXpub(this.getXpub());
-      const hdNode = HDNode.fromBase58(xpub);
-      this._node1 = hdNode.derive(1);
-    }
-    const address = nodeToP2shSegwitAddress(this._node1.derive(index));
-
-    return (this.internal_addresses_cache[index] = address);
   }
 
   /**
@@ -146,7 +110,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     const seed = bip39.mnemonicToSeed(mnemonic);
     const root = HDNode.fromSeed(seed);
 
-    const path = "m/49'/0'/0'";
+    const path = "m/49'/440'/0'";
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
 
@@ -159,66 +123,21 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return this._xpub;
   }
 
-  async _getTransactionsBatch(addresses) {
-    try {
-      transactions = [];
-      this._lastTxFetch = +new Date();
-      for (let address of addresses) {
-          txs = await BlueElectrum.getTransactionsFullByAddress(address)
-          for (let tx of txs) {
-              let value = 0;
-              for (let input of tx.inputs) {
-                  if (this.weOwnAddress(input.addresses)) {
-                      value -= input.value;
-                  }
-	      }
-              for (let output of tx.outputs) {
-                  if (this.weOwnAddress(output.addresses)) {
-                      value += output.value;
-                  }
-              }
-              tx.value = value; // new BigNumber(value*100000000).toString() * 1;
-              transactions.push(tx);
-          }
-      }
-    } catch (Err) {
-      console.warn(Err.message);
+  generateAddresses() {
+    if (!this._node0) {
+        const xpub = ypubToXpub(this.getXpub());
+        const hdNode = HDNode.fromBase58(xpub);
+        this._node0 = hdNode.derive(0);
     }
-    return transactions;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  async fetchTransactions() {
-    try {
-      if (this.usedAddresses.length === 0) {
-        // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
-        await this.fetchBalance();
-      }
-
-      this.transactions = [];
-
-      let addresses4batch = [];
-      for (let addr of this.usedAddresses) {
-        addresses4batch.push(addr);
-        if (addresses4batch.length >= 45) {
-          //let addresses = addresses4batch.join('|');
-          let transactions = await this._getTransactionsBatch(addresses4batch);
-          this.transactions = this.transactions.concat(transactions);
-          addresses4batch = [];
-        }
-      }
-      // final batch
-      for (let c = 0; c <= this.gap_limit; c++) {
-        addresses4batch.push(this._getExternalAddressByIndex(this.next_free_address_index + c));
-        addresses4batch.push(this._getInternalAddressByIndex(this.next_free_change_address_index + c));
-      }
-      // let addresses = addresses4batch.join('|');
-      let transactions = await this._getTransactionsBatch(addresses4batch);
-      this.transactions = this.transactions.concat(transactions);
-    } catch (Err) {
-      console.warn(Err.message);
+    for (let index = 0; index <this.num_addresses; index++) {
+      let address = nodeToP2shSegwitAddress(this._node0.derive(index));
+      this._address.push(address);
+      this._address_to_wif_cache[address] = this._getWIFByIndex(index);
+      this._addr_balances[address] = {
+        total: 0,
+        c: 0,
+        u: 0,
+      };
     }
   }
 
@@ -250,7 +169,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       address,
       amountPlusFee,
       fee,
-      this._getInternalAddressByIndex(this.next_free_change_address_index),
+      this.getAddressForTransaction(),
     );
   }
 }

@@ -3,7 +3,6 @@ import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from
 import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
 /** @type {AppStorage} */
@@ -66,7 +65,7 @@ export default class SelectWallet extends Component {
           >
             <Image
               source={
-                (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
+                (require('../../img/btc-shape.png'))
               }
               style={{
                 width: 99,
