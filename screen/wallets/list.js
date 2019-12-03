@@ -111,6 +111,8 @@ export default class WalletsList extends Component {
     console.log('wallets/list redrawScreen()');
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
+    } else {
+      A(A.ENUM.GOT_ZERO_BALANCE);
     }
 
     this.setState({
