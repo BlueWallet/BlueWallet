@@ -10,12 +10,11 @@ module.exports = {
   wallets: {
     select_wallet: 'ウォレット選択',
     options: 'オプション',
-    createBitcoinWallet:
-      'Bitcoin ウォレットを持っていません。Lightning ウォレットへ課金する場合は Bitcoin ウォレットを新規作成するかインポートする必要があります。続行しますか?',
+    createBitcoinWallet: 'Bitcoin ウォレットを持っていません。Lightning ウォレットへ課金する場合は Bitcoin ウォレットを新規作成するかインポートする必要があります。続行しますか?',
     list: {
       app_name: 'BlueWallet',
       title: 'ウォレット',
-      header: 'ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。' + 'コインを受信するために共有できます。',
+      header: 'ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。コインを受信するために共有できます。',
       add: 'ウォレットの追加',
       create_a_wallet: 'ウォレットの作成',
       create_a_wallet1: 'ウォレット作成は無料で',
@@ -32,8 +31,7 @@ module.exports = {
     },
     add: {
       title: 'ウォレットの追加',
-      description:
-        'ペーパーウォレット(WIF 形式- Wallet Import Format)をスキャンするかウォレットを新規作成できます。既定で Segwit ウォレットが作成されます。',
+      description: 'ペーパーウォレット(WIF 形式- Wallet Import Format)をスキャンするかウォレットを新規作成できます。既定で Segwit ウォレットが作成されます。',
       scan: '読取り',
       create: '作成',
       label_new_segwit: '新規 SegWit',
@@ -73,8 +71,7 @@ module.exports = {
     },
     import: {
       title: 'インポート',
-      explanation:
-        'ここにニモニック、秘密鍵(プライベートキー）、WIFなどを入力してください。BlueWallet が正しい形式を推測しウォレットをインポートします。',
+      explanation: 'ここにニモニック、秘密鍵(プライベートキー）、WIFなどを入力してください。BlueWallet が正しい形式を推測しウォレットをインポートします。',
       imported: 'インポート完了',
       error: 'インポートに失敗しました。入力したデータが有効か確認してください。',
       success: '成功',
@@ -115,12 +112,14 @@ module.exports = {
   },
   send: {
     header: '送金',
+    success: {
+      done: '完了',
+    },
     details: {
       title: '取引の作成',
       amount_field_is_not_valid: '金額欄が正しくありません',
       fee_field_is_not_valid: '手数料欄が正しくありません',
       address_field_is_not_valid: 'アドレス欄が正しくありません',
-      total_exceeds_balance: '送金額が利用可能残額を超えています。',
       create_tx_error: '取引作成中にエラーが発生しました。有効な送金アドレスか確認してください。',
       address: 'アドレス',
       amount_placeholder: '送金額 (BTCR)',
@@ -131,17 +130,15 @@ module.exports = {
       send: '送金',
       create: '作成',
       remaining_balance: '残高',
+      total_exceeds_balance: '送金額が利用可能残額を超えています。',
     },
     confirm: {
       header: '確認',
       sendNow: '送金実行',
     },
-    success: {
-      done: '完了',
-    },
     create: {
-      details: '詳細',
       title: '取引の作成',
+      details: '詳細',
       error: '取引作成でエラーが発生しました。アドレスまたは送金額を確認してください。',
       go_back: '戻る',
       this_is_hex: '署名されネットワークへ送信される 16 進数取引コードです',
@@ -183,11 +180,7 @@ module.exports = {
     passwords_do_not_match: 'パスワードが一致しません',
     encrypt_storage: 'ウォレットの暗号化',
     lightning_settings: 'Lightning 設定',
-    lightning_settings_explain:
-      '他の LND ノードへ接続するには LndHub をインストール後、' +
-      'URL を入力してください。既定の設定を使用するには空欄にします' +
-      'ndHub\n (lndhub.io)',
-    electrum_settings: 'Electrum Settings',
+    electrum_settings: 'Electrum 設定',
     electrum_settings_explain: 'Set to blank to use default',
     save: '保存',
     about: 'BlueWallet について',
@@ -198,16 +191,8 @@ module.exports = {
   },
   plausibledeniability: {
     title: '隠匿設定',
-    help:
-      'BuleWallet のウォレットの復号に必要なパスワードを第三者に強要される場合、' +
-      'コインを安全に保護するためにメインのウォレットとは異なるパスワードで' +
-      '暗号化されたダミーのウォレットを作成することが可能です。' +
-      '第三者へ異なるパスワードを提供すれば、BlueWallet のダミーの' +
-      '暗号化ウォレットを復号することとなり、メインのウォレットは隠匿され' +
-      'コインは安全に保護されます。',
-    help2:
-      '新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことで' +
-      'ダミーと疑われないようにすることが可能です。',
+    help: 'BuleWallet のウォレットの復号に必要なパスワードを第三者に強要される場合、コインを安全に保護するためにメインのウォレットとは異なるパスワードで 暗号化されたダミーのウォレットを作成することが可能です。第三者へ異なるパスワードを提供すれば、BlueWallet のダミーの 暗号化ウォレットを復号することとなり、メインのウォレットは隠匿され コインは安全に保護されます。',
+    help2: '新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことで ダミーと疑われないようにすることが可能です。',
     create_fake_storage: 'ダミーの暗号化ウォレットの作成',
     go_back: '戻る',
     create_password: 'パスワードの作成',
@@ -229,8 +214,7 @@ module.exports = {
   },
   pleasebackup: {
     title: 'ウォレットを作成しています...',
-    text:
-      'すべてのニモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https://electrum.org/) へニモニックを使用してウォレットをリストアすることが可能です。',
+    text: 'すべてのニモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https://electrum.org/) へニモニックを使用してウォレットをリストアすることが可能です。',
     ok: 'すべてのニモニックを書きとめました',
   },
   lndViewInvoice: {

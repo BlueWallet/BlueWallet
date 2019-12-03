@@ -10,12 +10,11 @@ module.exports = {
   wallets: {
     options: 'opciones',
     select_wallet: 'Selecciona billetera',
-    createBitcoinWallet:
-      'In order to use a Lightning wallet, a Bitcoin wallet is needed in order to fund it. Would you like to continue anyway?',
+    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed in order to fund it. Would you like to continue anyway?',
     list: {
       app_name: 'BlueWallet',
       title: 'billeteras',
-      header: 'Un Monedero esta representado con secreto (clave privada) y una dirección' + 'que puedes compartir para recibir monedas.',
+      header: 'Un Monedero esta representado con secreto (clave privada) y una dirección que puedes compartir para recibir monedas.',
       add: 'Añadir Carterqa',
       create_a_wallet: 'Crear una billetera',
       create_a_wallet1: 'Es gratis y puedes crear cuantas deseas',
@@ -23,8 +22,7 @@ module.exports = {
       latest_transaction: 'última transacción',
       empty_txs1: 'Sus transacciones aparecerán aquí,',
       empty_txs2: 'ninguno por el momento.',
-      empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
       empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
@@ -33,8 +31,7 @@ module.exports = {
     },
     add: {
       title: 'Añadir billetera',
-      description:
-        'Puedes escanear la billetera de papel (en WIF - Formato de importación de billeteras) o crear una nueva billetera. Las billeteras SegWit estan compatibles por defecto.',
+      description: 'Puedes escanear la billetera de papel (en WIF - Formato de importación de billeteras) o crear una nueva billetera. Las billeteras SegWit estan compatibles por defecto.',
       scan: 'Escaniar',
       create: 'Crear',
       label_new_segwit: 'Nuevo SegWit',
@@ -74,8 +71,7 @@ module.exports = {
     },
     import: {
       title: 'importar',
-      explanation:
-        'Escriba aquí mnemotécnica, clave privada, WIF o cualquier cosa que tenga. BlueWallet hará todo lo posible para adivinar el formato correcto e importar su billetera.',
+      explanation: 'Escriba aquí mnemotécnica, clave privada, WIF o cualquier cosa que tenga. BlueWallet hará todo lo posible para adivinar el formato correcto e importar su billetera.',
       imported: 'Importado',
       error: 'No se pudo importar. ¿Es valido?',
       success: 'Exito',
@@ -116,10 +112,6 @@ module.exports = {
   },
   send: {
     header: 'enviar',
-    confirm: {
-      header: 'Confirm',
-      sendNow: 'Send now',
-    },
     success: {
       done: 'Done',
     },
@@ -128,18 +120,21 @@ module.exports = {
       amount_field_is_not_valid: 'La cantidad no es válida',
       fee_field_is_not_valid: 'La tasa no es válida',
       address_field_is_not_valid: 'La dirección no es válida',
-      receiver_placeholder: 'La dirección de recipiente',
+      create_tx_error: 'Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.',
+      address: 'Direccion',
       amount_placeholder: 'cantidad para enviar (in BTCR)',
       fee_placeholder: 'más tasa de transaccion (in BTCR)',
       note_placeholder: 'comentario (para ti mismo)',
-      create_tx_error: 'Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.',
       cancel: 'Cancelar',
       scan: 'Escaniar',
-      address: 'Direccion',
-      create: 'Crear',
       send: 'Envíar',
+      create: 'Crear',
       remaining_balance: 'Balance disponible',
       total_exceeds_balance: 'El monto excede el balance disponible.',
+    },
+    confirm: {
+      header: 'Confirm',
+      sendNow: 'Send now',
     },
     create: {
       title: 'Crear una Transaccion',
@@ -175,7 +170,6 @@ module.exports = {
     copied: 'Copied to Clipboard!',
   },
   settings: {
-    tabBarLabel: 'Ajustes',
     header: 'Ajustes',
     plausible_deniability: 'Negación plausible...',
     storage_not_encrypted: 'Almacenamiento: no esta cifrado',
@@ -186,10 +180,6 @@ module.exports = {
     passwords_do_not_match: 'Contraseñas deben ser iguales',
     encrypt_storage: 'Cifrar almacenamiento',
     lightning_settings: 'Lightning settings',
-    lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      ' and put its URL here in settings. Leave blank to use default ' +
-      'ndHub\n (lndhub.io)',
     electrum_settings: 'Electrum Settings',
     electrum_settings_explain: 'Set to blank to use default',
     save: 'save',
@@ -201,15 +191,8 @@ module.exports = {
   },
   plausibledeniability: {
     title: 'Negación plausible',
-    help:
-      'Bajo ciertas circunstancias, usted podría verse obligado a revelar un ' +
-      'contraseña. Para mantener sus monedas seguras, BlueWallet puede crear otro ' +
-      'almacenamiento cifrado, con una contraseña diferente. Bajo la presión' +
-      'puede revelar esta contraseña a un tercero. Si se ingresa en ' +
-      'BlueWallet, desbloqueará un nuevo almacenamiento `falso`. Esto parecerá ' +
-      'legítimo para un tercero, pero en secreto mantendrá su almacenamiento principal ' +
-      'con monedas seguras.',
-    help2: 'El nuevo almacen sera completamente funcional, y puedes almacenar ' + 'cantidades minimas para que sea mas creible.',
+    help: 'Bajo ciertas circunstancias, usted podría verse obligado a revelar un contraseña. Para mantener sus monedas seguras, BlueWallet puede crear otro almacenamiento cifrado, con una contraseña diferente. Bajo la presión puede revelar esta contraseña a un tercero. Si se ingresa en BlueWallet, desbloqueará un nuevo almacenamiento `falso`. Esto parecerá legítimo para un tercero, pero en secreto mantendrá su almacenamiento principal con monedas seguras.',
+    help2: 'El nuevo almacen sera completamente funcional, y puedes almacenar cantidades minimas para que sea mas creible.',
     create_fake_storage: 'Crear un almacen cifrado falso',
     go_back: 'Regresar',
     create_password: 'Crear una contraseña',
@@ -231,8 +214,7 @@ module.exports = {
   },
   pleasebackup: {
     title: 'Your wallet is created...',
-    text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
+    text: "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
     ok: 'OK, I wrote this down!',
   },
   lndViewInvoice: {

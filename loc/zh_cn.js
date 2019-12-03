@@ -14,7 +14,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: '钱包',
-      header: '一个钱包代表一对的私钥和地址' + '你可以通过分享收款.',
+      header: '一个钱包代表一对的私钥和地址 你可以通过分享收款.',
       add: '添加钱包',
       create_a_wallet: '创建一个钱包',
       create_a_wallet1: '创建钱包是免费的，你可以',
@@ -22,8 +22,7 @@ module.exports = {
       latest_transaction: '最近的转账',
       empty_txs1: '你的转账信息将展示在这里',
       empty_txs2: '当前无信息',
-      empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
       empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: '点击购买比特币',
     },
@@ -113,12 +112,14 @@ module.exports = {
   },
   send: {
     header: '发送',
+    success: {
+      done: 'Done',
+    },
     details: {
       title: '创建交易',
       amount_field_is_not_valid: '金额格式无效',
       fee_field_is_not_valid: '费用格式无效',
       address_field_is_not_valid: '地址内容无效',
-      total_exceeds_balance: '余额不足',
       create_tx_error: '创建交易失败. 请确认地址格式正确.',
       address: '地址',
       amount_placeholder: '发送金额(in BTCR)',
@@ -129,13 +130,11 @@ module.exports = {
       send: '发送',
       create: '创建',
       remaining_balance: '剩余金额',
+      total_exceeds_balance: '余额不足',
     },
     confirm: {
       header: '确认',
       sendNow: '现在发送',
-    },
-    success: {
-      done: '完成',
     },
     create: {
       details: '详情',
@@ -181,7 +180,6 @@ module.exports = {
     passwords_do_not_match: '两次输入密码不同',
     encrypt_storage: '加密存储',
     lightning_settings: '闪电网络设置',
-    lightning_settings_explain: '如要要连接你自己的闪电节点请安装LndHub' + ' 并把url地址输入到下面. 空白将使用默认的LndHub (lndhub.io)',
     electrum_settings: 'Electrum Settings',
     electrum_settings_explain: 'Set to blank to use default',
     save: '保存',
@@ -193,15 +191,8 @@ module.exports = {
   },
   plausibledeniability: {
     title: '可否认性',
-    help:
-      '在某些情况下, 你不得不暴露 ' +
-      '密码. 为了让你的比特币更加安全, BlueWallet可以创建一些 ' +
-      '加密空间, 用不同的密码. 在压力之下, ' +
-      '你可以暴露这个钱包密码. 再次进入 ' +
-      'BlueWallet, 我们会解锁一些虚拟空间. 对第三方来说看上去' +
-      '是合理的, 但会偷偷的帮你保证主钱包的安全 ' +
-      '币也就安全了.',
-    help2: '新的空间具备完整的功能，你可以存在 ' + '少量的金额在里面.',
+    help: '在某些情况下, 你不得不暴露 密码. 为了让你的比特币更加安全, BlueWallet可以创建一些 加密空间, 用不同的密码. 在压力之下, 你可以暴露这个钱包密码. 再次进入 BlueWallet, 我们会解锁一些虚拟空间. 对第三方来说看上去 是合理的, 但会偷偷的帮你保证主钱包的安全 币也就安全了.',
+    help2: '新的空间具备完整的功能，你可以存在 少量的金额在里面.',
     create_fake_storage: '创建虚拟加密存储',
     go_back: '回退',
     create_password: '创建密码',
@@ -217,13 +208,13 @@ module.exports = {
     refill_lnd_balance: '给闪电钱包充值',
     refill: '充值',
     withdraw: '提取',
+    placeholder: 'Invoice',
     expired: '超时',
     sameWalletAsInvoiceError: '你不能用创建账单的钱包去支付该账单',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
-    text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
+    text: "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
     ok: 'OK, I wrote this down!',
   },
   lndViewInvoice: {

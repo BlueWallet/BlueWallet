@@ -10,12 +10,11 @@ module.exports = {
   wallets: {
     select_wallet: 'Select Wallet',
     options: 'options',
-    createBitcoinWallet:
-      'You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?',
+    createBitcoinWallet: 'You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?',
     list: {
       app_name: 'BlueWallet',
       title: 'wallets',
-      header: 'A wallet represents a pair of a secret (private key) and an address' + 'you can share to receive coins.',
+      header: 'A wallet represents a pair of a secret (private key) and an address you can share to receive coins.',
       add: 'Add Wallet',
       create_a_wallet: 'Create a wallet',
       create_a_wallet1: "It's free and you can create",
@@ -23,8 +22,7 @@ module.exports = {
       latest_transaction: 'latest transaction',
       empty_txs1: 'Your transactions will appear here,',
       empty_txs2: 'none at the moment',
-      empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs1_lightning: 'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
       empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
@@ -33,8 +31,7 @@ module.exports = {
     },
     add: {
       title: 'add wallet',
-      description:
-        'You can either scan backup paper wallet (in WIF - Wallet Import Format), or create a new wallet. Segwit wallets supported by default.',
+      description: 'You can either scan backup paper wallet (in WIF - Wallet Import Format), or create a new wallet. Segwit wallets supported by default.',
       scan: 'Scan',
       create: 'Create',
       label_new_segwit: 'New SegWit',
@@ -74,8 +71,7 @@ module.exports = {
     },
     import: {
       title: 'import',
-      explanation:
-        "Write here your mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
+      explanation: "Write here your mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
       imported: 'Imported',
       error: 'Failed to import. Please, make sure that the provided data is valid.',
       success: 'Success',
@@ -116,12 +112,14 @@ module.exports = {
   },
   send: {
     header: 'Send',
+    success: {
+      done: 'Done',
+    },
     details: {
       title: 'create transaction',
       amount_field_is_not_valid: 'Amount field is not valid',
       fee_field_is_not_valid: 'Fee field is not valid',
       address_field_is_not_valid: 'Address field is not valid',
-      total_exceeds_balance: 'The sending amount exceeds the available balance.',
       create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       address: 'address',
       amount_placeholder: 'amount to send (in BTCR)',
@@ -132,13 +130,11 @@ module.exports = {
       send: 'Send',
       create: 'Create Invoice',
       remaining_balance: 'Remaining balance',
+      total_exceeds_balance: 'The sending amount exceeds the available balance.',
     },
     confirm: {
       header: 'Confirm',
       sendNow: 'Send now',
-    },
-    success: {
-      done: 'Done',
     },
     create: {
       details: 'Details',
@@ -184,9 +180,6 @@ module.exports = {
     passwords_do_not_match: 'Passwords do not match',
     encrypt_storage: 'Encrypt storage',
     lightning_settings: 'Lightning Settings',
-    lightning_settings_explain:
-      'To connect to your own LND node please install LndHub' +
-      " and put its URL here in settings. Leave blank to use BlueWallet's LNDHub (lndhub.io). Wallets created after saving changes will connect to the specified LNDHub.",
     electrum_settings: 'Electrum Settings',
     electrum_settings_explain: 'Set to blank to use default',
     save: 'Save',
@@ -198,15 +191,8 @@ module.exports = {
   },
   plausibledeniability: {
     title: 'Plausible Deniability',
-    help:
-      'Under certain circumstances, you might be forced to disclose a ' +
-      'password. To keep your coins safe, BlueWallet can create another ' +
-      'encrypted storage, with a different password. Under pressure, ' +
-      'you can disclose this password to a 3rd party. If entered in ' +
-      "BlueWallet, it will unlock new 'fake' storage. This will seem " +
-      'legit to a 3rd party, but will secretly keep your main storage ' +
-      'with coins safe.',
-    help2: 'New storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
+    help: 'Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, BlueWallet can create another encrypted storage, with a different password. Under pressure, you can disclose this password to a 3rd party. If entered in BlueWallet, it will unlock new fake storage. This will seem legit to a 3rd party, but will secretly keep your main storage with coins safe.',
+    help2: 'New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.',
     create_fake_storage: 'Create fake encrypted storage',
     go_back: 'Go Back',
     create_password: 'Create a password',
@@ -222,14 +208,13 @@ module.exports = {
     refill_lnd_balance: 'Refill Lightning wallet balance',
     refill: 'Refill',
     withdraw: 'Withdraw',
-    expired: 'Expired',
     placeholder: 'Invoice',
+    expired: 'Expired',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
-    text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
+    text: "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
     ok: 'OK, I wrote this down!',
   },
   lndViewInvoice: {
