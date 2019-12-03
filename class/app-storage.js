@@ -350,7 +350,7 @@ export class AppStorage {
       let c = 0;
       for (let wallet of this.wallets) {
         if (c++ === index) {
-          await wallet.updateTransactions();
+          await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {
             await wallet.fetchPendingTransactions();
           }
@@ -361,7 +361,7 @@ export class AppStorage {
       }
     } else {
       for (let wallet of this.wallets) {
-        await wallet.updateTransactions();
+        await wallet.fetchTransactions();
         if (wallet.fetchPendingTransactions) {
           await wallet.fetchPendingTransactions();
         }
