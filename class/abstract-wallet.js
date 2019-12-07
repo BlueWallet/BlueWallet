@@ -60,7 +60,7 @@ export class AbstractWallet {
    * @returns {number} Available to spend amount, int, in sats
    */
   getBalance() {
-    return this.balance;
+    return this.balance + this.unconfirmed_balance;
   }
 
   getPreferredBalanceUnit() {

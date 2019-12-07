@@ -27,7 +27,7 @@ exports.createHDTransaction = function(utxos, toAddress, amount, fixedFee, chang
     txb.addInput(unspent.txid, unspent.vout);
     ourOutputs[outputNum] = ourOutputs[outputNum] || {};
     ourOutputs[outputNum].keyPair = bitcoinjs.ECPair.fromWIF(unspent.wif);
-    unspentAmountSatoshi += unspent.amount;
+    unspentAmountSatoshi += unspent.value;
     if (unspentAmountSatoshi >= amountToOutputSatoshi + feeInSatoshis) {
       // found enough inputs to satisfy payee and pay fees
       break;
@@ -89,15 +89,15 @@ exports.createHDSegwitTransaction = function(utxos, toAddress, amount, fixedFee,
       index: unspent.vout,
       witnessUtxo: {
         script: p2sh.output,
-        value: unspent.amount,
+        value: unspent.value,
       },
       redeemScript: p2wpkh.output,
     });
     ourOutputs[outputNum] = ourOutputs[outputNum] || {};
     ourOutputs[outputNum].keyPair = keyPair;
     ourOutputs[outputNum].redeemScript = p2wpkh.output;
-    ourOutputs[outputNum].amount = unspent.amount;
-    unspentAmountSatoshi += unspent.amount;
+    ourOutputs[outputNum].amount = unspent.value;
+    unspentAmountSatoshi += unspent.value;
     if (unspentAmountSatoshi >= amountToOutputSatoshi + feeInSatoshis) {
       // found enough inputs to satisfy payee and pay fees
       break;
@@ -160,7 +160,7 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
       // using only confirmed outputs
       continue;
     }
-    const satoshis = parseInt((unspent.amount * 100000000).toFixed(0));
+    const satoshis = parseInt((unspent.value * 100000000).toFixed(0));
     psbt.addInput({
       hash: unspent.txid,
       index: unspent.vout,
@@ -194,7 +194,6 @@ exports.createSegwitTransaction = function(utxos, toAddress, amount, fixedFee, W
   for (let c = 0; c < utxos.length; c++) {
     psbt.signInput(c, keyPair);
   }
-
   let tx = psbt.finalizeAllInputs().extractTransaction();
   return tx.toHex();
 };
@@ -321,7 +320,7 @@ exports.createTransaction = function(utxos, toAddress, _amount, _fixedFee, WIF, 
       continue;
     }
     txb.addInput(unspent.txid, unspent.vout);
-    unspentAmount += toSatoshi(unspent.amount);
+    unspentAmount += toSatoshi(unspent.value);
   }
   txb.addOutput(toAddress, amountToOutput);
 

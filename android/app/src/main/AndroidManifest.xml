@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="io.bluewallet.bluewallet">
+  package="io.goldwallet.goldwallet">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
@@ -28,7 +28,7 @@
           <category android:name="android.intent.category.BROWSABLE" />
           <data android:scheme="bitcoin" />
           <data android:scheme="lightning" />
-          <data android:scheme="bluewallet" />
+          <data android:scheme="goldwallet" />
           <data android:scheme="lapp" />
           <data android:scheme="blue" />
         </intent-filter>

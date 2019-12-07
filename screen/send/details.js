@@ -306,9 +306,9 @@ export default class SendDetails extends Component {
     index[0] = 0;
     for (let utxo of utxos) {
       if (!utxoIsInSatoshis) {
-        utxo.amount = new BigNumber(utxo.amount).multipliedBy(100000000).toNumber();
+        utxo.value = new BigNumber(utxo.value).multipliedBy(100000000).toNumber();
       }
-      index[c] = utxo.amount + index[c - 1];
+      index[c] = utxo.value + index[c - 1];
       c++;
     }
 

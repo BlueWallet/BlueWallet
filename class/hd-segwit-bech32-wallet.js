@@ -226,7 +226,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       let path = this._getDerivationPathByAddress(input.address);
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey })
       psbt.addInput({
-        hash: input.txId,
+        hash: input.txid,
         index: input.vout,
         sequence,
         bip32Derivation: [

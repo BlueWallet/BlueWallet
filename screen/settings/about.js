@@ -46,7 +46,7 @@ export default class About extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <ScrollView>
           <BlueCard>
-            <BlueTextCentered h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
+            <BlueTextCentered h4>GoldWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
             <BlueSpacing20 />
 
             <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
@@ -59,35 +59,9 @@ export default class About extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL('https://github.com/BlueWallet/BlueWallet');
+                Linking.openURL('https://github.com/royalewallets/GoldWallet');
               }}
-              title="github.com/BlueWallet/BlueWallet"
-            />
-            <BlueSpacing20 />
-
-            <BlueButton
-              icon={{
-                name: 'twitter',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => {
-                Linking.openURL('https://twitter.com/bluewalletio');
-              }}
-              title="Follow us on Twitter"
-            />
-            <BlueSpacing20 />
-
-            <BlueButton
-              icon={{
-                name: 'telegram',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
-              onPress={() => {
-                Linking.openURL('https://t.me/bluewallet');
-              }}
-              title="Join Telegram chat"
+              title="github.com/royalewallets/GoldWallet"
             />
             <BlueSpacing20 />
 
@@ -100,11 +74,11 @@ export default class About extends Component {
               onPress={() => {
                 let options = {
                   AppleAppID: '1376878040',
-                  GooglePackageName: 'io.bluewallet.bluewallet',
+                  GooglePackageName: 'io.goldwallet.goldwallet',
                   preferredAndroidMarket: AndroidMarket.Google,
                   preferInApp: true,
                   openAppStoreIfInAppFails: true,
-                  fallbackPlatformURL: 'https://bluewallet.io',
+                  fallbackPlatformURL: 'https://royalewallets.github.io',
                 };
                 Rate.rate(options, success => {
                   if (success) {
@@ -112,7 +86,7 @@ export default class About extends Component {
                   }
                 });
               }}
-              title="Rate BlueWallet"
+              title="Rate GoldWallet"
             />
 
             <BlueSpacing20 />

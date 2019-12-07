@@ -159,7 +159,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     if (amount === BitcoinUnit.MAX) {
       amountPlusFee = new BigNumber(0);
       for (let utxo of utxos) {
-        amountPlusFee = amountPlusFee.plus(utxo.amount);
+        amountPlusFee = amountPlusFee.plus(utxo.value);
       }
       amountPlusFee = amountPlusFee.dividedBy(100000000).toString(10);
     }

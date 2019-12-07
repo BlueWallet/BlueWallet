@@ -1,4 +1,4 @@
-package io.bluewallet.bluewallet;
+package io.goldwallet.goldwallet;
 
 import android.app.Application;
 

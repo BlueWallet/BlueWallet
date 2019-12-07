@@ -251,13 +251,7 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
-        {this.state.wallet.chain === Chain.ONCHAIN && (
-          <Handoff
-            title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
-            type="io.bluewallet.bluewallet"
-            url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
-          />
-        )}
+        {this.state.wallet.chain === Chain.ONCHAIN}
         <NavigationEvents
           onWillFocus={() => {
             StatusBar.setBarStyle('light-content');

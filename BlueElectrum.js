@@ -275,7 +275,7 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
       ret[scripthash2addr[utxos.param]] = utxos.result;
       for (let utxo of ret[scripthash2addr[utxos.param]]) {
         utxo.address = scripthash2addr[utxos.param];
-        utxo.txId = utxo.tx_hash;
+        utxo.txid = utxo.tx_hash;
         utxo.vout = utxo.tx_pos;
         res.push(utxo);
       }
