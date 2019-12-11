@@ -727,7 +727,11 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false) {
     if (!changeAddress) throw new Error('No change address provided');
-    sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
+    if (sequence === false) {
+      sequence = undefined;
+    } else {
+      sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
+    }
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
