@@ -84,6 +84,7 @@ export default class SendDetails extends Component {
         showSendMax: false,
         isFeeSelectionModalVisible: false,
         isAdvancedTransactionOptionsVisible: false,
+        isTransactionReplaceable: fromWallet.type === HDSegwitBech32Wallet.type,
         recipientsScrollIndex: 0,
         fromAddress,
         fromWallet,
@@ -537,7 +538,13 @@ export default class SendDetails extends Component {
       targets = [{ address: firstTransaction.address, amount: BitcoinUnit.MAX }];
     }
 
-    let { tx, fee, psbt } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
+    let { tx, fee, psbt } = wallet.createTransaction(
+      wallet.getUtxo(),
+      targets,
+      requestedSatPerByte,
+      changeAddress,
+      this.state.isTransactionReplaceable === true ? HDSegwitBech32Wallet.defaultRBFSequence : false,
+    );
 
     if (wallet.type === WatchOnlyWallet.type) {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
@@ -725,6 +732,15 @@ export default class SendDetails extends Component {
                 onPress={this.onUseAllPressed}
               />
             )}
+            {this.state.fromWallet.type === HDSegwitBech32Wallet.type && (
+              <BlueListItem
+                title="Allow Fee Bump"
+                hideChevron
+                switchButton
+                switched={this.state.isTransactionReplaceable}
+                onSwitch={this.onReplaceableFeeSwitchValueChanged}
+              />
+            )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem
@@ -773,6 +789,10 @@ export default class SendDetails extends Component {
         </KeyboardAvoidingView>
       </Modal>
     );
+  };
+
+  onReplaceableFeeSwitchValueChanged = value => {
+    this.setState({ isTransactionReplaceable: value });
   };
 
   renderCreateButton = () => {
