@@ -32,7 +32,7 @@ export default class WatchConnectivity {
               );
               reply({ invoicePaymentRequest: createInvoiceRequest });
             } else if (message.message === 'sendApplicationContext') {
-              await WatchConnectivity.shared.sendWalletsToWatch(WatchConnectivity.shared.wallets);
+              await WatchConnectivity.shared.sendWalletsToWatch();
             } else if (message.message === 'fetchTransactions') {
               await WatchConnectivity.shared.fetchTransactionsFunction();
             }
@@ -56,14 +56,16 @@ export default class WatchConnectivity {
     }
   }
 
-  async sendWalletsToWatch(allWallets) {
-    if (allWallets === undefined && WatchConnectivity.shared.wallets !== undefined) {
-      allWallets = WatchConnectivity.shared.wallets;
-    }
-    if (allWallets && allWallets.length === 0) {
+  async sendWalletsToWatch() {
+    const allWallets = WatchConnectivity.shared.wallets;
+    if (!Array.isArray(allWallets)) {
+      console.log('No Wallets set to sync with Watch app. Exiting...');
+      return;
+    } else if (allWallets.length === 0) {
+      console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
       return;
     }
-
+    console.log('Wallets set to sync with Watch app. Continuing...');
     return InteractionManager.runAfterInteractions(async () => {
       if (WatchConnectivity.shared.isAppInstalled) {
         let wallets = [];

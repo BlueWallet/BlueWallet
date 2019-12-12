@@ -253,7 +253,7 @@ export class AppStorage {
           await this.fetchWalletTransactions();
           await this.saveToDisk();
         };
-        await WatchConnectivity.shared.sendWalletsToWatch(this.wallets);
+        await WatchConnectivity.shared.sendWalletsToWatch();
         DeviceQuickActions.setWallets(this.wallets);
         DeviceQuickActions.setQuickActions();
         return true;
