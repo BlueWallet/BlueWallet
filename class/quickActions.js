@@ -17,8 +17,8 @@ export default class DeviceQuickActions {
     if (DeviceQuickActions.shared.wallets === undefined) {
       return;
     }
-    QuickActions.isSupported((error, supported) => {
-      if (supported && error === null) {
+    QuickActions.isSupported((error, _supported) => {
+      if (error === null) {
         let shortcutItems = [];
         const loc = require('../loc/');
         for (const wallet of DeviceQuickActions.shared.wallets) {
