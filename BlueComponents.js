@@ -1,5 +1,4 @@
 /* eslint react/prop-types: 0 */
-/** @type {AppStorage} */
 import React, { Component, useEffect, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
