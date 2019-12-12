@@ -495,22 +495,20 @@ export default class SendDetails extends Component {
         this.setState({ isLoading: false });
         return;
       }
-
-      this.setState({ isLoading: false }, () =>
-        this.props.navigation.navigate('Confirm', {
-          recipients: [firstTransaction],
-          // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
-          fee: this.calculateFee(
-            utxo,
-            tx,
-            this.state.fromWallet.type === HDSegwitP2SHWallet.type || this.state.fromWallet.type === HDLegacyP2PKHWallet.type,
-          ),
-          memo: this.state.memo,
-          fromWallet: this.state.fromWallet,
-          tx: tx,
-          satoshiPerByte: actualSatoshiPerByte.toFixed(2),
-        }),
-      );
+      this.props.navigation.navigate('Confirm', {
+        recipients: [firstTransaction],
+        // HD wallet's utxo is in sats, classic segwit wallet utxos are in btc
+        fee: this.calculateFee(
+          utxo,
+          tx,
+          this.state.fromWallet.type === HDSegwitP2SHWallet.type || this.state.fromWallet.type === HDLegacyP2PKHWallet.type,
+        ),
+        memo: this.state.memo,
+        fromWallet: this.state.fromWallet,
+        tx: tx,
+        satoshiPerByte: actualSatoshiPerByte.toFixed(2),
+      });
+      this.setState({ isLoading: false });
     });
   }
 
@@ -543,14 +541,12 @@ export default class SendDetails extends Component {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
       // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
       // user whether he wants to broadcast it
-
-      this.setState({ isLoading: false }, () =>
-        this.props.navigation.navigate('PsbtWithHardwareWallet', {
-          memo: this.state.memo,
-          fromWallet: wallet,
-          psbt,
-        }),
-      );
+      this.props.navigation.navigate('PsbtWithHardwareWallet', {
+        memo: this.state.memo,
+        fromWallet: wallet,
+        psbt,
+      });
+      this.setState({ isLoading: false });
       return;
     }
 
@@ -560,16 +556,15 @@ export default class SendDetails extends Component {
       memo: this.state.memo,
     };
     await BlueApp.saveToDisk();
-    this.setState({ isLoading: false }, () =>
-      this.props.navigation.navigate('Confirm', {
-        fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
-        memo: this.state.memo,
-        fromWallet: wallet,
-        tx: tx.toHex(),
-        recipients: targets,
-        satoshiPerByte: requestedSatPerByte,
-      }),
-    );
+    this.props.navigation.navigate('Confirm', {
+      fee: new BigNumber(fee).dividedBy(100000000).toNumber(),
+      memo: this.state.memo,
+      fromWallet: wallet,
+      tx: tx.toHex(),
+      recipients: targets,
+      satoshiPerByte: requestedSatPerByte,
+    });
+    this.setState({ isLoading: false });
   }
 
   onWalletSelect = wallet => {
