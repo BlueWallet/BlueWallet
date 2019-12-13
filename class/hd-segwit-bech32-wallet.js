@@ -20,6 +20,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static type = 'HDsegwitBech32';
   static typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
+  static finalRBFSequence = 4294967295; // 0xFFFFFFFF
 
   constructor() {
     super();
@@ -727,11 +728,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false) {
     if (!changeAddress) throw new Error('No change address provided');
-    if (sequence === false) {
-      sequence = undefined;
-    } else {
-      sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
-    }
+    sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
 
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
