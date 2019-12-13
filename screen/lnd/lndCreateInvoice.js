@@ -1,7 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
 import {
-  Dimensions,
   ActivityIndicator,
   View,
   TextInput,
@@ -18,10 +17,10 @@ import bech32 from 'bech32';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Icon } from 'react-native-elements';
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let loc = require('../../loc');
-const { width } = Dimensions.get('window');
 
 export default class LNDCreateInvoice extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -167,20 +166,27 @@ export default class LNDCreateInvoice extends Component {
 
   renderScanClickable = () => {
     return (
-      <View style={{ marginHorizontal: 0, marginVertical: 16, minHeight: 25, alignContent: 'center' }}>
-        <TouchableOpacity
-          onPress={() => NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl })}
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            minWidth: width,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <Text style={{ color: BlueApp.settings.buttonTextColor, textAlign: 'center' }}>{loc.receive.scan_lnurl}</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        disabled={this.state.isLoading}
+        onPress={() => {
+          NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl });
+          Keyboard.dismiss();
+        }}
+        style={{
+          height: 36,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: '#9AA0AA',
+          borderRadius: 4,
+          paddingVertical: 4,
+          paddingHorizontal: 8,
+          marginHorizontal: 4,
+        }}
+      >
+        <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
+        <Text style={{ marginLeft: 4, color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
+      </TouchableOpacity>
     );
   };
 
@@ -245,12 +251,12 @@ export default class LNDCreateInvoice extends Component {
                   onSubmitEditing={Keyboard.dismiss}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
+                {this.state.lnurlParams ? null : this.renderScanClickable()}
               </View>
               <BlueDismissKeyboardInputAccessory />
               {this.renderCreateButton()}
             </KeyboardAvoidingView>
           </View>
-          {this.state.lnurlParams ? null : this.renderScanClickable()}
         </View>
       </TouchableWithoutFeedback>
     );
@@ -265,7 +271,7 @@ LNDCreateInvoice.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         uri: PropTypes.string,
-        fromWallet: PropTypes.string,
+        fromWallet: PropTypes.shape({}),
       }),
     }),
   }),
