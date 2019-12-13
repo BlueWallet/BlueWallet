@@ -541,7 +541,7 @@ export default class SendDetails extends Component {
       targets,
       requestedSatPerByte,
       changeAddress,
-      this.state.isTransactionReplaceable === true ? HDSegwitBech32Wallet.defaultRBFSequence : false,
+      this.state.isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
     );
 
     if (wallet.type === WatchOnlyWallet.type) {
