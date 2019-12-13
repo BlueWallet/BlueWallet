@@ -97,6 +97,16 @@ export default class WalletsImport extends Component {
 
       // trying other wallet types
 
+      let hd4 = new HDSegwitBech32Wallet();
+      hd4.setSecret(text);
+      if (hd4.validateMnemonic()) {
+        await hd4.fetchBalance();
+        if (hd4.getBalance() > 0) {
+          await hd4.fetchTransactions();
+          return this._saveWallet(hd4);
+        }
+      }
+
       let segwitWallet = new SegwitP2SHWallet();
       segwitWallet.setSecret(text);
       if (segwitWallet.getAddress()) {
@@ -129,16 +139,6 @@ export default class WalletsImport extends Component {
       }
 
       // if we're here - nope, its not a valid WIF
-
-      let hd4 = new HDSegwitBech32Wallet();
-      hd4.setSecret(text);
-      if (hd4.validateMnemonic()) {
-        await hd4.fetchBalance();
-        if (hd4.getBalance() > 0) {
-          await hd4.fetchTransactions();
-          return this._saveWallet(hd4);
-        }
-      }
 
       let hd1 = new HDLegacyBreadwalletWallet();
       hd1.setSecret(text);
