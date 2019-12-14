@@ -1777,6 +1777,8 @@ const itemWidth = width * 0.82;
 const sliderHeight = 190;
 
 export class WalletsCarousel extends Component {
+  walletsCarousel = React.createRef();
+
   constructor(props) {
     super(props);
     // eslint-disable-next-line
@@ -1906,13 +1908,15 @@ export class WalletsCarousel extends Component {
     );
   }
 
+  snapToItem = item => {
+    this.walletsCarousel.current.snapToItem(item);
+  };
+
   render() {
     return (
       <Carousel
         {...this.props}
-        ref={c => {
-          WalletsCarousel.carousel = c;
-        }}
+        ref={this.walletsCarousel}
         renderItem={this._renderItem}
         sliderWidth={sliderWidth}
         sliderHeight={sliderHeight}
