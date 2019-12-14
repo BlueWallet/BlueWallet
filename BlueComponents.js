@@ -163,18 +163,31 @@ export class BlueWalletNavigationHeader extends Component {
     onWalletUnitChange: PropTypes.func,
   };
 
-  static getDerivedStateFromProps(props, _state) {
-    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange };
+  static getDerivedStateFromProps(props, state) {
+    return { wallet: props.wallet, onWalletUnitChange: props.onWalletUnitChange, allowOnchainAddress: state.allowOnchainAddress };
   }
 
   constructor(props) {
     super(props);
-    this.state = { wallet: props.wallet, walletPreviousPreferredUnit: props.wallet.getPreferredBalanceUnit() };
+    this.state = {
+      wallet: props.wallet,
+      walletPreviousPreferredUnit: props.wallet.getPreferredBalanceUnit(),
+      showManageFundsButton: false,
+    };
   }
 
   handleCopyPress = _item => {
     Clipboard.setString(loc.formatBalance(this.state.wallet.getBalance(), this.state.wallet.getPreferredBalanceUnit()).toString());
   };
+
+  componentDidMount() {
+    if (this.state.wallet.type === LightningCustodianWallet.type) {
+      this.state.wallet
+        .allowOnchainAddress()
+        .then(value => this.setState({ allowOnchainAddress: value }))
+        .catch(e => console.log('This Lndhub wallet does not have an onchain address API.'));
+    }
+  }
 
   handleBalanceVisibility = async _item => {
     const wallet = this.state.wallet;
@@ -311,7 +324,7 @@ export class BlueWalletNavigationHeader extends Component {
             </Text>
           )}
         </TouchableOpacity>
-        {this.state.wallet.type === LightningCustodianWallet.type && (
+        {this.state.wallet.type === LightningCustodianWallet.type && this.state.allowOnchainAddress && (
           <TouchableOpacity onPress={this.manageFundsPressed}>
             <View
               style={{
