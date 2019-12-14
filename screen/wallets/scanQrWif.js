@@ -70,8 +70,8 @@ export default class ScanQrWif extends React.Component {
       }
     }
 
-    // is it HD BIP84 mnemonic?
-    let hd = new HDSegwitBech32Wallet();
+    // is it HD BIP49 mnemonic?
+    let hd = new HDSegwitP2SHWallet();
     hd.setSecret(ret.data);
     if (hd.validateMnemonic()) {
       for (let w of BlueApp.wallets) {
@@ -125,8 +125,8 @@ export default class ScanQrWif extends React.Component {
     }
     // nope
 
-    // is it HD mnemonic?
-    hd = new HDSegwitP2SHWallet();
+    // is it HD BIP49 mnemonic?
+    hd = new HDSegwitBech32Wallet();
     hd.setSecret(ret.data);
     if (hd.validateMnemonic()) {
       for (let w of BlueApp.wallets) {
