@@ -52,7 +52,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     // checking that internal pointer and async address getter return the same address
     let freeAddress = await hd.getAddressAsync();
-    assert.strictEqual(hd.next_free_address_index, 0);
+    assert.strictEqual(hd.next_free_address_index, 1); // someone ACTUALLY used this example mnemonic lol
     assert.strictEqual(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
     let freeChangeAddress = await hd.getChangeAddressAsync();
     assert.strictEqual(hd.next_free_change_address_index, 0);

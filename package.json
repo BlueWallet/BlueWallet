@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "4.8.2",
+  "version": "4.9.0",
   "devDependencies": {
     "@babel/core": "^7.5.0",
     "@babel/runtime": "^7.5.1",

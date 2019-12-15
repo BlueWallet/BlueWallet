@@ -1,3 +1,17 @@
+v4.9.0
+======
+
+* ADD: Native segwit (BIP84) are now default wallets
+* ADD: Toggle to turn off RBF when creating a transaction
+* ADD: Scroll to end of wallets list when adding a wallet
+* FIX: Default LN invoice expiry is now 24h instead of 1h
+* FIX: Speeded up lighnint wallets
+* FIX: Force Light theme mode even if system is in dark mode
+* FIX: Hide Manage Funds button if wallet doesn't allow onchain refill.
+* FIX: LN Scan to receive is more visible
+* FIX: Quick actions not appearing on non-3d touch devices.
+* FIX: Dont show clipboard modal when biometrics  is dismissed
+
 v4.8.1
 ======
 
@@ -37,19 +51,3 @@ v4.7.0
 * FIX: Now able to use biometrics with encrypted storage (not for unlocking)
 * FIX: LApp marketplace address is now editable
 * FIX: single address watch-only wallet Receive button crash
-
-v4.6.0
-======
-
-* ADD: Optional biometrics unlock (this does not exclude full encryption)
-* ADD: Cryptoadvance HW wallet support (for BIP84) via PSBT and QR codes
-* ADD: LN Refill with external wallet
-* ADD: Default into wallet on launch
-* FIX: NaN when sending onchain
-* FIX: zero on send success screen
-* FIX: Time shown for top-most transaction
-* FIX: minor issue with scanQrWif
-* FIX: typo on NL language
-* FIX: better wallet export QR readability
-* FIX: RBF tx memo porting
-* REF: better initial HD rescan
