@@ -33,7 +33,7 @@ export default class SelectWallet extends Component {
   componentDidMount() {
     const wallets = this.chainType
       ? BlueApp.getWallets().filter(item => item.chain === this.chainType && item.allowSend())
-      : BlueApp.getWallets();
+      : BlueApp.getWallets().filter(item => item.allowSend());
     this.setState({
       data: wallets,
       isLoading: false,

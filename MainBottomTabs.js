@@ -228,6 +228,32 @@ const LightningScanInvoiceStackNavigator = createStackNavigator({
   },
 });
 
+const HandleOffchainAndOnChainStackNavigator = createStackNavigator(
+  {
+    SelectWallet: {
+      screen: SelectWallet,
+    },
+    // LND:
+
+    ScanLndInvoice: {
+      screen: LightningScanInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    ScanQrAddress: {
+      screen: ScanQRCode,
+    },
+    SendDetails: {
+      screen: CreateTransactionStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+  },
+  { headerBackTitleVisible: false },
+);
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -307,6 +333,12 @@ const MainBottomTabs = createStackNavigator(
     },
     LNDCreateInvoice: {
       screen: LNDCreateInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    HandleOffchainAndOnChain: {
+      screen: HandleOffchainAndOnChainStackNavigator,
       navigationOptions: {
         header: null,
       },
