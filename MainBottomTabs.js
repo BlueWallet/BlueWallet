@@ -35,7 +35,6 @@ import rbfBumpFee from './screen/transactions/RBFBumpFee';
 import rbfCancel from './screen/transactions/RBFCancel';
 
 import receiveDetails from './screen/receive/details';
-import setReceiveAmount from './screen/receive/receiveAmount';
 
 import sendDetails from './screen/send/details';
 import ScanQRCode from './screen/send/scanQrAddress';
@@ -276,10 +275,6 @@ const MainBottomTabs = createStackNavigator(
 
     ReceiveDetails: {
       screen: receiveDetails,
-    },
-
-    ReceiveAmount: {
-      screen: setReceiveAmount,
     },
 
     //
