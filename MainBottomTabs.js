@@ -35,7 +35,6 @@ import rbfBumpFee from './screen/transactions/RBFBumpFee';
 import rbfCancel from './screen/transactions/RBFCancel';
 
 import receiveDetails from './screen/receive/details';
-import setReceiveAmount from './screen/receive/receiveAmount';
 
 import sendDetails from './screen/send/details';
 import ScanQRCode from './screen/send/scanQrAddress';
@@ -228,6 +227,32 @@ const LightningScanInvoiceStackNavigator = createStackNavigator({
   },
 });
 
+const HandleOffchainAndOnChainStackNavigator = createStackNavigator(
+  {
+    SelectWallet: {
+      screen: SelectWallet,
+    },
+    // LND:
+
+    ScanLndInvoice: {
+      screen: LightningScanInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    ScanQrAddress: {
+      screen: ScanQRCode,
+    },
+    SendDetails: {
+      screen: CreateTransactionStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+  },
+  { headerBackTitleVisible: false },
+);
+
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
@@ -278,10 +303,6 @@ const MainBottomTabs = createStackNavigator(
       screen: receiveDetails,
     },
 
-    ReceiveAmount: {
-      screen: setReceiveAmount,
-    },
-
     //
 
     // LND:
@@ -307,6 +328,12 @@ const MainBottomTabs = createStackNavigator(
     },
     LNDCreateInvoice: {
       screen: LNDCreateInvoiceStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+    HandleOffchainAndOnChain: {
+      screen: HandleOffchainAndOnChainStackNavigator,
       navigationOptions: {
         header: null,
       },

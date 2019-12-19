@@ -117,9 +117,10 @@ export default class App extends React.Component {
           wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
         );
         if (
-          !isAddressFromStoredWallet &&
-          this.state.clipboardContent !== clipboard &&
-          (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard) || this.isLnUrl(clipboard))
+          (!isAddressFromStoredWallet &&
+            this.state.clipboardContent !== clipboard &&
+            (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard) || this.isLnUrl(clipboard))) ||
+          this.isBothBitcoinAndLightning(clipboard)
         ) {
           this.setState({ isClipboardContentModalVisible: true });
         }
@@ -142,6 +143,10 @@ export default class App extends React.Component {
   }
 
   isBitcoinAddress(address) {
+    address = address
+      .replace('bitcoin:', '')
+      .replace('bitcoin=', '')
+      .split('?')[0];
     let isValidBitcoinAddress = false;
     try {
       bitcoin.address.toOutputScript(address);
@@ -149,12 +154,6 @@ export default class App extends React.Component {
       this.setState({ clipboardContentModalAddressType: bitcoinModalString });
     } catch (err) {
       isValidBitcoinAddress = false;
-    }
-    if (!isValidBitcoinAddress) {
-      if (address.indexOf('bitcoin:') === 0 || address.indexOf('BITCOIN:') === 0) {
-        isValidBitcoinAddress = true;
-        this.setState({ clipboardContentModalAddressType: bitcoinModalString });
-      }
     }
     return isValidBitcoinAddress;
   }
@@ -175,11 +174,76 @@ export default class App extends React.Component {
     return false;
   }
 
+  isBothBitcoinAndLightning(url) {
+    if (url.includes('lightning') && url.includes('bitcoin')) {
+      const txInfo = url.split(/(bitcoin:|lightning:|lightning=|bitcoin=)+/);
+      let bitcoin;
+      let lndInvoice;
+      for (const [index, value] of txInfo.entries()) {
+        try {
+          // Inside try-catch. We dont wan't to  crash in case of an out-of-bounds error.
+          if (value.startsWith('bitcoin')) {
+            bitcoin = `bitcoin:${txInfo[index + 1]}`;
+            if (!this.isBitcoinAddress(bitcoin)) {
+              bitcoin = false;
+              break;
+            }
+          } else if (value.startsWith('lightning')) {
+            lndInvoice = `lightning:${txInfo[index + 1]}`;
+            if (!this.isLightningInvoice(lndInvoice)) {
+              lndInvoice = false;
+              break;
+            }
+          }
+        } catch (e) {
+          console.log(e);
+        }
+        if (bitcoin && lndInvoice) break;
+      }
+      if (bitcoin && lndInvoice) {
+        this.setState({
+          clipboardContent: { bitcoin, lndInvoice },
+        });
+        return { bitcoin, lndInvoice };
+      } else {
+        return undefined;
+      }
+    }
+    return undefined;
+  }
+
   isSafelloRedirect(event) {
     let urlObject = url.parse(event.url, true) // eslint-disable-line
 
     return !!urlObject.query['safello-state-token'];
   }
+
+  isBothBitcoinAndLightningWalletSelect = wallet => {
+    const clipboardContent = this.state.clipboardContent;
+    if (wallet.chain === Chain.ONCHAIN) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'SendDetails',
+            params: {
+              uri: clipboardContent.bitcoin,
+              fromWallet: wallet,
+            },
+          }),
+        );
+    } else if (wallet.chain === Chain.OFFCHAIN) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'ScanLndInvoice',
+            params: {
+              uri: clipboardContent.lndInvoice,
+              fromSecret: wallet.getSecret(),
+            },
+          }),
+        );
+    }
+  };
 
   handleOpenURL = event => {
     if (event.url === null) {
@@ -188,7 +252,23 @@ export default class App extends React.Component {
     if (typeof event.url !== 'string') {
       return;
     }
-    if (this.isBitcoinAddress(event.url)) {
+    let isBothBitcoinAndLightning;
+    try {
+      isBothBitcoinAndLightning = this.isBothBitcoinAndLightning(event.url);
+    } catch (e) {
+      console.log(e);
+    }
+    if (isBothBitcoinAndLightning) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'HandleOffchainAndOnChain',
+            params: {
+              onWalletSelect: this.isBothBitcoinAndLightningWalletSelect,
+            },
+          }),
+        );
+    } else if (this.isBitcoinAddress(event.url)) {
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({

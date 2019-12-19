@@ -53,7 +53,7 @@ export class BlueButton extends Component {
       backgroundColor = BlueApp.settings.buttonDisabledBackgroundColor;
       fontColor = BlueApp.settings.buttonDisabledTextColor;
     }
-    let buttonWidth = width / 1.5;
+    let buttonWidth = this.props.width ? this.props.width : width / 1.5;
     if (this.props.hasOwnProperty('noMinWidth')) {
       buttonWidth = 0;
     }
