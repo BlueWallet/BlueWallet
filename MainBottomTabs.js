@@ -48,6 +48,7 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
+import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess.js';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -233,6 +234,9 @@ const LightningScanInvoiceStackNavigator = createStackNavigator({
   Success: {
     screen: Success,
   },
+  LnurlPaySuccess: {
+    screen: LnurlPaySuccess,
+  }
 });
 
 const HandleOffchainAndOnChainStackNavigator = createStackNavigator(

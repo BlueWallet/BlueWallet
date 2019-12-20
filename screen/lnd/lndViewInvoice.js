@@ -11,6 +11,7 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import AsyncStorage from '@react-native-community/async-storage';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
