@@ -92,6 +92,8 @@ export default class ScanLndInvoice extends React.Component {
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     if (this.props.navigation.state.params.uri) {
       this.processTextForInvoice(this.props.navigation.getParam('uri'));
+    } else if (this.props.navigation.state.params.lnurlData) {
+      this.processLnurlPay(this.props.navigation.getParam('lnurlData'));
     }
   }
 
@@ -164,36 +166,39 @@ export default class ScanLndInvoice extends React.Component {
         return this.props.navigation.goBack();
       }
 
-      // handling fallback data
-      let ind = data.indexOf('lightning=');
-      if (ind !== -1) {
-        data = data.substring(ind + 10).split('&')[0];
-      }
-      data = data.replace('LIGHTNING:', '').replace('lightning:', '');
-
-      // decoding the data
-      let decoded = bech32.decode(data, 1500);
-      let url = Buffer.from(bech32.fromWords(decoded.words)).toString();
-
-      // calling the url
       try {
-        let resp = await fetch(url, { method: 'GET' });
-        if (resp.status >= 300) {
-          throw new Error('Bad response from server');
-        }
-        let reply = await resp.json();
-        if (reply.status === 'ERROR') {
-          throw new Error('Reply from server: ' + reply.reason);
-        }
+        if (typeof data === 'string') {
+          // handling fallback data
+          let ind = data.indexOf('lightning=');
+          if (ind !== -1) {
+            data = data.substring(ind + 10).split('&')[0];
+          }
+          data = data.replace('LIGHTNING:', '').replace('lightning:', '');
 
-        if (reply.tag !== 'payRequest') {
-          throw new Error('lnurl-pay expected, found tag ' + reply.tag);
-        }
+          // decoding the data
+          let decoded = bech32.decode(data, 1500);
+          let url = Buffer.from(bech32.fromWords(decoded.words)).toString();
+
+          // calling the url
+          let resp = await fetch(url, { method: 'GET' });
+          if (resp.status >= 300) {
+            throw new Error('Bad response from server');
+          }
+          let reply = await resp.json();
+          if (reply.status === 'ERROR') {
+            throw new Error('Reply from server: ' + reply.reason);
+          }
+          if (reply.tag !== 'payRequest') {
+            throw new Error('lnurl-pay expected, found tag ' + reply.tag);
+          }
+
+          data = reply
+        } // else: data is already an object containing the reply data from service.
 
         // parse metadata and extract things from it
         var image
         var description
-        let kvs = JSON.parse(reply.metadata)
+        let kvs = JSON.parse(data.metadata)
         for (let i = 0; i < kvs.length; i++) {
           let [k, v] = kvs[i];
           switch (k) {
@@ -208,18 +213,18 @@ export default class ScanLndInvoice extends React.Component {
         }
 
         // setting the payment screen with the parameters
-        let min = Math.ceil((reply.minSendable || 0) / 1000);
-        let max = Math.floor(reply.maxSendable / 1000);
+        let min = Math.ceil((data.minSendable || 0) / 1000);
+        let max = Math.floor(data.maxSendable / 1000);
 
         this.setState({
           isLoading: false,
           lnurlParams: {
-            callback: reply.callback,
+            callback: data.callback,
             fixed: min === max,
             min,
             max,
-            domain: reply.callback.match(new RegExp('https://([^/]+)/'))[1],
-            metadata: reply.metadata,
+            domain: data.callback.match(new RegExp('https://([^/]+)/'))[1],
+            metadata: data.metadata,
             description,
             image,
             amount: min
@@ -311,7 +316,7 @@ export default class ScanLndInvoice extends React.Component {
         amount,
         amountUnit: BitcoinUnit.SATS,
         successAction,
-        preimage:
+        preimage: w.last_paid_invoice_result.payment_preimage
       });
     } catch (Err) {
       Keyboard.dismiss();
@@ -445,10 +450,8 @@ export default class ScanLndInvoice extends React.Component {
     let {fixed, min, max, domain, description, image, amount} = this.state.lnurlParams
 
     const imageSize = (height < width ? height : width) / 4
-    console.log('RENDERING', height, width, imageSize, amount)
 
     const constrainAmount = debounce(() => {
-      console.log('CONSTRAINING', this.state.lnurlParams.amount, min, max)
       var amount = this.state.lnurlParams.amount
       if (this.state.lnurlParams.amount < min) {
         amount = min
@@ -623,6 +626,7 @@ ScanLndInvoice.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         uri: PropTypes.string,
+        lnurlData: PropTypes.shape({}),
         fromSecret: PropTypes.string,
       }),
     }),
