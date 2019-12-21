@@ -47,6 +47,9 @@ export class AbstractWallet {
    * @returns {string}
    */
   getLabel() {
+    if (this.label.trim().length === 0) {
+      return 'Wallet';
+    }
     return this.label;
   }
 
