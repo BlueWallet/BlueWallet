@@ -8,7 +8,7 @@ import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import url from 'url';
-import lnurl from 'js-lnurl';
+import { getParams as getLNURLParams } from 'js-lnurl';
 import { AppStorage, LightningCustodianWallet } from './class';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
@@ -290,8 +290,10 @@ export default class App extends React.Component {
           }),
         );
     } else if (this.isLnUrl(event.url)) {
-      lnurl.getParams(event.url)
+      console.log('START WITH LNURL', event.lnurl)
+      getLNURLParams(event.url)
         .then(params => {
+          console.log('PARAMS', params)
           var routeName;
           if (params.tag === 'withdrawRequest') {
             routeName = 'LNDCreateInvoice';
@@ -310,7 +312,7 @@ export default class App extends React.Component {
                 },
               }),
             )
-        }).catch(error => console.log(error));
+        }).catch(error => console.log('LNURL FETCH ERROR', error));
     } else if (this.isSafelloRedirect(event)) {
       let urlObject = url.parse(event.url, true) // eslint-disable-line
 

@@ -240,90 +240,108 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   payLnurl = async () => {
-    let {amount, metadata, image, description, domain, callback} = this.state.lnurlParams;
+    if (!this.state.hasOwnProperty('lnurlParams')) {
+      return null;
+    }
 
-    // append amount to callback
-    let url = callback + (
-        callback.indexOf('?') !== -1
-          ? '&'
-          : '?' + 'amount=' + amount * 1000
-    );
-
-    // send amount and get invoice
-    try {
-      let resp = await fetch(url, { method: 'GET' });
-      if (resp.status >= 300) {
-        throw new Error('Bad response from server');
+    const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
+    if (isBiometricsEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
       }
-      let reply = await resp.json();
-      console.log('REPLY', reply)
-      if (reply.status === 'ERROR') {
-        throw new Error('Reply from server: ' + reply.reason);
-      }
+    }
 
-      let {pr, successAction} = reply;
+    this.setState(
+      {
+        isLoading: true,
+      },
+      async () => {
+        let {amount, metadata, image, description, domain, callback} = this.state.lnurlParams;
 
-      /**
-       * @type {LightningCustodianWallet}
-       */
-      let w = this.state.fromWallet;
+        // append amount to callback
+        let url = callback + (
+            callback.indexOf('?') !== -1
+              ? '&'
+              : '?' + 'amount=' + amount * 1000
+        );
 
-      // check pr description_hash
-      let decoded = w.decodeInvoice(pr);
-
-      let metadataHash = createHash('sha256').update(metadata).digest('hex');
-      if (metadataHash !== decoded.description_hash) {
-        throw new Error(`Invoice description_hash doesn't match metadata.`);
-      }
-      if (parseInt(decoded.num_satoshis) !== amount) {
-        throw new Error(`Invoice doesn't match specified amount.`);
-      }
-
-      // meanwhile cleanup old successActions
-      AsyncStorage.getAllKeys(async (err, keys) => {
-        if (err) return;
-        for (let i = 0; i < keys.length; i++) {
-          let key = keys[i];
-          if (!key.startsWith('lp:')) continue;
-          let val = await AsyncStorage.getItem(key);
-          console.log('inspecting key', key, val)
-          if (val && val.time < Date.now() - 2592000000 /* 1 month */) {
-            AsyncStorage.removeItem(key);
+        // send amount and get invoice
+        try {
+          let resp = await fetch(url, { method: 'GET' });
+          if (resp.status >= 300) {
+            throw new Error('Bad response from server');
           }
+          let reply = await resp.json();
+          if (reply.status === 'ERROR') {
+            throw new Error('Reply from server: ' + reply.reason);
+          }
+
+          let {pr, successAction} = reply;
+
+          /**
+           * @type {LightningCustodianWallet}
+           */
+          let w = this.state.fromWallet;
+
+          // check pr description_hash
+          let decoded = w.decodeInvoice(pr);
+
+          let metadataHash = createHash('sha256').update(metadata).digest('hex');
+          if (metadataHash !== decoded.description_hash) {
+            throw new Error(`Invoice description_hash doesn't match metadata.`);
+          }
+          if (parseInt(decoded.num_satoshis) !== amount) {
+            throw new Error(`Invoice doesn't match specified amount.`);
+          }
+
+          // meanwhile cleanup old successActions
+          AsyncStorage.getAllKeys(async (err, keys) => {
+            if (err) return;
+            for (let i = 0; i < keys.length; i++) {
+              let key = keys[i];
+              if (!key.startsWith('lp:')) continue;
+              let val = await AsyncStorage.getItem(key);
+              if (val && JSON.parse(val).time < Date.now() - 2592000000 /* 1 month */) {
+                AsyncStorage.removeItem(key);
+              }
+            }
+          });
+
+          // store successAction for later
+          await AsyncStorage.setItem(`lp:${decoded.payment_hash}`, JSON.stringify({
+            successAction,
+            description_hash: decoded.description_hash,
+            domain,
+            time: Date.now()
+          }));
+          await AsyncStorage.setItem(`lp:${decoded.description_hash}`, JSON.stringify({
+            metadata: { image, description },
+            time: Date.now()
+          }));
+
+          // pay invoice
+          await w.payInvoice(pr);
+
+          console.log('PAID', w.last_paid_invoice_result)
+
+          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+          this.props.navigation.navigate('LnurlPaySuccess', {
+            domain,
+            image,
+            description,
+            successAction,
+            preimage: Buffer.from(
+              w.last_paid_invoice_result.payment_preimage.data
+            ).toString('hex'),
+            whenDone: 'dismiss'
+          });
+        } catch (Err) {
+          Keyboard.dismiss();
+          this.setState({ isLoading: false, lnurlParams: null });
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          alert(Err.message);
         }
       });
-
-      // store successAction for later
-      AsyncStorage.setItem(`lp:${decoded.payment_hash}`, {
-        successAction,
-        description_hash: decoded.description_hash,
-        domain,
-        time: Date.now()
-      });
-      AsyncStorage.setItem(`lp:${decoded.description_hash}`, {
-        metadata: { image, description },
-        time: Date.now()
-      });
-
-      // pay invoice
-      await w.payInvoice(pr);
-
-      console.log('PAID', w.last_paid_invoice_result)
-
-      EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-      this.props.navigation.navigate('LnurlPaySuccess', {
-        domain,
-        amount,
-        amountUnit: BitcoinUnit.SATS,
-        successAction,
-        preimage: w.last_paid_invoice_result.payment_preimage
-      });
-    } catch (Err) {
-      Keyboard.dismiss();
-      this.setState({ isLoading: false, lnurlParams: null });
-      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-      alert(Err.message);
-    }
   };
 
   async pay() {
@@ -332,7 +350,6 @@ export default class ScanLndInvoice extends React.Component {
     }
 
     const isBiometricsEnabled = await Biometric.isBiometricUseCapableAndEnabled();
-
     if (isBiometricsEnabled) {
       if (!(await Biometric.unlockWithBiometrics())) {
         return;
@@ -534,7 +551,7 @@ export default class ScanLndInvoice extends React.Component {
           <BlueBitcoinAmount
             pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
             isLoading={this.state.isLoading}
-            amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
+            amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : '0'}
             onChangeText={text => {
               if (typeof this.state.decoded === 'object') {
                 text = parseInt(text || 0);

@@ -149,6 +149,9 @@ const WalletsStackNavigator = createStackNavigator(
       swipeEnabled: false,
       gesturesEnabled: false,
     },
+    LnurlPaySuccess: {
+      screen: LnurlPaySuccess,
+    },
     LNDViewAdditionalInvoiceInformation: {
       screen: LNDViewAdditionalInvoiceInformation,
     },

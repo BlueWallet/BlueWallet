@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import { View, Text, Dimensions, ScrollView, BackHandler, InteractionManager, TouchableOpacity } from 'react-native';
 import Share from 'react-native-share';
@@ -48,6 +49,34 @@ export default class LNDViewInvoice extends Component {
   }
 
   async componentDidMount() {
+    console.log('INVOICE', this.state.invoice)
+    if (this.state.invoice && this.state.invoice.payment_hash) {
+      // fetch lnurl-pay stuff if exists
+      let paymentHash = Buffer.from(this.state.invoice.payment_hash).toString('hex');
+      console.log('CHECKING SA', paymentHash)
+      let data = await AsyncStorage.getItem(`lp:${paymentHash}`);
+      console.log('GOT', data)
+      if (data) {
+        let lnurlPay = JSON.parse(data);
+
+        var image = null;
+        var description = '';
+        let res = await AsyncStorage.getItem(`lp:${lnurlPay.description_hash}`)
+        if (res) {
+          let {metadata} = JSON.parse(res);
+          image = metadata.image;
+          description = metadata.description;
+        }
+        
+        this.setState({lnurlPay: {
+          domain: lnurlPay.domain,
+          successAction: lnurlPay.successAction,
+          image,
+          description
+        }});
+      }
+    }
+
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {
@@ -74,7 +103,7 @@ export default class LNDViewInvoice extends Component {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
               const invoiceExpiration = updatedUserInvoice.timestamp + updatedUserInvoice.expire_time;
-              if (invoiceExpiration < now && !updatedUserInvoice.ispaid) {
+              if (invoiceExpiration < now) {
                 // invoice expired :-(
                 this.setState({ isFetchingInvoices: false });
                 ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -84,8 +113,10 @@ export default class LNDViewInvoice extends Component {
               }
             }
           }
-        } catch (error) {
-          console.log(error);
+        } catch (Err) {
+          this.setState({ isLoading: false });
+          ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+          alert(Err.message);
         }
       }
     }, 3000);
@@ -112,7 +143,7 @@ export default class LNDViewInvoice extends Component {
       return <BlueLoading />;
     }
 
-    const { invoice } = this.state;
+    const { invoice, lnurlPay } = this.state;
     if (typeof invoice === 'object') {
       const currentDate = new Date();
       const now = (currentDate.getTime() / 1000) | 0;
@@ -204,8 +235,36 @@ export default class LNDViewInvoice extends Component {
               </View>
               <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
             </View>
-            <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 24, alignItems: 'center' }}>
-              {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && (
+            {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' && (
+              <View style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-evenly',
+                marginBottom: 24,
+                marginHorizontal: 20,
+                alignItems: 'center'
+              }}>
+                {lnurlPay && (
+                  <TouchableOpacity
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      marginRight: 4
+                    }}
+                    onPress={() => {
+                      this.props.navigation.navigate('LnurlPaySuccess', {
+                        domain: lnurlPay.domain,
+                        image: lnurlPay.image,
+                        description: lnurlPay.description,
+                        successAction: lnurlPay.successAction,
+                        preimage: invoice.payment_preimage,
+                      })
+                    }}
+                  >
+                    <Icon name="film" size={18} type="font-awesome" color="#9aa0aa" />
+                    <Text style={{ color: '#9aa0aa', fontSize: 14, marginLeft: 8 }}>metadata</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   style={{ flexDirection: 'row', alignItems: 'center' }}
                   onPress={() => this.setState({ showPreimageQr: true })}
@@ -213,8 +272,8 @@ export default class LNDViewInvoice extends Component {
                   <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.send.create.details}</Text>
                   <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
                 </TouchableOpacity>
-              )}
-            </View>
+              </View>
+            )}
           </SafeBlueArea>
         );
       }
