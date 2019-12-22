@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { View, Text, Image, ScrollView } from 'react-native';
+import { View, Text, Image, ScrollView, Linking } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { decipherAES } from 'js-lnurl'
 import { BlueButton, BlueButtonLink, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
@@ -59,7 +59,7 @@ export default class Success extends Component {
           </BlueText>
         </BlueCard>
 
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+        <BlueCard>
           <ScrollView contentContainerStyle={{maxHeight: 120}}>
             <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
               {description}
@@ -78,8 +78,7 @@ export default class Success extends Component {
             borderRadius: 60,
             alignSelf: 'center',
             justifyContent: 'center',
-            marginVertical: 30,
-            marginBottom: 20,
+            marginVertical: 13,
             textAlign: 'center',
             flex: 1,
             alignItems: 'center',
@@ -95,9 +94,13 @@ export default class Success extends Component {
           <BlueCard>
             <Text style={{ margin: 3 }}>{preamble}</Text>
             {url
-              ? <BlueButtonLink>{url}</BlueButtonLink>
+              ? <BlueButtonLink title={url} onPress={() => {
+                  Linking.openURL(url)
+                }} />
               : (
-                <Text style={{ margin: 3, textAlign: 'center', fontWeight: 'bold' }}>
+                <Text
+                  selectable
+                  style={{ margin: 3, textAlign: 'center', fontWeight: 'bold' }}>
                   {message}
                 </Text>
               )

@@ -262,6 +262,8 @@ export default class ScanLndInvoice extends React.Component {
       async () => {
         let {
           amount,
+          min,
+          max,
           metadata,
           image,
           description,
@@ -270,15 +272,19 @@ export default class ScanLndInvoice extends React.Component {
           lnurl
         } = this.state.lnurlParams;
 
-        // append amount to callback
-        let url = callback + (
-            callback.indexOf('?') !== -1
-              ? '&'
-              : '?' + 'amount=' + amount * 1000
-        );
-
-        // send amount and get invoice
         try {
+          if (amount < min || amount > max) {
+            throw new Error(`Invalid amount specified, must be between ${min} and ${max}.`);
+          }
+
+          // append amount to callback
+          let url = callback + (
+              callback.indexOf('?') !== -1
+                ? '&'
+                : '?' + 'amount=' + amount * 1000
+          );
+
+          // send amount and get invoice
           let resp = await fetch(url, { method: 'GET' });
           if (resp.status >= 300) {
             throw new Error('Bad response from server');
@@ -335,22 +341,18 @@ export default class ScanLndInvoice extends React.Component {
           // pay invoice
           await w.payInvoice(pr);
 
-          console.log('PAID', w.last_paid_invoice_result)
-
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.props.navigation.navigate('LnurlPaySuccess', {
             domain,
             image,
             description,
             successAction,
-            preimage: Buffer.from(
-              w.last_paid_invoice_result.payment_preimage.data
-            ).toString('hex'),
+            preimage: w.last_paid_invoice_result.payment_preimage,
             justPaid: true
           });
         } catch (Err) {
           Keyboard.dismiss();
-          this.setState({ isLoading: false, lnurlParams: null });
+          this.setState({ isLoading: false });
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           alert(Err.message);
         }
