@@ -341,13 +341,18 @@ export default class ScanLndInvoice extends React.Component {
           // pay invoice
           await w.payInvoice(pr);
 
+          var preimageString = w.last_paid_invoice_result.payment_preimage;
+          if (typeof preimageString === 'object') {
+            preimageString = Buffer.from(preimageString.data).toString('hex');
+          }
+
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.props.navigation.navigate('LnurlPaySuccess', {
             domain,
             image,
             description,
             successAction,
-            preimage: w.last_paid_invoice_result.payment_preimage,
+            preimage: preimageString,
             justPaid: true
           });
         } catch (Err) {
