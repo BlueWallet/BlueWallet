@@ -325,7 +325,7 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
   assert.strictEqual(hd._getInternalAddressByIndex(1), '13CW9WWBsWpDUvLtbFqYziWBWTYUoQb4nU');
 });
 
-it('Legacy HD (BIP44) can create TX', async () => {
+it.skip('Legacy HD (BIP44) can create TX', async () => {
   if (!process.env.HD_MNEMONIC) {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
@@ -335,6 +335,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
   assert.ok(hd.validateMnemonic());
 
   await hd.fetchUtxo();
+  assert.strictEqual(hd.utxo.length, 4);
   await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
   await hd.getAddressAsync(); // to refresh internal pointer to next free address
   let txhex = hd.createTx(hd.utxo, 0.0008, 0.000005, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
@@ -379,7 +380,7 @@ it('Legacy HD (BIP44) can fetch UTXO', async function() {
   );
 });
 
-it('HD breadwallet works', async function() {
+it.skip('HD breadwallet works', async function() {
   if (!process.env.HD_MNEMONIC_BREAD) {
     console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
     return;

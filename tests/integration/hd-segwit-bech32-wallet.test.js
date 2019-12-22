@@ -208,7 +208,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.getTransactions().length, oldTransactions.length);
   });
 
-  it('can work with fauty zpub', async () => {
+  it('can work with faulty zpub', async () => {
     if (!process.env.FAULTY_ZPUB) {
       console.error('process.env.FAULTY_ZPUB not set, skipped');
       return;
