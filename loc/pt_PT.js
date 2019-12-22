@@ -122,6 +122,7 @@ module.exports = {
     },
     success: {
       done: 'Done',
+      lnurlpay_repeat: 'Repeat payment',
     },
     details: {
       title: 'Criar Transacção',
@@ -172,7 +173,6 @@ module.exports = {
       create: 'Criar',
       setAmount: 'Quantia a receber',
     },
-    scan_lnurl: 'Receber lendo QR',
   },
   settings: {
     tabBarLabel: 'Definições',

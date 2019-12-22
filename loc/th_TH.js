@@ -137,6 +137,7 @@ module.exports = {
     },
     success: {
       done: 'สำเร็จ',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'รายละเอียด',
@@ -164,7 +165,6 @@ module.exports = {
       create: 'สร้าง',
       setAmount: 'รับด้วยจำนวน',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'ซื้อบิตคอยน์',

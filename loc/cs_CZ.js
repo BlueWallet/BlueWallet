@@ -138,6 +138,7 @@ module.exports = {
     },
     success: {
       done: 'Hotovo',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Detaily',
@@ -165,7 +166,6 @@ module.exports = {
       create: 'Create',
       setAmount: 'Přijmout částku...',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Koupit Bitcoin',

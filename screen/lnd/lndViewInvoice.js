@@ -49,13 +49,10 @@ export default class LNDViewInvoice extends Component {
   }
 
   async componentDidMount() {
-    console.log('INVOICE', this.state.invoice)
     if (this.state.invoice && this.state.invoice.payment_hash) {
       // fetch lnurl-pay stuff if exists
       let paymentHash = Buffer.from(this.state.invoice.payment_hash).toString('hex');
-      console.log('CHECKING SA', paymentHash)
       let data = await AsyncStorage.getItem(`lp:${paymentHash}`);
-      console.log('GOT', data)
       if (data) {
         let lnurlPay = JSON.parse(data);
 
@@ -71,8 +68,9 @@ export default class LNDViewInvoice extends Component {
         this.setState({lnurlPay: {
           domain: lnurlPay.domain,
           successAction: lnurlPay.successAction,
+          lnurl: lnurlPay.lnurl,
           image,
-          description
+          description,
         }});
       }
     }
@@ -258,6 +256,8 @@ export default class LNDViewInvoice extends Component {
                         description: lnurlPay.description,
                         successAction: lnurlPay.successAction,
                         preimage: invoice.payment_preimage,
+                        lnurl: lnurlPay.lnurl,
+                        fromWallet: this.state.fromWallet,
                       })
                     }}
                   >

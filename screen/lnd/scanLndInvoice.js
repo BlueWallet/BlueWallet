@@ -61,28 +61,31 @@ export default class ScanLndInvoice extends React.Component {
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
       props.navigation.dismiss();
     } else {
-      let fromSecret;
-      if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
-      let fromWallet = {};
+      let fromWallet = props.navigation.getParam('fromWallet');
+      if (!fromWallet) {
+        if (props.navigation.state.params.fromSecret) {
+          let fromSecret = props.navigation.state.params.fromSecret;
 
-      if (!fromSecret) {
-        const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
-        if (lightningWallets.length > 0) {
-          fromSecret = lightningWallets[0].getSecret();
-          console.warn('warning: using ln wallet index 0');
-        }
-      }
+          for (let w of BlueApp.getWallets()) {
+            if (w.getSecret() === fromSecret) {
+              fromWallet = w;
+              break;
+            }
+          }
+        } else {
+          // fallback to first wallet if it exists
+          const lightningWallets = BlueApp.getWallets().
+            filter(item => item.type === LightningCustodianWallet.type);
 
-      for (let w of BlueApp.getWallets()) {
-        if (w.getSecret() === fromSecret) {
-          fromWallet = w;
-          break;
+          if (lightningWallets.length > 0) {
+            fromWallet = lightningWallets[0];
+            console.warn('warning: using ln wallet index 0');
+          }
         }
       }
 
       this.state = {
         fromWallet,
-        fromSecret,
         destination: '',
       };
     }
@@ -227,7 +230,8 @@ export default class ScanLndInvoice extends React.Component {
             metadata: data.metadata,
             description,
             image,
-            amount: min
+            amount: min,
+            lnurl: uri
           }
         });
       } catch (Err) {
@@ -256,7 +260,15 @@ export default class ScanLndInvoice extends React.Component {
         isLoading: true,
       },
       async () => {
-        let {amount, metadata, image, description, domain, callback} = this.state.lnurlParams;
+        let {
+          amount,
+          metadata,
+          image,
+          description,
+          domain,
+          callback,
+          lnurl
+        } = this.state.lnurlParams;
 
         // append amount to callback
         let url = callback + (
@@ -312,6 +324,7 @@ export default class ScanLndInvoice extends React.Component {
             successAction,
             description_hash: decoded.description_hash,
             domain,
+            lnurl,
             time: Date.now()
           }));
           await AsyncStorage.setItem(`lp:${decoded.description_hash}`, JSON.stringify({
@@ -333,7 +346,7 @@ export default class ScanLndInvoice extends React.Component {
             preimage: Buffer.from(
               w.last_paid_invoice_result.payment_preimage.data
             ).toString('hex'),
-            whenDone: 'dismiss'
+            justPaid: true
           });
         } catch (Err) {
           Keyboard.dismiss();
@@ -458,7 +471,7 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   onWalletSelect = wallet => {
-    this.setState({ fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
+    this.setState({ fromWallet: wallet }, () => {
       this.props.navigation.pop();
     });
   };
@@ -645,6 +658,7 @@ ScanLndInvoice.propTypes = {
         uri: PropTypes.string,
         lnurlData: PropTypes.shape({}),
         fromSecret: PropTypes.string,
+        fromWallet: PropTypes.shape({}),
       }),
     }),
   }),

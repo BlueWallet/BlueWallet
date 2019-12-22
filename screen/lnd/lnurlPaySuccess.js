@@ -48,6 +48,7 @@ export default class Success extends Component {
     const domain = this.props.navigation.getParam('domain');
     const image = this.props.navigation.getParam('image');
     const description = this.props.navigation.getParam('description');
+    const lnurlString = this.props.navigation.getParam('lnurl');
     const {preamble, message, url} = this.state;
 
     return (
@@ -105,16 +106,28 @@ export default class Success extends Component {
         )}
 
         <BlueCard>
-          <BlueButton
-            onPress={() => {
-              if (this.props.navigation.getParam('whenDone') === 'dismiss') {
-                this.props.navigation.dismiss();
-              } else {
-                this.props.navigation.goBack();
-              }
-            }}
-            title={loc.send.success.done}
-          />
+          {lnurlString
+            ? (
+              <BlueButton
+                onPress={() => {
+                  this.props.navigation.navigate('ScanLndInvoice', {
+                    uri: lnurlString,
+                    fromWallet: this.props.navigation.getParam('fromWallet')
+                  });
+                }}
+                title={loc.send.success.lnurlpay_repeat}
+                icon={{name: 'refresh', type: 'font-awesome', color: '#9aa0aa'}}
+              />
+              )
+            : (
+              <BlueButton
+                onPress={() => {
+                  this.props.navigation.dismiss();
+                }}
+                title={loc.send.success.done}
+              />
+              )
+          }
         </BlueCard>
       </SafeBlueArea>
     );
@@ -134,7 +147,10 @@ Success.propTypes = {
         domain: PropTypes.string,
         successAction: PropTypes.shape({}),
         preimage: PropTypes.string,
-        whenDone: PropTypes.string
+
+        // not present immediatelly after a success payment
+        lnurl: PropTypes.string,
+        fromWallet: PropTypes.shape({}),
       }),
     }),
   }),

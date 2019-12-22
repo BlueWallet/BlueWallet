@@ -139,6 +139,7 @@ module.exports = {
     },
     success: {
       done: 'Ferdig',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Detaljer',
@@ -166,7 +167,6 @@ module.exports = {
       create: 'Lag',
       setAmount: 'Motta med beløp',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Kjøp Bitcoin',
