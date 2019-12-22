@@ -17,6 +17,7 @@ import PropTypes from 'prop-types';
 import AsyncStorage from '@react-native-community/async-storage';
 import createHash from 'create-hash'
 import bech32 from 'bech32';
+import { findlnurl } from 'js-lnurl';
 import debounce from 'debounce';
 import {
   BlueButton,
@@ -90,10 +91,13 @@ export default class ScanLndInvoice extends React.Component {
   async componentDidMount() {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-    if (this.props.navigation.state.params.uri) {
+    if (this.props.navigation.state.params.lnurlData) {
+      this.processLnurlPay(
+        this.props.navigation.getParam('uri'),
+        this.props.navigation.getParam('lnurlData')
+      );
+    } else if (this.props.navigation.state.params.uri) {
       this.processTextForInvoice(this.props.navigation.getParam('uri'));
-    } else if (this.props.navigation.state.params.lnurlData) {
-      this.processLnurlPay(this.props.navigation.getParam('lnurlData'));
     }
   }
 
@@ -158,7 +162,7 @@ export default class ScanLndInvoice extends React.Component {
     });
   };
 
-  processLnurlPay = async data => {
+  processLnurlPay = async (uri, data) => {
     this.setState({ isLoading: true }, async () => {
       if (!this.state.fromWallet) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -167,16 +171,12 @@ export default class ScanLndInvoice extends React.Component {
       }
 
       try {
-        if (typeof data === 'string') {
-          // handling fallback data
-          let ind = data.indexOf('lightning=');
-          if (ind !== -1) {
-            data = data.substring(ind + 10).split('&')[0];
-          }
-          data = data.replace('LIGHTNING:', '').replace('lightning:', '');
+        if (!data) {
+          // extracting just the lnurl
+          uri = findlnurl(uri);
 
-          // decoding the data
-          let decoded = bech32.decode(data, 1500);
+          // decoding
+          let decoded = bech32.decode(uri, 1500);
           let url = Buffer.from(bech32.fromWords(decoded.words)).toString();
 
           // calling the url
@@ -193,7 +193,7 @@ export default class ScanLndInvoice extends React.Component {
           }
 
           data = reply
-        } // else: data is already an object containing the reply data from service.
+        }
 
         // parse metadata and extract things from it
         var image

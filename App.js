@@ -308,6 +308,7 @@ export default class App extends React.Component {
               NavigationActions.navigate({
                 routeName,
                 params: {
+                  uri: event.url,
                   lnurlData: params
                 },
               }),

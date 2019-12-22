@@ -21,6 +21,7 @@ import debounce from 'debounce';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
+import { findlnurl } from 'js-lnurl';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -64,7 +65,10 @@ export default class LNDCreateInvoice extends Component {
     this.state.fromWallet.setUserHasSavedExport(true);
     await BlueApp.saveToDisk();
     if (this.props.navigation.state.params.lnurlData) {
-      this.processLnurlWithdraw(this.props.navigation.getParam('lnurlData'));
+      this.processLnurlWithdraw(
+        this.props.navigation.getParam('uri'),
+        this.props.navigation.getParam('lnurlData')
+      );
     }
     this.setState({ isLoading: false });
   };
@@ -121,7 +125,7 @@ export default class LNDCreateInvoice extends Component {
     });
   }
 
-  processLnurlWithdraw = data => {
+  processLnurlWithdraw = (uri, data) => {
     this.setState({ isLoading: true }, async () => {
       if (!this.state.fromWallet) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -129,18 +133,13 @@ export default class LNDCreateInvoice extends Component {
         return this.props.navigation.goBack();
       }
 
-      if (typeof data === 'string') {
+      if (!data) {
         try {
-          // handling fallback lnurl
-          let ind = data.indexOf('lightning=');
-          if (ind !== -1) {
-            data = data.substring(ind + 10).split('&')[0];
-          }
-
-          data = data.replace('LIGHTNING:', '').replace('lightning:', '');
+          // extracting just the lnurl
+          uri = findlnurl(uri);
 
           // decoding the lnurl
-          let decoded = bech32.decode(data, 1500);
+          let decoded = bech32.decode(uri, 1500);
           let url = Buffer.from(bech32.fromWords(decoded.words)).toString();
 
           // calling the url
@@ -163,7 +162,7 @@ export default class LNDCreateInvoice extends Component {
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
           alert(Err.message);
         }
-      } // else: data is already an object containing the reply data from service.
+      }
 
       // setting the invoice creating screen with the parameters
       this.setState({
