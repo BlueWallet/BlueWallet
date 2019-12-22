@@ -3,15 +3,27 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { View, Text, Image, ScrollView, Linking } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { decipherAES } from 'js-lnurl'
-import { BlueButton, BlueButtonLink, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import {
+  BlueButton,
+  BlueButtonLink,
+  BlueNavigationStyle,
+  SafeBlueArea,
+  BlueCard,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 
 export default class Success extends Component {
-  static navigationOptions = {
-    header: null,
-    gesturesEnabled: false,
-  };
+  static navigationOptions = ({ navigation }) =>
+    navigation.getParam('lnurl')
+      ? {
+          ...BlueNavigationStyle(navigation, true, () => navigation.goBack()),
+          title: navigation.getParam('domain') + ' message',
+        }
+      : { ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
+          title: navigation.getParam('domain') + ' message',
+          headerLeft: null,
+        }
 
   constructor(props) {
     super(props);
@@ -45,7 +57,6 @@ export default class Success extends Component {
   }
 
   render() {
-    const domain = this.props.navigation.getParam('domain');
     const image = this.props.navigation.getParam('image');
     const description = this.props.navigation.getParam('description');
     const lnurlString = this.props.navigation.getParam('lnurl');
@@ -53,12 +64,6 @@ export default class Success extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText style={{ textAlign: 'center', fontWeight: 'bold' }}>
-            {domain}
-          </BlueText>
-        </BlueCard>
-
         <BlueCard>
           <ScrollView contentContainerStyle={{maxHeight: 120}}>
             <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
