@@ -157,7 +157,12 @@ export default class WalletDetails extends Component {
                 <TextInput
                   placeholder={loc.send.details.note_placeholder}
                   value={this.state.walletName}
-                  onChangeText={text => this.setState({ walletName: text })}
+                  onChangeText={text => {
+                    if (text.trim().length === 0) {
+                      text = this.state.wallet.getLabel();
+                    }
+                    this.setState({ walletName: text });
+                  }}
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}
