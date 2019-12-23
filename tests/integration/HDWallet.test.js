@@ -55,7 +55,7 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.ok(hd._lastTxFetch === 0);
   await hd.fetchTransactions();
   assert.ok(hd._lastTxFetch > 0);
-  assert.strictEqual(hd.transactions.length, 4);
+  assert.strictEqual(hd.getTransactions().length, 4);
 
   assert.strictEqual('L4MqtwJm6hkbACLG4ho5DF8GhcXdLEbbvpJnbzA9abfD6RDpbr2m', hd._getExternalWIFByIndex(0));
   assert.strictEqual(
@@ -84,7 +84,7 @@ it('HD (BIP49) can work with a gap', async function() {
   //   console.log('external', c, hd._getExternalAddressByIndex(c));
   // }
   await hd.fetchTransactions();
-  assert.ok(hd.transactions.length >= 3);
+  assert.ok(hd.getTransactions().length >= 3);
 });
 
 it('Segwit HD (BIP49) can batch fetch many txs', async function() {
@@ -93,7 +93,7 @@ it('Segwit HD (BIP49) can batch fetch many txs', async function() {
   hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
   await hd.fetchBalance();
   await hd.fetchTransactions();
-  assert.ok(hd.getTransactions().length === 153);
+  assert.strictEqual(hd.getTransactions().length, 152);
 });
 
 it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
@@ -104,7 +104,7 @@ it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagg
   hd.next_free_address_index = 50;
   await hd.fetchBalance();
   await hd.fetchTransactions();
-  assert.strictEqual(hd.getTransactions().length, 153);
+  assert.strictEqual(hd.getTransactions().length, 152);
 });
 
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
@@ -143,9 +143,14 @@ it('HD (BIP49) can create TX', async () => {
   hd.setSecret(process.env.HD_MNEMONIC_BIP49);
   assert.ok(hd.validateMnemonic());
 
+  await hd.fetchBalance();
   await hd.fetchUtxo();
-  await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
-  await hd.getAddressAsync(); // to refresh internal pointer to next free address
+  assert.ok(typeof hd.utxo[0].confirmations === 'number');
+  assert.ok(hd.utxo[0].txid);
+  assert.ok(hd.utxo[0].vout !== undefined);
+  assert.ok(hd.utxo[0].amount);
+  assert.ok(hd.utxo[0].address);
+  assert.ok(hd.utxo[0].wif);
   let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
   assert.strictEqual(
     txhex,
@@ -207,21 +212,6 @@ it('HD (BIP49) can create TX', async () => {
   tx = bitcoin.Transaction.fromHex(txhex);
   assert.strictEqual(tx.outs.length, 1);
   assert.strictEqual(tx.outs[0].value, 75000);
-});
-
-it('Segwit HD (BIP49) can fetch UTXO', async function() {
-  let hd = new HDSegwitP2SHWallet();
-  hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
-  await hd.fetchUtxo();
-  assert.ok(hd.utxo.length >= 12);
-  assert.ok(typeof hd.utxo[0].confirmations === 'number');
-  assert.ok(hd.utxo[0].txid);
-  assert.ok(hd.utxo[0].vout);
-  assert.ok(hd.utxo[0].amount);
-  assert.ok(
-    hd.utxo[0].address &&
-      (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' || hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
-  );
 });
 
 it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', async function() {
@@ -302,7 +292,7 @@ it('can create a Legacy HD (BIP44)', async function() {
   assert.ok(hd._lastTxFetch === 0);
   await hd.fetchTransactions();
   assert.ok(hd._lastTxFetch > 0);
-  assert.strictEqual(hd.transactions.length, 4);
+  assert.strictEqual(hd.getTransactions().length, 4);
   assert.strictEqual(hd.next_free_address_index, 1);
   assert.strictEqual(hd.next_free_change_address_index, 1);
 
@@ -403,7 +393,7 @@ it.skip('HD breadwallet works', async function() {
   assert.ok(hdBread._lastTxFetch === 0);
   await hdBread.fetchTransactions();
   assert.ok(hdBread._lastTxFetch > 0);
-  assert.strictEqual(hdBread.transactions.length, 177);
+  assert.strictEqual(hdBread.getTransactions().length, 177);
   for (let tx of hdBread.getTransactions()) {
     assert.ok(tx.confirmations);
   }
