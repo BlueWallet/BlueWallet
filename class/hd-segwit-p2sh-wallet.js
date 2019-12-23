@@ -1,48 +1,18 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
-import Frisbee from 'frisbee';
-import { NativeModules } from 'react-native';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
 import signer from '../models/signer';
 import { BitcoinUnit } from '../models/bitcoinUnits';
+import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
-
-const { RNRandomBytes } = NativeModules;
-
-/**
- * Converts ypub to xpub
- * @param {String} ypub - wallet ypub
- * @returns {*}
- */
-function ypubToXpub(ypub) {
-  let data = b58.decode(ypub);
-  if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
-  data = data.slice(4);
-  data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
-
-  return b58.encode(data);
-}
-
-/**
- * Creates Segwit P2SH Bitcoin address
- * @param hdNode
- * @returns {String}
- */
-function nodeToP2shSegwitAddress(hdNode) {
-  const { address } = bitcoin.payments.p2sh({
-    redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
-  });
-  return address;
-}
 
 /**
  * HD Wallet (BIP39).
  * In particular, BIP49 (P2SH Segwit)
  * @see https://github.com/bitcoin/bips/blob/master/bip-0049.mediawiki
  */
-export class HDSegwitP2SHWallet extends AbstractHDWallet {
+export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
   static type = 'HDsegwitP2SH';
   static typeReadable = 'HD SegWit (BIP49 P2SH)';
 
@@ -52,37 +22,6 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
 
   allowSendMax(): boolean {
     return true;
-  }
-
-  async generate() {
-    let that = this;
-    return new Promise(function(resolve) {
-      if (typeof RNRandomBytes === 'undefined') {
-        // CLI/CI environment
-        // crypto should be provided globally by test launcher
-        return crypto.randomBytes(32, (err, buf) => { // eslint-disable-line
-          if (err) throw err;
-          that.secret = bip39.entropyToMnemonic(buf.toString('hex'));
-          resolve();
-        });
-      }
-
-      // RN environment
-      RNRandomBytes.randomBytes(32, (err, bytes) => {
-        if (err) throw new Error(err);
-        let b = Buffer.from(bytes, 'base64').toString('hex');
-        that.secret = bip39.entropyToMnemonic(b);
-        resolve();
-      });
-    });
-  }
-
-  _getExternalWIFByIndex(index) {
-    return this._getWIFByIndex(false, index);
-  }
-
-  _getInternalWIFByIndex(index) {
-    return this._getWIFByIndex(true, index);
   }
 
   /**
@@ -107,11 +46,11 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
     if (!this._node0) {
-      const xpub = ypubToXpub(this.getXpub());
+      const xpub = this.constructor._ypubToXpub(this.getXpub());
       const hdNode = HDNode.fromBase58(xpub);
       this._node0 = hdNode.derive(0);
     }
-    const address = nodeToP2shSegwitAddress(this._node0.derive(index));
+    const address = this.constructor._nodeToP2shSegwitAddress(this._node0.derive(index));
 
     return (this.external_addresses_cache[index] = address);
   }
@@ -121,11 +60,11 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
     if (!this._node1) {
-      const xpub = ypubToXpub(this.getXpub());
+      const xpub = this.constructor._ypubToXpub(this.getXpub());
       const hdNode = HDNode.fromBase58(xpub);
       this._node1 = hdNode.derive(1);
     }
-    const address = nodeToP2shSegwitAddress(this._node1.derive(index));
+    const address = this.constructor._nodeToP2shSegwitAddress(this._node1.derive(index));
 
     return (this.internal_addresses_cache[index] = address);
   }
@@ -158,108 +97,6 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
     return this._xpub;
   }
 
-  async _getTransactionsBatch(addresses) {
-    const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-    let transactions = [];
-    let offset = 0;
-
-    while (1) {
-      let response = await api.get('/multiaddr?active=' + addresses + '&n=100&offset=' + offset);
-
-      if (response && response.body) {
-        if (response.body.txs && response.body.txs.length === 0) {
-          break;
-        }
-
-        this._lastTxFetch = +new Date();
-
-        // processing TXs and adding to internal memory
-        if (response.body.txs) {
-          for (let tx of response.body.txs) {
-            let value = 0;
-
-            for (let input of tx.inputs) {
-              // ----- INPUTS
-
-              if (input.prev_out && input.prev_out.addr && this.weOwnAddress(input.prev_out.addr)) {
-                // this is outgoing from us
-                value -= input.prev_out.value;
-              }
-            }
-
-            for (let output of tx.out) {
-              // ----- OUTPUTS
-
-              if (output.addr && this.weOwnAddress(output.addr)) {
-                // this is incoming to us
-                value += output.value;
-              }
-            }
-
-            tx.value = value; // new BigNumber(value).div(100000000).toString() * 1;
-            if (response.body.hasOwnProperty('info')) {
-              if (response.body.info.latest_block.height && tx.block_height) {
-                tx.confirmations = response.body.info.latest_block.height - tx.block_height + 1;
-              } else {
-                tx.confirmations = 0;
-              }
-            } else {
-              tx.confirmations = 0;
-            }
-            transactions.push(tx);
-          }
-
-          if (response.body.txs.length < 100) {
-            // this fetch yilded less than page size, thus requesting next batch makes no sense
-            break;
-          }
-        } else {
-          break; // error ?
-        }
-      } else {
-        throw new Error('Could not fetch transactions from API: ' + response.err); // breaks here
-      }
-
-      offset += 100;
-    }
-    return transactions;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  async fetchTransactions() {
-    try {
-      if (this.usedAddresses.length === 0) {
-        // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
-        await this.fetchBalance();
-      }
-
-      this.transactions = [];
-
-      let addresses4batch = [];
-      for (let addr of this.usedAddresses) {
-        addresses4batch.push(addr);
-        if (addresses4batch.length >= 45) {
-          let addresses = addresses4batch.join('|');
-          let transactions = await this._getTransactionsBatch(addresses);
-          this.transactions = this.transactions.concat(transactions);
-          addresses4batch = [];
-        }
-      }
-      // final batch
-      for (let c = 0; c <= this.gap_limit; c++) {
-        addresses4batch.push(this._getExternalAddressByIndex(this.next_free_address_index + c));
-        addresses4batch.push(this._getInternalAddressByIndex(this.next_free_change_address_index + c));
-      }
-      let addresses = addresses4batch.join('|');
-      let transactions = await this._getTransactionsBatch(addresses);
-      this.transactions = this.transactions.concat(transactions);
-    } catch (err) {
-      console.warn(err);
-    }
-  }
-
   /**
    *
    * @param utxos
@@ -290,5 +127,31 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
       fee,
       this._getInternalAddressByIndex(this.next_free_change_address_index),
     );
+  }
+
+  /**
+   * Converts ypub to xpub
+   * @param {String} ypub - wallet ypub
+   * @returns {*}
+   */
+  static _ypubToXpub(ypub) {
+    let data = b58.decode(ypub);
+    if (data.readUInt32BE() !== 0x049d7cb2) throw new Error('Not a valid ypub extended key!');
+    data = data.slice(4);
+    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+    return b58.encode(data);
+  }
+
+  /**
+   * Creates Segwit P2SH Bitcoin address
+   * @param hdNode
+   * @returns {String}
+   */
+  static _nodeToP2shSegwitAddress(hdNode) {
+    const { address } = bitcoin.payments.p2sh({
+      redeem: bitcoin.payments.p2wpkh({ pubkey: hdNode.publicKey }),
+    });
+    return address;
   }
 }
