@@ -1,6 +1,17 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Alert, Text, LayoutAnimation, ActivityIndicator, Keyboard, KeyboardAvoidingView, Platform, View, TextInput } from 'react-native';
+import {
+  Alert,
+  Text,
+  ScrollView,
+  LayoutAnimation,
+  ActivityIndicator,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  View,
+  TextInput,
+} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
   BlueTextCentered,
@@ -86,9 +97,9 @@ export default class WalletsAdd extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-        <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
+        <ScrollView>
           <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
-          <View
+          <KeyboardAvoidingView
             style={{
               flexDirection: 'row',
               borderColor: '#d2d2d2',
@@ -103,6 +114,9 @@ export default class WalletsAdd extends Component {
               marginVertical: 16,
               borderRadius: 4,
             }}
+            enabled
+            behavior={Platform.OS === 'ios' ? 'position' : null}
+            keyboardVerticalOffset={20}
           >
             <TextInput
               value={this.state.label}
@@ -115,7 +129,7 @@ export default class WalletsAdd extends Component {
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
             />
-          </View>
+          </KeyboardAvoidingView>
           <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
 
           <View
@@ -328,7 +342,7 @@ export default class WalletsAdd extends Component {
               }}
             />
           </View>
-        </KeyboardAvoidingView>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
