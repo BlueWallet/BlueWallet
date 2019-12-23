@@ -165,11 +165,7 @@ export default class WalletsAdd extends Component {
             {(() => {
               if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
                 return (
-                  <View
-                    style={{
-                      height: 140,
-                    }}
-                  >
+                  <View>
                     <BlueSpacing20 />
                     <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
                     <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
