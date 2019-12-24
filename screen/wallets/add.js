@@ -1,7 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
 import {
-  Alert,
   Text,
   ScrollView,
   LayoutAnimation,
@@ -269,34 +268,11 @@ export default class WalletsAdd extends Component {
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
                           A(A.ENUM.CREATED_WALLET);
                           ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-                          this.props.navigation.dismiss();
+                          this.props.navigation.navigate('PleaseBackupLNDHub', {
+                            wallet: w,
+                          });
                         };
-
-                        if (!BlueApp.getWallets().some(wallet => wallet.type !== LightningCustodianWallet.type)) {
-                          Alert.alert(
-                            loc.wallets.add.lightning,
-                            loc.wallets.createBitcoinWallet,
-                            [
-                              {
-                                text: loc.send.details.cancel,
-                                style: 'cancel',
-                                onPress: () => {
-                                  this.setState({ isLoading: false });
-                                },
-                              },
-                              {
-                                text: loc._.ok,
-                                style: 'default',
-                                onPress: () => {
-                                  this.createLightningWallet();
-                                },
-                              },
-                            ],
-                            { cancelable: false },
-                          );
-                        } else {
-                          this.createLightningWallet();
-                        }
+                        this.createLightningWallet();
                       } else if (this.state.selectedIndex === 2) {
                         // zero index radio - HD segwit
                         w = new HDSegwitP2SHWallet();

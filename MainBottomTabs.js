@@ -16,6 +16,7 @@ import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import PleaseBackup from './screen/wallets/pleaseBackup';
+import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
@@ -209,6 +210,14 @@ const CreateWalletStackNavigator = createStackNavigator({
   },
   PleaseBackup: {
     screen: PleaseBackup,
+  },
+  PleaseBackupLNDHub: {
+    screen: PleaseBackupLNDHub,
+    swipeEnabled: false,
+    gesturesEnabled: false,
+    navigationOptions: {
+      header: null,
+    },
   },
 });
 
