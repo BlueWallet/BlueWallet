@@ -87,15 +87,6 @@ it('HD (BIP49) can work with a gap', async function() {
   assert.ok(hd.getTransactions().length >= 3);
 });
 
-it('Segwit HD (BIP49) can batch fetch many txs', async function() {
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
-  let hd = new HDSegwitP2SHWallet();
-  hd._xpub = 'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
-  await hd.fetchBalance();
-  await hd.fetchTransactions();
-  assert.strictEqual(hd.getTransactions().length, 152);
-});
-
 it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   let hd = new HDSegwitP2SHWallet();
