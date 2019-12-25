@@ -25,6 +25,7 @@ import {
   BlueReceiveButtonIcon,
   BlueTransactionListItem,
   BlueWalletNavigationHeader,
+  BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
@@ -433,7 +434,24 @@ export default class WalletTransactions extends Component {
               this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
             })
           }
-          onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
+          onManageFundsPressed={() => {
+            if (this.state.wallet.getUserHasSavedExport()) {
+              this.setState({ isManageFundsModalVisible: true });
+            } else {
+              BlueAlertWalletExportReminder({
+                onSuccess: async () => {
+                  this.state.wallet.setUserHasSavedExport(true);
+                  await BlueApp.saveToDisk();
+                  this.setState({ isManageFundsModalVisible: true });
+                },
+                onFailure: () =>
+                  this.props.navigation.navigate('WalletExport', {
+                    address: this.state.wallet.getAddress(),
+                    secret: this.state.wallet.getSecret(),
+                  }),
+              });
+            }
+          }}
         />
         <View style={{ backgroundColor: '#FFFFFF', flex: 1 }}>
           <FlatList
