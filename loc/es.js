@@ -18,7 +18,7 @@ module.exports = {
       header: 'Un Monedero esta representado con secreto (clave privada) y una dirección' + 'que puedes compartir para recibir monedas.',
       add: 'Añadir Carterqa',
       create_a_wallet: 'Crear una billetera',
-      create_a_wallet1: 'Es gratis y puedes crear cuantas deseas',
+      create_a_wallet1: 'Es gratis y puedes crear',
       create_a_wallet2: 'cuantas usted quiera',
       latest_transaction: 'última transacción',
       empty_txs1: 'Sus transacciones aparecerán aquí,',

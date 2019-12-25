@@ -29,6 +29,7 @@ export class AbstractWallet {
     this.preferredBalanceUnit = BitcoinUnit.BTC;
     this.chain = Chain.ONCHAIN;
     this.hideBalance = false;
+    this.userHasSavedExport = false;
   }
 
   getID() {
@@ -40,6 +41,14 @@ export class AbstractWallet {
 
   getTransactions() {
     return this.transactions;
+  }
+
+  getUserHasSavedExport() {
+    return this.userHasSavedExport;
+  }
+
+  setUserHasSavedExport(value) {
+    this.userHasSavedExport = value;
   }
 
   /**

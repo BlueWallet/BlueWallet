@@ -47,9 +47,15 @@ export default class WalletExport extends Component {
       }
     }
 
-    this.setState({
-      isLoading: false,
-    });
+    this.setState(
+      {
+        isLoading: false,
+      },
+      () => {
+        this.state.wallet.setUserHasSavedExport(true);
+        BlueApp.saveToDisk();
+      },
+    );
   }
 
   async componentWillUnmount() {
