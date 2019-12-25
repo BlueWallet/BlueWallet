@@ -1,11 +1,11 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Switch, TouchableOpacity } from 'react-native';
 import {
   BlueText,
+  BlueNavigationStyle,
   BlueCard,
   BlueLoading,
   SafeBlueArea,
-  BlueNavigationStyle,
   BlueHeaderDefaultSub,
   BlueListItem,
 } from '../../BlueComponents';
@@ -15,7 +15,7 @@ import { useNavigation } from 'react-navigation-hooks';
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
-export const Settings = () => {
+const Settings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [advancedModeEnabled, setAdvancedModeEnabled] = useState(false);
@@ -70,13 +70,7 @@ export const Settings = () => {
     </SafeBlueArea>
   );
 };
-
-export default class SettingsContainer extends Component {
-  static navigationOptions = {
-    ...BlueNavigationStyle,
-  };
-
-  render() {
-    return <Settings />;
-  }
-}
+Settings.navigationOptions = {
+  ...BlueNavigationStyle,
+};
+export default Settings;
