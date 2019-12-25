@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
 import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
@@ -63,8 +64,9 @@ export default class WalletsList extends Component {
         await BlueApp.fetchWalletTransactions();
         let end = +new Date();
         console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
-      } catch (_) {
+      } catch (error) {
         noErr = false;
+        alert(error);
       }
       if (noErr) this.redrawScreen();
     });
@@ -100,6 +102,7 @@ export default class WalletsList extends Component {
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
             noErr = false;
+            alert(err);
             console.warn(err);
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
@@ -217,6 +220,7 @@ export default class WalletsList extends Component {
       }
     } catch (Err) {
       noErr = false;
+      alert(Err);
       console.warn(Err);
     }
 
@@ -283,7 +287,7 @@ export default class WalletsList extends Component {
             onSnapToItem={index => {
               this.onSnapToItem(index);
             }}
-            ref={c => this.walletsCarousel = c}
+            ref={c => (this.walletsCarousel = c)}
           />
           <BlueList>
             <FlatList
