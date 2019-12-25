@@ -36,7 +36,7 @@ export default class ReceiveDetails extends Component {
 
     this.state = {
       secret: secret,
-      addressText: '',
+      address: '',
       customLabel: '',
       customAmount: 0,
       bip21encoded: undefined,
@@ -73,7 +73,6 @@ export default class ReceiveDetails extends Component {
             }
             this.setState({
               address: address,
-              addressText: address,
             });
           } else if (wallet.chain === Chain.OFFCHAIN) {
             try {
@@ -88,6 +87,7 @@ export default class ReceiveDetails extends Component {
               BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
             }
           }
+          console.warn(address)
           this.setState({
             address: address,
           });
@@ -217,7 +217,7 @@ export default class ReceiveDetails extends Component {
                 getRef={c => (this.qrCodeSVG = c)}
               />
             )}
-            <BlueCopyTextToClipboard text={this.state.isCustom ? this.state.bip21encoded : this.state.addressText} />
+            <BlueCopyTextToClipboard text={this.state.isCustom ? this.state.bip21encoded : this.state.address} />
           </View>
           <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
             <BlueButtonLink title={loc.receive.details.setAmount} onPress={this.showCustomAmountModal} />
