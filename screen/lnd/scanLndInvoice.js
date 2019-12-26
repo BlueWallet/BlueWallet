@@ -122,7 +122,7 @@ export default class ScanLndInvoice extends React.Component {
       let w = this.state.fromWallet;
       let decoded;
       try {
-        decoded = await w.decodeInvoice(data);
+        decoded = w.decodeInvoice(data);
 
         let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
