@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View } from 'react-native';
+import { Dimensions, ScrollView, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
+import { LightningCustodianWallet } from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -47,9 +48,15 @@ export default class WalletExport extends Component {
       }
     }
 
-    this.setState({
-      isLoading: false,
-    });
+    this.setState(
+      {
+        isLoading: false,
+      },
+      () => {
+        this.state.wallet.setUserHasSavedExport(true);
+        BlueApp.saveToDisk();
+      },
+    );
   }
 
   async componentWillUnmount() {
@@ -72,7 +79,11 @@ export default class WalletExport extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center', paddingHorizontal: 0 }} onLayout={this.onLayout}>
+        <ScrollView
+          centerContent
+          contentContainerStyle={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
+          onLayout={this.onLayout}
+        >
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
@@ -80,9 +91,9 @@ export default class WalletExport extends Component {
           {(() => {
             if (this.state.wallet.getAddress()) {
               return (
-                <View>
+                <BlueCard>
                   <BlueText>{this.state.wallet.getAddress()}</BlueText>
-                </View>
+                </BlueCard>
               );
             }
           })()}
@@ -99,9 +110,12 @@ export default class WalletExport extends Component {
           />
 
           <BlueSpacing20 />
-
-          <BlueText style={{ alignItems: 'center', paddingHorizontal: 8 }}>{this.state.wallet.getSecret()}</BlueText>
-        </View>
+          {this.state.wallet.type === LightningCustodianWallet.type ? (
+            <BlueCopyTextToClipboard text={this.state.wallet.getSecret()} />
+          ) : (
+            <BlueText style={{ alignItems: 'center', paddingHorizontal: 8 }}>{this.state.wallet.getSecret()}</BlueText>
+          )}
+        </ScrollView>
       </SafeBlueArea>
     );
   }
