@@ -4,7 +4,7 @@ import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
 let EV = require('../../events');
@@ -51,7 +51,7 @@ export default class ReorderWallets extends Component {
       },
     });
 
-    const wallets = BlueApp.getWallets();
+    const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== PlaceholderWallet.type);
     this.setState({
       data: wallets,
       isLoading: false,
