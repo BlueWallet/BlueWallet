@@ -1,11 +1,13 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView, Alert } from 'react-native';
 import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
+import { PlaceholderWallet } from '../../class';
+import WalletImport from '../../class/walletImport';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -135,7 +137,7 @@ export default class WalletsList extends Component {
       },
       () => {
         if (scrollToEnd) {
-          this.walletsCarousel.snapToItem(this.state.wallets.length - 1);
+          this.walletsCarousel.snapToItem(this.state.wallets.length - 2);
         }
       },
     );
@@ -152,13 +154,42 @@ export default class WalletsList extends Component {
     console.log('click', index);
     let wallet = BlueApp.wallets[index];
     if (wallet) {
-      this.props.navigation.navigate('WalletTransactions', {
-        wallet: wallet,
-        key: `WalletTransactions-${wallet.getID()}`,
-      });
+      if (wallet.type === PlaceholderWallet.type) {
+        Alert.alert(
+          loc.wallets.add.details,
+          'There was a problem importing this wallet.',
+          [
+            {
+              text: loc.wallets.details.delete,
+              onPress: () => {
+                WalletImport.removePlaceholderWallet();
+                EV(EV.enum.WALLETS_COUNT_CHANGED);
+              },
+              style: 'destructive',
+            },
+            {
+              text: 'Try Again',
+              onPress: () => {
+                this.props.navigation.navigate('ImportWallet', { label: wallet.getSecret() });
+                WalletImport.removePlaceholderWallet();
+                EV(EV.enum.WALLETS_COUNT_CHANGED);
+              },
+              style: 'default',
+            },
+          ],
+          { cancelable: false },
+        );
+      } else {
+        this.props.navigation.navigate('WalletTransactions', {
+          wallet: wallet,
+          key: `WalletTransactions-${wallet.getID()}`,
+        });
+      }
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      this.props.navigation.navigate('AddWallet');
+      if (!BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+        this.props.navigation.navigate('AddWallet');
+      }
     }
   }
 
@@ -169,6 +200,10 @@ export default class WalletsList extends Component {
 
     if (index < BlueApp.getWallets().length) {
       // not the last
+    }
+
+    if (this.state.wallets[index].type === PlaceholderWallet.type) {
+      return;
     }
 
     // now, lets try to fetch balance and txs for this wallet in case it has changed
@@ -193,7 +228,7 @@ export default class WalletsList extends Component {
     let didRefresh = false;
 
     try {
-      if (wallets && wallets[index] && wallets[index].timeToRefreshBalance()) {
+      if (wallets && wallets[index] && wallets[index].type !== PlaceholderWallet.type && wallets[index].timeToRefreshBalance()) {
         console.log('snapped to, and now its time to refresh wallet #', index);
         await wallets[index].fetchBalance();
         if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
@@ -250,7 +285,7 @@ export default class WalletsList extends Component {
   };
 
   handleLongPress = () => {
-    if (BlueApp.getWallets().length > 1) {
+    if (BlueApp.getWallets().length > 1 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
       this.props.navigation.navigate('ReorderWallets');
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -276,7 +311,14 @@ export default class WalletsList extends Component {
             <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
           }
         >
-          <BlueHeaderDefaultMain leftText={loc.wallets.list.title} onNewWalletPress={() => this.props.navigation.navigate('AddWallet')} />
+          <BlueHeaderDefaultMain
+            leftText={loc.wallets.list.title}
+            onNewWalletPress={
+              !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
+                ? () => this.props.navigation.navigate('AddWallet')
+                : null
+            }
+          />
           <WalletsCarousel
             removeClippedSubviews={false}
             data={this.state.wallets}
