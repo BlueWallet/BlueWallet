@@ -13,6 +13,7 @@ import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/onAppLaunch';
+import DeeplinkSchemaMatch from './class/deeplinkSchemaMatch';
 const A = require('./analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -21,7 +22,6 @@ if (process.env.NODE_ENV !== 'development') {
   });
 }
 
-const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const loc = require('./loc');
@@ -62,7 +62,7 @@ export default class App extends React.Component {
     } else {
       const url = await Linking.getInitialURL();
       if (url) {
-        if (this.hasSchema(url)) {
+        if (DeeplinkSchemaMatch.hasSchema(url)) {
           this.handleOpenURL({ url });
         }
       } else {
@@ -116,12 +116,22 @@ export default class App extends React.Component {
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
           wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
         );
+        const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
+        const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
+        const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
+        const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
         if (
-          (!isAddressFromStoredWallet &&
-            this.state.clipboardContent !== clipboard &&
-            (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard) || this.isLnUrl(clipboard))) ||
-          this.isBothBitcoinAndLightning(clipboard)
+          !isAddressFromStoredWallet &&
+          this.state.clipboardContent !== clipboard &&
+          (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
         ) {
+          if (isBitcoinAddress) {
+            this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+          } else if (isLightningInvoice || isLNURL) {
+            this.setState({ clipboardContentModalAddressType: lightningModalString });
+          } else if (isBothBitcoinAndLightning) {
+            this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+          }
           this.setState({ isClipboardContentModalVisible: true });
         }
         this.setState({ clipboardContent: clipboard });
@@ -129,94 +139,6 @@ export default class App extends React.Component {
       this.setState({ appState: nextAppState });
     }
   };
-
-  hasSchema(schemaString) {
-    if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
-    const lowercaseString = schemaString.trim().toLowerCase();
-    return (
-      lowercaseString.startsWith('bitcoin:') ||
-      lowercaseString.startsWith('lightning:') ||
-      lowercaseString.startsWith('blue:') ||
-      lowercaseString.startsWith('bluewallet:') ||
-      lowercaseString.startsWith('lapp:')
-    );
-  }
-
-  isBitcoinAddress(address) {
-    address = address
-      .replace('bitcoin:', '')
-      .replace('bitcoin=', '')
-      .split('?')[0];
-    let isValidBitcoinAddress = false;
-    try {
-      bitcoin.address.toOutputScript(address);
-      isValidBitcoinAddress = true;
-      this.setState({ clipboardContentModalAddressType: bitcoinModalString });
-    } catch (err) {
-      isValidBitcoinAddress = false;
-    }
-    return isValidBitcoinAddress;
-  }
-
-  isLightningInvoice(invoice) {
-    let isValidLightningInvoice = false;
-    if (invoice.toLowerCase().startsWith('lightning:lnb') || invoice.toLowerCase().startsWith('lnb')) {
-      this.setState({ clipboardContentModalAddressType: lightningModalString });
-      isValidLightningInvoice = true;
-    }
-    return isValidLightningInvoice;
-  }
-
-  isLnUrl(text) {
-    if (text.toLowerCase().startsWith('lightning:lnurl') || text.toLowerCase().startsWith('lnurl')) {
-      return true;
-    }
-    return false;
-  }
-
-  isBothBitcoinAndLightning(url) {
-    if (url.includes('lightning') && url.includes('bitcoin')) {
-      const txInfo = url.split(/(bitcoin:|lightning:|lightning=|bitcoin=)+/);
-      let bitcoin;
-      let lndInvoice;
-      for (const [index, value] of txInfo.entries()) {
-        try {
-          // Inside try-catch. We dont wan't to  crash in case of an out-of-bounds error.
-          if (value.startsWith('bitcoin')) {
-            bitcoin = `bitcoin:${txInfo[index + 1]}`;
-            if (!this.isBitcoinAddress(bitcoin)) {
-              bitcoin = false;
-              break;
-            }
-          } else if (value.startsWith('lightning')) {
-            lndInvoice = `lightning:${txInfo[index + 1]}`;
-            if (!this.isLightningInvoice(lndInvoice)) {
-              lndInvoice = false;
-              break;
-            }
-          }
-        } catch (e) {
-          console.log(e);
-        }
-        if (bitcoin && lndInvoice) break;
-      }
-      if (bitcoin && lndInvoice) {
-        this.setState({
-          clipboardContent: { bitcoin, lndInvoice },
-        });
-        return { bitcoin, lndInvoice };
-      } else {
-        return undefined;
-      }
-    }
-    return undefined;
-  }
-
-  isSafelloRedirect(event) {
-    let urlObject = url.parse(event.url, true) // eslint-disable-line
-
-    return !!urlObject.query['safello-state-token'];
-  }
 
   isBothBitcoinAndLightningWalletSelect = wallet => {
     const clipboardContent = this.state.clipboardContent;
@@ -254,7 +176,7 @@ export default class App extends React.Component {
     }
     let isBothBitcoinAndLightning;
     try {
-      isBothBitcoinAndLightning = this.isBothBitcoinAndLightning(event.url);
+      isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(event.url);
     } catch (e) {
       console.log(e);
     }
@@ -268,7 +190,7 @@ export default class App extends React.Component {
             },
           }),
         );
-    } else if (this.isBitcoinAddress(event.url)) {
+    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
@@ -278,7 +200,7 @@ export default class App extends React.Component {
             },
           }),
         );
-    } else if (this.isLightningInvoice(event.url)) {
+    } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
@@ -288,7 +210,7 @@ export default class App extends React.Component {
             },
           }),
         );
-    } else if (this.isLnUrl(event.url)) {
+    } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
       this.navigator &&
         this.navigator.dispatch(
           NavigationActions.navigate({
@@ -298,7 +220,7 @@ export default class App extends React.Component {
             },
           }),
         );
-    } else if (this.isSafelloRedirect(event)) {
+    } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
       let urlObject = url.parse(event.url, true) // eslint-disable-line
 
       const safelloStateToken = urlObject.query['safello-state-token'];

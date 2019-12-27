@@ -33,6 +33,9 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+import NFC from './class/nfc';
+import Modal from 'react-native-modal';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -1964,6 +1967,84 @@ export class WalletsCarousel extends Component {
   }
 }
 
+export const BlueNFCSelectionModal = ({
+  textToWrite,
+  onCancelPressed,
+  isVisible,
+  onWriteSucceed,
+  onSaveNearMePressed,
+  allowShare = true,
+}) => {
+  useEffect(() => {
+    if (!isVisible) {
+      NFC.cleanUp();
+    }
+  }, [isVisible, allowShare]);
+
+  const showAndroidAlert = () => {
+    if (Platform.OS === 'android') {
+      ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
+      Alert.alert(
+        'Near Me',
+        'Please tap NFC tag...',
+        [
+          {
+            text: loc.wallets.details.cancel,
+            onPress: async () => {
+              NFC.cleanUp();
+            },
+            style: 'cancel',
+          },
+        ],
+        { cancelable: false },
+      );
+    }
+  };
+
+  const writeNearMe = () => {
+    showAndroidAlert();
+    if (textToWrite) {
+      NFC.writeNFCData(textToWrite).finally(() => {
+        onWriteSucceed();
+        NFC.cleanUp();
+      });
+    } else {
+      onSaveNearMePressed();
+      NFC.cleanUp();
+    }
+  };
+
+  const shareNearMe = () => {
+    showAndroidAlert();
+    if (textToWrite) {
+      NFC.beamNFCData(textToWrite).finally(NFC.cleanUp);
+    } else {
+      NFC.cleanUp();
+    }
+  };
+
+  return (
+    <Modal isVisible={isVisible} style={styles.bottomModal} onBackdropPress={onCancelPressed}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <View style={styles.modalContent}>
+          <View>
+            <BlueButton title={'Save Near Me'} onPress={writeNearMe} />
+            <BlueSpacing20 />
+            {Platform.OS === 'android' && allowShare && (
+              <>
+                <BlueButton title={'Share Near Me'} onPress={shareNearMe} />
+                <BlueSpacing20 />
+              </>
+            )}
+            <BlueButtonLink title={loc.send.details.cancel} onPress={onCancelPressed} />
+          </View>
+          <BlueSpacing20 />
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+};
+
 export class BlueAddressInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
@@ -2258,5 +2339,19 @@ const styles = StyleSheet.create({
     height: 30,
     width: 100,
     marginRight: 16,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 140,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
   },
 });

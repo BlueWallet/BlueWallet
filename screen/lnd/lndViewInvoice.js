@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Dimensions, ScrollView, BackHandler, InteractionManager, TouchableOpacity } from 'react-native';
+import { View, Text, Dimensions, ScrollView, BackHandler, InteractionManager, TouchableOpacity, Image } from 'react-native';
 import Share from 'react-native-share';
 import {
   BlueLoading,
@@ -9,11 +9,13 @@ import {
   BlueCopyTextToClipboard,
   BlueNavigationStyle,
   BlueSpacing20,
+  BlueNFCSelectionModal,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
+import NFC from '../../class/nfc';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -26,7 +28,15 @@ export default class LNDViewInvoice extends Component {
       ? {
           ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
           title: 'Lightning Invoice',
-          headerLeft: null,
+          headerLeft:
+            navigation.getParam('isNFCSupported') === true ? (
+              <TouchableOpacity
+                style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end' }}
+                onPress={navigation.state.params.onNFCScanPress}
+              >
+                <Image source={require('../../img/cellphone-nfc.png')} />
+              </TouchableOpacity>
+            ) : null,
         }
       : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
 
@@ -37,6 +47,7 @@ export default class LNDViewInvoice extends Component {
     this.state = {
       invoice,
       fromWallet,
+      isNFCModalVisible: false,
       isLoading: typeof invoice === 'string',
       addressText: typeof invoice === 'object' && invoice.hasOwnProperty('payment_request') ? invoice.payment_request : invoice,
       isFetchingInvoices: true,
@@ -80,6 +91,16 @@ export default class LNDViewInvoice extends Component {
                 clearInterval(this.fetchInvoiceInterval);
                 this.fetchInvoiceInterval = undefined;
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                this.props.navigation.setParams({ isNFCSupported: false });
+              } else {
+                NFC.isSupported()
+                  .then(value => {
+                    if (value) {
+                      NFC.start();
+                      this.props.navigation.setParams({ isNFCSupported: true, onNFCScanPress: this.onNFCScanPress });
+                    }
+                  })
+                  .catch(_error => this.props.navigation.setParams({ isNFCSupported: false }));
               }
             }
           }
@@ -90,15 +111,23 @@ export default class LNDViewInvoice extends Component {
     }, 3000);
   }
 
-  async componentWillUnmount() {
+  componentWillUnmount() {
     clearInterval(this.fetchInvoiceInterval);
     this.fetchInvoiceInterval = undefined;
     BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
   }
 
+  onNFCModalCancelPressed = () => {
+    this.setState({ isNFCModalVisible: false });
+  };
+
   handleBackButton = () => {
     this.props.navigation.goBack(null);
     return true;
+  };
+
+  onNFCScanPress = () => {
+    this.setState({ isNFCModalVisible: true });
   };
 
   onLayout = () => {
@@ -321,6 +350,12 @@ export default class LNDViewInvoice extends Component {
               onPress={() => this.props.navigation.navigate('LNDViewAdditionalInvoiceInformation', { fromWallet: this.state.fromWallet })}
               title={loc.lndViewInvoice.additional_info}
             />
+            <BlueNFCSelectionModal
+              isVisible={this.state.isNFCModalVisible}
+              onCancelPressed={this.onNFCModalCancelPressed}
+              textToWrite={`lightning:${invoice.payment_request}`}
+              onWriteSucceed={this.onNFCModalCancelPressed}
+            />
           </View>
           <BlueSpacing20 />
         </ScrollView>
@@ -332,6 +367,7 @@ export default class LNDViewInvoice extends Component {
 LNDViewInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
+    setParams: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
     popToTop: PropTypes.func,

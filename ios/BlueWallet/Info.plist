@@ -38,7 +38,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>232</string>
+	<string>240</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -80,6 +80,8 @@
 	<string>In order to import an image for scanning, we need your permission to access your photo library.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
+	<key>NFCReaderUsageDescription</key>
+	<string>Your authorization is needed in order to read, and write, NFC tags.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

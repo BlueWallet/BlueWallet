@@ -61,6 +61,9 @@ const WalletsStackNavigator = createStackNavigator(
     Wallets: {
       screen: WalletsList,
       path: 'wallets',
+      navigationOptions: {
+        header: null,
+      },
     },
     WalletTransactions: {
       screen: WalletTransactions,

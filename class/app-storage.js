@@ -142,6 +142,11 @@ export class AppStorage {
     DeviceQuickActions.removeAllWallets();
   }
 
+  async encryptData(data, password) {
+    let encrypted = encryption.encrypt(data, password);
+    return encrypted;
+  }
+
   /**
    * Cleans up all current application data (wallets, tx metadata etc)
    * Encrypts the bucket and saves it storage

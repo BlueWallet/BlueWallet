@@ -25,6 +25,7 @@ import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
+import NFC from '../../class/nfc';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -43,6 +44,7 @@ export default class WalletsImport extends Component {
     this.state = {
       isLoading: true,
       isToolbarVisibleForAndroid: false,
+      isNFCSupported: false,
     };
   }
 
@@ -52,6 +54,14 @@ export default class WalletsImport extends Component {
       label: '',
     });
     Privacy.enableBlur();
+    NFC.isSupported()
+      .then(value => {
+        if (value) {
+          NFC.start();
+          this.setState({ isNFCSupported: true });
+        }
+      })
+      .catch(_error => this.setState({ isNFCSupported: false }));
   }
 
   componentWillUnmount() {
@@ -240,6 +250,17 @@ export default class WalletsImport extends Component {
     }); /* also, a hack to make screen update new typed text */
   }
 
+  onNFCScanPressed = () => {
+    NFC.shared.onParsedText = (async value => {
+      const data = await NFC.loadEncryptedData(value);
+      this.setState({ label: data, isLoading: true }, async () => {
+        await this.importMnemonic(this.state.label.trim());
+        this.setState({ isLoading: false });
+      });
+    });
+    NFC.readNFCData();
+  };
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -305,12 +326,14 @@ export default class WalletsImport extends Component {
               });
             }}
           />
+          <BlueSpacing20 />
           <BlueButtonLink
             title={loc.wallets.import.scan_qr}
             onPress={() => {
               this.props.navigation.navigate('ScanQrWif');
             }}
           />
+          {this.state.isNFCSupported && <BlueButtonLink title="or scan Near Me" onPress={this.onNFCScanPressed} />}
         </View>
       </SafeBlueArea>
     );

@@ -1,10 +1,22 @@
 import React, { Component } from 'react';
-import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  InteractionManager,
+  TouchableOpacity,
+  Platform,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard,
+  StyleSheet,
+  ScrollView,
+  Image,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import bip21 from 'bip21';
 import {
   BlueLoading,
   SafeBlueArea,
+  BlueNFCSelectionModal,
   BlueCopyTextToClipboard,
   BlueButton,
   BlueButtonLink,
@@ -20,15 +32,24 @@ import Privacy from '../../Privacy';
 import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import Modal from 'react-native-modal';
+import NFC from '../../class/nfc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
-export default class ReceiveDetails extends Component {
+class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.receive.header,
-    headerLeft: null,
+    headerLeft:
+      navigation.getParam('isNFCSupported') === true ? (
+        <TouchableOpacity
+          style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end' }}
+          onPress={navigation.state.params.onNFCScanPress}
+        >
+          <Image source={require('../../img/cellphone-nfc.png')} />
+        </TouchableOpacity>
+      ) : null,
   });
 
   constructor(props) {
@@ -42,6 +63,7 @@ export default class ReceiveDetails extends Component {
       customAmount: 0,
       bip21encoded: undefined,
       isCustom: false,
+      isNFCModalVisible: false,
       isCustomModalVisible: false,
     };
   }
@@ -89,6 +111,14 @@ export default class ReceiveDetails extends Component {
     InteractionManager.runAfterInteractions(async () => {
       const bip21encoded = bip21.encode(this.state.address);
       this.setState({ bip21encoded });
+      NFC.isSupported()
+        .then(value => {
+          if (value) {
+            NFC.start();
+            this.props.navigation.setParams({ isNFCSupported: true, onNFCScanPress: this.onNFCScanPress });
+          }
+        })
+        .catch(_error => this.props.navigation.setParams({ isNFCSupported: false }));
     });
   };
 
@@ -123,6 +153,10 @@ export default class ReceiveDetails extends Component {
   componentWillUnmount() {
     Privacy.disableBlur();
   }
+
+  onNFCScanPress = () => {
+    this.setState({ isNFCModalVisible: true });
+  };
 
   renderCustomAmountModal = () => {
     return (
@@ -198,6 +232,10 @@ export default class ReceiveDetails extends Component {
     this.setState({ isCustomModalVisible: true });
   };
 
+  onNFCModalCancelPressed = () => {
+    this.setState({ isNFCModalVisible: false });
+  };
+
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
@@ -262,12 +300,20 @@ export default class ReceiveDetails extends Component {
               />
             </View>
           </View>
+          <BlueNFCSelectionModal
+            isVisible={this.state.isNFCModalVisible}
+            onCancelPressed={this.onNFCModalCancelPressed}
+            textToWrite={this.state.bip21encoded}
+            onWriteSucceed={this.onNFCModalCancelPressed}
+          />
           {this.renderCustomAmountModal()}
         </ScrollView>
       </SafeBlueArea>
     );
   }
 }
+
+export default ReceiveDetails;
 
 const styles = StyleSheet.create({
   modalContent: {
@@ -291,6 +337,7 @@ ReceiveDetails.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     navigate: PropTypes.func,
+    setParams: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         secret: PropTypes.string,
