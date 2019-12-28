@@ -41,8 +41,8 @@ export default class WalletsList extends Component {
       isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
       lastSnappedTo: 0,
+      timeElpased: 0,
     };
-
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
     // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
@@ -72,6 +72,13 @@ export default class WalletsList extends Component {
       }
       if (noErr) this.redrawScreen();
     });
+    this.interval = setInterval(() => {
+      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
+    }, 60000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   /**
@@ -308,7 +315,11 @@ export default class WalletsList extends Component {
         />
         <ScrollView
           refreshControl={
-            <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
+            <RefreshControl
+              onRefresh={() => this.refreshTransactions()}
+              refreshing={!this.state.isFlatListRefreshControlHidden}
+              shouldRefresh={this.state.timeElpased}
+            />
           }
         >
           <BlueHeaderDefaultMain

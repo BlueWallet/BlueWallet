@@ -82,11 +82,15 @@ export default class WalletTransactions extends Component {
       dataSource: this.getTransactions(15),
       limit: 15,
       pageSize: 20,
+      timeElapsed: 0, // this is to force a re-render for FlatList items.
     };
   }
 
   componentDidMount() {
     this.props.navigation.setParams({ isLoading: false });
+    this.interval = setInterval(() => {
+      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
+    }, 60000);
   }
 
   /**
@@ -402,10 +406,17 @@ export default class WalletTransactions extends Component {
 
   componentWillUnmount() {
     this.onWillBlur();
+    clearInterval(this.interval);
   }
 
   renderItem = item => {
-    return <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()} />;
+    return (
+      <BlueTransactionListItem
+        item={item.item}
+        itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
+        shouldRefresh={this.state.timeElapsed}
+      />
+    );
   };
 
   render() {
