@@ -2037,7 +2037,8 @@ export class BlueAddressInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
     onChangeText: PropTypes.func,
-    onBarScanned: PropTypes.func,
+    onBarScanned: PropTypes.func.isRequired,
+    launchedBy: PropTypes.string.isRequired,
     address: PropTypes.string,
     placeholder: PropTypes.string,
   };
@@ -2081,7 +2082,7 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
-            NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned });
+            NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned, launchedBy: this.props.launchedBy });
             Keyboard.dismiss();
           }}
           style={{

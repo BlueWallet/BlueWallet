@@ -1,30 +1,42 @@
 /* global alert */
-import React from 'react';
-import { Image, TouchableOpacity, Platform } from 'react-native';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import { Image, View, TouchableOpacity, Platform } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { SafeBlueArea } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
+import PropTypes from 'prop-types';
+import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
-export default class ScanQRCode extends React.Component {
-  static navigationOptions = {
-    header: null,
+const ScanQRCode = ({
+  onBarScanned = useNavigationParam('onBarScanned'),
+  cameraPreviewIsPaused = false,
+  showCloseButton = true,
+  launchedBy = useNavigationParam('launchedBy'),
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { navigate } = useNavigation();
+
+  const onBarCodeRead = ret => {
+    if (!isLoading && !cameraPreviewIsPaused) {
+      setIsLoading(true);
+      try {
+        if (showCloseButton && launchedBy) {
+          navigate(launchedBy);
+        }
+        onBarScanned(ret.data);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    setIsLoading(false);
   };
 
-  cameraRef = null;
+  useEffect(() => {}, [cameraPreviewIsPaused]);
 
-  onBarCodeRead = ret => {
-    if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
-    const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
-    this.props.navigation.goBack();
-    onBarScannedProp(ret.data);
-  }; // end
-
-  render() {
-    return (
-      <SafeBlueArea style={{ flex: 1 }}>
+  return (
+    <View style={{ flex: 1, backgroundColor: '#000000' }}>
+      {!cameraPreviewIsPaused && !isLoading && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -33,11 +45,12 @@ export default class ScanQRCode extends React.Component {
             buttonPositive: 'OK',
             buttonNegative: 'Cancel',
           }}
-          ref={ref => (this.cameraRef = ref)}
-          style={{ flex: 1, justifyContent: 'space-between' }}
-          onBarCodeRead={this.onBarCodeRead}
+          style={{ flex: 1, justifyContent: 'space-between', backgroundColor: '#000000' }}
+          onBarCodeRead={onBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
+      )}
+      {showCloseButton && (
         <TouchableOpacity
           style={{
             width: 40,
@@ -49,23 +62,25 @@ export default class ScanQRCode extends React.Component {
             right: 16,
             top: 64,
           }}
-          onPress={() => this.props.navigation.goBack(null)}
+          onPress={() => navigate(launchedBy)}
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            width: 40,
-            height: 40,
-            backgroundColor: '#FFFFFF',
-            justifyContent: 'center',
-            borderRadius: 20,
-            position: 'absolute',
-            left: 24,
-            bottom: 48,
-          }}
-          onPress={() => {
-            if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
+      )}
+      <TouchableOpacity
+        style={{
+          width: 40,
+          height: 40,
+          backgroundColor: '#FFFFFF',
+          justifyContent: 'center',
+          borderRadius: 20,
+          position: 'absolute',
+          left: 24,
+          bottom: 48,
+        }}
+        onPress={() => {
+          if (!isLoading) {
+            setIsLoading(true);
             ImagePicker.launchImageLibrary(
               {
                 title: null,
@@ -77,30 +92,31 @@ export default class ScanQRCode extends React.Component {
                   const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
                   LocalQRCode.decode(uri, (error, result) => {
                     if (!error) {
-                      this.onBarCodeRead({ data: result });
+                      onBarCodeRead({ data: result });
                     } else {
-                      if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
                       alert('The selected image does not contain a QR Code.');
                     }
                   });
-                } else {
-                  if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
                 }
+                setIsLoading(false);
               },
             );
-          }}
-        >
-          <Icon name="image" type="font-awesome" color="#0c2550" />
-        </TouchableOpacity>
-      </SafeBlueArea>
-    );
-  }
-}
-
-ScanQRCode.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    dismiss: PropTypes.func,
-    getParam: PropTypes.func,
-  }),
+          }
+        }}
+      >
+        <Icon name="image" type="font-awesome" color="#0c2550" />
+      </TouchableOpacity>
+    </View>
+  );
 };
+
+ScanQRCode.navigationOptions = {
+  header: null,
+};
+ScanQRCode.propTypes = {
+  launchedBy: PropTypes.string,
+  onBarScanned: PropTypes.func,
+  cameraPreviewIsPaused: PropTypes.bool,
+  showCloseButton: PropTypes.bool,
+};
+export default ScanQRCode;
