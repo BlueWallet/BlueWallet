@@ -34,6 +34,7 @@ export default class UnlockWith extends Component {
     }
     this.setState({ isAuthenticating: true }, async () => {
       if (await Biometric.unlockWithBiometrics()) {
+        this.setState({ isAuthenticating: false });
         await BlueApp.startAndDecrypt();
         return this.props.onSuccessfullyAuthenticated();
       }

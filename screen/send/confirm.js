@@ -52,6 +52,7 @@ export default class Confirm extends Component {
 
         if (this.isBiometricUseCapableAndEnabled) {
           if (!(await Biometric.unlockWithBiometrics())) {
+            this.setState({ isLoading: false });
             return;
           }
         }
