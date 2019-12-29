@@ -28,6 +28,7 @@ export default class WalletImport {
         alert(loc.wallets.import.success);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
+        w.setUserHasSavedExport(true);
         WalletImport.removePlaceholderWallet();
         BlueApp.wallets.push(w);
         await BlueApp.saveToDisk();
