@@ -1381,7 +1381,7 @@ export class NewWalletPanel extends Component {
           style={{
             padding: 15,
             borderRadius: 10,
-            minHeight: 164,
+            minHeight: 181,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -1838,6 +1838,7 @@ export class WalletsCarousel extends Component {
           onPress={() => {
             if (WalletsCarousel.handleClick) {
               WalletsCarousel.handleClick(index);
+              this.onPressedOut();
             }
           }}
         />
@@ -1858,6 +1859,7 @@ export class WalletsCarousel extends Component {
             onPress={() => {
               if (item.getIsFailure() && WalletsCarousel.handleClick) {
                 WalletsCarousel.handleClick(index);
+                this.onPressedOut();
               }
             }}
           >
@@ -1926,6 +1928,7 @@ export class WalletsCarousel extends Component {
             onPress={() => {
               if (WalletsCarousel.handleClick) {
                 WalletsCarousel.handleClick(index);
+                this.onPressedOut();
               }
             }}
           >
