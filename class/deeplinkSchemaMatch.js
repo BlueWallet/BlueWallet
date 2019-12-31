@@ -209,9 +209,6 @@ class DeeplinkSchemaMatch {
         if (bitcoin && lndInvoice) break;
       }
       if (bitcoin && lndInvoice) {
-        this.setState({
-          clipboardContent: { bitcoin, lndInvoice },
-        });
         return { bitcoin, lndInvoice };
       } else {
         return undefined;
