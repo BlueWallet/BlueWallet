@@ -40,9 +40,22 @@ npm install
 
 * To run on Android:
 
+You will now need to either connect an Android device to your computer or run an emulated Android device using AVD Manager which comes shipped with Android Studio. To run an emulator using AVD Manager:
+
+1. Download and run Android Studio
+2. Click on "Open an existing Android Studio Project"
+3. Open `build.gradle` file under `BlueWallet/android/` folder
+4. Android Studio will take some time to set things up. Once everything is set up, go to `Tools` -> `AVD Manager`
+5. Click on "Create Virtual Device..." and go through the steps to create a virtual device
+6. Launch your newly created virtual device by clicking the `Play` button under `Actions` column
+
+Once you connected an Android device or launched an emulator, run this:
+
 ```
-npm start android
+npx react-native run-android
 ```
+
+The above command will build the app and install it. Once you launch the app it will take some time for all of the dependencies to load. Once everything loads up, you should have the built app running.
 
 * To run on iOS:
 
