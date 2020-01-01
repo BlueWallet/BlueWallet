@@ -1,6 +1,17 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, TouchableOpacity, ScrollView, View, Dimensions, Image, TextInput, Clipboard, Linking } from 'react-native';
+import {
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  View,
+  Dimensions,
+  Image,
+  TextInput,
+  Clipboard,
+  Linking,
+  Platform,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { Icon, Text } from 'react-native-elements';
 import {
@@ -192,16 +203,21 @@ export default class PsbtWithHardwareWallet extends Component {
     );
   }
 
-  exportPSBT = () => {
+  exportPSBT = async () => {
+    const filePath = RNFS.TemporaryDirectoryPath + `/${Date.now()}.psbt`;
+    await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(), 'ascii');
     Share.open({
-      url: `data:text/psbt;base64,${this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}`,
+      url: Platform.OS === 'ios' ? 'file://' : 'content://' + filePath,
     })
       .catch(error => console.log(error))
-      .finally(() =>
-        alert(
-          'In order for your hardware wallet to read this transaction, you must rename the shared file to have a "psbt" extension. Example: From transaction.null to transaction.psbt',
-        ),
-      );
+      .finally(() => {
+        if (Platform.OS === 'android') {
+          alert(
+            'In order for your hardware wallet to read this transaction, you must rename the exported file to have a "psbt" extension. Example: From transaction.null to transaction.psbt',
+          );
+        }
+        RNFS.unlink(filePath);
+      });
   };
 
   openSignedTransaction = async () => {
