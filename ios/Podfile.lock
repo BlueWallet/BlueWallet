@@ -76,6 +76,8 @@ PODS:
     - React
   - react-native-camera/RN (3.4.0):
     - React
+  - react-native-document-picker (3.2.0):
+    - React
   - react-native-haptic-feedback (1.7.1):
     - React
   - react-native-image-picker (1.1.0):
@@ -142,9 +144,9 @@ PODS:
     - React
   - RNWatch (0.4.1):
     - React
-  - Sentry (4.4.2):
-    - Sentry/Core (= 4.4.2)
-  - Sentry/Core (4.4.2)
+  - Sentry (4.4.3):
+    - Sentry/Core (= 4.4.3)
+  - Sentry/Core (4.4.3)
   - swift_qrcodejs (1.1.2)
   - TcpSockets (3.3.2):
     - React
@@ -169,6 +171,7 @@ DEPENDENCIES:
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-haptic-feedback (from `../node_modules/react-native-haptic-feedback`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
@@ -243,6 +246,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
     :path: "../node_modules/react-native-camera"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-haptic-feedback:
     :path: "../node_modules/react-native-haptic-feedback"
   react-native-image-picker:
@@ -331,6 +336,7 @@ SPEC CHECKSUMS:
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 203091b4bf99d48b788a0682ad573e8718724893
+  react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
@@ -362,7 +368,7 @@ SPEC CHECKSUMS:
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
-  Sentry: bba998b0fb157fdd6596aa73290a9d67ae47be79
+  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
   ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e

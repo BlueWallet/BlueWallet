@@ -1,30 +1,69 @@
 /* global alert */
-import React from 'react';
-import { Image, TouchableOpacity, Platform } from 'react-native';
-import PropTypes from 'prop-types';
+import React, { useEffect, useState } from 'react';
+import { Image, View, TouchableOpacity, Platform } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { SafeBlueArea } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
+import PropTypes from 'prop-types';
+import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
-export default class ScanQRCode extends React.Component {
-  static navigationOptions = {
-    header: null,
+const ScanQRCode = ({
+  onBarScanned = useNavigationParam('onBarScanned'),
+  cameraPreviewIsPaused = false,
+  showCloseButton = true,
+  showFileImportButton = useNavigationParam('showFileImportButton') || false,
+  launchedBy = useNavigationParam('launchedBy'),
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { navigate } = useNavigation();
+
+  const onBarCodeRead = ret => {
+    if (!isLoading && !cameraPreviewIsPaused) {
+      setIsLoading(true);
+      try {
+        if (showCloseButton && launchedBy) {
+          navigate(launchedBy);
+        }
+        if (ret.additionalProperties) {
+          onBarScanned(ret.data, ret.additionalProperties);
+        } else {
+          onBarScanned(ret.data);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    setIsLoading(false);
   };
 
-  cameraRef = null;
+  const showFilePicker = async () => {
+    setIsLoading(true);
+    try {
+      const res = await DocumentPicker.pick();
+      const file = await RNFS.readFile(res.uri);
+      const fileParsed = JSON.parse(file);
+      if (fileParsed.keystore.xpub) {
+        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint: fileParsed.keystore.ckcc_xfp } });
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        alert('The selected file does not contain a wallet that can be imported.');
+      }
+      setIsLoading(false);
+    }
+    setIsLoading(false);
+  };
 
-  onBarCodeRead = ret => {
-    if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
-    const onBarScannedProp = this.props.navigation.getParam('onBarScanned');
-    this.props.navigation.goBack();
-    onBarScannedProp(ret.data);
-  }; // end
+  useEffect(() => {}, [cameraPreviewIsPaused]);
 
-  render() {
-    return (
-      <SafeBlueArea style={{ flex: 1 }}>
+  return (
+    <View style={{ flex: 1, backgroundColor: '#000000' }}>
+      {!cameraPreviewIsPaused && !isLoading && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -33,11 +72,12 @@ export default class ScanQRCode extends React.Component {
             buttonPositive: 'OK',
             buttonNegative: 'Cancel',
           }}
-          ref={ref => (this.cameraRef = ref)}
-          style={{ flex: 1, justifyContent: 'space-between' }}
-          onBarCodeRead={this.onBarCodeRead}
+          style={{ flex: 1, justifyContent: 'space-between', backgroundColor: '#000000' }}
+          onBarCodeRead={onBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
+      )}
+      {showCloseButton && (
         <TouchableOpacity
           style={{
             width: 40,
@@ -49,23 +89,25 @@ export default class ScanQRCode extends React.Component {
             right: 16,
             top: 64,
           }}
-          onPress={() => this.props.navigation.goBack(null)}
+          onPress={() => navigate(launchedBy)}
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            width: 40,
-            height: 40,
-            backgroundColor: '#FFFFFF',
-            justifyContent: 'center',
-            borderRadius: 20,
-            position: 'absolute',
-            left: 24,
-            bottom: 48,
-          }}
-          onPress={() => {
-            if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
+      )}
+      <TouchableOpacity
+        style={{
+          width: 40,
+          height: 40,
+          backgroundColor: '#FFFFFF',
+          justifyContent: 'center',
+          borderRadius: 20,
+          position: 'absolute',
+          left: 24,
+          bottom: 48,
+        }}
+        onPress={() => {
+          if (!isLoading) {
+            setIsLoading(true);
             ImagePicker.launchImageLibrary(
               {
                 title: null,
@@ -77,30 +119,49 @@ export default class ScanQRCode extends React.Component {
                   const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
                   LocalQRCode.decode(uri, (error, result) => {
                     if (!error) {
-                      this.onBarCodeRead({ data: result });
+                      onBarCodeRead({ data: result });
                     } else {
-                      if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
                       alert('The selected image does not contain a QR Code.');
                     }
                   });
-                } else {
-                  if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.resumePreview();
                 }
+                setIsLoading(false);
               },
             );
+          }
+        }}
+      >
+        <Icon name="image" type="font-awesome" color="#0c2550" />
+      </TouchableOpacity>
+      {showFileImportButton && (
+        <TouchableOpacity
+          style={{
+            width: 40,
+            height: 40,
+            backgroundColor: '#FFFFFF',
+            justifyContent: 'center',
+            borderRadius: 20,
+            position: 'absolute',
+            left: 96,
+            bottom: 48,
           }}
+          onPress={showFilePicker}
         >
-          <Icon name="image" type="font-awesome" color="#0c2550" />
+          <Icon name="file-import" type="material-community" color="#0c2550" />
         </TouchableOpacity>
-      </SafeBlueArea>
-    );
-  }
-}
-
-ScanQRCode.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    dismiss: PropTypes.func,
-    getParam: PropTypes.func,
-  }),
+      )}
+    </View>
+  );
 };
+
+ScanQRCode.navigationOptions = {
+  header: null,
+};
+ScanQRCode.propTypes = {
+  launchedBy: PropTypes.string,
+  onBarScanned: PropTypes.func,
+  cameraPreviewIsPaused: PropTypes.bool,
+  showFileImportButton: PropTypes.bool,
+  showCloseButton: PropTypes.bool,
+};
+export default ScanQRCode;

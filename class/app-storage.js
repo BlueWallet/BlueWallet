@@ -305,7 +305,6 @@ export class AppStorage {
       if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
-
     let data = {
       wallets: walletsToSave,
       tx_metadata: this.tx_metadata,

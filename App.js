@@ -1,18 +1,17 @@
 import React from 'react';
 import { Linking, DeviceEventEmitter, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 import Modal from 'react-native-modal';
 import { NavigationActions } from 'react-navigation';
 import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import url from 'url';
-import { AppStorage, LightningCustodianWallet } from './class';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/onAppLaunch';
+import DeeplinkSchemaMatch from './class/deeplinkSchemaMatch';
+import BitcoinBIP70TransactionDecode from './bip70/bip70';
 const A = require('./analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -21,11 +20,9 @@ if (process.env.NODE_ENV !== 'development') {
   });
 }
 
-const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const loc = require('./loc');
-/** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
 
 export default class App extends React.Component {
@@ -62,7 +59,7 @@ export default class App extends React.Component {
     } else {
       const url = await Linking.getInitialURL();
       if (url) {
-        if (this.hasSchema(url)) {
+        if (DeeplinkSchemaMatch.hasSchema(url)) {
           this.handleOpenURL({ url });
         }
       } else {
@@ -116,12 +113,23 @@ export default class App extends React.Component {
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
           wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
         );
+        const isBitcoinAddress =
+          DeeplinkSchemaMatch.isBitcoinAddress(clipboard) || BitcoinBIP70TransactionDecode.matchesPaymentURL(clipboard);
+        const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
+        const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
+        const isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(clipboard);
         if (
-          (!isAddressFromStoredWallet &&
-            this.state.clipboardContent !== clipboard &&
-            (this.isBitcoinAddress(clipboard) || this.isLightningInvoice(clipboard) || this.isLnUrl(clipboard))) ||
-          this.isBothBitcoinAndLightning(clipboard)
+          !isAddressFromStoredWallet &&
+          this.state.clipboardContent !== clipboard &&
+          (isBitcoinAddress || isLightningInvoice || isLNURL || isBothBitcoinAndLightning)
         ) {
+          if (isBitcoinAddress) {
+            this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+          } else if (isLightningInvoice || isLNURL) {
+            this.setState({ clipboardContentModalAddressType: lightningModalString });
+          } else if (isBothBitcoinAndLightning) {
+            this.setState({ clipboardContentModalAddressType: bitcoinModalString });
+          }
           this.setState({ isClipboardContentModalVisible: true });
         }
         this.setState({ clipboardContent: clipboard });
@@ -129,94 +137,6 @@ export default class App extends React.Component {
       this.setState({ appState: nextAppState });
     }
   };
-
-  hasSchema(schemaString) {
-    if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
-    const lowercaseString = schemaString.trim().toLowerCase();
-    return (
-      lowercaseString.startsWith('bitcoin:') ||
-      lowercaseString.startsWith('lightning:') ||
-      lowercaseString.startsWith('blue:') ||
-      lowercaseString.startsWith('bluewallet:') ||
-      lowercaseString.startsWith('lapp:')
-    );
-  }
-
-  isBitcoinAddress(address) {
-    address = address
-      .replace('bitcoin:', '')
-      .replace('bitcoin=', '')
-      .split('?')[0];
-    let isValidBitcoinAddress = false;
-    try {
-      bitcoin.address.toOutputScript(address);
-      isValidBitcoinAddress = true;
-      this.setState({ clipboardContentModalAddressType: bitcoinModalString });
-    } catch (err) {
-      isValidBitcoinAddress = false;
-    }
-    return isValidBitcoinAddress;
-  }
-
-  isLightningInvoice(invoice) {
-    let isValidLightningInvoice = false;
-    if (invoice.toLowerCase().startsWith('lightning:lnb') || invoice.toLowerCase().startsWith('lnb')) {
-      this.setState({ clipboardContentModalAddressType: lightningModalString });
-      isValidLightningInvoice = true;
-    }
-    return isValidLightningInvoice;
-  }
-
-  isLnUrl(text) {
-    if (text.toLowerCase().startsWith('lightning:lnurl') || text.toLowerCase().startsWith('lnurl')) {
-      return true;
-    }
-    return false;
-  }
-
-  isBothBitcoinAndLightning(url) {
-    if (url.includes('lightning') && url.includes('bitcoin')) {
-      const txInfo = url.split(/(bitcoin:|lightning:|lightning=|bitcoin=)+/);
-      let bitcoin;
-      let lndInvoice;
-      for (const [index, value] of txInfo.entries()) {
-        try {
-          // Inside try-catch. We dont wan't to  crash in case of an out-of-bounds error.
-          if (value.startsWith('bitcoin')) {
-            bitcoin = `bitcoin:${txInfo[index + 1]}`;
-            if (!this.isBitcoinAddress(bitcoin)) {
-              bitcoin = false;
-              break;
-            }
-          } else if (value.startsWith('lightning')) {
-            lndInvoice = `lightning:${txInfo[index + 1]}`;
-            if (!this.isLightningInvoice(lndInvoice)) {
-              lndInvoice = false;
-              break;
-            }
-          }
-        } catch (e) {
-          console.log(e);
-        }
-        if (bitcoin && lndInvoice) break;
-      }
-      if (bitcoin && lndInvoice) {
-        this.setState({
-          clipboardContent: { bitcoin, lndInvoice },
-        });
-        return { bitcoin, lndInvoice };
-      } else {
-        return undefined;
-      }
-    }
-    return undefined;
-  }
-
-  isSafelloRedirect(event) {
-    let urlObject = url.parse(event.url, true) // eslint-disable-line
-
-    return !!urlObject.query['safello-state-token'];
-  }
 
   isBothBitcoinAndLightningWalletSelect = wallet => {
     const clipboardContent = this.state.clipboardContent;
@@ -246,141 +166,7 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    if (event.url === null) {
-      return;
-    }
-    if (typeof event.url !== 'string') {
-      return;
-    }
-    let isBothBitcoinAndLightning;
-    try {
-      isBothBitcoinAndLightning = this.isBothBitcoinAndLightning(event.url);
-    } catch (e) {
-      console.log(e);
-    }
-    if (isBothBitcoinAndLightning) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'HandleOffchainAndOnChain',
-            params: {
-              onWalletSelect: this.isBothBitcoinAndLightningWalletSelect,
-            },
-          }),
-        );
-    } else if (this.isBitcoinAddress(event.url)) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'SendDetails',
-            params: {
-              uri: event.url,
-            },
-          }),
-        );
-    } else if (this.isLightningInvoice(event.url)) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'ScanLndInvoice',
-            params: {
-              uri: event.url,
-            },
-          }),
-        );
-    } else if (this.isLnUrl(event.url)) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'LNDCreateInvoice',
-            params: {
-              uri: event.url,
-            },
-          }),
-        );
-    } else if (this.isSafelloRedirect(event)) {
-      let urlObject = url.parse(event.url, true) // eslint-disable-line
-
-      const safelloStateToken = urlObject.query['safello-state-token'];
-
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'BuyBitcoin',
-            params: {
-              uri: event.url,
-              safelloStateToken,
-            },
-          }),
-        );
-    } else {
-      let urlObject = url.parse(event.url, true); // eslint-disable-line
-      console.log('parsed', urlObject);
-      (async () => {
-        if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
-          switch (urlObject.host) {
-            case 'openlappbrowser':
-              console.log('opening LAPP', urlObject.query.url);
-              // searching for LN wallet:
-              let haveLnWallet = false;
-              for (let w of BlueApp.getWallets()) {
-                if (w.type === LightningCustodianWallet.type) {
-                  haveLnWallet = true;
-                }
-              }
-
-              if (!haveLnWallet) {
-                // need to create one
-                let w = new LightningCustodianWallet();
-                w.setLabel(this.state.label || w.typeReadable);
-
-                try {
-                  let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
-                  if (lndhub) {
-                    w.setBaseURI(lndhub);
-                    w.init();
-                  }
-                  await w.createAccount();
-                  await w.authorize();
-                } catch (Err) {
-                  // giving up, not doing anything
-                  return;
-                }
-                BlueApp.wallets.push(w);
-                await BlueApp.saveToDisk();
-              }
-
-              // now, opening lapp browser and navigating it to URL.
-              // looking for a LN wallet:
-              let lnWallet;
-              for (let w of BlueApp.getWallets()) {
-                if (w.type === LightningCustodianWallet.type) {
-                  lnWallet = w;
-                  break;
-                }
-              }
-
-              if (!lnWallet) {
-                // something went wrong
-                return;
-              }
-
-              this.navigator &&
-                this.navigator.dispatch(
-                  NavigationActions.navigate({
-                    routeName: 'LappBrowser',
-                    params: {
-                      fromSecret: lnWallet.getSecret(),
-                      fromWallet: lnWallet,
-                      url: urlObject.query.url,
-                    },
-                  }),
-                );
-              break;
-          }
-        }
-      })();
-    }
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.dispatch(NavigationActions.navigate(value)));
   };
 
   renderClipboardContentModal = () => {
