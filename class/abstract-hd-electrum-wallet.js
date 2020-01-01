@@ -8,6 +8,7 @@ const BlueElectrum = require('../BlueElectrum');
 const HDNode = require('bip32');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
+const reverse = require('buffer-reverse');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -719,7 +720,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false) {
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
     if (!changeAddress) throw new Error('No change address provided');
     sequence = sequence || AbstractHDElectrumWallet.defaultRBFSequence;
 
@@ -756,7 +757,13 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
       }
       let pubkey = this._getPubkeyByAddress(input.address);
-      let masterFingerprint = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+      let masterFingerprintBuffer;
+      if (masterFingerprint) {
+        const hexBuffer = Buffer.from(Number(masterFingerprint).toString(16), 'hex');
+        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
+      } else {
+        masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+      }
       // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
       let path = this._getDerivationPathByAddress(input.address);
@@ -767,7 +774,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         sequence,
         bip32Derivation: [
           {
-            masterFingerprint,
+            masterFingerprint: masterFingerprintBuffer,
             path,
             pubkey,
           },
@@ -789,7 +796,15 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
       let path = this._getDerivationPathByAddress(output.address);
       let pubkey = this._getPubkeyByAddress(output.address);
-      let masterFingerprint = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+      let masterFingerprintBuffer;
+
+      if (masterFingerprint) {
+        const hexBuffer = Buffer.from(Number(masterFingerprint).toString(16), 'hex')
+        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
+       } else {
+        masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
+      }
+
       // this is not correct fingerprint, as we dont know realfingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
 
@@ -801,7 +816,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (change) {
         outputData['bip32Derivation'] = [
           {
-            masterFingerprint,
+            masterFingerprint: masterFingerprintBuffer,
             path,
             pubkey,
           },

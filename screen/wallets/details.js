@@ -20,6 +20,7 @@ import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
+import { ScrollView } from 'react-native-gesture-handler';
 let EV = require('../../events');
 let prompt = require('../../prompt');
 /** @type {AppStorage} */
@@ -55,6 +56,7 @@ export default class WalletDetails extends Component {
       walletName: wallet.getLabel(),
       wallet,
       useWithHardwareWallet: !!wallet.use_with_hardware_wallet,
+      masterFingerprint: wallet.masterFingerprint ? String(wallet.masterFingerprint) : '',
     };
     this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
   }
@@ -71,6 +73,7 @@ export default class WalletDetails extends Component {
     this.props.navigation.setParams({ isLoading: true });
     this.setState({ isLoading: true }, async () => {
       this.state.wallet.setLabel(this.state.walletName);
+      this.state.wallet.masterFingerprint = Number(this.state.masterFingerprint);
       BlueApp.saveToDisk();
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
@@ -122,7 +125,7 @@ export default class WalletDetails extends Component {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <BlueCard style={{ alignItems: 'center', flex: 1 }}>
               {(() => {
                 if (this.state.wallet.getAddress()) {
@@ -158,10 +161,12 @@ export default class WalletDetails extends Component {
                   placeholder={loc.send.details.note_placeholder}
                   value={this.state.walletName}
                   onChangeText={text => {
-                    if (text.trim().length === 0) {
-                      text = this.state.wallet.getLabel();
-                    }
                     this.setState({ walletName: text });
+                  }}
+                  onBlur={() => {
+                    if (this.state.walletName.trim().length === 0) {
+                      this.setState({ walletName: this.state.wallet.getLabel() });
+                    }
                   }}
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
@@ -169,7 +174,7 @@ export default class WalletDetails extends Component {
                   underlineColorAndroid="transparent"
                 />
               </View>
-
+              <BlueSpacing20 />
               <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
@@ -182,15 +187,48 @@ export default class WalletDetails extends Component {
               )}
               <View>
                 <BlueSpacing20 />
-
                 {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
-                  <React.Fragment>
+                  <>
+                    <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>{'advanced'}</Text>
+                    <BlueText>Master Fingerprint</BlueText>
+                    <BlueSpacing20 />
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        borderColor: '#d2d2d2',
+                        borderBottomColor: '#d2d2d2',
+                        borderWidth: 1.0,
+                        borderBottomWidth: 0.5,
+                        backgroundColor: '#f5f5f5',
+                        minHeight: 44,
+                        height: 44,
+                        alignItems: 'center',
+                        borderRadius: 4,
+                      }}
+                    >
+                      <TextInput
+                        placeholder="Master Fingerprint"
+                        value={this.state.masterFingerprint}
+                        onChangeText={text => {
+                          if (isNaN(text)) {
+                            return;
+                          }
+                          this.setState({ masterFingerprint: text });
+                        }}
+                        numberOfLines={1}
+                        style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                        editable={!this.state.isLoading}
+                        keyboardType="decimal-pad"
+                        underlineColorAndroid="transparent"
+                      />
+                    </View>
+                    <BlueSpacing20 />
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                       <BlueText>{'Use with hardware wallet'}</BlueText>
                       <Switch value={this.state.useWithHardwareWallet} onValueChange={value => this.onUseWithHardwareWalletSwitch(value)} />
                     </View>
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 )}
 
                 <BlueButton
@@ -285,7 +323,7 @@ export default class WalletDetails extends Component {
                 </TouchableOpacity>
               </View>
             </BlueCard>
-          </View>
+          </ScrollView>
         </TouchableWithoutFeedback>
       </SafeBlueArea>
     );

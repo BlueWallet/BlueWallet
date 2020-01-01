@@ -18,24 +18,34 @@ const BlueApp = require('../BlueApp');
 const loc = require('../loc');
 
 export default class WalletImport {
-  static async _saveWallet(w) {
+  static async _saveWallet(w, additionalProperties) {
     try {
       const wallet = BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret && wallet.type !== PlaceholderWallet.type);
       if (wallet) {
         alert('This wallet has been previously imported.');
         WalletImport.removePlaceholderWallet();
       } else {
-        alert(loc.wallets.import.success);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
         w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
         w.setUserHasSavedExport(true);
+        if (additionalProperties) {
+          for (const [key, value] of Object.entries(additionalProperties)) {
+            w[key] = value;
+          }
+        }
         WalletImport.removePlaceholderWallet();
         BlueApp.wallets.push(w);
         await BlueApp.saveToDisk();
         A(A.ENUM.CREATED_WALLET);
+        alert(loc.wallets.import.success);
       }
       EV(EV.enum.WALLETS_COUNT_CHANGED);
-    } catch (_e) {}
+    } catch (e) {
+      alert(e);
+      console.log(e);
+      WalletImport.removePlaceholderWallet();
+      EV(EV.enum.WALLETS_COUNT_CHANGED);
+    }
   }
 
   static removePlaceholderWallet() {
@@ -58,7 +68,7 @@ export default class WalletImport {
     return BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type);
   }
 
-  static async processImportText(importText) {
+  static async processImportText(importText, additionalProperties) {
     if (WalletImport.isCurrentlyImportingWallet()) {
       return;
     }
@@ -209,7 +219,7 @@ export default class WalletImport {
       if (watchOnly.valid()) {
         await watchOnly.fetchTransactions();
         await watchOnly.fetchBalance();
-        return WalletImport._saveWallet(watchOnly);
+        return WalletImport._saveWallet(watchOnly, additionalProperties);
       }
 
       // nope?

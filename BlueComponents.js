@@ -1381,7 +1381,7 @@ export class NewWalletPanel extends Component {
           style={{
             padding: 15,
             borderRadius: 10,
-            minHeight: 164,
+            minHeight: Platform.OS === 'ios' ? 164 : 181,
             justifyContent: 'center',
             alignItems: 'center',
           }}
@@ -1837,7 +1837,9 @@ export class WalletsCarousel extends Component {
         <NewWalletPanel
           onPress={() => {
             if (WalletsCarousel.handleClick) {
+              this.onPressedOut();
               WalletsCarousel.handleClick(index);
+              this.onPressedOut();
             }
           }}
         />
@@ -1857,7 +1859,9 @@ export class WalletsCarousel extends Component {
             onPressOut={item.getIsFailure() ? this.onPressedOut : null}
             onPress={() => {
               if (item.getIsFailure() && WalletsCarousel.handleClick) {
+                this.onPressedOut();
                 WalletsCarousel.handleClick(index);
+                this.onPressedOut();
               }
             }}
           >
@@ -1925,7 +1929,9 @@ export class WalletsCarousel extends Component {
             onLongPress={WalletsCarousel.handleLongPress}
             onPress={() => {
               if (WalletsCarousel.handleClick) {
+                this.onPressedOut();
                 WalletsCarousel.handleClick(index);
+                this.onPressedOut();
               }
             }}
           >
@@ -2037,7 +2043,8 @@ export class BlueAddressInput extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
     onChangeText: PropTypes.func,
-    onBarScanned: PropTypes.func,
+    onBarScanned: PropTypes.func.isRequired,
+    launchedBy: PropTypes.string.isRequired,
     address: PropTypes.string,
     placeholder: PropTypes.string,
   };
@@ -2081,7 +2088,7 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
-            NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned });
+            NavigationService.navigate('ScanQrAddress', { onBarScanned: this.props.onBarScanned, launchedBy: this.props.launchedBy });
             Keyboard.dismiss();
           }}
           style={{

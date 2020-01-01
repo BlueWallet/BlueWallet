@@ -38,6 +38,8 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -58,8 +60,13 @@ export default class SendDetails extends Component {
     title: loc.send.header,
   });
 
+  state = { isLoading: true };
+
   constructor(props) {
     super(props);
+
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
 
     let fromAddress;
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
@@ -177,9 +184,6 @@ export default class SendDetails extends Component {
     this.renderNavigationHeader();
     console.log('send/details - componentDidMount');
     StatusBar.setBarStyle('dark-content');
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-
     let addresses = [];
     let initialMemo = '';
     if (this.props.navigation.state.params.uri) {
@@ -705,6 +709,36 @@ export default class SendDetails extends Component {
     );
   };
 
+  importTransaction = async () => {
+    try {
+      const res = await DocumentPicker.pick();
+      const file = await RNFS.readFile(res.uri, 'ascii');
+      const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
+      if (bufferDecoded) {
+        if (this.state.fromWallet.type === WatchOnlyWallet.type) {
+          // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
+          // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
+          // user whether he wants to broadcast it
+          this.props.navigation.navigate('PsbtWithHardwareWallet', {
+            memo: this.state.memo,
+            fromWallet: this.state.fromWallet,
+            psbt: bufferDecoded,
+            isFirstPSBTAlreadyBase64: true,
+          });
+          this.setState({ isLoading: false });
+          return;
+        }
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        alert('The selected file does not contain a signed transaction that can be imported.');
+      }
+    }
+    this.setState({ isAdvancedTransactionOptionsVisible: false });
+  };
+
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
@@ -735,6 +769,9 @@ export default class SendDetails extends Component {
                 switched={this.state.isTransactionReplaceable}
                 onSwitch={this.onReplaceableFeeSwitchValueChanged}
               />
+            )}
+            {this.state.fromWallet.use_with_hardware_wallet && (
+              <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
             )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
@@ -892,6 +929,7 @@ export default class SendDetails extends Component {
             address={item.address}
             isLoading={this.state.isLoading}
             inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+            launchedBy={this.props.navigation.state.routeName}
           />
           {this.state.addresses.length > 1 && (
             <BlueText style={{ alignSelf: 'flex-end', marginRight: 18, marginVertical: 8 }}>
@@ -1067,6 +1105,7 @@ SendDetails.propTypes = {
     getParam: PropTypes.func,
     setParams: PropTypes.func,
     state: PropTypes.shape({
+      routeName: PropTypes.string,
       params: PropTypes.shape({
         amount: PropTypes.number,
         address: PropTypes.string,

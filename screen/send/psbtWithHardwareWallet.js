@@ -1,6 +1,17 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, TouchableOpacity, View, Dimensions, Image, TextInput, Clipboard, Linking } from 'react-native';
+import {
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  View,
+  Dimensions,
+  Image,
+  TextInput,
+  Clipboard,
+  Linking,
+  Platform,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { Icon, Text } from 'react-native-elements';
 import {
@@ -13,8 +24,12 @@ import {
   BlueCopyToClipboardButton,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { RNCamera } from 'react-native-camera';
+import RNFS from 'react-native-fs';
+import DocumentPicker from 'react-native-document-picker';
+import DirectoryPickerManager from 'react-native-directory-picker';
 let loc = require('../../loc');
 let EV = require('../../events');
 let BlueElectrum = require('../../BlueElectrum');
@@ -36,7 +51,10 @@ export default class PsbtWithHardwareWallet extends Component {
     this.setState({ renderScanner: false }, () => {
       console.log(ret.data);
       try {
-        let Tx = this.state.fromWallet.combinePsbt(this.state.psbt.toBase64(), ret.data);
+        let Tx = this.state.fromWallet.combinePsbt(
+          this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
+          this.state.isSecondPSBTAlreadyBase64 ? ret.data : ret.data.toBase64(),
+        );
         this.setState({ txhex: Tx.toHex() });
       } catch (Err) {
         alert(Err);
@@ -46,18 +64,19 @@ export default class PsbtWithHardwareWallet extends Component {
 
   constructor(props) {
     super(props);
-
     this.state = {
       isLoading: false,
       renderScanner: false,
-      qrCodeHeight: height > width ? width - 40 : width / 2,
+      qrCodeHeight: height > width ? width - 40 : width / 3,
       memo: props.navigation.getParam('memo'),
       psbt: props.navigation.getParam('psbt'),
       fromWallet: props.navigation.getParam('fromWallet'),
+      isFirstPSBTAlreadyBase64: props.navigation.getParam('isFirstPSBTAlreadyBase64'),
+      isSecondPSBTAlreadyBase64: false,
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     console.log('send/psbtWithHardwareWallet - componentDidMount');
   }
 
@@ -185,6 +204,60 @@ export default class PsbtWithHardwareWallet extends Component {
     );
   }
 
+  exportPSBT = async () => {
+    const fileName = `${Date.now()}.psbt`;
+    if (Platform.OS === 'ios') {
+      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(), 'ascii');
+      Share.open({
+        url: 'file://' + filePath,
+      })
+        .catch(error => console.log(error))
+        .finally(() => {
+          RNFS.unlink(filePath);
+        });
+    } else if (Platform.OS === 'android') {
+      DirectoryPickerManager.showDirectoryPicker(null, async response => {
+        if (response.didCancel) {
+          console.log('User cancelled directory picker');
+        } else if (response.error) {
+          console.log('DirectoryPickerManager Error: ', response.error);
+        } else {
+          try {
+            await RNFS.writeFile(
+              response.path + `/${fileName}`,
+              this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
+              'ascii',
+            );
+            alert('Successfully exported.');
+            RNFS.unlink(response.path + `/${fileName}`);
+          } catch (e) {
+            console.log(e);
+            alert(e);
+          }
+        }
+      });
+    }
+  };
+
+  openSignedTransaction = async () => {
+    try {
+      const res = await DocumentPicker.pick();
+      const file = await RNFS.readFile(res.uri, 'ascii');
+      const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
+      if (bufferDecoded) {
+        this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: bufferDecoded }));
+      } else {
+        this.setState({ isSecondPSBTAlreadyBase64: false });
+        throw new Error();
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        alert('The selected file does not contain a signed transaction that can be imported.');
+      }
+    }
+  };
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -200,27 +273,58 @@ export default class PsbtWithHardwareWallet extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <ScrollView centerContent contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <BlueCard>
               <BlueText>This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.</BlueText>
               <BlueSpacing20 />
               <QRCode
-                value={this.state.psbt.toBase64()}
+                value={this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}
                 size={this.state.qrCodeHeight}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
                 ecl={'L'}
               />
               <BlueSpacing20 />
-              <BlueButton onPress={() => this.setState({ renderScanner: true })} title={'Scan signed transaction'} />
+              <BlueButton
+                icon={{
+                  name: 'qrcode',
+                  type: 'font-awesome',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={() => this.setState({ renderScanner: true })}
+                title={'Scan Signed Transaction'}
+              />
+              <BlueSpacing20 />
+              <BlueButton
+                icon={{
+                  name: 'file-import',
+                  type: 'material-community',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={this.openSignedTransaction}
+                title={'Open Signed Transaction'}
+              />
+              <BlueSpacing20 />
+              <BlueButton
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={this.exportPSBT}
+                title={'Export'}
+              />
               <BlueSpacing20 />
               <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <BlueCopyToClipboardButton stringToCopy={this.state.psbt.toBase64()} displayText={'Copy to Clipboard'} />
+                <BlueCopyToClipboardButton
+                  stringToCopy={this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}
+                  displayText={'Copy to Clipboard'}
+                />
               </View>
             </BlueCard>
           </View>
-        </View>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
