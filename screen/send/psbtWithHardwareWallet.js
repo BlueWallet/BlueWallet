@@ -204,15 +204,27 @@ export default class PsbtWithHardwareWallet extends Component {
   }
 
   exportPSBT = async () => {
-    const filePath = RNFS.TemporaryDirectoryPath + `/${Date.now()}.psbt`;
-    await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(), 'ascii');
-    Share.open({
-      url: 'file://' + filePath,
-    })
-      .catch(error => console.log(error))
-      .finally(() => {
-        RNFS.unlink(filePath);
-      });
+    if (Platform.OS === 'ios') {
+      const filePath = RNFS.TemporaryDirectoryPath + `/${Date.now()}.psbt`;
+      await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(), 'ascii');
+      Share.open({
+        url: 'file://' + filePath,
+      })
+        .catch(error => console.log(error))
+        .finally(() => {
+          RNFS.unlink(filePath);
+        });
+    } else {
+      Share.open({
+        url: `data:text/psbt;base64,${this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}`,
+      })
+        .catch(error => console.log(error))
+        .finally(() =>
+          alert(
+            'In order for your hardware wallet to read this transaction, you must rename the shared file to have a "psbt" extension. Example: From transaction.null to transaction.psbt',
+          ),
+        );
+    }
   };
 
   openSignedTransaction = async () => {
