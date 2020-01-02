@@ -38,6 +38,22 @@ cd BlueWallet
 npm install
 ``` 
 
+Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
+
+```
+npm --version && node --version
+```
+
+If not, please change your node version in the shell, assuming you have installed node and npm via the Homebrew Package Manager.
+
+```
+brew install node@12
+brew unlink node
+brew link node@12
+```
+
+For more information and background information, please refer to this link: https://apple.stackexchange.com/questions/171530/how-do-i-downgrade-node-or-install-a-specific-previous-version-using-homebrew
+
 * To run on Android:
 
 You will now need to either connect an Android device to your computer or run an emulated Android device using AVD Manager which comes shipped with Android Studio. To run an emulator using AVD Manager:
