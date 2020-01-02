@@ -73,7 +73,7 @@ export default class WalletDetails extends Component {
     this.props.navigation.setParams({ isLoading: true });
     this.setState({ isLoading: true }, async () => {
       this.state.wallet.setLabel(this.state.walletName);
-      this.state.wallet.masterFingerprint = Number(this.state.masterFingerprint);
+      this.state.wallet.masterFingerprint = String(this.state.masterFingerprint);
       BlueApp.saveToDisk();
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
@@ -210,15 +210,11 @@ export default class WalletDetails extends Component {
                         placeholder="Master Fingerprint"
                         value={this.state.masterFingerprint}
                         onChangeText={text => {
-                          if (isNaN(text)) {
-                            return;
-                          }
                           this.setState({ masterFingerprint: text });
                         }}
                         numberOfLines={1}
                         style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                         editable={!this.state.isLoading}
-                        keyboardType="decimal-pad"
                         underlineColorAndroid="transparent"
                       />
                     </View>
