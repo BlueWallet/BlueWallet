@@ -46,7 +46,11 @@ const ScanQRCode = ({
       const file = await RNFS.readFile(res.uri);
       const fileParsed = JSON.parse(file);
       if (fileParsed.keystore.xpub) {
-        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint: fileParsed.keystore.ckcc_xfp } });
+        let masterFingerprint;
+        if (fileParsed.keystore.ckcc_xfp) {
+          masterFingerprint = Buffer.from(Number(fileParsed.keystore.ckcc_xfp).toString(16), 'hex').toString('hex');
+        }
+        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint } });
       } else {
         throw new Error();
       }
