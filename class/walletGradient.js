@@ -5,6 +5,7 @@ import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { WatchOnlyWallet } from './watch-only-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import { PlaceholderWallet } from './placeholder-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];
@@ -40,6 +41,9 @@ export default class WalletGradient {
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
+        break;
+      case PlaceholderWallet.type:
+        gradient = WalletGradient.watchOnlyWallet;
         break;
       case 'CreateWallet':
         gradient = WalletGradient.createWallet;

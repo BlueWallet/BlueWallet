@@ -23,6 +23,10 @@
     "react-test-renderer": "16.8.6",
     "rn-nodeify": "github:tradle/rn-nodeify"
   },
+  "engines": {
+    "node": ">=10.16.0",
+    "npm": ">=6.9.0"
+  },
   "scripts": {
     "prepare": "./patches/fix_mangle.sh; git apply patches/minifier.js.patch; git apply patches/minify.js.patch",
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i; npm start -- --reset-cache",
