@@ -29,10 +29,6 @@
           <action android:name="android.intent.action.VIEW" />
           <category android:name="android.intent.category.DEFAULT" />
           <category android:name="android.intent.category.BROWSABLE" />
-          <data android:scheme="file" />
-          <data android:mimeType="application/octec-stream" />
-          <data android:pathPattern=".*\\.psbt" />
-          <data android:host="*" />
           <data android:scheme="bitcoin" />
           <data android:scheme="lightning" />
           <data android:scheme="bluewallet" />
