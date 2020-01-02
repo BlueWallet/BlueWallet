@@ -48,7 +48,9 @@ const ScanQRCode = ({
       if (fileParsed.keystore.xpub) {
         let masterFingerprint;
         if (fileParsed.keystore.ckcc_xfp) {
-          masterFingerprint = Buffer.from(Number(fileParsed.keystore.ckcc_xfp).toString(16), 'hex').toString('hex');
+          masterFingerprint = Buffer.from(Number(fileParsed.keystore.ckcc_xfp).toString(16), 'hex')
+            .reverse()
+            .toString('hex');
         }
         onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint } });
       } else {

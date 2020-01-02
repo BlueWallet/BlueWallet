@@ -51,7 +51,9 @@ export class WatchOnlyWallet extends LegacyWallet {
           let masterFingerprint = false;
           if (parsedSecret.keystore.ckcc_xfp) {
             // It is a ColdCard Hardware Wallet
-            masterFingerprint = Buffer.from(Number(parsedSecret.keystore.ckcc_xfp).toString(16), 'hex').toString('hex');
+            masterFingerprint = Buffer.from(Number(parsedSecret.keystore.ckcc_xfp).toString(16), 'hex')
+              .reverse()
+              .toString('hex');
           }
           this.setSecret(parsedSecret.keystore.xpub);
           this.masterFingerprint = masterFingerprint;
