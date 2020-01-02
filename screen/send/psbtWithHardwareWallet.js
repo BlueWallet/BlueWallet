@@ -207,7 +207,7 @@ export default class PsbtWithHardwareWallet extends Component {
   exportPSBT = async () => {
     const fileName = `${Date.now()}.psbt`;
     if (Platform.OS === 'ios') {
-      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      const filePath = RNFS.TemporaryDirectoryPath + `/${Date.now()}.psbt`;
       await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(), 'ascii');
       Share.open({
         url: 'file://' + filePath,
