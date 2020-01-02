@@ -44,8 +44,22 @@ export class WatchOnlyWallet extends LegacyWallet {
     try {
       bitcoin.address.toOutputScript(this.getAddress());
       return true;
-    } catch (e) {
-      return false;
+    } catch (_e) {
+      try {
+        const parsedSecret = JSON.parse(this.secret);
+        if (parsedSecret.keystore.xpub) {
+          let masterFingerprint = false;
+          if (parsedSecret.keystore.ckcc_xfp) {
+            // It is a ColdCard Hardware Wallet
+            masterFingerprint = parsedSecret.keystore.ckcc_xfp;
+          }
+          this.setSecret(parsedSecret.keystore.xpub);
+          this.masterFingerprint = masterFingerprint;
+        }
+        return true;
+      } catch (_e) {
+        return false;
+      }
     }
   }
 
