@@ -108,7 +108,7 @@ const WalletsImport = () => {
           onPress={importButtonPressed}
         />
         <BlueButtonLink
-          title={loc.wallets.import.scan_qr}
+          title='...or scan for wallet instead?'
           onPress={() => {
             navigate('ScanQrAddress', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
           }}
