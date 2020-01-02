@@ -1,51 +1,35 @@
-import React, { Component } from 'react';
+/* eslint-disable react/prop-types */
+import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
-import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
+import { useNavigationParam } from 'react-navigation-hooks';
+import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
-export default class SelectWallet extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true, navigation.getParam('dismissAcion')),
-    title: loc.wallets.select_wallet,
+const SelectWallet = () => {
+  const chainType = useNavigationParam('chainType') || Chain.ONCHAIN;
+  const onWalletSelect = useNavigationParam('onWalletSelect');
+  const [isLoading, setIsLoading] = useState(true);
+  const data = chainType
+    ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())
+    : BlueApp.getWallets().filter(item => item.allowSend()) || [];
+
+  useEffect(() => {
+    setIsLoading(false);
   });
 
-  constructor(props) {
-    super(props);
-    props.navigation.setParams({ dismissAcion: this.dismissComponent });
-    this.state = {
-      isLoading: true,
-      data: [],
-    };
-    this.chainType = props.navigation.getParam('chainType');
-  }
-
-  dismissComponent = () => {
-    this.props.navigation.goBack(null);
-  };
-
-  componentDidMount() {
-    const wallets = this.chainType
-      ? BlueApp.getWallets().filter(item => item.chain === this.chainType && item.allowSend())
-      : BlueApp.getWallets().filter(item => item.allowSend());
-    this.setState({
-      data: wallets,
-      isLoading: false,
-    });
-  }
-
-  _renderItem = ({ item }) => {
+  const renderItem = ({ item }) => {
     return (
       <TouchableOpacity
         onPress={() => {
           ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-          this.props.navigation.getParam('onWalletSelect')(item);
+          onWalletSelect(item);
         }}
       >
         <View
@@ -132,46 +116,36 @@ export default class SelectWallet extends Component {
     );
   };
 
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center', paddingTop: 20 }}>
-          <ActivityIndicator />
-        </View>
-      );
-    } else if (this.state.data.length <= 0) {
-      return (
-        <SafeBlueArea style={{ flex: 1 }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
-            <BlueText style={{ textAlign: 'center' }}>There are currently no Bitcoin wallets available.</BlueText>
-            <BlueSpacing20 />
-            <BlueText style={{ textAlign: 'center' }}>
-              A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.
-            </BlueText>
-          </View>
-        </SafeBlueArea>
-      );
-    }
-
+  if (isLoading) {
     return (
-      <SafeBlueArea>
-        <FlatList
-          style={{ flex: 1 }}
-          extraData={this.state.data}
-          data={this.state.data}
-          renderItem={this._renderItem}
-          keyExtractor={(_item, index) => `${index}`}
-        />
+      <View style={{ flex: 1, justifyContent: 'center', alignContent: 'center', paddingTop: 20 }}>
+        <ActivityIndicator />
+      </View>
+    );
+  } else if (data.length <= 0) {
+    return (
+      <SafeBlueArea style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20 }}>
+          <BlueText style={{ textAlign: 'center' }}>There are currently no Bitcoin wallets available.</BlueText>
+          <BlueSpacing20 />
+          <BlueText style={{ textAlign: 'center' }}>
+            A Bitcoin wallet is required to refill Lightning wallets. Please, create or import one.
+          </BlueText>
+        </View>
+      </SafeBlueArea>
+    );
+  } else {
+    return (
+      <SafeBlueArea style={{ flex: 1 }}>
+        <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
       </SafeBlueArea>
     );
   }
-}
-
-SelectWallet.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-    setParams: PropTypes.func,
-    getParam: PropTypes.func,
-  }),
 };
+
+SelectWallet.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true, () => navigation.goBack(null)),
+  title: loc.wallets.select_wallet,
+});
+
+export default SelectWallet;
