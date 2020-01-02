@@ -29,16 +29,32 @@
           <action android:name="android.intent.action.VIEW" />
           <category android:name="android.intent.category.DEFAULT" />
           <category android:name="android.intent.category.BROWSABLE" />
-          <data android:scheme="file" />
-          <data android:mimeType="application/octec-stream" />
-          <data android:pathPattern=".*\\.psbt" />
-          <data android:host="*" />
           <data android:scheme="bitcoin" />
           <data android:scheme="lightning" />
           <data android:scheme="bluewallet" />
           <data android:scheme="lapp" />
           <data android:scheme="blue" />
         </intent-filter>
+        <intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <action android:name="android.intent.action.EDIT" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <data
+    android:mimeType="application/octet-stream"
+    android:host="*" 
+    android:pathPattern=".*\\.psbt"
+  />
+</intent-filter>
+        <intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <action android:name="android.intent.action.EDIT" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <data
+    android:mimeType="text/plain"
+    android:host="*" 
+    android:pathPattern=".*\\.psbt"
+  />
+</intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
     </application>
