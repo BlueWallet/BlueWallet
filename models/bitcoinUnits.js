@@ -1,5 +1,5 @@
 export const BitcoinUnit = Object.freeze({
-  BTC: 'BTCR',
+  BTC: 'BTCV',
   SATS: 'sat',
   LOCAL_CURRENCY: 'local_currency',
   MAX: 'MAX',

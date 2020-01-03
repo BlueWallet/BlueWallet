@@ -23,7 +23,7 @@ module.exports = {
       empty_txs1: "你的转账信息将展示在这里",
       empty_txs2: "当前无信息",
       empty_txs1_lightning: "闪电钱包可以进行日常交易。 费用极低，速度飞快。",
-      empty_txs2_lightning: "要开始使用它，请点击“管理资金”并充值。",
+      empty_txs2_lightning: "\要开始使用它，请点击“管理资金”并充值。",
       tap_here_to_buy: "点击购买比特币",
     },
     reorder: {

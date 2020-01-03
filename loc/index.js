@@ -89,6 +89,10 @@ dayjs.extend(relativeTime);
       case 'vi_vn':
         require('dayjs/locale/vi');
         break;
+      case 'ko_KR':
+        lang = 'ko';
+        require('dayjs/locale/ko');
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
@@ -127,6 +131,7 @@ strings = new Localization({
   vi_vn: require('./vi_VN.js'),
   zar_xho: require('./ZAR_Xho.js'),
   zar_afr: require('./ZAR_Afr.js'),
+  ko_kr: require('./ko_KR.js'),
 });
 
 strings.saveLanguage = lang => AsyncStorage.setItem(AppStorage.LANG, lang);
