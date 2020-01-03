@@ -23,7 +23,7 @@ module.exports = {
       empty_txs1: "거래가 이 곳에 나타날 것입니다. ",
       empty_txs2: "현재 아무 표시 없음",
       empty_txs1_lightning: "라이트닝 지갑은 일상적인 거래에 사용됩니다. 수수료가 비교적 저렴하며, 속도가 상당히 빠릅니다.",
-      empty_txs2_lightning: "\n "자금 관리"를 눌러 사용하시고 고객님의 잔고를 충전하세요.",
+      empty_txs2_lightning: "\"자금 관리\"를 눌러 사용하시고 고객님의 잔고를 충전하세요.",
       tap_here_to_buy: "비트코인 구매를 위해 이곳을 눌러주세요.",
     },
     reorder: {

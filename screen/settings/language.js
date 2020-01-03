@@ -31,8 +31,9 @@ export default class Language extends Component {
         { label: 'Suomi (FI)', value: 'fi_fi' },
         { label: 'Français (FR)', value: 'fr_fr' },
         { label: 'Indonesia (ID)', value: 'id_id' },
-        { label: 'Magyar (HU)', value: 'hu_hu' },
         { label: '日本語 (JP)', value: 'jp_jp' },
+        { label: '한국어 (KO)', value: 'ko_kr' },
+        { label: 'Magyar (HU)', value: 'hu_hu' },
         { label: 'Nederlands (NL)', value: 'nl_nl' },
         { label: 'Norsk (NB)', value: 'nb_no' },
         { label: 'Português (BR)', value: 'pt_br' },
@@ -58,7 +59,7 @@ export default class Language extends Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          console.log('setLanguage', item.value);
+          console.warn('setLanguage', item.value);
           loc.saveLanguage(item.value);
           return this.setState({ language: item.value });
         }}
@@ -90,7 +91,7 @@ export default class Language extends Component {
           renderItem={this.renderItem}
         />
         <BlueCard>
-          <BlueText>When selecting a new language, restarting BlueWallet may be required for the change to take effect.</BlueText>
+          <BlueText>When selecting a new language, restarting GoldWallet may be required for the change to take effect.</BlueText>
         </BlueCard>
       </SafeBlueArea>
     );
