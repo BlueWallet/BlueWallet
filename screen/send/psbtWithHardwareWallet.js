@@ -51,10 +51,7 @@ export default class PsbtWithHardwareWallet extends Component {
     this.setState({ renderScanner: false }, () => {
       console.log(ret.data);
       try {
-        let Tx = this.state.fromWallet.combinePsbt(
-          this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
-          this.state.isSecondPSBTAlreadyBase64 ? ret.data : ret.data.toBase64(),
-        );
+        let Tx = this.state.fromWallet.combinePsbt(this.state.psbt, ret.data);
         this.setState({ txhex: Tx.toHex() });
       } catch (Err) {
         alert(Err);
@@ -73,7 +70,27 @@ export default class PsbtWithHardwareWallet extends Component {
       fromWallet: props.navigation.getParam('fromWallet'),
       isFirstPSBTAlreadyBase64: props.navigation.getParam('isFirstPSBTAlreadyBase64'),
       isSecondPSBTAlreadyBase64: false,
+      deepLinkPSBT: undefined,
     };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const deepLinkPSBT = nextProps.navigation.state.params.deepLinkPSBT;
+    if (deepLinkPSBT) {
+      try {
+        let Tx = prevState.fromWallet.combinePsbt(
+          prevState.isFirstPSBTAlreadyBase64 ? prevState.psbt : prevState.psbt.toBase64(),
+          deepLinkPSBT,
+        );
+        return {
+          ...prevState,
+          txhex: Tx.toHex(),
+        };
+      } catch (Err) {
+        alert(Err);
+      }
+    }
+    return prevState;
   }
 
   componentDidMount() {
@@ -207,8 +224,8 @@ export default class PsbtWithHardwareWallet extends Component {
   exportPSBT = async () => {
     const fileName = `${Date.now()}.psbt`;
     if (Platform.OS === 'ios') {
-      const filePath = RNFS.TemporaryDirectoryPath + `/${Date.now()}.psbt`;
-      await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(), 'ascii');
+      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
       })
@@ -242,11 +259,10 @@ export default class PsbtWithHardwareWallet extends Component {
 
   openSignedTransaction = async () => {
     try {
-      const res = await DocumentPicker.pick();
-      const file = await RNFS.readFile(res.uri, 'ascii');
-      const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
-      if (bufferDecoded) {
-        this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: bufferDecoded }));
+      const res = await DocumentPicker.pick({ type: ['io.bluewallet.psbt'] });
+      const file = await RNFS.readFile(res.uri);
+      if (file) {
+        this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: file }));
       } else {
         this.setState({ isSecondPSBTAlreadyBase64: false });
         throw new Error();

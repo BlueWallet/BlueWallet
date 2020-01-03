@@ -759,7 +759,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let pubkey = this._getPubkeyByAddress(input.address);
       let masterFingerprintBuffer;
       if (masterFingerprint) {
-        masterFingerprintBuffer = Buffer.from(masterFingerprint, 'hex');
+        const hexBuffer = Buffer.from(Number(masterFingerprint).toString(16), 'hex');
+        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }
@@ -798,7 +799,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let masterFingerprintBuffer;
 
       if (masterFingerprint) {
-        masterFingerprintBuffer = Buffer.from(masterFingerprint, 'hex');
+        const hexBuffer = Buffer.from(Number(masterFingerprint).toString(16), 'hex');
+        masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       }

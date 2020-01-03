@@ -1,6 +1,8 @@
 import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
 import BitcoinBIP70TransactionDecode from '../bip70/bip70';
+import RNFS from 'react-native-fs';
+import url from 'url';
 const bitcoin = require('bitcoinjs-lib');
 const BlueApp = require('../BlueApp');
 class DeeplinkSchemaMatch {
@@ -28,6 +30,21 @@ class DeeplinkSchemaMatch {
       return;
     }
     if (typeof event.url !== 'string') {
+      return;
+    }
+    if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
+      RNFS.readFile(event.url)
+        .then(file => {
+          if (file) {
+            completionHandler({
+              routeName: 'PsbtWithHardwareWallet',
+              params: {
+                deepLinkPSBT: file,
+              },
+            });
+          }
+        })
+        .catch(e => console.warn(e));
       return;
     }
     let isBothBitcoinAndLightning;
@@ -144,6 +161,10 @@ class DeeplinkSchemaMatch {
         }
       })();
     }
+  }
+
+  static isPossiblyPSBTFile(filePath) {
+    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('-signed.psbt');
   }
 
   static isBitcoinAddress(address) {

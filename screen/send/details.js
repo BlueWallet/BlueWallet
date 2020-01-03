@@ -711,10 +711,11 @@ export default class SendDetails extends Component {
 
   importTransaction = async () => {
     try {
-      const res = await DocumentPicker.pick();
+      const res = await DocumentPicker.pick({ type: ['io.bluewallet.psbt'] });
       const file = await RNFS.readFile(res.uri, 'ascii');
       const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
       if (bufferDecoded) {
+        this.setState({ isAdvancedTransactionOptionsVisible: false });
         if (this.state.fromWallet.type === WatchOnlyWallet.type) {
           // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
           // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
@@ -722,7 +723,7 @@ export default class SendDetails extends Component {
           this.props.navigation.navigate('PsbtWithHardwareWallet', {
             memo: this.state.memo,
             fromWallet: this.state.fromWallet,
-            psbt: bufferDecoded,
+            psbt: file,
             isFirstPSBTAlreadyBase64: true,
           });
           this.setState({ isLoading: false });
@@ -736,7 +737,6 @@ export default class SendDetails extends Component {
         alert('The selected file does not contain a signed transaction that can be imported.');
       }
     }
-    this.setState({ isAdvancedTransactionOptionsVisible: false });
   };
 
   renderAdvancedTransactionOptionsModal = () => {

@@ -51,13 +51,13 @@ export default class WalletDetails extends Component {
     super(props);
 
     const wallet = props.navigation.getParam('wallet');
+    console.warn(wallet.masterFingerprint)
     const isLoading = true;
     this.state = {
       isLoading,
       walletName: wallet.getLabel(),
       wallet,
       useWithHardwareWallet: !!wallet.use_with_hardware_wallet,
-      masterFingerprint: wallet.masterFingerprint ? String(wallet.masterFingerprint) : '',
     };
     this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
   }
@@ -74,7 +74,6 @@ export default class WalletDetails extends Component {
     this.props.navigation.setParams({ isLoading: true });
     this.setState({ isLoading: true }, async () => {
       this.state.wallet.setLabel(this.state.walletName);
-      this.state.wallet.masterFingerprint = String(this.state.masterFingerprint);
       BlueApp.saveToDisk();
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
@@ -192,35 +191,6 @@ export default class WalletDetails extends Component {
                   {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
                     <>
                       <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>{'advanced'}</Text>
-                      <BlueText>Master Fingerprint</BlueText>
-                      <BlueSpacing20 />
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          borderColor: '#d2d2d2',
-                          borderBottomColor: '#d2d2d2',
-                          borderWidth: 1.0,
-                          borderBottomWidth: 0.5,
-                          backgroundColor: '#f5f5f5',
-                          minHeight: 44,
-                          height: 44,
-                          alignItems: 'center',
-                          borderRadius: 4,
-                        }}
-                      >
-                        <TextInput
-                          placeholder="Master Fingerprint"
-                          value={this.state.masterFingerprint}
-                          onChangeText={text => {
-                            this.setState({ masterFingerprint: text });
-                          }}
-                          numberOfLines={1}
-                          style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
-                          editable={!this.state.isLoading}
-                          underlineColorAndroid="transparent"
-                        />
-                      </View>
-                      <BlueSpacing20 />
                       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                         <BlueText>{'Use with hardware wallet'}</BlueText>
                         <Switch
