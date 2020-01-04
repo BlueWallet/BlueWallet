@@ -1,4 +1,4 @@
-/* global describe, it, expect */
+/* global describe, it */
 import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
 const assert = require('assert');
 
