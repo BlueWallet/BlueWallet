@@ -60,6 +60,9 @@ const WalletsStackNavigator = createStackNavigator(
     Wallets: {
       screen: WalletsList,
       path: 'wallets',
+      navigationOptions: {
+        header: null,
+      },
     },
     WalletTransactions: {
       screen: WalletTransactions,
@@ -157,6 +160,7 @@ const WalletsStackNavigator = createStackNavigator(
 
 const CreateTransactionStackNavigator = createStackNavigator({
   SendDetails: {
+    routeName: 'SendDetails',
     screen: sendDetails,
   },
   Confirm: {
@@ -290,6 +294,7 @@ const MainBottomTabs = createStackNavigator(
     },
     //
     SendDetails: {
+      routeName: 'SendDetails',
       screen: CreateTransactionStackNavigator,
       navigationOptions: {
         header: null,

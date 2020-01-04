@@ -1,6 +1,17 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView, Alert } from 'react-native';
+import {
+  View,
+  StatusBar,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  FlatList,
+  InteractionManager,
+  RefreshControl,
+  ScrollView,
+  Alert,
+} from 'react-native';
 import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -8,6 +19,9 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
+import Swiper from 'react-native-swiper';
+import ScanQRCode from '../send/scanQrAddress';
+import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -16,23 +30,8 @@ let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      backgroundColor: '#FFFFFF',
-      borderBottomWidth: 0,
-      elevation: 0,
-    },
-    headerRight: (
-      <TouchableOpacity
-        style={{ marginHorizontal: 16, width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end' }}
-        onPress={() => navigation.navigate('Settings')}
-      >
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
-      </TouchableOpacity>
-    ),
-  });
-
   walletsCarousel = React.createRef();
+  swiperRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -299,21 +298,47 @@ export default class WalletsList extends Component {
     }
   };
 
+  onSwiperIndexChanged = index => {
+    StatusBar.setBarStyle(index === 1 ? 'dark-content' : 'light-content');
+    this.setState({ cameraPreviewIsPaused: index === 1 });
+  };
+
+  onBarScanned = value => {
+    DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
+      ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+      this.props.navigation.navigate(completionValue);
+    });
+  };
+
   _renderItem = data => {
     return <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
   };
+
+  renderNavigationHeader = () => {
+    return (
+      <View style={{ height: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
+        <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => this.props.navigation.navigate('Settings')}>
+          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
     return (
-      <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <View style={{ flex: 1, backgroundColor: '#000000' }}>
         <NavigationEvents
-          onWillFocus={() => {
+          onDidFocus={() => {
             this.redrawScreen();
+            this.setState({ cameraPreviewIsPaused: this.swiperRef.current.index === 1 });
           }}
+          onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
         />
         <ScrollView
+          contentContainerStyle={{ flex: 1 }}
           refreshControl={
             <RefreshControl
               onRefresh={() => this.refreshTransactions()}
@@ -322,65 +347,112 @@ export default class WalletsList extends Component {
             />
           }
         >
-          <BlueHeaderDefaultMain
-            leftText={loc.wallets.list.title}
-            onNewWalletPress={
-              !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
-                ? () => this.props.navigation.navigate('AddWallet')
-                : null
-            }
-          />
-          <WalletsCarousel
-            removeClippedSubviews={false}
-            data={this.state.wallets}
-            handleClick={index => {
-              this.handleClick(index);
-            }}
-            handleLongPress={this.handleLongPress}
-            onSnapToItem={index => {
-              this.onSnapToItem(index);
-            }}
-            ref={c => (this.walletsCarousel = c)}
-          />
-          <BlueList>
-            <FlatList
-              ListHeaderComponent={this.renderListHeaderComponent}
-              ListEmptyComponent={
-                <View style={{ top: 50, height: 100 }}>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      color: '#9aa0aa',
-                      textAlign: 'center',
+          <Swiper
+            style={styles.wrapper}
+            onIndexChanged={this.onSwiperIndexChanged}
+            index={1}
+            ref={this.swiperRef}
+            showsPagination={false}
+            showsButtons={false}
+            loop={false}
+          >
+            <View style={styles.scanQRWrapper}>
+              <ScanQRCode
+                cameraPreviewIsPaused={this.state.cameraPreviewIsPaused}
+                onBarScanned={this.onBarScanned}
+                showCloseButton={false}
+                initialCameraStatusReady={false}
+                launchedBy={this.props.navigation.state.routeName}
+              />
+            </View>
+            <SafeBlueArea>
+              <View style={styles.walletsListWrapper}>
+                {this.renderNavigationHeader()}
+                <ScrollView
+                  refreshControl={
+                    <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
+                  }
+                >
+                  <BlueHeaderDefaultMain
+                    leftText={loc.wallets.list.title}
+                    onNewWalletPress={
+                      !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
+                        ? () => this.props.navigation.navigate('AddWallet')
+                        : null
+                    }
+                  />
+                  <WalletsCarousel
+                    removeClippedSubviews={false}
+                    data={this.state.wallets}
+                    handleClick={index => {
+                      this.handleClick(index);
                     }}
-                  >
-                    {loc.wallets.list.empty_txs1}
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      color: '#9aa0aa',
-                      textAlign: 'center',
+                    handleLongPress={this.handleLongPress}
+                    onSnapToItem={index => {
+                      this.onSnapToItem(index);
                     }}
-                  >
-                    {loc.wallets.list.empty_txs2}
-                  </Text>
-                </View>
-              }
-              data={this.state.dataSource}
-              extraData={this.state.dataSource}
-              keyExtractor={this._keyExtractor}
-              renderItem={this._renderItem}
-            />
-          </BlueList>
+                    ref={c => (this.walletsCarousel = c)}
+                  />
+                  <BlueList>
+                    <FlatList
+                      ListHeaderComponent={this.renderListHeaderComponent}
+                      ListEmptyComponent={
+                        <View style={{ top: 50, height: 100 }}>
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              color: '#9aa0aa',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {loc.wallets.list.empty_txs1}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              color: '#9aa0aa',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {loc.wallets.list.empty_txs2}
+                          </Text>
+                        </View>
+                      }
+                      data={this.state.dataSource}
+                      extraData={this.state.dataSource}
+                      keyExtractor={this._keyExtractor}
+                      renderItem={this._renderItem}
+                    />
+                  </BlueList>
+                </ScrollView>
+              </View>
+            </SafeBlueArea>
+          </Swiper>
         </ScrollView>
-      </SafeBlueArea>
+      </View>
     );
   }
 }
 
+const styles = StyleSheet.create({
+  wrapper: {
+    backgroundColor: '#FFFFFF',
+  },
+  walletsListWrapper: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  scanQRWrapper: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+});
+
 WalletsList.propTypes = {
   navigation: PropTypes.shape({
+    state: PropTypes.shape({
+      routeName: PropTypes.string,
+    }),
     navigate: PropTypes.func,
   }),
 };

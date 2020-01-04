@@ -58,8 +58,13 @@ export default class SendDetails extends Component {
     title: loc.send.header,
   });
 
+  state = { isLoading: true };
+
   constructor(props) {
     super(props);
+
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
 
     let fromAddress;
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
@@ -177,9 +182,6 @@ export default class SendDetails extends Component {
     this.renderNavigationHeader();
     console.log('send/details - componentDidMount');
     StatusBar.setBarStyle('dark-content');
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
-
     let addresses = [];
     let initialMemo = '';
     if (this.props.navigation.state.params.uri) {
@@ -892,6 +894,7 @@ export default class SendDetails extends Component {
             address={item.address}
             isLoading={this.state.isLoading}
             inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+            launchedBy={this.props.navigation.state.routeName}
           />
           {this.state.addresses.length > 1 && (
             <BlueText style={{ alignSelf: 'flex-end', marginRight: 18, marginVertical: 8 }}>
@@ -1067,6 +1070,7 @@ SendDetails.propTypes = {
     getParam: PropTypes.func,
     setParams: PropTypes.func,
     state: PropTypes.shape({
+      routeName: PropTypes.string,
       params: PropTypes.shape({
         amount: PropTypes.number,
         address: PropTypes.string,
