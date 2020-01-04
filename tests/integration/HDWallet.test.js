@@ -95,7 +95,7 @@ it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagg
   hd.next_free_address_index = 50;
   await hd.fetchBalance();
   await hd.fetchTransactions();
-  assert.strictEqual(hd.getTransactions().length, 152);
+  assert.strictEqual(hd.getTransactions().length, 153);
 });
 
 it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
