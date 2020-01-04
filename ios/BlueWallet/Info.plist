@@ -159,7 +159,7 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>PSBT</string>
+			<string>Partially Signed Bitcoin Transaction</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
@@ -178,7 +178,7 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>PSBT TXN</string>
+			<string>Bitcoin Transaction</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
@@ -200,7 +200,7 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>PSBT</string>
+			<string>Partially Signed Bitcoin Transaction</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
@@ -219,7 +219,9 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>PSBT TXN</string>
+			<string>Bitcoin Transaction</string>
+			<key>UTTypeIconFiles</key>
+			<array/>
 			<key>UTTypeIdentifier</key>
 			<string>io.bluewallet.psbt.txn</string>
 			<key>UTTypeTagSpecification</key>
