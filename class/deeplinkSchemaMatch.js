@@ -163,6 +163,10 @@ class DeeplinkSchemaMatch {
     }
   }
 
+  static isTXNFile(filePath) {
+    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('.txn');
+  }
+
   static isPossiblyPSBTFile(filePath) {
     return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('-signed.psbt');
   }

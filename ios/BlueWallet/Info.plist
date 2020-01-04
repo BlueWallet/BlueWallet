@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -22,6 +20,20 @@
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>io.bluewallet.psbt</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array/>
+			<key>CFBundleTypeName</key>
+			<string>TXN</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>io.bluewallet.psbt.txn</string>
 			</array>
 		</dict>
 	</array>
@@ -60,6 +72,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -80,7 +94,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCameraUsageDescription</key>
-	<string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
+	<string>In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>In order to confirm your identity, we need your permission to use FaceID.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -158,6 +172,25 @@
 				</array>
 			</dict>
 		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>PSBT TXN</string>
+			<key>UTTypeIconFiles</key>
+			<array/>
+			<key>UTTypeIdentifier</key>
+			<string>io.bluewallet.psbt.txn</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>txn</string>
+				</array>
+			</dict>
+		</dict>
 	</array>
 	<key>UTImportedTypeDeclarations</key>
 	<array>
@@ -177,6 +210,23 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>psbt</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>PSBT TXN</string>
+			<key>UTTypeIdentifier</key>
+			<string>io.bluewallet.psbt.txn</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>txn</string>
 				</array>
 			</dict>
 		</dict>

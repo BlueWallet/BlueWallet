@@ -71,11 +71,13 @@ export default class PsbtWithHardwareWallet extends Component {
       isFirstPSBTAlreadyBase64: props.navigation.getParam('isFirstPSBTAlreadyBase64'),
       isSecondPSBTAlreadyBase64: false,
       deepLinkPSBT: undefined,
+      txhex: props.navigation.getParam('txhex') || undefined,
     };
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     const deepLinkPSBT = nextProps.navigation.state.params.deepLinkPSBT;
+    const txhex = nextProps.navigation.state.params.txhex;
     if (deepLinkPSBT) {
       try {
         let Tx = prevState.fromWallet.combinePsbt(
@@ -89,6 +91,11 @@ export default class PsbtWithHardwareWallet extends Component {
       } catch (Err) {
         alert(Err);
       }
+    } else if (txhex) {
+      return {
+        ...prevState,
+        txhex: txhex,
+      };
     }
     return prevState;
   }
@@ -259,7 +266,7 @@ export default class PsbtWithHardwareWallet extends Component {
 
   openSignedTransaction = async () => {
     try {
-      const res = await DocumentPicker.pick({ type: ['io.bluewallet.psbt'] });
+      const res = await DocumentPicker.pick({ type: ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] });
       const file = await RNFS.readFile(res.uri);
       if (file) {
         this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: file }));

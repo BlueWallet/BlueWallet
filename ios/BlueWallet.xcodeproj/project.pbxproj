@@ -683,7 +683,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1120;
 				LastUpgradeCheck = 1020;
-				ORGANIZATIONNAME = Facebook;
+				ORGANIZATIONNAME = BlueWallet;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
@@ -1236,7 +1236,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = BlueWallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
@@ -1272,7 +1272,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = A7W54YZ4WU;
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = BlueWallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;

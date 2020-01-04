@@ -40,6 +40,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
+import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -711,26 +712,36 @@ export default class SendDetails extends Component {
 
   importTransaction = async () => {
     try {
-      const res = await DocumentPicker.pick({ type: ['io.bluewallet.psbt'] });
-      const file = await RNFS.readFile(res.uri, 'ascii');
-      const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
-      if (bufferDecoded) {
-        this.setState({ isAdvancedTransactionOptionsVisible: false });
-        if (this.state.fromWallet.type === WatchOnlyWallet.type) {
-          // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
-          // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
-          // user whether he wants to broadcast it
-          this.props.navigation.navigate('PsbtWithHardwareWallet', {
-            memo: this.state.memo,
-            fromWallet: this.state.fromWallet,
-            psbt: file,
-            isFirstPSBTAlreadyBase64: true,
-          });
-          this.setState({ isLoading: false });
-          return;
+      const res = await DocumentPicker.pick({ type: ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] });
+      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(res.uri)) {
+        const file = await RNFS.readFile(res.uri, 'ascii');
+        const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
+        if (bufferDecoded) {
+          if (this.state.fromWallet.type === WatchOnlyWallet.type) {
+            // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
+            // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
+            // user whether he wants to broadcast it
+            this.props.navigation.navigate('PsbtWithHardwareWallet', {
+              memo: this.state.memo,
+              fromWallet: this.state.fromWallet,
+              psbt: file,
+              isFirstPSBTAlreadyBase64: true,
+            });
+            this.setState({ isLoading: false });
+            return;
+          }
+        } else {
+          throw new Error();
         }
-      } else {
-        throw new Error();
+      } else if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
+        const file = await RNFS.readFile(res.uri, 'ascii');
+        this.props.navigation.navigate('PsbtWithHardwareWallet', {
+          memo: this.state.memo,
+          fromWallet: this.state.fromWallet,
+          txhex: file,
+        });
+        this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+        return;
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
