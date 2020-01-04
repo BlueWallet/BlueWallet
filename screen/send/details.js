@@ -781,7 +781,8 @@ export default class SendDetails extends Component {
                 onSwitch={this.onReplaceableFeeSwitchValueChanged}
               />
             )}
-            {this.state.fromWallet.use_with_hardware_wallet && (
+            {(this.state.fromWallet.type === HDSegwitBech32Wallet.type ||
+              this.state.fromWallet._hdWalletInstance instanceof HDSegwitBech32Wallet) && (
               <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
             )}
             {this.state.fromWallet.allowBatchSend() && (

@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import {
   TextInput,
@@ -11,26 +12,36 @@ import {
   Keyboard,
   Text,
   View,
+  Platform,
 } from 'react-native';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { Icon } from 'react-native-elements';
+import Share from 'react-native-share';
+import RNFS from 'react-native-fs';
+import DirectoryPickerManager from 'react-native-directory-picker';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const currency = require('../../currency');
 
 export default class SendCreate extends Component {
-  static navigationOptions = () => ({
+  static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle,
     title: loc.send.create.details,
+    headerRight: navigation.state.params.exportTXN ? (
+      <TouchableOpacity style={{ marginRight: 16 }} onPress={navigation.state.params.exportTXN}>
+        <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
+      </TouchableOpacity>
+    ) : null,
   });
 
   constructor(props) {
     super(props);
     console.log('send/create constructor');
-
+    props.navigation.setParams({ exportTXN: this.exportTXN });
     this.state = {
       isLoading: false,
       fee: props.navigation.getParam('fee'),
@@ -44,10 +55,42 @@ export default class SendCreate extends Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     Privacy.enableBlur();
     console.log('send/create - componentDidMount');
   }
+
+  exportTXN = async () => {
+    const fileName = `${Date.now()}.txn`;
+    if (Platform.OS === 'ios') {
+      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      await RNFS.writeFile(filePath, this.state.tx);
+      Share.open({
+        url: 'file://' + filePath,
+      })
+        .catch(error => console.log(error))
+        .finally(() => {
+          RNFS.unlink(filePath);
+        });
+    } else if (Platform.OS === 'android') {
+      DirectoryPickerManager.showDirectoryPicker(null, async response => {
+        if (response.didCancel) {
+          console.log('User cancelled directory picker');
+        } else if (response.error) {
+          console.log('DirectoryPickerManager Error: ', response.error);
+        } else {
+          try {
+            await RNFS.writeFile(response.path + `/${fileName}`, this.state.tx, 'ascii');
+            alert('Successfully exported.');
+            RNFS.unlink(response.path + `/${fileName}`);
+          } catch (e) {
+            console.log(e);
+            alert(e);
+          }
+        }
+      });
+    }
+  };
 
   componentWillUnmount() {
     Privacy.disableBlur();
@@ -164,6 +207,7 @@ const styles = StyleSheet.create({
 SendCreate.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
+    setParams: PropTypes.func,
     getParam: PropTypes.func,
     navigate: PropTypes.func,
     dismiss: PropTypes.func,
