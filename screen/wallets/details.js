@@ -166,7 +166,8 @@ export default class WalletDetails extends Component {
                     }}
                     onBlur={() => {
                       if (this.state.walletName.trim().length === 0) {
-                        this.setState({ walletName: this.state.wallet.getLabel() });
+                        const walletLabel = this.state.wallet.getLabel();
+                        this.setState({ walletName: walletLabel });
                       }
                     }}
                     numberOfLines={1}
