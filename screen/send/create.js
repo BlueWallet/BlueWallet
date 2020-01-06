@@ -80,9 +80,8 @@ export default class SendCreate extends Component {
           console.log('DirectoryPickerManager Error: ', response.error);
         } else {
           try {
-            await RNFS.writeFile(response.path + `/${fileName}`, this.state.tx, 'ascii');
+            await RNFS.writeFile(response.decodeUri + `/${fileName}`, this.state.tx, 'ascii');
             alert('Successfully exported.');
-            RNFS.unlink(response.path + `/${fileName}`);
           } catch (e) {
             console.log(e);
             alert(e);

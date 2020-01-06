@@ -249,12 +249,11 @@ export default class PsbtWithHardwareWallet extends Component {
         } else {
           try {
             await RNFS.writeFile(
-              response.path + `/${fileName}`,
+              response.decodeUri + `/${fileName}`,
               this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
               'ascii',
             );
             alert('Successfully exported.');
-            RNFS.unlink(response.path + `/${fileName}`);
           } catch (e) {
             console.log(e);
             alert(e);
