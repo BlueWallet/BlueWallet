@@ -13,6 +13,7 @@ import {
   Text,
   View,
   Platform,
+  Alert,
 } from 'react-native';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -21,7 +22,6 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
-import DirectoryPickerManager from 'react-native-directory-picker';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -73,21 +73,38 @@ export default class SendCreate extends Component {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      DirectoryPickerManager.showDirectoryPicker(null, async response => {
-        if (response.didCancel) {
-          console.log('User cancelled directory picker');
-        } else if (response.error) {
-          console.log('DirectoryPickerManager Error: ', response.error);
-        } else {
-          try {
-            await RNFS.writeFile(response.decodedUri + `/${fileName}`, this.state.tx, 'ascii');
-            alert('Successfully exported.');
-          } catch (e) {
-            console.log(e);
-            alert(e);
-          }
-        }
-      });
+      Alert.alert(
+        'Export',
+        'Where would you like to export this transaction?',
+        [
+          {
+            text: 'External Storage',
+            onPress: async () => {
+              try {
+                await RNFS.writeFile('file://' + RNFS.ExternalStorageDirectoryPath + `/${fileName}`, this.state.tx, 'ascii');
+                alert('Successfully exported.');
+              } catch (e) {
+                console.log(e);
+                alert(e);
+              }
+            },
+          },
+          {
+            text: 'Documents Folder',
+            onPress: async () => {
+              try {
+                await RNFS.writeFile('file://' + RNFS.DocumentDirectoryPath + `/${fileName}`, this.state.tx, 'ascii');
+                alert('Successfully exported.');
+              } catch (e) {
+                console.log(e);
+                alert(e);
+              }
+            },
+          },
+          { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+        ],
+        { cancelable: true },
+      );
     }
   };
 

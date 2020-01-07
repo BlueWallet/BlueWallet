@@ -93,7 +93,6 @@
     "react-native-camera": "3.4.0",
     "react-native-default-preference": "1.4.1",
     "react-native-device-info": "4.0.1",
-    "react-native-directory-picker": "git+https://github.com/BlueWallet/react-native-directory-picker.git#63307e646f72444ab83b619e579c55ee38cd162a",
     "react-native-document-picker": "git+https://github.com/BlueWallet/react-native-document-picker.git#9ce83792db340d01b1361d24b19613658abef4aa",
     "react-native-elements": "0.19.0",
     "react-native-flexi-radio-button": "0.2.2",

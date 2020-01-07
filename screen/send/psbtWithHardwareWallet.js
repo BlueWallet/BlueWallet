@@ -7,6 +7,7 @@ import {
   View,
   Dimensions,
   Image,
+  Alert,
   TextInput,
   Clipboard,
   Linking,
@@ -29,7 +30,6 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
-import DirectoryPickerManager from 'react-native-directory-picker';
 let loc = require('../../loc');
 let EV = require('../../events');
 let BlueElectrum = require('../../BlueElectrum');
@@ -241,25 +241,46 @@ export default class PsbtWithHardwareWallet extends Component {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      DirectoryPickerManager.showDirectoryPicker(null, async response => {
-        if (response.didCancel) {
-          console.log('User cancelled directory picker');
-        } else if (response.error) {
-          console.log('DirectoryPickerManager Error: ', response.error);
-        } else {
-          try {
-            await RNFS.writeFile(
-              response.decodedUri + `/${fileName}`,
-              this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
-              'ascii',
-            );
-            alert('Successfully exported.');
-          } catch (e) {
-            console.log(e);
-            alert(e);
-          }
-        }
-      });
+      Alert.alert(
+        'Export',
+        'Where would you like to export this transaction?',
+        [
+          {
+            text: 'External Storage',
+            onPress: async () => {
+              try {
+                await RNFS.writeFile(
+                  'file://' + RNFS.ExternalStorageDirectoryPath + `/${fileName}`,
+                  this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
+                  'ascii',
+                );
+                alert('Successfully exported.');
+              } catch (e) {
+                console.log(e);
+                alert(e);
+              }
+            },
+          },
+          {
+            text: 'Documents Folder',
+            onPress: async () => {
+              try {
+                await RNFS.writeFile(
+                  'file://' + RNFS.DocumentDirectoryPath + `/${fileName}`,
+                  this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
+                  'ascii',
+                );
+                alert('Successfully exported.');
+              } catch (e) {
+                console.log(e);
+                alert(e);
+              }
+            },
+          },
+          { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+        ],
+        { cancelable: true },
+      );
     }
   };
 
