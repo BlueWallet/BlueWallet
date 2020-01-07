@@ -104,6 +104,10 @@ export class AbstractWallet {
     return false;
   }
 
+  allowHodlHodlTrading() {
+    return false;
+  }
+
   weOwnAddress(address) {
     return this._address === address;
   }

@@ -1,5 +1,12 @@
 /* global it, jasmine, afterAll, beforeAll */
-import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyBreadwalletWallet, HDLegacyP2PKHWallet } from '../../class';
+import {
+  SegwitP2SHWallet,
+  SegwitBech32Wallet,
+  HDSegwitP2SHWallet,
+  HDLegacyBreadwalletWallet,
+  HDLegacyP2PKHWallet,
+  LegacyWallet,
+} from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
@@ -37,6 +44,9 @@ it('can convert witness to address', () => {
 
   address = SegwitBech32Wallet.scriptPubKeyToAddress('00144d757460da5fcaf84cc22f3847faaa1078e84f6a');
   assert.strictEqual(address, 'bc1qf46hgcx6tl90snxz9uuy0742zpuwsnm27ysdh7');
+
+  address = LegacyWallet.scriptPubKeyToAddress('76a914d0b77eb1502c81c4093da9aa6eccfdf560cdd6b288ac');
+  assert.strictEqual(address, '1L2bNMGRQQLT2AVUek4K9L7sn3SSMioMgE');
 });
 
 it('can create a Segwit HD (BIP49)', async function() {
