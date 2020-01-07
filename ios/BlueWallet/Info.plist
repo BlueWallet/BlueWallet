@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>BlueWallet</string>
+	<string>GoldWallet</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -29,7 +29,7 @@
 			<array>
 				<string>bitcoin</string>
 				<string>lightning</string>
-				<string>bluewallet</string>
+				<string>goldwallet</string>
 				<string>lapp</string>
 				<string>blue</string>
 			</array>

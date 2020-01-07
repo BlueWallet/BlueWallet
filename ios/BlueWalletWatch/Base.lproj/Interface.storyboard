@@ -7,15 +7,15 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
     </dependencies>
     <scenes>
-        <!--BlueWallet-->
+        <!--GoldWallet-->
         <scene sceneID="aou-V4-d1y">
             <objects>
-                <controller title="BlueWallet" id="AgC-eL-Hgc" customClass="InterfaceController" customModule="BlueWalletWatch" customModuleProvider="target">
+                <controller title="GoldWallet" id="AgC-eL-Hgc" customClass="InterfaceController" customModule="GoldWalletWatch" customModuleProvider="target">
                     <items>
                         <table alignment="left" id="jUH-JS-ccp">
                             <items>
-                                <tableRow identifier="WalletInformation" id="Rdv-UZ-gaS" customClass="WalletInformation" customModule="BlueWalletWatch_Extension">
-                                    <group key="rootItem" width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="H28-wi-Sks" customClass="WalletInformation" customModule="BlueWalletWatch_Extension">
+                                <tableRow identifier="WalletInformation" id="Rdv-UZ-gaS" customClass="WalletInformation" customModule="GoldWalletWatch_Extension">
+                                    <group key="rootItem" width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="H28-wi-Sks" customClass="WalletInformation" customModule="GoldWalletWatch_Extension">
                                         <items>
                                             <label width="6" alignment="left" id="RJV-QC-scb"/>
                                             <group width="1" alignment="center" verticalAlignment="center" layout="vertical" id="UrU-xX-jYW">
@@ -43,7 +43,7 @@
                                 <label alignment="center" text="Loading wallets..." id="hCG-Eg-bck"/>
                             </items>
                         </group>
-                        <label alignment="center" verticalAlignment="center" hidden="YES" text="No wallets available. Please, add one by opening BlueWallet on your iPhone." textAlignment="center" numberOfLines="0" id="I2I-8t-hp3"/>
+                        <label alignment="center" verticalAlignment="center" hidden="YES" text="No wallets available. Please, add one by opening GoldWallet on your iPhone." textAlignment="center" numberOfLines="0" id="I2I-8t-hp3"/>
                     </items>
                     <connections>
                         <outlet property="loadingIndicatorGroup" destination="1Db-mZ-yxl" id="XPX-Y8-dv0"/>
@@ -57,9 +57,9 @@
         <!--WalletDetailsInterfaceController-->
         <scene sceneID="KqX-Cy-IJm">
             <objects>
-                <controller identifier="WalletDetailsInterfaceController" id="XWa-4i-Abg" customClass="WalletDetailsInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="WalletDetailsInterfaceController" id="XWa-4i-Abg" customClass="WalletDetailsInterfaceController" customModule="GoldWalletWatch_Extension">
                     <items>
-                        <group width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="275-K7-Qhe" customClass="WalletInformation" customModule="BlueWalletWatch_Extension">
+                        <group width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="275-K7-Qhe" customClass="WalletInformation" customModule="GoldWalletWatch_Extension">
                             <items>
                                 <label width="6" alignment="left" id="QMf-Fm-1cw"/>
                                 <group width="1" widthAdjustment="-10" alignment="center" verticalAlignment="center" layout="vertical" id="jx2-si-OEm">
@@ -91,7 +91,7 @@
                         <label alignment="center" verticalAlignment="bottom" text="No Transactions" textAlignment="left" id="pi4-Bk-Jiq"/>
                         <table alignment="left" id="nyQ-lX-DX0">
                             <items>
-                                <tableRow identifier="TransactionTableRow" id="HuQ-ep-L9j" customClass="TransactionTableRow" customModule="BlueWalletWatch_Extension">
+                                <tableRow identifier="TransactionTableRow" id="HuQ-ep-L9j" customClass="TransactionTableRow" customModule="GoldWalletWatch_Extension">
                                     <group key="rootItem" width="1" height="0.0" alignment="left" id="3X8-cc-rOv">
                                         <items>
                                             <button alignment="left" id="NEN-rG-rmr">
@@ -163,14 +163,14 @@
         <!--Notification Controller-->
         <scene sceneID="ZPc-GJ-vnh">
             <objects>
-                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="BlueWalletWatch" customModuleProvider="target"/>
+                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="GoldWalletWatch" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="468" y="643"/>
         </scene>
         <!--ReceiveInterfaceController-->
         <scene sceneID="tQ7-Qr-5i4">
             <objects>
-                <controller identifier="ReceiveInterfaceController" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="ReceiveInterfaceController" fullBounds="YES" id="egq-Yw-qK5" customClass="ReceiveInterfaceController" customModule="GoldWalletWatch_Extension">
                     <items>
                         <imageView height="0.90000000000000002" alignment="left" id="Dnb-sM-wdN"/>
                         <group width="1" alignment="center" verticalAlignment="center" hidden="YES" layout="vertical" id="0If-FP-smM">
@@ -201,7 +201,7 @@
         <!--SpecifyInterfaceController-->
         <scene sceneID="erR-Ld-VGW">
             <objects>
-                <controller identifier="SpecifyInterfaceController" id="aUg-UP-Vh5" customClass="SpecifyInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="SpecifyInterfaceController" id="aUg-UP-Vh5" customClass="SpecifyInterfaceController" customModule="GoldWalletWatch_Extension">
                     <items>
                         <button width="1" alignment="left" title="Description" id="fcI-6Z-moQ">
                             <connections>
@@ -237,7 +237,7 @@
         <!--NumericKeypadInterfaceController-->
         <scene sceneID="4Mp-O7-Llm">
             <objects>
-                <controller identifier="NumericKeypadInterfaceController" fullBounds="YES" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="BlueWalletWatch_Extension">
+                <controller identifier="NumericKeypadInterfaceController" fullBounds="YES" id="2PN-Fb-8j5" customClass="NumericKeypadInterfaceController" customModule="GoldWalletWatch_Extension">
                     <items>
                         <group height="0.25" alignment="left" id="kaq-2v-f7r">
                             <items>
@@ -338,7 +338,7 @@
         <!--Notification Controller-->
         <scene sceneID="Niz-AI-uX2">
             <objects>
-                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="BlueWalletWatch" customModuleProvider="target"/>
+                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="GoldWalletWatch" customModuleProvider="target"/>
             </objects>
             <point key="canvasLocation" x="220" y="1029"/>
         </scene>

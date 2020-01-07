@@ -1,6 +1,6 @@
 //
 //  WalletDetailsInterfaceController.swift
-//  BlueWalletWatch Extension
+//  GoldWalletWatch Extension
 //
 //  Created by Marcos Rodriguez on 3/11/19.
 //  Copyright © 2019 Facebook. All rights reserved.

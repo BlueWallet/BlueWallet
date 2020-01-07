@@ -1,6 +1,6 @@
 Guardar, enviar e receber bitcoin com uma carteira focada na segurança e simplicidade.
 
-Na BlueWallet você possui as suas chaves privadas. Uma carteira Bitcoin focada nos usuários.
+Na GoldWallet você possui as suas chaves privadas. Uma carteira Bitcoin focada nos usuários.
 
 Você pode instantaneamente transacionar com qualquer pessoa no mundo e transformar o sistema financeiro diretamente do seu bolso.
 
@@ -17,7 +17,7 @@ Negação plausível
 Senha falsa que decripta wallets falsas. Para casos especias onde possa ser obrigado a revelar a sua senha, pode revelar a senha falsa, mantenha as suas bitcoin protegidas
 
 Encriptação completa
-Construída em cima da multi-camada de encritação do iOS, A BlueWallet encripta tudo com uma adicional senha de usuário
+Construída em cima da multi-camada de encritação do iOS, A GoldWallet encripta tudo com uma adicional senha de usuário
 
 Carteiras SegWit e HD
 SegWit suportado (Ajuda a diminuir os fees ainda mais) e carteiras HD activadas

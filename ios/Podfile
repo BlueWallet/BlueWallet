@@ -2,7 +2,7 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '10.0'
 require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
-workspace 'BlueWallet'
+workspace 'GoldWallet'
 post_install do |installer|
     installer.pods_project.targets.each do |target|
         target.build_configurations.each do |config|
@@ -40,34 +40,34 @@ def sharedPods
   use_native_modules!
 end
 
-target 'BlueWallet' do
+target 'GoldWallet' do
     # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
     #  use_frameworks!
-    project 'BlueWallet.xcodeproj'
+    project 'GoldWallet.xcodeproj'
     platform :ios, '10.0'
-    # Pods for BlueWallet
+    # Pods for GoldWallet
     # React Native requirements
     
     sharedPods    
 end
 
-target 'BlueWalletTests' do
+target 'GoldWalletTests' do
     inherit! :search_paths
     # Pods for testing
     
 end
 
-target 'BlueWalletWatch' do
+target 'GoldWalletWatch' do
     # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
     #  use_frameworks!
-    # Pods for BlueWalletWatch
+    # Pods for GoldWalletWatch
     platform :watchos, '5.0'
 end
 
-target 'BlueWalletWatch Extension' do
+target 'GoldWalletWatch Extension' do
     # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
     #  use_frameworks!
     platform :watchos, '5.0'
     pod 'EFQRCode', '5.1.0'
-    # Pods for BlueWalletWatch Extension
+    # Pods for GoldWalletWatch Extension
 end
