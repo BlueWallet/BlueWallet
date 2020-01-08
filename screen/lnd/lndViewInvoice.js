@@ -46,7 +46,7 @@ export default class LNDViewInvoice extends Component {
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {
@@ -277,11 +277,9 @@ export default class LNDViewInvoice extends Component {
             </View>
 
             <BlueSpacing20 />
-            {invoice && invoice.amt && (
-              <BlueText>
-                {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
-              </BlueText>
-            )}
+            <BlueText>
+              {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
+            </BlueText>
             {invoice && invoice.hasOwnProperty('description') && invoice.description.length > 0 && (
               <BlueText>
                 {loc.lndViewInvoice.for} {invoice.description}
