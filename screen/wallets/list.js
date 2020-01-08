@@ -41,6 +41,7 @@ export default class WalletsList extends Component {
       wallets: BlueApp.getWallets().concat(false),
       lastSnappedTo: 0,
       timeElpased: 0,
+      cameraPreviewIsPaused: true,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -300,7 +301,7 @@ export default class WalletsList extends Component {
 
   onSwiperIndexChanged = index => {
     StatusBar.setBarStyle(index === 1 ? 'dark-content' : 'light-content');
-    this.setState({ cameraPreviewIsPaused: index === 1 });
+    this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined });
   };
 
   onBarScanned = value => {
@@ -333,7 +334,7 @@ export default class WalletsList extends Component {
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
-            this.setState({ cameraPreviewIsPaused: this.swiperRef.current.index === 1 });
+            this.setState({ cameraPreviewIsPaused: this.swiperRef.current.index === 1 || this.swiperRef.current.index === undefined });
           }}
           onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
         />
