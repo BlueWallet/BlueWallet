@@ -131,16 +131,16 @@ export default class TransactionsDetails extends Component {
               </React.Fragment>
             )}
 
-            {this.state.tx.hasOwnProperty('hash') && (
+            {this.state.tx.hasOwnProperty('txid') && (
               <React.Fragment>
                 <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
                   <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Transaction ID</BlueText>
-                  <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
+                  <BlueCopyToClipboardButton stringToCopy={this.state.tx.txid} />
                 </View>
-                <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+                <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.txid}</BlueText>
                 <TouchableOpacity
                   onPress={() => {
-                    const url = `https://explorer.bitcoinroyale.org/tx/${this.state.tx.hash}`;
+                    const url = `http://explorer.bitcoinvault.global/tx/${this.state.tx.txid}`;
                     Linking.canOpenURL(url).then(supported => {
                       if (supported) {
                         Linking.openURL(url);

@@ -101,7 +101,7 @@ export class LegacyWallet extends AbstractWallet {
   async fetchBalance() {
     try {  
       let balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
-      this.balance = balance.confirmed;
+      this.balance = balance.confirmed + balance.unconfirmed;
       this.unconfirmed_balance = balance.unconfirmed;
       this._lastBalanceFetch = +new Date();
     } catch (err) {
@@ -227,7 +227,7 @@ export class LegacyWallet extends AbstractWallet {
   async _update_unconfirmed_tx(txid_list) {
     try{
       let txs_full = await BlueElectrum.multiGetTransactionsFullByTxid(txid_list);
-      this.unconfirmed_transactions = []; // all unconfirmed transactions will be updated
+      let unconfirmed_transactions = []
       for (let tx of txs_full) {  
         let value = 0;
           for (let input of tx.inputs) {
@@ -242,13 +242,14 @@ export class LegacyWallet extends AbstractWallet {
           if (tx.time) 
             tx.received = new Date(tx.time * 1000).toISOString();
           else
-            tx.received = new Date();
+            tx.received = new Date().toISOString();
           if (!tx.confirmations) tx.confirmations = 0;
           if (tx.confirmations < 6 ) 
-            this.unconfirmed_transactions.push(tx);
+            unconfirmed_transactions.push(tx);
           else 
             this.transactions.push(tx);
       }
+      this.unconfirmed_transactions = unconfirmed_transactions; // all unconfirmed transactions will be updated
     } catch (err) {
     console.warn(err.message);
     }
