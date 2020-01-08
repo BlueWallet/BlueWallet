@@ -31,13 +31,14 @@ fi
 
 
 if [ -f $FILENAME_IOS ]; then
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   # means we are building production IOS build. lets try to build sim build as well and upload it to appetize
   mv "$FILENAME_IOS" "$FILENAME_IOS.bak"
-  xcodebuild -arch i386 -configuration Release -sdk iphonesimulator13.0 -workspace 'ios/BlueWallet.xcworkspace' -scheme 'BlueWallet'
+  xcodebuild -arch i386 -configuration Release -sdk iphonesimulator -workspace 'ios/BlueWallet.xcworkspace' -scheme 'BlueWallet'
   echo 'ios/build/Debug-iphonesimulator/    :'
   ls -lah ios/build/Debug-iphonesimulator/
   echo
-  find | grep "\.app"
+  find  ./ | grep "\.app"
 
   mv "$FILENAME_IOS.bak" "$FILENAME_IOS"
 fi
