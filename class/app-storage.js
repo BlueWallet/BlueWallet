@@ -9,8 +9,9 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
   HDSegwitBech32Wallet,
+  PlaceholderWallet,
+  LightningCustodianWallet,
 } from './';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
 import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quickActions';
 const encryption = require('../encryption');
@@ -234,6 +235,8 @@ export class AppStorage {
           let tempObj = JSON.parse(key);
           let unserializedWallet;
           switch (tempObj.type) {
+            case PlaceholderWallet.type:
+              continue;
             case SegwitBech32Wallet.type:
               unserializedWallet = SegwitBech32Wallet.fromJson(key);
               break;
@@ -342,6 +345,7 @@ export class AppStorage {
     for (let key of this.wallets) {
       if (typeof key === 'boolean') continue;
       if (typeof key === 'string') key = JSON.parse(key);
+      if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
@@ -392,13 +396,13 @@ export class AppStorage {
     console.log('fetchWalletBalances for wallet#', index);
     if (index || index === 0) {
       let c = 0;
-      for (let wallet of this.wallets) {
+      for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
         if (c++ === index) {
           await wallet.fetchBalance();
         }
       }
     } else {
-      for (let wallet of this.wallets) {
+      for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
         await wallet.fetchBalance();
       }
     }
@@ -418,7 +422,7 @@ export class AppStorage {
     console.log('fetchWalletTransactions for wallet#', index);
     if (index || index === 0) {
       let c = 0;
-      for (let wallet of this.wallets) {
+      for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
         if (c++ === index) {
           await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {

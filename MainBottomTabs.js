@@ -16,13 +16,13 @@ import WalletsList from './screen/wallets/list';
 import WalletTransactions from './screen/wallets/transactions';
 import AddWallet from './screen/wallets/add';
 import PleaseBackup from './screen/wallets/pleaseBackup';
+import PleaseBackupLNDHub from './screen/wallets/pleaseBackupLNDHub';
 import ImportWallet from './screen/wallets/import';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import Marketplace from './screen/wallets/marketplace';
-import scanQrWif from './screen/wallets/scanQrWif';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
 
@@ -60,6 +60,9 @@ const WalletsStackNavigator = createStackNavigator(
     Wallets: {
       screen: WalletsList,
       path: 'wallets',
+      navigationOptions: {
+        header: null,
+      },
     },
     WalletTransactions: {
       screen: WalletTransactions,
@@ -157,6 +160,7 @@ const WalletsStackNavigator = createStackNavigator(
 
 const CreateTransactionStackNavigator = createStackNavigator({
   SendDetails: {
+    routeName: 'SendDetails',
     screen: sendDetails,
   },
   Confirm: {
@@ -209,6 +213,14 @@ const CreateWalletStackNavigator = createStackNavigator({
   },
   PleaseBackup: {
     screen: PleaseBackup,
+  },
+  PleaseBackupLNDHub: {
+    screen: PleaseBackupLNDHub,
+    swipeEnabled: false,
+    gesturesEnabled: false,
+    navigationOptions: {
+      header: null,
+    },
   },
 });
 
@@ -268,9 +280,6 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
-    ScanQrWif: {
-      screen: scanQrWif,
-    },
     WalletExport: {
       screen: WalletExport,
     },
@@ -285,6 +294,7 @@ const MainBottomTabs = createStackNavigator(
     },
     //
     SendDetails: {
+      routeName: 'SendDetails',
       screen: CreateTransactionStackNavigator,
       navigationOptions: {
         header: null,

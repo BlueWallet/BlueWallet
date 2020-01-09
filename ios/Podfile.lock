@@ -82,7 +82,7 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-slider (2.0.0-rc.1):
+  - react-native-slider (2.0.8):
     - React
   - react-native-webview (6.9.0):
     - React
@@ -125,13 +125,13 @@ PODS:
     - React
   - RNHandoff (0.0.3):
     - React
-  - RNQuickAction (0.3.12):
+  - RNQuickAction (0.3.13):
     - React
   - RNRate (1.0.1):
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.0.9):
+  - RNSentry (1.2.1):
     - React
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
@@ -140,11 +140,11 @@ PODS:
     - React
   - RNVectorIcons (6.6.0):
     - React
-  - RNWatch (0.4.1):
+  - RNWatch (0.4.2):
     - React
-  - Sentry (4.4.2):
-    - Sentry/Core (= 4.4.2)
-  - Sentry/Core (4.4.2)
+  - Sentry (4.4.3):
+    - Sentry/Core (= 4.4.3)
+  - Sentry/Core (4.4.3)
   - swift_qrcodejs (1.1.2)
   - TcpSockets (3.3.2):
     - React
@@ -334,7 +334,7 @@ SPEC CHECKSUMS:
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
-  react-native-slider: 6d83f7b8076a84e965a43fbdcfcf9dac19cea42e
+  react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
   react-native-webview: f72ac4078e115dfa741cc588acb1cca25566457d
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90
   React-RCTAnimation: 359ba1b5690b1e87cc173558a78e82d35919333e
@@ -354,15 +354,15 @@ SPEC CHECKSUMS:
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
-  RNQuickAction: eca9a5dd04b5cdf8a0dd32d8be8844dc33aba2bd
+  RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 2803ba8c8129dcf26b79e9b4d8c80168be6e4390
+  RNSentry: 9b1d983b2d5d1c215ba6490348fd2a4cc23a8a9d
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
-  RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
-  Sentry: bba998b0fb157fdd6596aa73290a9d67ae47be79
+  RNWatch: a36ea17fac675b98b1d8cd41604af68cf1fa9a03
+  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
   ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e

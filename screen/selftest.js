@@ -262,7 +262,7 @@ export default class Selftest extends Component {
         await hd3.fetchBalance();
         if (hd3.getBalance() !== 26000) throw new Error('Could not fetch HD balance');
         await hd3.fetchTransactions();
-        if (hd3.transactions.length !== 1) throw new Error('Could not fetch HD transactions');
+        if (hd3.getTransactions().length !== 1) throw new Error('Could not fetch HD transactions');
 
         //
 

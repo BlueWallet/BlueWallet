@@ -19,6 +19,7 @@ import {
   BlueNavigationStyle,
   BlueAddressInput,
   BlueBitcoinAmount,
+  BlueLoading,
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -45,7 +46,8 @@ export default class ScanLndInvoice extends React.Component {
 
   constructor(props) {
     super(props);
-
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
@@ -78,9 +80,7 @@ export default class ScanLndInvoice extends React.Component {
     }
   }
 
-  async componentDidMount() {
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+  componentDidMount() {
     if (this.props.navigation.state.params.uri) {
       this.processTextForInvoice(this.props.navigation.getParam('uri'));
     }
@@ -265,6 +265,9 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   render() {
+    if (!this.state.fromWallet) {
+      return <BlueLoading />;
+    }
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
@@ -300,6 +303,7 @@ export default class ScanLndInvoice extends React.Component {
                   isLoading={this.state.isLoading}
                   placeholder={loc.lnd.placeholder}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                  launchedBy={this.props.navigation.state.routeName}
                 />
                 <View
                   style={{
@@ -353,6 +357,7 @@ ScanLndInvoice.propTypes = {
     getParam: PropTypes.func,
     dismiss: PropTypes.func,
     state: PropTypes.shape({
+      routeName: PropTypes.string,
       params: PropTypes.shape({
         uri: PropTypes.string,
         fromSecret: PropTypes.string,

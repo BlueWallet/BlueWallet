@@ -10,7 +10,13 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import { BlueNavigationStyle, BlueButton, BlueBitcoinAmount, BlueDismissKeyboardInputAccessory } from '../../BlueComponents';
+import {
+  BlueNavigationStyle,
+  BlueButton,
+  BlueBitcoinAmount,
+  BlueDismissKeyboardInputAccessory,
+  BlueAlertWalletExportReminder,
+} from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
@@ -47,15 +53,35 @@ export default class LNDCreateInvoice extends Component {
       fromWallet,
       amount: '',
       description: '',
-      isLoading: false,
       lnurl: '',
       lnurlParams: null,
+      isLoading: true,
     };
   }
 
-  componentDidMount() {
+  renderReceiveDetails = async () => {
+    this.state.fromWallet.setUserHasSavedExport(true);
+    await BlueApp.saveToDisk();
     if (this.props.navigation.state.params.uri) {
       this.processLnurl(this.props.navigation.getParam('uri'));
+    }
+    this.setState({ isLoading: false });
+  };
+
+  componentDidMount() {
+    if (this.state.fromWallet.getUserHasSavedExport()) {
+      this.renderReceiveDetails();
+    } else {
+      BlueAlertWalletExportReminder({
+        onSuccess: this.renderReceiveDetails,
+        onFailure: () => {
+          this.props.navigation.dismiss();
+          this.props.navigation.navigate('WalletExport', {
+            address: this.state.fromWallet.getAddress(),
+            secret: this.state.fromWallet.getSecret(),
+          });
+        },
+      });
     }
   }
 
@@ -266,6 +292,7 @@ export default class LNDCreateInvoice extends Component {
 LNDCreateInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
+    dismiss: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
     state: PropTypes.shape({

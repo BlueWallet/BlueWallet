@@ -25,6 +25,7 @@ import {
   BlueReceiveButtonIcon,
   BlueTransactionListItem,
   BlueWalletNavigationHeader,
+  BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
@@ -81,11 +82,15 @@ export default class WalletTransactions extends Component {
       dataSource: this.getTransactions(15),
       limit: 15,
       pageSize: 20,
+      timeElapsed: 0, // this is to force a re-render for FlatList items.
     };
   }
 
   componentDidMount() {
     this.props.navigation.setParams({ isLoading: false });
+    this.interval = setInterval(() => {
+      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
+    }, 60000);
   }
 
   /**
@@ -401,10 +406,17 @@ export default class WalletTransactions extends Component {
 
   componentWillUnmount() {
     this.onWillBlur();
+    clearInterval(this.interval);
   }
 
   renderItem = item => {
-    return <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()} />;
+    return (
+      <BlueTransactionListItem
+        item={item.item}
+        itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
+        shouldRefresh={this.state.timeElapsed}
+      />
+    );
   };
 
   render() {
@@ -433,7 +445,24 @@ export default class WalletTransactions extends Component {
               this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
             })
           }
-          onManageFundsPressed={() => this.setState({ isManageFundsModalVisible: true })}
+          onManageFundsPressed={() => {
+            if (this.state.wallet.getUserHasSavedExport()) {
+              this.setState({ isManageFundsModalVisible: true });
+            } else {
+              BlueAlertWalletExportReminder({
+                onSuccess: async () => {
+                  this.state.wallet.setUserHasSavedExport(true);
+                  await BlueApp.saveToDisk();
+                  this.setState({ isManageFundsModalVisible: true });
+                },
+                onFailure: () =>
+                  this.props.navigation.navigate('WalletExport', {
+                    address: this.state.wallet.getAddress(),
+                    secret: this.state.wallet.getSecret(),
+                  }),
+              });
+            }
+          }}
         />
         <View style={{ backgroundColor: '#FFFFFF', flex: 1 }}>
           <FlatList
