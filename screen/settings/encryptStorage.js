@@ -16,8 +16,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+let BlueApp: AppStorage = require('../../BlueApp');
 let prompt = require('../../prompt');
 let loc = require('../../loc');
 

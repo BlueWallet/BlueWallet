@@ -106,7 +106,7 @@ export default class WalletMigrate {
     }
     this.migrationComplete();
   }
-  
+
   // 3: We're done!
   migrationComplete() {
     console.log('Migration was successful. Exiting migration...');
