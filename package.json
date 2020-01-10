@@ -64,7 +64,7 @@
     "bip32": "2.0.3",
     "bip39": "2.5.0",
     "bitcoinjs-lib": "5.1.6",
-    "bolt11": "github:BlueWallet/bolt11#740b0516d99bb6a19f20444d1e0d52d3839f2575",
+    "bolt11": "1.2.7",
     "buffer": "5.2.1",
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.11",
