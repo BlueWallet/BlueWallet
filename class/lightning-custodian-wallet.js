@@ -561,6 +561,8 @@ export class LightningCustodianWallet extends LegacyWallet {
       }
     }
 
+    if (!decoded.expiry) decoded.expiry = '3600'; // default
+
     return (this.decoded_invoice_raw = decoded);
   }
 

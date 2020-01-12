@@ -131,6 +131,7 @@ describe('LightningCustodianWallet', () => {
     assert.strictEqual(decodedLocally.destination, decodedRemotely.destination);
     assert.strictEqual(decodedLocally.num_satoshis, decodedRemotely.num_satoshis);
     assert.strictEqual(decodedLocally.timestamp, decodedRemotely.timestamp);
+    assert.strictEqual(decodedLocally.expiry, decodedRemotely.expiry);
     assert.strictEqual(decodedLocally.payment_hash, decodedRemotely.payment_hash);
     assert.strictEqual(decodedLocally.description, decodedRemotely.description);
     assert.strictEqual(decodedLocally.cltv_expiry, decodedRemotely.cltv_expiry);
