@@ -1,3 +1,24 @@
+v4.9.2
+======
+
+* ADD: Swipe to Scan
+* ADD: Handle clipboard content with both bitcoin: and lightning:
+* ADD: Ask user if they have backed up their seed phrase
+* ADD: Export screen allows copying to clipboard if its a LNDHub wallet
+* ADD: Show LNDHub backup when creating lnd wallet
+* ADD: CLP Fiat
+* FIX: TX Time visual glitch
+* FIX: Show an alert when theres a fetch transactions error
+* FIX: TX list uses whole canvas area
+* FIX: Don't allow empty wallet labels
+* FIX: Wallet type selecion clipping on advanced mode
+* FIX: Receive address was not being rendered
+* FIX: Don't show wallet export warning if wallet was imported
+* REF: Reworked Import wallet flow
+* REF: BIP49 to use electrum
+* REF: Custom receive
+
+
 v4.9.0
 ======
 
@@ -31,23 +52,3 @@ v4.8.0
 * FIX: Dont allow zero invoices to enable create invoice button
 * FIX: Change create button on Receive LN payment should be create invoice
 * FIX: Update for watch
-
-
-v4.7.1
-======
-
-* ADD: Lapp browser
-* FIX: White screen on boot
-* FIX: Lightning wallet was not shown on Watch app
-* FIX: crash on PSBT tx broadcast (when using with hardware wallet)
-* REF: mnemonic backup screen
-* DEL: Auto brightenss
-
-v4.7.0
-======
-
-* ADD: external marketplace link
-* FIX: electrum connection
-* FIX: Now able to use biometrics with encrypted storage (not for unlocking)
-* FIX: LApp marketplace address is now editable
-* FIX: single address watch-only wallet Receive button crash
