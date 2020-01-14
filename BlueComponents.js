@@ -191,7 +191,7 @@ export class BlueWalletNavigationHeader extends Component {
       wallet.preferredBalanceUnit = BitcoinUnit.SATS;
       walletPreviousPreferredUnit = BitcoinUnit.BTC;
     } else if (walletPreviousPreferredUnit === BitcoinUnit.SATS) {
-      wallet.preferredBalanceUnit = BitcoinUnit.BitcoinUnit.BTC;
+      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
       walletPreviousPreferredUnit = BitcoinUnit.SATS;
      } else {
       wallet.preferredBalanceUnit = BitcoinUnit.BTC;
@@ -1342,7 +1342,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash]['memo']) {
       return BlueApp.tx_metadata[item.hash]['memo'];
     }
-    return '';
+    return item.walletLabel;
   };
 
   const rowTitle = () => {
@@ -1472,7 +1472,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC 
 
   const onPress = () => {
     if (item.hash) {
-      NavigationService.navigate('TransactionStatus', { hash: item.hash });
+      NavigationService.navigate('TransactionStatus', { hash: item.hash, walletLabel: item.walletLabel });
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {

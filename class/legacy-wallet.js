@@ -243,6 +243,7 @@ export class LegacyWallet extends AbstractWallet {
             tx.received = new Date(tx.time * 1000).toISOString();
           else
             tx.received = new Date().toISOString();
+          tx.walletLabel = this.label
           if (!tx.confirmations) tx.confirmations = 0;
           if (tx.confirmations < 6 ) 
             unconfirmed_transactions.push(tx);

@@ -35,11 +35,12 @@ export default class TransactionsStatus extends Component {
   constructor(props) {
     super(props);
     let hash = props.navigation.state.params.hash;
+    let label = props.navigation.state.params.walletLabel;
     let foundTx = {};
     let from = [];
     let to = [];
     for (let tx of BlueApp.getTransactions()) {
-      if (tx.hash === hash) {
+      if (tx.hash === hash && tx.walletLabel === label) {
         foundTx = tx;
         for (let input of foundTx.inputs) {
           from = from.concat(input.addresses);
@@ -53,12 +54,8 @@ export default class TransactionsStatus extends Component {
 
     let wallet = false;
     for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
-        if (t.hash === hash) {
-          console.log('tx', hash, 'belongs to', w.getLabel());
-          wallet = w;
-        }
-      }
+      if (w.getLabel() === foundTx.walletLabel)
+        wallet = w;
     }
 
     this.state = {
@@ -136,6 +133,23 @@ export default class TransactionsStatus extends Component {
     }
   }
 
+  changeWalletBalanceUnit() {
+    let walletPreviousPreferredUnit = this.state.wallet.getPreferredBalanceUnit();
+    const wallet = this.state.wallet;
+    if (walletPreviousPreferredUnit === BitcoinUnit.BTC) {
+      wallet.preferredBalanceUnit = BitcoinUnit.SATS;
+      walletPreviousPreferredUnit = BitcoinUnit.BTC;
+    } else if (walletPreviousPreferredUnit === BitcoinUnit.SATS) {
+      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
+      walletPreviousPreferredUnit = BitcoinUnit.SATS;
+     } else {
+      wallet.preferredBalanceUnit = BitcoinUnit.BTC;
+      walletPreviousPreferredUnit = BitcoinUnit.BTC;
+    }
+    // this.state.wallet.preferredBalanceUnit = wallet.preferredBalanceUnit;
+    this.setState({ state: this.state });
+    };
+
   render() {
     if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
       return <BlueLoading />;
@@ -150,6 +164,9 @@ export default class TransactionsStatus extends Component {
         />
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <BlueCard>
+            <TouchableOpacity
+              onPress={() => this.changeWalletBalanceUnit()}
+            >
             <View style={{ alignItems: 'center' }}>
               <Text style={{ color: '#2f5fb3', fontSize: 36, fontWeight: '600' }}>
                 {loc.formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
@@ -158,6 +175,7 @@ export default class TransactionsStatus extends Component {
                 )}
               </Text>
             </View>
+          </TouchableOpacity>
 
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
@@ -170,7 +188,16 @@ export default class TransactionsStatus extends Component {
                   );
                 }
               }
-            })()}
+                else { 
+                  return (
+                    <View style={{ alignItems: 'center', marginVertical: 8 }}>
+                      <Text style={{ color: '#9aa0aa', fontSize: 14 }}>{this.state.tx.walletLabel}</Text>
+                      <BlueSpacing20 />
+                    </View>
+                  );
+                }
+              }
+              )()}
 
             <View
               style={{

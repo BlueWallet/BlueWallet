@@ -47,7 +47,7 @@ export default class WalletsAdd extends Component {
 
     this.setState({
       isLoading: false,
-      activeBitcoin: undefined,
+      activeBitcoin: true,
       label: '',
       isAdvancedOptionsEnabled,
       walletBaseURI,
@@ -112,33 +112,6 @@ export default class WalletsAdd extends Component {
               style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
-            />
-          </View>
-          <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingTop: 10,
-              marginHorizontal: 20,
-              borderWidth: 0,
-              minHeight: 100,
-            }}
-          >
-            <BitcoinButton
-              active={this.state.activeBitcoin}
-              onPress={() => {
-                Keyboard.dismiss();
-                this.setState({
-                  activeBitcoin: true,
-                  activeLightning: false,
-                });
-              }}
-              style={{
-                width: '45%',
-                height: 88,
-              }}
             />
           </View>
 
