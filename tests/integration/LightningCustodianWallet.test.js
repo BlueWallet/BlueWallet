@@ -100,11 +100,12 @@ describe('LightningCustodianWallet', () => {
 
     let invoice =
       'lnbc1u1pdcqpt3pp5ltuevvq2g69kdrzcegrs9gfqjer45rwjc0w736qjl92yvwtxhn6qdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2zrkghzl535xjav52ns0rpskcn20takzdr2e02wn4xqretlgdemg596acq5qtfqhjk4jpr7jk8qfuuka2k0lfwjsk9mchwhxcgxzj3tsp09gfpy';
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
 
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.ok(decoded.num_satoshis);
+    assert.strictEqual(parseInt(decoded.num_satoshis) * 1000, parseInt(decoded.num_millisatoshis));
 
     await l2.checkRouteInvoice(invoice);
 
@@ -112,11 +113,28 @@ describe('LightningCustodianWallet', () => {
     invoice = 'gsom';
     let error = false;
     try {
-      await l2.decodeInvoice(invoice);
+      l2.decodeInvoice(invoice);
     } catch (Err) {
       error = true;
     }
     assert.ok(error);
+  });
+
+  it('can decode invoice locally & remotely', async () => {
+    let l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+    let invoice =
+      'lnbc1u1pdcqpt3pp5ltuevvq2g69kdrzcegrs9gfqjer45rwjc0w736qjl92yvwtxhn6qdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2zrkghzl535xjav52ns0rpskcn20takzdr2e02wn4xqretlgdemg596acq5qtfqhjk4jpr7jk8qfuuka2k0lfwjsk9mchwhxcgxzj3tsp09gfpy';
+    let decodedLocally = l2.decodeInvoice(invoice);
+    let decodedRemotely = await l2.decodeInvoiceRemote(invoice);
+    assert.strictEqual(decodedLocally.destination, decodedRemotely.destination);
+    assert.strictEqual(decodedLocally.num_satoshis, decodedRemotely.num_satoshis);
+    assert.strictEqual(decodedLocally.timestamp, decodedRemotely.timestamp);
+    assert.strictEqual(decodedLocally.expiry, decodedRemotely.expiry);
+    assert.strictEqual(decodedLocally.payment_hash, decodedRemotely.payment_hash);
+    assert.strictEqual(decodedLocally.description, decodedRemotely.description);
+    assert.strictEqual(decodedLocally.cltv_expiry, decodedRemotely.cltv_expiry);
   });
 
   it('can pay invoice', async () => {
@@ -155,7 +173,7 @@ describe('LightningCustodianWallet', () => {
     await l2.fetchTransactions();
     let txLen = l2.transactions_raw.length;
 
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
 
@@ -336,7 +354,7 @@ describe('LightningCustodianWallet', () => {
     let oldBalance = +l2.balance;
     let txLen = l2.transactions_raw.length;
 
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.strictEqual(+decoded.num_satoshis, 0);
@@ -443,7 +461,7 @@ describe('LightningCustodianWallet', () => {
     let oldBalance = +l2.balance;
     let txLen = l2.transactions_raw.length;
 
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.strictEqual(+decoded.num_satoshis, 0);

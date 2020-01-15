@@ -1,6 +1,6 @@
 {
   "name": "BlueWallet",
-  "version": "4.9.1",
+  "version": "4.9.2",
   "devDependencies": {
     "@babel/core": "^7.5.0",
     "@babel/runtime": "^7.5.1",
@@ -38,7 +38,8 @@
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npm run releasenotes2json; npm run podinstall; npx jetify",
     "test": "npm run unit && npm run jest && npm run lint",
     "jest": "node node_modules/jest/bin/jest.js tests/integration/*",
-    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ --fix",
+    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/",
+    "lint:fix": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ --fix",
     "unit": "./node_modules/.bin/mocha tests/unit/*"
   },
   "jest": {
@@ -64,6 +65,7 @@
     "bip32": "2.0.3",
     "bip39": "2.5.0",
     "bitcoinjs-lib": "5.1.6",
+    "bolt11": "1.2.7",
     "buffer": "5.2.1",
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.11",

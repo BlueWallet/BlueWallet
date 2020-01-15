@@ -1,5 +1,6 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
+import bolt11 from 'bolt11';
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
 export class LightningCustodianWallet extends LegacyWallet {
@@ -515,7 +516,7 @@ export class LightningCustodianWallet extends LegacyWallet {
    * Example return:
    * { destination: '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f',
    *   payment_hash: 'faf996300a468b668c58ca0702a12096475a0dd2c3dde8e812f954463966bcf4',
-   *   num_satoshisnum_satoshis: '100',
+   *   num_satoshis: '100',
    *   timestamp: '1535116657',
    *   expiry: '3600',
    *   description: 'hundredSatoshis blitzhub',
@@ -527,31 +528,42 @@ export class LightningCustodianWallet extends LegacyWallet {
    * @param invoice BOLT invoice string
    * @return {Promise.<Object>}
    */
-  async decodeInvoice(invoice) {
-    await this.checkLogin();
+  decodeInvoice(invoice) {
+    let { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
 
-    let response = await this._api.get('/decodeinvoice?invoice=' + invoice, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Content-Type': 'application/json',
-        Authorization: 'Bearer' + ' ' + this.access_token,
-      },
-    });
+    let decoded = {
+      destination: payeeNodeKey,
+      num_satoshis: satoshis ? satoshis.toString() : '0',
+      num_millisatoshis: millisatoshis ? millisatoshis.toString() : '0',
+      timestamp: timestamp.toString(),
+      fallback_addr: '',
+      route_hints: [],
+    };
 
-    let json = response.body;
-    if (typeof json === 'undefined') {
-      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    for (let i = 0; i < tags.length; i++) {
+      let { tagName, data } = tags[i];
+      switch (tagName) {
+        case 'payment_hash':
+          decoded.payment_hash = data;
+          break;
+        case 'purpose_commit_hash':
+          decoded.description_hash = data;
+          break;
+        case 'min_final_cltv_expiry':
+          decoded.cltv_expiry = data.toString();
+          break;
+        case 'expire_time':
+          decoded.expiry = data.toString();
+          break;
+        case 'description':
+          decoded.description = data;
+          break;
+      }
     }
 
-    if (json && json.error) {
-      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
-    }
+    if (!decoded.expiry) decoded.expiry = '3600'; // default
 
-    if (!json.payment_hash) {
-      throw new Error('API unexpected response: ' + JSON.stringify(response.body));
-    }
-
-    return (this.decoded_invoice_raw = json);
+    return (this.decoded_invoice_raw = decoded);
   }
 
   async fetchInfo() {
@@ -601,6 +613,49 @@ export class LightningCustodianWallet extends LegacyWallet {
 
   allowReceive() {
     return true;
+  }
+
+  /**
+   * Example return:
+   * { destination: '03864ef025fde8fb587d989186ce6a4a186895ee44a926bfc370e2c366597a3f8f',
+   *   payment_hash: 'faf996300a468b668c58ca0702a12096475a0dd2c3dde8e812f954463966bcf4',
+   *   num_satoshis: '100',
+   *   timestamp: '1535116657',
+   *   expiry: '3600',
+   *   description: 'hundredSatoshis blitzhub',
+   *   description_hash: '',
+   *   fallback_addr: '',
+   *   cltv_expiry: '10',
+   *   route_hints: [] }
+   *
+   * @param invoice BOLT invoice string
+   * @return {Promise.<Object>}
+   */
+  async decodeInvoiceRemote(invoice) {
+    await this.checkLogin();
+
+    let response = await this._api.get('/decodeinvoice?invoice=' + invoice, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer' + ' ' + this.access_token,
+      },
+    });
+
+    let json = response.body;
+    if (typeof json === 'undefined') {
+      throw new Error('API failure: ' + response.err + ' ' + JSON.stringify(response.body));
+    }
+
+    if (json && json.error) {
+      throw new Error('API error: ' + json.message + ' (code ' + json.code + ')');
+    }
+
+    if (!json.payment_hash) {
+      throw new Error('API unexpected response: ' + JSON.stringify(response.body));
+    }
+
+    return (this.decoded_invoice_raw = json);
   }
 }
 
