@@ -13,7 +13,7 @@ import {
   Text,
   View,
   Platform,
-  Alert,
+  PermissionsAndroid,
 } from 'react-native';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -73,38 +73,22 @@ export default class SendCreate extends Component {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      Alert.alert(
-        'Export',
-        'Where would you like to export this transaction?',
-        [
-          {
-            text: 'External Storage',
-            onPress: async () => {
-              try {
-                await RNFS.writeFile('file://' + RNFS.ExternalStorageDirectoryPath + `/${fileName}`, this.state.tx, 'ascii');
-                alert('Successfully exported.');
-              } catch (e) {
-                console.log(e);
-                alert(e);
-              }
-            },
-          },
-          {
-            text: 'Documents Folder',
-            onPress: async () => {
-              try {
-                await RNFS.writeFile('file://' + RNFS.DocumentDirectoryPath + `/${fileName}`, this.state.tx, 'ascii');
-                alert('Successfully exported.');
-              } catch (e) {
-                console.log(e);
-                alert(e);
-              }
-            },
-          },
-          { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-        ],
-        { cancelable: true },
-      );
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+        title: 'BlueWallet Storage Access Permission',
+        message: 'BlueWallet needs your permission to access your storage to save this transaction.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      });
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Storage Permission: Granted');
+        const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
+        await RNFS.writeFile(filePath, this.state.tx);
+        alert(`This transaction has been saved in ${filePath}`);
+      } else {
+        console.log('Storage Permission: Denied');
+      }
     }
   };
 

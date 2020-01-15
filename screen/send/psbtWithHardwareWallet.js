@@ -7,11 +7,11 @@ import {
   View,
   Dimensions,
   Image,
-  Alert,
   TextInput,
   Clipboard,
   Linking,
   Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { Icon, Text } from 'react-native-elements';
@@ -73,6 +73,7 @@ export default class PsbtWithHardwareWallet extends Component {
       deepLinkPSBT: undefined,
       txhex: props.navigation.getParam('txhex') || undefined,
     };
+    this.fileName = `${Date.now()}.psbt`;
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -229,9 +230,8 @@ export default class PsbtWithHardwareWallet extends Component {
   }
 
   exportPSBT = async () => {
-    const fileName = `${Date.now()}.psbt`;
     if (Platform.OS === 'ios') {
-      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      const filePath = RNFS.TemporaryDirectoryPath + `/${this.fileName}`;
       await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
       Share.open({
         url: 'file://' + filePath,
@@ -241,46 +241,22 @@ export default class PsbtWithHardwareWallet extends Component {
           RNFS.unlink(filePath);
         });
     } else if (Platform.OS === 'android') {
-      Alert.alert(
-        'Export',
-        'Where would you like to export this transaction?',
-        [
-          {
-            text: 'External Storage',
-            onPress: async () => {
-              try {
-                await RNFS.writeFile(
-                  'file://' + RNFS.ExternalStorageDirectoryPath + `/${fileName}`,
-                  this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
-                  'ascii',
-                );
-                alert('Successfully exported.');
-              } catch (e) {
-                console.log(e);
-                alert(e);
-              }
-            },
-          },
-          {
-            text: 'Documents Folder',
-            onPress: async () => {
-              try {
-                await RNFS.writeFile(
-                  'file://' + RNFS.DocumentDirectoryPath + `/${fileName}`,
-                  this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
-                  'ascii',
-                );
-                alert('Successfully exported.');
-              } catch (e) {
-                console.log(e);
-                alert(e);
-              }
-            },
-          },
-          { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
-        ],
-        { cancelable: true },
-      );
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+        title: 'BlueWallet Storage Access Permission',
+        message: 'BlueWallet needs your permission to access your storage to save this transaction.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      });
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Storage Permission: Granted');
+        const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
+        await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
+        alert(`This transaction has been saved in ${filePath}`);
+      } else {
+        console.log('Storage Permission: Denied');
+      }
     }
   };
 
