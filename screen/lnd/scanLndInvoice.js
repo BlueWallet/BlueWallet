@@ -216,7 +216,7 @@ export default class ScanLndInvoice extends React.Component {
     if (typeof this.state.decoded !== 'object') {
       return true;
     } else {
-      if (!this.state.decoded.hasOwnProperty('num_satoshis')) {
+      if (!this.state.decoded.num_satoshis) {
         return true;
       }
     }
