@@ -338,16 +338,7 @@ export default class WalletsList extends Component {
           }}
           onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
         />
-        <ScrollView
-          contentContainerStyle={{ flex: 1 }}
-          refreshControl={
-            <RefreshControl
-              onRefresh={() => this.refreshTransactions()}
-              refreshing={!this.state.isFlatListRefreshControlHidden}
-              shouldRefresh={this.state.timeElpased}
-            />
-          }
-        >
+        <ScrollView contentContainerStyle={{ flex: 1 }}>
           <Swiper
             style={styles.wrapper}
             onIndexChanged={this.onSwiperIndexChanged}
