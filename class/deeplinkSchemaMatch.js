@@ -1,6 +1,7 @@
 import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
 import BitcoinBIP70TransactionDecode from '../bip70/bip70';
+import { Chain } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
 const BlueApp: AppStorage = require('../BlueApp');
 const url = require('url');
@@ -38,11 +39,13 @@ class DeeplinkSchemaMatch {
     } catch (e) {
       console.log(e);
     }
+    console.warn(isBothBitcoinAndLightning)
     if (isBothBitcoinAndLightning) {
       completionHandler({
         routeName: 'HandleOffchainAndOnChain',
         params: {
-          onWalletSelect: this.isBothBitcoinAndLightningWalletSelect,
+          onWalletSelect: wallet =>
+            completionHandler(DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning)),
         },
       });
     } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url) || BitcoinBIP70TransactionDecode.matchesPaymentURL(event.url)) {
@@ -142,6 +145,26 @@ class DeeplinkSchemaMatch {
           }
         }
       })();
+    }
+  }
+
+  static isBothBitcoinAndLightningOnWalletSelect(wallet, uri) {
+    if (wallet.chain === Chain.ONCHAIN) {
+      return {
+        routeName: 'SendDetails',
+        params: {
+          uri: uri.bitcoin,
+          fromWallet: wallet,
+        },
+      };
+    } else if (wallet.chain === Chain.OFFCHAIN) {
+      return {
+        routeName: 'ScanLndInvoice',
+        params: {
+          uri: uri.lndInvoice,
+          fromSecret: wallet.getSecret(),
+        },
+      };
     }
   }
 
