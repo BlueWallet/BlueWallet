@@ -2,7 +2,9 @@ import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
 import BitcoinBIP70TransactionDecode from '../bip70/bip70';
 const bitcoin = require('bitcoinjs-lib');
-const BlueApp = require('../BlueApp');
+const BlueApp: AppStorage = require('../BlueApp');
+const url = require('url');
+
 class DeeplinkSchemaMatch {
   static hasSchema(schemaString) {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
@@ -95,7 +97,7 @@ class DeeplinkSchemaMatch {
               if (!haveLnWallet) {
                 // need to create one
                 let w = new LightningCustodianWallet();
-                w.setLabel(this.state.label || w.typeReadable);
+                w.setLabel(w.typeReadable);
 
                 try {
                   let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
@@ -128,17 +130,14 @@ class DeeplinkSchemaMatch {
                 return;
               }
 
-              this.navigator &&
-                this.navigator.dispatch(
-                  completionHandler({
-                    routeName: 'LappBrowser',
-                    params: {
-                      fromSecret: lnWallet.getSecret(),
-                      fromWallet: lnWallet,
-                      url: urlObject.query.url,
-                    },
-                  }),
-                );
+              completionHandler({
+                routeName: 'LappBrowser',
+                params: {
+                  fromSecret: lnWallet.getSecret(),
+                  fromWallet: lnWallet,
+                  url: urlObject.query.url,
+                },
+              });
               break;
           }
         }
