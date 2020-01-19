@@ -7,13 +7,12 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/walletGradient';
 import { useNavigationParam } from 'react-navigation-hooks';
-import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
 const SelectWallet = () => {
-  const chainType = useNavigationParam('chainType') || Chain.ONCHAIN;
+  const chainType = useNavigationParam('chainType');
   const onWalletSelect = useNavigationParam('onWalletSelect');
   const [isLoading, setIsLoading] = useState(true);
   const data = chainType
