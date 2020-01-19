@@ -70,7 +70,9 @@ export default class WalletDetails extends Component {
   setLabel() {
     this.props.navigation.setParams({ isLoading: true });
     this.setState({ isLoading: true }, async () => {
-      this.state.wallet.setLabel(this.state.walletName);
+      if (this.state.walletName.trim().length > 0) {
+        this.state.wallet.setLabel(this.state.walletName);
+      }
       BlueApp.saveToDisk();
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
@@ -157,12 +159,7 @@ export default class WalletDetails extends Component {
                 <TextInput
                   placeholder={loc.send.details.note_placeholder}
                   value={this.state.walletName}
-                  onChangeText={text => {
-                    if (text.trim().length === 0) {
-                      text = this.state.wallet.getLabel();
-                    }
-                    this.setState({ walletName: text });
-                  }}
+                  onChangeText={text => this.setState({ walletName: text })}
                   numberOfLines={1}
                   style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
                   editable={!this.state.isLoading}
