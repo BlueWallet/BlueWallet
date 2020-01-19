@@ -563,6 +563,10 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     if (!decoded.expiry) decoded.expiry = '3600'; // default
 
+    if (parseInt(decoded.num_satoshis) === 0 && decoded.num_millisatoshis > 0) {
+      decoded.num_satoshis = (decoded.num_millisatoshis / 1000).toString();
+    }
+
     return (this.decoded_invoice_raw = decoded);
   }
 
