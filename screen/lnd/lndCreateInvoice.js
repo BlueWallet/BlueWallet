@@ -20,7 +20,7 @@ import {
 import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
@@ -36,7 +36,8 @@ export default class LNDCreateInvoice extends Component {
 
   constructor(props) {
     super(props);
-
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     let fromWallet;
     if (props.navigation.state.params.fromWallet) fromWallet = props.navigation.getParam('fromWallet');
 
@@ -56,6 +57,7 @@ export default class LNDCreateInvoice extends Component {
       lnurl: '',
       lnurlParams: null,
       isLoading: true,
+      renderWalletSelectionButtonHidden: false,
     };
   }
 
@@ -84,6 +86,19 @@ export default class LNDCreateInvoice extends Component {
       });
     }
   }
+
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  _keyboardDidShow = () => {
+    this.setState({ renderWalletSelectionButtonHidden: true });
+  };
+
+  _keyboardDidHide = () => {
+    this.setState({ renderWalletSelectionButtonHidden: false });
+  };
 
   async createInvoice() {
     this.setState({ isLoading: true }, async () => {
@@ -216,6 +231,45 @@ export default class LNDCreateInvoice extends Component {
     );
   };
 
+  renderWalletSelectionButton = () => {
+    if (this.state.renderWalletSelectionButtonHidden) return;
+    return (
+      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'center' }}>
+        {!this.state.isLoading && (
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            onPress={() =>
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+            }
+          >
+            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+          </TouchableOpacity>
+        )}
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+          <TouchableOpacity
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            onPress={() =>
+              this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
+            }
+          >
+            <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
+            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
+            </Text>
+            <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
+              {BitcoinUnit.SATS}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  onWalletSelect = wallet => {
+    this.setState({ fromWallet: wallet }, () => this.props.navigation.pop());
+  };
+
   render() {
     if (!this.state.fromWallet) {
       return (
@@ -283,6 +337,7 @@ export default class LNDCreateInvoice extends Component {
               {this.renderCreateButton()}
             </KeyboardAvoidingView>
           </View>
+          {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>
     );
@@ -295,6 +350,7 @@ LNDCreateInvoice.propTypes = {
     dismiss: PropTypes.func,
     navigate: PropTypes.func,
     getParam: PropTypes.func,
+    pop: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         uri: PropTypes.string,
