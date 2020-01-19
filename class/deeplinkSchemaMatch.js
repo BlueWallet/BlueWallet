@@ -1,8 +1,10 @@
 import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
 import BitcoinBIP70TransactionDecode from '../bip70/bip70';
+import url from 'url';
 const bitcoin = require('bitcoinjs-lib');
 const BlueApp = require('../BlueApp');
+
 class DeeplinkSchemaMatch {
   static hasSchema(schemaString) {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
