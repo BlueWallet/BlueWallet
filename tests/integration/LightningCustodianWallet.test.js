@@ -120,7 +120,19 @@ describe('LightningCustodianWallet', () => {
     assert.ok(error);
   });
 
+  it('decode can handle zero sats but present msats', async () => {
+    let l = new LightningCustodianWallet();
+    let decoded = l.decodeInvoice(
+      'lnbc89n1p0zptvhpp5j3h5e80vdlzn32df8y80nl2t7hssn74lzdr96ve0u4kpaupflx2sdphgfkx7cmtwd68yetpd5s9xct5v4kxc6t5v5s9gunpdeek66tnwd5k7mscqp2sp57m89zv0lrgc9zzaxy5p3d5rr2cap2pm6zm4n0ew9vyp2d5zf2mfqrzjqfxj8p6qjf5l8du7yuytkwdcjhylfd4gxgs48t65awjg04ye80mq7z990yqq9jsqqqqqqqqqqqqq05qqrc9qy9qsq9mynpa9ucxg53hwnvw323r55xdd3l6lcadzs584zvm4wdw5pv3eksdlcek425pxaqrn9u5gpw0dtpyl9jw2pynjtqexxgh50akwszjgq4ht4dh',
+    );
+    assert.strictEqual(decoded.num_satoshis, '8.9');
+  });
+
   it('can decode invoice locally & remotely', async () => {
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
     let l2 = new LightningCustodianWallet();
     l2.setSecret(process.env.BLITZHUB);
     await l2.authorize();

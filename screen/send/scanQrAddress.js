@@ -18,7 +18,7 @@ const ScanQRCode = ({
   launchedBy = useNavigationParam('launchedBy'),
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { navigate } = useNavigation();
+  const { navigate, goBack } = useNavigation();
 
   const onBarCodeRead = ret => {
     if (!isLoading && !cameraPreviewIsPaused) {
@@ -93,7 +93,7 @@ const ScanQRCode = ({
             right: 16,
             top: 64,
           }}
-          onPress={() => navigate(launchedBy)}
+          onPress={() => launchedBy ? navigate(launchedBy) : goBack(null) }
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>

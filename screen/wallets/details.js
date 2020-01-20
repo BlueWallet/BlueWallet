@@ -73,7 +73,9 @@ export default class WalletDetails extends Component {
   setLabel() {
     this.props.navigation.setParams({ isLoading: true });
     this.setState({ isLoading: true }, async () => {
-      this.state.wallet.setLabel(this.state.walletName);
+      if (this.state.walletName.trim().length > 0) {
+        this.state.wallet.setLabel(this.state.walletName);
+      }
       BlueApp.saveToDisk();
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
