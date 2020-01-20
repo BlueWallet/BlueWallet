@@ -1,4 +1,3 @@
-/* global alert */
 import React, { Component } from 'react';
 import {
   View,
@@ -68,7 +67,7 @@ export default class WalletsList extends Component {
         console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
       } catch (error) {
         noErr = false;
-        alert(error);
+        console.log(error);
       }
       if (noErr) this.redrawScreen();
     });
@@ -111,7 +110,6 @@ export default class WalletsList extends Component {
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
             noErr = false;
-            alert(err);
             console.warn(err);
           }
           if (noErr) await BlueApp.saveToDisk(); // caching
@@ -262,7 +260,6 @@ export default class WalletsList extends Component {
       }
     } catch (Err) {
       noErr = false;
-      alert(Err);
       console.warn(Err);
     }
 
