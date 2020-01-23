@@ -93,7 +93,7 @@ const ScanQRCode = ({
             right: 16,
             top: 64,
           }}
-          onPress={() => launchedBy ? navigate(launchedBy) : goBack(null) }
+          onPress={() => (launchedBy ? navigate(launchedBy) : goBack(null))}
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>

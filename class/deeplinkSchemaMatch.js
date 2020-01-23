@@ -55,7 +55,6 @@ class DeeplinkSchemaMatch {
     } catch (e) {
       console.log(e);
     }
-    console.warn(isBothBitcoinAndLightning)
     if (isBothBitcoinAndLightning) {
       completionHandler({
         routeName: 'HandleOffchainAndOnChain',
