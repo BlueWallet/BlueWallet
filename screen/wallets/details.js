@@ -256,7 +256,7 @@ export default class WalletDetails extends Component {
                                 return;
                               }
                             }
-                            if (this.state.wallet.getBalance() > 0) {
+                            if (this.state.wallet.getBalance() > 0 && this.state.wallet.allowSend()) {
                               this.presentWalletHasBalanceAlert();
                             } else {
                               this.props.navigation.setParams({ isLoading: true });
