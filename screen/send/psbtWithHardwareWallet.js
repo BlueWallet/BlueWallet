@@ -262,7 +262,7 @@ export default class PsbtWithHardwareWallet extends Component {
 
   openSignedTransaction = async () => {
     try {
-      const res = await DocumentPicker.pick({ type: ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] });
+      const res = await DocumentPicker.pick({ type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles] });
       const file = await RNFS.readFile(res.uri);
       if (file) {
         this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: file }));
