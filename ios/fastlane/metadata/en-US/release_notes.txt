@@ -1,3 +1,18 @@
+v4.9.4
+======
+
+* REL: ver bump 4.9.4
+* FIX: Lint
+* FIX: Listen to lnd invoice changes
+* FIX: There's two refresh icons on the main view, when you pull-to-refresh
+* FIX: Crash on scan in wallets import when closing the view
+* FIX: Allow walet change on invoice creation
+* FIX: Allow wallet text input to be empty for new wallet naming
+* FIX: LN Invoice amount renders 0
+* FIX: Handle both chains
+* FIX: deeplinking (safello etc)
+* DEL: Remove alerts from main list
+
 v4.9.2
 ======
 

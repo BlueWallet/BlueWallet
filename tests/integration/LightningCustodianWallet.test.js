@@ -7,7 +7,7 @@ describe('LightningCustodianWallet', () => {
   let l1 = new LightningCustodianWallet();
 
   it.skip('issue credentials', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -24,7 +24,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can create, auth and getbtc', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -51,7 +51,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can refresh token', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     let oldRefreshToken = l1.refresh_token;
     let oldAccessToken = l1.access_token;
     await l1.refreshAcessToken();
@@ -62,7 +62,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can use existing login/pass', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -150,7 +150,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can pay invoice', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -224,7 +224,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can create invoice and pay other blitzhub invoice', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -324,7 +324,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can pay free amount (tip) invoice', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -401,7 +401,7 @@ describe('LightningCustodianWallet', () => {
 
   it('cant create zemo amt invoices yet', async () => {
     let l1 = new LightningCustodianWallet();
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -435,7 +435,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('cant pay negative free amount', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
