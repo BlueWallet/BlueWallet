@@ -1252,7 +1252,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet;
 				PRODUCT_NAME = GoldWallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "GoldWallet-Bridging-Header.h";
@@ -1288,7 +1288,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet;
 				PRODUCT_NAME = GoldWallet;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "GoldWallet-Bridging-Header.h";
@@ -1532,7 +1532,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet.TodayExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet.TodayExtension;
 				PRODUCT_NAME = "GoldWallet - Bitcoin Price";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -1563,7 +1563,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet.TodayExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet.TodayExtension;
 				PRODUCT_NAME = "GoldWallet - Bitcoin Price";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -1698,7 +1698,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet.watch.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet.watch.extension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "GoldWallet for Apple Watch Extension Dist";
 				SDKROOT = watchos;
@@ -1732,7 +1732,7 @@
 				INFOPLIST_FILE = "GoldWalletWatch Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet.watch.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet.watch.extension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "GoldWallet for Apple Watch Extension Dist";
 				SDKROOT = watchos;
@@ -1765,7 +1765,7 @@
 				INFOPLIST_FILE = GoldWalletWatch/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet.watch;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "GoldWallet for Apple Watch Distribution";
 				SDKROOT = watchos;
@@ -1799,7 +1799,7 @@
 				IBSC_MODULE = GoldWalletWatch_Extension;
 				INFOPLIST_FILE = GoldWalletWatch/Info.plist;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.goldwallet.watch;
+				PRODUCT_BUNDLE_IDENTIFIER = io.goldwallet.wallet.watch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "GoldWallet for Apple Watch Distribution";
 				SDKROOT = watchos;

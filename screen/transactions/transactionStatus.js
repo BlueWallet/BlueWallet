@@ -159,7 +159,7 @@ export default class TransactionsStatus extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <Handoff
           title={`Bitcoin Vault Transaction ${this.state.tx.txid}`}
-          type="io.goldwallet.goldwallet"
+          type="io.goldwallet.wallet"
           url={`http://explorer.bitcoinvault.global/tx/${this.state.tx.txid}`}
         />
         <View style={{ flex: 1, justifyContent: 'space-between' }}>

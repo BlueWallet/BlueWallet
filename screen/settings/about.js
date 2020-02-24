@@ -74,7 +74,7 @@ export default class About extends Component {
               onPress={() => {
                 let options = {
                   AppleAppID: '1376878040',
-                  GooglePackageName: 'io.goldwallet.goldwallet',
+                  GooglePackageName: 'io.goldwallet.wallet',
                   preferredAndroidMarket: AndroidMarket.Google,
                   preferInApp: true,
                   openAppStoreIfInAppFails: true,

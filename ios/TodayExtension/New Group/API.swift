@@ -26,7 +26,7 @@ class API {
   }
   
   static func getUserPreferredCurrency() -> String {
-    guard let userDefaults = UserDefaults(suiteName: "group.io.goldwallet.goldwallet"),
+    guard let userDefaults = UserDefaults(suiteName: "group.io.goldwallet.wallet"),
       let preferredCurrency = userDefaults.string(forKey: "preferredCurrency")
       else {
         return "USD"
@@ -42,7 +42,7 @@ class API {
   }
   
   static func getUserPreferredCurrencyLocale() -> String {
-    guard let userDefaults = UserDefaults(suiteName: "group.io.goldwallet.goldwallet"),
+    guard let userDefaults = UserDefaults(suiteName: "group.io.goldwallet.wallet"),
       let preferredCurrency = userDefaults.string(forKey: "preferredCurrencyLocale")
       else {
         return "en_US"
