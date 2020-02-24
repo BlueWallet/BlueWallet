@@ -138,7 +138,10 @@ export default class SendDetails extends Component {
       } else {
         let recipients = this.state.addresses;
         const dataWithoutSchema = data.replace('bitcoin:', '');
-        if (btcAddressRx.test(dataWithoutSchema) || (dataWithoutSchema.indexOf('bc1') === 0 && dataWithoutSchema.indexOf('?') === -1)) {
+        if (
+          btcAddressRx.test(dataWithoutSchema) ||
+          ((dataWithoutSchema.indexOf('bc1') === 0 || dataWithoutSchema.indexOf('BC1') === 0) && dataWithoutSchema.indexOf('?') === -1)
+        ) {
           recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
           this.setState({
             address: recipients,
@@ -164,7 +167,7 @@ export default class SendDetails extends Component {
             this.setState({ isLoading: false });
           }
           console.log(options);
-          if (btcAddressRx.test(address) || address.indexOf('bc1') === 0) {
+          if (btcAddressRx.test(address) || address.indexOf('bc1') === 0 || address.indexOf('BC1') === 0) {
             recipients[[this.state.recipientsScrollIndex]].address = address;
             recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
             this.setState({
