@@ -636,6 +636,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
   async fetchUtxo() {
     // considering only confirmed balance
+    // also, fetching utxo of addresses that only have some balance
     let addressess = [];
 
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
@@ -718,6 +719,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param changeAddress {String} Excessive coins will go back to that address
    * @param sequence {Number} Used in RBF
    * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
+   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
@@ -759,7 +761,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let pubkey = this._getPubkeyByAddress(input.address);
       let masterFingerprintBuffer;
       if (masterFingerprint) {
-        const hexBuffer = Buffer.from(Number(masterFingerprint).toString(16), 'hex');
+        let masterFingerprintHex = Number(masterFingerprint).toString(16);
+        if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
+        const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
         masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);
@@ -799,7 +803,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       let masterFingerprintBuffer;
 
       if (masterFingerprint) {
-        const hexBuffer = Buffer.from(Number(masterFingerprint).toString(16), 'hex');
+        let masterFingerprintHex = Number(masterFingerprint).toString(16);
+        if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
+        const hexBuffer = Buffer.from(masterFingerprintHex, 'hex');
         masterFingerprintBuffer = Buffer.from(reverse(hexBuffer));
       } else {
         masterFingerprintBuffer = Buffer.from([0x00, 0x00, 0x00, 0x00]);

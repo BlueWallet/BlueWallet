@@ -51,7 +51,6 @@ export default class WalletDetails extends Component {
     super(props);
 
     const wallet = props.navigation.getParam('wallet');
-    console.warn(wallet.masterFingerprint)
     const isLoading = true;
     this.state = {
       isLoading,
@@ -271,20 +270,20 @@ export default class WalletDetails extends Component {
                                   return;
                                 }
                               }
-                            if (this.state.wallet.getBalance() > 0 && this.state.wallet.allowSend()) {
-                              this.presentWalletHasBalanceAlert();
-                            } else {
-                              this.props.navigation.setParams({ isLoading: true });
-                              this.setState({ isLoading: true }, async () => {
-                                BlueApp.deleteWallet(this.state.wallet);
-                                ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-                                await BlueApp.saveToDisk();
-                                EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
-                                EV(EV.enum.WALLETS_COUNT_CHANGED);
-                                this.props.navigation.navigate('Wallets');
-                              });
-                            }
-                          }
+                              if (this.state.wallet.getBalance() > 0 && this.state.wallet.allowSend()) {
+                                this.presentWalletHasBalanceAlert();
+                              } else {
+                                this.props.navigation.setParams({ isLoading: true });
+                                this.setState({ isLoading: true }, async () => {
+                                  BlueApp.deleteWallet(this.state.wallet);
+                                  ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
+                                  await BlueApp.saveToDisk();
+                                  EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                                  EV(EV.enum.WALLETS_COUNT_CHANGED);
+                                  this.props.navigation.navigate('Wallets');
+                                });
+                              }
+                            },
                           },
                           { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
                         ],

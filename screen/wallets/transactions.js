@@ -603,11 +603,11 @@ export default class WalletTransactions extends Component {
                                 text: loc._.ok,
                                 onPress: () => {
                                   const wallet = this.state.wallet;
-                                  wallet.use_with_hardware_wallet = true
+                                  wallet.use_with_hardware_wallet = true;
                                   this.setState({ wallet }, async () => {
                                     await BlueApp.saveToDisk();
                                     this.navigateToSendScreen();
-                                  })                         
+                                  });
                                 },
                                 style: 'default',
                               },

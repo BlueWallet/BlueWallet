@@ -47,11 +47,20 @@ export default class PsbtWithHardwareWallet extends Component {
   cameraRef = null;
 
   onBarCodeRead = ret => {
+    if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      this.setState({ txhex: ret.data });
+      return;
+    }
+
     if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
     this.setState({ renderScanner: false }, () => {
       console.log(ret.data);
       try {
-        let Tx = this.state.fromWallet.combinePsbt(this.state.psbt, ret.data);
+        let Tx = this.state.fromWallet.combinePsbt(
+          this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
+          ret.data,
+        );
         this.setState({ txhex: Tx.toHex() });
       } catch (Err) {
         alert(Err);
@@ -262,7 +271,9 @@ export default class PsbtWithHardwareWallet extends Component {
 
   openSignedTransaction = async () => {
     try {
-      const res = await DocumentPicker.pick({ type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles] });
+      const res = await DocumentPicker.pick({
+        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
+      });
       const file = await RNFS.readFile(res.uri);
       if (file) {
         this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: file }));
@@ -332,7 +343,7 @@ export default class PsbtWithHardwareWallet extends Component {
                   color: BlueApp.settings.buttonTextColor,
                 }}
                 onPress={this.exportPSBT}
-                title={'Export'}
+                title={'Export to file'}
               />
               <BlueSpacing20 />
               <View style={{ justifyContent: 'center', alignItems: 'center' }}>
