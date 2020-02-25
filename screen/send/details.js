@@ -725,7 +725,8 @@ export default class SendDetails extends Component {
           if (this.state.fromWallet.type === WatchOnlyWallet.type) {
             // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
             // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
-            // user whether he wants to broadcast it
+            // user whether he wants to broadcast it.
+            // alternatively, user can export psbt file, sign it externally and then import it
             this.props.navigation.navigate('PsbtWithHardwareWallet', {
               memo: this.state.memo,
               fromWallet: this.state.fromWallet,
@@ -786,10 +787,10 @@ export default class SendDetails extends Component {
                 onSwitch={this.onReplaceableFeeSwitchValueChanged}
               />
             )}
-            {(this.state.fromWallet.type === HDSegwitBech32Wallet.type ||
-              this.state.fromWallet._hdWalletInstance instanceof HDSegwitBech32Wallet) && (
-              <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
-            )}
+            {this.state.fromWallet.type === WatchOnlyWallet.type &&
+              this.state.fromWallet._hdWalletInstance instanceof HDSegwitBech32Wallet && (
+                <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
+              )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem

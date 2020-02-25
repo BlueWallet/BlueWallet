@@ -35,6 +35,11 @@ const WalletsImport = () => {
     importMnemonic(importText);
   };
 
+  /**
+   *
+   * @param importText
+   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
+   */
   const importMnemonic = (importText, additionalProperties) => {
     try {
       WalletImport.processImportText(importText, additionalProperties);
@@ -45,6 +50,11 @@ const WalletsImport = () => {
     }
   };
 
+  /**
+   *
+   * @param value
+   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
+   */
   const onBarScanned = (value, additionalProperties) => {
     setImportText(value);
     importMnemonic(value, additionalProperties);
@@ -108,7 +118,7 @@ const WalletsImport = () => {
           onPress={importButtonPressed}
         />
         <BlueButtonLink
-          title="...or scan for wallet instead?"
+          title={loc.wallets.import.scan_qr}
           onPress={() => {
             navigate('ScanQrAddress', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
           }}

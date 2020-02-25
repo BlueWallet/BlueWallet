@@ -18,6 +18,13 @@ const BlueApp = require('../BlueApp');
 const loc = require('../loc');
 
 export default class WalletImport {
+  /**
+   *
+   * @param w
+   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
+   * @returns {Promise<void>}
+   * @private
+   */
   static async _saveWallet(w, additionalProperties) {
     try {
       const wallet = BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret && wallet.type !== PlaceholderWallet.type);
@@ -68,6 +75,12 @@ export default class WalletImport {
     return BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type);
   }
 
+  /**
+   *
+   * @param importText
+   * @param additionalProperties key-values passed from outside. Used only to set up `masterFingerprint` property for watch-only wallet
+   * @returns {Promise<void>}
+   */
   static async processImportText(importText, additionalProperties) {
     if (WalletImport.isCurrentlyImportingWallet()) {
       return;
