@@ -52,6 +52,7 @@ module.exports = {
     details: {
       title: 'Wallet',
       address: 'Adresse',
+      master_fingerprint: 'Master fingerprint',
       type: 'Typ',
       label: 'Bezeichnung',
       destination: 'Zieladresse',
@@ -225,6 +226,7 @@ module.exports = {
     refill_lnd_balance: 'Lade deine Lightning Wallet auf',
     refill: 'Aufladen',
     withdraw: 'Abheben',
+    expired: 'Expired',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError:
       'Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.',

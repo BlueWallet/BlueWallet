@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Інформація про Гаманець',
       address: 'Адреса',
+      master_fingerprint: 'Master fingerprint',
       type: 'Тип',
       delete: 'Delete',
       save: 'Save',

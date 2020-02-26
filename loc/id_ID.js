@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Dompet',
       address: 'Alamat',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipe',
       label: 'Label',
       destination: 'tujuan',

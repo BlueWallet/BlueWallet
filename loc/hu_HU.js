@@ -51,8 +51,10 @@ module.exports = {
     details: {
       title: 'Tárca',
       address: 'Cím',
+      master_fingerprint: 'Master fingerprint',
       type: 'Típus',
       label: 'Cimke',
+      destination: 'destination',
       description: 'leírás',
       are_you_sure: 'Biztos vagy benne?',
       yes_delete: 'Igen, töröld',
@@ -187,6 +189,8 @@ module.exports = {
       'Saját LND-csomóponthoz való csatlakozáshoz telepítsd az LndHub-ot' +
       ' és írd be az URL-ét alul. Hagyd üresen, ha a BlueWallet saját LNDHub-jához (lndhub.io) szeretnél csatlakozni.' +
       ' A beállítások mentése után, minden újonnan létrehozott tárca a megadott LDNHubot fogja használni.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Ment',
     about: 'Egyéb',
     language: 'Nyelv',

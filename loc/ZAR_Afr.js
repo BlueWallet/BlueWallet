@@ -25,6 +25,9 @@
       latest_transaction: 'laaste transaksie',
       empty_txs1: 'U transaksies is hier beskikbaar,',
       empty_txs2: 'huidiglik geen transaksies',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Raak hier om Bitcoin te koop',
     },
     reorder: {
@@ -50,6 +53,7 @@
     details: {
       title: 'Beursiet',
       address: 'AdresAddress',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipe',
       label: 'Etiket',
       destination: 'bestemming',
@@ -165,6 +169,7 @@
       create: 'Skep',
       setAmount: 'Bedrag ontvang',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Koop Bitcoin',
@@ -186,10 +191,14 @@
       'Om u eie LND node te konnekteer, installeer asseblief LndHub' +
       ' and put its URL here in settings. Leave blank om die standaard LndHub' +
       '(lndhub.io) te gebruik',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'stoor',
     about: 'info',
     language: 'Taal',
     currency: 'Geldeenheid',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Geloofwaardige Ontkenbaarheid',

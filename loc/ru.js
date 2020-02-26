@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Информация о кошельке',
       address: 'Адрес',
+      master_fingerprint: 'Master fingerprint',
       type: 'Тип',
       label: 'Метка',
       delete: 'Удалить',
