@@ -47,15 +47,15 @@ export default class PsbtWithHardwareWallet extends Component {
   cameraRef = null;
 
   onBarCodeRead = ret => {
+    if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
+
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
-      this.setState({ txhex: ret.data });
+      this.setState({ renderScanner: false, txhex: ret.data });
       return;
     }
 
-    if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
     this.setState({ renderScanner: false }, () => {
-      console.log(ret.data);
       try {
         let Tx = this.state.fromWallet.combinePsbt(
           this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),

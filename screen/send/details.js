@@ -788,7 +788,8 @@ export default class SendDetails extends Component {
               />
             )}
             {this.state.fromWallet.type === WatchOnlyWallet.type &&
-              this.state.fromWallet._hdWalletInstance instanceof HDSegwitBech32Wallet && (
+              this.state.fromWallet.isHd() &&
+              this.state.fromWallet.getSecret().startsWith('zpub') && (
                 <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
               )}
             {this.state.fromWallet.allowBatchSend() && (

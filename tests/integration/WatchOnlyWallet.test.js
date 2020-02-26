@@ -56,8 +56,10 @@ describe('Watch only wallet', () => {
     let w = new WatchOnlyWallet();
     w.setSecret('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
     assert.ok(w.valid());
+    assert.strictEqual(w.isHd(), false);
     w.setSecret('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2');
     assert.ok(w.valid());
+    assert.strictEqual(w.isHd(), false);
     w.setSecret('not valid');
     assert.ok(!w.valid());
 
@@ -67,6 +69,9 @@ describe('Watch only wallet', () => {
     assert.ok(w.valid());
     w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
     assert.ok(w.valid());
+    assert.strictEqual(w.isHd(), true);
+    assert.strictEqual(w.getMasterFingerprint(), false);
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
   });
 
   it('can fetch balance & transactions from zpub HD', async () => {

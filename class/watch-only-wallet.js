@@ -15,18 +15,22 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   allowSend() {
-    return !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSend();
+    return (
+      this.useWithHardwareWalletEnabled() && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSend()
+    );
   }
 
   allowBatchSend() {
     return (
-      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowBatchSend()
+      this.useWithHardwareWalletEnabled() &&
+      this._hdWalletInstance instanceof HDSegwitBech32Wallet &&
+      this._hdWalletInstance.allowBatchSend()
     );
   }
 
   allowSendMax() {
     return (
-      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSendMax()
+      this.useWithHardwareWalletEnabled() && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSendMax()
     );
   }
 
@@ -158,6 +162,7 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   getMasterFingerprintHex() {
+    if (!this.masterFingerprint) return '00000000';
     let masterFingerprintHex = Number(this.masterFingerprint).toString(16);
     if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
     // poor man's little-endian conversion:
@@ -172,5 +177,17 @@ export class WatchOnlyWallet extends LegacyWallet {
       masterFingerprintHex[0] +
       masterFingerprintHex[1]
     );
+  }
+
+  isHd() {
+    return this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub');
+  }
+
+  useWithHardwareWalletEnabled() {
+    return !!this.use_with_hardware_wallet;
+  }
+
+  setUseWithHardwareWalletEnabled(enabled) {
+    this.use_with_hardware_wallet = !!enabled;
   }
 }

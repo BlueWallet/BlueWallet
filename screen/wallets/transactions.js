@@ -30,7 +30,7 @@ import {
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
-import { LightningCustodianWallet, HDSegwitBech32Wallet } from '../../class';
+import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
@@ -580,7 +580,9 @@ export default class WalletTransactions extends Component {
           {(() => {
             if (
               this.state.wallet.allowSend() ||
-              (this.state.wallet._hdWalletInstance instanceof HDSegwitBech32Wallet && this.state.wallet._hdWalletInstance.allowSend())
+              (this.state.wallet.type === WatchOnlyWallet.type &&
+                this.state.wallet.isHd() &&
+                this.state.wallet.getSecret().startsWith('zpub'))
             ) {
               return (
                 <BlueSendButtonIcon
@@ -589,10 +591,11 @@ export default class WalletTransactions extends Component {
                       navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
                     } else {
                       if (
-                        this.state.wallet._hdWalletInstance instanceof HDSegwitBech32Wallet &&
-                        this.state.wallet._hdWalletInstance.allowSend()
+                        this.state.wallet.type === WatchOnlyWallet.type &&
+                        this.state.wallet.isHd() &&
+                        this.state.wallet.getSecret().startsWith('zpub')
                       ) {
-                        if (this.state.wallet.use_with_hardware_wallet) {
+                        if (this.state.wallet.useWithHardwareWalletEnabled()) {
                           this.navigateToSendScreen();
                         } else {
                           Alert.alert(
@@ -603,7 +606,7 @@ export default class WalletTransactions extends Component {
                                 text: loc._.ok,
                                 onPress: () => {
                                   const wallet = this.state.wallet;
-                                  wallet.use_with_hardware_wallet = true;
+                                  wallet.setUseWithHardwareWalletEnabled(true);
                                   this.setState({ wallet }, async () => {
                                     await BlueApp.saveToDisk();
                                     this.navigateToSendScreen();

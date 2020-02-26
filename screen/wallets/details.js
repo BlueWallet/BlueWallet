@@ -20,7 +20,7 @@ import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
+import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
 const EV = require('../../events');
 const prompt = require('../../prompt');
@@ -56,7 +56,7 @@ export default class WalletDetails extends Component {
       isLoading,
       walletName: wallet.getLabel(),
       wallet,
-      useWithHardwareWallet: !!wallet.use_with_hardware_wallet,
+      useWithHardwareWallet: wallet.useWithHardwareWalletEnabled(),
     };
     this.props.navigation.setParams({ isLoading, saveAction: () => this.setLabel() });
   }
@@ -110,7 +110,7 @@ export default class WalletDetails extends Component {
   async onUseWithHardwareWalletSwitch(value) {
     this.setState((state, props) => {
       let wallet = state.wallet;
-      wallet.use_with_hardware_wallet = !!value;
+      wallet.setUseWithHardwareWalletEnabled(value);
       return { useWithHardwareWallet: !!value, wallet };
     });
   }
@@ -130,7 +130,10 @@ export default class WalletDetails extends Component {
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
               <BlueCard style={{ alignItems: 'center', flex: 1 }}>
                 {(() => {
-                  if (this.state.wallet.getAddress()) {
+                  if (
+                    [LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(this.state.wallet.type) ||
+                    (this.state.wallet.type === WatchOnlyWallet.type && !this.state.wallet.isHd())
+                  ) {
                     return (
                       <React.Fragment>
                         <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
@@ -200,6 +203,14 @@ export default class WalletDetails extends Component {
                           onValueChange={value => this.onUseWithHardwareWalletSwitch(value)}
                         />
                       </View>
+                      <React.Fragment>
+                        <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
+                          {loc.wallets.details.master_fingerprint.toLowerCase()}
+                        </Text>
+                        <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
+                          {this.state.wallet.getMasterFingerprintHex()}
+                        </Text>
+                      </React.Fragment>
                       <BlueSpacing20 />
                     </>
                   )}
