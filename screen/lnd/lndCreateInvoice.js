@@ -210,7 +210,7 @@ export default class LNDCreateInvoice extends Component {
       <TouchableOpacity
         disabled={this.state.isLoading}
         onPress={() => {
-          NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl });
+          NavigationService.navigate('ScanQrAddress', { onBarScanned: this.processLnurl, launchedBy: this.props.navigation.state.routeName });
           Keyboard.dismiss();
         }}
         style={{
