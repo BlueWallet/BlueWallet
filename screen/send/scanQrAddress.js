@@ -14,6 +14,7 @@ const ScanQRCode = ({
   showCloseButton = true,
   launchedBy = useNavigationParam('launchedBy'),
 }) => {
+  if (!launchedBy || !onBarScanned) console.warn('Necessary params missing');
   const [isLoading, setIsLoading] = useState(false);
   const { navigate, goBack } = useNavigation();
 
