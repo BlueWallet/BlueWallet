@@ -114,8 +114,8 @@ ScanQRCode.navigationOptions = {
   header: null,
 };
 ScanQRCode.propTypes = {
-  launchedBy: PropTypes.string,
-  onBarScanned: PropTypes.func,
+  launchedBy: PropTypes.string.isRequired,
+  onBarScanned: PropTypes.func.isRequired,
   cameraPreviewIsPaused: PropTypes.bool,
   showCloseButton: PropTypes.bool,
 };
