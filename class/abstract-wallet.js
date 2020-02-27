@@ -1,5 +1,6 @@
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 const createHash = require('create-hash');
+
 export class AbstractWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
@@ -156,5 +157,9 @@ export class AbstractWallet {
 
   getAddressAsync() {
     return new Promise(resolve => resolve(this.getAddress()));
+  }
+
+  useWithHardwareWalletEnabled() {
+    return false;
   }
 }
