@@ -53,6 +53,7 @@ module.exports = {
     details: {
       title: 'Lompakko',
       address: 'Osoite',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tyyppi',
       label: 'Etiketti',
       destination: 'määränpää',

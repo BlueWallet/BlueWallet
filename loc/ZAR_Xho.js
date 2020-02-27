@@ -23,6 +23,9 @@
       latest_transaction: 'Utshintsho olutsha',
       empty_txs1: 'Intengiso yakho iya kubonakala apha,',
       empty_txs2: 'akuho nanye okwangoku',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Cofa apha ukuthenga ibitcoin',
     },
     reorder: {
@@ -48,6 +51,7 @@
     details: {
       title: 'Ingxowa',
       address: 'Ikheli',
+      master_fingerprint: 'Master fingerprint',
       type: 'Uhlobo',
       label: 'Igama',
       destination: 'ukuya kuyo',
@@ -163,6 +167,7 @@
       create: 'Yenza',
       setAmount: 'Fumana ngexabiso',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Thenga Ibitcoin',
@@ -183,10 +188,14 @@
     lightning_settings_explain:
       'Ukuxhuma kwi-node yakho ye-LND nceda ufake iLndHub' +
       ' kwaye ufake iURL apha izicwangciso. Shiya kungenanto yokusebenzisa iLndHub (Indhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'ndoloza',
     about: 'Malunga',
     language: 'Ulwimi',
     currency: 'Lwemali',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Ukuphika',

@@ -50,6 +50,7 @@ module.exports = {
     details: {
       title: 'Peněženka',
       address: 'Adresa',
+      master_fingerprint: 'Master fingerprint',
       type: 'Typ',
       label: 'Popisek',
       destination: 'cíl',

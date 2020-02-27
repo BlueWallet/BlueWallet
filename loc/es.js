@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Detalles de la billetera',
       address: 'Dirección',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipo',
       label: 'Etiqueta',
       delete: 'Eliminar',

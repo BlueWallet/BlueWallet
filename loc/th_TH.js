@@ -50,6 +50,7 @@ module.exports = {
     details: {
       title: 'กระเป๋าสตางค์',
       address: 'แอดเดรส',
+      master_fingerprint: 'Master fingerprint',
       type: 'ชนิด',
       label: 'ป้าย',
       destination: 'เป้าหมาย',

@@ -50,6 +50,7 @@ module.exports = {
     details: {
       title: 'ウォレット',
       address: 'アドレス',
+      master_fingerprint: 'Master fingerprint',
       type: 'タイプ',
       label: 'ラベル',
       destination: '送り先',

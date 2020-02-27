@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Portemonnee',
       address: 'Adres',
+      master_fingerprint: 'Master fingerprint',
       type: 'Type',
       label: 'Label',
       destination: 'bestemming',

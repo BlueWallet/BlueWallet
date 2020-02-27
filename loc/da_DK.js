@@ -50,6 +50,7 @@ module.exports = {
     details: {
       title: 'Wallet',
       address: 'Adresse',
+      master_fingerprint: 'Master fingerprint',
       type: 'Type',
       label: 'Etiket',
       destination: 'destination',
@@ -223,6 +224,8 @@ module.exports = {
     refill_lnd_balance: 'Genopfyld Lightning wallet',
     refill: 'Genopfyld',
     withdraw: 'Træk coins tilbage',
+    expired: 'Expired',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',

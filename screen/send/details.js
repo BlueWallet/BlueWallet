@@ -38,6 +38,9 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
+import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
@@ -710,6 +713,49 @@ export default class SendDetails extends Component {
     );
   };
 
+  importTransaction = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallet.psbt.txn'] : [DocumentPicker.types.allFiles],
+      });
+      if (DeeplinkSchemaMatch.isPossiblyPSBTFile(res.uri)) {
+        const file = await RNFS.readFile(res.uri, 'ascii');
+        const bufferDecoded = Buffer.from(file, 'ascii').toString('base64');
+        if (bufferDecoded) {
+          if (this.state.fromWallet.type === WatchOnlyWallet.type) {
+            // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
+            // so he can scan it and sign it. then we have to scan it back from user (via camera and QR code), and ask
+            // user whether he wants to broadcast it.
+            // alternatively, user can export psbt file, sign it externally and then import it
+            this.props.navigation.navigate('PsbtWithHardwareWallet', {
+              memo: this.state.memo,
+              fromWallet: this.state.fromWallet,
+              psbt: file,
+              isFirstPSBTAlreadyBase64: true,
+            });
+            this.setState({ isLoading: false });
+            return;
+          }
+        } else {
+          throw new Error();
+        }
+      } else if (DeeplinkSchemaMatch.isTXNFile(res.uri)) {
+        const file = await RNFS.readFile(res.uri, 'ascii');
+        this.props.navigation.navigate('PsbtWithHardwareWallet', {
+          memo: this.state.memo,
+          fromWallet: this.state.fromWallet,
+          txhex: file,
+        });
+        this.setState({ isLoading: false, isAdvancedTransactionOptionsVisible: false });
+        return;
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        alert('The selected file does not contain a signed transaction that can be imported.');
+      }
+    }
+  };
+
   renderAdvancedTransactionOptionsModal = () => {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
@@ -741,6 +787,11 @@ export default class SendDetails extends Component {
                 onSwitch={this.onReplaceableFeeSwitchValueChanged}
               />
             )}
+            {this.state.fromWallet.type === WatchOnlyWallet.type &&
+              this.state.fromWallet.isHd() &&
+              this.state.fromWallet.getSecret().startsWith('zpub') && (
+                <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
+              )}
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem

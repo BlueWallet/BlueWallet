@@ -49,6 +49,7 @@ module.exports = {
     details: {
       title: '錢包',
       address: '地址',
+      master_fingerprint: 'Master fingerprint',
       type: '類型',
       label: '標籤',
       destination: '目的',
@@ -163,6 +164,7 @@ module.exports = {
       create: '建立',
       setAmount: '收款金額',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: '購買比特幣',
@@ -181,6 +183,8 @@ module.exports = {
     encrypt_storage: '加密儲存',
     lightning_settings: '閃電網路設定',
     lightning_settings_explain: '如要要連線你自己的閃電節點請安裝LndHub' + ' 並把url地址輸入到下面. 空白將使用預設的LndHub (lndhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: '儲存',
     about: '關於',
     language: '語言',
@@ -215,6 +219,7 @@ module.exports = {
     refill: '充值',
     withdraw: '提取',
     expired: '超時',
+    placeholder: 'Invoice',
     sameWalletAsInvoiceError: '你不能用建立賬單的錢包去支付該賬單',
   },
   pleasebackup: {

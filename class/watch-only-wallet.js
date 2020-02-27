@@ -11,21 +11,26 @@ export class WatchOnlyWallet extends LegacyWallet {
   constructor() {
     super();
     this.use_with_hardware_wallet = false;
+    this.masterFingerprint = false;
   }
 
   allowSend() {
-    return !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSend();
+    return (
+      this.useWithHardwareWalletEnabled() && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSend()
+    );
   }
 
   allowBatchSend() {
     return (
-      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowBatchSend()
+      this.useWithHardwareWalletEnabled() &&
+      this._hdWalletInstance instanceof HDSegwitBech32Wallet &&
+      this._hdWalletInstance.allowBatchSend()
     );
   }
 
   allowSendMax() {
     return (
-      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSendMax()
+      this.useWithHardwareWalletEnabled() && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSendMax()
     );
   }
 
@@ -43,7 +48,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     try {
       bitcoin.address.toOutputScript(this.getAddress());
       return true;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
@@ -146,9 +151,43 @@ export class WatchOnlyWallet extends LegacyWallet {
    */
   createTransaction(utxos, targets, feeRate, changeAddress, sequence) {
     if (this._hdWalletInstance instanceof HDSegwitBech32Wallet) {
-      return this._hdWalletInstance.createTransaction(utxos, targets, feeRate, changeAddress, sequence, true);
+      return this._hdWalletInstance.createTransaction(utxos, targets, feeRate, changeAddress, sequence, true, this.getMasterFingerprint());
     } else {
       throw new Error('Not a zpub watch-only wallet, cant create PSBT (or just not initialized)');
     }
+  }
+
+  getMasterFingerprint() {
+    return this.masterFingerprint;
+  }
+
+  getMasterFingerprintHex() {
+    if (!this.masterFingerprint) return '00000000';
+    let masterFingerprintHex = Number(this.masterFingerprint).toString(16);
+    if (masterFingerprintHex.length < 8) masterFingerprintHex = '0' + masterFingerprintHex; // conversion without explicit zero might result in lost byte
+    // poor man's little-endian conversion:
+    // ¯\_(ツ)_/¯
+    return (
+      masterFingerprintHex[6] +
+      masterFingerprintHex[7] +
+      masterFingerprintHex[4] +
+      masterFingerprintHex[5] +
+      masterFingerprintHex[2] +
+      masterFingerprintHex[3] +
+      masterFingerprintHex[0] +
+      masterFingerprintHex[1]
+    );
+  }
+
+  isHd() {
+    return this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub');
+  }
+
+  useWithHardwareWalletEnabled() {
+    return !!this.use_with_hardware_wallet;
+  }
+
+  setUseWithHardwareWalletEnabled(enabled) {
+    this.use_with_hardware_wallet = !!enabled;
   }
 }

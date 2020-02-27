@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Wallet',
       address: 'Address',
+      master_fingerprint: 'Master fingerprint',
       type: 'Type',
       label: 'Label',
       destination: 'destination',
@@ -145,7 +146,7 @@ module.exports = {
       title: 'create transaction',
       error: 'Error creating transaction. Invalid address or send amount?',
       go_back: 'Go Back',
-      this_is_hex: 'This is transaction hex, signed and ready to be broadcast to the network.',
+      this_is_hex: `This is your transaction's hex, signed and ready to be broadcasted to the network.`,
       to: 'To',
       amount: 'Amount',
       fee: 'Fee',

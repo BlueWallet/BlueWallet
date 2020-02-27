@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Cüzdan',
       address: 'Adres',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tip',
       label: 'Etiket',
       destination: 'hedef',
