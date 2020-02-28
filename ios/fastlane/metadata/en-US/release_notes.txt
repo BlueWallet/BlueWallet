@@ -1,3 +1,12 @@
+v5.0.0
+======
+
+* ADD: Coldcard support
+* FIX: allow capitalized bech32 addresses (closes #838)
+* FIX: lnurl scan to receive is not returning the correct view (closes #828)
+* FIX: watch-only delete wallet doesnt have confirmation now
+* FIX: typo in spanish
+
 v4.9.4
 ======
 
@@ -47,23 +56,3 @@ v4.9.0
 * FIX: LN Scan to receive is more visible
 * FIX: Quick actions not appearing on non-3d touch devices.
 * FIX: Dont show clipboard modal when biometrics  is dismissed
-
-v4.8.1
-======
-
-* FIX: Updated biometrics
-* FIX: Import QR Code from screenshot not working
-
-v4.8.0
-======
-
-* ADD: Today Extension and Quick Actions
-* ADD: Send max option on advanced menu
-* ADD: Add Onchain address view for Lightning
-* FIX: Allow textfield to be visible above keyboard
-* FIX: lapp browser when typing URL without https scheme it doesnt work
-* ADD: Value and memo to the success screen fix logic for both sent and receive
-* FIX: layout for small devices with flexbox
-* FIX: Dont allow zero invoices to enable create invoice button
-* FIX: Change create button on Receive LN payment should be create invoice
-* FIX: Update for watch
