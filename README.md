@@ -1,4 +1,4 @@
-# BlueWallet - A Bitcoin Vault Wallet
+# BlueWallet - A Bitcoin Vault mobile wallet
 
 The first ever Bitcoin Vault wallet.
 
