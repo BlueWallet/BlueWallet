@@ -52,7 +52,7 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.5.0",
+    "@babel/preset-env": "7.8.4",
     "@react-native-community/async-storage": "1.6.2",
     "@react-native-community/blur": "3.4.1",
     "@react-native-community/slider": "2.0.8",
