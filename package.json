@@ -118,7 +118,7 @@
     "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.8.4",
     "react-native-sortable-list": "0.0.23",
-    "react-native-svg": "9.5.1",
+    "react-native-svg": "9.13.6",
     "react-native-swiper": "git+https://github.com/BlueWallet/react-native-swiper.git#1.5.14",
     "react-native-tcp": "git+https://github.com/aprock/react-native-tcp.git",
     "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
