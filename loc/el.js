@@ -53,6 +53,7 @@ module.exports = {
     details: {
       title: 'Πορτοφόλι',
       address: 'Διεύθυνση',
+      master_fingerprint: 'Master fingerprint',
       type: 'Τύπος',
       label: 'Ετικέτα',
       destination: 'προορισμός',

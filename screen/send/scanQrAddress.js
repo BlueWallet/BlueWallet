@@ -6,16 +6,20 @@ import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import PropTypes from 'prop-types';
 import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const ScanQRCode = ({
   onBarScanned = useNavigationParam('onBarScanned'),
   cameraPreviewIsPaused = false,
   showCloseButton = true,
+  showFileImportButton = useNavigationParam('showFileImportButton') || false,
   launchedBy = useNavigationParam('launchedBy'),
 }) => {
+  if (!launchedBy || !onBarScanned) console.warn('Necessary params missing');
   const [isLoading, setIsLoading] = useState(false);
-  const { navigate } = useNavigation();
+  const { navigate, goBack } = useNavigation();
 
   const onBarCodeRead = ret => {
     if (!isLoading && !cameraPreviewIsPaused) {
@@ -24,10 +28,38 @@ const ScanQRCode = ({
         if (showCloseButton && launchedBy) {
           navigate(launchedBy);
         }
-        onBarScanned(ret.data);
+        if (ret.additionalProperties) {
+          onBarScanned(ret.data, ret.additionalProperties);
+        } else {
+          onBarScanned(ret.data);
+        }
       } catch (e) {
         console.log(e);
       }
+    }
+    setIsLoading(false);
+  };
+
+  const showFilePicker = async () => {
+    setIsLoading(true);
+    try {
+      const res = await DocumentPicker.pick();
+      const file = await RNFS.readFile(res.uri);
+      const fileParsed = JSON.parse(file);
+      if (fileParsed.keystore.xpub) {
+        let masterFingerprint;
+        if (fileParsed.keystore.ckcc_xfp) {
+          masterFingerprint = Number(fileParsed.keystore.ckcc_xfp);
+        }
+        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint } });
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        alert('The selected file does not contain a wallet that can be imported.');
+      }
+      setIsLoading(false);
     }
     setIsLoading(false);
   };
@@ -62,7 +94,7 @@ const ScanQRCode = ({
             right: 16,
             top: 64,
           }}
-          onPress={() => navigate(launchedBy)}
+          onPress={() => (launchedBy ? navigate(launchedBy) : goBack(null))}
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
@@ -106,6 +138,23 @@ const ScanQRCode = ({
       >
         <Icon name="image" type="font-awesome" color="#0c2550" />
       </TouchableOpacity>
+      {showFileImportButton && (
+        <TouchableOpacity
+          style={{
+            width: 40,
+            height: 40,
+            backgroundColor: '#FFFFFF',
+            justifyContent: 'center',
+            borderRadius: 20,
+            position: 'absolute',
+            left: 96,
+            bottom: 48,
+          }}
+          onPress={showFilePicker}
+        >
+          <Icon name="file-import" type="material-community" color="#0c2550" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -117,6 +166,7 @@ ScanQRCode.propTypes = {
   launchedBy: PropTypes.string,
   onBarScanned: PropTypes.func,
   cameraPreviewIsPaused: PropTypes.bool,
+  showFileImportButton: PropTypes.bool,
   showCloseButton: PropTypes.bool,
 };
 export default ScanQRCode;

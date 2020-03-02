@@ -10,6 +10,8 @@ module.exports = {
   wallets: {
     select_wallet: 'Odaberi volet',
     options: 'opcije',
+    createBitcoinWallet:
+      'You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?',
     list: {
       app_name: 'BlueWallet',
       title: 'Voleti',
@@ -48,6 +50,7 @@ module.exports = {
     details: {
       title: 'Volet',
       address: 'Adresa',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tip',
       label: 'Oznaka',
       destination: 'odredište',

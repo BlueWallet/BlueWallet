@@ -52,6 +52,7 @@ module.exports = {
     details: {
       title: 'Portefeuille',
       address: 'Adresse',
+      master_fingerprint: 'Master fingerprint',
       type: 'Type',
       label: 'Libelé',
       destination: 'destination',
@@ -146,7 +147,7 @@ module.exports = {
       title: 'créer une transaction',
       error: 'Erreur creating transaction. Invalid address or send amount?',
       go_back: 'Retour',
-      this_is_hex: 'This is transaction hex, signed and ready to be broadcast to the network.',
+      this_is_hex: `This is your transaction's hex, signed and ready to be broadcasted to the network.`,
       to: 'À',
       amount: 'Montant',
       fee: 'Frais',

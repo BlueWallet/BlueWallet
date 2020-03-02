@@ -35,7 +35,7 @@ module.exports = {
       title: 'Añadir billetera',
       description:
         'Puedes escanear la billetera de papel (en WIF - Formato de importación de billeteras) o crear una nueva billetera. Las billeteras SegWit estan compatibles por defecto.',
-      scan: 'Escaniar',
+      scan: 'Escanear',
       create: 'Crear',
       label_new_segwit: 'Nuevo SegWit',
       label_new_lightning: 'Nuevo Lightning',
@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Detalles de la billetera',
       address: 'Dirección',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipo',
       label: 'Etiqueta',
       delete: 'Eliminar',

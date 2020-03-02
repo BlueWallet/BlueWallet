@@ -51,8 +51,10 @@ module.exports = {
     details: {
       title: 'Plånbok',
       address: 'Adress',
+      master_fingerprint: 'Master fingerprint',
       type: 'Typ',
       label: 'Etikett',
+      destination: 'destination',
       description: 'beskrivning',
       are_you_sure: 'Är du säker?',
       yes_delete: 'Ja, ta bort',

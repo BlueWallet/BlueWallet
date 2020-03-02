@@ -49,6 +49,7 @@ module.exports = {
     details: {
       title: '钱包',
       address: '地址',
+      master_fingerprint: 'Master fingerprint',
       type: '类型',
       label: '标签',
       destination: '目的',
@@ -219,6 +220,7 @@ module.exports = {
     withdraw: '提取',
     expired: '超时',
     sameWalletAsInvoiceError: '你不能用创建账单的钱包去支付该账单',
+    placeholder: 'Invoice',
   },
   pleasebackup: {
     title: 'Your wallet is created...',

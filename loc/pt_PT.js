@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'wallet',
       address: 'Endereço',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipo',
       delete: 'Eliminar',
       save: 'Guardar',

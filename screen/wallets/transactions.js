@@ -16,6 +16,7 @@ import {
   StatusBar,
   Linking,
   KeyboardAvoidingView,
+  Alert,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -29,7 +30,7 @@ import {
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
-import { LightningCustodianWallet } from '../../class';
+import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
@@ -400,7 +401,7 @@ export default class WalletTransactions extends Component {
     }
   };
 
-  async onWillBlur() {
+  onWillBlur() {
     StatusBar.setBarStyle('dark-content');
   }
 
@@ -408,6 +409,14 @@ export default class WalletTransactions extends Component {
     this.onWillBlur();
     clearInterval(this.interval);
   }
+
+  navigateToSendScreen = () => {
+    this.props.navigation.navigate('SendDetails', {
+      fromAddress: this.state.wallet.getAddress(),
+      fromSecret: this.state.wallet.getSecret(),
+      fromWallet: this.state.wallet,
+    });
+  };
 
   renderItem = item => {
     return (
@@ -569,18 +578,51 @@ export default class WalletTransactions extends Component {
           })()}
 
           {(() => {
-            if (this.state.wallet.allowSend()) {
+            if (
+              this.state.wallet.allowSend() ||
+              (this.state.wallet.type === WatchOnlyWallet.type &&
+                this.state.wallet.isHd() &&
+                this.state.wallet.getSecret().startsWith('zpub'))
+            ) {
               return (
                 <BlueSendButtonIcon
                   onPress={() => {
                     if (this.state.wallet.chain === Chain.OFFCHAIN) {
                       navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
                     } else {
-                      navigate('SendDetails', {
-                        fromAddress: this.state.wallet.getAddress(),
-                        fromSecret: this.state.wallet.getSecret(),
-                        fromWallet: this.state.wallet,
-                      });
+                      if (
+                        this.state.wallet.type === WatchOnlyWallet.type &&
+                        this.state.wallet.isHd() &&
+                        this.state.wallet.getSecret().startsWith('zpub')
+                      ) {
+                        if (this.state.wallet.useWithHardwareWalletEnabled()) {
+                          this.navigateToSendScreen();
+                        } else {
+                          Alert.alert(
+                            'Wallet',
+                            'This wallet is not being used in conjunction with a hardwarde wallet. Would you like to enable hardware wallet use?',
+                            [
+                              {
+                                text: loc._.ok,
+                                onPress: () => {
+                                  const wallet = this.state.wallet;
+                                  wallet.setUseWithHardwareWalletEnabled(true);
+                                  this.setState({ wallet }, async () => {
+                                    await BlueApp.saveToDisk();
+                                    this.navigateToSendScreen();
+                                  });
+                                },
+                                style: 'default',
+                              },
+
+                              { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
+                            ],
+                            { cancelable: false },
+                          );
+                        }
+                      } else {
+                        this.navigateToSendScreen();
+                      }
                     }
                   }}
                 />

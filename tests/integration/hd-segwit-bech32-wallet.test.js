@@ -213,7 +213,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       console.error('process.env.FAULTY_ZPUB not set, skipped');
       return;
     }
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 90 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     let hd = new HDSegwitBech32Wallet();
     hd._xpub = process.env.FAULTY_ZPUB;
 

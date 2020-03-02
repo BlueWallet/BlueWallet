@@ -7,7 +7,7 @@ describe('LightningCustodianWallet', () => {
   let l1 = new LightningCustodianWallet();
 
   it.skip('issue credentials', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -24,7 +24,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can create, auth and getbtc', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -51,7 +51,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can refresh token', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     let oldRefreshToken = l1.refresh_token;
     let oldAccessToken = l1.access_token;
     await l1.refreshAcessToken();
@@ -62,7 +62,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can use existing login/pass', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -100,11 +100,12 @@ describe('LightningCustodianWallet', () => {
 
     let invoice =
       'lnbc1u1pdcqpt3pp5ltuevvq2g69kdrzcegrs9gfqjer45rwjc0w736qjl92yvwtxhn6qdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2zrkghzl535xjav52ns0rpskcn20takzdr2e02wn4xqretlgdemg596acq5qtfqhjk4jpr7jk8qfuuka2k0lfwjsk9mchwhxcgxzj3tsp09gfpy';
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
 
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.ok(decoded.num_satoshis);
+    assert.strictEqual(parseInt(decoded.num_satoshis) * 1000, parseInt(decoded.num_millisatoshis));
 
     await l2.checkRouteInvoice(invoice);
 
@@ -112,15 +113,44 @@ describe('LightningCustodianWallet', () => {
     invoice = 'gsom';
     let error = false;
     try {
-      await l2.decodeInvoice(invoice);
+      l2.decodeInvoice(invoice);
     } catch (Err) {
       error = true;
     }
     assert.ok(error);
   });
 
+  it('decode can handle zero sats but present msats', async () => {
+    let l = new LightningCustodianWallet();
+    let decoded = l.decodeInvoice(
+      'lnbc89n1p0zptvhpp5j3h5e80vdlzn32df8y80nl2t7hssn74lzdr96ve0u4kpaupflx2sdphgfkx7cmtwd68yetpd5s9xct5v4kxc6t5v5s9gunpdeek66tnwd5k7mscqp2sp57m89zv0lrgc9zzaxy5p3d5rr2cap2pm6zm4n0ew9vyp2d5zf2mfqrzjqfxj8p6qjf5l8du7yuytkwdcjhylfd4gxgs48t65awjg04ye80mq7z990yqq9jsqqqqqqqqqqqqq05qqrc9qy9qsq9mynpa9ucxg53hwnvw323r55xdd3l6lcadzs584zvm4wdw5pv3eksdlcek425pxaqrn9u5gpw0dtpyl9jw2pynjtqexxgh50akwszjgq4ht4dh',
+    );
+    assert.strictEqual(decoded.num_satoshis, '8.9');
+  });
+
+  it('can decode invoice locally & remotely', async () => {
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
+    let l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+    let invoice =
+      'lnbc1u1pdcqpt3pp5ltuevvq2g69kdrzcegrs9gfqjer45rwjc0w736qjl92yvwtxhn6qdp8dp6kuerjv4j9xct5daeks6tnyp3xc6t50f582cscqp2zrkghzl535xjav52ns0rpskcn20takzdr2e02wn4xqretlgdemg596acq5qtfqhjk4jpr7jk8qfuuka2k0lfwjsk9mchwhxcgxzj3tsp09gfpy';
+    let decodedLocally = l2.decodeInvoice(invoice);
+    let decodedRemotely = await l2.decodeInvoiceRemote(invoice);
+    assert.strictEqual(decodedLocally.destination, decodedRemotely.destination);
+    assert.strictEqual(decodedLocally.num_satoshis, decodedRemotely.num_satoshis);
+    assert.strictEqual(decodedLocally.timestamp, decodedRemotely.timestamp);
+    assert.strictEqual(decodedLocally.expiry, decodedRemotely.expiry);
+    assert.strictEqual(decodedLocally.payment_hash, decodedRemotely.payment_hash);
+    assert.strictEqual(decodedLocally.description, decodedRemotely.description);
+    assert.strictEqual(decodedLocally.cltv_expiry, decodedRemotely.cltv_expiry);
+  });
+
   it('can pay invoice', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -155,7 +185,7 @@ describe('LightningCustodianWallet', () => {
     await l2.fetchTransactions();
     let txLen = l2.transactions_raw.length;
 
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
 
@@ -194,7 +224,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can create invoice and pay other blitzhub invoice', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -294,7 +324,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('can pay free amount (tip) invoice', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -336,7 +366,7 @@ describe('LightningCustodianWallet', () => {
     let oldBalance = +l2.balance;
     let txLen = l2.transactions_raw.length;
 
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.strictEqual(+decoded.num_satoshis, 0);
@@ -371,7 +401,7 @@ describe('LightningCustodianWallet', () => {
 
   it('cant create zemo amt invoices yet', async () => {
     let l1 = new LightningCustodianWallet();
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     assert.ok(l1.refill_addressess.length === 0);
     assert.ok(l1._refresh_token_created_ts === 0);
     assert.ok(l1._access_token_created_ts === 0);
@@ -405,7 +435,7 @@ describe('LightningCustodianWallet', () => {
   });
 
   it('cant pay negative free amount', async () => {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 100 * 1000;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
       return;
@@ -443,7 +473,7 @@ describe('LightningCustodianWallet', () => {
     let oldBalance = +l2.balance;
     let txLen = l2.transactions_raw.length;
 
-    let decoded = await l2.decodeInvoice(invoice);
+    let decoded = l2.decodeInvoice(invoice);
     assert.ok(decoded.payment_hash);
     assert.ok(decoded.description);
     assert.strictEqual(+decoded.num_satoshis, 0);

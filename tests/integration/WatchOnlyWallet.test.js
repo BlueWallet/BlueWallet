@@ -56,8 +56,10 @@ describe('Watch only wallet', () => {
     let w = new WatchOnlyWallet();
     w.setSecret('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
     assert.ok(w.valid());
+    assert.strictEqual(w.isHd(), false);
     w.setSecret('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2');
     assert.ok(w.valid());
+    assert.strictEqual(w.isHd(), false);
     w.setSecret('not valid');
     assert.ok(!w.valid());
 
@@ -67,6 +69,9 @@ describe('Watch only wallet', () => {
     assert.ok(w.valid());
     w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
     assert.ok(w.valid());
+    assert.strictEqual(w.isHd(), true);
+    assert.strictEqual(w.getMasterFingerprint(), false);
+    assert.strictEqual(w.getMasterFingerprintHex(), '00000000');
   });
 
   it('can fetch balance & transactions from zpub HD', async () => {
@@ -108,6 +113,47 @@ describe('Watch only wallet', () => {
     assert.strictEqual(
       psbt.toBase64(),
       'cHNidP8BAHECAAAAAYBbjCRXw4r66Ly1aI/SCvis+CDQsCdQej1BhCoDnjt/AAAAAAAAAACAAogTAAAAAAAAFgAUwM681sPTyox13F7GLr5VMw75EOK3OQAAAAAAABYAFOc6kh7rlKStRwwMvbaeu+oFvB4MAAAAAAABAR8gTgAAAAAAABYAFL8PIBBJ6JHVhwsE61MPwWtjtptAIgYDWOHbOE3D4KiuoR7kHtmTtFZ7KXQB+8zb51QALLJxTx8YAAAAAFQAAIAAAACAAAAAgAAAAAAAAAAAAAAiAgM005BVD8MgH5kiSGnwXSfzaxLeDSl3y17Vhrx3F/9XxBgAAAAAVAAAgAAAAIAAAACAAQAAAAAAAAAA',
+    );
+  });
+
+  it('can import coldcard/electrum compatible JSON skeleton wallet, and create a tx with master fingerprint', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 120 * 1000;
+    const skeleton =
+      '{"keystore": {"ckcc_xpub": "xpub661MyMwAqRbcGmUDQVKxmhEESB5xTk8hbsdTSV3Pmhm3HE9Fj3s45R9Y8LwyaQWjXXPytZjuhTKSyCBPeNrB1VVWQq1HCvjbEZ27k44oNmg", "xpub": "zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx", "label": "Coldcard Import 168DD603", "ckcc_xfp": 64392470, "type": "hardware", "hw_type": "coldcard", "derivation": "m/84\'/0\'/0\'"}, "wallet_type": "standard", "use_encryption": false, "seed_version": 17}';
+    let w = new WatchOnlyWallet();
+    w.setSecret(skeleton);
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rFDtF1nuXZ9PUL4XzKURh3vJBW6Kj6TUrYL4qPtFNtDXtcTVfiqjQDyrZNwjwzt5HS14qdqo3Co2282Lv3Re6Y5wFZxAVuMEpeygnnDwfx',
+    );
+    assert.strictEqual(w.getMasterFingerprint(), 64392470);
+    assert.strictEqual(w.getMasterFingerprintHex(), '168dd603');
+
+    const utxos = [
+      {
+        height: 618811,
+        value: 66600,
+        address: 'bc1qzqjwye4musmz56cg44ttnchj49zueh9yr0qsxt',
+        txId: '5df595dc09ee7a5c245b34ea519288137ffee731629c4ff322a6de4f72c06222',
+        vout: 0,
+        txid: '5df595dc09ee7a5c245b34ea519288137ffee731629c4ff322a6de4f72c06222',
+        amount: 66600,
+        wif: false,
+        confirmations: 1,
+      },
+    ];
+
+    let { psbt } = await w.createTransaction(
+      utxos,
+      [{ address: 'bc1qdamevhw3zwm0ajsmyh39x8ygf0jr0syadmzepn', value: 5000 }],
+      22,
+      'bc1qtutssamysdkgd87df0afjct0mztx56qpze7wqe',
+    );
+    assert.strictEqual(
+      psbt.toBase64(),
+      'cHNidP8BAHECAAAAASJiwHJP3qYi80+cYjHn/n8TiJJR6jRbJFx67gnclfVdAAAAAAAAAACAAogTAAAAAAAAFgAUb3eWXdETtv7KGyXiUxyIS+Q3wJ1K3QAAAAAAABYAFF8XCHdkg2yGn81L+plhb9iWamgBAAAAAAABAR8oBAEAAAAAABYAFBAk4ma75DYqawitVrni8qlFzNykIgYDNK9TxoCjQ8P0+qI2Hu4hrnXnJuYAC3h2puZbgRORp+sYFo3WA1QAAIAAAACAAAAAgAAAAAAAAAAAAAAiAgL1DWeV+AfIP5RRB5zHv5vuXsIt8+rF9rrsji3FhQlhzBgWjdYDVAAAgAAAAIAAAACAAQAAAAAAAAAA',
     );
   });
 

@@ -1,8 +1,12 @@
 import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
 import BitcoinBIP70TransactionDecode from '../bip70/bip70';
+import RNFS from 'react-native-fs';
+import url from 'url';
+import { Chain } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
-const BlueApp = require('../BlueApp');
+const BlueApp: AppStorage = require('../BlueApp');
+
 class DeeplinkSchemaMatch {
   static hasSchema(schemaString) {
     if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
@@ -30,6 +34,21 @@ class DeeplinkSchemaMatch {
     if (typeof event.url !== 'string') {
       return;
     }
+    if (DeeplinkSchemaMatch.isPossiblyPSBTFile(event.url)) {
+      RNFS.readFile(event.url)
+        .then(file => {
+          if (file) {
+            completionHandler({
+              routeName: 'PsbtWithHardwareWallet',
+              params: {
+                deepLinkPSBT: file,
+              },
+            });
+          }
+        })
+        .catch(e => console.warn(e));
+      return;
+    }
     let isBothBitcoinAndLightning;
     try {
       isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(event.url);
@@ -40,7 +59,8 @@ class DeeplinkSchemaMatch {
       completionHandler({
         routeName: 'HandleOffchainAndOnChain',
         params: {
-          onWalletSelect: this.isBothBitcoinAndLightningWalletSelect,
+          onWalletSelect: wallet =>
+            completionHandler(DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning)),
         },
       });
     } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url) || BitcoinBIP70TransactionDecode.matchesPaymentURL(event.url)) {
@@ -95,7 +115,7 @@ class DeeplinkSchemaMatch {
               if (!haveLnWallet) {
                 // need to create one
                 let w = new LightningCustodianWallet();
-                w.setLabel(this.state.label || w.typeReadable);
+                w.setLabel(w.typeReadable);
 
                 try {
                   let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
@@ -128,21 +148,46 @@ class DeeplinkSchemaMatch {
                 return;
               }
 
-              this.navigator &&
-                this.navigator.dispatch(
-                  completionHandler({
-                    routeName: 'LappBrowser',
-                    params: {
-                      fromSecret: lnWallet.getSecret(),
-                      fromWallet: lnWallet,
-                      url: urlObject.query.url,
-                    },
-                  }),
-                );
+              completionHandler({
+                routeName: 'LappBrowser',
+                params: {
+                  fromSecret: lnWallet.getSecret(),
+                  fromWallet: lnWallet,
+                  url: urlObject.query.url,
+                },
+              });
               break;
           }
         }
       })();
+    }
+  }
+
+  static isTXNFile(filePath) {
+    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('.txn');
+  }
+
+  static isPossiblyPSBTFile(filePath) {
+    return filePath.toLowerCase().startsWith('file:') && filePath.toLowerCase().endsWith('-signed.psbt');
+  }
+
+  static isBothBitcoinAndLightningOnWalletSelect(wallet, uri) {
+    if (wallet.chain === Chain.ONCHAIN) {
+      return {
+        routeName: 'SendDetails',
+        params: {
+          uri: uri.bitcoin,
+          fromWallet: wallet,
+        },
+      };
+    } else if (wallet.chain === Chain.OFFCHAIN) {
+      return {
+        routeName: 'ScanLndInvoice',
+        params: {
+          uri: uri.lndInvoice,
+          fromSecret: wallet.getSecret(),
+        },
+      };
     }
   }
 

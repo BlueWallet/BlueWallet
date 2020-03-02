@@ -51,6 +51,7 @@ module.exports = {
     details: {
       title: 'Lommebok',
       address: 'Adresse',
+      master_fingerprint: 'Master fingerprint',
       type: 'Type',
       label: 'Merkelapp',
       destination: 'mål',

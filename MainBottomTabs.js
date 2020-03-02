@@ -194,6 +194,12 @@ const LNDCreateInvoiceStackNavigator = createStackNavigator({
   LNDCreateInvoice: {
     screen: LNDCreateInvoice,
   },
+  SelectWallet: {
+    screen: SelectWallet,
+    navigationOptions: {
+      headerLeft: null,
+    },
+  },
   LNDViewInvoice: {
     screen: LNDViewInvoice,
     swipeEnabled: false,
@@ -210,6 +216,7 @@ const CreateWalletStackNavigator = createStackNavigator({
   },
   ImportWallet: {
     screen: ImportWallet,
+    routeName: 'ImportWallet',
   },
   PleaseBackup: {
     screen: PleaseBackup,

@@ -203,7 +203,7 @@ export default class SendCreate extends Component {
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
         <BlueCard title={'Replace Transaction'} style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText>This is transaction hex, signed and ready to be broadcast to the network. Continue?</BlueText>
+          <BlueText>This is your transaction's hex, signed and ready to be broadcasted to the network. Continue?</BlueText>
 
           <TextInput
             style={{

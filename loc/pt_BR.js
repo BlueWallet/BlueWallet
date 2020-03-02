@@ -53,6 +53,7 @@ module.exports = {
     details: {
       title: 'Carteira',
       address: 'Endereço',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipo',
       destination: 'destino',
       description: 'descrição',

@@ -53,6 +53,7 @@ module.exports = {
     details: {
       title: 'Portafoglio',
       address: 'Indirizzo',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipo',
       label: 'Etichetta',
       destination: 'Destinazione',
