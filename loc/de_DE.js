@@ -25,8 +25,8 @@ module.exports = {
       empty_txs1: 'Deine Transaktionen erscheinen hier',
       empty_txs2: 'Noch keine Transaktionen',
       empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+        'Verwende das Lightning Wallet für Deine täglichen Bezahlungen. Lightning Transaktionen sind konkurrenzlos günstig und verblüffend schnell.',
+      empty_txs2_lightning: '\nDrücke zum Starten «Beträge verwalten», um das Wallet zu laden.',
       tap_here_to_buy: 'Klicke hier, um Bitcoin zu kaufen',
     },
     reorder: {
@@ -52,7 +52,7 @@ module.exports = {
     details: {
       title: 'Wallet',
       address: 'Adresse',
-      master_fingerprint: 'Master fingerprint',
+      master_fingerprint: 'Fingerabdruckerkennung',
       type: 'Typ',
       label: 'Bezeichnung',
       destination: 'Zieladresse',
@@ -105,7 +105,7 @@ module.exports = {
       tabBarLabel: 'Transaktionen',
       title: 'Transaktionen',
       description: 'Eine Liste eingehender oder ausgehender Transaktionen deiner Wallets',
-      conf: 'conf',
+      conf: 'Konf',
     },
     details: {
       title: 'Transaktionen',
@@ -130,7 +130,7 @@ module.exports = {
       fee_placeholder: 'plus Gebühr (in BTC)',
       note_placeholder: 'Notiz',
       cancel: 'Abbrechen',
-      scan: 'Scan',
+      scan: 'Scannen',
       send: 'Senden',
       create: 'Erstellen',
       remaining_balance: 'Verfügbarer Betrag',
@@ -165,10 +165,10 @@ module.exports = {
       share: 'Teilen',
       copiedToClipboard: 'In die Zwischenablage kopiert.',
       label: 'Beschreibung',
-      create: 'Create',
+      create: 'Erstelle',
       setAmount: 'Zu erhaltender Betrag',
     },
-    scan_lnurl: 'Scan to receive',
+    scan_lnurl: 'Scannen, zum Erhalten',
   },
   buyBitcoin: {
     header: 'Kaufe Bitcoin',
@@ -187,17 +187,17 @@ module.exports = {
     encrypt_storage: 'Speicher verschlüsseln',
     lightning_settings: 'Lightning Einstellungen',
     lightning_settings_explain:
-      'Bitte installier Lndhub, um dich mit deiner eigenen LND Node zu verbinden' +
-      ' und setz die URL hier in den Einstellungen. Lass das Feld leer, um Standard- ' +
-      'LndHub\n (lndhub.io) zu verwenden.',
+      'Bitte installier Lndhub, um mit deiner eigenen LND Node zu verbinden' +
+      ' und setz seine URL hier in den Einstellungen. Lass das Feld leer, um Standard- ' +
+      'LndHub\n (lndhub.io) zu verwenden',
     electrum_settings: 'Electrum Einstellungen',
-    electrum_settings_explain: 'Leer lassen um den Standard zu verwenden',
+    electrum_settings_explain: 'Leer lassen, um den Standard zu verwenden.',
     save: 'Speichern',
     about: 'Über',
     language: 'Sprache',
     currency: 'Währung',
-    advanced_options: 'Erweiterte Einstellungen',
-    enable_advanced_mode: 'Erweiterten Modus aktivieren',
+    advanced_options: 'Erweiterte Optionen',
+    enable_advanced_mode: 'Erweiterter Modus verwenden',
   },
   plausibledeniability: {
     title: 'Glaubhafte Täuschung',
@@ -232,18 +232,18 @@ module.exports = {
       'Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.',
   },
   pleasebackup: {
-    title: 'Dein Wallet wurde erstellt...',
+    title: 'Ihr Wallet wird erstellt...',
     text:
-      "Nimm dir einen Moment Zeit um die Seed Wörter auf Papier aufzuschreiben. Mit diesem Backup kannst du dein Wallet auf einem anderen Gerät wiederherstellen.",
-    ok: 'OK, ich habe es mir aufgeschieben!',
+      "Nimm Dir Zeit die mnemonischen Wörter zur späteren Wiederherstellung des Wallets aufzuschreiben. Die Wörter sind dien einziges Backup im Fall eines Geräteverlustes.",
+    ok: 'Ja, mein Geld ist sicher!',
   },
   lndViewInvoice: {
-    wasnt_paid_and_expired: 'Diese Rechnung wurde nicht bezahlt und ist abgelaufen.',
-    has_been_paid: 'Diese Rechnung wurde bezahlt für',
-    please_pay: 'Bitte bezahlen',
+    wasnt_paid_and_expired: 'Diese Rechnung ist unbezahlt und abgelaufen.',
+    has_been_paid: 'Diese Rechnung wurde bezahlt.',
+    please_pay: 'Bitte zahle',
     sats: 'sats',
-    for: 'Für:',
-    additional_info: 'Weitere Information',
-    open_direct_channel: 'Öffne einen direkten Kanal zu diesem Knoten:',
+    for: 'für:',
+    additional_info: 'Additional Information',
+    open_direct_channel: 'Direkten Kanal zu diesem Knoten eröffnen:',
   },
 };
