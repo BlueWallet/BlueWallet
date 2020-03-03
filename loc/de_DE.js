@@ -187,17 +187,17 @@ module.exports = {
     encrypt_storage: 'Speicher verschlüsseln',
     lightning_settings: 'Lightning Einstellungen',
     lightning_settings_explain:
-      'Bitte installier Lndhub, um mit deiner eigenen LND Node zu verbinden' +
-      ' und setz seine URL hier in den Einstellungen. Lass das Feld leer, um Standard- ' +
-      'LndHub\n (lndhub.io) zu verwenden',
-    electrum_settings: 'Electrum Settings',
-    electrum_settings_explain: 'Set to blank to use default',
+      'Bitte installier Lndhub, um dich mit deiner eigenen LND Node zu verbinden' +
+      ' und setz die URL hier in den Einstellungen. Lass das Feld leer, um Standard- ' +
+      'LndHub\n (lndhub.io) zu verwenden.',
+    electrum_settings: 'Electrum Einstellungen',
+    electrum_settings_explain: 'Leer lassen um den Standard zu verwenden',
     save: 'Speichern',
     about: 'Über',
     language: 'Sprache',
     currency: 'Währung',
-    advanced_options: 'Advanced Options',
-    enable_advanced_mode: 'Enable advanced mode',
+    advanced_options: 'Erweiterte Einstellungen',
+    enable_advanced_mode: 'Erweiterten Modus aktivieren',
   },
   plausibledeniability: {
     title: 'Glaubhafte Täuschung',
@@ -226,24 +226,24 @@ module.exports = {
     refill_lnd_balance: 'Lade deine Lightning Wallet auf',
     refill: 'Aufladen',
     withdraw: 'Abheben',
-    expired: 'Expired',
-    placeholder: 'Invoice',
+    expired: 'Abgelaufen',
+    placeholder: 'Rechnung',
     sameWalletAsInvoiceError:
       'Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.',
   },
   pleasebackup: {
-    title: 'Your wallet is created...',
+    title: 'Dein Wallet wurde erstellt...',
     text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
-    ok: 'OK, I wrote this down!',
+      "Nimm dir einen Moment Zeit um die Seed Wörter auf Papier aufzuschreiben. Mit diesem Backup kannst du dein Wallet auf einem anderen Gerät wiederherstellen.",
+    ok: 'OK, ich habe es mir aufgeschieben!',
   },
   lndViewInvoice: {
-    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
-    has_been_paid: 'This invoice has been paid for',
-    please_pay: 'Please pay',
+    wasnt_paid_and_expired: 'Diese Rechnung wurde nicht bezahlt und ist abgelaufen.',
+    has_been_paid: 'Diese Rechnung wurde bezahlt für',
+    please_pay: 'Bitte bezahlen',
     sats: 'sats',
-    for: 'For:',
-    additional_info: 'Additional Information',
-    open_direct_channel: 'Open direct channel with this node:',
+    for: 'Für:',
+    additional_info: 'Weitere Information',
+    open_direct_channel: 'Öffne einen direkten Kanal zu diesem Knoten:',
   },
 };
