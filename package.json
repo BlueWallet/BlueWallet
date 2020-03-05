@@ -70,7 +70,7 @@
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.11",
     "crypto-js": "3.1.9-1",
-    "dayjs": "1.8.14",
+    "dayjs": "1.8.20",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git",
     "eslint-config-prettier": "6.10.0",
