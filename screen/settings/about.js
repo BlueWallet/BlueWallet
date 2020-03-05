@@ -46,12 +46,6 @@ export default class About extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <ScrollView>
           <BlueCard>
-            <BlueTextCentered h4>GoldWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
-            <BlueSpacing20 />
-
-            <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
-            <BlueSpacing20 />
-
             <BlueButton
               icon={{
                 name: 'github',
@@ -59,9 +53,9 @@ export default class About extends Component {
                 color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL('https://github.com/royalewallets/GoldWallet');
+                Linking.openURL('https://github.com/bitcoinvault/GoldWallet');
               }}
-              title="github.com/royalewallets/GoldWallet"
+              title="GitHub"
             />
             <BlueSpacing20 />
 
@@ -78,7 +72,7 @@ export default class About extends Component {
                   preferredAndroidMarket: AndroidMarket.Google,
                   preferInApp: true,
                   openAppStoreIfInAppFails: true,
-                  fallbackPlatformURL: 'https://royalewallets.github.io',
+                  fallbackPlatformURL: 'https://bitcoinvault.global',
                 };
                 Rate.rate(options, success => {
                   if (success) {
@@ -89,18 +83,6 @@ export default class About extends Component {
               title="Rate GoldWallet"
             />
 
-            <BlueSpacing20 />
-            <BlueText h3>Built with awesome:</BlueText>
-            <BlueSpacing20 />
-            <BlueText h4>* React Native</BlueText>
-            <BlueText h4>* Bitcoinjs-lib</BlueText>
-            <BlueText h4>* blockcypher.com API</BlueText>
-            <BlueText h4>* Nodejs</BlueText>
-            <BlueText h4>* react-native-elements</BlueText>
-            <BlueText h4>* rn-nodeify</BlueText>
-            <BlueText h4>* bignumber.js</BlueText>
-            <BlueSpacing20 />
-
             <BlueButton
               onPress={() => {
                 this.props.navigation.navigate('ReleaseNotes');
@@ -109,12 +91,6 @@ export default class About extends Component {
             />
             <BlueSpacing20 />
 
-            <BlueButton
-              onPress={() => {
-                this.props.navigation.navigate('Selftest');
-              }}
-              title="Run self test"
-            />
             <BlueTextCentered />
             <BlueTextCentered>
               {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})

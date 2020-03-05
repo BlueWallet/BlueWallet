@@ -122,18 +122,6 @@ export default class WalletDetails extends Component {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={{ flex: 1 }}>
             <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-              {(() => {
-                if (this.state.wallet.getAddress()) {
-                  return (
-                    <React.Fragment>
-                      <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
-                        {loc.wallets.details.address.toLowerCase()}
-                      </Text>
-                      <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getAddress()}</Text>
-                    </React.Fragment>
-                  );
-                }
-              })()}
               <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>
                 {loc.wallets.add.wallet_name.toLowerCase()}
               </Text>
@@ -208,23 +196,7 @@ export default class WalletDetails extends Component {
                     <BlueSpacing20 />
                   </React.Fragment>
                 )}
-
-                {(
-                  <BlueButton
-                    icon={{
-                      name: 'shopping-cart',
-                      type: 'font-awesome',
-                      color: BlueApp.settings.buttonTextColor,
-                    }}
-                    onPress={() =>
-                      this.props.navigation.navigate('BuyBitcoin', {
-                        address: this.state.wallet.getAddress(),
-                        secret: this.state.wallet.getSecret(),
-                      })
-                    }
-                    title={loc.wallets.details.buy_bitcoin}
-                  />
-                )}
+                
                 <BlueSpacing20 />
 
                 <TouchableOpacity
