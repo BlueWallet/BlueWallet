@@ -51,7 +51,7 @@ const ScanQRCode = ({
         if (fileParsed.keystore.ckcc_xfp) {
           masterFingerprint = Number(fileParsed.keystore.ckcc_xfp);
         }
-        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint } });
+        onBarCodeRead({ data: fileParsed.keystore.xpub, additionalProperties: { masterFingerprint, label: fileParsed.keystore.label } });
       } else {
         throw new Error();
       }
