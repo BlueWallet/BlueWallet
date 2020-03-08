@@ -1,5 +1,4 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
-import Frisbee from 'frisbee';
+import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import bip39 from 'bip39';
 const bip32 = require('bip32');
 const bitcoinjs = require('bitcoinjs-lib');
@@ -8,7 +7,7 @@ const bitcoinjs = require('bitcoinjs-lib');
  * HD Wallet (BIP39).
  * In particular, Breadwallet-compatible (Legacy addresses)
  */
-export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
+export class HDLegacyBreadwalletWallet extends AbstractHDElectrumWallet {
   static type = 'HDLegacyBreadwallet';
   static typeReadable = 'HD Legacy Breadwallet (P2PKH)';
 
@@ -89,27 +88,5 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
     const child = root.derivePath(path);
 
     return child.keyPair.toWIF();
-  }
-
-  /**
-   * @inheritDoc
-   */
-  async fetchBalance() {
-    try {
-      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-
-      let response = await api.get('/balance?active=' + this.getXpub());
-
-      if (response && response.body) {
-        for (let xpub of Object.keys(response.body)) {
-          this.balance = response.body[xpub].final_balance / 100000000;
-        }
-        this._lastBalanceFetch = +new Date();
-      } else {
-        throw new Error('Could not fetch balance from API: ' + response.err);
-      }
-    } catch (err) {
-      console.warn(err);
-    }
   }
 }

@@ -295,7 +295,7 @@ module.exports.multiGetHistoryByAddress = async function(addresses, batchsize) {
 };
 
 module.exports.multiGetTransactionByTxid = async function(txids, batchsize, verbose) {
-  batchsize = batchsize || 81;
+  batchsize = batchsize || 61;
   // this value is fine-tuned so althrough wallets in test suite will occasionally
   // throw 'response too large (over 1,000,000 bytes', test suite will pass
   verbose = verbose !== false;
