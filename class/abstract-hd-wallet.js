@@ -4,6 +4,9 @@ const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BlueElectrum = require('../BlueElectrum');
 
+/**
+ * @deprecated
+ */
 export class AbstractHDWallet extends LegacyWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';

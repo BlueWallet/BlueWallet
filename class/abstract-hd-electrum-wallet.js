@@ -665,6 +665,9 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       u.wif = this._getWifForAddress(u.address);
       u.confirmations = u.height ? 1 : 0;
     }
+
+    this.utxo = this.utxo.sort((a, b) => a.amount - b.amount);
+    // more consistent, so txhex in unit tests wont change
   }
 
   getUtxo() {
