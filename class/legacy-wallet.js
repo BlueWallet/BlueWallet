@@ -1,7 +1,5 @@
 import { AbstractWallet } from './abstract-wallet';
-import { SegwitBech32Wallet } from './';
-import { useBlockcypherTokens } from './constants';
-import Frisbee from 'frisbee';
+import { HDSegwitBech32Wallet } from './';
 import { NativeModules } from 'react-native';
 const bitcoin = require('bitcoinjs-lib');
 const { RNRandomBytes } = NativeModules;
@@ -37,7 +35,7 @@ export class LegacyWallet extends AbstractWallet {
    * @return {boolean}
    */
   timeToRefreshTransaction() {
-    for (let tx of this.transactions) {
+    for (let tx of this.getTransactions()) {
       if (tx.confirmations < 7) {
         return true;
       }
@@ -104,24 +102,13 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchBalance() {
     try {
-      const api = new Frisbee({
-        baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/',
-      });
-
-      let response = await api.get(
-        this.getAddress() + '/balance' + ((useBlockcypherTokens && '?token=' + this.getRandomBlockcypherToken()) || ''),
-      );
-      let json = response.body;
-      if (typeof json === 'undefined' || typeof json.final_balance === 'undefined') {
-        throw new Error('Could not fetch balance from API: ' + response.err + ' ' + JSON.stringify(response.body));
-      }
-
-      this.balance = Number(json.final_balance);
-      this.unconfirmed_balance = new BigNumber(json.unconfirmed_balance);
-      this.unconfirmed_balance = this.unconfirmed_balance.dividedBy(100000000).toString() * 1;
+      let balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
+      this.balance = Number(balance.confirmed);
+      this.unconfirmed_balance = new BigNumber(balance.unconfirmed);
+      this.unconfirmed_balance = this.unconfirmed_balance.dividedBy(100000000).toString() * 1; // wtf
       this._lastBalanceFetch = +new Date();
-    } catch (err) {
-      console.warn(err);
+    } catch (Error) {
+      console.warn(Error);
     }
   }
 
@@ -131,230 +118,116 @@ export class LegacyWallet extends AbstractWallet {
    * @return {Promise.<void>}
    */
   async fetchUtxo() {
-    const api = new Frisbee({
-      baseURI: 'https://api.blockcypher.com/v1/btc/main/addrs/',
-    });
-
-    let response;
     try {
-      let maxHeight = 0;
-      this.utxo = [];
-      let json;
+      let utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
+      for (let arr of Object.values(utxos)) {
+        this.utxo = this.utxo.concat(arr);
+      }
+    } catch (Error) {
+      console.warn(Error);
+    }
 
-      do {
-        response = await api.get(
-          this.getAddress() +
-            '?limit=2000&after=' +
-            maxHeight +
-            ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
-        );
-        json = response.body;
-        if (typeof json === 'undefined' || typeof json.final_balance === 'undefined') {
-          throw new Error('Could not fetch UTXO from API' + response.err);
-        }
-        json.txrefs = json.txrefs || []; // case when source address is empty (or maxheight too high, no txs)
-
-        for (let txref of json.txrefs) {
-          maxHeight = Math.max(maxHeight, txref.block_height) + 1;
-          if (typeof txref.spent !== 'undefined' && txref.spent === false) {
-            this.utxo.push(txref);
-          }
-        }
-      } while (json.txrefs.length);
-
-      json.unconfirmed_txrefs = json.unconfirmed_txrefs || [];
-      this.utxo = this.utxo.concat(json.unconfirmed_txrefs);
-    } catch (err) {
-      console.warn(err);
+    // backward compatibility
+    for (let u of this.utxo) {
+      u.tx_output_n = u.vout;
+      u.tx_hash = u.txId;
+      u.confirmations = u.height ? 1 : 0;
     }
   }
 
+  getUtxo() {
+    return this.utxo;
+  }
+
   /**
-   * Fetches transactions via API. Returns VOID.
-   * Use getter to get the actual list.
+   * Fetches transactions via Electrum. Returns VOID.
+   * Use getter to get the actual list.   *
+   * @see AbstractHDElectrumWallet.fetchTransactions()
    *
    * @return {Promise.<void>}
    */
   async fetchTransactions() {
-    try {
-      const api = new Frisbee({
-        baseURI: 'https://api.blockcypher.com/',
-      });
+    // Below is a simplified copypaste from HD electrum wallet
+    this._txs_by_external_index = [];
+    let addresses2fetch = [this.getAddress()];
 
-      let after = 0;
-      let before = 100500100;
-
-      for (let oldTx of this.getTransactions()) {
-        if (oldTx.block_height && oldTx.confirmations < 7) {
-          after = Math.max(after, oldTx.block_height);
-        }
+    // first: batch fetch for all addresses histories
+    let histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
+    let txs = {};
+    for (let history of Object.values(histories)) {
+      for (let tx of history) {
+        txs[tx.tx_hash] = tx;
       }
-
-      while (1) {
-        let response = await api.get(
-          'v1/btc/main/addrs/' +
-            this.getAddress() +
-            '/full?after=' +
-            after +
-            '&before=' +
-            before +
-            '&limit=50' +
-            ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''),
-        );
-        let json = response.body;
-        if (typeof json === 'undefined' || !json.txs) {
-          throw new Error('Could not fetch transactions from API:' + response.err);
-        }
-
-        let alreadyFetchedTransactions = this.transactions;
-        this.transactions = json.txs;
-        this._lastTxFetch = +new Date();
-
-        // now, calculating value per each transaction...
-        for (let tx of this.transactions) {
-          if (tx.block_height) {
-            before = Math.min(before, tx.block_height); // so next time we fetch older TXs
-          }
-
-          // now, if we dont have enough outputs or inputs in response we should collect them from API:
-          if (tx.next_outputs) {
-            let newOutputs = await this._fetchAdditionalOutputs(tx.next_outputs);
-            tx.outputs = tx.outputs.concat(newOutputs);
-          }
-          if (tx.next_inputs) {
-            let newInputs = await this._fetchAdditionalInputs(tx.next_inputs);
-            tx.inputs = tx.inputs.concat(newInputs);
-          }
-
-          // how much came in...
-          let value = 0;
-          for (let out of tx.outputs) {
-            if (out && out.addresses && out.addresses.indexOf(this.getAddress()) !== -1) {
-              // found our address in outs of this TX
-              value += out.value;
-            }
-          }
-          tx.value = value;
-          // end
-
-          // how much came out
-          value = 0;
-          for (let inp of tx.inputs) {
-            if (!inp.addresses) {
-              // console.log('inp.addresses empty');
-              // console.log('got witness', inp.witness); // TODO
-
-              inp.addresses = [];
-              if (inp.witness && inp.witness[1]) {
-                let address = SegwitBech32Wallet.witnessToAddress(inp.witness[1]);
-                inp.addresses.push(address);
-              } else {
-                inp.addresses.push('???');
-              }
-            }
-            if (inp && inp.addresses && inp.addresses.indexOf(this.getAddress()) !== -1) {
-              // found our address in outs of this TX
-              value -= inp.output_value;
-            }
-          }
-          tx.value += value;
-          // end
-        }
-
-        this.transactions = alreadyFetchedTransactions.concat(this.transactions);
-
-        let txsUnconf = [];
-        let txs = [];
-        let hashPresent = {};
-        // now, rearranging TXs. unconfirmed go first:
-        for (let tx of this.transactions.reverse()) {
-          if (hashPresent[tx.hash]) continue;
-          hashPresent[tx.hash] = 1;
-          if (tx.block_height && tx.block_height === -1) {
-            // unconfirmed
-            console.log(tx);
-            if (+new Date(tx.received) < +new Date() - 3600 * 24 * 1000) {
-              // nop, too old unconfirmed tx - skipping it
-            } else {
-              txsUnconf.push(tx);
-            }
-          } else {
-            txs.push(tx);
-          }
-        }
-        this.transactions = txsUnconf.reverse().concat(txs.reverse());
-        // all reverses needed so freshly fetched TXs replace same old TXs
-
-        this.transactions = this.transactions.sort((a, b) => {
-          return a.received < b.received;
-        });
-
-        if (json.txs.length < 50) {
-          // final batch, so it has les than max txs
-          break;
-        }
-      }
-    } catch (err) {
-      console.warn(err);
     }
+
+    // next, batch fetching each txid we got
+    let txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs));
+
+    // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
+    // then we combine all this data (we need inputs to see source addresses and amounts)
+    let vinTxids = [];
+    for (let txdata of Object.values(txdatas)) {
+      for (let vin of txdata.vin) {
+        vinTxids.push(vin.txid);
+      }
+    }
+    let vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
+
+    // fetched all transactions from our inputs. now we need to combine it.
+    // iterating all _our_ transactions:
+    for (let txid of Object.keys(txdatas)) {
+      // iterating all inputs our our single transaction:
+      for (let inpNum = 0; inpNum < txdatas[txid].vin.length; inpNum++) {
+        let inpTxid = txdatas[txid].vin[inpNum].txid;
+        let inpVout = txdatas[txid].vin[inpNum].vout;
+        // got txid and output number of _previous_ transaction we shoud look into
+        if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
+          // extracting amount & addresses from previous output and adding it to _our_ input:
+          txdatas[txid].vin[inpNum].addresses = vintxdatas[inpTxid].vout[inpVout].scriptPubKey.addresses;
+          txdatas[txid].vin[inpNum].value = vintxdatas[inpTxid].vout[inpVout].value;
+        }
+      }
+    }
+
+    // now, we need to put transactions in all relevant `cells` of internal hashmaps: this.transactions_by_internal_index && this.transactions_by_external_index
+
+    for (let tx of Object.values(txdatas)) {
+      for (let vin of tx.vin) {
+        if (vin.addresses && vin.addresses.indexOf(this.getAddress()) !== -1) {
+          // this TX is related to our address
+          let clonedTx = Object.assign({}, tx);
+          clonedTx.inputs = tx.vin.slice(0);
+          clonedTx.outputs = tx.vout.slice(0);
+          delete clonedTx.vin;
+          delete clonedTx.vout;
+
+          this._txs_by_external_index.push(clonedTx);
+        }
+      }
+      for (let vout of tx.vout) {
+        if (vout.scriptPubKey.addresses.indexOf(this.getAddress()) !== -1) {
+          // this TX is related to our address
+          let clonedTx = Object.assign({}, tx);
+          clonedTx.inputs = tx.vin.slice(0);
+          clonedTx.outputs = tx.vout.slice(0);
+          delete clonedTx.vin;
+          delete clonedTx.vout;
+
+          this._txs_by_external_index.push(clonedTx);
+        }
+      }
+    }
+
+    this._lastTxFetch = +new Date();
   }
 
-  async _fetchAdditionalOutputs(nextOutputs) {
-    let outputs = [];
-    let baseURI = nextOutputs.split('/');
-    baseURI = baseURI[0] + '/' + baseURI[1] + '/' + baseURI[2] + '/';
-    const api = new Frisbee({
-      baseURI: baseURI,
-    });
+  getTransactions() {
+    // a hacky code reuse from electrum HD wallet:
+    this._txs_by_external_index = this._txs_by_external_index || [];
+    this._txs_by_internal_index = [];
 
-    do {
-      await (() => new Promise(resolve => setTimeout(resolve, 1000)))();
-      nextOutputs = nextOutputs.replace(baseURI, '');
-
-      let response = await api.get(nextOutputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
-      let json = response.body;
-      if (typeof json === 'undefined') {
-        throw new Error('Could not fetch transactions from API:' + response.err);
-      }
-
-      if (json.outputs && json.outputs.length) {
-        outputs = outputs.concat(json.outputs);
-        nextOutputs = json.next_outputs;
-      } else {
-        break;
-      }
-    } while (1);
-
-    return outputs;
-  }
-
-  async _fetchAdditionalInputs(nextInputs) {
-    let inputs = [];
-    let baseURI = nextInputs.split('/');
-    baseURI = baseURI[0] + '/' + baseURI[1] + '/' + baseURI[2] + '/';
-    const api = new Frisbee({
-      baseURI: baseURI,
-    });
-
-    do {
-      await (() => new Promise(resolve => setTimeout(resolve, 1000)))();
-      nextInputs = nextInputs.replace(baseURI, '');
-
-      let response = await api.get(nextInputs + ((useBlockcypherTokens && '&token=' + this.getRandomBlockcypherToken()) || ''));
-      let json = response.body;
-      if (typeof json === 'undefined') {
-        throw new Error('Could not fetch transactions from API:' + response.err);
-      }
-
-      if (json.inputs && json.inputs.length) {
-        inputs = inputs.concat(json.inputs);
-        nextInputs = json.next_inputs;
-      } else {
-        break;
-      }
-    } while (1);
-
-    return inputs;
+    let hd = new HDSegwitBech32Wallet();
+    return hd.getTransactions.apply(this);
   }
 
   async broadcastTx(txhex) {
@@ -366,66 +239,8 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
-  async _broadcastTxBtczen(txhex) {
-    const api = new Frisbee({
-      baseURI: 'https://btczen.com',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    let res = await api.get('/broadcast/' + txhex);
-    console.log('response btczen', res.body);
-    return res.body;
-  }
-
-  async _broadcastTxChainso(txhex) {
-    const api = new Frisbee({
-      baseURI: 'https://chain.so',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    let res = await api.post('/api/v2/send_tx/BTC', {
-      body: { tx_hex: txhex },
-    });
-    return res.body;
-  }
-
-  async _broadcastTxSmartbit(txhex) {
-    const api = new Frisbee({
-      baseURI: 'https://api.smartbit.com.au',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    let res = await api.post('/v1/blockchain/pushtx', {
-      body: { hex: txhex },
-    });
-    return res.body;
-  }
-
-  async _broadcastTxBlockcypher(txhex) {
-    const api = new Frisbee({
-      baseURI: 'https://api.blockcypher.com',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    let res = await api.post('/v1/btc/main/txs/push', { body: { tx: txhex } });
-    // console.log('blockcypher response', res);
-    return res.body;
-  }
-
   /**
-   * Takes UTXOs (as presented by blockcypher api), transforms them into
+   * Takes UTXOs, transforms them into
    * format expected by signer module, creates tx and returns signed string txhex.
    *
    * @param utxos Unspent outputs, expects blockcypher format
@@ -462,22 +277,12 @@ export class LegacyWallet extends AbstractWallet {
     return new Date(max).toString();
   }
 
-  getRandomBlockcypherToken() {
-    return (array => {
-      for (let i = array.length - 1; i > 0; i--) {
-        let j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array[0];
-    })([
-      '0326b7107b4149559d18ce80612ef812',
-      'a133eb7ccacd4accb80cb1225de4b155',
-      '7c2b1628d27b4bd3bf8eaee7149c577f',
-      'f1e5a02b9ec84ec4bc8db2349022e5f5',
-      'e5926dbeb57145979153adc41305b183',
-    ]);
-  }
-
+  /**
+   * Validates any address, including legacy, p2sh and bech32
+   *
+   * @param address
+   * @returns {boolean}
+   */
   isAddressValid(address) {
     try {
       bitcoin.address.toOutputScript(address);
@@ -485,5 +290,9 @@ export class LegacyWallet extends AbstractWallet {
     } catch (e) {
       return false;
     }
+  }
+
+  weOwnAddress(address) {
+    return this.getAddress() === address || this._address === address;
   }
 }
