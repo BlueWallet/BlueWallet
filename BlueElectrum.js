@@ -341,7 +341,7 @@ module.exports.waitTillConnected = async function() {
         clearInterval(waitTillConnectedInterval);
         reject(new Error('Waiting for Electrum connection timeout'));
       }
-    }, 1000);
+    }, 500);
   });
 };
 
