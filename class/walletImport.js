@@ -125,7 +125,7 @@ export default class WalletImport {
       if (hd4.validateMnemonic()) {
         await hd4.fetchBalance();
         if (hd4.getBalance() > 0) {
-          await hd4.fetchTransactions();
+          // await hd4.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
           return WalletImport._saveWallet(hd4);
         }
       }
@@ -168,7 +168,7 @@ export default class WalletImport {
       if (hd1.validateMnemonic()) {
         await hd1.fetchBalance();
         if (hd1.getBalance() > 0) {
-          await hd1.fetchTransactions();
+          // await hd1.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
           return WalletImport._saveWallet(hd1);
         }
       }
@@ -178,7 +178,7 @@ export default class WalletImport {
       if (hd2.validateMnemonic()) {
         await hd2.fetchBalance();
         if (hd2.getBalance() > 0) {
-          await hd2.fetchTransactions();
+          // await hd2.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
           return WalletImport._saveWallet(hd2);
         }
       }
@@ -188,7 +188,7 @@ export default class WalletImport {
       if (hd3.validateMnemonic()) {
         await hd3.fetchBalance();
         if (hd3.getBalance() > 0) {
-          await hd3.fetchTransactions();
+          // await hd3.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
           return WalletImport._saveWallet(hd3);
         }
       }
@@ -230,7 +230,7 @@ export default class WalletImport {
       let watchOnly = new WatchOnlyWallet();
       watchOnly.setSecret(importText);
       if (watchOnly.valid()) {
-        await watchOnly.fetchTransactions();
+        // await watchOnly.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later
         await watchOnly.fetchBalance();
         return WalletImport._saveWallet(watchOnly, additionalProperties);
       }
