@@ -99,24 +99,26 @@ export default class WalletsAdd extends Component {
         <ScrollView>
           <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
           <KeyboardAvoidingView
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              marginHorizontal: 20,
-              alignItems: 'center',
-              marginVertical: 16,
-              borderRadius: 4,
-            }}
             enabled
             behavior={Platform.OS === 'ios' ? 'position' : null}
             keyboardVerticalOffset={20}
           >
+            <View 
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                marginHorizontal: 20,
+                alignItems: 'center',
+                marginVertical: 16,
+                borderRadius: 4,
+              }}
+              >
             <TextInput
               value={this.state.label}
               placeholderTextColor="#81868e"
@@ -128,6 +130,7 @@ export default class WalletsAdd extends Component {
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
             />
+            </View>
           </KeyboardAvoidingView>
           <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
 
