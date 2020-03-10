@@ -68,17 +68,15 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.4.0):
+  - react-native-camera (3.17.0):
     - React
-    - react-native-camera/RCT (= 3.4.0)
-    - react-native-camera/RN (= 3.4.0)
-  - react-native-camera/RCT (3.4.0):
+    - react-native-camera/RCT (= 3.17.0)
+    - react-native-camera/RN (= 3.17.0)
+  - react-native-camera/RCT (3.17.0):
     - React
-  - react-native-camera/RN (3.4.0):
+  - react-native-camera/RN (3.17.0):
     - React
   - react-native-document-picker (3.2.0):
-    - React
-  - react-native-haptic-feedback (1.7.1):
     - React
   - react-native-image-picker (1.1.0):
     - React
@@ -86,7 +84,7 @@ PODS:
     - React
   - react-native-slider (2.0.8):
     - React
-  - react-native-webview (6.9.0):
+  - react-native-webview (6.11.1):
     - React
   - React-RCTActionSheet (0.60.5):
     - React-Core (= 0.60.5)
@@ -115,30 +113,32 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.6.2):
+  - RNCAsyncStorage (1.7.1):
     - React
   - RNDefaultPreference (1.4.1):
     - React
   - RNDeviceInfo (4.0.1):
     - React
-  - RNFS (2.13.3):
+  - RNFS (2.16.4):
     - React
-  - RNGestureHandler (1.3.0):
+  - RNGestureHandler (1.5.6):
     - React
   - RNHandoff (0.0.3):
     - React
   - RNQuickAction (0.3.13):
     - React
-  - RNRate (1.0.1):
+  - RNRate (1.1.10):
+    - React
+  - RNReactNativeHapticFeedback (1.9.0):
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.2.1):
+  - RNSentry (1.3.1):
     - React
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
     - React
-  - RNSVG (9.5.1):
+  - RNSVG (9.13.6):
     - React
   - RNVectorIcons (6.6.0):
     - React
@@ -172,7 +172,6 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
-  - react-native-haptic-feedback (from `../node_modules/react-native-haptic-feedback`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
@@ -196,7 +195,8 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNHandoff (from `../node_modules/react-native-handoff`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
-  - RNRate (from `../node_modules/react-native-rate/ios`)
+  - RNRate (from `../node_modules/react-native-rate`)
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
@@ -208,7 +208,7 @@ DEPENDENCIES:
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - boost-for-react-native
     - EFQRCode
     - lottie-ios
@@ -248,8 +248,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
-  react-native-haptic-feedback:
-    :path: "../node_modules/react-native-haptic-feedback"
   react-native-image-picker:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
@@ -297,7 +295,9 @@ EXTERNAL SOURCES:
   RNQuickAction:
     :path: "../node_modules/react-native-quick-actions"
   RNRate:
-    :path: "../node_modules/react-native-rate/ios"
+    :path: "../node_modules/react-native-rate"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNSecureKeyStore:
     :path: "../node_modules/react-native-secure-key-store/ios"
   RNSentry:
@@ -335,13 +335,12 @@ SPEC CHECKSUMS:
   React-jsinspector: e08662d1bf5b129a3d556eb9ea343a3f40353ae4
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 203091b4bf99d48b788a0682ad573e8718724893
+  react-native-camera: 4ead7a30a89f275f531d80aa720cc69363c38135
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
-  react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
-  react-native-webview: f72ac4078e115dfa741cc588acb1cca25566457d
+  react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90
   React-RCTAnimation: 359ba1b5690b1e87cc173558a78e82d35919333e
   React-RCTBlob: 5e2b55f76e9a1c7ae52b826923502ddc3238df24
@@ -354,18 +353,19 @@ SPEC CHECKSUMS:
   React-RCTWebSocket: cd932a16b7214898b6b7f788c8bddb3637246ac4
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 5ae4d57458804e99f73d427214442a6b10a53856
+  RNCAsyncStorage: 8539fc80a0075fcc9c8e2dff84cd22dc5bf1dacf
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
-  RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
-  RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
+  RNFS: 90d1a32d3bc8f75cc7fc3dd2f67506049664346b
+  RNGestureHandler: 911d3b110a7a233a34c4f800e7188a84b75319c6
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
-  RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
+  RNRate: d44a8bca6ee08f5d890ecccddaec2810955ffbb3
+  RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 9b1d983b2d5d1c215ba6490348fd2a4cc23a8a9d
+  RNSentry: 6458ba85aa3f8ae291abed4f72abbd7080839c71
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
-  RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
+  RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: a36ea17fac675b98b1d8cd41604af68cf1fa9a03
   Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
@@ -376,4 +376,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f93db402b02d7f01a8bc51d9b2cc10a39391b081
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4
