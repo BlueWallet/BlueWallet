@@ -28,8 +28,6 @@ import SelectWallet from './screen/wallets/selectWallet';
 
 import details from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
-import rbf from './screen/transactions/RBF';
-import createrbf from './screen/transactions/RBF-create';
 import cpfp from './screen/transactions/CPFP';
 import rbfBumpFee from './screen/transactions/RBFBumpFee';
 import rbfCancel from './screen/transactions/RBFCancel';
@@ -77,12 +75,6 @@ const WalletsStackNavigator = createStackNavigator(
     },
     WalletDetails: {
       screen: WalletDetails,
-    },
-    RBF: {
-      screen: rbf,
-    },
-    CreateRBF: {
-      screen: createrbf,
     },
     CPFP: {
       screen: cpfp,
