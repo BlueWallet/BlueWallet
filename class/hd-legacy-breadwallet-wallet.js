@@ -34,15 +34,10 @@ export class HDLegacyBreadwalletWallet extends AbstractHDElectrumWallet {
   _getExternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bip32.fromSeed(seed);
 
-    const path = "m/0'/0/" + index;
-    const child = root.derivePath(path);
-
+    const node = bitcoinjs.bip32.fromBase58(this.getXpub());
     const address = bitcoinjs.payments.p2pkh({
-      pubkey: child.publicKey,
+      pubkey: node.derive(0).derive(index).publicKey,
     }).address;
 
     return (this.external_addresses_cache[index] = address);
@@ -51,15 +46,10 @@ export class HDLegacyBreadwalletWallet extends AbstractHDElectrumWallet {
   _getInternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bip32.fromSeed(seed);
 
-    const path = "m/0'/1/" + index;
-    const child = root.derivePath(path);
-
+    const node = bitcoinjs.bip32.fromBase58(this.getXpub());
     const address = bitcoinjs.payments.p2pkh({
-      pubkey: child.publicKey,
+      pubkey: node.derive(1).derive(index).publicKey,
     }).address;
 
     return (this.internal_addresses_cache[index] = address);

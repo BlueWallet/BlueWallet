@@ -13,7 +13,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
@@ -93,7 +93,7 @@ export default class TransactionsStatus extends Component {
   }
 
   async checkPossibilityOfCPFP() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    if (!this.state.wallet.allowRBF()) {
       return this.setState({ isCPFPpossible: buttonStatus.notPossible });
     }
 
@@ -106,7 +106,7 @@ export default class TransactionsStatus extends Component {
   }
 
   async checkPossibilityOfRBFBumpFee() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    if (!this.state.wallet.allowRBF()) {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
     }
 
@@ -119,7 +119,7 @@ export default class TransactionsStatus extends Component {
   }
 
   async checkPossibilityOfRBFCancel() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    if (!this.state.wallet.allowRBF()) {
       return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
     }
 
@@ -250,24 +250,6 @@ export default class TransactionsStatus extends Component {
           </BlueCard>
 
           <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
-            {(() => {
-              if (this.state.tx.confirmations === 0 && this.state.wallet && this.state.wallet.allowRBF()) {
-                return (
-                  <React.Fragment>
-                    <BlueButton
-                      onPress={() =>
-                        this.props.navigation.navigate('RBF', {
-                          txid: this.state.tx.hash,
-                        })
-                      }
-                      title="Replace-By-Fee (RBF)"
-                    />
-                    <BlueSpacing20 />
-                  </React.Fragment>
-                );
-              }
-            })()}
-
             {(() => {
               if (this.state.isCPFPpossible === buttonStatus.unknown) {
                 return (

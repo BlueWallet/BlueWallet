@@ -22,10 +22,6 @@ export class SegwitP2SHWallet extends LegacyWallet {
   static type = 'segwitP2SH';
   static typeReadable = 'SegWit (P2SH)';
 
-  allowRBF() {
-    return true;
-  }
-
   static witnessToAddress(witness) {
     const pubKey = Buffer.from(witness, 'hex');
     return pubkeyToP2shSegwitAddress(pubKey);

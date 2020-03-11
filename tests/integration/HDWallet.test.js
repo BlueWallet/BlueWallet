@@ -363,17 +363,17 @@ it('HD breadwallet works', async function() {
     'xpub68nLLEi3KERQY7jyznC9PQSpSjmekrEmN8324YRCXayMXaavbdEJsK4gEcX2bNf9vGzT4xRks9utZ7ot1CTHLtdyCn9udvv1NWvtY7HXroh',
   );
   await hdBread.fetchBalance();
-  assert.strictEqual(hdBread.getBalance(), 0);
+  assert.strictEqual(hdBread.getBalance(), 123456);
 
   assert.ok(hdBread._lastTxFetch === 0);
   await hdBread.fetchTransactions();
   assert.ok(hdBread._lastTxFetch > 0);
-  assert.strictEqual(hdBread.getTransactions().length, 177);
+  assert.strictEqual(hdBread.getTransactions().length, 178);
   for (let tx of hdBread.getTransactions()) {
     assert.ok(tx.confirmations);
   }
 
-  assert.strictEqual(hdBread.next_free_address_index, 10);
+  assert.strictEqual(hdBread.next_free_address_index, 11);
   assert.strictEqual(hdBread.next_free_change_address_index, 118);
 
   // checking that internal pointer and async address getter return the same address
