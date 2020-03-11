@@ -128,7 +128,7 @@
     "react-navigation": "3.11.0",
     "react-navigation-hooks": "1.1.0",
     "react-test-render": "1.1.2",
-    "readable-stream": "3.4.0",
+    "readable-stream": "3.6.0",
     "secure-random": "1.1.2",
     "stream-browserify": "2.0.2",
     "url": "0.11.0",
