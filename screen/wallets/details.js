@@ -218,8 +218,7 @@ export default class WalletDetails extends Component {
                   <BlueButton
                     onPress={() =>
                       this.props.navigation.navigate('WalletExport', {
-                        address: this.state.wallet.getAddress(),
-                        secret: this.state.wallet.getSecret(),
+                        wallet: this.state.wallet,
                       })
                     }
                     title={loc.wallets.details.export_backup}
