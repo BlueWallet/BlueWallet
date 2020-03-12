@@ -98,12 +98,8 @@ export default class WalletsAdd extends Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
         <ScrollView>
           <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
-          <KeyboardAvoidingView
-            enabled
-            behavior={Platform.OS === 'ios' ? 'position' : null}
-            keyboardVerticalOffset={20}
-          >
-            <View 
+          <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
+            <View
               style={{
                 flexDirection: 'row',
                 borderColor: '#d2d2d2',
@@ -118,18 +114,18 @@ export default class WalletsAdd extends Component {
                 marginVertical: 16,
                 borderRadius: 4,
               }}
-              >
-            <TextInput
-              value={this.state.label}
-              placeholderTextColor="#81868e"
-              placeholder="my first wallet"
-              onChangeText={text => {
-                this.setLabel(text);
-              }}
-              style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
-              editable={!this.state.isLoading}
-              underlineColorAndroid="transparent"
-            />
+            >
+              <TextInput
+                value={this.state.label}
+                placeholderTextColor="#81868e"
+                placeholder="my first wallet"
+                onChangeText={text => {
+                  this.setLabel(text);
+                }}
+                style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
+                editable={!this.state.isLoading}
+                underlineColorAndroid="transparent"
+              />
             </View>
           </KeyboardAvoidingView>
           <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
