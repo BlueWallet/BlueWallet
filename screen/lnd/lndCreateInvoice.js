@@ -79,8 +79,7 @@ export default class LNDCreateInvoice extends Component {
         onFailure: () => {
           this.props.navigation.dismiss();
           this.props.navigation.navigate('WalletExport', {
-            address: this.state.fromWallet.getAddress(),
-            secret: this.state.fromWallet.getSecret(),
+            wallet: this.state.fromWallet,
           });
         },
       });

@@ -5,7 +5,7 @@ import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTex
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
-import { LightningCustodianWallet } from '../../class';
+import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -20,17 +20,7 @@ export default class WalletExport extends Component {
 
   constructor(props) {
     super(props);
-
-    let address = props.navigation.state.params.address;
-    let secret = props.navigation.state.params.secret;
-    let wallet;
-    for (let w of BlueApp.getWallets()) {
-      if ((address && w.getAddress() === address) || w.getSecret() === secret) {
-        // found our wallet
-        wallet = w;
-      }
-    }
-
+    let wallet = props.navigation.state.params.wallet;
     this.state = {
       isLoading: true,
       qrCodeHeight: height > width ? width - 40 : width / 2,
@@ -89,7 +79,7 @@ export default class WalletExport extends Component {
           </View>
 
           {(() => {
-            if (this.state.wallet.getAddress()) {
+            if ([LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(this.state.wallet.type)) {
               return (
                 <BlueCard>
                   <BlueText>{this.state.wallet.getAddress()}</BlueText>
@@ -125,8 +115,7 @@ WalletExport.propTypes = {
   navigation: PropTypes.shape({
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string,
-        secret: PropTypes.string,
+        wallet: PropTypes.object.isRequired,
       }),
     }),
     navigate: PropTypes.func,

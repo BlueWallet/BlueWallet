@@ -109,8 +109,7 @@ export default class ReceiveDetails extends Component {
           onFailure: () => {
             this.props.navigation.goBack();
             this.props.navigation.navigate('WalletExport', {
-              address: this.wallet.getAddress(),
-              secret: this.wallet.getSecret(),
+              wallet: this.wallet,
             });
           },
         });
