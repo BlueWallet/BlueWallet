@@ -9,6 +9,7 @@ import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
+const createHash = require('create-hash');
 
 const ScanQRCode = ({
   onBarScanned = useNavigationParam('onBarScanned'),
@@ -21,7 +22,23 @@ const ScanQRCode = ({
   const [isLoading, setIsLoading] = useState(false);
   const { navigate, goBack } = useNavigation();
 
+  const scannedCache = {};
+
+  const HashIt = function(s) {
+    return createHash('sha256')
+      .update(s)
+      .digest()
+      .toString('hex');
+  };
+
   const onBarCodeRead = ret => {
+    const h = HashIt(ret.data);
+    if (scannedCache[h]) {
+      // this QR was already scanned by this ScanQRCode, lets prevent firing duplicate callbacks
+      return;
+    }
+    scannedCache[h] = +new Date();
+
     if (!isLoading && !cameraPreviewIsPaused) {
       setIsLoading(true);
       try {

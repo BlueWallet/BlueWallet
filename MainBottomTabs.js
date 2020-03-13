@@ -35,7 +35,7 @@ import rbfCancel from './screen/transactions/RBFCancel';
 import receiveDetails from './screen/receive/details';
 
 import sendDetails from './screen/send/details';
-import ScanQRCode from './screen/send/scanQrAddress';
+import ScanQRCode from './screen/send/ScanQRCode';
 import sendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
@@ -251,7 +251,7 @@ const HandleOffchainAndOnChainStackNavigator = createStackNavigator(
         header: null,
       },
     },
-    ScanQrAddress: {
+    ScanQRCode: {
       screen: ScanQRCode,
     },
     SendDetails: {
@@ -322,7 +322,7 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
-    ScanQrAddress: {
+    ScanQRCode: {
       screen: ScanQRCode,
     },
     LappBrowser: {
