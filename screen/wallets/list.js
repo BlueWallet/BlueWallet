@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
 import Swiper from 'react-native-swiper';
-import ScanQRCode from '../send/scanQrAddress';
+import ScanQRCode from '../send/ScanQRCode';
 import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
 let EV = require('../../events');
 let A = require('../../analytics');
