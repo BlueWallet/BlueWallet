@@ -1,3 +1,18 @@
+v5.1.0
+======
+
+* FIX: weird import screen scan qr code behaviour
+* FIX: allow using unconfirmed utxo when creating transaction
+* REF: removed obsolete single address RBF;
+* REF: refactored breadwallet format a bit
+* FIX: Wallet name input character entry bug
+* REF: experimental - dont fetch transactions when importing wallet, only balance. should be faster. txs can be fetched later manually
+* FIX: Import ColdCard wallet using JSON's label.
+* REF: German translations
+* REF: now BIP44 works through electrum
+* REF: single-address wallets now work through electrum
+* REF: wallet export screen improvements
+
 v5.0.0
 ======
 
@@ -41,18 +56,3 @@ v4.9.2
 * REF: Reworked Import wallet flow
 * REF: BIP49 to use electrum
 * REF: Custom receive
-
-
-v4.9.0
-======
-
-* ADD: Native segwit (BIP84) are now default wallets
-* ADD: Toggle to turn off RBF when creating a transaction
-* ADD: Scroll to end of wallets list when adding a wallet
-* FIX: Default LN invoice expiry is now 24h instead of 1h
-* FIX: Speeded up lighnint wallets
-* FIX: Force Light theme mode even if system is in dark mode
-* FIX: Hide Manage Funds button if wallet doesn't allow onchain refill.
-* FIX: LN Scan to receive is more visible
-* FIX: Quick actions not appearing on non-3d touch devices.
-* FIX: Dont show clipboard modal when biometrics  is dismissed
