@@ -15,7 +15,7 @@ jobs:
       - run: npm i
 
       - save_cache:
-          kegit y: node_modules-{{ checksum "package-lock.json" }}
+          key: node_modules-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
 
