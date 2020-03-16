@@ -327,7 +327,7 @@ export default class WalletsList extends Component {
       return <BlueLoading />;
     }
     return (
-      <View style={{ flex: 1, backgroundColor: '#000000' }}>
+      <View style={{ flex: 1, backgroundColor: '#000000' }} testID="WalletsList" accessible>
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
