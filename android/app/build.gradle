@@ -107,6 +107,14 @@ def enableProguardInReleaseBuilds = false
 def useIntlJsc = false
 
 android {
+
+    /* added because of memory:
+       https://stackoverflow.com/questions/56075455/expiring-daemon-because-jvm-heap-space-is-exhausted
+    */
+    dexOptions {
+       javaMaxHeapSize "3g"
+    }
+
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -122,6 +130,8 @@ android {
         versionName "5.1.0"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general'
+        testBuildType System.getProperty('testBuildType', 'debug')  // This will later be used to control the test apk build type
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     splits {
         abi {
@@ -155,6 +165,10 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    androidTestImplementation('com.wix:detox:+') {
+        exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+    }
+    androidTestImplementation 'junit:junit:4.12'
     // JSC from node_modules
     if (useIntlJsc) {
         implementation 'org.webkit:android-jsc-intl:+'
