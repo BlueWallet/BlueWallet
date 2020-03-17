@@ -1,7 +1,7 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import signer from '../models/signer';
+import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
 
@@ -10,7 +10,7 @@ const HDNode = require('bip32');
  * In particular, BIP44 (P2PKH legacy addressess)
  * @see https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
-export class HDLegacyP2PKHWallet extends AbstractHDWallet {
+export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
   static type = 'HDlegacyP2PKH';
   static typeReadable = 'HD Legacy (BIP44 P2PKH)';
 

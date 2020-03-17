@@ -466,8 +466,7 @@ export default class WalletTransactions extends Component {
                 },
                 onFailure: () =>
                   this.props.navigation.navigate('WalletExport', {
-                    address: this.state.wallet.getAddress(),
-                    secret: this.state.wallet.getSecret(),
+                    wallet: this.state.wallet,
                   }),
               });
             }

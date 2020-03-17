@@ -121,12 +121,10 @@ const About = () => {
           <BlueText h3>Built with awesome:</BlueText>
           <BlueSpacing20 />
           <BlueText h4>* React Native</BlueText>
-          <BlueText h4>* Bitcoinjs-lib</BlueText>
-          <BlueText h4>* blockcypher.com API</BlueText>
+          <BlueText h4>* bitcoinjs-lib</BlueText>
           <BlueText h4>* Nodejs</BlueText>
-          <BlueText h4>* react-native-elements</BlueText>
-          <BlueText h4>* rn-nodeify</BlueText>
-          <BlueText h4>* bignumber.js</BlueText>
+          <BlueText h4>* Electrum server</BlueText>
+          <BlueSpacing20 />
           <BlueSpacing20 />
 
           <BlueButton onPress={handleOnReleaseNotesPress} title="Release notes" />

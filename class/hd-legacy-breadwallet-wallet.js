@@ -1,5 +1,4 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
-import Frisbee from 'frisbee';
+import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import bip39 from 'bip39';
 const bip32 = require('bip32');
 const bitcoinjs = require('bitcoinjs-lib');
@@ -8,7 +7,7 @@ const bitcoinjs = require('bitcoinjs-lib');
  * HD Wallet (BIP39).
  * In particular, Breadwallet-compatible (Legacy addresses)
  */
-export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
+export class HDLegacyBreadwalletWallet extends AbstractHDElectrumWallet {
   static type = 'HDLegacyBreadwallet';
   static typeReadable = 'HD Legacy Breadwallet (P2PKH)';
 
@@ -35,15 +34,10 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
   _getExternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bip32.fromSeed(seed);
 
-    const path = "m/0'/0/" + index;
-    const child = root.derivePath(path);
-
+    const node = bitcoinjs.bip32.fromBase58(this.getXpub());
     const address = bitcoinjs.payments.p2pkh({
-      pubkey: child.publicKey,
+      pubkey: node.derive(0).derive(index).publicKey,
     }).address;
 
     return (this.external_addresses_cache[index] = address);
@@ -52,15 +46,10 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
   _getInternalAddressByIndex(index) {
     index = index * 1; // cast to int
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bip32.fromSeed(seed);
 
-    const path = "m/0'/1/" + index;
-    const child = root.derivePath(path);
-
+    const node = bitcoinjs.bip32.fromBase58(this.getXpub());
     const address = bitcoinjs.payments.p2pkh({
-      pubkey: child.publicKey,
+      pubkey: node.derive(1).derive(index).publicKey,
     }).address;
 
     return (this.internal_addresses_cache[index] = address);
@@ -89,27 +78,5 @@ export class HDLegacyBreadwalletWallet extends AbstractHDWallet {
     const child = root.derivePath(path);
 
     return child.keyPair.toWIF();
-  }
-
-  /**
-   * @inheritDoc
-   */
-  async fetchBalance() {
-    try {
-      const api = new Frisbee({ baseURI: 'https://blockchain.info' });
-
-      let response = await api.get('/balance?active=' + this.getXpub());
-
-      if (response && response.body) {
-        for (let xpub of Object.keys(response.body)) {
-          this.balance = response.body[xpub].final_balance / 100000000;
-        }
-        this._lastBalanceFetch = +new Date();
-      } else {
-        throw new Error('Could not fetch balance from API: ' + response.err);
-      }
-    } catch (err) {
-      console.warn(err);
-    }
   }
 }

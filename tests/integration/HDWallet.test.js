@@ -306,7 +306,7 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
   assert.strictEqual(hd._getInternalAddressByIndex(1), '13CW9WWBsWpDUvLtbFqYziWBWTYUoQb4nU');
 });
 
-it.skip('Legacy HD (BIP44) can create TX', async () => {
+it('Legacy HD (BIP44) can create TX', async () => {
   if (!process.env.HD_MNEMONIC) {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
@@ -315,15 +315,14 @@ it.skip('Legacy HD (BIP44) can create TX', async () => {
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
 
+  await hd.fetchBalance();
   await hd.fetchUtxo();
   assert.strictEqual(hd.utxo.length, 4);
-  await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
-  await hd.getAddressAsync(); // to refresh internal pointer to next free address
   let txhex = hd.createTx(hd.utxo, 0.0008, 0.000005, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
 
   assert.strictEqual(
     txhex,
-    '01000000045fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f030000006b4830450221009be5dbe37db5a8409ddce3570140c95d162a07651b1e48cf39a6a741892adc53022061a25b8024d8f3cb1b94f264245de0c6e9a103ea557ddeb66245b40ec8e9384b012102ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f000000006a47304402207106e9fa4e2e35d351fbccc9c0fad3356d85d0cd35a9d7e9cbcefce5440da1e5022073c1905b5927447378c0f660e62900c1d4b2691730799458889fb87d86f5159101210316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f020000006a4730440220250b15094096c4d4fe6793da8e45fa118ed057cc2759a480c115e76e23590791022079cdbdc9e630d713395602071e2837ecc1d192a36a24d8ec71bc51d5e62b203b01210316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f010000006b483045022100879da610e6ed12c84d55f12baf3bf6222d59b5282502b3c7f4db1d22152c16900220759a1c88583cbdaf7fde21c273ad985dfdf94a2fa85e42ee41dcea2fd69136fd012102ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002ffffffff02803801000000000017a914a3a65daca3064280ae072b9d6773c027b30abace872c4c0000000000001976a9146ee5e3e66dc73587a3a2d77a1a6c8554fae21b8a88ac00000000',
+    '01000000045fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f000000006b48304502210080ffbde0d510c3fb9abcc5f7570448e9c0f7138d0b355d00bb97cada0679ac9502207ffd205373829c800ec08079a4280c3abe6f6f8c94ae7af0157a14ea5629d28701210316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f010000006a473044022077788d7e118802fd7268aac7a1dde5a6724f01936e23edd46ac2750fd39265be0220776ac9e4c285580d06510a00b561cec6de1813293e7b04b6f870138af832bf9e012102ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f020000006b4830450221009e47b48dd1eee6d00a1817480605f446e11949b1e6f464f43f04bce2fc787ea9022022b3dcf80e7b2c995cf6defb3425b57d8a80918c7f543faaa0497d853820779101210316e84a2556f30a199541633f5dda6787710ccab26771b7084f4c9e1104f47667ffffffff5fbc74110c2d6fcf4d1161a59913fbcd2b6ab3c5a9eb4d0dc0859515cbc8654f030000006b48304502210089c20d6c0f6486c5979cf69a3c849f09e36416e5604499c05ae2dc22bea8553d022011241a206d550e55b4476ac5ba0fd744f0965d8f8bd69a740e428770689749a1012102ad7b2216f3a2b38d56db8a7ee5c540fd12c4bbb7013106eff78cc2ace65aa002ffffffff02803801000000000017a914a3a65daca3064280ae072b9d6773c027b30abace872c4c0000000000001976a9146ee5e3e66dc73587a3a2d77a1a6c8554fae21b8a88ac00000000',
   );
 
   var tx = bitcoin.Transaction.fromHex(txhex);
@@ -346,22 +345,7 @@ it.skip('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.outs[0].value, 99800);
 });
 
-it('Legacy HD (BIP44) can fetch UTXO', async function() {
-  let hd = new HDLegacyP2PKHWallet();
-  hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
-  await hd.fetchUtxo();
-  assert.ok(hd.utxo.length >= 12);
-  assert.ok(typeof hd.utxo[0].confirmations === 'number');
-  assert.ok(hd.utxo[0].txid);
-  assert.ok(hd.utxo[0].vout);
-  assert.ok(hd.utxo[0].amount);
-  assert.ok(
-    hd.utxo[0].address &&
-      (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' || hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
-  );
-});
-
-it.skip('HD breadwallet works', async function() {
+it('HD breadwallet works', async function() {
   if (!process.env.HD_MNEMONIC_BREAD) {
     console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
     return;
@@ -379,17 +363,17 @@ it.skip('HD breadwallet works', async function() {
     'xpub68nLLEi3KERQY7jyznC9PQSpSjmekrEmN8324YRCXayMXaavbdEJsK4gEcX2bNf9vGzT4xRks9utZ7ot1CTHLtdyCn9udvv1NWvtY7HXroh',
   );
   await hdBread.fetchBalance();
-  assert.strictEqual(hdBread.balance, 0);
+  assert.strictEqual(hdBread.getBalance(), 123456);
 
   assert.ok(hdBread._lastTxFetch === 0);
   await hdBread.fetchTransactions();
   assert.ok(hdBread._lastTxFetch > 0);
-  assert.strictEqual(hdBread.getTransactions().length, 177);
+  assert.strictEqual(hdBread.getTransactions().length, 178);
   for (let tx of hdBread.getTransactions()) {
     assert.ok(tx.confirmations);
   }
 
-  assert.strictEqual(hdBread.next_free_address_index, 10);
+  assert.strictEqual(hdBread.next_free_address_index, 11);
   assert.strictEqual(hdBread.next_free_change_address_index, 118);
 
   // checking that internal pointer and async address getter return the same address

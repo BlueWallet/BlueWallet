@@ -28,8 +28,6 @@ import SelectWallet from './screen/wallets/selectWallet';
 
 import details from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
-import rbf from './screen/transactions/RBF';
-import createrbf from './screen/transactions/RBF-create';
 import cpfp from './screen/transactions/CPFP';
 import rbfBumpFee from './screen/transactions/RBFBumpFee';
 import rbfCancel from './screen/transactions/RBFCancel';
@@ -37,7 +35,7 @@ import rbfCancel from './screen/transactions/RBFCancel';
 import receiveDetails from './screen/receive/details';
 
 import sendDetails from './screen/send/details';
-import ScanQRCode from './screen/send/scanQrAddress';
+import ScanQRCode from './screen/send/ScanQRCode';
 import sendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
@@ -77,12 +75,6 @@ const WalletsStackNavigator = createStackNavigator(
     },
     WalletDetails: {
       screen: WalletDetails,
-    },
-    RBF: {
-      screen: rbf,
-    },
-    CreateRBF: {
-      screen: createrbf,
     },
     CPFP: {
       screen: cpfp,
@@ -259,7 +251,7 @@ const HandleOffchainAndOnChainStackNavigator = createStackNavigator(
         header: null,
       },
     },
-    ScanQrAddress: {
+    ScanQRCode: {
       screen: ScanQRCode,
     },
     SendDetails: {
@@ -330,7 +322,7 @@ const MainBottomTabs = createStackNavigator(
         header: null,
       },
     },
-    ScanQrAddress: {
+    ScanQRCode: {
       screen: ScanQRCode,
     },
     LappBrowser: {
