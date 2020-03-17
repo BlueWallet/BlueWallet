@@ -25,7 +25,6 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await device.launchApp({ newInstance: true });
-  console.log('sleeping for logo animation...');
   await sleep(2000);
   await adapter.beforeEach();
 });

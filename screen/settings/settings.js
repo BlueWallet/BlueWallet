@@ -65,7 +65,12 @@ export const Settings = () => {
         {BlueApp.getWallets().length > 1 && (
           <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
         )}
-        <BlueListItem title={loc.settings.encrypt_storage} onPress={() => navigate('EncryptStorage')} component={TouchableOpacity} />
+        <BlueListItem
+          testID="EncryptStorageButton"
+          title={loc.settings.encrypt_storage}
+          onPress={() => navigate('EncryptStorage')}
+          component={TouchableOpacity}
+        />
         {biometrics.isDeviceBiometricCapable && (
           <BlueListItem
             hideChevron
