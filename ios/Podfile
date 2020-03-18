@@ -11,8 +11,21 @@ post_install do |installer|
             config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '10.0'
         end
     end
+    installer.generated_projects.each do |project|
+        project.build_configurations.each do |config|
+            if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 8.0
+              config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '8.0'
+            end
+        end
+        project.targets.each do |target|
+          target.build_configurations.each do |config|
+            if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 8.0
+              config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '8.0'
+            end
+          end
+        end
+      end
 end
-
 def sharedPods
         pod 'React', :path => '../node_modules/react-native/'
 	  pod 'React-Core', :path => '../node_modules/react-native/React'

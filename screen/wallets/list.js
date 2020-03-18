@@ -315,7 +315,11 @@ export default class WalletsList extends Component {
   renderNavigationHeader = () => {
     return (
       <View style={{ height: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
-        <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => this.props.navigation.navigate('Settings')}>
+        <TouchableOpacity
+          testID="SettingsButton"
+          style={{ marginHorizontal: 16 }}
+          onPress={() => this.props.navigation.navigate('Settings')}
+        >
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       </View>
@@ -327,7 +331,7 @@ export default class WalletsList extends Component {
       return <BlueLoading />;
     }
     return (
-      <View style={{ flex: 1, backgroundColor: '#000000' }}>
+      <View style={{ flex: 1, backgroundColor: '#000000' }} testID="WalletsList" accessible>
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();

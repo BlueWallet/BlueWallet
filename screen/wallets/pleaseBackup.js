@@ -53,10 +53,10 @@ export default class PleaseBackup extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
+        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }} testID="PleaseBackupScrollView">
           <View style={{ alignItems: 'center', paddingHorizontal: 16 }}>
             <BlueText style={{ textAlign: 'center', fontWeight: 'bold', color: '#0C2550' }}>{loc.pleasebackup.success}</BlueText>
-            <BlueText style={{ paddingBottom: 20, paddingRight: 20, paddingLeft: 20, color: '#0C2550' }}>{loc.pleasebackup.text}</BlueText>
+            <BlueText style={{ paddingBottom: 10, paddingRight: 0, paddingLeft: 0, color: '#0C2550' }}>{loc.pleasebackup.text}</BlueText>
 
             <View
               style={{
@@ -64,7 +64,7 @@ export default class PleaseBackup extends Component {
                 flexDirection: 'row',
                 justifyContent: 'center',
                 flexWrap: 'wrap',
-                marginTop: 24,
+                marginTop: 14,
               }}
             >
               <View style={{ width: 'auto', marginRight: 8, marginBottom: 8 }}>
@@ -405,10 +405,10 @@ export default class PleaseBackup extends Component {
               </View>
             </View>
 
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', paddingTop: 24, paddingBottom: 40 }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
               <View style={{ flex: 1 }}>
                 <BlueSpacing20 />
-                <BlueButton onPress={() => this.props.navigation.dismiss()} title={loc.pleasebackup.ok} />
+                <BlueButton testID="PleasebackupOk" onPress={() => this.props.navigation.dismiss()} title={loc.pleasebackup.ok} />
               </View>
             </View>
           </View>

@@ -88,6 +88,7 @@ export class BitcoinButton extends Component {
   render() {
     return (
       <TouchableOpacity
+        testID={this.props.testID}
         onPress={() => {
           // eslint-disable-next-line
           if (this.props.onPress) this.props.onPress();
@@ -576,6 +577,7 @@ export class BlueListItem extends Component {
   render() {
     return (
       <ListItem
+        testID={this.props.testID}
         bottomDivider
         containerStyle={{
           backgroundColor: 'transparent',
@@ -1369,6 +1371,7 @@ export class NewWalletPanel extends Component {
   render() {
     return (
       <TouchableOpacity
+        testID="CreateAWallet"
         {...this.props}
         onPress={() => {
           if (this.handleClick) {
@@ -1925,6 +1928,7 @@ export class WalletsCarousel extends Component {
           shadowRadius={5}
         >
           <TouchableWithoutFeedback
+            testID={item.getLabel()}
             onPressIn={this.onPressedIn}
             onPressOut={this.onPressedOut}
             onLongPress={WalletsCarousel.handleLongPress}

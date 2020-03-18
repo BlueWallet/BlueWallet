@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - BVLinearGradient (2.5.4):
+  - BVLinearGradient (2.5.6):
     - React
   - DoubleConversion (1.1.6)
   - EFQRCode (5.1.0):
@@ -319,7 +319,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
+  BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
@@ -374,6 +374,6 @@ SPEC CHECKSUMS:
   ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: f93db402b02d7f01a8bc51d9b2cc10a39391b081
+PODFILE CHECKSUM: ef655dbfc37a307597477cc9e71b13a060c7e137
 
 COCOAPODS: 1.8.4
