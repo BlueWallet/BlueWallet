@@ -53,7 +53,7 @@ export default class PleaseBackup extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
+        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }} testID="PleaseBackupScrollView">
           <View style={{ alignItems: 'center', paddingHorizontal: 16 }}>
             <BlueText style={{ textAlign: 'center', fontWeight: 'bold', color: '#0C2550' }}>{loc.pleasebackup.success}</BlueText>
             <BlueText style={{ paddingBottom: 10, paddingRight: 0, paddingLeft: 0, color: '#0C2550' }}>{loc.pleasebackup.text}</BlueText>

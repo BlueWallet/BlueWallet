@@ -30,6 +30,13 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('ActivateBitcoinButton')).tap();
     // why tf we need 2 taps for it to work..? mystery
     await element(by.id('Create')).tap();
+
+    await waitFor(element(by.id('PleaseBackupScrollView')))
+      .toBeVisible()
+      .withTimeout(5000);
+
+    await element(by.id('PleaseBackupScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
+
     await waitFor(element(by.id('PleasebackupOk')))
       .toBeVisible()
       .withTimeout(5000);

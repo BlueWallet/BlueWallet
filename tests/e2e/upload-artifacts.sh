@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
 echo uploading artifacts...
+cp /tmp/emu.log   ./artifacts/
+cp ./android/app/build/outputs/apk/release/app-release.apk ./artifacts/
+cp ./android/app/build/outputs/apk/androidTest/release/app-release-androidTest.apk ./artifacts/
+cp ~/.android/avd/Pixel_API_29_AOSP.avd/config.ini ./artifacts/
 tar -cvzf artifacts.tar.gz artifacts
 FILENAME="artifacts.tar.gz"
 HASH=`date +%s`
