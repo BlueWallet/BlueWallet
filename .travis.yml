@@ -87,20 +87,7 @@ script:
   - npm i -g detox-cli
   - npm run e2e:release
 
-after_failure:
-  - echo uploading artifacts...
-  - tar -cvzf artifacts.tar.gz artifacts
-  - FILENAME="artifacts.tar.gz"
-  - HASH=`date +%s`
-  - FILENAME_UNIQ="$HASH.tar.gz"
-  - cp "$FILENAME" "$FILENAME_UNIQ"
-  - curl "http://filestorage.bluewallet.io:1488/upload.php" -F "fileToUpload=@$FILENAME_UNIQ"
-  - rm "$FILENAME_UNIQ"
-  - DLOAD="http://filestorage.bluewallet.io:1488/$HASH.tar.gz"
-  - echo
-  - echo artifacts download link:
-  - echo $DLOAD
-
+after_failure: ./tests/e2e/upload-artifacts.sh
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
