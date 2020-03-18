@@ -4,13 +4,13 @@ describe('BlueWallet UI Tests', () => {
   it('can launch', async () => {
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
-      .withTimeout(2000);
+      .withTimeout(4000);
   });
 
   it.skip('can encrypt storage', async () => {
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
-      .withTimeout(2000);
+      .withTimeout(4000);
     await expect(element(by.id('SettingsButton'))).toBeVisible();
     await element(by.id('SettingsButton')).tap(); // detox hanges here
 
@@ -20,9 +20,9 @@ describe('BlueWallet UI Tests', () => {
   it('can create wallet, reload app and it persists', async () => {
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
-      .withTimeout(2000);
+      .withTimeout(4000);
     await element(by.id('CreateAWallet')).tap();
-    await element(by.id('WalletNameInput')).typeText('cr34t3d');
+    await element(by.id('WalletNameInput')).typeText('cr34t3d\n');
     await waitFor(element(by.id('ActivateBitcoinButton')))
       .toBeVisible()
       .withTimeout(5000);
