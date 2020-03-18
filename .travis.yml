@@ -1,18 +1,11 @@
-# stolen from https://github.com/andstatus/todoagenda/blob/master/.travis.yml
+# stolen from:
+# https://github.com/andstatus/todoagenda/blob/master/.travis.yml
+# https://travis-ci.org/github/andstatus/todoagenda/jobs/662342170/config
 
-# Based on https://travis-ci.org/ankidroid/Anki-Android/builds/624268367
-# See also https://travis-ci.community/t/is-android-28-emulator-supported/1718/6
 sudo: true
 language: bash
 # ignored on non-linux platforms, but bionic is required for nested virtualization
 dist: bionic
-
-stages:
-  - install
-  - unit_test # custom stage defined in jobs::include section
-  - test
-  - finalize_coverage # custom stage defined in jobs::include section
-  - cache
 
 env:
   global:
@@ -29,36 +22,29 @@ env:
     - TOOLS=${ANDROID_HOME}/tools
     # PATH order is incredibly important. e.g. the 'emulator' script exists in more than one place!
     - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
-    - UNIT_TEST=FALSE # by default we don't run the unit tests, they are run only in specific builds
-    - FINALIZE_COVERAGE=FALSE # by default we don't finalize coverage, it is done in one specific build
   matrix:
     - API=28
 
 before_install:
-  # This section may run on all platforms, and may run for unit tests or for coverage finalization
-  # It should not make assumptions about os platform or desired tool installation
-
-  # Set up JDK 8 for Android SDK - Java is universally needed: codacy, unit tests, emulators
+  # Set up JDK 8 for Android SDK
   - curl "${GRAVIS}.install-jdk-travis.sh" --output ~/.install-jdk-travis.sh
   - export TARGET_JDK="${JDK}"
   - JDK="1.8"
   - source ~/.install-jdk-travis.sh
 
-  # Set up Android SDK - this is needed everywhere but coverage finalization, so toggle on that
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then wget -q "${ANDROID_TOOLS_URL}" -O android-sdk-tools.zip; fi
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}; fi
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then rm android-sdk-tools.zip; fi
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then mkdir ~/.android; fi # avoid harmless sdkmanager warning
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then echo 'count=0' > ~/.android/repositories.cfg; fi # avoid harmless sdkmanager warning
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then yes | sdkmanager --licenses >/dev/null; fi # accept all sdkmanager warnings
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then echo y | sdkmanager --no_https "platform-tools" >/dev/null; fi
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then echo y | sdkmanager --no_https "tools" >/dev/null; fi # A second time per Travis docs, gets latest versions
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then echo y | sdkmanager --no_https "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null; fi # Implicit gradle dependency - gradle drives changes
-  - if [ "$FINALIZE_COVERAGE" = "FALSE" ]; then echo y | sdkmanager --no_https "platforms;android-${COMPILE_API}" >/dev/null; fi # We need the API of the current compileSdkVersion from gradle.properties
+  # Set up Android SDK
+  - wget -q "${ANDROID_TOOLS_URL}" -O android-sdk-tools.zip
+  - unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}
+  - rm android-sdk-tools.zip
+  - mkdir ~/.android # avoid harmless sdkmanager warning
+  - echo 'count=0' > ~/.android/repositories.cfg # avoid harmless sdkmanager warning
+  - yes | sdkmanager --licenses >/dev/null # accept all sdkmanager warnings
+  - echo y | sdkmanager --no_https "platform-tools" >/dev/null
+  - echo y | sdkmanager --no_https "tools" >/dev/null # A second time per Travis docs, gets latest versions
+  - echo y | sdkmanager --no_https "build-tools;${ANDROID_BUILD_TOOLS}" >/dev/null # Implicit gradle dependency - gradle drives changes
+  - echo y | sdkmanager --no_https "platforms;android-${COMPILE_API}" >/dev/null # We need the API of the current compileSdkVersion from gradle.properties
 
 install:
-  # In our setup, install only runs on matrix entries we want full emulator tests on
-  # That only happens currently on linux, so this section can assume linux + emulator is desired
   # Download required emulator tools
   - echo y | sdkmanager --no_https "platforms;android-$API" >/dev/null # We need the API of the emulator we will run
   - echo y | sdkmanager --no_https "emulator" >/dev/null
@@ -70,14 +56,14 @@ install:
   - sudo adduser $USER kvm
 
   # Create an Android emulator
-  - echo no | avdmanager create avd --force -n Pixel_API_28_AOSP -k "system-images;android-$API;$EMU_FLAVOR;$ABI" -c 10M
+  - echo no | avdmanager create avd --force -n Pixel_API_29_AOSP -k "system-images;android-$API;$EMU_FLAVOR;$ABI" -c 10M
   - |
     EMU_PARAMS="-verbose -no-snapshot -no-window -camera-back none -camera-front none -selinux permissive -qemu -m 2048"
     EMU_COMMAND="emulator"
     # This double "sudo" monstrosity is used to have Travis execute the
     # emulator with its new group permissions and help preserve the rule
     # of least privilege.
-    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd Pixel_API_28_AOSP ${AUDIO} ${EMU_PARAMS} &"
+    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd Pixel_API_29_AOSP ${AUDIO} ${EMU_PARAMS} &"
 
   # Wait for emulator to be ready
   - chmod +x ./tests/e2e/android-wait-for-emulator.sh
@@ -96,11 +82,12 @@ install:
 
 script:
   - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-  - printf "\nhw.lcd.height=1920\nhw.lcd.width=1080\nhw.lcd.density=161\nskin.name=240x426" >> /home/travis/.android/avd/Pixel_API_28_AOSP.avd/config.ini
+  - printf "\nhw.lcd.height=1920\nhw.lcd.width=1080\nhw.lcd.density=320\nskin.name=1080x1920" >> /home/travis/.android/avd/Pixel_API_29_AOSP.avd/config.ini
   - npm i
   - npm i -g detox-cli
   - npm run e2e:release
 
+after_failure: ./tests/e2e/upload-artifacts.sh
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -5,6 +5,7 @@ global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, b
 let assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('../../BlueElectrum');
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -20,7 +21,6 @@ beforeAll(async () => {
 
 describe('HDSegwitBech32Transaction', () => {
   it('can decode & check sequence', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let T = new HDSegwitBech32Transaction(null, 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b');
     assert.strictEqual(await T.getMaxUsedSequence(), 0xffffffff);
     assert.strictEqual(await T.isSequenceReplaceable(), false);
@@ -36,7 +36,6 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can tell if its our transaction', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -57,7 +56,6 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can tell tx info', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -97,7 +95,6 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do RBF - cancel tx', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -128,7 +125,6 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do RBF - bumpfees tx', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
@@ -162,7 +158,6 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do CPFP - bump fees', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;

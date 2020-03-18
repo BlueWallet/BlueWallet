@@ -116,6 +116,7 @@ export default class WalletsAdd extends Component {
               }}
             >
               <TextInput
+                testID="WalletNameInput"
                 value={this.state.label}
                 placeholderTextColor="#81868e"
                 placeholder="my first wallet"
@@ -141,6 +142,7 @@ export default class WalletsAdd extends Component {
             }}
           >
             <BitcoinButton
+              testID="ActivateBitcoinButton"
               active={this.state.activeBitcoin}
               onPress={() => {
                 Keyboard.dismiss();
@@ -225,6 +227,7 @@ export default class WalletsAdd extends Component {
             >
               {!this.state.isLoading ? (
                 <BlueButton
+                  testID="Create"
                   title={loc.wallets.add.create}
                   disabled={this.state.activeBitcoin === undefined}
                   onPress={() => {

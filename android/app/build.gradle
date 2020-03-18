@@ -168,7 +168,6 @@ dependencies {
     androidTestImplementation('com.wix:detox:+') {
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
     }
-    androidTestImplementation 'junit:junit:4.12'
     // JSC from node_modules
     if (useIntlJsc) {
         implementation 'org.webkit:android-jsc-intl:+'
