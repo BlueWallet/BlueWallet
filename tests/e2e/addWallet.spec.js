@@ -30,7 +30,9 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('ActivateBitcoinButton')).tap();
     // why tf we need 2 taps for it to work..? mystery
     await element(by.id('Create')).tap();
-    await expect(element(by.id('PleasebackupOk'))).toBeVisible();
+    await waitFor(element(by.id('PleasebackupOk')))
+      .toBeVisible()
+      .withTimeout(5000);
     await element(by.id('PleasebackupOk')).tap();
     await expect(element(by.id('WalletsList'))).toBeVisible();
     await expect(element(by.id('cr34t3d'))).toBeVisible();
