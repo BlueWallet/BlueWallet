@@ -158,6 +158,7 @@ export default class EncryptStorage extends Component {
           )}
           <BlueHeaderDefaultSub leftText="storage" rightComponent={null} />
           <BlueListItem
+            testID="EncyptedAndPasswordProtected"
             hideChevron
             title="Encypted and Password protected"
             switchButton

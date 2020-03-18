@@ -7,7 +7,7 @@ describe('BlueWallet UI Tests', () => {
       .withTimeout(4000);
   });
 
-  it.skip('can encrypt storage', async () => {
+  it('can encrypt storage', async () => {
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
       .withTimeout(4000);
@@ -15,6 +15,25 @@ describe('BlueWallet UI Tests', () => {
     await element(by.id('SettingsButton')).tap(); // detox hanges here
 
     await expect(element(by.id('EncryptStorageButton'))).toBeVisible();
+    // now go to Security page where we will enable encryption
+    await element(by.id('EncryptStorageButton')).tap();
+    await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
+
+    if (device.getPlatform() === 'ios') {
+      console.warn('Android only test skipped');
+      return;
+    }
+
+    // first, trying to mistype second password:
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.type('android.widget.EditText')).typeText('08902\n');
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('666\n');
+    await element(by.text('OK')).tap();
+    await expect(element(by.text('Passwords do not match'))).toBeVisible();
+    await element(by.text('OK')).tap();
+
+    // TODO: finish writing this test
   });
 
   it('can create wallet, reload app and it persists', async () => {
