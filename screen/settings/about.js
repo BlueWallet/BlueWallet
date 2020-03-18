@@ -24,7 +24,7 @@ const About = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');

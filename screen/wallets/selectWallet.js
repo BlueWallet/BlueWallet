@@ -21,7 +21,7 @@ const SelectWallet = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   const renderItem = ({ item }) => {
     return (
