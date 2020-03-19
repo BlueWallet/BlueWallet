@@ -59,11 +59,25 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     
     
     if newPriceDoubleValue > cachedPriceNumberDoubleValue  {
-      self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
-      self.setLastPriceOutletsHidden(isHidden: false)
+      if #available(iOSApplicationExtension 13.0, *) {
+        self.setLastPriceOutletsHidden(isHidden: false)
+        self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
+      } else {
+        self.setLastPriceOutletsHidden(isHidden: true)
+        self.lastPriceFromLabel.text = "up from"
+        lastPriceFromLabel.isHidden = false
+        // Fallback on earlier versions
+      }
     }  else {
-      self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
-      self.setLastPriceOutletsHidden(isHidden: false)
+      if #available(iOSApplicationExtension 13.0, *) {
+        self.setLastPriceOutletsHidden(isHidden: false)
+        self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
+      } else {
+        self.setLastPriceOutletsHidden(isHidden: true)
+        lastPriceFromLabel.isHidden = false
+        self.lastPriceFromLabel.text = "down from"
+        // Fallback on earlier versions
+      }
     }
   }
   
@@ -108,10 +122,21 @@ class TodayViewController: UIViewController, NCWidgetProviding {
           if let latestRateDataStore = latestRateDataStore.rateDoubleValue, let lastStoredPriceNumber = priceRiceAndLastUpdate?.rateDoubleValue, API.getLastSelectedCurrency() == userPreferredCurrency {
             
             if latestRateDataStore > lastStoredPriceNumber  {
-              self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
+              if #available(iOSApplicationExtension 13.0, *) {
+                self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
+              } else {
+                self.lastPriceFromLabel.isHidden = false
+                self.lastPriceFromLabel.text = "up from"
+              }
               self.setLastPriceOutletsHidden(isHidden: false)
             } else {
-              self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
+              if #available(iOSApplicationExtension 13.0, *) {
+                self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
+              } else {
+                // Fallback on earlier versions
+                self.lastPriceFromLabel.isHidden = false
+                self.lastPriceFromLabel.text = "down from"
+              }
               self.setLastPriceOutletsHidden(isHidden: false)
             }
             self.lastPrice.text = priceRiceAndLastUpdate?.formattedRate
