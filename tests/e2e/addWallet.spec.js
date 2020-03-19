@@ -57,10 +57,9 @@ describe('BlueWallet UI Tests', () => {
     // relaunch app
     await device.terminateApp();
     await device.launchApp({ newInstance: true });
-    await sleep(2000);
     await waitFor(element(by.text('OK')))
       .toBeVisible()
-      .withTimeout(4000);
+      .withTimeout(33000);
 
     // trying to decrypt with wrong password
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
@@ -126,10 +125,9 @@ describe('BlueWallet UI Tests', () => {
     // relaunch app
     await device.terminateApp();
     await device.launchApp({ newInstance: true });
-    await sleep(2000);
     await waitFor(element(by.text('OK')))
       .toBeVisible()
-      .withTimeout(4000);
+      .withTimeout(33000);
     //
     await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
     await element(by.type('android.widget.EditText')).typeText('qqq');
@@ -169,7 +167,7 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function yo(id, timeout = 10000) {
+async function yo(id, timeout = 33000) {
   return waitFor(element(by.id(id)))
     .toBeVisible()
     .withTimeout(timeout);
@@ -178,23 +176,16 @@ async function yo(id, timeout = 10000) {
 async function helperCreateWallet(walletName) {
   await element(by.id('CreateAWallet')).tap();
   await element(by.id('WalletNameInput')).typeText(walletName || 'cr34t3d');
-  await waitFor(element(by.id('ActivateBitcoinButton')))
-    .toBeVisible()
-    .withTimeout(5000);
+  await yo('ActivateBitcoinButton');
   await element(by.id('ActivateBitcoinButton')).tap();
   await element(by.id('ActivateBitcoinButton')).tap();
   // why tf we need 2 taps for it to work..? mystery
   await element(by.id('Create')).tap();
 
-  await waitFor(element(by.id('PleaseBackupScrollView')))
-    .toBeVisible()
-    .withTimeout(5000);
-
+  await yo('PleaseBackupScrollView');
   await element(by.id('PleaseBackupScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
 
-  await waitFor(element(by.id('PleasebackupOk')))
-    .toBeVisible()
-    .withTimeout(5000);
+  await yo('PleasebackupOk');
   await element(by.id('PleasebackupOk')).tap();
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
