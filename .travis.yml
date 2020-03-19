@@ -64,7 +64,7 @@ install:
     # This double "sudo" monstrosity is used to have Travis execute the
     # emulator with its new group permissions and help preserve the rule
     # of least privilege.
-    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd Pixel_API_29_AOSP ${AUDIO} ${EMU_PARAMS} &"
+    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd Pixel_API_29_AOSP ${EMU_PARAMS} &"
 
   # Wait for emulator to be ready
   - chmod +x ./tests/e2e/android-wait-for-emulator.sh
