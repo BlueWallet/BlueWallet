@@ -57,13 +57,14 @@ install:
 
   # Create an Android emulator
   - echo no | avdmanager create avd --force -n Pixel_API_29_AOSP -k "system-images;android-$API;$EMU_FLAVOR;$ABI" -c 10M
+  - printf "\nhw.lcd.height=1920\nhw.lcd.width=1080\nhw.lcd.density=320\nskin.name=1080x1920" >> /home/travis/.android/avd/Pixel_API_29_AOSP.avd/config.ini
   - |
     EMU_PARAMS="-verbose -no-snapshot -no-window -camera-back none -camera-front none -selinux permissive -qemu -m 2048"
     EMU_COMMAND="emulator"
     # This double "sudo" monstrosity is used to have Travis execute the
     # emulator with its new group permissions and help preserve the rule
     # of least privilege.
-    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd Pixel_API_29_AOSP ${AUDIO} ${EMU_PARAMS} &"
+    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd Pixel_API_29_AOSP ${EMU_PARAMS} &"
 
   # Wait for emulator to be ready
   - chmod +x ./tests/e2e/android-wait-for-emulator.sh
@@ -82,7 +83,6 @@ install:
 
 script:
   - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-  - printf "\nhw.lcd.height=1920\nhw.lcd.width=1080\nhw.lcd.density=320\nskin.name=1080x1920" >> /home/travis/.android/avd/Pixel_API_29_AOSP.avd/config.ini
   - npm i
   - npm i -g detox-cli
   - npm run e2e:release
