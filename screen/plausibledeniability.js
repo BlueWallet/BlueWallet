@@ -47,6 +47,7 @@ export default class PlausibleDeniability extends Component {
             <BlueSpacing20 />
 
             <BlueButton
+              testID="CreateFakeStorageButton"
               icon={{
                 name: 'shield',
                 type: 'font-awesome',

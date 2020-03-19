@@ -304,7 +304,9 @@ export default class Selftest extends Component {
               if (this.state.isOk) {
                 return (
                   <View style={{ alignItems: 'center' }}>
-                    <BlueText h4>OK</BlueText>
+                    <BlueText testID="SelfTestOk" h4>
+                      OK
+                    </BlueText>
                   </View>
                 );
               } else {

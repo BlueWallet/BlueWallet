@@ -70,7 +70,7 @@ const Settings = () => {
           </BlueCard>
         )}
 
-        <BlueListItem title={loc.settings.about} component={TouchableOpacity} onPress={() => navigate('About')} />
+        <BlueListItem title={loc.settings.about} component={TouchableOpacity} onPress={() => navigate('About')} testID="AboutButton" />
       </ScrollView>
     </SafeBlueArea>
   );

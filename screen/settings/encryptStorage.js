@@ -181,7 +181,11 @@ export default class EncryptStorage extends Component {
               disabled={!this.state.storageIsEncrypted}
               onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
             >
-              <BlueListItem disabled={!this.state.storageIsEncrypted} title={loc.settings.plausible_deniability} />
+              <BlueListItem
+                disabled={!this.state.storageIsEncrypted}
+                title={loc.settings.plausible_deniability}
+                testID="PlausibleDeniabilityButton"
+              />
             </TouchableOpacity>
           )}
         </ScrollView>
