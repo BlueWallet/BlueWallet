@@ -41,9 +41,9 @@
     "jest": "node node_modules/jest/bin/jest.js tests/integration/*",
     "e2e:release": "detox build -c android.emu.release; detox test -c android.emu.release --record-videos all --take-screenshots all --headless --cleanup",
     "e2e:debug": "test -f android/app/build/outputs/apk/debug/app-debug.apk || detox build -c android.emu.debug; detox test -c android.emu.debug --cleanup",
-    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/",
-    "lint:fix": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ --fix",
-    "unit": "./node_modules/.bin/mocha tests/unit/*"
+    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/",
+    "lint:fix": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/ --fix",
+    "unit": "node node_modules/jest/bin/jest.js tests/unit/*"
   },
   "jest": {
     "preset": "react-native",
@@ -85,7 +85,6 @@
     "frisbee": "2.0.9",
     "intl": "1.2.5",
     "lottie-react-native": "3.1.1",
-    "mocha": "5.2.0",
     "node-libs-react-native": "1.0.3",
     "path-browserify": "1.0.0",
     "prettier": "1.19.1",
