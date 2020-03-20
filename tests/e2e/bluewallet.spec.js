@@ -25,10 +25,10 @@ describe('BlueWallet UI Tests', () => {
     // go to settings
     await expect(element(by.id('SettingsButton'))).toBeVisible();
     await element(by.id('SettingsButton')).tap();
-    await expect(element(by.id('EncryptStorageButton'))).toBeVisible();
+    await expect(element(by.id('SecurityButton'))).toBeVisible();
 
     // go to Security page where we will enable encryption
-    await element(by.id('EncryptStorageButton')).tap();
+    await element(by.id('SecurityButton')).tap();
     await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
     await expect(element(by.id('PlausibleDeniabilityButton'))).toBeNotVisible();
 
@@ -79,8 +79,8 @@ describe('BlueWallet UI Tests', () => {
 
     // go to settings -> security screen -> plausible deniability screen
     await element(by.id('SettingsButton')).tap();
-    await expect(element(by.id('EncryptStorageButton'))).toBeVisible();
-    await element(by.id('EncryptStorageButton')).tap();
+    await expect(element(by.id('SecurityButton'))).toBeVisible();
+    await element(by.id('SecurityButton')).tap();
     await expect(element(by.id('EncyptedAndPasswordProtected'))).toBeVisible();
     await expect(element(by.id('PlausibleDeniabilityButton'))).toBeVisible();
     await element(by.id('PlausibleDeniabilityButton')).tap();
@@ -155,7 +155,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('WalletsList');
     await helperCreateWallet();
     await element(by.id('SettingsButton')).tap();
-    await element(by.id('EncryptStorageButton')).tap();
+    await element(by.id('SecurityButton')).tap();
     if (device.getPlatform() === 'ios') {
       console.warn('Android only test skipped');
       return;
@@ -201,7 +201,7 @@ describe('BlueWallet UI Tests', () => {
 
     // now go to settings, and decrypt
     await element(by.id('SettingsButton')).tap();
-    await element(by.id('EncryptStorageButton')).tap();
+    await element(by.id('SecurityButton')).tap();
 
     // putting FAKE storage password. should not succeed
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
@@ -228,7 +228,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('WalletsList');
     await helperCreateWallet();
     await element(by.id('SettingsButton')).tap();
-    await element(by.id('EncryptStorageButton')).tap();
+    await element(by.id('SecurityButton')).tap();
     if (device.getPlatform() === 'ios') {
       console.warn('Android only test skipped');
       return;
@@ -273,7 +273,7 @@ describe('BlueWallet UI Tests', () => {
 
     // now go to settings, and decrypt
     await element(by.id('SettingsButton')).tap();
-    await element(by.id('EncryptStorageButton')).tap();
+    await element(by.id('SecurityButton')).tap();
 
     // putting MAIN storage password. should not succeed
     await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol

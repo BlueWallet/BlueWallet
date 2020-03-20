@@ -9,10 +9,9 @@ import {
   BlueHeaderDefaultSub,
   BlueListItem,
 } from '../../BlueComponents';
-import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../../class';
 import { useNavigation } from 'react-navigation-hooks';
-const BlueApp = require('../../BlueApp');
+const BlueApp: AppStorage = require('../../BlueApp');
 const loc = require('../../loc');
 
 const Settings = () => {
@@ -23,18 +22,14 @@ const Settings = () => {
 
   useEffect(() => {
     (async () => {
-      setAdvancedModeEnabled(!!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)));
+      setAdvancedModeEnabled(await BlueApp.isAdancedModeEnabled());
       setIsLoading(false);
     })();
   });
 
   const onAdvancedModeSwitch = async value => {
-    if (value) {
-      await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, '1');
-    } else {
-      await AsyncStorage.removeItem(AppStorage.ADVANCED_MODE_ENABLED);
-    }
     setAdvancedModeEnabled(value);
+    await BlueApp.setIsAdancedModeEnabled(value);
   };
 
   const onShowAdvancedOptions = () => {
@@ -50,12 +45,7 @@ const Settings = () => {
         {BlueApp.getWallets().length > 1 && (
           <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
         )}
-        <BlueListItem
-          title="Security"
-          onPress={() => navigate('EncryptStorage')}
-          component={TouchableOpacity}
-          testID="EncryptStorageButton"
-        />
+        <BlueListItem title="Security" onPress={() => navigate('EncryptStorage')} component={TouchableOpacity} testID="SecurityButton" />
         <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
         <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} />
         <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} />

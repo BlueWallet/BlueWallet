@@ -1,3 +1,4 @@
+import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
@@ -15,7 +16,7 @@ export default class WalletMigrate {
     if (firstLaunch === undefined || firstLaunch === null || firstLaunch === false || firstLaunch === '') {
       try {
         await RNSecureKeyStore.setResetOnAppUninstallTo(false);
-        const deleteWalletsFromKeychain = await RNSecureKeyStore.get('deleteWalletAfterUninstall');
+        const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
         await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
       } catch (_e) {}
       await AsyncStorage.setItem('RnSksIsAppInstalled', '1');

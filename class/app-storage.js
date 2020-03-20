@@ -25,7 +25,8 @@ export class AppStorage {
   static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
-  static DELETEWALLETAFTERUNINSTALLKEY = 'deleteWalletAfterUninstall';
+  static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';
+
   constructor() {
     /** {Array.<AbstractWallet>} */
     this.wallets = [];
@@ -91,8 +92,12 @@ export class AppStorage {
   }
 
   async setResetOnAppUninstallTo(value) {
-    await this.setItem('deleteWalletAfterUninstall', value === true ? '1' : '');
-    await RNSecureKeyStore.setResetOnAppUninstallTo(value);
+    await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
+    try {
+      await RNSecureKeyStore.setResetOnAppUninstallTo(value);
+    } catch (Error) {
+      console.warn(Error);
+    }
   }
 
   async storageIsEncrypted() {
@@ -110,21 +115,19 @@ export class AppStorage {
     try {
       let data = await this.getItem('data');
       data = this.decryptData(data, password);
-      if (data !== null && data !== undefined && data !== false) {
-        return true;
-      }
+      return !!data;
     } catch (_e) {
       return false;
     }
-    return false;
   }
 
   /**
    * Iterates through all values of `data` trying to
    * decrypt each one, and returns first one successfully decrypted
    *
-   * @param data String (serialized array)
+   * @param data {string} Serialized array
    * @param password
+   * @returns {boolean|string} Either STRING of storage data (which is stringified JSON) or FALSE, which means failure
    */
   decryptData(data, password) {
     data = JSON.parse(data);
@@ -147,8 +150,7 @@ export class AppStorage {
   async decryptStorage(password) {
     if (password === this.cachedPassword) {
       this.cachedPassword = undefined;
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, '');
-      await this.setItem('deleteWalletAfterUninstall', '1');
+      await this.setResetOnAppUninstallTo(true);
       await this.saveToDisk();
       this.wallets = [];
       this.tx_metadata = [];
@@ -161,7 +163,7 @@ export class AppStorage {
   async isDeleteWalletAfterUninstallEnabled() {
     let deleteWalletsAfterUninstall;
     try {
-      deleteWalletsAfterUninstall = await this.getItem('deleteWalletAfterUninstall');
+      deleteWalletsAfterUninstall = await this.getItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
     } catch (_e) {
       deleteWalletsAfterUninstall = true;
     }
@@ -343,8 +345,6 @@ export class AppStorage {
   async saveToDisk() {
     let walletsToSave = [];
     for (let key of this.wallets) {
-      if (typeof key === 'boolean') continue;
-      if (typeof key === 'string') key = JSON.parse(key);
       if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
@@ -504,6 +504,17 @@ export class AppStorage {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
+  }
+
+  async isAdancedModeEnabled() {
+    try {
+      return !!(await this.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    } catch (_) {}
+    return false;
+  }
+
+  async setIsAdancedModeEnabled(value) {
+    await this.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
   }
 
   /**

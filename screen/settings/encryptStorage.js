@@ -12,7 +12,6 @@ import {
   BlueText,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
@@ -42,7 +41,7 @@ export default class EncryptStorage extends Component {
     const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     this.setState({
       isLoading: false,
-      advancedModeEnabled: (await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)) || false,
+      advancedModeEnabled: await BlueApp.isAdancedModeEnabled(),
       storageIsEncrypted: await BlueApp.storageIsEncrypted(),
       deleteWalletsAfterUninstall: await BlueApp.isDeleteWalletAfterUninstallEnabled(),
       biometrics: { isBiometricsEnabled, isDeviceBiometricCapable, biometricsType },
