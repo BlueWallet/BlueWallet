@@ -21,7 +21,7 @@ jest.setTimeout(600000); // 10 min
 
 beforeAll(async () => {
   await detox.init(config, { launchApp: false });
-}, 300000);
+}, 600000);
 
 beforeEach(async () => {
   await device.uninstallApp();
