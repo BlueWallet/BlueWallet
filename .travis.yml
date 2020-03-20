@@ -57,7 +57,7 @@ install:
 
   # Create an Android emulator
   - echo no | avdmanager create avd --force -n Pixel_API_29_AOSP -k "system-images;android-$API;$EMU_FLAVOR;$ABI" -c 10M
-  - printf "\nhw.lcd.height=1920\nhw.lcd.width=1080\nhw.lcd.density=320\nskin.name=1080x1920" >> /home/travis/.android/avd/Pixel_API_29_AOSP.avd/config.ini
+  - printf "\nhw.lcd.height=1334\nhw.lcd.width=750\nhw.lcd.density=320\nskin.name=750x1334" >> /home/travis/.android/avd/Pixel_API_29_AOSP.avd/config.ini
   - |
     EMU_PARAMS="-verbose -no-snapshot -no-window -camera-back none -camera-front none -selinux permissive -qemu -m 2048"
     EMU_COMMAND="emulator"
