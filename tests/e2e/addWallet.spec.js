@@ -151,6 +151,149 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.id('fake_wallet'))).toBeVisible();
   });
 
+  it('can encrypt storage, and decrypt storage works', async () => {
+    await yo('WalletsList');
+    await helperCreateWallet();
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('EncryptStorageButton')).tap();
+    if (device.getPlatform() === 'ios') {
+      console.warn('Android only test skipped');
+      return;
+    }
+
+    // lets encrypt the storage.
+    // lets put correct passwords and encrypt the storage
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.type('android.widget.EditText')).typeText('pass');
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('pass');
+    await element(by.text('OK')).tap();
+    await element(by.id('PlausibleDeniabilityButton')).tap();
+
+    // trying to enable plausible denability
+    await element(by.id('CreateFakeStorageButton')).tap();
+    await element(by.type('android.widget.EditText')).typeText('fake');
+    await element(by.text('OK')).tap();
+    await expect(element(by.text('Retype password'))).toBeVisible();
+    await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
+    await element(by.text('OK')).tap();
+    await expect(element(by.text('Success'))).toBeVisible();
+    await element(by.text('OK')).tap();
+
+    // created fake storage.
+    // creating a wallet inside this fake storage
+    await helperCreateWallet('fake_wallet');
+
+    // relaunch app
+    await device.terminateApp();
+    await device.launchApp({ newInstance: true });
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(33000);
+    //
+    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
+    await element(by.type('android.widget.EditText')).typeText('pass');
+    await element(by.text('OK')).tap();
+    await yo('WalletsList');
+
+    // previously created wallet IN MAIN STORAGE should be visible
+    await expect(element(by.id('cr34t3d'))).toBeVisible();
+
+    // now go to settings, and decrypt
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('EncryptStorageButton')).tap();
+
+    // putting FAKE storage password. should not succeed
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('fake');
+    await element(by.text('OK')).tap();
+    await expect(element(by.text('Wrong password, please try again.'))).toBeVisible();
+    await element(by.text('OK')).tap();
+
+    // correct password
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('pass');
+    await element(by.text('OK')).tap();
+
+    // relaunch app
+    await device.launchApp({ newInstance: true });
+    await yo('cr34t3d'); // success
+  });
+
+  it('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
+    // this test mostly repeats previous one, except in the end it logins with FAKE password to unlock FAKE
+    // storage bucket, and then decrypts it. effectively, everything from MAIN storage bucket is lost
+    await yo('WalletsList');
+    await helperCreateWallet();
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('EncryptStorageButton')).tap();
+    if (device.getPlatform() === 'ios') {
+      console.warn('Android only test skipped');
+      return;
+    }
+
+    // lets encrypt the storage.
+    // lets put correct passwords and encrypt the storage
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.type('android.widget.EditText')).typeText('pass');
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('pass');
+    await element(by.text('OK')).tap();
+    await element(by.id('PlausibleDeniabilityButton')).tap();
+
+    // trying to enable plausible denability
+    await element(by.id('CreateFakeStorageButton')).tap();
+    await element(by.type('android.widget.EditText')).typeText('fake');
+    await element(by.text('OK')).tap();
+    await expect(element(by.text('Retype password'))).toBeVisible();
+    await element(by.type('android.widget.EditText')).typeText('fake'); // retyping
+    await element(by.text('OK')).tap();
+    await expect(element(by.text('Success'))).toBeVisible();
+    await element(by.text('OK')).tap();
+
+    // created fake storage.
+    // creating a wallet inside this fake storage
+    await helperCreateWallet('fake_wallet');
+
+    // relaunch app
+    await device.launchApp({ newInstance: true });
+    await waitFor(element(by.text('OK')))
+      .toBeVisible()
+      .withTimeout(33000);
+    //
+    await expect(element(by.text('Your storage is encrypted. Password is required to decrypt it'))).toBeVisible();
+    await element(by.type('android.widget.EditText')).typeText('fake');
+    await element(by.text('OK')).tap();
+    await yo('WalletsList');
+
+    // previously created wallet IN FAKE STORAGE should be visible
+    await expect(element(by.id('fake_wallet'))).toBeVisible();
+
+    // now go to settings, and decrypt
+    await element(by.id('SettingsButton')).tap();
+    await element(by.id('EncryptStorageButton')).tap();
+
+    // putting MAIN storage password. should not succeed
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('pass');
+    await element(by.text('OK')).tap();
+    await expect(element(by.text('Wrong password, please try again.'))).toBeVisible();
+    await element(by.text('OK')).tap();
+
+    // correct password
+    await element(by.type('android.widget.CompoundButton')).tap(); // thats a switch lol
+    await element(by.text('OK')).tap();
+    await element(by.type('android.widget.EditText')).typeText('fake');
+    await element(by.text('OK')).tap();
+
+    // relaunch app
+    await device.launchApp({ newInstance: true });
+    await yo('fake_wallet'); // success, we are observing wallet in FAKE storage. wallet from main storage is lost
+  });
+
   it('can create wallet, reload app and it persists', async () => {
     await yo('WalletsList');
 
