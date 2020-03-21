@@ -27,7 +27,7 @@ post_install do |installer|
       end
 end
 def sharedPods
- pod 'React', :path => '../node_modules/react-native/'
+        pod 'React', :path => '../node_modules/react-native/'
 	  pod 'React-Core', :path => '../node_modules/react-native/React'
 	  pod 'React-DevSupport', :path => '../node_modules/react-native/React'
 	  pod 'React-RCTActionSheet', :path => '../node_modules/react-native/Libraries/ActionSheetIOS'

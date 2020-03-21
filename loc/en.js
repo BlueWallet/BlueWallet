@@ -2,7 +2,7 @@ module.exports = {
   _: {
     storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
     enter_password: 'Enter password',
-    bad_password: 'Bad password, try again',
+    bad_password: 'Wrong password, please try again.',
     never: 'never',
     continue: 'Continue',
     ok: 'OK',
@@ -212,7 +212,7 @@ module.exports = {
     go_back: 'Go Back',
     create_password: 'Create a password',
     create_password_explanation: 'Password for fake storage should not match password for your main storage',
-    password_should_not_match: 'Password for fake storage should not match password for your main storage',
+    password_should_not_match: 'Password is currently in use. Please, try a different password.',
     retype_password: 'Retype password',
     passwords_do_not_match: 'Passwords do not match, try again',
     success: 'Success',

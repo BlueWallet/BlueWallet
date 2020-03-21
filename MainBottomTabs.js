@@ -1,6 +1,6 @@
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 
-import SettingsContainer from './screen/settings/settings';
+import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
 import ReleaseNotes from './screen/settings/releasenotes';
 import Selftest from './screen/selftest';
@@ -86,7 +86,7 @@ const WalletsStackNavigator = createStackNavigator(
       screen: rbfCancel,
     },
     Settings: {
-      screen: SettingsContainer,
+      screen: Settings,
       path: 'Settings',
       navigationOptions: {
         headerStyle: {

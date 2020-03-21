@@ -25,6 +25,7 @@ export class AppStorage {
   static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
+  static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -90,6 +91,15 @@ export class AppStorage {
     }
   }
 
+  async setResetOnAppUninstallTo(value) {
+    await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
+    try {
+      await RNSecureKeyStore.setResetOnAppUninstallTo(value);
+    } catch (Error) {
+      console.warn(Error);
+    }
+  }
+
   async storageIsEncrypted() {
     let data;
     try {
@@ -101,12 +111,23 @@ export class AppStorage {
     return !!data;
   }
 
+  async isPasswordInUse(password) {
+    try {
+      let data = await this.getItem('data');
+      data = this.decryptData(data, password);
+      return !!data;
+    } catch (_e) {
+      return false;
+    }
+  }
+
   /**
    * Iterates through all values of `data` trying to
    * decrypt each one, and returns first one successfully decrypted
    *
-   * @param data String (serialized array)
+   * @param data {string} Serialized array
    * @param password
+   * @returns {boolean|string} Either STRING of storage data (which is stringified JSON) or FALSE, which means failure
    */
   decryptData(data, password) {
     data = JSON.parse(data);
@@ -124,6 +145,29 @@ export class AppStorage {
     }
 
     return false;
+  }
+
+  async decryptStorage(password) {
+    if (password === this.cachedPassword) {
+      this.cachedPassword = undefined;
+      await this.setResetOnAppUninstallTo(true);
+      await this.saveToDisk();
+      this.wallets = [];
+      this.tx_metadata = [];
+      return this.loadFromDisk();
+    } else {
+      throw new Error('Wrong password. Please, try again.');
+    }
+  }
+
+  async isDeleteWalletAfterUninstallEnabled() {
+    let deleteWalletsAfterUninstall;
+    try {
+      deleteWalletsAfterUninstall = await this.getItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+    } catch (_e) {
+      deleteWalletsAfterUninstall = true;
+    }
+    return !!deleteWalletsAfterUninstall;
   }
 
   async encryptStorage(password) {
@@ -460,6 +504,17 @@ export class AppStorage {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
+  }
+
+  async isAdancedModeEnabled() {
+    try {
+      return !!(await this.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    } catch (_) {}
+    return false;
+  }
+
+  async setIsAdancedModeEnabled(value) {
+    await this.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
   }
 
   /**

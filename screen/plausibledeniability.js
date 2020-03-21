@@ -3,8 +3,9 @@ import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
 import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
-/** @type {AppStorage} */
-let BlueApp = require('../BlueApp');
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { AppStorage } from '../class';
+let BlueApp: AppStorage = require('../BlueApp');
 let prompt = require('../prompt');
 let EV = require('../events');
 let loc = require('../loc');
@@ -46,6 +47,7 @@ export default class PlausibleDeniability extends Component {
             <BlueSpacing20 />
 
             <BlueButton
+              testID="CreateFakeStorageButton"
               icon={{
                 name: 'shield',
                 type: 'font-awesome',
@@ -54,22 +56,24 @@ export default class PlausibleDeniability extends Component {
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
                 let p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
-                if (p1 === BlueApp.cachedPassword) {
+                const isPasswordInUse = p1 === BlueApp.cachedPassword || (await BlueApp.isPasswordInUse(p1));
+                if (isPasswordInUse) {
+                  ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                   return alert(loc.plausibledeniability.password_should_not_match);
                 }
-
                 if (!p1) {
                   return;
                 }
-
                 let p2 = await prompt(loc.plausibledeniability.retype_password);
                 if (p1 !== p2) {
+                  ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                   return alert(loc.plausibledeniability.passwords_do_not_match);
                 }
 
                 await BlueApp.createFakeStorage(p1);
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+                ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                 alert(loc.plausibledeniability.success);
                 this.props.navigation.navigate('Wallets');
               }}

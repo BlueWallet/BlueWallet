@@ -65,7 +65,7 @@ export default class WatchConnectivity {
       console.log('Wallets array is set. No Wallets set to sync with Watch app. Exiting...');
       return;
     }
-    console.log('Wallets set to sync with Watch app. Continuing...');
+
     return InteractionManager.runAfterInteractions(async () => {
       if (WatchConnectivity.shared.isAppInstalled) {
         let wallets = [];

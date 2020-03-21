@@ -592,6 +592,7 @@ export class BlueListItem extends Component {
         }}
         subtitleStyle={{ color: BlueApp.settings.alternativeTextColor }}
         subtitleNumberOfLines={1}
+        titleNumberOfLines={0}
         {...this.props}
       />
     );
@@ -691,7 +692,7 @@ export class BlueHeaderDefaultSub extends Component {
               adjustsFontSizeToFit
               style={{
                 fontWeight: 'bold',
-                fontSize: 34,
+                fontSize: 30,
                 color: BlueApp.settings.foregroundColor,
               }}
             >

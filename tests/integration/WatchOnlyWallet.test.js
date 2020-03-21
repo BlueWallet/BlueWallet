@@ -30,7 +30,7 @@ describe('Watch only wallet', () => {
     let w = new WatchOnlyWallet();
     w.setSecret('167zK5iZrs1U6piDqubD3FjRqUTM2CZnb8');
     await w.fetchTransactions();
-    assert.ok(w.getTransactions().length >= 215);
+    assert.ok(w.getTransactions().length >= 215, w.getTransactions().length);
     // should be 233 but electrum server cant return huge transactions >.<
 
     w = new WatchOnlyWallet();
