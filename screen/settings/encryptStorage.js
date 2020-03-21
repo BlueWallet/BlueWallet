@@ -149,7 +149,7 @@ export default class EncryptStorage extends Component {
               <BlueCard>
                 <BlueText>
                   {this.state.biometrics.biometricsType} will be used to confirm your identity prior to making a transaction, unlocking,
-                  exporting or deleting wallet. {this.state.biometrics.biometricsType} will not be used to unlock an encrypted storage.
+                  exporting or deleting a wallet. {this.state.biometrics.biometricsType} will not be used to unlock an encrypted storage.
                 </BlueText>
               </BlueCard>
               <BlueSpacing20 />

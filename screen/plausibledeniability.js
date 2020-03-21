@@ -48,11 +48,6 @@ export default class PlausibleDeniability extends Component {
 
             <BlueButton
               testID="CreateFakeStorageButton"
-              icon={{
-                name: 'shield',
-                type: 'font-awesome',
-                color: BlueApp.settings.buttonTextColor,
-              }}
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
                 let p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);

@@ -176,7 +176,7 @@ module.exports = {
   },
   settings: {
     header: 'settings',
-    plausible_deniability: 'Plausible deniability...',
+    plausible_deniability: 'Plausible deniability',
     storage_not_encrypted: 'Storage: not encrypted',
     storage_encrypted: 'Storage: encrypted',
     password: 'Password',
@@ -204,14 +204,14 @@ module.exports = {
       'password. To keep your coins safe, BlueWallet can create another ' +
       'encrypted storage, with a different password. Under pressure, ' +
       'you can disclose this password to a 3rd party. If entered in ' +
-      "BlueWallet, it will unlock new 'fake' storage. This will seem " +
-      'legit to a 3rd party, but will secretly keep your main storage ' +
+      "BlueWallet, it will unlock a new 'fake' storage. This will seem " +
+      'legit to a 3rd party, but it will secretly keep your main storage ' +
       'with coins safe.',
-    help2: 'New storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
-    create_fake_storage: 'Create fake encrypted storage',
+    help2: 'The new storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
+    create_fake_storage: 'Create Encrypted storage',
     go_back: 'Go Back',
     create_password: 'Create a password',
-    create_password_explanation: 'Password for fake storage should not match password for your main storage',
+    create_password_explanation: 'Password for fake storage should not match the password for your main storage',
     password_should_not_match: 'Password is currently in use. Please, try a different password.',
     retype_password: 'Retype password',
     passwords_do_not_match: 'Passwords do not match, try again',
