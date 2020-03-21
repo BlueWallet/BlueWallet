@@ -92,6 +92,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     API.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
       DispatchQueue.main.async { [unowned self] in
         guard let result = result else {
+          self.lastUpdatedDate.text = error?.localizedDescription
           completionHandler(.failed)
           return
         }
