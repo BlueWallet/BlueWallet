@@ -8,20 +8,6 @@ global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, b
 let assert = require('assert');
 jest.mock('react-native-qrcode-svg', () => 'Video');
 jest.useFakeTimers();
-jest.mock('Picker', () => {
-  // eslint-disable-next-line import/no-unresolved
-  const React = require('React');
-  const PropTypes = require('prop-types');
-  return class MockPicker extends React.Component {
-    static Item = props => React.createElement('Item', props, props.children);
-    static propTypes = { children: PropTypes.any };
-    static defaultProps = { children: '' };
-
-    render() {
-      return React.createElement('Picker', this.props, this.props.children);
-    }
-  };
-});
 
 jest.mock('amplitude-js', () => ({
   getInstance: function() {
@@ -31,20 +17,6 @@ jest.mock('amplitude-js', () => ({
     };
   },
 }));
-
-jest.mock('ScrollView', () => {
-  const RealComponent = require.requireActual('ScrollView');
-  const React = require('React');
-  class ScrollView extends React.Component {
-    scrollTo() {}
-
-    render() {
-      return React.createElement('ScrollView', this.props, this.props.children);
-    }
-  }
-  ScrollView.propTypes = RealComponent.propTypes;
-  return ScrollView;
-});
 
 it('BlueHeader works', () => {
   const rendered = TestRenderer.create(<BlueHeader />).toJSON();
