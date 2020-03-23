@@ -27,7 +27,7 @@ export default class BuyBitcoin extends Component {
   }
 
   async componentDidMount() {
-    console.log('buyBitcoin/details - componentDidMount');
+    console.log('buyBitcoin - componentDidMount');
 
     /**  @type {AbstractWallet}   */
     let wallet;
