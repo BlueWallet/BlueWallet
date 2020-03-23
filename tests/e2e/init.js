@@ -24,9 +24,7 @@ beforeAll(async () => {
 }, 600000);
 
 beforeEach(async () => {
-  await device.uninstallApp();
-  await device.installApp();
-  await device.launchApp({ newInstance: true });
+  await device.launchApp({ newInstance: true, delete: true });
   await sleep(2000);
   await adapter.beforeEach();
 });
