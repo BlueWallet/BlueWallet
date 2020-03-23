@@ -86,7 +86,7 @@ describe('BlueWallet UI Tests', () => {
 
     // trying to enable plausible denability
     await element(by.id('CreateFakeStorageButton')).tap();
-    await expect(element(by.text('Password for fake storage should not match password for your main storage'))).toBeVisible();
+    await expect(element(by.text('Password for fake storage should not match the password for your main storage'))).toBeVisible();
 
     // trying MAIN password: should fail, obviously
     await element(by.type('android.widget.EditText')).typeText('qqq');
