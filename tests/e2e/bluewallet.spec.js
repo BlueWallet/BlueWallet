@@ -55,7 +55,6 @@ describe('BlueWallet UI Tests', () => {
     await element(by.text('OK')).tap();
 
     // relaunch app
-    await device.terminateApp();
     await device.launchApp({ newInstance: true });
     await waitFor(element(by.text('OK')))
       .toBeVisible()
@@ -123,7 +122,6 @@ describe('BlueWallet UI Tests', () => {
     // relaunch the app, unlock with fake password, expect to see fake wallet
 
     // relaunch app
-    await device.terminateApp();
     await device.launchApp({ newInstance: true });
     await waitFor(element(by.text('OK')))
       .toBeVisible()
@@ -138,7 +136,6 @@ describe('BlueWallet UI Tests', () => {
     await expect(element(by.id('cr34t3d'))).toBeVisible();
 
     // relaunch app
-    await device.terminateApp();
     await device.launchApp({ newInstance: true });
     await sleep(3000);
     //
@@ -185,7 +182,6 @@ describe('BlueWallet UI Tests', () => {
     await helperCreateWallet('fake_wallet');
 
     // relaunch app
-    await device.terminateApp();
     await device.launchApp({ newInstance: true });
     await waitFor(element(by.text('OK')))
       .toBeVisible()
@@ -299,7 +295,6 @@ describe('BlueWallet UI Tests', () => {
 
     await helperCreateWallet();
 
-    await device.terminateApp();
     await device.launchApp({ newInstance: true });
     await yo('WalletsList');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
