@@ -18,7 +18,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
-import Swiper from 'react-native-swiper';
+import ViewPager from '@react-native-community/viewpager';
 import ScanQRCode from '../send/ScanQRCode';
 import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
 let EV = require('../../events');
@@ -30,7 +30,7 @@ let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
   walletsCarousel = React.createRef();
-  swiperRef = React.createRef();
+  viewPagerRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -296,7 +296,8 @@ export default class WalletsList extends Component {
     }
   };
 
-  onSwiperIndexChanged = index => {
+  onViewPagerScroll = (e: PageSelectedEvent) => {
+    const index = e.nativeEvent.position
     StatusBar.setBarStyle(index === 1 ? 'dark-content' : 'light-content');
     this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined });
   };
@@ -335,19 +336,17 @@ export default class WalletsList extends Component {
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
-            this.setState({ cameraPreviewIsPaused: this.swiperRef.current.index === 1 || this.swiperRef.current.index === undefined });
+            this.setState({ cameraPreviewIsPaused: this.viewPageRef.current.index === 1 || this.viewPageRef.current.index === undefined });
           }}
           onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
         />
         <ScrollView contentContainerStyle={{ flex: 1 }}>
-          <Swiper
+          <ViewPager
             style={styles.wrapper}
-            onIndexChanged={this.onSwiperIndexChanged}
-            index={1}
-            ref={this.swiperRef}
-            showsPagination={false}
-            showsButtons={false}
-            loop={false}
+            onPageScroll={this.onViewPagerScroll}
+            initialPage={1}
+            ref={this.viewPagerRef}
+            showPageIndicator={false}
           >
             <View style={styles.scanQRWrapper}>
               <ScanQRCode
@@ -420,7 +419,7 @@ export default class WalletsList extends Component {
                 </ScrollView>
               </View>
             </SafeBlueArea>
-          </Swiper>
+          </ViewPager>
         </ScrollView>
       </View>
     );
@@ -430,6 +429,7 @@ export default class WalletsList extends Component {
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#FFFFFF',
+    flex: 1,
   },
   walletsListWrapper: {
     flex: 1,
