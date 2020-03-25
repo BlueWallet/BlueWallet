@@ -297,12 +297,11 @@ export default class WalletsList extends Component {
     }
   };
 
-  onPageSelected = (e: PageSelectedEvent) => {
-    const index = e.nativeEvent.position
+  onPageSelected = e => {
+    const index = e.nativeEvent.position;
     StatusBar.setBarStyle(index === 1 ? 'dark-content' : 'light-content');
     this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined, viewPagerIndex: index });
   };
-
 
   onBarScanned = value => {
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
@@ -338,7 +337,7 @@ export default class WalletsList extends Component {
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
-            this.setState({ cameraPreviewIsPaused: this.state.viewPagerIndex === 1 });
+            this.setState({ cameraPreviewIsPaused: this.state.viewPagerIndex === 1 || this.viewPagerRef.current.index === undefined });
           }}
           onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
         />
