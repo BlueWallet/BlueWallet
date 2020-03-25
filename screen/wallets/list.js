@@ -41,6 +41,7 @@ export default class WalletsList extends Component {
       lastSnappedTo: 0,
       timeElpased: 0,
       cameraPreviewIsPaused: true,
+      viewPagerIndex: 1,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -296,11 +297,12 @@ export default class WalletsList extends Component {
     }
   };
 
-  onViewPagerScroll = (e: PageSelectedEvent) => {
+  onPageSelected = (e: PageSelectedEvent) => {
     const index = e.nativeEvent.position
     StatusBar.setBarStyle(index === 1 ? 'dark-content' : 'light-content');
-    this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined });
+    this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined, viewPagerIndex: index });
   };
+
 
   onBarScanned = value => {
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
@@ -336,14 +338,14 @@ export default class WalletsList extends Component {
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
-            this.setState({ cameraPreviewIsPaused: this.viewPageRef.current.index === 1 || this.viewPageRef.current.index === undefined });
+            this.setState({ cameraPreviewIsPaused: this.state.viewPagerIndex === 1 });
           }}
           onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
         />
         <ScrollView contentContainerStyle={{ flex: 1 }}>
           <ViewPager
             style={styles.wrapper}
-            onPageScroll={this.onViewPagerScroll}
+            onPageSelected={this.onPageSelected}
             initialPage={1}
             ref={this.viewPagerRef}
             showPageIndicator={false}
