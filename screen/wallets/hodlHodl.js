@@ -20,6 +20,7 @@ import PropTypes from 'prop-types';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
+const A = require('../../analytics');
 
 const CURRENCY_CODE_ANY = '_any';
 const METHOD_ANY = '_any';
@@ -263,6 +264,7 @@ export default class HodlHodl extends Component {
 
   async componentDidMount() {
     console.log('wallets/hodlHodl - componentDidMount');
+    A(A.ENUM.NAVIGATED_TO_WALLETS_HODLHODL);
 
     try {
       await this.fetchMyCountry();
