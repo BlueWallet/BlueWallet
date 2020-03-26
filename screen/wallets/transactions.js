@@ -444,11 +444,13 @@ export default class WalletTransactions extends Component {
 
   renderItem = item => {
     return (
-      <BlueTransactionListItem
-        item={item.item}
-        itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
-        shouldRefresh={this.state.timeElapsed}
-      />
+      <View style={{ marginHorizontal: 4 }}>
+        <BlueTransactionListItem
+          item={item.item}
+          itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
+          shouldRefresh={this.state.timeElapsed}
+        />
+    </View>
     );
   };
 
