@@ -76,7 +76,7 @@
     "crypto-js": "3.1.9-1",
     "dayjs": "1.8.20",
     "ecurve": "1.0.6",
-    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#d194ff69195ccc86f72088ea3712179b4be9cbb4",
+    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#aa73cd8bb3f2d6aefd7c054cb08d5bf5151d1cbb",
     "eslint-config-prettier": "6.10.0",
     "eslint-config-standard": "12.0.0",
     "eslint-config-standard-react": "7.0.2",
