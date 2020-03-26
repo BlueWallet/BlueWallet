@@ -5,17 +5,6 @@ describe('BlueWallet UI Tests', () => {
     await yo('WalletsList');
   });
 
-  it('selftest passes', async () => {
-    await yo('WalletsList');
-
-    // go to settings, press SelfTest and wait for OK
-    await element(by.id('SettingsButton')).tap();
-    await element(by.id('AboutButton')).tap();
-    await element(by.id('AboutScrollView')).swipe('up', 'fast', 1); // in case emu screen is small and it doesnt fit
-    await element(by.id('RunSelfTestButton')).tap();
-    await yo('SelfTestOk', 600 * 1000);
-  });
-
   it('can encrypt storage, with plausible deniability', async () => {
     await yo('WalletsList');
 
