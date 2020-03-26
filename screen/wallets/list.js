@@ -316,7 +316,7 @@ export default class WalletsList extends Component {
 
   renderNavigationHeader = () => {
     return (
-      <View style={{ height: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
+      <View style={{ height: 44, alignItems: 'flex-end', justifyContent: 'center', marginTop: 44 }}>
         <TouchableOpacity
           testID="SettingsButton"
           style={{ marginHorizontal: 16 }}
