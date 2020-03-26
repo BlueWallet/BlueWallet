@@ -228,7 +228,7 @@ export default class WalletTransactions extends Component {
           style={{
             flex: 1,
             marginLeft: 16,
-            marginTop: 24,
+            marginTop: 8,
             marginBottom: 8,
             fontWeight: 'bold',
             fontSize: 24,
