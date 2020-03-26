@@ -311,7 +311,6 @@ export default class WalletsList extends Component {
   };
 
   _renderItem = data => {
-
     return (
       <View style={{ marginHorizontal: 4 }}>
         <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />
