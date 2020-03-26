@@ -450,7 +450,7 @@ export default class WalletTransactions extends Component {
           itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
           shouldRefresh={this.state.timeElapsed}
         />
-    </View>
+      </View>
     );
   };
 
