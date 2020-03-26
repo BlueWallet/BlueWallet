@@ -68,14 +68,13 @@ export default class WalletExport extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+      <SafeBlueArea style={{ flex: 1 }}>
         <ScrollView
-          centerContent
           contentContainerStyle={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}
           onLayout={this.onLayout}
         >
           <View>
-            <BlueText>{this.state.wallet.typeReadable}</BlueText>
+            <BlueText style={{ fontSize: 17, fontWeight: "700", color: "#0c2550" }}>{this.state.wallet.typeReadable}</BlueText>
           </View>
 
           {(() => {
@@ -103,7 +102,7 @@ export default class WalletExport extends Component {
           {this.state.wallet.type === LightningCustodianWallet.type ? (
             <BlueCopyTextToClipboard text={this.state.wallet.getSecret()} />
           ) : (
-            <BlueText style={{ alignItems: 'center', paddingHorizontal: 8 }}>{this.state.wallet.getSecret()}</BlueText>
+            <BlueText style={{ alignItems: 'center', paddingHorizontal: 16, fontSize: 16, color: "#0C2550", lineHeight: 24 }}>{this.state.wallet.getSecret()}</BlueText>
           )}
         </ScrollView>
       </SafeBlueArea>
