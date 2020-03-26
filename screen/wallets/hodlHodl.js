@@ -28,7 +28,7 @@ const METHOD_ANY = '_any';
 const styles = StyleSheet.create({
   grayDropdownText: {
     fontSize: 17,
-    fontWeight: "600",
+    fontWeight: '600',
     color: '#9AA0AA',
   },
   modalContent: {
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   blueText: {
     color: '#2f5fb3',
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   allOffersText: {
     fontSize: 12,
@@ -449,7 +449,9 @@ export default class HodlHodl extends Component {
                   onPress={() => this._onSidePress(item)}
                 >
                   <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 }}>
-                    <Text style={{ fontSize: 20, color: '#0c2550', fontWeight: this.state.side === item.code ? 'bold' : 'normal' }}>{item.name}</Text>
+                    <Text style={{ fontSize: 20, color: '#0c2550', fontWeight: this.state.side === item.code ? 'bold' : 'normal' }}>
+                      {item.name}
+                    </Text>
                   </View>
                 </TouchableHighlight>
               )}
@@ -505,7 +507,10 @@ export default class HodlHodl extends Component {
                         <Text style={{ fontSize: 20, color: '#0c2550' }}>{item.native_name}</Text>
                         <View style={{ color: '#9AA0AA', right: 0, position: 'absolute' }}>
                           {item.code === 'currency' && (
-                            <Text style={{ fontSize: 18, color: '#9AA0AA' }}> {this.state.currency ? this.state.currency + '   ❯' : 'Detail   ❯'} </Text>
+                            <Text style={{ fontSize: 18, color: '#9AA0AA' }}>
+                              {' '}
+                              {this.state.currency ? this.state.currency + '   ❯' : 'Detail   ❯'}{' '}
+                            </Text>
                           )}
                           {item.code === 'method' && (
                             <Text style={{ fontSize: 20, color: '#9AA0AA' }}>
@@ -577,7 +582,7 @@ export default class HodlHodl extends Component {
               <TextInput
                 onChangeText={text => this.setState({ countrySearchInput: text })}
                 placeholder={'Search..'}
-                placeholderTextColor="#9AA0AA" 
+                placeholderTextColor="#9AA0AA"
                 value={this.state.countrySearchInput || ''}
                 numberOfLines={1}
                 style={{ fontSize: 17, flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6 }}
@@ -784,7 +789,6 @@ export default class HodlHodl extends Component {
   render() {
     return (
       <SafeBlueArea>
-
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View style={{ flexDirection: 'row' }}>
             <Text style={styles.BottomLine}>Powered by HodlHodl®</Text>
@@ -821,8 +825,8 @@ export default class HodlHodl extends Component {
               </TouchableOpacity>
             </View>
           </View>
-           </BlueCard>
-          {(this.state.isLoading && <BlueLoading />) || (
+        </BlueCard>
+        {(this.state.isLoading && <BlueLoading />) || (
           <ScrollView style={{ paddingHorizontal: 24 }}>
             <FlatList
               onRefresh={() => this._refresh()}
@@ -831,7 +835,11 @@ export default class HodlHodl extends Component {
               style={{ marginTop: 24, flex: 1 }}
               ItemSeparatorComponent={() => <View style={{ height: 0.5, width: '100%', backgroundColor: '#C8C8C8' }} />}
               data={this.state.offers}
-              ListEmptyComponent={() => <Text style={{ textAlign: 'center', color: "#9AA0AA", paddingHorizontal: 16}}>No offers. Try to change "Near me" to Global offers!</Text>}
+              ListEmptyComponent={() => (
+                <Text style={{ textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 }}>
+                  No offers. Try to change "Near me" to Global offers!
+                </Text>
+              )}
               renderItem={({ item, index, separators }) => (
                 <TouchableHighlight
                   onPress={() => this._onPress(item)}
@@ -871,7 +879,7 @@ export default class HodlHodl extends Component {
                           alignItems: 'center',
                         }}
                       >
-                        <Text style={{ fontWeight: "600", fontSize: 14, color: '#9AA0AA' }}>{this.getItemPrice(item)}</Text>
+                        <Text style={{ fontWeight: '600', fontSize: 14, color: '#9AA0AA' }}>{this.getItemPrice(item)}</Text>
                       </View>
 
                       <Text style={{ color: '#9AA0AA', fontSize: 12, paddingLeft: 10 }}>
@@ -879,15 +887,11 @@ export default class HodlHodl extends Component {
                       </Text>
                     </View>
                   </View>
-
                 </TouchableHighlight>
-
               )}
             />
           </ScrollView>
-          )}
-
-       
+        )}
 
         {this.renderChooseSideModal()}
 
@@ -898,8 +902,7 @@ export default class HodlHodl extends Component {
         {this.renderChooseCurrencyModal()}
 
         {this.renderChooseMethodModal()}
-   
-    </SafeBlueArea>
+      </SafeBlueArea>
     );
   }
 }
