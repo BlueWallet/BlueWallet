@@ -23,6 +23,7 @@ export class AppStorage {
   static LNDHUB = 'lndhub';
   static ELECTRUM_HOST = 'electrum_host';
   static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
+  static ELECTRUM_SSL_PORT = 'electrum_ssl_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';

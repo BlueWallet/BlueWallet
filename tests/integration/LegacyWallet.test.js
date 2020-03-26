@@ -2,6 +2,7 @@
 import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
 let assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
