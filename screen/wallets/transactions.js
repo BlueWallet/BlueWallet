@@ -228,7 +228,7 @@ export default class WalletTransactions extends Component {
           style={{
             flex: 1,
             marginLeft: 16,
-            marginTop: 24,
+            marginTop: 8,
             marginBottom: 8,
             fontWeight: 'bold',
             fontSize: 24,
@@ -444,11 +444,13 @@ export default class WalletTransactions extends Component {
 
   renderItem = item => {
     return (
-      <BlueTransactionListItem
-        item={item.item}
-        itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
-        shouldRefresh={this.state.timeElapsed}
-      />
+      <View style={{ marginHorizontal: 4 }}>
+        <BlueTransactionListItem
+          item={item.item}
+          itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
+          shouldRefresh={this.state.timeElapsed}
+        />
+      </View>
     );
   };
 

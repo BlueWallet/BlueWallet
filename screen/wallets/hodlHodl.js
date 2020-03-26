@@ -13,12 +13,14 @@ import {
   Platform,
   Image,
   TextInput,
+  ScrollView,
 } from 'react-native';
-import { BlueNavigationStyle, BlueLoading, BlueCard } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueLoading, BlueCard, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
+const A = require('../../analytics');
 
 const CURRENCY_CODE_ANY = '_any';
 const METHOD_ANY = '_any';
@@ -26,7 +28,8 @@ const METHOD_ANY = '_any';
 const styles = StyleSheet.create({
   grayDropdownText: {
     fontSize: 17,
-    color: 'gray',
+    fontWeight: '600',
+    color: '#9AA0AA',
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
@@ -47,8 +50,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 150,
-    height: 150,
+    minHeight: 200,
+    height: 200,
   },
   bottomModal: {
     justifyContent: 'flex-end',
@@ -68,11 +71,15 @@ const styles = StyleSheet.create({
   },
 
   grayDropdownTextContainer: {
-    backgroundColor: '#ebebeb',
+    backgroundColor: '#EEF0F4',
     borderRadius: 20,
     width: 100,
     height: 35,
-    top: 10,
+    top: 3,
+    paddingLeft: 2,
+    paddingBottom: 6,
+    paddingTop: 6,
+    paddingRight: 0,
     justifyContent: 'center',
     alignItems: 'center',
     flex: 0.65,
@@ -80,9 +87,9 @@ const styles = StyleSheet.create({
   },
 
   grayTextContainerContainer: {
-    backgroundColor: '#ebebeb',
+    backgroundColor: '#EEF0F4',
     borderRadius: 20,
-    height: 40,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 15,
@@ -96,10 +103,11 @@ const styles = StyleSheet.create({
   blueText: {
     color: '#2f5fb3',
     fontSize: 18,
+    fontWeight: '600',
   },
   allOffersText: {
     fontSize: 12,
-    color: 'gray',
+    color: '#9AA0AA',
     position: 'absolute',
     top: 0,
     left: 15,
@@ -109,20 +117,21 @@ const styles = StyleSheet.create({
     left: 5,
     color: '#0c2550',
     fontSize: 20,
-    fontWeight: '100',
+    fontWeight: '500',
   },
   nicknameText: {
     color: '#0c2550',
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: '600',
   },
   blueTextContainer: {
-    backgroundColor: '#ccddf9',
+    backgroundColor: '#CCDDF9',
     borderRadius: 20,
     width: 110,
     flex: 1,
     flexDirection: 'row',
-    height: 34,
+    height: 36,
+    paddingLeft: 8,
     justifyContent: 'center',
     alignItems: 'center',
     right: 4,
@@ -131,17 +140,17 @@ const styles = StyleSheet.create({
 
   searchInputContainer: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: '#EEF0F4',
+    borderBottomColor: '#EEF0F4',
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
-    minHeight: 44,
-    height: 44,
+    backgroundColor: '#EEF0F4',
+    minHeight: 48,
+    height: 48,
     marginHorizontal: 20,
     alignItems: 'center',
     marginVertical: 8,
-    borderRadius: 22,
+    borderRadius: 26,
     width: '100%',
   },
 });
@@ -255,6 +264,7 @@ export default class HodlHodl extends Component {
 
   async componentDidMount() {
     console.log('wallets/hodlHodl - componentDidMount');
+    A(A.ENUM.NAVIGATED_TO_WALLETS_HODLHODL);
 
     try {
       await this.fetchMyCountry();
@@ -424,6 +434,7 @@ export default class HodlHodl extends Component {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
             <FlatList
+              scrollEnabled={false}
               style={{ width: '100%' }}
               ItemSeparatorComponent={() => <View style={{ height: 0.5, width: '100%', backgroundColor: '#C8C8C8' }} />}
               data={[
@@ -437,8 +448,10 @@ export default class HodlHodl extends Component {
                   onHideUnderlay={separators.unhighlight}
                   onPress={() => this._onSidePress(item)}
                 >
-                  <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20 }}>
-                    <Text style={{ color: '#0c2550', fontWeight: this.state.side === item.code ? 'bold' : 'normal' }}>{item.name}</Text>
+                  <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 }}>
+                    <Text style={{ fontSize: 20, color: '#0c2550', fontWeight: this.state.side === item.code ? 'bold' : 'normal' }}>
+                      {item.name}
+                    </Text>
                   </View>
                 </TouchableHighlight>
               )}
@@ -471,6 +484,7 @@ export default class HodlHodl extends Component {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContentShort}>
             <FlatList
+              scrollEnabled={false}
               style={{ width: '100%' }}
               ItemSeparatorComponent={() => <View style={{ height: 0.5, width: '100%', backgroundColor: '#C8C8C8' }} />}
               data={[
@@ -488,17 +502,20 @@ export default class HodlHodl extends Component {
                   }}
                 >
                   <View style={{ backgroundColor: 'white' }}>
-                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20 }}>
+                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 }}>
                       <View style={{ paddingLeft: 10, flex: 1, flexDirection: 'row' }}>
-                        <Text style={{ color: '#0c2550' }}>{item.native_name}</Text>
-                        <View style={{ color: 'gray', right: 0, position: 'absolute' }}>
+                        <Text style={{ fontSize: 20, color: '#0c2550' }}>{item.native_name}</Text>
+                        <View style={{ color: '#9AA0AA', right: 0, position: 'absolute' }}>
                           {item.code === 'currency' && (
-                            <Text style={{ color: 'gray' }}> {this.state.currency ? this.state.currency + '   >' : 'Detail   >'} </Text>
+                            <Text style={{ fontSize: 18, color: '#9AA0AA' }}>
+                              {' '}
+                              {this.state.currency ? this.state.currency + '   ❯' : 'Detail   ❯'}{' '}
+                            </Text>
                           )}
                           {item.code === 'method' && (
-                            <Text style={{ color: 'gray' }}>
+                            <Text style={{ fontSize: 20, color: '#9AA0AA' }}>
                               {' '}
-                              {this.state.method ? this.getMethodName(this.state.method) + '   >' : 'Detail   >'}
+                              {this.state.method ? this.getMethodName(this.state.method) + '   ❯' : 'Detail   ❯'}
                             </Text>
                           )}
                         </View>
@@ -565,9 +582,10 @@ export default class HodlHodl extends Component {
               <TextInput
                 onChangeText={text => this.setState({ countrySearchInput: text })}
                 placeholder={'Search..'}
+                placeholderTextColor="#9AA0AA"
                 value={this.state.countrySearchInput || ''}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                style={{ fontSize: 17, flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6 }}
               />
               <Icon name="search" type="material" size={20} color="gray" containerStyle={{ left: -10 }} />
             </View>
@@ -583,9 +601,9 @@ export default class HodlHodl extends Component {
                   onHideUnderlay={separators.unhighlight}
                 >
                   <View style={{ backgroundColor: 'white' }}>
-                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20 }}>
+                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 }}>
                       <View style={{ paddingLeft: 10 }}>
-                        <Text style={{ color: '#0c2550', fontWeight: item.code === this.state.country ? 'bold' : 'normal' }}>
+                        <Text style={{ fontSize: 20, color: '#0c2550', fontWeight: item.code === this.state.country ? 'bold' : 'normal' }}>
                           {item.native_name}
                         </Text>
                       </View>
@@ -640,9 +658,10 @@ export default class HodlHodl extends Component {
               <TextInput
                 onChangeText={text => this.setState({ currencySearchInput: text })}
                 placeholder={'Search..'}
+                placeholderTextColor="#9AA0AA"
                 value={this.state.currencySearchInput || ''}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6 }}
               />
               <Icon name="search" type="material" size={20} color="gray" containerStyle={{ left: -10 }} />
             </View>
@@ -658,10 +677,11 @@ export default class HodlHodl extends Component {
                   onHideUnderlay={separators.unhighlight}
                 >
                   <View style={{ backgroundColor: 'white' }}>
-                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20 }}>
+                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 }}>
                       <View style={{ paddingLeft: 10 }}>
                         <Text
                           style={{
+                            fontSize: 20,
                             color: '#0c2550',
                             fontWeight:
                               item.code === this.state.currency || (item.code === CURRENCY_CODE_ANY && this.state.currency === false)
@@ -723,9 +743,10 @@ export default class HodlHodl extends Component {
               <TextInput
                 onChangeText={text => this.setState({ methodSearchInput: text })}
                 placeholder={'Search..'}
+                placeholderTextColor="#9AA0AA"
                 value={this.state.methodSearchInput || ''}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6 }}
               />
               <Icon name="search" type="material" size={20} color="gray" containerStyle={{ left: -10 }} />
             </View>
@@ -741,10 +762,11 @@ export default class HodlHodl extends Component {
                   onHideUnderlay={separators.unhighlight}
                 >
                   <View style={{ backgroundColor: 'white' }}>
-                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20 }}>
+                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 }}>
                       <View style={{ paddingLeft: 10 }}>
                         <Text
                           style={{
+                            fontSize: 20,
                             color: '#0c2550',
                             fontWeight:
                               item.id === this.state.method || (item.id === METHOD_ANY && this.state.method === false) ? 'bold' : 'normal',
@@ -766,7 +788,7 @@ export default class HodlHodl extends Component {
 
   render() {
     return (
-      <View>
+      <SafeBlueArea>
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View style={{ flexDirection: 'row' }}>
             <Text style={styles.BottomLine}>Powered by HodlHodl®</Text>
@@ -778,7 +800,7 @@ export default class HodlHodl extends Component {
               }}
             >
               <Text style={styles.grayDropdownText}>{this.state.side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL ? 'Buying' : 'Selling'}</Text>
-              <Icon name="expand-more" type="material" size={22} color="gray" containerStyle={{ paddingLeft: 0 }} />
+              <Icon name="expand-more" type="material" size={22} color="#9AA0AA" containerStyle={{ paddingLeft: 0, paddingRight: 0 }} />
             </TouchableOpacity>
           </View>
 
@@ -797,29 +819,35 @@ export default class HodlHodl extends Component {
                   this.setState({ isFiltersModalVisible: true });
                 }}
               >
-                <Text style={styles.blueText}> Filters</Text>
+                <Text style={styles.blueText}>Filters</Text>
 
                 <Icon name="filter-list" type="material" size={24} color="#2f5fb3" containerStyle={{ paddingLeft: 10 }} />
               </TouchableOpacity>
             </View>
           </View>
-
-          {(this.state.isLoading && <BlueLoading />) || (
+        </BlueCard>
+        {(this.state.isLoading && <BlueLoading />) || (
+          <ScrollView style={{ paddingHorizontal: 24 }}>
             <FlatList
               onRefresh={() => this._refresh()}
               refreshing={this.state.isLoading}
-              style={{ height: '80%', marginTop: 10 }}
+              contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 0 }}
+              style={{ marginTop: 24, flex: 1 }}
               ItemSeparatorComponent={() => <View style={{ height: 0.5, width: '100%', backgroundColor: '#C8C8C8' }} />}
               data={this.state.offers}
-              ListEmptyComponent={() => <Text>No offers. Try changing country or filters!</Text>}
+              ListEmptyComponent={() => (
+                <Text style={{ textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 }}>
+                  No offers. Try to change "Near me" to Global offers!
+                </Text>
+              )}
               renderItem={({ item, index, separators }) => (
                 <TouchableHighlight
                   onPress={() => this._onPress(item)}
                   onShowUnderlay={separators.highlight}
                   onHideUnderlay={separators.unhighlight}
                 >
-                  <View style={{ backgroundColor: 'white' }}>
-                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row', paddingTop: 20 }}>
+                  <View style={{ backgroundColor: 'white', paddingTop: 16, paddingBottom: 16 }}>
+                    <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'row' }}>
                       <View>
                         <Image
                           style={{ width: 40, height: 40, borderRadius: 40 }}
@@ -831,29 +859,30 @@ export default class HodlHodl extends Component {
                       </View>
                       <View style={{ paddingLeft: 10 }}>
                         <Text style={styles.nicknameText}>{item.trader.login}</Text>
-                        <Text style={{ color: 'grey' }}>
+                        <Text style={{ color: '#9AA0AA' }}>
                           {item.trader.trades_count > 0 ? Math.round(item.trader.rating * 100) + '%' : 'No rating'}
                         </Text>
                       </View>
                     </View>
 
-                    <Text style={{ color: 'grey', paddingTop: 10 }}>{this.getItemText(item)}</Text>
+                    <Text style={{ color: '#9AA0AA', paddingTop: 10 }}>{this.getItemText(item)}</Text>
 
                     <View style={{ flex: 1, flexDirection: 'row', paddingTop: 10, paddingBottom: 10, alignItems: 'center' }}>
                       <View
                         style={{
-                          backgroundColor: '#ebebeb',
+                          backgroundColor: '#EEF0F4',
                           borderRadius: 20,
-                          width: 95,
-                          height: 22,
+                          paddingLeft: 8,
+                          paddingRight: 8,
+                          height: 26,
                           justifyContent: 'center',
                           alignItems: 'center',
                         }}
                       >
-                        <Text style={{ fontSize: 14, color: 'gray' }}>{this.getItemPrice(item)}</Text>
+                        <Text style={{ fontWeight: '600', fontSize: 14, color: '#9AA0AA' }}>{this.getItemPrice(item)}</Text>
                       </View>
 
-                      <Text style={{ color: 'grey', fontSize: 12, paddingLeft: 10 }}>
+                      <Text style={{ color: '#9AA0AA', fontSize: 12, paddingLeft: 10 }}>
                         Min/Max: {item.min_amount.replace('.00', '')} - {item.max_amount.replace('.00', '')} {item.currency_code}
                       </Text>
                     </View>
@@ -861,8 +890,8 @@ export default class HodlHodl extends Component {
                 </TouchableHighlight>
               )}
             />
-          )}
-        </BlueCard>
+          </ScrollView>
+        )}
 
         {this.renderChooseSideModal()}
 
@@ -873,7 +902,7 @@ export default class HodlHodl extends Component {
         {this.renderChooseCurrencyModal()}
 
         {this.renderChooseMethodModal()}
-      </View>
+      </SafeBlueArea>
     );
   }
 }

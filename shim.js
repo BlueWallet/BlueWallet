@@ -1,4 +1,5 @@
 /* global __DEV__, localStorage */
+if (typeof Buffer === 'undefined') global.Buffer = require('buffer').Buffer;
 if (typeof __dirname === 'undefined') global.__dirname = '/';
 if (typeof __filename === 'undefined') global.__filename = '';
 if (typeof process === 'undefined') {
@@ -13,7 +14,6 @@ if (typeof process === 'undefined') {
 }
 
 process.browser = false;
-if (typeof Buffer === 'undefined') global.Buffer = require('buffer').Buffer;
 
 global.net = require('react-native-tcp');
 global.tls = require('react-native-tcp/tls');
