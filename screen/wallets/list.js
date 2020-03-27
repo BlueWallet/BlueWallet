@@ -337,32 +337,32 @@ export default class WalletsList extends Component {
       return <BlueLoading />;
     }
     return (
-      <View style={{ flex: 1, backgroundColor: '#000000' }} testID="WalletsList" accessible>
-        <NavigationEvents
-          onDidFocus={() => {
-            this.redrawScreen();
-            this.setState({ cameraPreviewIsPaused: this.state.viewPagerIndex === 1 || this.viewPagerRef.current.index === undefined });
-          }}
-          onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
-        />
-        <ScrollView contentContainerStyle={{ flex: 1 }}>
-          <ViewPager
-            style={styles.wrapper}
-            onPageSelected={this.onPageSelected}
-            initialPage={1}
-            ref={this.viewPagerRef}
-            showPageIndicator={false}
-          >
-            <View style={styles.scanQRWrapper}>
-              <ScanQRCode
-                cameraPreviewIsPaused={this.state.cameraPreviewIsPaused}
-                onBarScanned={this.onBarScanned}
-                showCloseButton={false}
-                initialCameraStatusReady={false}
-                launchedBy={this.props.navigation.state.routeName}
-              />
-            </View>
-            <SafeBlueArea>
+      <SafeBlueArea>
+        <View style={{ flex: 1, backgroundColor: '#000000' }} testID="WalletsList" accessible>
+          <NavigationEvents
+            onDidFocus={() => {
+              this.redrawScreen();
+              this.setState({ cameraPreviewIsPaused: this.state.viewPagerIndex === 1 || this.viewPagerRef.current.index === undefined });
+            }}
+            onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
+          />
+          <ScrollView contentContainerStyle={{ flex: 1 }}>
+            <ViewPager
+              style={styles.wrapper}
+              onPageSelected={this.onPageSelected}
+              initialPage={1}
+              ref={this.viewPagerRef}
+              showPageIndicator={false}
+            >
+              <View style={styles.scanQRWrapper}>
+                <ScanQRCode
+                  cameraPreviewIsPaused={this.state.cameraPreviewIsPaused}
+                  onBarScanned={this.onBarScanned}
+                  showCloseButton={false}
+                  initialCameraStatusReady={false}
+                  launchedBy={this.props.navigation.state.routeName}
+                />
+              </View>
               <View style={styles.walletsListWrapper}>
                 {this.renderNavigationHeader()}
                 <ScrollView
@@ -423,10 +423,10 @@ export default class WalletsList extends Component {
                   </BlueList>
                 </ScrollView>
               </View>
-            </SafeBlueArea>
-          </ViewPager>
-        </ScrollView>
-      </View>
+            </ViewPager>
+          </ScrollView>
+        </View>
+      </SafeBlueArea>
     );
   }
 }
