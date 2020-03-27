@@ -3,7 +3,16 @@ import React, { Component } from 'react';
 import { View, TextInput } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import {
+  BlueLoading,
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueNavigationStyle,
+  BlueText,
+  BlueButtonLink,
+} from '../../BlueComponents';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
@@ -39,23 +48,32 @@ export default class ElectrumSettings extends Component {
     });
   }
 
-  save = () => {
+  checkServer = async () => {
     this.setState({ isLoading: true }, async () => {
-      this.state.host = this.state.host ? this.state.host : '';
-      this.state.port = this.state.port ? this.state.port : '';
-      this.state.sslPort = this.state.sslPort ? this.state.sslPort : '';
+      const features = await BlueElectrum.serverFeatures();
+      alert(JSON.stringify(features, null, 2));
+      this.setState({ isLoading: false });
+    });
+  };
+
+  save = () => {
+    const host = this.state.host ? this.state.host : '';
+    const port = this.state.port ? this.state.port : '';
+    const sslPort = this.state.sslPort ? this.state.sslPort : '';
+
+    this.setState({ isLoading: true }, async () => {
       try {
-        if (!this.state.host && !this.state.port && !this.state.sslPort) {
+        if (!host && !port && !sslPort) {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
           alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
-        } else if (!(await BlueElectrum.testConnection(this.state.host, this.state.port, this.state.sslPort))) {
+        } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
           alert("Can't connect to provided Electrum server");
         } else {
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, this.state.host);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, this.state.port);
-          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, this.state.sslPort);
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
           alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
         }
       } catch (_) {}
@@ -157,6 +175,8 @@ export default class ElectrumSettings extends Component {
           <BlueText>Host: {this.state.config.host}</BlueText>
           <BlueText>Port: {this.state.config.port}</BlueText>
           <BlueText>Connected: {(this.state.config.status === 1 && 'Yes') || 'No'}</BlueText>
+          <BlueSpacing20 />
+          {this.state.isLoading ? <BlueLoading /> : <BlueButtonLink onPress={this.checkServer} title={'Check current server'} />}
         </BlueCard>
       </SafeBlueArea>
     );
