@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { Platform } from 'react-native';
 import { AppStorage } from './class';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
@@ -38,11 +39,19 @@ async function connectMain() {
     console.log('begin connection:', JSON.stringify(usingPeer));
     mainClient = new ElectrumClient(usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
     mainClient.onError = function(e) {
-      console.log('ElectrumClient error: ' + e);
+      if (Platform.OS === 'android' && mainConnected) {
+        // android sockets are buggy and dont always issue CLOSE event, which actually makes the persistence code to reconnect.
+        // so lets do it manually, but only if we were previously connected (mainConnected), otherwise theres other
+        // code which does connection retries
+        mainClient.close();
+        mainConnected = false;
+        setTimeout(connectMain, 500);
+        console.warn('reconnecting after socket error');
+        return;
+      }
       mainConnected = false;
     };
-    await mainClient.connect();
-    const ver = await mainClient.server_version('2.7.11', '1.4');
+    const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
     if (ver && ver[0]) {
       console.log('connected to ', ver);
       mainConnected = true;
@@ -56,9 +65,7 @@ async function connectMain() {
 
   if (!mainConnected) {
     console.log('retry');
-    mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
-    mainClient.reconnect = () => {}; // dirty hack to make it stop reconnecting
-    mainClient.close();
+    mainClient.close && mainClient.close();
     setTimeout(connectMain, 500);
   }
 }
@@ -132,7 +139,7 @@ module.exports.getConfig = async function() {
   return {
     host: mainClient.host,
     port: mainClient.port,
-    status: mainClient.status,
+    status: mainClient.status && mainConnected ? 1 : 0,
   };
 };
 
@@ -371,6 +378,11 @@ module.exports.estimateFee = async function(numberOfBlocks) {
       .multipliedBy(100000000)
       .toNumber(),
   );
+};
+
+module.exports.serverFeatures = async function() {
+  if (!mainClient) throw new Error('Electrum client is not connected');
+  return mainClient.server_features();
 };
 
 module.exports.broadcast = async function(hex) {

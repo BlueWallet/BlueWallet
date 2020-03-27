@@ -31,6 +31,14 @@ describe('BlueElectrum', () => {
     assert.ok((await BlueElectrum.estimateFee(1)) > 1);
   });
 
+  it('ElectrumClient can request server features', async () => {
+    const features = await BlueElectrum.serverFeatures();
+    // console.warn({features});
+    assert.ok(features.server_version);
+    assert.ok(features.protocol_min);
+    assert.ok(features.protocol_max);
+  });
+
   it('BlueElectrum can do getBalanceByAddress()', async function() {
     let address = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
     let balance = await BlueElectrum.getBalanceByAddress(address);
