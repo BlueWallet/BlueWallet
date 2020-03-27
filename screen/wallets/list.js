@@ -337,6 +337,7 @@ export default class WalletsList extends Component {
       return <BlueLoading />;
     }
     return (
+      <SafeBlueArea>
       <View style={{ flex: 1, backgroundColor: '#000000' }} testID="WalletsList" accessible>
         <NavigationEvents
           onDidFocus={() => {
@@ -362,7 +363,6 @@ export default class WalletsList extends Component {
                 launchedBy={this.props.navigation.state.routeName}
               />
             </View>
-            <SafeBlueArea>
               <View style={styles.walletsListWrapper}>
                 {this.renderNavigationHeader()}
                 <ScrollView
@@ -423,10 +423,10 @@ export default class WalletsList extends Component {
                   </BlueList>
                 </ScrollView>
               </View>
-            </SafeBlueArea>
           </ViewPager>
         </ScrollView>
       </View>
+      </SafeBlueArea>
     );
   }
 }
