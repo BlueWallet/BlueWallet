@@ -1,6 +1,6 @@
 /* global it, describe, afterAll, beforeAll, jasmine */
-const bitcoin = require('bitcoinjs-lib');
 global.net = require('net');
+global.tls = require('tls');
 let BlueElectrum = require('../../BlueElectrum');
 let assert = require('assert');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
@@ -8,7 +8,6 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 afterAll(() => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();
-  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {
@@ -22,51 +21,14 @@ beforeAll(async () => {
   }
 });
 
-describe('Electrum', () => {
+describe('BlueElectrum', () => {
   it('ElectrumClient can test connection', async () => {
     assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', '50001'));
+    assert.ok(await BlueElectrum.testConnection('electrum1.bluewallet.io', false, 443));
   });
 
   it('ElectrumClient can estimate fees', async () => {
     assert.ok((await BlueElectrum.estimateFee(1)) > 1);
-  });
-
-  it('ElectrumClient can connect and query', async () => {
-    const ElectrumClient = require('electrum-client');
-
-    for (let peer of BlueElectrum.hardcodedPeers) {
-      let mainClient = new ElectrumClient(peer.tcp, peer.host, 'tcp');
-
-      try {
-        await mainClient.connect();
-        await mainClient.server_version('2.7.11', '1.4');
-      } catch (e) {
-        mainClient.reconnect = mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
-        mainClient.close();
-        throw new Error('bad connection: ' + JSON.stringify(peer) + ' ' + e.message);
-      }
-
-      let addr4elect = 'bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej';
-      let script = bitcoin.address.toOutputScript(addr4elect);
-      let hash = bitcoin.crypto.sha256(script);
-      let reversedHash = Buffer.from(hash.reverse());
-      let start = +new Date();
-      let balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
-      let end = +new Date();
-      console.warn(peer.host, 'took', (end - start) / 1000, 'seconds to fetch balance');
-      assert.ok(balance.confirmed > 0);
-
-      addr4elect = '3GCvDBAktgQQtsbN6x5DYiQCMmgZ9Yk8BK';
-      script = bitcoin.address.toOutputScript(addr4elect);
-      hash = bitcoin.crypto.sha256(script);
-      reversedHash = Buffer.from(hash.reverse());
-      balance = await mainClient.blockchainScripthash_getBalance(reversedHash.toString('hex'));
-
-      // let peers = await mainClient.serverPeers_subscribe();
-      // console.log(peers);
-      mainClient.reconnect = mainClient.keepAlive = () => {}; // dirty hack to make it stop reconnecting
-      mainClient.close();
-    }
   });
 
   it('BlueElectrum can do getBalanceByAddress()', async function() {

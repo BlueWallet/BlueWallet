@@ -3,6 +3,7 @@ import { HDSegwitBech32Wallet } from '../../class';
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
 afterAll(async () => {
