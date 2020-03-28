@@ -13,6 +13,7 @@ import {
   BlueText,
   BlueButtonLink,
 } from '../../BlueComponents';
+import { Badge } from 'react-native-elements';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
@@ -84,6 +85,31 @@ export default class ElectrumSettings extends Component {
   render() {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        <BlueCard>
+          <BlueText style={{ textAlign: "center", color: "#9AA0AA", marginBottom: 4, }}>Status</BlueText>
+            <View style={{ width: 'auto', height: 34, flexWrap: 'wrap', justifyContent: 'center', flexDirection: 'row', }}>
+            <Badge containerStyle={{
+                    backgroundColor: this.state.config.status === 1 ? '#D2F8D6' : '#F8D2D2',
+                    paddingTop: 6,
+                    paddingBottom: 6,
+                    paddingLeft: 16,
+                    paddingRight: 16,
+                    borderRadius: 20,
+
+                  }}
+                >
+              <BlueText style={{ color: this.state.config.status === 1 ? '#37C0A1' : '#D0021B', }}>
+              {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
+              </BlueText>
+            </Badge>
+            </View>
+          <BlueSpacing20 />
+          <BlueText>Currently using:</BlueText>
+          <BlueText>Host: {this.state.config.host}</BlueText>
+          <BlueText>Port: {this.state.config.port}</BlueText>
+          <BlueSpacing20 />
+          <BlueButtonLink onPress={this.checkServer} title={'Check current server'} />
+        </BlueCard>
         <BlueCard>
           <BlueText>{loc.settings.electrum_settings_explain}</BlueText>
         </BlueCard>
@@ -169,15 +195,6 @@ export default class ElectrumSettings extends Component {
           {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
         </BlueCard>
 
-        <BlueCard>
-          <BlueSpacing20 />
-          <BlueText>Currently using:</BlueText>
-          <BlueText>Host: {this.state.config.host}</BlueText>
-          <BlueText>Port: {this.state.config.port}</BlueText>
-          <BlueText>Connected: {(this.state.config.status === 1 && 'Yes') || 'No'}</BlueText>
-          <BlueSpacing20 />
-          {this.state.isLoading ? <BlueLoading /> : <BlueButtonLink onPress={this.checkServer} title={'Check current server'} />}
-        </BlueCard>
       </SafeBlueArea>
     );
   }
