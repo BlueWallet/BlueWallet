@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { View, TextInput } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
+import { ScrollView } from 'react-native-gesture-handler';
 import {
   BlueLoading,
   BlueSpacing20,
@@ -85,6 +86,7 @@ export default class ElectrumSettings extends Component {
   render() {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <ScrollView>
         <BlueCard>
           <BlueText style={{ textAlign: "center", color: "#9AA0AA", marginBottom: 4, }}>Status</BlueText>
             <View style={{ width: 'auto', height: 34, flexWrap: 'wrap', justifyContent: 'center', flexDirection: 'row', }}>
@@ -98,20 +100,17 @@ export default class ElectrumSettings extends Component {
 
                   }}
                 >
-              <BlueText style={{ color: this.state.config.status === 1 ? '#37C0A1' : '#D0021B', }}>
+              <BlueText style={{ fontWeight: "600", color: this.state.config.status === 1 ? '#37C0A1' : '#D0021B', }}>
               {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
               </BlueText>
             </Badge>
             </View>
           <BlueSpacing20 />
-          <BlueText>Currently using:</BlueText>
-          <BlueText>Host: {this.state.config.host}</BlueText>
-          <BlueText>Port: {this.state.config.port}</BlueText>
+          <BlueText style={{ textAlign: "center", color: "#0C2550" }} onPress={this.checkServer}>{this.state.config.host}:{this.state.config.port}</BlueText>
           <BlueSpacing20 />
-          <BlueButtonLink onPress={this.checkServer} title={'Check current server'} />
         </BlueCard>
         <BlueCard>
-          <BlueText>{loc.settings.electrum_settings_explain}</BlueText>
+          <BlueText style={{ color: "#9AA0AA", marginBottom: -24 }}>{loc.settings.electrum_settings_explain}</BlueText>
         </BlueCard>
         <BlueCard>
           <View
@@ -148,7 +147,6 @@ export default class ElectrumSettings extends Component {
               borderBottomWidth: 0.5,
               backgroundColor: '#f5f5f5',
               minHeight: 44,
-              width: 200,
               height: 44,
               alignItems: 'center',
               borderRadius: 4,
@@ -175,7 +173,6 @@ export default class ElectrumSettings extends Component {
               backgroundColor: '#f5f5f5',
               minHeight: 44,
               height: 44,
-              width: 200,
               alignItems: 'center',
               borderRadius: 4,
             }}
@@ -194,7 +191,7 @@ export default class ElectrumSettings extends Component {
           <BlueSpacing20 />
           {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
         </BlueCard>
-
+        </ScrollView>
       </SafeBlueArea>
     );
   }
