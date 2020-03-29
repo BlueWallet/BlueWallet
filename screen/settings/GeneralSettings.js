@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Platform } from 'react-native';
+import { ScrollView, Platform, TouchableOpacity } from 'react-native';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, SafeBlueArea, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
+import { useNavigation } from 'react-navigation-hooks';
 import HandoffSettings from '../../class/handoff';
-
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
 
@@ -12,7 +12,7 @@ const GeneralSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdancedModeEnabled, setIsAdancedModeEnabled] = useState(false);
   const [isHandoffUseEnabled, setIsHandoffUseEnabled] = useState(false);
-
+  const { navigate } = useNavigation();
   const onAdvancedModeSwitch = async value => {
     await BlueApp.setIsAdancedModeEnabled(value);
     setIsAdancedModeEnabled(value);
@@ -37,6 +37,14 @@ const GeneralSettings = () => {
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
       <ScrollView>
         <BlueCard>
+          {BlueApp.getWallets().length > 1 && (
+            <>
+              <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
+              <BlueCard>
+                <BlueText>When enabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
+              </BlueCard>
+            </>
+          )}
           {Platform.OS === 'ios' ? (
             <>
               <BlueListItem

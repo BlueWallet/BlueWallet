@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, TouchableOpacity } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea, BlueHeaderDefaultSub, BlueListItem } from '../../BlueComponents';
-import { AppStorage } from '../../class';
 import { useNavigation } from 'react-navigation-hooks';
-const BlueApp: AppStorage = require('../../BlueApp');
 const loc = require('../../loc');
 
 const Settings = () => {
@@ -21,9 +19,6 @@ const Settings = () => {
       <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
       <ScrollView>
         <BlueListItem title={'General'} component={TouchableOpacity} onPress={() => navigate('GeneralSettings')} />
-        {BlueApp.getWallets().length > 1 && (
-          <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
-        )}
         <BlueListItem title="Security" onPress={() => navigate('EncryptStorage')} component={TouchableOpacity} testID="SecurityButton" />
         <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
         <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} />
