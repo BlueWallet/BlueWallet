@@ -210,6 +210,8 @@ PODS:
     - React
   - react-native-slider (2.0.8):
     - React
+  - react-native-tcp (3.3.2):
+    - React
   - react-native-viewpager (3.3.0):
     - React
   - react-native-webview (6.11.1):
@@ -288,8 +290,6 @@ PODS:
     - Sentry/Core (= 4.4.3)
   - Sentry/Core (4.4.3)
   - swift_qrcodejs (1.1.2)
-  - TcpSockets (3.3.2):
-    - React
   - ToolTipMenu (5.2.1):
     - React
   - Yoga (1.14.0)
@@ -321,6 +321,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
+  - react-native-tcp (from `../node_modules/react-native-tcp`)
   - "react-native-viewpager (from `../node_modules/@react-native-community/viewpager`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -351,7 +352,6 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNWatch (from `../node_modules/react-native-watch-connectivity`)
-  - TcpSockets (from `../node_modules/react-native-tcp`)
   - ToolTipMenu (from `../node_modules/react-native-tooltip`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -410,6 +410,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
+  react-native-tcp:
+    :path: "../node_modules/react-native-tcp"
   react-native-viewpager:
     :path: "../node_modules/@react-native-community/viewpager"
   react-native-webview:
@@ -468,8 +470,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-vector-icons"
   RNWatch:
     :path: "../node_modules/react-native-watch-connectivity"
-  TcpSockets:
-    :path: "../node_modules/react-native-tcp"
   ToolTipMenu:
     :path: "../node_modules/react-native-tooltip"
   Yoga:
@@ -502,6 +502,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
+  react-native-tcp: be8e119e631970aaeda7f6e3207f6b7be72d5eb8
   react-native-viewpager: 118e65d8c65c56fe48d12a35cdcf1fe7e027a366
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
@@ -533,7 +534,6 @@ SPEC CHECKSUMS:
   RNWatch: a36ea17fac675b98b1d8cd41604af68cf1fa9a03
   Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
-  TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
   ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e
   Yoga: f2a7cd4280bfe2cca5a7aed98ba0eb3d1310f18b
 

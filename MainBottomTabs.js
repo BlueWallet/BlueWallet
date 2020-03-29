@@ -10,6 +10,7 @@ import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
+import GeneralSettings from './screen/settings/GeneralSettings';
 import DefaultView from './screen/settings/defaultView';
 
 import WalletsList from './screen/wallets/list';
@@ -129,6 +130,10 @@ const WalletsStackNavigator = createStackNavigator(
     EncryptStorage: {
       screen: EncryptStorage,
       path: 'EncryptStorage',
+    },
+    GeneralSettings: {
+      screen: GeneralSettings,
+      path: 'GeneralSettings',
     },
     PlausibleDeniability: {
       screen: PlausibleDeniability,
