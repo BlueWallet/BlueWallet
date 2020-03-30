@@ -129,7 +129,7 @@ export class HDSegwitP2SHWallet extends AbstractHDWallet {
         const hdNode = HDNode.fromBase58(xpub);
         this._node0 = hdNode.derive(0);
     }
-    for (let index = 0; index <this.num_addresses; index++) {
+    for (let index = 0; index < this.num_addresses; index++) {
       let address = nodeToP2shSegwitAddress(this._node0.derive(index));
       this._address.push(address);
       this._address_to_wif_cache[address] = this._getWIFByIndex(index);
