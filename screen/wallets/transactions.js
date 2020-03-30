@@ -31,9 +31,10 @@ import {
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
+import HandoffSettings from '../../class/handoff';
+import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -76,6 +77,7 @@ export default class WalletTransactions extends Component {
     const wallet = props.navigation.getParam('wallet');
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
+      isHandOffUseEnabled: false,
       isLoading: true,
       isManageFundsModalVisible: false,
       showShowFlatListRefreshControl: false,
@@ -87,11 +89,13 @@ export default class WalletTransactions extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.navigation.setParams({ isLoading: false });
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
+    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
+    this.setState({ isHandOffUseEnabled });
   }
 
   /**
@@ -458,7 +462,7 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
-        {this.state.wallet.chain === Chain.ONCHAIN && (
+        {this.state.wallet.chain === Chain.ONCHAIN && this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
             type="io.bluewallet.bluewallet"

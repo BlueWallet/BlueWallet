@@ -10,6 +10,8 @@ import {
   BlueCopyToClipboardButton,
   BlueNavigationStyle,
 } from '../../BlueComponents';
+import HandoffSettings from '../../class/handoff';
+import Handoff from 'react-native-handoff';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
@@ -69,13 +71,16 @@ export default class TransactionsDetails extends Component {
       from,
       to,
       wallet,
+      isHandOffUseEnabled: false,
     };
   }
 
   async componentDidMount() {
     console.log('transactions/details - componentDidMount');
+    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
     this.setState({
       isLoading: false,
+      isHandOffUseEnabled,
     });
   }
 
@@ -86,6 +91,13 @@ export default class TransactionsDetails extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        {this.state.isHandOffUseEnabled && (
+          <Handoff
+            title={`Bitcoin Transaction ${this.state.tx.hash}`}
+            type="io.bluewallet.bluewallet"
+            url={`https://blockstream.info/tx/${this.state.tx.hash}`}
+          />
+        )}
         <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
         <ScrollView style={{ flex: 1 }}>
           <BlueCard>
