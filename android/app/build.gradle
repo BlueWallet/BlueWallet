@@ -118,8 +118,8 @@ android {
         applicationId "io.goldwallet.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "4.8.2"
+        versionCode 4
+        versionName "4.8.3"
         multiDexEnabled true
         missingDimensionStrategy 'react-native-camera', 'general'
     }
