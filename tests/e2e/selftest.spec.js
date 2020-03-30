@@ -4,7 +4,7 @@ describe('BlueWallet Selftest', () => {
   it('passes', async () => {
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
-      .withTimeout(1200 * 1000);
+      .withTimeout(300 * 1000);
 
     // go to settings, press SelfTest and wait for OK
     await element(by.id('SettingsButton')).tap();
@@ -13,6 +13,6 @@ describe('BlueWallet Selftest', () => {
     await element(by.id('RunSelfTestButton')).tap();
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
-      .withTimeout(1200 * 1000);
+      .withTimeout(300 * 1000);
   });
 });
