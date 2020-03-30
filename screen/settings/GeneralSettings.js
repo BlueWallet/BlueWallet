@@ -40,9 +40,6 @@ const GeneralSettings = () => {
           {BlueApp.getWallets().length > 1 && (
             <>
               <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
-              <BlueCard>
-                <BlueText>When enabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
-              </BlueCard>
             </>
           )}
           {Platform.OS === 'ios' ? (
