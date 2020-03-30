@@ -11,6 +11,7 @@ import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
 import GeneralSettings from './screen/settings/GeneralSettings';
+import NetworkSettings from './screen/settings/NetworkSettings';
 import DefaultView from './screen/settings/defaultView';
 
 import WalletsList from './screen/wallets/list';
@@ -134,6 +135,10 @@ const WalletsStackNavigator = createStackNavigator(
     GeneralSettings: {
       screen: GeneralSettings,
       path: 'GeneralSettings',
+    },
+    NetworkSettings: {
+      screen: NetworkSettings,
+      path: 'NetworkSettings',
     },
     PlausibleDeniability: {
       screen: PlausibleDeniability,
