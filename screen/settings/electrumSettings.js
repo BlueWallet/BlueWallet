@@ -4,15 +4,7 @@ import { View, TextInput } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
-import {
-  BlueLoading,
-  BlueSpacing20,
-  BlueButton,
-  SafeBlueArea,
-  BlueCard,
-  BlueNavigationStyle,
-  BlueText,
-} from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import { Badge } from 'react-native-elements';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
