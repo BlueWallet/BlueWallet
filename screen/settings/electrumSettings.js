@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { View, TextInput } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
+import { ScrollView } from 'react-native-gesture-handler';
 import {
   BlueLoading,
   BlueSpacing20,
@@ -11,8 +12,8 @@ import {
   BlueCard,
   BlueNavigationStyle,
   BlueText,
-  BlueButtonLink,
 } from '../../BlueComponents';
+import { Badge } from 'react-native-elements';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
@@ -84,100 +85,114 @@ export default class ElectrumSettings extends Component {
   render() {
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <BlueCard>
-          <BlueText>{loc.settings.electrum_settings_explain}</BlueText>
-        </BlueCard>
-        <BlueCard>
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              alignItems: 'center',
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              placeholder={'host, for example 111.222.333.444'}
-              value={this.state.host}
-              onChangeText={text => this.setState({ host: text })}
-              numberOfLines={1}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
-              editable={!this.state.isLoading}
-              underlineColorAndroid="transparent"
-            />
-          </View>
-          <BlueSpacing20 />
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              width: 200,
-              height: 44,
-              alignItems: 'center',
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              placeholder={'TCP port, usually 50001'}
-              value={this.state.port}
-              onChangeText={text => this.setState({ port: text })}
-              numberOfLines={1}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
-              editable={!this.state.isLoading}
-              underlineColorAndroid="transparent"
-            />
-          </View>
-          <BlueSpacing20 />
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              width: 200,
-              alignItems: 'center',
-              borderRadius: 4,
-            }}
-          >
-            <TextInput
-              placeholder={'SSL port, usually 50002'}
-              value={this.state.sslPort}
-              onChangeText={text => this.setState({ sslPort: text })}
-              numberOfLines={1}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
-              editable={!this.state.isLoading}
-              underlineColorAndroid="transparent"
-            />
-          </View>
+        <ScrollView>
+          <BlueCard>
+            <BlueText style={{ textAlign: 'center', color: '#9AA0AA', marginBottom: 4 }}>Status</BlueText>
+            <View style={{ width: 'auto', height: 34, flexWrap: 'wrap', justifyContent: 'center', flexDirection: 'row' }}>
+              <Badge
+                containerStyle={{
+                  backgroundColor: this.state.config.status === 1 ? '#D2F8D6' : '#F8D2D2',
+                  paddingTop: 6,
+                  paddingBottom: 6,
+                  paddingLeft: 16,
+                  paddingRight: 16,
+                  borderRadius: 20,
+                }}
+              >
+                <BlueText style={{ fontWeight: '600', color: this.state.config.status === 1 ? '#37C0A1' : '#D0021B' }}>
+                  {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
+                </BlueText>
+              </Badge>
+            </View>
+            <BlueSpacing20 />
+            <BlueText style={{ textAlign: 'center', color: '#0C2550' }} onPress={this.checkServer}>
+              {this.state.config.host}:{this.state.config.port}
+            </BlueText>
+            <BlueSpacing20 />
+          </BlueCard>
+          <BlueCard>
+            <BlueText style={{ color: '#9AA0AA', marginBottom: -24 }}>{loc.settings.electrum_settings_explain}</BlueText>
+          </BlueCard>
+          <BlueCard>
+            <View
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                alignItems: 'center',
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                placeholder={'host, for example 111.222.333.444'}
+                value={this.state.host}
+                onChangeText={text => this.setState({ host: text })}
+                numberOfLines={1}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
+                editable={!this.state.isLoading}
+                underlineColorAndroid="transparent"
+              />
+            </View>
+            <BlueSpacing20 />
+            <View
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                alignItems: 'center',
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                placeholder={'TCP port, usually 50001'}
+                value={this.state.port}
+                onChangeText={text => this.setState({ port: text })}
+                numberOfLines={1}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
+                editable={!this.state.isLoading}
+                underlineColorAndroid="transparent"
+              />
+            </View>
+            <BlueSpacing20 />
+            <View
+              style={{
+                flexDirection: 'row',
+                borderColor: '#d2d2d2',
+                borderBottomColor: '#d2d2d2',
+                borderWidth: 1.0,
+                borderBottomWidth: 0.5,
+                backgroundColor: '#f5f5f5',
+                minHeight: 44,
+                height: 44,
+                alignItems: 'center',
+                borderRadius: 4,
+              }}
+            >
+              <TextInput
+                placeholder={'SSL port, usually 50002'}
+                value={this.state.sslPort}
+                onChangeText={text => this.setState({ sslPort: text })}
+                numberOfLines={1}
+                style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
+                editable={!this.state.isLoading}
+                underlineColorAndroid="transparent"
+              />
+            </View>
 
-          <BlueSpacing20 />
-          {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
-        </BlueCard>
-
-        <BlueCard>
-          <BlueSpacing20 />
-          <BlueText>Currently using:</BlueText>
-          <BlueText>Host: {this.state.config.host}</BlueText>
-          <BlueText>Port: {this.state.config.port}</BlueText>
-          <BlueText>Connected: {(this.state.config.status === 1 && 'Yes') || 'No'}</BlueText>
-          <BlueSpacing20 />
-          {this.state.isLoading ? <BlueLoading /> : <BlueButtonLink onPress={this.checkServer} title={'Check current server'} />}
-        </BlueCard>
+            <BlueSpacing20 />
+            {this.state.isLoading ? <BlueLoading /> : <BlueButton onPress={this.save} title={loc.settings.save} />}
+          </BlueCard>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
