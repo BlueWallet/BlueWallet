@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Linking, Dimensions, Image, View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, Linking, Dimensions, Image, View, Text } from 'react-native';
 import { useNavigation } from 'react-navigation-hooks';
 import {
   BlueTextCentered,
@@ -8,14 +8,12 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueText,
   BlueNavigationStyle,
   BlueListItem,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
 
@@ -25,7 +23,7 @@ const About = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });  
+  });
 
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');
@@ -77,19 +75,20 @@ const About = () => {
                 height: 124,
               }}
             />
-            <Text style={{ maxWidth: 260, marginVertical: 24, color: "#9AA0AA", fontSize: 15, textAlign: 'center', fontWeight: '500' }}>Blue Wallet is a free and open source project. Crafted by Bitcoin users.</Text>
-            <Text style={{ maxWidth: 260, marginBottom: 40, color: "#0C2550", fontSize: 15, textAlign: 'center', fontWeight: '500' }}>Always backup your keys!</Text>
-            <BlueButton
-            onPress={handleOnRatePress}
-            title="help with a review ⭐🙏"
-          />
+            <Text style={{ maxWidth: 260, marginVertical: 24, color: '#9AA0AA', fontSize: 15, textAlign: 'center', fontWeight: '500' }}>
+              Blue Wallet is a free and open source project. Crafted by Bitcoin users.
+            </Text>
+            <Text style={{ maxWidth: 260, marginBottom: 40, color: '#0C2550', fontSize: 15, textAlign: 'center', fontWeight: '500' }}>
+              Always backup your keys!
+            </Text>
+            <BlueButton onPress={handleOnRatePress} title="help with a review ⭐🙏" />
           </View>
         </BlueCard>
         <BlueListItem
           leftIcon={{
             name: 'twitter',
             type: 'font-awesome',
-            color: "#1da1f2",
+            color: '#1da1f2',
           }}
           onPress={handleOnTwitterPress}
           title="Follow us on Twitter"
@@ -98,7 +97,7 @@ const About = () => {
           leftIcon={{
             name: 'telegram',
             type: 'font-awesome',
-            color: "#0088cc",
+            color: '#0088cc',
           }}
           onPress={handleOnTelegramPress}
           title="Telegram chat"
@@ -107,37 +106,37 @@ const About = () => {
           leftIcon={{
             name: 'github',
             type: 'font-awesome',
-            color: "black",
+            color: 'black',
           }}
           onPress={handleOnGithubPress}
           title="GitHub"
         />
         <BlueCard>
           <View style={{ backgroundColor: '#f9f9f9', padding: 16, paddingTop: 0, borderRadius: 8 }}>
-          <BlueSpacing20 />
+            <BlueSpacing20 />
 
-          <BlueTextCentered>Built with the awesome 👍</BlueTextCentered>
-          <BlueSpacing20 />
-          <BlueTextCentered>React Native</BlueTextCentered>
-          <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
-          <BlueTextCentered>Nodejs</BlueTextCentered>
-          <BlueTextCentered>Electrum server</BlueTextCentered>
+            <BlueTextCentered>Built with the awesome 👍</BlueTextCentered>
+            <BlueSpacing20 />
+            <BlueTextCentered>React Native</BlueTextCentered>
+            <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
+            <BlueTextCentered>Nodejs</BlueTextCentered>
+            <BlueTextCentered>Electrum server</BlueTextCentered>
           </View>
         </BlueCard>
         <BlueListItem
           leftIcon={{
             name: 'book',
             type: 'font-awesome',
-            color: "#9AA0AA",
+            color: '#9AA0AA',
           }}
           onPress={handleOnReleaseNotesPress}
           title="Release notes"
         />
-         <BlueListItem
+        <BlueListItem
           leftIcon={{
             name: 'flask',
             type: 'font-awesome',
-            color: "#FC0D44",
+            color: '#FC0D44',
           }}
           onPress={handleOnSelfTestPress}
           title="Run self test"
