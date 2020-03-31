@@ -48,7 +48,7 @@ export default class Marketplace extends Component {
   handleBackButton = () => {
     this.state.canGoBack ? this.webview.current.goBack() : this.props.navigation.goBack(null);
     return true;
-  }
+  };
 
   _onNavigationStateChange = webViewState => {
     this.setState({ canGoBack: webViewState.canGoBack });
