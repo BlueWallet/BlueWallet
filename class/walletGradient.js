@@ -6,10 +6,12 @@ import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { WatchOnlyWallet } from './watch-only-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
 import { PlaceholderWallet } from './placeholder-wallet';
+import { SegwitBech32Wallet } from './segwit-bech-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];
   static hdSegwitBech32Wallet = ['#68bbe1', '#3b73d4'];
+  static segwitBech32Wallet = ['#f8bbe1', '#945a90'];
   static watchOnlyWallet = ['#7d7d7d', '#4a4a4a'];
   static legacyWallet = ['#40fad1', '#15be98'];
   static hdLegacyP2PKHWallet = ['#e36dfa', '#bd10e0'];
@@ -45,6 +47,9 @@ export default class WalletGradient {
       case PlaceholderWallet.type:
         gradient = WalletGradient.watchOnlyWallet;
         break;
+      case SegwitBech32Wallet.type:
+        gradient = WalletGradient.segwitBech32Wallet;
+        break;
       case 'CreateWallet':
         gradient = WalletGradient.createWallet;
         break;
@@ -75,6 +80,9 @@ export default class WalletGradient {
         break;
       case HDSegwitBech32Wallet.type:
         gradient = WalletGradient.hdSegwitBech32Wallet;
+        break;
+      case SegwitBech32Wallet.type:
+        gradient = WalletGradient.segwitBech32Wallet;
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
