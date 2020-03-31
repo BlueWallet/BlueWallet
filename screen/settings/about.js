@@ -152,6 +152,8 @@ const About = () => {
         <BlueTextCentered>
           w, h = {width}, {height}
         </BlueTextCentered>
+        <BlueSpacing20 />
+        <BlueSpacing20 />
       </ScrollView>
     </SafeBlueArea>
   );
