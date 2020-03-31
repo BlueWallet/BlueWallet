@@ -1,7 +1,7 @@
 {
   "name": "bluewallet",
   "version": "5.2.1",
-  "license" : "MIT",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/runtime": "^7.6.2",
