@@ -11,7 +11,6 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();
-  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {
@@ -19,6 +18,16 @@ beforeAll(async () => {
   // while app starts up, but for tests we need to wait for it
   await BlueElectrum.waitTillConnected();
 });
+
+let _cachedHdWallet = false;
+async function _getHdWallet() {
+  if (_cachedHdWallet) return _cachedHdWallet;
+  _cachedHdWallet = new HDSegwitBech32Wallet();
+  _cachedHdWallet.setSecret(process.env.HD_MNEMONIC_BIP84);
+  await _cachedHdWallet.fetchBalance();
+  await _cachedHdWallet.fetchTransactions();
+  return _cachedHdWallet;
+}
 
 describe('HDSegwitBech32Transaction', () => {
   it('can decode & check sequence', async function() {
@@ -42,10 +51,7 @@ describe('HDSegwitBech32Transaction', () => {
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    assert.ok(hd.validateMnemonic());
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -62,10 +68,7 @@ describe('HDSegwitBech32Transaction', () => {
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -101,10 +104,7 @@ describe('HDSegwitBech32Transaction', () => {
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -131,10 +131,7 @@ describe('HDSegwitBech32Transaction', () => {
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -164,10 +161,7 @@ describe('HDSegwitBech32Transaction', () => {
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f', hd);
     assert.ok(await tt.isToUsTransaction());

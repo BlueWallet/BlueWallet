@@ -10,7 +10,6 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();
-  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {
@@ -26,8 +25,7 @@ describe('LegacyWallet', function() {
     let key = JSON.stringify(a);
 
     let b = LegacyWallet.fromJson(key);
-    assert(key === JSON.stringify(b));
-
+    assert.strictEqual(b.type, LegacyWallet.type);
     assert.strictEqual(key, JSON.stringify(b));
   });
 
