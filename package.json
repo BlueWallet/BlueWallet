@@ -101,7 +101,7 @@
     "react-native-document-picker": "git+https://github.com/BlueWallet/react-native-document-picker.git#9ce83792db340d01b1361d24b19613658abef4aa",
     "react-native-elements": "0.19.0",
     "react-native-flexi-radio-button": "0.2.2",
-    "react-native-fs": "2.16.4",
+    "react-native-fs": "2.16.6",
     "react-native-gesture-handler": "1.5.6",
     "react-native-handoff": "git+https://github.com/marcosrdz/react-native-handoff.git",
     "react-native-haptic-feedback": "1.9.0",
