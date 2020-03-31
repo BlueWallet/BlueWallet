@@ -23,6 +23,7 @@ export const FiatUnit = Object.freeze({
   SGD: { endPointKey: 'SGD', symbol: 'S$', locale: 'zh-SG' },
   SEK: { endPointKey: 'SEK', symbol: 'kr', locale: 'sv-SE' },
   THB: { endPointKey: 'THB', symbol: '฿', locale: 'th-TH' },
+  UAH: { endPointKey: 'UAH', symbol: '₴', locale: 'uk-UA' },
   VEF: { endPointKey: 'VEF', symbol: 'Bs.', locale: 'es-VE' },
   ZAR: { endPointKey: 'ZAR', symbol: 'R', locale: 'en-ZA' },
 });

@@ -66,7 +66,7 @@ const About = () => {
     <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-      <ScrollView>
+      <ScrollView testID="AboutScrollView">
         <BlueCard>
           <BlueTextCentered h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
           <BlueSpacing20 />
@@ -130,7 +130,7 @@ const About = () => {
           <BlueButton onPress={handleOnReleaseNotesPress} title="Release notes" />
           <BlueSpacing20 />
 
-          <BlueButton onPress={handleOnSelfTestPress} title="Run self test" />
+          <BlueButton onPress={handleOnSelfTestPress} title="Run self test" testID="RunSelfTestButton" />
           <BlueTextCentered />
           <BlueTextCentered>
             {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})

@@ -4,12 +4,13 @@ const bitcoin = require('bitcoinjs-lib');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('../../BlueElectrum');
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
   BlueElectrum.forceDisconnect();
-  return new Promise(resolve => setTimeout(resolve, 10000)); // simple sleep to wait for all timeouts termination
 });
 
 beforeAll(async () => {
@@ -18,9 +19,18 @@ beforeAll(async () => {
   await BlueElectrum.waitTillConnected();
 });
 
+let _cachedHdWallet = false;
+async function _getHdWallet() {
+  if (_cachedHdWallet) return _cachedHdWallet;
+  _cachedHdWallet = new HDSegwitBech32Wallet();
+  _cachedHdWallet.setSecret(process.env.HD_MNEMONIC_BIP84);
+  await _cachedHdWallet.fetchBalance();
+  await _cachedHdWallet.fetchTransactions();
+  return _cachedHdWallet;
+}
+
 describe('HDSegwitBech32Transaction', () => {
   it('can decode & check sequence', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     let T = new HDSegwitBech32Transaction(null, 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b');
     assert.strictEqual(await T.getMaxUsedSequence(), 0xffffffff);
     assert.strictEqual(await T.isSequenceReplaceable(), false);
@@ -36,16 +46,12 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can tell if its our transaction', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    assert.ok(hd.validateMnemonic());
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -57,16 +63,12 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can tell tx info', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -97,16 +99,12 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do RBF - cancel tx', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -128,16 +126,12 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do RBF - bumpfees tx', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -162,16 +156,12 @@ describe('HDSegwitBech32Transaction', () => {
   });
 
   it('can do CPFP - bump fees', async function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = new HDSegwitBech32Wallet();
-    hd.setSecret(process.env.HD_MNEMONIC_BIP84);
-    await hd.fetchBalance();
-    await hd.fetchTransactions();
+    let hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f', hd);
     assert.ok(await tt.isToUsTransaction());

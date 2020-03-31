@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
 import OnAppLaunch from '../../class/onAppLaunch';
 import { useNavigation } from 'react-navigation-hooks';
 const BlueApp = require('../../BlueApp');
@@ -58,6 +58,9 @@ const DefaultView = () => {
           switched={viewAllWalletsEnabled}
           onSwitch={onViewAllWalletsSwitchValueChanged}
         />
+        <BlueCard>
+          <BlueText>When disabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
+        </BlueCard>
         {!viewAllWalletsEnabled && (
           <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} />
         )}

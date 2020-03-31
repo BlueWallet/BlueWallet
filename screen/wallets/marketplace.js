@@ -11,6 +11,8 @@ export default class Marketplace extends Component {
     headerLeft: null,
   });
 
+  webview = React.createRef();
+
   constructor(props) {
     super(props);
     if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
@@ -21,7 +23,7 @@ export default class Marketplace extends Component {
       fromWallet,
       canGoBack: false,
     };
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
   async componentDidMount() {
@@ -32,7 +34,7 @@ export default class Marketplace extends Component {
       address = this.state.fromWallet.getAddress();
     }
 
-    let url = 'https://bluewallet.io/marketplace-btc/?address=' + address; // default
+    const url = 'https://bluewallet.io/marketplace-btc/?address=' + address; // default
 
     this.setState({
       url,
@@ -40,11 +42,11 @@ export default class Marketplace extends Component {
   }
 
   componentWillUnmount = () => {
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton.bind(this));
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
   };
 
-  handleBackButton() {
-    this.state.canGoBack ? this.webview.goBack() : this.props.navigation.goBack(null);
+  handleBackButton = () => {
+    this.state.canGoBack ? this.webview.current.goBack() : this.props.navigation.goBack(null);
     return true;
   }
 
@@ -59,7 +61,7 @@ export default class Marketplace extends Component {
 
     return (
       <WebView
-        ref={ref => (this.webview = ref)}
+        ref={this.webview}
         onNavigationStateChange={this._onNavigationStateChange}
         source={{
           uri: this.state.url,

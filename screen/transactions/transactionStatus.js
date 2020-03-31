@@ -17,6 +17,7 @@ import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
+import HandoffSettings from '../../class/handoff';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -70,13 +71,16 @@ export default class TransactionsStatus extends Component {
       isCPFPpossible: buttonStatus.unknown,
       isRBFBumpFeePossible: buttonStatus.unknown,
       isRBFCancelPossible: buttonStatus.unknown,
+      isHandOffUseEnabled: false,
     };
   }
 
   async componentDidMount() {
     console.log('transactions/details - componentDidMount');
+    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
     this.setState({
       isLoading: false,
+      isHandOffUseEnabled,
     });
 
     try {
@@ -143,11 +147,13 @@ export default class TransactionsStatus extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <Handoff
-          title={`Bitcoin Transaction ${this.state.tx.hash}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockstream.info/tx/${this.state.tx.hash}`}
-        />
+        {this.state.isHandOffUseEnabled && (
+          <Handoff
+            title={`Bitcoin Transaction ${this.state.tx.hash}`}
+            type="io.bluewallet.bluewallet"
+            url={`https://blockstream.info/tx/${this.state.tx.hash}`}
+          />
+        )}
         <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <BlueCard>
             <View style={{ alignItems: 'center' }}>

@@ -17,15 +17,14 @@ jasmine.getEnv().addReporter(specReporter);
 jasmine.getEnv().addReporter(assignReporter);
 
 // Set the default timeout
-jest.setTimeout(90000);
+jest.setTimeout(1200000); // 20 min
 
 beforeAll(async () => {
   await detox.init(config, { launchApp: false });
-}, 300000);
+}, 1200000);
 
 beforeEach(async () => {
-  await device.launchApp({ newInstance: true });
-  console.log('sleeping for logo animation...');
+  await device.launchApp({ newInstance: true, delete: true });
   await sleep(2000);
   await adapter.beforeEach();
 });

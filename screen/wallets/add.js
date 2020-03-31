@@ -34,8 +34,7 @@ import { AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class'
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
 let A = require('../../analytics');
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
 export default class WalletsAdd extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -54,7 +53,7 @@ export default class WalletsAdd extends Component {
 
   async componentDidMount() {
     let walletBaseURI = await AsyncStorage.getItem(AppStorage.LNDHUB);
-    let isAdvancedOptionsEnabled = !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    let isAdvancedOptionsEnabled = await BlueApp.isAdancedModeEnabled();
     walletBaseURI = walletBaseURI || '';
 
     this.setState({
@@ -116,6 +115,7 @@ export default class WalletsAdd extends Component {
               }}
             >
               <TextInput
+                testID="WalletNameInput"
                 value={this.state.label}
                 placeholderTextColor="#81868e"
                 placeholder="my first wallet"
@@ -141,6 +141,7 @@ export default class WalletsAdd extends Component {
             }}
           >
             <BitcoinButton
+              testID="ActivateBitcoinButton"
               active={this.state.activeBitcoin}
               onPress={() => {
                 Keyboard.dismiss();
@@ -225,6 +226,7 @@ export default class WalletsAdd extends Component {
             >
               {!this.state.isLoading ? (
                 <BlueButton
+                  testID="Create"
                   title={loc.wallets.add.create}
                   disabled={this.state.activeBitcoin === undefined}
                   onPress={() => {

@@ -18,7 +18,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
-import Swiper from 'react-native-swiper';
+import ViewPager from '@react-native-community/viewpager';
 import ScanQRCode from '../send/ScanQRCode';
 import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
 let EV = require('../../events');
@@ -30,7 +30,7 @@ let BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
   walletsCarousel = React.createRef();
-  swiperRef = React.createRef();
+  viewPagerRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -41,6 +41,7 @@ export default class WalletsList extends Component {
       lastSnappedTo: 0,
       timeElpased: 0,
       cameraPreviewIsPaused: true,
+      viewPagerIndex: 1,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -296,9 +297,10 @@ export default class WalletsList extends Component {
     }
   };
 
-  onSwiperIndexChanged = index => {
+  onPageSelected = e => {
+    const index = e.nativeEvent.position;
     StatusBar.setBarStyle(index === 1 ? 'dark-content' : 'light-content');
-    this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined });
+    this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined, viewPagerIndex: index });
   };
 
   onBarScanned = value => {
@@ -309,13 +311,21 @@ export default class WalletsList extends Component {
   };
 
   _renderItem = data => {
-    return <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
+    return (
+      <View style={{ marginHorizontal: 4 }}>
+        <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />
+      </View>
+    );
   };
 
   renderNavigationHeader = () => {
     return (
       <View style={{ height: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
-        <TouchableOpacity style={{ marginHorizontal: 16 }} onPress={() => this.props.navigation.navigate('Settings')}>
+        <TouchableOpacity
+          testID="SettingsButton"
+          style={{ marginHorizontal: 16 }}
+          onPress={() => this.props.navigation.navigate('Settings')}
+        >
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       </View>
@@ -327,34 +337,32 @@ export default class WalletsList extends Component {
       return <BlueLoading />;
     }
     return (
-      <View style={{ flex: 1, backgroundColor: '#000000' }} testID="WalletsList" accessible>
-        <NavigationEvents
-          onDidFocus={() => {
-            this.redrawScreen();
-            this.setState({ cameraPreviewIsPaused: this.swiperRef.current.index === 1 || this.swiperRef.current.index === undefined });
-          }}
-          onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
-        />
-        <ScrollView contentContainerStyle={{ flex: 1 }}>
-          <Swiper
-            style={styles.wrapper}
-            onIndexChanged={this.onSwiperIndexChanged}
-            index={1}
-            ref={this.swiperRef}
-            showsPagination={false}
-            showsButtons={false}
-            loop={false}
-          >
-            <View style={styles.scanQRWrapper}>
-              <ScanQRCode
-                cameraPreviewIsPaused={this.state.cameraPreviewIsPaused}
-                onBarScanned={this.onBarScanned}
-                showCloseButton={false}
-                initialCameraStatusReady={false}
-                launchedBy={this.props.navigation.state.routeName}
-              />
-            </View>
-            <SafeBlueArea>
+      <SafeBlueArea>
+        <View style={{ flex: 1, backgroundColor: '#ffffff' }} testID="WalletsList" accessible>
+          <NavigationEvents
+            onDidFocus={() => {
+              this.redrawScreen();
+              this.setState({ cameraPreviewIsPaused: this.state.viewPagerIndex === 1 || this.viewPagerRef.current.index === undefined });
+            }}
+            onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
+          />
+          <ScrollView contentContainerStyle={{ flex: 1 }}>
+            <ViewPager
+              style={styles.wrapper}
+              onPageSelected={this.onPageSelected}
+              initialPage={1}
+              ref={this.viewPagerRef}
+              showPageIndicator={false}
+            >
+              <View style={styles.scanQRWrapper}>
+                <ScanQRCode
+                  cameraPreviewIsPaused={this.state.cameraPreviewIsPaused}
+                  onBarScanned={this.onBarScanned}
+                  showCloseButton={false}
+                  initialCameraStatusReady={false}
+                  launchedBy={this.props.navigation.state.routeName}
+                />
+              </View>
               <View style={styles.walletsListWrapper}>
                 {this.renderNavigationHeader()}
                 <ScrollView
@@ -415,10 +423,10 @@ export default class WalletsList extends Component {
                   </BlueList>
                 </ScrollView>
               </View>
-            </SafeBlueArea>
-          </Swiper>
-        </ScrollView>
-      </View>
+            </ViewPager>
+          </ScrollView>
+        </View>
+      </SafeBlueArea>
     );
   }
 }
@@ -426,6 +434,7 @@ export default class WalletsList extends Component {
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#FFFFFF',
+    flex: 1,
   },
   walletsListWrapper: {
     flex: 1,

@@ -1,3 +1,14 @@
+v5.2.0
+======
+
+* ADD: support for Electrum Personal Server (SSL connection)
+* ADD: HodlHodl trading platform integration
+* ADD: Decrypt Storage
+* ADD: UAH Fiat
+* FIX: Allow use of Today extension on iOS 10
+* REF: General Settings
+* REF: electrum reconnect improvements
+
 v5.1.0
 ======
 

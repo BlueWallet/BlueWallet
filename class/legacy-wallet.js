@@ -292,6 +292,26 @@ export class LegacyWallet extends AbstractWallet {
     }
   }
 
+  /**
+   * Converts script pub key to legacy address if it can. Returns FALSE if it cant.
+   *
+   * @param scriptPubKey
+   * @returns {boolean|string} Either p2pkh address or false
+   */
+  static scriptPubKeyToAddress(scriptPubKey) {
+    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
+    let ret;
+    try {
+      ret = bitcoin.payments.p2pkh({
+        output: scriptPubKey2,
+        network: bitcoin.networks.bitcoin,
+      }).address;
+    } catch (_) {
+      return false;
+    }
+    return ret;
+  }
+
   weOwnAddress(address) {
     return this.getAddress() === address || this._address === address;
   }

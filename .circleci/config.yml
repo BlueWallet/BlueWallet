@@ -12,7 +12,7 @@ jobs:
       - restore_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
 
-      - run: npm i
+      - run: test -d node_modules || npm i
 
       - save_cache:
           key: node_modules-{{ checksum "package-lock.json" }}
@@ -20,4 +20,4 @@ jobs:
             - node_modules
 
       # run tests!
-      - run: npm run test
+      - run: npm t || npm t

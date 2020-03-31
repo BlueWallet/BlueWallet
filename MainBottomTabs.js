@@ -1,6 +1,6 @@
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 
-import SettingsContainer from './screen/settings/settings';
+import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
 import ReleaseNotes from './screen/settings/releasenotes';
 import Selftest from './screen/selftest';
@@ -10,6 +10,8 @@ import EncryptStorage from './screen/settings/encryptStorage';
 import PlausibleDeniability from './screen/plausibledeniability';
 import LightningSettings from './screen/settings/lightningSettings';
 import ElectrumSettings from './screen/settings/electrumSettings';
+import GeneralSettings from './screen/settings/GeneralSettings';
+import NetworkSettings from './screen/settings/NetworkSettings';
 import DefaultView from './screen/settings/defaultView';
 
 import WalletsList from './screen/wallets/list';
@@ -22,6 +24,7 @@ import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
+import HodlHodl from './screen/wallets/hodlHodl';
 import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
@@ -76,6 +79,9 @@ const WalletsStackNavigator = createStackNavigator(
     WalletDetails: {
       screen: WalletDetails,
     },
+    HodlHodl: {
+      screen: HodlHodl,
+    },
     CPFP: {
       screen: cpfp,
     },
@@ -86,7 +92,7 @@ const WalletsStackNavigator = createStackNavigator(
       screen: rbfCancel,
     },
     Settings: {
-      screen: SettingsContainer,
+      screen: Settings,
       path: 'Settings',
       navigationOptions: {
         headerStyle: {
@@ -125,6 +131,14 @@ const WalletsStackNavigator = createStackNavigator(
     EncryptStorage: {
       screen: EncryptStorage,
       path: 'EncryptStorage',
+    },
+    GeneralSettings: {
+      screen: GeneralSettings,
+      path: 'GeneralSettings',
+    },
+    NetworkSettings: {
+      screen: NetworkSettings,
+      path: 'NetworkSettings',
     },
     PlausibleDeniability: {
       screen: PlausibleDeniability,
