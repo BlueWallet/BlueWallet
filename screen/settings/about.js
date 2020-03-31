@@ -33,6 +33,10 @@ const About = () => {
     navigate('Selftest');
   };
 
+  const handleOnLicensingPress = () => {
+    navigate('Licensing');
+  };
+
   const handleOnTwitterPress = () => {
     Linking.openURL('https://twitter.com/bluewalletio');
   };
@@ -131,6 +135,15 @@ const About = () => {
           }}
           onPress={handleOnReleaseNotesPress}
           title="Release notes"
+        />
+        <BlueListItem
+          leftIcon={{
+            name: 'law',
+            type: 'octicon',
+            color: 'black',
+          }}
+          onPress={handleOnLicensingPress}
+          title="MIT License"
         />
         <BlueListItem
           leftIcon={{
