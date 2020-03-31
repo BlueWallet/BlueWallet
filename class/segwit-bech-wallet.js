@@ -52,4 +52,8 @@ export class SegwitBech32Wallet extends LegacyWallet {
     }
     return ret;
   }
+
+  allowSend() {
+    return false;
+  }
 }
