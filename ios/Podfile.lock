@@ -356,7 +356,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - boost-for-react-native
     - EFQRCode
     - lottie-ios
@@ -539,4 +539,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 932f5bffd3ddea34b78c9ed0921a6f8cccf442b5
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4
