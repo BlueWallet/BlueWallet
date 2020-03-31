@@ -105,12 +105,17 @@ describe('SegwitBech32Wallet', function() {
     let w = new SegwitBech32Wallet();
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
     await w.fetchUtxo();
+    const l1 = w.getUtxo().length;
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
 
     assert.ok(w.getUtxo()[0]['value']);
     assert.ok(w.getUtxo()[0]['tx_output_n'] === 0);
     assert.ok(w.getUtxo()[0]['tx_hash']);
     assert.ok(w.getUtxo()[0]['confirmations']);
+    // double fetch shouldnt duplicate UTXOs:
+    await w.fetchUtxo();
+    const l2 = w.getUtxo().length;
+    assert.strictEqual(l1, l2);
   });
 
   it('can fetch TXs', async () => {
