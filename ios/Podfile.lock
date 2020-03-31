@@ -261,7 +261,7 @@ PODS:
     - React
   - RNDeviceInfo (4.0.1):
     - React
-  - RNFS (2.16.4):
+  - RNFS (2.16.6):
     - React
   - RNGestureHandler (1.5.6):
     - React
@@ -356,7 +356,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/cocoapods/specs.git:
     - boost-for-react-native
     - EFQRCode
     - lottie-ios
@@ -520,7 +520,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 8539fc80a0075fcc9c8e2dff84cd22dc5bf1dacf
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
-  RNFS: 90d1a32d3bc8f75cc7fc3dd2f67506049664346b
+  RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: 911d3b110a7a233a34c4f800e7188a84b75319c6
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
@@ -539,4 +539,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 932f5bffd3ddea34b78c9ed0921a6f8cccf442b5
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.7.5

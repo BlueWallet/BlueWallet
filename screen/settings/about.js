@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Linking, Dimensions } from 'react-native';
+import { ScrollView, Linking, Dimensions, Image, View, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from 'react-navigation-hooks';
 import {
   BlueTextCentered,
@@ -10,6 +10,7 @@ import {
   BlueCard,
   BlueText,
   BlueNavigationStyle,
+  BlueListItem,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
@@ -24,7 +25,7 @@ const About = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  });  
 
   const handleOnReleaseNotesPress = () => {
     navigate('ReleaseNotes');
@@ -65,82 +66,93 @@ const About = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+    <SafeBlueArea style={{ flex: 1 }}>
       <ScrollView testID="AboutScrollView">
         <BlueCard>
-          <BlueTextCentered h4>BlueWallet is a free and open source Bitcoin wallet. Licensed MIT.</BlueTextCentered>
-          <BlueSpacing20 />
-
-          <BlueTextCentered h4>Always backup your keys</BlueTextCentered>
-          <BlueSpacing20 />
-
-          <BlueButton
-            icon={{
-              name: 'github',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={handleOnGithubPress}
-            title="github.com/BlueWallet/BlueWallet"
-          />
-          <BlueSpacing20 />
-
-          <BlueButton
-            icon={{
-              name: 'twitter',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={handleOnTwitterPress}
-            title="Follow us on Twitter"
-          />
-          <BlueSpacing20 />
-
-          <BlueButton
-            icon={{
-              name: 'telegram',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
-            }}
-            onPress={handleOnTelegramPress}
-            title="Join Telegram chat"
-          />
-          <BlueSpacing20 />
-
-          <BlueButton
-            icon={{
-              name: 'thumbs-up',
-              type: 'font-awesome',
-              color: BlueApp.settings.buttonTextColor,
-            }}
+          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 54 }}>
+            <Image
+              source={require('../../img/bluebeast.png')}
+              style={{
+                width: 102,
+                height: 124,
+              }}
+            />
+            <Text style={{ maxWidth: 260, marginVertical: 24, color: "#9AA0AA", fontSize: 15, textAlign: 'center', fontWeight: '500' }}>Blue Wallet is a free and open source project. Crafted by Bitcoin users.</Text>
+            <Text style={{ maxWidth: 260, marginBottom: 40, color: "#0C2550", fontSize: 15, textAlign: 'center', fontWeight: '500' }}>Always backup your keys!</Text>
+            <BlueButton
             onPress={handleOnRatePress}
-            title="Rate BlueWallet"
+            title="help with a review ⭐🙏"
           />
-
-          <BlueSpacing20 />
-          <BlueText h3>Built with awesome:</BlueText>
-          <BlueSpacing20 />
-          <BlueText h4>* React Native</BlueText>
-          <BlueText h4>* bitcoinjs-lib</BlueText>
-          <BlueText h4>* Nodejs</BlueText>
-          <BlueText h4>* Electrum server</BlueText>
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-
-          <BlueButton onPress={handleOnReleaseNotesPress} title="Release notes" />
-          <BlueSpacing20 />
-
-          <BlueButton onPress={handleOnSelfTestPress} title="Run self test" testID="RunSelfTestButton" />
-          <BlueTextCentered />
-          <BlueTextCentered>
-            {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})
-          </BlueTextCentered>
-          <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
-          <BlueTextCentered>{getBundleId()}</BlueTextCentered>
-          <BlueTextCentered>
-            w, h = {width}, {height}
-          </BlueTextCentered>
+          </View>
         </BlueCard>
+        <BlueListItem
+          leftIcon={{
+            name: 'twitter',
+            type: 'font-awesome',
+            color: "#1da1f2",
+          }}
+          onPress={handleOnTwitterPress}
+          title="Follow us on Twitter"
+        />
+        <BlueListItem
+          leftIcon={{
+            name: 'telegram',
+            type: 'font-awesome',
+            color: "#0088cc",
+          }}
+          onPress={handleOnTelegramPress}
+          title="Telegram chat"
+        />
+        <BlueListItem
+          leftIcon={{
+            name: 'github',
+            type: 'font-awesome',
+            color: "black",
+          }}
+          onPress={handleOnGithubPress}
+          title="GitHub"
+        />
+        <BlueCard>
+          <View style={{ backgroundColor: '#f9f9f9', padding: 16, paddingTop: 0, borderRadius: 8 }}>
+          <BlueSpacing20 />
+
+          <BlueTextCentered>Built with the awesome 👍</BlueTextCentered>
+          <BlueSpacing20 />
+          <BlueTextCentered>React Native</BlueTextCentered>
+          <BlueTextCentered>bitcoinjs-lib</BlueTextCentered>
+          <BlueTextCentered>Nodejs</BlueTextCentered>
+          <BlueTextCentered>Electrum server</BlueTextCentered>
+          </View>
+        </BlueCard>
+        <BlueListItem
+          leftIcon={{
+            name: 'book',
+            type: 'font-awesome',
+            color: "#9AA0AA",
+          }}
+          onPress={handleOnReleaseNotesPress}
+          title="Release notes"
+        />
+         <BlueListItem
+          leftIcon={{
+            name: 'flask',
+            type: 'font-awesome',
+            color: "#FC0D44",
+          }}
+          onPress={handleOnSelfTestPress}
+          title="Run self test"
+          testID="RunSelfTestButton"
+        />
+        <BlueSpacing20 />
+        <BlueSpacing20 />
+        <BlueTextCentered>
+          {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})
+        </BlueTextCentered>
+        <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
+        <BlueTextCentered>{getBundleId()}</BlueTextCentered>
+        <BlueTextCentered>
+          w, h = {width}, {height}
+        </BlueTextCentered>
       </ScrollView>
     </SafeBlueArea>
   );
