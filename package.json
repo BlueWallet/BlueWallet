@@ -40,7 +40,7 @@
     "test": "npm run unit && npm run jest",
     "jest": "node node_modules/jest/bin/jest.js tests/integration/*",
     "lint": "eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/",
-    "lint:fix": "npm lint --fix",
+    "lint:fix": "npm run lint --fix",
     "unit": "./node_modules/.bin/mocha tests/unit/*"
   },
   "jest": {
@@ -156,8 +156,7 @@
     "stream": "stream-browserify"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
-      "npm test",
+    "./**/*.{ts,tsx,js,jsx}": [
       "npm run lint:fix"
     ]
   },

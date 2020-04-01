@@ -67,8 +67,6 @@ export default class Selftest extends Component {
         isOk = false;
       }
 
-      //
-
       // utxos as received from blockcypher
       let utxos = [
         {
