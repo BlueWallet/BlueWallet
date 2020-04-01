@@ -1,4 +1,4 @@
-import Frisbee from 'frisbee';
+import Frisbee from "frisbee";
 
 export class BitcoinBIP70Transaction {
   constructor(amount, address, memo, fee, expires) {
@@ -22,15 +22,18 @@ export default class BitcoinBIP70TransactionDecode {
       try {
         let url;
         if (data.match(/bitcoin:\?r=https?:\/\/\S+/gi)) {
-          url = data.toString().split('bitcoin:?r=')[1];
-        } else if (data.startsWith('https://bitpay.com/i/') || data.startsWith('https://www.bitpay.com/i/')) {
+          url = data.toString().split("bitcoin:?r=")[1];
+        } else if (
+          data.startsWith("https://bitpay.com/i/") ||
+          data.startsWith("https://www.bitpay.com/i/")
+        ) {
           url = data.toString();
         }
         const api = new Frisbee({
           baseURI: url,
           headers: {
-            Accept: 'application/payment-request',
-          },
+            Accept: "application/payment-request"
+          }
         });
         let response = await api.get();
         if (response && response.body) {
@@ -40,7 +43,7 @@ export default class BitcoinBIP70TransactionDecode {
           const expires = new Date(parsedJSON.expires).getTime();
           const now = new Date().getTime();
           if (now > expires) {
-            throw new BitcoinBIP70TransactionError('This invoice has expired.');
+            throw new BitcoinBIP70TransactionError("This invoice has expired.");
           }
           //
 
@@ -49,13 +52,15 @@ export default class BitcoinBIP70TransactionDecode {
             parsedJSON.outputs[0].address,
             parsedJSON.memo,
             parsedJSON.requiredFeeRate.toFixed(0),
-            parsedJSON.expires,
+            parsedJSON.expires
           );
           console.log(decodedTransaction);
           resolve(decodedTransaction);
         } else {
-          console.log('Could not fetch transaction details: ' + response.err);
-          throw new BitcoinBIP70TransactionError('Unable to fetch transaction details. Please, make sure the provided link is valid.');
+          console.log("Could not fetch transaction details: " + response.err);
+          throw new BitcoinBIP70TransactionError(
+            "Unable to fetch transaction details. Please, make sure the provided link is valid."
+          );
         }
       } catch (err) {
         console.warn(err);
@@ -74,6 +79,11 @@ export default class BitcoinBIP70TransactionDecode {
   }
 
   static matchesPaymentURL(data) {
-    return data !== null && (data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null || data.startsWith('https://bitpay.com/i/') || data.startsWith('https://www.bitpay.com/i/'));
+    return (
+      data !== null &&
+      (data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null ||
+        data.startsWith("https://bitpay.com/i/") ||
+        data.startsWith("https://www.bitpay.com/i/"))
+    );
   }
 }

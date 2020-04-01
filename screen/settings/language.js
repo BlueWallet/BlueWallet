@@ -1,14 +1,22 @@
-import React, { Component } from 'react';
-import { FlatList, TouchableOpacity } from 'react-native';
-import { BlueLoading, BlueText, SafeBlueArea, BlueListItem, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import { Icon } from 'react-native-elements';
-let loc = require('../../loc');
+import React, { Component } from "react";
+import { FlatList, TouchableOpacity } from "react-native";
+import {
+  BlueLoading,
+  BlueText,
+  SafeBlueArea,
+  BlueListItem,
+  BlueCard,
+  BlueNavigationStyle
+} from "../../BlueComponents";
+import PropTypes from "prop-types";
+import { Icon } from "react-native-elements";
+
+const loc = require("../../loc");
 
 export default class Language extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: loc.settings.language,
+    title: loc.settings.language
   });
 
   constructor(props) {
@@ -17,41 +25,41 @@ export default class Language extends Component {
       isLoading: true,
       language: loc.getLanguage(),
       availableLanguages: [
-        { label: 'English', value: 'en' },
-        { label: 'Afrikaans (AFR)', value: 'zar_afr' },
-        { label: 'Chinese (ZH)', value: 'zh_cn' },
-        { label: 'Chinese (TW)', value: 'zh_tw' },
-        { label: 'Croatian (HR)', value: 'hr_hr' },
-        { label: 'Česky (CZ)', value: 'cs_cz' },
-        { label: 'Danish (DK)', value: 'da_dk' },
-        { label: 'Deutsch (DE)', value: 'de_de' },
-        { label: 'Español (ES)', value: 'es' },
-        { label: 'Ελληνικά (EL)', value: 'el' },
-        { label: 'Italiano (IT)', value: 'it' },
-        { label: 'Suomi (FI)', value: 'fi_fi' },
-        { label: 'Français (FR)', value: 'fr_fr' },
-        { label: 'Indonesia (ID)', value: 'id_id' },
-        { label: '日本語 (JP)', value: 'jp_jp' },
-        { label: '한국어 (KO)', value: 'ko_kr' },
-        { label: 'Magyar (HU)', value: 'hu_hu' },
-        { label: 'Nederlands (NL)', value: 'nl_nl' },
-        { label: 'Norsk (NB)', value: 'nb_no' },
-        { label: 'Português (BR)', value: 'pt_br' },
-        { label: 'Português (PT)', value: 'pt_pt' },
-        { label: 'Русский', value: 'ru' },
-        { label: 'Svenska (SE)', value: 'sv_se' },
-        { label: 'Thai (TH)', value: 'th_th' },
-        { label: 'Vietnamese (VN)', value: 'vi_vn' },
-        { label: 'Українська', value: 'ua' },
-        { label: 'Türkçe (TR)', value: 'tr_tr' },
-        { label: 'Xhosa (XHO)', value: 'zar_xho' },
-      ],
+        { label: "English", value: "en" },
+        { label: "Afrikaans (AFR)", value: "zar_afr" },
+        { label: "Chinese (ZH)", value: "zh_cn" },
+        { label: "Chinese (TW)", value: "zh_tw" },
+        { label: "Croatian (HR)", value: "hr_hr" },
+        { label: "Česky (CZ)", value: "cs_cz" },
+        { label: "Danish (DK)", value: "da_dk" },
+        { label: "Deutsch (DE)", value: "de_de" },
+        { label: "Español (ES)", value: "es" },
+        { label: "Ελληνικά (EL)", value: "el" },
+        { label: "Italiano (IT)", value: "it" },
+        { label: "Suomi (FI)", value: "fi_fi" },
+        { label: "Français (FR)", value: "fr_fr" },
+        { label: "Indonesia (ID)", value: "id_id" },
+        { label: "日本語 (JP)", value: "jp_jp" },
+        { label: "한국어 (KO)", value: "ko_kr" },
+        { label: "Magyar (HU)", value: "hu_hu" },
+        { label: "Nederlands (NL)", value: "nl_nl" },
+        { label: "Norsk (NB)", value: "nb_no" },
+        { label: "Português (BR)", value: "pt_br" },
+        { label: "Português (PT)", value: "pt_pt" },
+        { label: "Русский", value: "ru" },
+        { label: "Svenska (SE)", value: "sv_se" },
+        { label: "Thai (TH)", value: "th_th" },
+        { label: "Vietnamese (VN)", value: "vi_vn" },
+        { label: "Українська", value: "ua" },
+        { label: "Türkçe (TR)", value: "tr_tr" },
+        { label: "Xhosa (XHO)", value: "zar_xho" }
+      ]
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
   }
 
@@ -59,7 +67,7 @@ export default class Language extends Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          console.warn('setLanguage', item.value);
+          console.warn("setLanguage", item.value);
           loc.saveLanguage(item.value);
           return this.setState({ language: item.value });
         }}
@@ -68,7 +76,9 @@ export default class Language extends Component {
           title={item.label}
           {...(this.state.language === item.value
             ? {
-                rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+                rightIcon: (
+                  <Icon name="check" type="font-awesome" color="#0c2550" />
+                )
               }
             : { hideChevron: true })}
         />
@@ -82,7 +92,7 @@ export default class Language extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: "always" }} style={{ flex: 1 }}>
         <FlatList
           style={{ flex: 1 }}
           keyExtractor={(_item, index) => `${index}`}
@@ -91,7 +101,10 @@ export default class Language extends Component {
           renderItem={this.renderItem}
         />
         <BlueCard>
-          <BlueText>When selecting a new language, restarting GoldWallet may be required for the change to take effect.</BlueText>
+          <BlueText>
+            When selecting a new language, restarting GoldWallet may be required
+            for the change to take effect.
+          </BlueText>
         </BlueCard>
       </SafeBlueArea>
     );
@@ -101,6 +114,6 @@ export default class Language extends Component {
 Language.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+    goBack: PropTypes.func
+  })
 };

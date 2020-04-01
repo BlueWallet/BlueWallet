@@ -1,26 +1,35 @@
-import React, { Component } from 'react';
-import { ActivityIndicator, View, TextInput } from 'react-native';
-import { BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueSpacing, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import { SegwitBech32Wallet } from '../../class';
+import React, { Component } from "react";
+import { ActivityIndicator, View, TextInput } from "react-native";
+import {
+  BlueSpacing20,
+  BlueButton,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueSpacing,
+  BlueNavigationStyle
+} from "../../BlueComponents";
+import PropTypes from "prop-types";
+import { SegwitBech32Wallet } from "../../class";
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+const BlueApp = require("../../BlueApp");
 
 export default class RBF extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(null, false),
-    title: 'RBF',
+    title: "RBF"
   });
 
   constructor(props) {
     super(props);
     let txid;
-    if (props.navigation.state.params) txid = props.navigation.state.params.txid;
+    if (props.navigation.state.params)
+      txid = props.navigation.state.params.txid;
 
     let sourceWallet;
     let sourceTx;
-    for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
+    for (const w of BlueApp.getWallets()) {
+      for (const t of w.getTransactions()) {
         if (t.hash === txid) {
           // found our source wallet
           sourceWallet = w;
@@ -32,7 +41,7 @@ export default class RBF extends Component {
 
     let destinationAddress;
 
-    for (let o of sourceTx.outputs) {
+    for (const o of sourceTx.outputs) {
       if (!o.addresses && o.script) {
         // probably bech32 output, so we need to decode address
         o.addresses = [SegwitBech32Wallet.scriptPubKeyToAddress(o.script)];
@@ -44,16 +53,16 @@ export default class RBF extends Component {
       } else {
         // DESTINATION address
 
-        destinationAddress = (o.addresses && o.addresses[0]) || '';
-        console.log('dest = ', destinationAddress);
+        destinationAddress = (o.addresses && o.addresses[0]) || "";
+        console.log("dest = ", destinationAddress);
       }
     }
 
-    if (!destinationAddress || sourceWallet.type === 'legacy') {
+    if (!destinationAddress || sourceWallet.type === "legacy") {
       // for now I'm too lazy to add RBF support for legacy addresses
       this.state = {
         isLoading: false,
-        nonReplaceable: true,
+        nonReplaceable: true
       };
       return;
     }
@@ -64,27 +73,27 @@ export default class RBF extends Component {
       sourceTx,
       sourceWallet,
       newDestinationAddress: destinationAddress,
-      feeDelta: '',
+      feeDelta: ""
     };
   }
 
   async componentDidMount() {
-    let startTime = Date.now();
-    console.log('transactions/RBF - componentDidMount');
+    const startTime = Date.now();
+    console.log("transactions/RBF - componentDidMount");
     this.setState({
-      isLoading: false,
+      isLoading: false
     });
-    let endTime = Date.now();
-    console.log('componentDidMount took', (endTime - startTime) / 1000, 'sec');
+    const endTime = Date.now();
+    console.log("componentDidMount took", (endTime - startTime) / 1000, "sec");
   }
 
   createTransaction() {
-    this.props.navigation.navigate('CreateRBF', {
+    this.props.navigation.navigate("CreateRBF", {
       feeDelta: this.state.feeDelta,
       newDestinationAddress: this.state.newDestinationAddress,
       txid: this.state.txid,
       sourceTx: this.state.sourceTx,
-      sourceWallet: this.state.sourceWallet,
+      sourceWallet: this.state.sourceWallet
     });
   }
 
@@ -108,7 +117,10 @@ export default class RBF extends Component {
 
           <BlueText h4>This transaction is not replaceable</BlueText>
 
-          <BlueButton onPress={() => this.props.navigation.goBack()} title="Back" />
+          <BlueButton
+            onPress={() => this.props.navigation.goBack()}
+            title="Back"
+          />
         </SafeBlueArea>
       );
     }
@@ -116,8 +128,13 @@ export default class RBF extends Component {
     if (!this.state.sourceWallet.getAddress) {
       return (
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-          <BlueText>System error: Source wallet not found (this should never happen)</BlueText>
-          <BlueButton onPress={() => this.props.navigation.goBack()} title="Back" />
+          <BlueText>
+            System error: Source wallet not found (this should never happen)
+          </BlueText>
+          <BlueButton
+            onPress={() => this.props.navigation.goBack()}
+            title="Back"
+          />
         </SafeBlueArea>
       );
     }
@@ -125,33 +142,42 @@ export default class RBF extends Component {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
-        <BlueCard title={'Replace By Fee'} style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText>RBF allows you to increase fee on already sent but not confirmed transaction, thus speeding up mining</BlueText>
+        <BlueCard
+          title={"Replace By Fee"}
+          style={{ alignItems: "center", flex: 1 }}
+        >
+          <BlueText>
+            RBF allows you to increase fee on already sent but not confirmed
+            transaction, thus speeding up mining
+          </BlueText>
           <BlueSpacing20 />
 
           <BlueText>
-            From wallet '{this.state.sourceWallet.getLabel()}' ({this.state.sourceWallet.getAddress()})
+            From wallet '{this.state.sourceWallet.getLabel()}' (
+            {this.state.sourceWallet.getAddress()})
           </BlueText>
           <BlueSpacing20 />
 
           <View
             style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
+              flexDirection: "row",
+              borderColor: "#d2d2d2",
+              borderBottomColor: "#d2d2d2",
               borderWidth: 1.0,
               borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
+              backgroundColor: "#f5f5f5",
               minHeight: 44,
               height: 44,
-              alignItems: 'center',
+              alignItems: "center",
               marginVertical: 8,
-              borderRadius: 4,
+              borderRadius: 4
             }}
           >
             <TextInput
-              onChangeText={text => this.setState({ newDestinationAddress: text })}
-              placeholder={'receiver address here'}
+              onChangeText={text =>
+                this.setState({ newDestinationAddress: text })
+              }
+              placeholder={"receiver address here"}
               value={this.state.newDestinationAddress}
               style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
             />
@@ -159,24 +185,24 @@ export default class RBF extends Component {
 
           <View
             style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
+              flexDirection: "row",
+              borderColor: "#d2d2d2",
+              borderBottomColor: "#d2d2d2",
               borderWidth: 1.0,
               borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
+              backgroundColor: "#f5f5f5",
               minHeight: 44,
               height: 44,
-              alignItems: 'center',
+              alignItems: "center",
               marginVertical: 8,
-              borderRadius: 4,
+              borderRadius: 4
             }}
           >
             <TextInput
               onChangeText={text => this.setState({ feeDelta: text })}
-              keyboardType={'numeric'}
-              placeholder={'fee to add (in BTC)'}
-              value={this.state.feeDelta + ''}
+              keyboardType={"numeric"}
+              placeholder={"fee to add (in BTC)"}
+              value={this.state.feeDelta + ""}
               style={{ flex: 1, minHeight: 33, marginHorizontal: 8 }}
             />
           </View>
@@ -195,8 +221,8 @@ RBF.propTypes = {
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        txid: PropTypes.string,
-      }),
-    }),
-  }),
+        txid: PropTypes.string
+      })
+    })
+  })
 };

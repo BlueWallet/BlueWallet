@@ -1,20 +1,23 @@
 module.exports = {
   _: {
-    storage_is_encrypted: "Your storage is encrypted. Password is required to decrypt it",
+    storage_is_encrypted:
+      "Your storage is encrypted. Password is required to decrypt it",
     enter_password: "Enter password",
     bad_password: "Bad password, try again",
     never: "never",
     continue: "Continue",
-    ok: "OK",
+    ok: "OK"
   },
   wallets: {
     select_wallet: "Select Wallet",
     options: "options",
-    createBitcoinWallet: "You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?",
+    createBitcoinWallet:
+      "You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?",
     list: {
       app_name: "GoldWallet",
       title: "wallets",
-      header: "A wallet represents a pair of a secret (private key) and an address you can share to receive coins.",
+      header:
+        "A wallet represents a pair of a secret (private key) and an address you can share to receive coins.",
       add: "Add Wallet",
       create_a_wallet: "Create a wallet",
       create_a_wallet1: "It's free and you can create",
@@ -22,16 +25,19 @@ module.exports = {
       latest_transaction: "latest transaction",
       empty_txs1: "Your transactions will appear here,",
       empty_txs2: "none at the moment",
-      empty_txs1_lightning: "Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.",
-      empty_txs2_lightning: "\nTo start using it tap on \"manage funds\" and topup your balance.",
-      tap_here_to_buy: "Tap here to buy Bitcoin",
+      empty_txs1_lightning:
+        "Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.",
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
+      tap_here_to_buy: "Tap here to buy Bitcoin"
     },
     reorder: {
-      title: "Reorder Wallets",
+      title: "Reorder Wallets"
     },
     add: {
       title: "add wallet",
-      description: "You can either scan backup paper wallet (in WIF - Wallet Import Format), or create a new wallet. Segwit wallets supported by default.",
+      description:
+        "You can either scan backup paper wallet (in WIF - Wallet Import Format), or create a new wallet. Segwit wallets supported by default.",
       scan: "Scan",
       create: "Create",
       label_new_segwit: "New SegWit",
@@ -43,7 +49,7 @@ module.exports = {
       imported: "Imported",
       coming_soon: "Coming soon",
       lightning: "Lightning",
-      bitcoin: "Bitcoin Vault",
+      bitcoin: "Bitcoin Vault"
     },
     details: {
       title: "Wallet",
@@ -60,23 +66,25 @@ module.exports = {
       delete_this_wallet: "Delete this wallet",
       export_backup: "Export / backup",
       buy_bitcoin: "Buy Bitcoin",
-      show_xpub: "Show wallet XPUB",
+      show_xpub: "Show wallet XPUB"
     },
     export: {
-      title: "wallet export",
+      title: "wallet export"
     },
     xpub: {
       title: "wallet XPUB",
-      copiedToClipboard: "Copied to clipboard.",
+      copiedToClipboard: "Copied to clipboard."
     },
     import: {
       title: "import",
-      explanation: "Write here your mnemonic, private key, WIF, or anything you've got. GoldWallet will do its best to guess the correct format and import your wallet",
+      explanation:
+        "Write here your mnemonic, private key, WIF, or anything you've got. GoldWallet will do its best to guess the correct format and import your wallet",
       imported: "Imported",
-      error: "Failed to import. Please, make sure that the provided data is valid.",
+      error:
+        "Failed to import. Please, make sure that the provided data is valid.",
       success: "Success",
       do_import: "Import",
-      scan_qr: "or scan QR code instead?",
+      scan_qr: "or scan QR code instead?"
     },
     scanQrWif: {
       go_back: "Go Back",
@@ -91,15 +99,15 @@ module.exports = {
       with_address: "with address",
       imported_segwit: "Imported SegWit",
       imported_legacy: "Imported Legacy",
-      imported_watchonly: "Imported Watch-only",
-    },
+      imported_watchonly: "Imported Watch-only"
+    }
   },
   transactions: {
     list: {
       tabBarLabel: "Transactions",
       title: "transactions",
       description: "A list of ingoing or outgoing transactions of your wallets",
-      conf: "conf",
+      conf: "conf"
     },
     details: {
       title: "Transaction",
@@ -107,20 +115,21 @@ module.exports = {
       to: "To",
       copy: "Copy",
       transaction_details: "Transaction details",
-      show_in_block_explorer: "View in block explorer",
-    },
+      show_in_block_explorer: "View in block explorer"
+    }
   },
   send: {
     header: "Send",
     success: {
-      done: "Done",
+      done: "Done"
     },
     details: {
       title: "create transaction",
       amount_field_is_not_valid: "Amount field is not valid",
       fee_field_is_not_valid: "Fee field is not valid",
       address_field_is_not_valid: "Address field is not valid",
-      create_tx_error: "There was an error creating the transaction. Please, make sure the address is valid.",
+      create_tx_error:
+        "There was an error creating the transaction. Please, make sure the address is valid.",
       address: "address",
       amount_placeholder: "amount to send (in BTCV)",
       fee_placeholder: "plus transaction fee (in BTCV)",
@@ -130,18 +139,19 @@ module.exports = {
       send: "Send",
       create: "Create Invoice",
       remaining_balance: "Remaining balance",
-      total_exceeds_balance: "The sending amount exceeds the available balance.",
+      total_exceeds_balance: "The sending amount exceeds the available balance."
     },
     confirm: {
       header: "Confirm",
-      sendNow: "Send now",
+      sendNow: "Send now"
     },
     create: {
       details: "Details",
       title: "create transaction",
       error: "Error creating transaction. Invalid address or send amount?",
       go_back: "Go Back",
-      this_is_hex: "This is transaction hex, signed and ready to be broadcast to the network.",
+      this_is_hex:
+        "This is transaction hex, signed and ready to be broadcast to the network.",
       to: "To",
       amount: "Amount",
       fee: "Fee",
@@ -149,8 +159,8 @@ module.exports = {
       satoshi_per_byte: "Satoshi per byte",
       memo: "Memo",
       broadcast: "Broadcast",
-      not_enough_fee: "Not enough fee. Increase the fee",
-    },
+      not_enough_fee: "Not enough fee. Increase the fee"
+    }
   },
   receive: {
     header: "Receive",
@@ -160,14 +170,14 @@ module.exports = {
       copiedToClipboard: "Copied to clipboard.",
       label: "Description",
       create: "Create",
-      setAmount: "Receive with amount",
+      setAmount: "Receive with amount"
     },
-    scan_lnurl: "Scan to receive",
+    scan_lnurl: "Scan to receive"
   },
   buyBitcoin: {
     header: "Buy Bitcoin",
     tap_your_address: "Tap your address to copy it to clipboard",
-    copied: "Copied to Clipboard!",
+    copied: "Copied to Clipboard!"
   },
   settings: {
     header: "settings",
@@ -187,20 +197,24 @@ module.exports = {
     language: "Language",
     currency: "Currency",
     advanced_options: "Advanced Options",
-    enable_advanced_mode: "Enable advanced mode",
+    enable_advanced_mode: "Enable advanced mode"
   },
   plausibledeniability: {
     title: "Plausible Deniability",
-    help: "Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, GoldWallet can create another encrypted storage, with a different password. Under pressure, you can disclose this password to a 3rd party. If entered in GoldWallet, it will unlock new fake storage. This will seem legit to a 3rd party, but will secretly keep your main storage with coins safe.",
-    help2: "New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.",
+    help:
+      "Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, GoldWallet can create another encrypted storage, with a different password. Under pressure, you can disclose this password to a 3rd party. If entered in GoldWallet, it will unlock new fake storage. This will seem legit to a 3rd party, but will secretly keep your main storage with coins safe.",
+    help2:
+      "New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.",
     create_fake_storage: "Create fake encrypted storage",
     go_back: "Go Back",
     create_password: "Create a password",
-    create_password_explanation: "Password for fake storage should not match password for your main storage",
-    password_should_not_match: "Password for fake storage should not match password for your main storage",
+    create_password_explanation:
+      "Password for fake storage should not match password for your main storage",
+    password_should_not_match:
+      "Password for fake storage should not match password for your main storage",
     retype_password: "Retype password",
     passwords_do_not_match: "Passwords do not match, try again",
-    success: "Success",
+    success: "Success"
   },
   lnd: {
     title: "manage funds",
@@ -210,12 +224,14 @@ module.exports = {
     withdraw: "Withdraw",
     placeholder: "Invoice",
     expired: "Expired",
-    sameWalletAsInvoiceError: "You can not pay an invoice with the same wallet used to create it.",
+    sameWalletAsInvoiceError:
+      "You can not pay an invoice with the same wallet used to create it."
   },
   pleasebackup: {
     title: "Your wallet is created...",
-    text: "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
-    ok: "OK, I wrote this down!",
+    text:
+      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
+    ok: "OK, I wrote this down!"
   },
   lndViewInvoice: {
     wasnt_paid_and_expired: "This invoice was not paid for and has expired",
@@ -224,6 +240,6 @@ module.exports = {
     sats: "sats",
     for: "For",
     additional_info: "Additional Information",
-    open_direct_channel: "Open direct channel with this node",
-  },
+    open_direct_channel: "Open direct channel with this node"
+  }
 };

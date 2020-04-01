@@ -1,1 +1,3 @@
-export default from '@react-native-community/async-storage/jest/async-storage-mock'
+import asyncStorage from "@react-native-community/async-storage/jest/async-storage-mock";
+
+export default asysncStorage;

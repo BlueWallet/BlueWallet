@@ -1,15 +1,15 @@
-import 'intl';
-import 'intl/locale-data/jsonp/en';
-import React from 'react';
-import './shim.js';
-import { AppRegistry } from 'react-native';
-import WalletMigrate from './screen/wallets/walletMigrate';
-import { name as appName } from './app.json';
-import App from './App';
-import LottieView from 'lottie-react-native';
-import UnlockWith from './UnlockWith.js';
+import "intl";
+import "intl/locale-data/jsonp/en";
+import React from "react";
+import "./shim.js";
+import { AppRegistry } from "react-native";
+import WalletMigrate from "./screen/wallets/walletMigrate";
+import { name as appName } from "./app.json";
+import App from "./App";
+import LottieView from "lottie-react-native";
+import UnlockWith from "./UnlockWith.js";
 
-const A = require('./analytics');
+const A = require("./analytics");
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
@@ -19,7 +19,11 @@ if (!Error.captureStackTrace) {
 class BlueAppComponent extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isMigratingData: true, onAnimationFinished: false, successfullyAuthenticated: false };
+    this.state = {
+      isMigratingData: true,
+      onAnimationFinished: false,
+      successfullyAuthenticated: false
+    };
   }
 
   componentDidMount() {
@@ -50,7 +54,7 @@ class BlueAppComponent extends React.Component {
         <LottieView
           ref={ref => (this.loadingSplash = ref)}
           onAnimationFinish={this.onAnimationFinish}
-          source={require('./img/bluewalletsplash.json')}
+          source={require("./img/bluewalletsplash.json")}
           autoPlay
           loop={false}
         />
@@ -60,14 +64,16 @@ class BlueAppComponent extends React.Component {
         return this.state.successfullyAuthenticated ? (
           <App />
         ) : (
-          <UnlockWith onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated} />
+          <UnlockWith
+            onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
+          />
         );
       } else {
         return (
           <LottieView
             ref={ref => (this.loadingSplash = ref)}
             onAnimationFinish={this.onAnimationFinish}
-            source={require('./img/bluewalletsplash.json')}
+            source={require("./img/bluewalletsplash.json")}
             autoPlay
             loop={false}
           />
