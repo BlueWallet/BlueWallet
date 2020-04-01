@@ -24,6 +24,10 @@ export default class ElectrumSettings extends Component {
     };
   }
 
+  componentWillUnmount() {
+    clearInterval(this.state.inverval);
+  }
+
   async componentDidMount() {
     let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
     let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
@@ -36,8 +40,15 @@ export default class ElectrumSettings extends Component {
       sslPort,
     });
 
+    const inverval = setInterval(async () => {
+      this.setState({
+        config: await BlueElectrum.getConfig(),
+      });
+    }, 1000);
+
     await this.setState({
       config: await BlueElectrum.getConfig(),
+      inverval,
     });
   }
 
