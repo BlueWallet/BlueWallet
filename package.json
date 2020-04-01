@@ -160,6 +160,7 @@
   },
   "lint-staged": {
     "./**/*.{ts,tsx,js,jsx}": [
+      "npm run test",
       "npm run lint:fix"
     ]
   },
