@@ -46,7 +46,7 @@ export default class ElectrumSettings extends Component {
       });
     }, 1000);
 
-    await this.setState({
+    this.setState({
       config: await BlueElectrum.getConfig(),
       inverval,
     });
