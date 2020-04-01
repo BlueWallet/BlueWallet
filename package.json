@@ -5,19 +5,24 @@
     "@babel/core": "^7.5.0",
     "@babel/runtime": "^7.5.1",
     "@react-native-community/eslint-config": "^0.0.5",
+    "@typescript-eslint/eslint-plugin": "^2.26.0",
+    "@typescript-eslint/parser": "^2.26.0",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
     "babel-preset-flow": "^6.23.0",
     "eslint": "^6.0.1",
+    "eslint-config-prettier": "^6.0.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.0",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.14.2",
     "flow-bin": "^0.102.0",
+    "husky": "^4.2.3",
     "jest": "^24.8.0",
     "jetifier": "^1.6.3",
+    "lint-staged": "^10.1.1",
     "metro-react-native-babel-preset": "^0.56.0",
     "prettier-eslint-cli": "^5.0.0",
     "react-test-renderer": "16.8.6",
@@ -32,9 +37,10 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npm run releasenotes2json; npm run podinstall; npx jetify",
-    "test": "npm run unit && npm run jest && npm run lint",
+    "test": "npm run unit && npm run jest",
     "jest": "node node_modules/jest/bin/jest.js tests/integration/*",
-    "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ --fix",
+    "lint": "eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/",
+    "lint:fix": "npm lint --fix",
     "unit": "./node_modules/.bin/mocha tests/unit/*"
   },
   "jest": {
@@ -70,7 +76,6 @@
     "dayjs": "1.8.14",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git",
-    "eslint-config-prettier": "6.0.0",
     "eslint-config-standard": "12.0.0",
     "eslint-config-standard-react": "7.0.2",
     "eslint-plugin-prettier": "3.1.0",
@@ -149,5 +154,16 @@
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify"
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "npm test",
+      "npm run lint:fix"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }

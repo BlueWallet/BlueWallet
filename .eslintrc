@@ -1,21 +1,64 @@
 {
-  "parser": "babel-eslint",
-  "plugins": [
-      "react", "prettier"
+  "env": {
+    "jest": true,
+    "react-native/react-native": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/typescript",
+    "prettier",
+    "prettier/react"
   ],
-  "extends": ["standard", "standard-react", "prettier"],
-  "rules": {
-    'prettier/prettier': [
-      'warn',
-      {
-        singleQuote: true,
-        printWidth: 140,
-        trailingComma: 'all'
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": "2019",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-native",
+    "react-hooks",
+    "import",
+    "prettier"
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
       }
-    ]
+    }
   },
-  "env":{
-    "es6": true
-  },
-  "globals": { "fetch": false }
+  "rules": {
+    "@typescript-eslint/camelcase": "off",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/member-delimiter-style": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "no-case-declarations": "off",
+    "no-prototype-builtins": "off",
+    "no-empty": ["error", { "allowEmptyCatch": true }],
+    "require-atomic-updates": "off",
+    "prettier/prettier": "error",
+    "react/display-name": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react-native/no-color-literals": "error",
+    "react-native/no-raw-text": "error",
+    "react-native/no-single-element-style-arrays": "warn",
+    "react-native/no-unused-styles": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
+  }
 }
