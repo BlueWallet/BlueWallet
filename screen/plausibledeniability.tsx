@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* global alert */
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';

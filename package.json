@@ -5,6 +5,10 @@
     "@babel/core": "^7.6.2",
     "@babel/runtime": "^7.6.2",
     "@react-native-community/eslint-config": "^0.0.5",
+    "@types/jest": "^25.1.4",
+    "@types/react": "^16.9.25",
+    "@types/react-native": "^0.61.23",
+    "@types/react-test-renderer": "^16.9.2",
     "babel-cli": "^6.26.0",
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.9.0",
@@ -22,7 +26,8 @@
     "metro-react-native-babel-preset": "^0.56.0",
     "prettier-eslint-cli": "^5.0.0",
     "react-test-renderer": "16.9.0",
-    "rn-nodeify": "github:tradle/rn-nodeify"
+    "rn-nodeify": "github:tradle/rn-nodeify",
+    "typescript": "^3.8.3"
   },
   "engines": {
     "node": ">=10.16.0",
@@ -52,7 +57,8 @@
     },
     "setupFiles": [
       "./tests/setup.js"
-    ]
+    ],
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   },
   "dependencies": {
     "@babel/preset-env": "7.8.4",

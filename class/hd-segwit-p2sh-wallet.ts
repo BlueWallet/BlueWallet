@@ -1,3 +1,4 @@
+// @ts-nocheck
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';

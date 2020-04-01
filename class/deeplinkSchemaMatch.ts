@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
 import BitcoinBIP70TransactionDecode from '../bip70/bip70';

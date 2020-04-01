@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 const createHash = require('create-hash');
 

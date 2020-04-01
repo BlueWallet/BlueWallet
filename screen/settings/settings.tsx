@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Switch, TouchableOpacity } from 'react-native';
 import {

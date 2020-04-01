@@ -13,7 +13,7 @@ import {
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-/** @type {AppStorage} */
+
 const BlueApp = require('../../BlueApp');
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
@@ -135,7 +135,7 @@ const About = () => {
           <BlueTextCentered>
             {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})
           </BlueTextCentered>
-          <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
+          <BlueTextCentered>{new Date(parseInt(getBuildNumber()) * 1000).toUTCString()}</BlueTextCentered>
           <BlueTextCentered>{getBundleId()}</BlueTextCentered>
           <BlueTextCentered>
             w, h = {width}, {height}
