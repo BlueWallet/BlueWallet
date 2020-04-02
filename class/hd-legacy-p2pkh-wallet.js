@@ -1,9 +1,10 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
-import bip39 from 'bip39';
-import BigNumber from 'bignumber.js';
-import signer from '../models/signer';
-const bitcoin = require('bitcoinjs-lib');
-const HDNode = require('bip32');
+import { AbstractHDWallet } from "./abstract-hd-wallet";
+import bip39 from "bip39";
+import BigNumber from "bignumber.js";
+import signer from "../models/signer";
+
+const bitcoin = require("bitcoinjs-lib");
+const HDNode = require("bip32");
 
 /**
  * HD Wallet (BIP39).
@@ -11,8 +12,8 @@ const HDNode = require('bip32');
  * @see https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
  */
 export class HDLegacyP2PKHWallet extends AbstractHDWallet {
-  static type = 'HDlegacyP2PKH';
-  static typeReadable = 'HD Legacy (BIP44 P2PKH)';
+  static type = "HDlegacyP2PKH";
+  static typeReadable = "HD Legacy (BIP44 P2PKH)";
 
   allowSend() {
     return true;
@@ -59,34 +60,36 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
   }
 
   generateAddresses() {
-    let node = bitcoin.bip32.fromBase58(this.getXpub());;
-    for (let index = 0; index <this.num_addresses; index++) {
-      let address = bitcoin.payments.p2pkh({
-        pubkey: node.derive(0).derive(index).publicKey,
+    const node = bitcoin.bip32.fromBase58(this.getXpub());
+    for (let index = 0; index < this.num_addresses; index++) {
+      const address = bitcoin.payments.p2pkh({
+        pubkey: node.derive(0).derive(index).publicKey
       }).address;
       this._address.push(address);
       this._address_to_wif_cache[address] = this._getWIFByIndex(index);
       this._addr_balances[address] = {
         total: 0,
         c: 0,
-        u: 0,
+        u: 0
       };
     }
     console.warn(this._address);
   }
 
   createTx(utxos, amount, fee, address) {
-    for (let utxo of utxos) {
+    for (const utxo of utxos) {
       utxo.wif = this._getWifForAddress(utxo.address);
     }
 
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+    const amountPlusFee = parseFloat(
+      new BigNumber(amount).plus(fee).toString(10)
+    );
     return signer.createHDTransaction(
       utxos,
       address,
       amountPlusFee,
       fee,
-      this.getAddressForTransaction(),
+      this.getAddressForTransaction()
     );
   }
 }

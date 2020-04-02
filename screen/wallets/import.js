@@ -5,10 +5,17 @@ import {
   WatchOnlyWallet,
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
-  HDSegwitBech32Wallet,
-} from '../../class';
-import React, { Component } from 'react';
-import { KeyboardAvoidingView, Platform, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+  HDSegwitBech32Wallet
+} from "../../class";
+import React, { Component } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+  View,
+  TouchableWithoutFeedback,
+  Keyboard
+} from "react-native";
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -18,35 +25,37 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueSpacing20,
-  BlueNavigationStyle,
-} from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import Privacy from '../../Privacy';
-let EV = require('../../events');
+  BlueNavigationStyle
+} from "../../BlueComponents";
+import PropTypes from "prop-types";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
+import Privacy from "../../Privacy";
+
+let EV = require("../../events");
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
-const { width } = Dimensions.get('window');
+const BlueApp = require("../../BlueApp");
+const loc = require("../../loc");
+
+const { width } = Dimensions.get("window");
 
 export default class WalletsImport extends Component {
   static navigationOptions = {
     ...BlueNavigationStyle(),
-    title: loc.wallets.import.title,
+    title: loc.wallets.import.title
   };
 
   constructor(props) {
     super(props);
     this.state = {
       isLoading: true,
-      isToolbarVisibleForAndroid: false,
+      isToolbarVisibleForAndroid: false
     };
   }
 
   componentDidMount() {
     this.setState({
       isLoading: false,
-      label: '',
+      label: ""
     });
     Privacy.enableBlur();
   }
@@ -57,11 +66,13 @@ export default class WalletsImport extends Component {
 
   async _saveWallet(w) {
     if (BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret)) {
-      alert('This wallet has been previously imported.');
+      alert("This wallet has been previously imported.");
     } else {
       alert(loc.wallets.import.success);
-      ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-      w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
+      ReactNativeHapticFeedback.trigger("notificationSuccess", {
+        ignoreAndroidSystemSettings: false
+      });
+      w.setLabel(loc.wallets.import.imported + " " + w.typeReadable);
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -72,12 +83,12 @@ export default class WalletsImport extends Component {
   async importMnemonic(text) {
     try {
       // trying other wallet types
-      let segwitWallet = new SegwitP2SHWallet();
+      const segwitWallet = new SegwitP2SHWallet();
       segwitWallet.setSecret(text);
       if (segwitWallet.getAddress()) {
         // ok its a valid WIF
 
-        let legacyWallet = new LegacyWallet();
+        const legacyWallet = new LegacyWallet();
         legacyWallet.setSecret(text);
 
         await legacyWallet.fetchBalance();
@@ -95,7 +106,7 @@ export default class WalletsImport extends Component {
 
       // case - WIF is valid, just has uncompressed pubkey
 
-      let legacyWallet = new LegacyWallet();
+      const legacyWallet = new LegacyWallet();
       legacyWallet.setSecret(text);
       if (legacyWallet.getAddress()) {
         await legacyWallet.fetchBalance();
@@ -105,7 +116,7 @@ export default class WalletsImport extends Component {
 
       // if we're here - nope, its not a valid WIF
 
-      let hd2 = new HDSegwitP2SHWallet();
+      const hd2 = new HDSegwitP2SHWallet();
       hd2.setSecret(text);
       if (hd2.validateMnemonic()) {
         hd2.generateAddresses();
@@ -116,7 +127,7 @@ export default class WalletsImport extends Component {
         }
       }
 
-      let hd4 = new HDSegwitBech32Wallet();
+      const hd4 = new HDSegwitBech32Wallet();
       hd4.setSecret(text);
       if (hd4.validateMnemonic()) {
         hd4.generateAddresses();
@@ -127,7 +138,7 @@ export default class WalletsImport extends Component {
         }
       }
 
-      let hd3 = new HDLegacyP2PKHWallet();
+      const hd3 = new HDLegacyP2PKHWallet();
       hd3.setSecret(text);
       if (hd3.validateMnemonic()) {
         hd3.generateAddresses();
@@ -166,7 +177,7 @@ export default class WalletsImport extends Component {
 
       // not valid? maybe its a watch-only address?
 
-      let watchOnly = new WatchOnlyWallet();
+      const watchOnly = new WatchOnlyWallet();
       watchOnly.setSecret(text);
       if (watchOnly.valid()) {
         await watchOnly.fetchTransactions();
@@ -182,7 +193,9 @@ export default class WalletsImport extends Component {
     }
 
     alert(loc.wallets.import.error);
-    ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+    ReactNativeHapticFeedback.trigger("notificationError", {
+      ignoreAndroidSystemSettings: false
+    });
     // Plan:
     // 0. check if its HDSegwitBech32Wallet (BIP84)
     // 1. check if its HDSegwitP2SHWallet (BIP49)
@@ -197,7 +210,7 @@ export default class WalletsImport extends Component {
 
   setLabel(text) {
     this.setState({
-      label: text,
+      label: text
     }); /* also, a hack to make screen update new typed text */
   }
 
@@ -211,7 +224,10 @@ export default class WalletsImport extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
+      <SafeBlueArea
+        forceInset={{ horizontal: "always" }}
+        style={{ flex: 1, paddingTop: 40 }}
+      >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView behavior="position" enabled>
             <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
@@ -223,23 +239,37 @@ export default class WalletsImport extends Component {
               onChangeText={text => {
                 this.setLabel(text);
               }}
-              inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
-              onFocus={() => this.setState({ isToolbarVisibleForAndroid: true })}
-              onBlur={() => this.setState({ isToolbarVisibleForAndroid: false })}
+              inputAccessoryViewID={
+                BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID
+              }
+              onFocus={() =>
+                this.setState({ isToolbarVisibleForAndroid: true })
+              }
+              onBlur={() =>
+                this.setState({ isToolbarVisibleForAndroid: false })
+              }
             />
             {Platform.select({
               ios: (
                 <BlueDoneAndDismissKeyboardInputAccessory
-                  onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
-                  onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+                  onClearTapped={() =>
+                    this.setState({ label: "" }, () => Keyboard.dismiss())
+                  }
+                  onPasteTapped={text =>
+                    this.setState({ label: text }, () => Keyboard.dismiss())
+                  }
                 />
               ),
               android: this.state.isToolbarVisibleForAndroid && (
                 <BlueDoneAndDismissKeyboardInputAccessory
-                  onClearTapped={() => this.setState({ label: '' }, () => Keyboard.dismiss())}
-                  onPasteTapped={text => this.setState({ label: text }, () => Keyboard.dismiss())}
+                  onClearTapped={() =>
+                    this.setState({ label: "" }, () => Keyboard.dismiss())
+                  }
+                  onPasteTapped={text =>
+                    this.setState({ label: text }, () => Keyboard.dismiss())
+                  }
                 />
-              ),
+              )
             })}
           </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
@@ -247,14 +277,14 @@ export default class WalletsImport extends Component {
         <BlueSpacing20 />
         <View
           style={{
-            alignItems: 'center',
+            alignItems: "center"
           }}
         >
           <BlueButton
             disabled={!this.state.label}
             title={loc.wallets.import.do_import}
             buttonStyle={{
-              width: width / 1.5,
+              width: width / 1.5
             }}
             onPress={async () => {
               if (!this.state.label) {
@@ -269,7 +299,7 @@ export default class WalletsImport extends Component {
           <BlueButtonLink
             title={loc.wallets.import.scan_qr}
             onPress={() => {
-              this.props.navigation.navigate('ScanQrWif');
+              this.props.navigation.navigate("ScanQrWif");
             }}
           />
         </View>
@@ -282,6 +312,6 @@ WalletsImport.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
-    dismiss: PropTypes.func,
-  }),
+    dismiss: PropTypes.func
+  })
 };

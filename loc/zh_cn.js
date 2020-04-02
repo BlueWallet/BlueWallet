@@ -5,12 +5,13 @@ module.exports = {
     bad_password: "密码无效，请重试",
     never: "不",
     continue: "继续",
-    ok: "好的",
+    ok: "好的"
   },
   wallets: {
     select_wallet: "选择钱包",
     options: "选项",
-    createBitcoinWallet: "您当前没有bitcoin钱包，为了支持闪电钱包，我们需要创建或者导入一个比特币钱包，是否需要继续?",
+    createBitcoinWallet:
+      "您当前没有bitcoin钱包，为了支持闪电钱包，我们需要创建或者导入一个比特币钱包，是否需要继续?",
     list: {
       app_name: "GoldWallet",
       title: "钱包",
@@ -24,14 +25,15 @@ module.exports = {
       empty_txs2: "当前无信息",
       empty_txs1_lightning: "闪电钱包可以进行日常交易。 费用极低，速度飞快。",
       empty_txs2_lightning: "要开始使用它，请点击“管理资金”并充值。",
-      tap_here_to_buy: "点击购买比特币",
+      tap_here_to_buy: "点击购买比特币"
     },
     reorder: {
-      title: "重新排列钱包",
+      title: "重新排列钱包"
     },
     add: {
       title: "添加钱包",
-      description: "你可以扫描你的纸质备份钱包 (WIF格式)，或者创建一个新钱包。默认支持隔离见证钱包。",
+      description:
+        "你可以扫描你的纸质备份钱包 (WIF格式)，或者创建一个新钱包。默认支持隔离见证钱包。",
       scan: "扫描",
       create: "创建",
       label_new_segwit: "新隔离见证(Segwit)",
@@ -43,7 +45,7 @@ module.exports = {
       imported: "已经导入",
       coming_soon: "即将来临",
       lightning: "闪电",
-      bitcoin: "Bitcoin Vault",
+      bitcoin: "Bitcoin Vault"
     },
     details: {
       title: "钱包",
@@ -60,23 +62,24 @@ module.exports = {
       delete_this_wallet: "删除这个钱包",
       export_backup: "导出 / 备份",
       buy_bitcoin: "购买比特币",
-      show_xpub: "展示钱包 XPUB",
+      show_xpub: "展示钱包 XPUB"
     },
     export: {
-      title: "钱包导出",
+      title: "钱包导出"
     },
     xpub: {
       title: "钱包 XPUB",
-      copiedToClipboard: "复制到粘贴板.",
+      copiedToClipboard: "复制到粘贴板."
     },
     import: {
       title: "导入",
-      explanation: "输入你的助记词，私钥，WIF，或者其他格式的数据。GoldWallet将尽可能地自动识别格式并导入钱包。",
+      explanation:
+        "输入你的助记词，私钥，WIF，或者其他格式的数据。GoldWallet将尽可能地自动识别格式并导入钱包。",
       imported: "已经导入",
       error: "导入失败，请确认你提供的信息是有效的",
       success: "成功",
       do_import: "导入",
-      scan_qr: "或扫描二维码替代？",
+      scan_qr: "或扫描二维码替代？"
     },
     scanQrWif: {
       go_back: "回退",
@@ -91,15 +94,15 @@ module.exports = {
       with_address: "地址为",
       imported_segwit: "SegWit已经导入",
       imported_legacy: "Legacy已经导入",
-      imported_watchonly: "导入只读",
-    },
+      imported_watchonly: "导入只读"
+    }
   },
   transactions: {
     list: {
       tabBarLabel: "转账",
       title: "转账",
       description: "当前所有钱包的转入和转出记录",
-      conf: "确认",
+      conf: "确认"
     },
     details: {
       title: "转账",
@@ -107,13 +110,13 @@ module.exports = {
       to: "输出",
       copy: "复制",
       transaction_details: "转账详情",
-      show_in_block_explorer: "在区块探测中查看",
-    },
+      show_in_block_explorer: "在区块探测中查看"
+    }
   },
   send: {
     header: "发送",
     success: {
-      done: "完成",
+      done: "完成"
     },
     details: {
       title: "创建交易",
@@ -130,11 +133,11 @@ module.exports = {
       send: "发送",
       create: "创建",
       remaining_balance: "剩余金额",
-      total_exceeds_balance: "余额不足",
+      total_exceeds_balance: "余额不足"
     },
     confirm: {
       header: "确认",
-      sendNow: "现在发送",
+      sendNow: "现在发送"
     },
     create: {
       details: "详情",
@@ -149,8 +152,8 @@ module.exports = {
       satoshi_per_byte: "聪每字节",
       memo: "备忘录",
       broadcast: "广播",
-      not_enough_fee: "手续费不够，请增加手续费",
-    },
+      not_enough_fee: "手续费不够，请增加手续费"
+    }
   },
   receive: {
     header: "收款",
@@ -160,14 +163,14 @@ module.exports = {
       copiedToClipboard: "复制到粘贴板。",
       label: "描述",
       create: "创建",
-      setAmount: "收款金额",
+      setAmount: "收款金额"
     },
-    scan_lnurl: "扫描收款",
+    scan_lnurl: "扫描收款"
   },
   buyBitcoin: {
     header: "购买比特币",
     tap_your_address: "点击地址复制到粘贴板",
-    copied: "复制到粘贴板!",
+    copied: "复制到粘贴板!"
   },
   settings: {
     header: "设置",
@@ -187,11 +190,12 @@ module.exports = {
     language: "语言",
     currency: "货币",
     advanced_options: "高级选项",
-    enable_advanced_mode: "启用高级模式",
+    enable_advanced_mode: "启用高级模式"
   },
   plausibledeniability: {
     title: "可否认性",
-    help: "在某些情况下，您可能被迫透露密码。 为了确保您的比特币安全，GoldWallet可以创建另一个具有不同密码的加密存储。 在被胁迫情况下下，您可以将此密码透露给第三者。 如果在GoldWallet中输入，它将解锁新的虚拟存储。 这对于第三方来说似乎合法，但是会秘密地将您的比特币存放在安全的地方。",
+    help:
+      "在某些情况下，您可能被迫透露密码。 为了确保您的比特币安全，GoldWallet可以创建另一个具有不同密码的加密存储。 在被胁迫情况下下，您可以将此密码透露给第三者。 如果在GoldWallet中输入，它将解锁新的虚拟存储。 这对于第三方来说似乎合法，但是会秘密地将您的比特币存放在安全的地方。",
     help2: "新的空间具备完整的功能，你可以存少量的金额在里面。",
     create_fake_storage: "创建虚拟加密存储",
     go_back: "回退",
@@ -200,7 +204,7 @@ module.exports = {
     password_should_not_match: "虚拟存储空间密码不能和主存储空间密码相同",
     retype_password: "重输密码",
     passwords_do_not_match: "两次输入密码不同，请重新输入",
-    success: "成功",
+    success: "成功"
   },
   lnd: {
     title: "管理资金",
@@ -210,12 +214,13 @@ module.exports = {
     withdraw: "提取",
     placeholder: "账单",
     expired: "失效",
-    sameWalletAsInvoiceError: "你不能用创建账单的钱包去支付",
+    sameWalletAsInvoiceError: "你不能用创建账单的钱包去支付"
   },
   pleasebackup: {
     title: "您的钱包已创建...",
-    text: "请花一点时间在纸上写下这个助记词。 这是您的备份，可用于在其他设备上还原钱包。",
-    ok: "好吧，我写下来！",
+    text:
+      "请花一点时间在纸上写下这个助记词。 这是您的备份，可用于在其他设备上还原钱包。",
+    ok: "好吧，我写下来！"
   },
   lndViewInvoice: {
     wasnt_paid_and_expired: "该账单未付款且已过期",
@@ -224,6 +229,6 @@ module.exports = {
     sats: "sats",
     for: "对于",
     additional_info: "附加信息",
-    open_direct_channel: "使用此节点打开直通道",
-  },
+    open_direct_channel: "使用此节点打开直通道"
+  }
 };

@@ -1,24 +1,29 @@
-import React, { Component } from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import OnAppLaunch from '../../class/onAppLaunch';
-const BlueApp = require('../../BlueApp');
+import React, { Component } from "react";
+import { TouchableOpacity, View } from "react-native";
+import {
+  SafeBlueArea,
+  BlueNavigationStyle,
+  BlueListItem
+} from "../../BlueComponents";
+import PropTypes from "prop-types";
+import OnAppLaunch from "../../class/onAppLaunch";
+
+const BlueApp = require("../../BlueApp");
 
 export default class DefaultView extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: 'On Launch',
+    title: "On Launch"
   });
 
   constructor(props) {
     super(props);
-    this.state = { defaultWalletLabel: '', viewAllWalletsEnabled: true };
+    this.state = { defaultWalletLabel: "", viewAllWalletsEnabled: true };
   }
 
   async componentDidMount() {
     const viewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
-    let defaultWalletLabel = '';
+    let defaultWalletLabel = "";
     const wallet = await OnAppLaunch.getSelectedDefaultWallet();
     if (wallet) {
       defaultWalletLabel = wallet.getLabel();
@@ -27,28 +32,39 @@ export default class DefaultView extends Component {
   }
 
   selectWallet = () => {
-    this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelectValueChanged });
+    this.props.navigation.navigate("SelectWallet", {
+      onWalletSelect: this.onWalletSelectValueChanged
+    });
   };
 
   onViewAllWalletsSwitchValueChanged = async value => {
     await OnAppLaunch.setViewAllWalletsEnabled(value);
     if (value) {
-      return this.setState({ viewAllWalletsEnabled: true, defaultWalletLabel: '' });
+      return this.setState({
+        viewAllWalletsEnabled: true,
+        defaultWalletLabel: ""
+      });
     } else {
       const selectedWallet = await OnAppLaunch.getSelectedDefaultWallet();
-      return this.setState({ viewAllWalletsEnabled: false, defaultWalletLabel: selectedWallet.getLabel() });
+      return this.setState({
+        viewAllWalletsEnabled: false,
+        defaultWalletLabel: selectedWallet.getLabel()
+      });
     }
   };
 
   onWalletSelectValueChanged = async wallet => {
     await OnAppLaunch.setViewAllWalletsEnabled(false);
     await OnAppLaunch.setSelectedDefaultWallet(wallet.getID());
-    this.setState({ defaultWalletLabel: wallet.getLabel(), viewAllWalletsEnabled: false }, () => this.props.navigation.pop());
+    this.setState(
+      { defaultWalletLabel: wallet.getLabel(), viewAllWalletsEnabled: false },
+      () => this.props.navigation.pop()
+    );
   };
 
   render() {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: "always" }} style={{ flex: 1 }}>
         <View>
           <BlueListItem
             title="View All Wallets"
@@ -75,6 +91,6 @@ export default class DefaultView extends Component {
 DefaultView.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    pop: PropTypes.func,
-  }),
+    pop: PropTypes.func
+  })
 };

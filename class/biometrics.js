@@ -1,8 +1,9 @@
-import Biometrics from 'react-native-biometrics';
-const BlueApp = require('../BlueApp');
+import Biometrics from "react-native-biometrics";
+
+const BlueApp = require("../BlueApp");
 
 export default class Biometric {
-  static STORAGEKEY = 'Biometrics';
+  static STORAGEKEY = "Biometrics";
   static FaceID = Biometrics.FaceID;
   static TouchID = Biometrics.TouchID;
   static Biometrics = Biometrics.Biometrics;
@@ -31,7 +32,7 @@ export default class Biometric {
       const enabledBiometrics = await BlueApp.getItem(Biometric.STORAGEKEY);
       return !!enabledBiometrics;
     } catch (_e) {
-      await BlueApp.setItem(Biometric.STORAGEKEY, '');
+      await BlueApp.setItem(Biometric.STORAGEKEY, "");
       return false;
     }
   }
@@ -43,14 +44,16 @@ export default class Biometric {
   }
 
   static async setBiometricUseEnabled(value) {
-    await BlueApp.setItem(Biometric.STORAGEKEY, value === true ? '1' : '');
+    await BlueApp.setItem(Biometric.STORAGEKEY, value === true ? "1" : "");
   }
 
   static async unlockWithBiometrics() {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       try {
-        const isConfirmed = await Biometrics.simplePrompt({ promptMessage: 'Please confirm your identity.' });
+        const isConfirmed = await Biometrics.simplePrompt({
+          promptMessage: "Please confirm your identity."
+        });
         return isConfirmed.success;
       } catch (_e) {
         return false;

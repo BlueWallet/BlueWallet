@@ -1,6 +1,6 @@
 /* global alert */
-import React, { Component } from 'react';
-import { Chain } from '../../models/bitcoinUnits';
+import React, { Component } from "react";
+import { Chain } from "../../models/bitcoinUnits";
 import {
   Text,
   Platform,
@@ -15,51 +15,63 @@ import {
   TouchableOpacity,
   StatusBar,
   Linking,
-  KeyboardAvoidingView,
-} from 'react-native';
-import PropTypes from 'prop-types';
-import { NavigationEvents } from 'react-navigation';
+  KeyboardAvoidingView
+} from "react-native";
+import PropTypes from "prop-types";
+import { NavigationEvents } from "react-navigation";
 import {
   BlueSendButtonIcon,
   BlueListItem,
   BlueReceiveButtonIcon,
   BlueTransactionListItem,
-  BlueWalletNavigationHeader,
-} from '../../BlueComponents';
-import WalletGradient from '../../class/walletGradient';
-import { Icon } from 'react-native-elements';
-import Handoff from 'react-native-handoff';
-import Modal from 'react-native-modal';
-import NavigationService from '../../NavigationService';
+  BlueWalletNavigationHeader
+} from "../../BlueComponents";
+import WalletGradient from "../../class/walletGradient";
+import { Icon } from "react-native-elements";
+import Handoff from "react-native-handoff";
+import Modal from "react-native-modal";
+import NavigationService from "../../NavigationService";
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
-let EV = require('../../events');
-let BlueElectrum = require('../../BlueElectrum');
+const BlueApp = require("../../BlueApp");
+const loc = require("../../loc");
+const EV = require("../../events");
+const BlueElectrum = require("../../BlueElectrum");
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
       headerRight: (
         <TouchableOpacity
-          disabled={navigation.getParam('isLoading') === true}
-          style={{ marginHorizontal: 16, minWidth: 150, justifyContent: 'center', alignItems: 'flex-end' }}
+          disabled={navigation.getParam("isLoading") === true}
+          style={{
+            marginHorizontal: 16,
+            minWidth: 150,
+            justifyContent: "center",
+            alignItems: "flex-end"
+          }}
           onPress={() =>
-            navigation.navigate('WalletDetails', {
-              wallet: navigation.state.params.wallet,
+            navigation.navigate("WalletDetails", {
+              wallet: navigation.state.params.wallet
             })
           }
         >
-          <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
+          <Icon
+            name="kebab-horizontal"
+            type="octicon"
+            size={22}
+            color="#FFFFFF"
+          />
         </TouchableOpacity>
       ),
       headerStyle: {
-        backgroundColor: WalletGradient.headerColorFor(navigation.state.params.wallet.type),
+        backgroundColor: WalletGradient.headerColorFor(
+          navigation.state.params.wallet.type
+        ),
         borderBottomWidth: 0,
         elevation: 0,
-        shadowRadius: 0,
+        shadowRadius: 0
       },
-      headerTintColor: '#FFFFFF',
+      headerTintColor: "#FFFFFF"
     };
   };
 
@@ -69,8 +81,11 @@ export default class WalletTransactions extends Component {
     super(props);
 
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
-    const wallet = props.navigation.getParam('wallet');
+    EV(
+      EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED,
+      this.refreshTransactionsFunction.bind(this)
+    );
+    const wallet = props.navigation.getParam("wallet");
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
       isLoading: true,
@@ -79,7 +94,7 @@ export default class WalletTransactions extends Component {
       wallet: wallet,
       dataSource: this.getTransactions(15),
       limit: 15,
-      pageSize: 20,
+      pageSize: 20
     };
   }
 
@@ -91,7 +106,7 @@ export default class WalletTransactions extends Component {
    * Forcefully fetches TXs and balance for wallet
    */
   refreshTransactionsFunction() {
-    let that = this;
+    const that = this;
     setTimeout(function() {
       that.refreshTransactions();
     }, 4000); // giving a chance to remote server to propagate
@@ -105,9 +120,9 @@ export default class WalletTransactions extends Component {
    * @returns {Array}
    */
   getTransactions(limit = Infinity) {
-    let wallet = this.props.navigation.getParam('wallet');
+    const wallet = this.props.navigation.getParam("wallet");
     let txs = wallet.getTransactions();
-    for (let tx of txs) {
+    for (const tx of txs) {
       tx.sort_ts = +new Date(tx.received);
     }
     txs = txs.sort(function(a, b) {
@@ -118,12 +133,12 @@ export default class WalletTransactions extends Component {
 
   redrawScreen() {
     InteractionManager.runAfterInteractions(async () => {
-      console.log('wallets/transactions redrawScreen()');
+      console.log("wallets/transactions redrawScreen()");
 
       this.setState({
         isLoading: false,
         showShowFlatListRefreshControl: false,
-        dataSource: this.getTransactions(this.state.limit),
+        dataSource: this.getTransactions(this.state.limit)
       });
     });
   }
@@ -136,7 +151,7 @@ export default class WalletTransactions extends Component {
     this.setState(
       {
         showShowFlatListRefreshControl: true,
-        isLoading: true,
+        isLoading: true
       },
       async () => {
         let noErr = true;
@@ -145,14 +160,19 @@ export default class WalletTransactions extends Component {
           await BlueElectrum.ping();
           await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
-          let wallet = this.state.wallet;
-          let balanceStart = +new Date();
+          const wallet = this.state.wallet;
+          const balanceStart = +new Date();
           const oldBalance = wallet.getBalance();
           await wallet.fetchBalance();
           if (oldBalance !== wallet.getBalance()) smthChanged = true;
-          let balanceEnd = +new Date();
-          console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          let start = +new Date();
+          const balanceEnd = +new Date();
+          console.log(
+            wallet.getLabel(),
+            "fetch balance took",
+            (balanceEnd - balanceStart) / 1000,
+            "sec"
+          );
+          const start = +new Date();
           const oldTxLen = wallet.getTransactions().length;
           await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {
@@ -162,23 +182,28 @@ export default class WalletTransactions extends Component {
             await wallet.fetchUserInvoices();
           }
           if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
-          let end = +new Date();
-          console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
+          const end = +new Date();
+          console.log(
+            wallet.getLabel(),
+            "fetch tx took",
+            (end - start) / 1000,
+            "sec"
+          );
         } catch (err) {
           noErr = false;
           alert(err.message);
           this.setState({
             isLoading: false,
-            showShowFlatListRefreshControl: false,
+            showShowFlatListRefreshControl: false
           });
         }
         if (noErr && smthChanged) {
-          console.log('saving to disk');
+          console.log("saving to disk");
           await BlueApp.saveToDisk(); // caching
           EV(EV.enum.TRANSACTIONS_COUNT_CHANGED); // let other components know they should redraw
         }
         this.redrawScreen();
-      },
+      }
     );
   }
 
@@ -186,21 +211,25 @@ export default class WalletTransactions extends Component {
 
   renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return (this.getTransactions(Infinity).length > this.state.limit && <ActivityIndicator style={{ marginVertical: 20 }} />) || <View />;
+    return (
+      (this.getTransactions(Infinity).length > this.state.limit && (
+        <ActivityIndicator style={{ marginVertical: 20 }} />
+      )) || <View />
+    );
   };
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flex: 1, flexDirection: 'row' }}>
+      <View style={{ flex: 1, flexDirection: "row" }}>
         <Text
           style={{
             flex: 1,
             marginLeft: 16,
             marginTop: 24,
             marginBottom: 8,
-            fontWeight: 'bold',
+            fontWeight: "bold",
             fontSize: 24,
-            color: BlueApp.settings.foregroundColor,
+            color: BlueApp.settings.foregroundColor
           }}
         >
           {loc.transactions.list.title}
@@ -211,8 +240,8 @@ export default class WalletTransactions extends Component {
 
   onWalletSelect = async wallet => {
     if (wallet) {
-      NavigationService.navigate('WalletTransactions', {
-        key: `WalletTransactions-${wallet.getID()}`,
+      NavigationService.navigate("WalletTransactions", {
+        key: `WalletTransactions-${wallet.getID()}`
       });
       /** @type {LightningCustodianWallet} */
       let toAddress = false;
@@ -226,17 +255,17 @@ export default class WalletTransactions extends Component {
           return alert(Err.message);
         }
       }
-      this.props.navigation.navigate('SendDetails', {
+      this.props.navigation.navigate("SendDetails", {
         memo: loc.lnd.refill_lnd_balance,
         fromSecret: wallet.getSecret(),
         address: toAddress,
-        fromWallet: wallet,
+        fromWallet: wallet
       });
     }
   };
 
   async onWillBlur() {
-    StatusBar.setBarStyle('dark-content');
+    StatusBar.setBarStyle("dark-content");
   }
 
   componentWillUnmount() {
@@ -244,7 +273,12 @@ export default class WalletTransactions extends Component {
   }
 
   renderItem = item => {
-    return <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()} />;
+    return (
+      <BlueTransactionListItem
+        item={item.item}
+        itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
+      />
+    );
   };
 
   render() {
@@ -254,23 +288,34 @@ export default class WalletTransactions extends Component {
         {this.state.wallet.chain === Chain.ONCHAIN}
         <NavigationEvents
           onWillFocus={() => {
-            StatusBar.setBarStyle('light-content');
+            StatusBar.setBarStyle("light-content");
             this.redrawScreen();
           }}
           onWillBlur={() => this.onWillBlur()}
-          onDidFocus={() => this.props.navigation.setParams({ isLoading: false })}
+          onDidFocus={() =>
+            this.props.navigation.setParams({ isLoading: false })
+          }
         />
         <BlueWalletNavigationHeader
           wallet={this.state.wallet}
           onWalletUnitChange={wallet =>
             InteractionManager.runAfterInteractions(async () => {
-              this.setState({ wallet }, () => InteractionManager.runAfterInteractions(() => BlueApp.saveToDisk()));
+              this.setState({ wallet }, () =>
+                InteractionManager.runAfterInteractions(() =>
+                  BlueApp.saveToDisk()
+                )
+              );
             })
           }
         />
-        <View style={{ backgroundColor: '#FFFFFF' }}>
-          <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
-          </View>
+        <View style={{ backgroundColor: "#FFFFFF" }}>
+          <View
+            style={{
+              flexDirection: "row",
+              margin: 16,
+              justifyContent: "space-evenly"
+            }}
+          ></View>
           <FlatList
             onEndReachedThreshold={0.3}
             onEndReached={() => {
@@ -283,21 +328,30 @@ export default class WalletTransactions extends Component {
               }
 
               this.setState({
-                dataSource: this.getTransactions(this.state.limit + this.state.pageSize),
+                dataSource: this.getTransactions(
+                  this.state.limit + this.state.pageSize
+                ),
                 limit: this.state.limit + this.state.pageSize,
-                pageSize: this.state.pageSize * 2,
+                pageSize: this.state.pageSize * 2
               });
             }}
             ListHeaderComponent={this.renderListHeaderComponent}
             ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
-              <ScrollView style={{ minHeight: 100 }} contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
+              <ScrollView
+                style={{ minHeight: 100 }}
+                contentContainerStyle={{
+                  flex: 1,
+                  justifyContent: "center",
+                  paddingHorizontal: 16
+                }}
+              >
                 <Text
                   numberOfLines={0}
                   style={{
                     fontSize: 18,
-                    color: '#9aa0aa',
-                    textAlign: 'center',
+                    color: "#9aa0aa",
+                    textAlign: "center"
                   }}
                 >
                   {true && loc.wallets.list.empty_txs1}
@@ -305,8 +359,8 @@ export default class WalletTransactions extends Component {
                 <Text
                   style={{
                     fontSize: 18,
-                    color: '#9aa0aa',
-                    textAlign: 'center',
+                    color: "#9aa0aa",
+                    textAlign: "center"
                   }}
                 >
                   {true && loc.wallets.list.empty_txs2}
@@ -317,7 +371,10 @@ export default class WalletTransactions extends Component {
               </ScrollView>
             }
             refreshControl={
-              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
+              <RefreshControl
+                onRefresh={() => this.refreshTransactions()}
+                refreshing={this.state.showShowFlatListRefreshControl}
+              />
             }
             extraData={this.state.dataSource}
             data={this.state.dataSource}
@@ -328,14 +385,14 @@ export default class WalletTransactions extends Component {
         </View>
         <View
           style={{
-            flexDirection: 'row',
-            alignSelf: 'center',
-            backgroundColor: 'transparent',
-            position: 'absolute',
+            flexDirection: "row",
+            alignSelf: "center",
+            backgroundColor: "transparent",
+            position: "absolute",
             bottom: 30,
             borderRadius: 30,
             minHeight: 48,
-            overflow: 'hidden',
+            overflow: "hidden"
           }}
         >
           {(() => {
@@ -343,7 +400,9 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
-                      navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
+                    navigate("ReceiveDetails", {
+                      secret: this.state.wallet.getSecret()
+                    });
                   }}
                 />
               );
@@ -355,13 +414,12 @@ export default class WalletTransactions extends Component {
               return (
                 <BlueSendButtonIcon
                   onPress={() => {
-                      navigate('SendDetails', {
-                        fromAddress: this.state.wallet.getAddress(),
-                        fromSecret: this.state.wallet.getSecret(),
-                        fromWallet: this.state.wallet,
-                      });
-                    }
-                  }
+                    navigate("SendDetails", {
+                      fromAddress: this.state.wallet.getAddress(),
+                      fromSecret: this.state.wallet.getSecret(),
+                      fromWallet: this.state.wallet
+                    });
+                  }}
                 />
               );
             }
@@ -374,28 +432,28 @@ export default class WalletTransactions extends Component {
 
 const styles = StyleSheet.create({
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderColor: "rgba(0, 0, 0, 0.1)",
     minHeight: 200,
-    height: 200,
+    height: 200
   },
   advancedTransactionOptionsModalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 130,
+    borderColor: "rgba(0, 0, 0, 0.1)",
+    minHeight: 130
   },
   bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
+    justifyContent: "flex-end",
+    margin: 0
+  }
 });
 
 WalletTransactions.propTypes = {
@@ -403,6 +461,6 @@ WalletTransactions.propTypes = {
     navigate: PropTypes.func,
     goBack: PropTypes.func,
     getParam: PropTypes.func,
-    setParams: PropTypes.func,
-  }),
+    setParams: PropTypes.func
+  })
 };

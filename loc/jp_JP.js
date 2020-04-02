@@ -1,20 +1,23 @@
 module.exports = {
   _: {
-    storage_is_encrypted: "ウォレットは暗号化されています。復号にはパスワードが必要です。",
+    storage_is_encrypted:
+      "ウォレットは暗号化されています。復号にはパスワードが必要です。",
     enter_password: "パスワードを入力",
     bad_password: "パスワードが間違っています。",
     never: "データなし",
     continue: "続行",
-    ok: "OK",
+    ok: "OK"
   },
   wallets: {
     select_wallet: "ウォレット選択",
     options: "オプション",
-    createBitcoinWallet: "Bitcoin ウォレットを持っていません。Lightning ウォレットへ課金する場合は Bitcoin ウォレットを新規作成するかインポートする必要があります。続行しますか?",
+    createBitcoinWallet:
+      "Bitcoin ウォレットを持っていません。Lightning ウォレットへ課金する場合は Bitcoin ウォレットを新規作成するかインポートする必要があります。続行しますか?",
     list: {
       app_name: "GoldWallet",
       title: "ウォレット",
-      header: "ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。コインを受信するために共有できます。",
+      header:
+        "ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。コインを受信するために共有できます。",
       add: "ウォレットの追加",
       create_a_wallet: "ウォレットの作成",
       create_a_wallet1: "ウォレット作成は無料で",
@@ -22,16 +25,19 @@ module.exports = {
       latest_transaction: "最新の取引",
       empty_txs1: "ここに取引が表示されます",
       empty_txs2: "現在は何もありません",
-      empty_txs1_lightning: "Lightning ウォレットを日常の取引にご利用ください。手数料は安く、送金はあっという間に完了します。",
-      empty_txs2_lightning: "\n利用を開始するには\"資金の管理\"をタップしてウォレットへ送金してください。",
-      tap_here_to_buy: "Bitcoin を購入するにはここをタップ",
+      empty_txs1_lightning:
+        "Lightning ウォレットを日常の取引にご利用ください。手数料は安く、送金はあっという間に完了します。",
+      empty_txs2_lightning:
+        '\n利用を開始するには"資金の管理"をタップしてウォレットへ送金してください。',
+      tap_here_to_buy: "Bitcoin を購入するにはここをタップ"
     },
     reorder: {
-      title: "ウォレットの並び替え",
+      title: "ウォレットの並び替え"
     },
     add: {
       title: "ウォレットの追加",
-      description: "ペーパーウォレット(WIF 形式- Wallet Import Format)をスキャンするかウォレットを新規作成できます。既定で Segwit ウォレットが作成されます。",
+      description:
+        "ペーパーウォレット(WIF 形式- Wallet Import Format)をスキャンするかウォレットを新規作成できます。既定で Segwit ウォレットが作成されます。",
       scan: "読取り",
       create: "作成",
       label_new_segwit: "新規 SegWit",
@@ -43,7 +49,7 @@ module.exports = {
       imported: "インポート完了",
       coming_soon: "準備中",
       lightning: "Lightning",
-      bitcoin: "Bitcoin Vault",
+      bitcoin: "Bitcoin Vault"
     },
     details: {
       title: "ウォレット",
@@ -60,23 +66,25 @@ module.exports = {
       delete_this_wallet: "このウォレットの削除",
       export_backup: "エクスポート / バックアップ",
       buy_bitcoin: "Bitcoin の購入",
-      show_xpub: "ウォレット XPUB の表示",
+      show_xpub: "ウォレット XPUB の表示"
     },
     export: {
-      title: "ウォレットのエクスポート",
+      title: "ウォレットのエクスポート"
     },
     xpub: {
       title: "ウォレット XPUB",
-      copiedToClipboard: "クリップボードにコピーしました。",
+      copiedToClipboard: "クリップボードにコピーしました。"
     },
     import: {
       title: "インポート",
-      explanation: "ここにニーモニック、秘密鍵(プライベートキー）、WIFなどを入力してください。GoldWallet が正しい形式を推測しウォレットをインポートします。",
+      explanation:
+        "ここにニーモニック、秘密鍵(プライベートキー）、WIFなどを入力してください。GoldWallet が正しい形式を推測しウォレットをインポートします。",
       imported: "インポート完了",
-      error: "インポートに失敗しました。入力したデータが有効か確認してください。",
+      error:
+        "インポートに失敗しました。入力したデータが有効か確認してください。",
       success: "成功",
       do_import: "インポート",
-      scan_qr: "QR コードの読み取り",
+      scan_qr: "QR コードの読み取り"
     },
     scanQrWif: {
       go_back: "戻る",
@@ -91,15 +99,15 @@ module.exports = {
       with_address: "アドレス",
       imported_segwit: "SegWit インポート完了",
       imported_legacy: "Legacy インポート完了",
-      imported_watchonly: "閲覧専用 インポート完了",
-    },
+      imported_watchonly: "閲覧専用 インポート完了"
+    }
   },
   transactions: {
     list: {
       tabBarLabel: "取引",
       title: "取引",
       description: "ウォレットの送金または入金のリスト",
-      conf: "確認",
+      conf: "確認"
     },
     details: {
       title: "取引",
@@ -107,20 +115,21 @@ module.exports = {
       to: "送り先",
       copy: "コピー",
       transaction_details: "取引詳細",
-      show_in_block_explorer: "Block Explorer で表示",
-    },
+      show_in_block_explorer: "Block Explorer で表示"
+    }
   },
   send: {
     header: "送金",
     success: {
-      done: "完了",
+      done: "完了"
     },
     details: {
       title: "取引の作成",
       amount_field_is_not_valid: "金額欄が正しくありません",
       fee_field_is_not_valid: "手数料欄が正しくありません",
       address_field_is_not_valid: "アドレス欄が正しくありません",
-      create_tx_error: "取引作成中にエラーが発生しました。有効な送金アドレスか確認してください。",
+      create_tx_error:
+        "取引作成中にエラーが発生しました。有効な送金アドレスか確認してください。",
       address: "アドレス",
       amount_placeholder: "送金額 (BTCV)",
       fee_placeholder: "取引手数料 (BTCV)",
@@ -130,16 +139,17 @@ module.exports = {
       send: "送金",
       create: "作成",
       remaining_balance: "残高",
-      total_exceeds_balance: "送金額が利用可能残高を超えています。",
+      total_exceeds_balance: "送金額が利用可能残高を超えています。"
     },
     confirm: {
       header: "確認",
-      sendNow: "送金実行",
+      sendNow: "送金実行"
     },
     create: {
       title: "詳細",
       details: "取引作成",
-      error: "取引作成でエラーが発生しました。アドレスまたは送金額を確認してください。",
+      error:
+        "取引作成でエラーが発生しました。アドレスまたは送金額を確認してください。",
       go_back: "戻る",
       this_is_hex: "署名されネットワークへ送信される 16 進数取引コードです",
       to: "送金先",
@@ -149,8 +159,8 @@ module.exports = {
       satoshi_per_byte: "Satoshi（サトシ）/1バイト",
       memo: "メモ",
       broadcast: "送信",
-      not_enough_fee: "手数料不足です。増額してください",
-    },
+      not_enough_fee: "手数料不足です。増額してください"
+    }
   },
   receive: {
     header: "入金",
@@ -160,14 +170,14 @@ module.exports = {
       copiedToClipboard: "クリップボードにコピーしました。",
       label: "概要",
       create: "作成",
-      setAmount: "入金額",
+      setAmount: "入金額"
     },
-    scan_lnurl: "スキャンして受信",
+    scan_lnurl: "スキャンして受信"
   },
   buyBitcoin: {
     header: "Bitcoin の購入",
     tap_your_address: "タップしてアドレスをクリップボードにコピー",
-    copied: "クリップボードにコピーしました!",
+    copied: "クリップボードにコピーしました!"
   },
   settings: {
     header: "設定",
@@ -187,20 +197,24 @@ module.exports = {
     language: "言語",
     currency: "通貨",
     advanced_options: "詳細オプション",
-    enable_advanced_mode: "詳細モードを有効にする",
+    enable_advanced_mode: "詳細モードを有効にする"
   },
   plausibledeniability: {
     title: "拒否権",
-    help: "BuleWallet のウォレットの復号に必要なパスワードを第三者に強要される場合、コインを安全に保護するためにメインのウォレットとは異なるパスワードで 暗号化されたダミーのウォレットを作成することが可能です。第三者へ異なるパスワードを提供すれば、GoldWallet のダミーの 暗号化ウォレットを復号することとなり、メインのウォレットは隠匿され コインは安全に保護されます。",
-    help2: "新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことで ダミーと疑われないようにすることが可能です。",
+    help:
+      "BuleWallet のウォレットの復号に必要なパスワードを第三者に強要される場合、コインを安全に保護するためにメインのウォレットとは異なるパスワードで 暗号化されたダミーのウォレットを作成することが可能です。第三者へ異なるパスワードを提供すれば、GoldWallet のダミーの 暗号化ウォレットを復号することとなり、メインのウォレットは隠匿され コインは安全に保護されます。",
+    help2:
+      "新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことで ダミーと疑われないようにすることが可能です。",
     create_fake_storage: "ダミーの暗号化ウォレットの作成",
     go_back: "戻る",
     create_password: "パスワードの作成",
-    create_password_explanation: "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
-    password_should_not_match: "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
+    create_password_explanation:
+      "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
+    password_should_not_match:
+      "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
     retype_password: "パスワードの再入力",
     passwords_do_not_match: "パスワードが一致しません",
-    success: "成功",
+    success: "成功"
   },
   lnd: {
     title: "資金の管理",
@@ -210,20 +224,23 @@ module.exports = {
     withdraw: "引き出し",
     placeholder: "入金依頼",
     expired: "失効",
-    sameWalletAsInvoiceError: "以前作成したウォレットと同じウォレットへの支払いはできません。",
+    sameWalletAsInvoiceError:
+      "以前作成したウォレットと同じウォレットへの支払いはできません。"
   },
   pleasebackup: {
     title: "ウォレットを作成しています...",
-    text: "すべてのニーモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https//electrum.org/) へニーモニックを使用してウォレットをリストアすることが可能です。",
-    ok: "すべてのニーモニックを書きとめました",
+    text:
+      "すべてのニーモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https//electrum.org/) へニーモニックを使用してウォレットをリストアすることが可能です。",
+    ok: "すべてのニーモニックを書きとめました"
   },
   lndViewInvoice: {
-    wasnt_paid_and_expired: "この請求書は支払いが行われなかったため無効になりました",
+    wasnt_paid_and_expired:
+      "この請求書は支払いが行われなかったため無効になりました",
     has_been_paid: "この請求書は支払い完了しました",
     please_pay: "支払う額",
     sats: "sats",
     for: "メモ",
     additional_info: "追加情報",
-    open_direct_channel: "このノードの直接チャネルを作成",
-  },
+    open_direct_channel: "このノードの直接チャネルを作成"
+  }
 };

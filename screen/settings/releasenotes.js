@@ -1,20 +1,26 @@
-import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
-import { BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import React, { Component } from "react";
+import { ScrollView } from "react-native";
+import {
+  BlueLoading,
+  SafeBlueArea,
+  BlueCard,
+  BlueText,
+  BlueNavigationStyle
+} from "../../BlueComponents";
+import PropTypes from "prop-types";
 /** @type {AppStorage} */
-const notes = require('../../release-notes');
+const notes = require("../../release-notes");
 
 export default class ReleaseNotes extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: 'Release notes',
+    title: "Release notes"
   });
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
+      isLoading: true
     };
   }
 
@@ -22,7 +28,7 @@ export default class ReleaseNotes extends Component {
     console.log(notes);
     this.setState({
       isLoading: false,
-      notes: notes,
+      notes: notes
     });
   }
 
@@ -32,7 +38,7 @@ export default class ReleaseNotes extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: "always" }} style={{ flex: 1 }}>
         <ScrollView>
           <BlueCard>
             <BlueText>{this.state.notes}</BlueText>
@@ -46,6 +52,6 @@ export default class ReleaseNotes extends Component {
 ReleaseNotes.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
+    goBack: PropTypes.func
+  })
 };

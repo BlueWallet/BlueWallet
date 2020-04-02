@@ -1,13 +1,15 @@
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
-const createHash = require('create-hash');
+import { BitcoinUnit, Chain } from "../models/bitcoinUnits";
+
+const createHash = require("create-hash");
+
 export class AbstractWallet {
-  static type = 'abstract';
-  static typeReadable = 'abstract';
+  static type = "abstract";
+  static typeReadable = "abstract";
 
   static fromJson(obj) {
-    let obj2 = JSON.parse(obj);
-    let temp = new this();
-    for (let key2 of Object.keys(obj2)) {
+    const obj2 = JSON.parse(obj);
+    const temp = new this();
+    for (const key2 of Object.keys(obj2)) {
       temp[key2] = obj2[key2];
     }
 
@@ -17,8 +19,8 @@ export class AbstractWallet {
   constructor() {
     this.type = this.constructor.type;
     this.typeReadable = this.constructor.typeReadable;
-    this.label = '';
-    this.secret = ''; // private key or recovery phrase
+    this.label = "";
+    this.secret = ""; // private key or recovery phrase
     this.balance = 0; // SAT
     this.unconfirmed_balance = 0; // SAT
     this.transactions = [];
@@ -33,10 +35,10 @@ export class AbstractWallet {
   }
 
   getID() {
-    return createHash('sha256')
+    return createHash("sha256")
       .update(this.getSecret())
       .digest()
-      .toString('hex');
+      .toString("hex");
   }
 
   getTransactions() {
@@ -64,7 +66,7 @@ export class AbstractWallet {
   }
 
   getPreferredBalanceUnit() {
-    for (let value of Object.values(BitcoinUnit)) {
+    for (const value of Object.values(BitcoinUnit)) {
       if (value === this.preferredBalanceUnit) {
         return this.preferredBalanceUnit;
       }
@@ -127,7 +129,7 @@ export class AbstractWallet {
   // createTx () { throw Error('not implemented') }
 
   getAddress() {
-    throw Error('not implemented');
+    throw Error("not implemented");
   }
 
   getAddressAsync() {
