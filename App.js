@@ -133,7 +133,6 @@ export default class App extends React.Component {
         this.state.appState.match(/inactive|background/) &&
         nextAppState === "active"
       ) {
-        A(A.ENUM.APP_UNSUSPENDED);
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
           wallet.chain === Chain.ONCHAIN
@@ -209,8 +208,6 @@ export default class App extends React.Component {
             }
           })
         );
-    } else {
-      return;
     }
   };
 

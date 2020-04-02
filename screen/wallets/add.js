@@ -35,8 +35,7 @@ import {
 } from "../../class";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 
-const EV = require("../../events");
-const A = require("../../analytics");
+let EV = require("../../events");
 /** @type {AppStorage} */
 const BlueApp = require("../../BlueApp");
 const loc = require("../../loc");
@@ -228,7 +227,6 @@ export default class WalletsAdd extends Component {
                           BlueApp.wallets.push(w);
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
-                          A(A.ENUM.CREATED_WALLET);
                           ReactNativeHapticFeedback.trigger(
                             "notificationSuccess",
                             { ignoreAndroidSystemSettings: false }
