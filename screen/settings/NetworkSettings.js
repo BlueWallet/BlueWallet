@@ -10,7 +10,7 @@ const NetworkSettings = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   return isLoading ? (
     <BlueLoading />
