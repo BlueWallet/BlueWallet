@@ -1,5 +1,5 @@
-import AsyncStorage from "@react-native-community/async-storage";
-import RNSecureKeyStore, { ACCESSIBLE } from "react-native-secure-key-store";
+import AsyncStorage from '@react-native-community/async-storage';
+import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import {
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
@@ -7,22 +7,22 @@ import {
   LegacyWallet,
   SegwitP2SHWallet,
   SegwitBech32Wallet,
-  HDSegwitBech32Wallet
-} from "./";
-import WatchConnectivity from "../WatchConnectivity";
-import DeviceQuickActions from "./quickActions";
+  HDSegwitBech32Wallet,
+} from './';
+import WatchConnectivity from '../WatchConnectivity';
+import DeviceQuickActions from './quickActions';
 
-const encryption = require("../encryption");
+const encryption = require('../encryption');
 
 export class AppStorage {
-  static FLAG_ENCRYPTED = "data_encrypted";
-  static LANG = "lang";
-  static EXCHANGE_RATES = "currency";
-  static LNDHUB = "lndhub";
-  static ELECTRUM_HOST = "electrum_host";
-  static ELECTRUM_TCP_PORT = "electrum_tcp_port";
-  static PREFERRED_CURRENCY = "preferredCurrency";
-  static ADVANCED_MODE_ENABLED = "advancedmodeenabled";
+  static FLAG_ENCRYPTED = 'data_encrypted';
+  static LANG = 'lang';
+  static EXCHANGE_RATES = 'currency';
+  static LNDHUB = 'lndhub';
+  static ELECTRUM_HOST = 'electrum_host';
+  static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
+  static PREFERRED_CURRENCY = 'preferredCurrency';
+  static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -30,30 +30,30 @@ export class AppStorage {
     this.tx_metadata = {};
     this.cachedPassword = false;
     this.settings = {
-      brandingColor: "#ffffff",
-      foregroundColor: "#0c2550",
-      buttonBackgroundColor: "#ccddf9",
-      buttonTextColor: "#0c2550",
-      buttonAlternativeTextColor: "#2f5fb3",
-      buttonDisabledBackgroundColor: "#eef0f4",
-      buttonDisabledTextColor: "#9aa0aa",
-      inputBorderColor: "#d2d2d2",
-      inputBackgroundColor: "#f5f5f5",
-      alternativeTextColor: "#9aa0aa",
-      alternativeTextColor2: "#0f5cc0",
-      buttonBlueBackgroundColor: "#ccddf9",
-      incomingBackgroundColor: "#d2f8d6",
-      incomingForegroundColor: "#37c0a1",
-      outgoingBackgroundColor: "#f8d2d2",
-      outgoingForegroundColor: "#d0021b",
-      successColor: "#37c0a1",
-      failedColor: "#ff0000",
-      shadowColor: "#000000",
-      inverseForegroundColor: "#ffffff",
-      hdborderColor: "#68BBE1",
-      hdbackgroundColor: "#ECF9FF",
-      lnborderColor: "#F7C056",
-      lnbackgroundColor: "#FFFAEF"
+      brandingColor: '#ffffff',
+      foregroundColor: '#0c2550',
+      buttonBackgroundColor: '#ccddf9',
+      buttonTextColor: '#0c2550',
+      buttonAlternativeTextColor: '#2f5fb3',
+      buttonDisabledBackgroundColor: '#eef0f4',
+      buttonDisabledTextColor: '#9aa0aa',
+      inputBorderColor: '#d2d2d2',
+      inputBackgroundColor: '#f5f5f5',
+      alternativeTextColor: '#9aa0aa',
+      alternativeTextColor2: '#0f5cc0',
+      buttonBlueBackgroundColor: '#ccddf9',
+      incomingBackgroundColor: '#d2f8d6',
+      incomingForegroundColor: '#37c0a1',
+      outgoingBackgroundColor: '#f8d2d2',
+      outgoingForegroundColor: '#d0021b',
+      successColor: '#37c0a1',
+      failedColor: '#ff0000',
+      shadowColor: '#000000',
+      inverseForegroundColor: '#ffffff',
+      hdborderColor: '#68BBE1',
+      hdbackgroundColor: '#ECF9FF',
+      lnborderColor: '#F7C056',
+      lnbackgroundColor: '#FFFAEF',
     };
   }
 
@@ -66,12 +66,9 @@ export class AppStorage {
    * @returns {Promise<any>|Promise<any> | Promise<void> | * | Promise | void}
    */
   setItem(key, value) {
-    if (
-      typeof navigator !== "undefined" &&
-      navigator.product === "ReactNative"
-    ) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return RNSecureKeyStore.set(key, value, {
-        accessible: ACCESSIBLE.WHEN_UNLOCKED
+        accessible: ACCESSIBLE.WHEN_UNLOCKED,
       });
     } else {
       return AsyncStorage.setItem(key, value);
@@ -86,10 +83,7 @@ export class AppStorage {
    * @returns {Promise<any>|*}
    */
   getItem(key) {
-    if (
-      typeof navigator !== "undefined" &&
-      navigator.product === "ReactNative"
-    ) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return RNSecureKeyStore.get(key);
     } else {
       return AsyncStorage.getItem(key);
@@ -135,7 +129,7 @@ export class AppStorage {
   async encryptStorage(password) {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
-    let data = await this.getItem("data");
+    let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
     const encrypted = encryption.encrypt(data, password);
@@ -143,8 +137,8 @@ export class AppStorage {
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
     this.cachedPassword = password;
-    await this.setItem("data", data);
-    await this.setItem(AppStorage.FLAG_ENCRYPTED, "1");
+    await this.setItem('data', data);
+    await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
     DeviceQuickActions.clearShortcutItems();
     DeviceQuickActions.removeAllWallets();
   }
@@ -161,16 +155,16 @@ export class AppStorage {
 
     const data = {
       wallets: [],
-      tx_metadata: {}
+      tx_metadata: {},
     };
 
-    let buckets = await this.getItem("data");
+    let buckets = await this.getItem('data');
     buckets = JSON.parse(buckets);
     buckets.push(encryption.encrypt(JSON.stringify(data), fakePassword));
     this.cachedPassword = fakePassword;
     const bucketsString = JSON.stringify(buckets);
-    await this.setItem("data", bucketsString);
-    return (await this.getItem("data")) === bucketsString;
+    await this.setItem('data', bucketsString);
+    return (await this.getItem('data')) === bucketsString;
   }
 
   /**
@@ -182,7 +176,7 @@ export class AppStorage {
    */
   async loadFromDisk(password) {
     try {
-      let data = await this.getItem("data");
+      let data = await this.getItem('data');
       if (password) {
         data = this.decryptData(data, password);
         if (data) {
@@ -224,11 +218,7 @@ export class AppStorage {
               break;
           }
           // done
-          if (
-            !this.wallets.some(
-              wallet => wallet.getSecret() === unserializedWallet.secret
-            )
-          ) {
+          if (!this.wallets.some(wallet => wallet.getSecret() === unserializedWallet.secret)) {
             this.wallets.push(unserializedWallet);
             this.tx_metadata = data.tx_metadata;
           }
@@ -284,19 +274,19 @@ export class AppStorage {
   async saveToDisk() {
     const walletsToSave = [];
     for (const key of this.wallets) {
-      if (typeof key === "boolean") continue;
+      if (typeof key === 'boolean') continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
 
     let data = {
       wallets: walletsToSave,
-      tx_metadata: this.tx_metadata
+      tx_metadata: this.tx_metadata,
     };
 
     if (this.cachedPassword) {
       // should find the correct bucket, encrypt and then save
-      let buckets = await this.getItem("data");
+      let buckets = await this.getItem('data');
       buckets = JSON.parse(buckets);
       const newData = [];
       for (const bucket of buckets) {
@@ -307,22 +297,20 @@ export class AppStorage {
         } else {
           // decrypted ok, this is our bucket
           // we serialize our object's data, encrypt it, and add it to buckets
-          newData.push(
-            encryption.encrypt(JSON.stringify(data), this.cachedPassword)
-          );
-          await this.setItem(AppStorage.FLAG_ENCRYPTED, "1");
+          newData.push(encryption.encrypt(JSON.stringify(data), this.cachedPassword));
+          await this.setItem(AppStorage.FLAG_ENCRYPTED, '1');
         }
       }
       data = newData;
     } else {
-      await this.setItem(AppStorage.FLAG_ENCRYPTED, ""); // drop the flag
+      await this.setItem(AppStorage.FLAG_ENCRYPTED, ''); // drop the flag
     }
     WatchConnectivity.shared.wallets = this.wallets;
     WatchConnectivity.shared.tx_metadata = this.tx_metadata;
     WatchConnectivity.shared.sendWalletsToWatch();
     DeviceQuickActions.setWallets(this.wallets);
     DeviceQuickActions.setQuickActions();
-    return this.setItem("data", JSON.stringify(data));
+    return this.setItem('data', JSON.stringify(data));
   }
 
   /**
@@ -334,7 +322,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletBalances(index) {
-    console.log("fetchWalletBalances for wallet#", index);
+    console.log('fetchWalletBalances for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (const wallet of this.wallets) {
@@ -360,7 +348,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletTransactions(index) {
-    console.log("fetchWalletTransactions for wallet#", index);
+    console.log('fetchWalletTransactions for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (const wallet of this.wallets) {

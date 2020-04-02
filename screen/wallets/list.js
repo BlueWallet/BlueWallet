@@ -1,38 +1,30 @@
-import React, { Component } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  FlatList,
-  InteractionManager,
-  RefreshControl,
-  ScrollView
-} from "react-native";
+import React, { Component } from 'react';
+import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
 import {
   BlueLoading,
   SafeBlueArea,
   WalletsCarousel,
   BlueList,
   BlueHeaderDefaultMain,
-  BlueTransactionListItem
-} from "../../BlueComponents";
-import { Icon } from "react-native-elements";
-import { NavigationEvents } from "react-navigation";
-import ReactNativeHapticFeedback from "react-native-haptic-feedback";
-import PropTypes from "prop-types";
+  BlueTransactionListItem,
+} from '../../BlueComponents';
+import { Icon } from 'react-native-elements';
+import { NavigationEvents } from 'react-navigation';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import PropTypes from 'prop-types';
 
-let EV = require("../../events");
+let EV = require('../../events');
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
-const loc = require("../../loc");
-const BlueElectrum = require("../../BlueElectrum");
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
+const BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation }) => ({
     headerStyle: {
-      backgroundColor: "#FFFFFF",
+      backgroundColor: '#FFFFFF',
       borderBottomWidth: 0,
-      elevation: 0
+      elevation: 0,
     },
     headerRight: (
       <TouchableOpacity
@@ -40,19 +32,13 @@ export default class WalletsList extends Component {
           marginHorizontal: 16,
           width: 40,
           height: 40,
-          justifyContent: "center",
-          alignItems: "flex-end"
+          justifyContent: 'center',
+          alignItems: 'flex-end',
         }}
-        onPress={() => navigation.navigate("Settings")}
-      >
-        <Icon
-          size={22}
-          name="kebab-horizontal"
-          type="octicon"
-          color={BlueApp.settings.foregroundColor}
-        />
+        onPress={() => navigation.navigate('Settings')}>
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
       </TouchableOpacity>
-    )
+    ),
   });
 
   constructor(props) {
@@ -61,7 +47,7 @@ export default class WalletsList extends Component {
       isLoading: true,
       isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
-      lastSnappedTo: 0
+      lastSnappedTo: 0,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.redrawScreen.bind(this));
 
@@ -81,15 +67,11 @@ export default class WalletsList extends Component {
         const balanceStart = +new Date();
         await BlueApp.fetchWalletBalances();
         const balanceEnd = +new Date();
-        console.log(
-          "fetch all wallet balances took",
-          (balanceEnd - balanceStart) / 1000,
-          "sec"
-        );
+        console.log('fetch all wallet balances took', (balanceEnd - balanceStart) / 1000, 'sec');
         const start = +new Date();
         await BlueApp.fetchWalletTransactions();
         const end = +new Date();
-        console.log("fetch all wallet txs took", (end - start) / 1000, "sec");
+        console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
       } catch (_) {
         noErr = false;
       }
@@ -102,17 +84,14 @@ export default class WalletsList extends Component {
    * Triggered manually by user on pull-to-refresh.
    */
   refreshTransactions() {
-    if (
-      !(this.lastSnappedTo < BlueApp.getWallets().length) &&
-      this.lastSnappedTo !== undefined
-    ) {
+    if (!(this.lastSnappedTo < BlueApp.getWallets().length) && this.lastSnappedTo !== undefined) {
       // last card, nop
-      console.log("last card, nop");
+      console.log('last card, nop');
       return;
     }
     this.setState(
       {
-        isFlatListRefreshControlHidden: false
+        isFlatListRefreshControlHidden: false,
       },
       () => {
         InteractionManager.runAfterInteractions(async () => {
@@ -123,15 +102,11 @@ export default class WalletsList extends Component {
             const balanceStart = +new Date();
             await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
             const balanceEnd = +new Date();
-            console.log(
-              "fetch balance took",
-              (balanceEnd - balanceStart) / 1000,
-              "sec"
-            );
+            console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             const start = +new Date();
             await BlueApp.fetchWalletTransactions(this.lastSnappedTo || 0);
             const end = +new Date();
-            console.log("fetch tx took", (end - start) / 1000, "sec");
+            console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
             noErr = false;
             console.warn(err);
@@ -140,44 +115,44 @@ export default class WalletsList extends Component {
 
           this.redrawScreen();
         });
-      }
+      },
     );
   }
 
   redrawScreen() {
-    console.log("wallets/list redrawScreen()");
+    console.log('wallets/list redrawScreen()');
 
     this.setState({
       isLoading: false,
       isFlatListRefreshControlHidden: true,
       dataSource: BlueApp.getTransactions(null, 10),
-      wallets: BlueApp.getWallets().concat(false)
+      wallets: BlueApp.getWallets().concat(false),
     });
   }
 
   txMemo(hash) {
-    if (BlueApp.tx_metadata[hash] && BlueApp.tx_metadata[hash]["memo"]) {
-      return BlueApp.tx_metadata[hash]["memo"];
+    if (BlueApp.tx_metadata[hash] && BlueApp.tx_metadata[hash]['memo']) {
+      return BlueApp.tx_metadata[hash]['memo'];
     }
-    return "";
+    return '';
   }
 
   handleClick(index) {
-    console.log("click", index);
+    console.log('click', index);
     const wallet = BlueApp.wallets[index];
     if (wallet) {
-      this.props.navigation.navigate("WalletTransactions", {
+      this.props.navigation.navigate('WalletTransactions', {
         wallet: wallet,
-        key: `WalletTransactions-${wallet.getID()}`
+        key: `WalletTransactions-${wallet.getID()}`,
       });
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      this.props.navigation.navigate("AddWallet");
+      this.props.navigation.navigate('AddWallet');
     }
   }
 
   onSnapToItem(index) {
-    console.log("onSnapToItem", index);
+    console.log('onSnapToItem', index);
     this.lastSnappedTo = index;
     this.setState({ lastSnappedTo: index });
 
@@ -208,22 +183,16 @@ export default class WalletsList extends Component {
 
     try {
       if (wallets && wallets[index] && wallets[index].timeToRefreshBalance()) {
-        console.log("snapped to, and now its time to refresh wallet #", index);
+        console.log('snapped to, and now its time to refresh wallet #', index);
         await wallets[index].fetchBalance();
-        if (
-          oldBalance !== wallets[index].getBalance() ||
-          wallets[index].getUnconfirmedBalance() !== 0
-        ) {
-          console.log("balance changed, thus txs too");
+        if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
+          console.log('balance changed, thus txs too');
           // balance changed, thus txs too
           await wallets[index].fetchTransactions();
           this.redrawScreen();
           didRefresh = true;
         } else if (wallets[index].timeToRefreshTransaction()) {
-          console.log(
-            wallets[index].getLabel(),
-            "thinks its time to refresh TXs"
-          );
+          console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
           await wallets[index].fetchTransactions();
           if (wallets[index].fetchPendingTransactions) {
             await wallets[index].fetchPendingTransactions();
@@ -235,7 +204,7 @@ export default class WalletsList extends Component {
           this.redrawScreen();
           didRefresh = true;
         } else {
-          console.log("balance not changed");
+          console.log('balance not changed');
         }
       }
     } catch (Err) {
@@ -256,12 +225,11 @@ export default class WalletsList extends Component {
         <Text
           style={{
             paddingLeft: 15,
-            fontWeight: "bold",
+            fontWeight: 'bold',
             fontSize: 24,
             marginVertical: 8,
-            color: BlueApp.settings.foregroundColor
-          }}
-        >
+            color: BlueApp.settings.foregroundColor,
+          }}>
           {loc.transactions.list.title}
         </Text>
       </View>
@@ -270,28 +238,23 @@ export default class WalletsList extends Component {
 
   handleLongPress = () => {
     if (BlueApp.getWallets().length > 1) {
-      this.props.navigation.navigate("ReorderWallets");
+      this.props.navigation.navigate('ReorderWallets');
     } else {
-      ReactNativeHapticFeedback.trigger("notificationError", {
-        ignoreAndroidSystemSettings: false
+      ReactNativeHapticFeedback.trigger('notificationError', {
+        ignoreAndroidSystemSettings: false,
       });
     }
   };
 
   _renderItem = data => {
-    return (
-      <BlueTransactionListItem
-        item={data.item}
-        itemPriceUnit={data.item.walletPreferredBalanceUnit}
-      />
-    );
+    return <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />;
   };
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
     return (
-      <SafeBlueArea style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <NavigationEvents
           onWillFocus={() => {
             this.redrawScreen();
@@ -303,11 +266,10 @@ export default class WalletsList extends Component {
               onRefresh={() => this.refreshTransactions()}
               refreshing={!this.state.isFlatListRefreshControlHidden}
             />
-          }
-        >
+          }>
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list.title}
-            onNewWalletPress={() => this.props.navigation.navigate("AddWallet")}
+            onNewWalletPress={() => this.props.navigation.navigate('AddWallet')}
           />
           <WalletsCarousel
             removeClippedSubviews={false}
@@ -328,19 +290,17 @@ export default class WalletsList extends Component {
                   <Text
                     style={{
                       fontSize: 18,
-                      color: "#9aa0aa",
-                      textAlign: "center"
-                    }}
-                  >
+                      color: '#9aa0aa',
+                      textAlign: 'center',
+                    }}>
                     {loc.wallets.list.empty_txs1}
                   </Text>
                   <Text
                     style={{
                       fontSize: 18,
-                      color: "#9aa0aa",
-                      textAlign: "center"
-                    }}
-                  >
+                      color: '#9aa0aa',
+                      textAlign: 'center',
+                    }}>
                     {loc.wallets.list.empty_txs2}
                   </Text>
                 </View>
@@ -359,6 +319,6 @@ export default class WalletsList extends Component {
 
 WalletsList.propTypes = {
   navigation: PropTypes.shape({
-    navigate: PropTypes.func
-  })
+    navigate: PropTypes.func,
+  }),
 };

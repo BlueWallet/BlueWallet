@@ -1,5 +1,5 @@
 export class BitcoinTransaction {
-  constructor(address = "", amount) {
+  constructor(address = '', amount) {
     this.address = address;
     this.amount = amount;
   }

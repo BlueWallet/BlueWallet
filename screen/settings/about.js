@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { ScrollView, Linking, Dimensions } from "react-native";
+import React, { Component } from 'react';
+import { ScrollView, Linking, Dimensions } from 'react-native';
 import {
   BlueTextCentered,
   BlueLoading,
@@ -8,38 +8,33 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueNavigationStyle
-} from "../../BlueComponents";
-import PropTypes from "prop-types";
-import {
-  getApplicationName,
-  getVersion,
-  getBundleId,
-  getBuildNumber
-} from "react-native-device-info";
-import Rate, { AndroidMarket } from "react-native-rate";
+  BlueNavigationStyle,
+} from '../../BlueComponents';
+import PropTypes from 'prop-types';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
+import Rate, { AndroidMarket } from 'react-native-rate';
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
+const BlueApp = require('../../BlueApp');
 
-const { width, height } = Dimensions.get("window");
-const loc = require("../../loc/");
+const { width, height } = Dimensions.get('window');
+const loc = require('../../loc/');
 
 export default class About extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: loc.settings.about
+    title: loc.settings.about,
   });
 
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true
+      isLoading: true,
     };
   }
 
   async componentDidMount() {
     this.setState({
-      isLoading: false
+      isLoading: false,
     });
   }
 
@@ -49,17 +44,17 @@ export default class About extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: "always" }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <ScrollView>
           <BlueCard>
             <BlueButton
               icon={{
-                name: "github",
-                type: "font-awesome",
-                color: BlueApp.settings.buttonTextColor
+                name: 'github',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
-                Linking.openURL("https://github.com/bitcoinvault/GoldWallet");
+                Linking.openURL('https://github.com/bitcoinvault/GoldWallet');
               }}
               title="GitHub"
             />
@@ -67,22 +62,22 @@ export default class About extends Component {
 
             <BlueButton
               icon={{
-                name: "thumbs-up",
-                type: "font-awesome",
-                color: BlueApp.settings.buttonTextColor
+                name: 'thumbs-up',
+                type: 'font-awesome',
+                color: BlueApp.settings.buttonTextColor,
               }}
               onPress={() => {
                 const options = {
-                  AppleAppID: "1376878040",
-                  GooglePackageName: "io.goldwallet.wallet",
+                  AppleAppID: '1376878040',
+                  GooglePackageName: 'io.goldwallet.wallet',
                   preferredAndroidMarket: AndroidMarket.Google,
                   preferInApp: true,
                   openAppStoreIfInAppFails: true,
-                  fallbackPlatformURL: "https://bitcoinvault.global"
+                  fallbackPlatformURL: 'https://bitcoinvault.global',
                 };
                 Rate.rate(options, success => {
                   if (success) {
-                    console.log("User Rated.");
+                    console.log('User Rated.');
                   }
                 });
               }}
@@ -91,7 +86,7 @@ export default class About extends Component {
 
             <BlueButton
               onPress={() => {
-                this.props.navigation.navigate("ReleaseNotes");
+                this.props.navigation.navigate('ReleaseNotes');
               }}
               title="Release notes"
             />
@@ -99,12 +94,9 @@ export default class About extends Component {
 
             <BlueTextCentered />
             <BlueTextCentered>
-              {getApplicationName()} ver {getVersion()} (build{" "}
-              {getBuildNumber()})
+              {getApplicationName()} ver {getVersion()} (build {getBuildNumber()})
             </BlueTextCentered>
-            <BlueTextCentered>
-              {new Date(getBuildNumber() * 1000).toGMTString()}
-            </BlueTextCentered>
+            <BlueTextCentered>{new Date(getBuildNumber() * 1000).toGMTString()}</BlueTextCentered>
             <BlueTextCentered>{getBundleId()}</BlueTextCentered>
             <BlueTextCentered>
               w, h = {width}, {height}
@@ -119,6 +111,6 @@ export default class About extends Component {
 About.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func
-  })
+    goBack: PropTypes.func,
+  }),
 };

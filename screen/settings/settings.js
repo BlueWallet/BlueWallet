@@ -1,5 +1,5 @@
-import React, { Component, useEffect, useState } from "react";
-import { ScrollView, View, Switch, TouchableOpacity } from "react-native";
+import React, { Component, useEffect, useState } from 'react';
+import { ScrollView, View, Switch, TouchableOpacity } from 'react-native';
 import {
   BlueText,
   BlueCard,
@@ -7,15 +7,15 @@ import {
   SafeBlueArea,
   BlueNavigationStyle,
   BlueHeaderDefaultSub,
-  BlueListItem
-} from "../../BlueComponents";
-import AsyncStorage from "@react-native-community/async-storage";
-import { AppStorage } from "../../class";
-import Biometric from "../../class/biometrics";
-import { useNavigation } from "react-navigation-hooks";
+  BlueListItem,
+} from '../../BlueComponents';
+import AsyncStorage from '@react-native-community/async-storage';
+import { AppStorage } from '../../class';
+import Biometric from '../../class/biometrics';
+import { useNavigation } from 'react-navigation-hooks';
 
-const BlueApp = require("../../BlueApp");
-const loc = require("../../loc");
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export const Settings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,22 +24,20 @@ export const Settings = () => {
   const [biometrics, setBiometrics] = useState({
     isDeviceBiometricCapable: false,
     isBiometricsEnabled: false,
-    biometricsType: ""
+    biometricsType: '',
   });
   const { navigate } = useNavigation();
 
   useEffect(() => {
     (async () => {
-      setAdvancedModeEnabled(
-        !!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED))
-      );
+      setAdvancedModeEnabled(!!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)));
       const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
       const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-      const biometricsType = (await Biometric.biometricType()) || "biometrics";
+      const biometricsType = (await Biometric.biometricType()) || 'biometrics';
       setBiometrics({
         isBiometricsEnabled,
         isDeviceBiometricCapable,
-        biometricsType
+        biometricsType,
       });
       setIsLoading(false);
     })();
@@ -47,7 +45,7 @@ export const Settings = () => {
 
   const onAdvancedModeSwitch = async value => {
     if (value) {
-      await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, "1");
+      await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, '1');
     } else {
       await AsyncStorage.removeItem(AppStorage.ADVANCED_MODE_ENABLED);
     }
@@ -70,22 +68,15 @@ export const Settings = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: "always" }} style={{ flex: 1 }}>
-      <BlueHeaderDefaultSub
-        leftText={loc.settings.header}
-        rightComponent={null}
-      />
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
       <ScrollView>
         {BlueApp.getWallets().length > 1 && (
-          <BlueListItem
-            component={TouchableOpacity}
-            onPress={() => navigate("DefaultView")}
-            title="On Launch"
-          />
+          <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
         )}
         <BlueListItem
           title={loc.settings.encrypt_storage}
-          onPress={() => navigate("EncryptStorage")}
+          onPress={() => navigate('EncryptStorage')}
           component={TouchableOpacity}
         />
         {biometrics.isDeviceBiometricCapable && (
@@ -97,20 +88,12 @@ export const Settings = () => {
             switched={biometrics.isBiometricsEnabled}
           />
         )}
+        <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} />
+        <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} />
         <BlueListItem
-          title={loc.settings.language}
+          title={'Electrum server'}
           component={TouchableOpacity}
-          onPress={() => navigate("Language")}
-        />
-        <BlueListItem
-          title={loc.settings.currency}
-          component={TouchableOpacity}
-          onPress={() => navigate("Currency")}
-        />
-        <BlueListItem
-          title={"Electrum server"}
-          component={TouchableOpacity}
-          onPress={() => navigate("ElectrumSettings")}
+          onPress={() => navigate('ElectrumSettings')}
         />
         <BlueListItem
           title={loc.settings.advanced_options}
@@ -121,25 +104,17 @@ export const Settings = () => {
           <BlueCard>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between"
-              }}
-            >
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
               <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
-              <Switch
-                value={advancedModeEnabled}
-                onValueChange={onAdvancedModeSwitch}
-              />
+              <Switch value={advancedModeEnabled} onValueChange={onAdvancedModeSwitch} />
             </View>
           </BlueCard>
         )}
 
-        <BlueListItem
-          title={loc.settings.about}
-          component={TouchableOpacity}
-          onPress={() => navigate("About")}
-        />
+        <BlueListItem title={loc.settings.about} component={TouchableOpacity} onPress={() => navigate('About')} />
       </ScrollView>
     </SafeBlueArea>
   );
@@ -147,7 +122,7 @@ export const Settings = () => {
 
 export default class SettingsContainer extends Component {
   static navigationOptions = {
-    ...BlueNavigationStyle
+    ...BlueNavigationStyle,
   };
 
   render() {

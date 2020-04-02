@@ -1,16 +1,16 @@
-import React, { Component } from "react";
-import { BlueNavigationStyle, BlueLoading } from "../../BlueComponents";
-import PropTypes from "prop-types";
-import { WebView } from "react-native-webview";
+import React, { Component } from 'react';
+import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
+import PropTypes from 'prop-types';
+import { WebView } from 'react-native-webview';
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
-const loc = require("../../loc");
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.buyBitcoin.header,
-    headerLeft: null
+    headerLeft: null,
   });
 
   constructor(props) {
@@ -22,21 +22,18 @@ export default class BuyBitcoin extends Component {
       isLoading: true,
       address: address,
       secret: secret,
-      addressText: ""
+      addressText: '',
     };
   }
 
   async componentDidMount() {
-    console.log("buyBitcoin/details - componentDidMount");
+    console.log('buyBitcoin/details - componentDidMount');
 
     /**  @type {AbstractWallet}   */
     let wallet;
     let address = this.state.address;
     for (const w of BlueApp.getWallets()) {
-      if (
-        (address && w.getAddress() === this.state.address) ||
-        w.getSecret() === this.state.secret
-      ) {
+      if ((address && w.getAddress() === this.state.address) || w.getSecret() === this.state.secret) {
         // found our wallet
         wallet = w;
       }
@@ -49,14 +46,14 @@ export default class BuyBitcoin extends Component {
         this.setState({
           address: address,
           addressText: address,
-          isLoading: false
+          isLoading: false,
         });
       }, 1);
     } else {
       this.setState({
         isLoading: false,
         address,
-        addressText: address
+        addressText: address,
       });
     }
   }
@@ -68,18 +65,16 @@ export default class BuyBitcoin extends Component {
 
     const { safelloStateToken } = this.props.navigation.state.params;
 
-    let uri =
-      "https://bluewallet.io/buy-bitcoin-redirect.html?address=" +
-      this.state.address;
+    let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
 
     if (safelloStateToken) {
-      uri += "&safelloStateToken=" + safelloStateToken;
+      uri += '&safelloStateToken=' + safelloStateToken;
     }
 
     return (
       <WebView
         source={{
-          uri
+          uri,
         }}
       />
     );
@@ -93,8 +88,8 @@ BuyBitcoin.propTypes = {
       params: PropTypes.shape({
         address: PropTypes.string,
         secret: PropTypes.string,
-        safelloStateToken: PropTypes.string
-      })
-    })
-  })
+        safelloStateToken: PropTypes.string,
+      }),
+    }),
+  }),
 };

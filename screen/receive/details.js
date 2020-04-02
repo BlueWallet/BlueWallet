@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import { View, InteractionManager, ScrollView } from "react-native";
-import QRCode from "react-native-qrcode-svg";
-import bip21 from "bip21";
+import React, { Component } from 'react';
+import { View, InteractionManager, ScrollView } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import bip21 from 'bip21';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -9,37 +9,37 @@ import {
   BlueButton,
   BlueButtonLink,
   BlueNavigationStyle,
-  is
-} from "../../BlueComponents";
-import PropTypes from "prop-types";
-import Privacy from "../../Privacy";
-import Share from "react-native-share";
-import { Chain } from "../../models/bitcoinUnits";
+  is,
+} from '../../BlueComponents';
+import PropTypes from 'prop-types';
+import Privacy from '../../Privacy';
+import Share from 'react-native-share';
+import { Chain } from '../../models/bitcoinUnits';
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
-const loc = require("../../loc");
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.receive.header,
-    headerLeft: null
+    headerLeft: null,
   });
 
   constructor(props) {
     super(props);
-    const secret = props.navigation.state.params.secret || "";
+    const secret = props.navigation.state.params.secret || '';
 
     this.state = {
       secret: secret,
-      addressText: "",
-      bip21encoded: undefined
+      addressText: '',
+      bip21encoded: undefined,
     };
   }
 
   async componentDidMount() {
     Privacy.enableBlur();
-    console.log("receive/details - componentDidMount");
+    console.log('receive/details - componentDidMount');
 
     {
       let address;
@@ -54,37 +54,27 @@ export default class ReceiveDetails extends Component {
         if (wallet.getAddressForTransaction) {
           if (wallet.chain === Chain.ONCHAIN) {
             try {
-              address = await Promise.race([
-                wallet.getAddressForTransaction(),
-                BlueApp.sleep(1000)
-              ]);
+              address = await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
             } catch (_) {}
             if (!address) {
               // either sleep expired or getAddressAsync threw an exception
-              console.warn(
-                "either sleep expired or getAddressAsync threw an exception"
-              );
+              console.warn('either sleep expired or getAddressAsync threw an exception');
               address = wallet.getAddressForTransaction();
             } else {
               BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
             }
             this.setState({
               address: address,
-              addressText: address
+              addressText: address,
             });
           } else if (wallet.chain === Chain.OFFCHAIN) {
             try {
-              await Promise.race([
-                wallet.getAddressForTransaction(),
-                BlueApp.sleep(1000)
-              ]);
+              await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
               address = wallet.getAddress();
             } catch (_) {}
             if (!address) {
               // either sleep expired or getAddressAsync threw an exception
-              console.warn(
-                "either sleep expired or getAddressAsync threw an exception"
-              );
+              console.warn('either sleep expired or getAddressAsync threw an exception');
               address = wallet.getAddress();
             } else {
               BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
@@ -92,12 +82,12 @@ export default class ReceiveDetails extends Component {
           }
           this.setState({
             address: address,
-            addressText: address
+            addressText: address,
           });
         } else if (wallet.getAddress) {
           this.setState({
             address: wallet.getAddress(),
-            addressText: wallet.getAddress()
+            addressText: wallet.getAddress(),
           });
         }
       }
@@ -116,27 +106,26 @@ export default class ReceiveDetails extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ justifyContent: "space-between" }}>
+        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
           <View
             style={{
               marginTop: 32,
-              alignItems: "center",
-              paddingHorizontal: 16
-            }}
-          >
+              alignItems: 'center',
+              paddingHorizontal: 16,
+            }}>
             {this.state.bip21encoded === undefined ? (
-              <View style={{ alignItems: "center", width: 300, height: 300 }}>
+              <View style={{ alignItems: 'center', width: 300, height: 300 }}>
                 <BlueLoading />
               </View>
             ) : (
               <QRCode
                 value={this.state.bip21encoded}
-                logo={require("../../img/qr-code.png")}
+                logo={require('../../img/qr-code.png')}
                 size={(is.ipad() && 300) || 300}
                 logoSize={90}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
-                ecl={"H"}
+                ecl={'H'}
                 getRef={c => (this.qrCodeSVG = c)}
               />
             )}
@@ -144,41 +133,38 @@ export default class ReceiveDetails extends Component {
           </View>
           <View
             style={{
-              alignItems: "center",
-              alignContent: "flex-end",
-              marginBottom: 24
-            }}
-          >
+              alignItems: 'center',
+              alignContent: 'flex-end',
+              marginBottom: 24,
+            }}>
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {
-                this.props.navigation.navigate("ReceiveAmount", {
-                  address: this.state.address
+                this.props.navigation.navigate('ReceiveAmount', {
+                  address: this.state.address,
                 });
               }}
             />
             <View>
               <BlueButton
                 icon={{
-                  name: "share-alternative",
-                  type: "entypo",
-                  color: BlueApp.settings.buttonTextColor
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
                 }}
                 onPress={async () => {
                   if (this.qrCodeSVG === undefined) {
                     Share.open({
-                      message: `bitcoin:${this.state.address}`
+                      message: `bitcoin:${this.state.address}`,
                     }).catch(error => console.log(error));
                   } else {
                     InteractionManager.runAfterInteractions(async () => {
                       this.qrCodeSVG.toDataURL(data => {
                         const shareImageBase64 = {
                           message: `bitcoin:${this.state.address}`,
-                          url: `data:image/png;base64,${data}`
+                          url: `data:image/png;base64,${data}`,
                         };
-                        Share.open(shareImageBase64).catch(error =>
-                          console.log(error)
-                        );
+                        Share.open(shareImageBase64).catch(error => console.log(error));
                       });
                     });
                   }
@@ -199,8 +185,8 @@ ReceiveDetails.propTypes = {
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        secret: PropTypes.string
-      })
-    })
-  })
+        secret: PropTypes.string,
+      }),
+    }),
+  }),
 };

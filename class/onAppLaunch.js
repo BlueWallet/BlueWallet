@@ -1,16 +1,14 @@
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from '@react-native-community/async-storage';
 
-const BlueApp = require("../BlueApp");
+const BlueApp = require('../BlueApp');
 
 export default class OnAppLaunch {
-  static STORAGE_KEY = "ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY";
+  static STORAGE_KEY = 'ONAPP_LAUNCH_SELECTED_DEFAULT_WALLET_KEY';
 
   static async isViewAllWalletsEnabled() {
     try {
-      const selectedDefaultWallet = await AsyncStorage.getItem(
-        OnAppLaunch.STORAGE_KEY
-      );
-      return selectedDefaultWallet === "" || selectedDefaultWallet === null;
+      const selectedDefaultWallet = await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY);
+      return selectedDefaultWallet === '' || selectedDefaultWallet === null;
     } catch (_e) {
       return true;
     }
@@ -24,21 +22,17 @@ export default class OnAppLaunch {
         await OnAppLaunch.setSelectedDefaultWallet(firstWallet.getID());
       }
     } else {
-      await AsyncStorage.setItem(OnAppLaunch.STORAGE_KEY, "");
+      await AsyncStorage.setItem(OnAppLaunch.STORAGE_KEY, '');
     }
   }
 
   static async getSelectedDefaultWallet() {
     let selectedWallet = false;
     try {
-      const selectedWalletID = JSON.parse(
-        await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY)
-      );
-      selectedWallet = BlueApp.getWallets().find(
-        wallet => wallet.getID() === selectedWalletID
-      );
+      const selectedWalletID = JSON.parse(await AsyncStorage.getItem(OnAppLaunch.STORAGE_KEY));
+      selectedWallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedWalletID);
       if (!selectedWallet) {
-        await AsyncStorage.setItem(OnAppLaunch.STORAGE_KEY, "");
+        await AsyncStorage.setItem(OnAppLaunch.STORAGE_KEY, '');
       }
     } catch (_e) {
       return false;
