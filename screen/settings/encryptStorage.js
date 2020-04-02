@@ -1,7 +1,7 @@
 /* global alert */
-import React, { Component } from "react";
-import { View } from "react-native";
-import { FormValidationMessage } from "react-native-elements";
+import React, { Component } from 'react';
+import { View } from 'react-native';
+import { FormValidationMessage } from 'react-native-elements';
 import {
   BlueLoading,
   BlueSpacing20,
@@ -9,32 +9,32 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueNavigationStyle
-} from "../../BlueComponents";
-import PropTypes from "prop-types";
+  BlueNavigationStyle,
+} from '../../BlueComponents';
+import PropTypes from 'prop-types';
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
-const prompt = require("../../prompt");
-const loc = require("../../loc");
+const BlueApp = require('../../BlueApp');
+const prompt = require('../../prompt');
+const loc = require('../../loc');
 
 export default class EncryptStorage extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-    title: loc.settings.encrypt_storage
+    title: loc.settings.encrypt_storage,
   });
 
   constructor(props) {
     super(props);
     this.state = {
       isLoading: true,
-      language: loc.getLanguage()
+      language: loc.getLanguage(),
     };
   }
 
   async componentDidMount() {
     this.setState({
       isLoading: false,
-      storageIsEncrypted: await BlueApp.storageIsEncrypted()
+      storageIsEncrypted: await BlueApp.storageIsEncrypted(),
     });
   }
 
@@ -44,7 +44,7 @@ export default class EncryptStorage extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: "always" }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <BlueCard>
           {(() => {
             if (this.state.storageIsEncrypted) {
@@ -53,9 +53,7 @@ export default class EncryptStorage extends Component {
                   <BlueText>{loc.settings.storage_encrypted}</BlueText>
                   <BlueSpacing20 />
                   <BlueButton
-                    onPress={() =>
-                      this.props.navigation.navigate("PlausibleDeniability")
-                    }
+                    onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
                     title={loc.settings.plausible_deniability}
                   />
                 </View>
@@ -63,22 +61,17 @@ export default class EncryptStorage extends Component {
             } else {
               return (
                 <View>
-                  <FormValidationMessage>
-                    {loc.settings.storage_not_encrypted}
-                  </FormValidationMessage>
+                  <FormValidationMessage>{loc.settings.storage_not_encrypted}</FormValidationMessage>
                   <BlueSpacing20 />
                   <BlueButton
                     icon={{
-                      name: "shield",
-                      type: "font-awesome",
-                      color: BlueApp.settings.buttonTextColor
+                      name: 'shield',
+                      type: 'font-awesome',
+                      color: BlueApp.settings.buttonTextColor,
                     }}
                     onPress={async () => {
                       this.setState({ isLoading: true });
-                      let p1 = await prompt(
-                        loc.settings.password,
-                        loc.settings.password_explain
-                      ).catch(() => {
+                      let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
                         this.setState({ isLoading: false });
                         p1 = undefined;
                       });
@@ -86,17 +79,14 @@ export default class EncryptStorage extends Component {
                         this.setState({ isLoading: false });
                         return;
                       }
-                      const p2 = await prompt(
-                        loc.settings.password,
-                        loc.settings.retype_password
-                      ).catch(() => {
+                      const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
                         this.setState({ isLoading: false });
                       });
                       if (p1 === p2) {
                         await BlueApp.encryptStorage(p1);
                         this.setState({
                           isLoading: false,
-                          storageIsEncrypted: await BlueApp.storageIsEncrypted()
+                          storageIsEncrypted: await BlueApp.storageIsEncrypted(),
                         });
                       } else {
                         this.setState({ isLoading: false });
@@ -118,6 +108,6 @@ export default class EncryptStorage extends Component {
 EncryptStorage.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func
-  })
+    goBack: PropTypes.func,
+  }),
 };

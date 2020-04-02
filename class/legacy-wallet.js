@@ -1,21 +1,21 @@
-import { AbstractWallet } from "./abstract-wallet";
-import { useBlockcypherTokens } from "./constants";
-import { NativeModules } from "react-native";
+import { AbstractWallet } from './abstract-wallet';
+import { useBlockcypherTokens } from './constants';
+import { NativeModules } from 'react-native';
 
-const bitcoin = require("bitcoinjs-lib");
+const bitcoin = require('bitcoinjs-lib');
 
 const { RNRandomBytes } = NativeModules;
-const BigNumber = require("bignumber.js");
-const signer = require("../models/signer");
-const BlueElectrum = require("../BlueElectrum");
+const BigNumber = require('bignumber.js');
+const signer = require('../models/signer');
+const BlueElectrum = require('../BlueElectrum');
 
 /**
  *  Has private key and single address like "1ABCD....."
  *  (legacy P2PKH compressed)
  */
 export class LegacyWallet extends AbstractWallet {
-  static type = "legacy";
-  static typeReadable = "Legacy (P2PKH)";
+  static type = 'legacy';
+  static typeReadable = 'Legacy (P2PKH)';
 
   /**
    * Simple function which says that we havent tried to fetch balance
@@ -46,7 +46,7 @@ export class LegacyWallet extends AbstractWallet {
   async generate() {
     const that = this;
     return new Promise(function(resolve) {
-      if (typeof RNRandomBytes === "undefined") {
+      if (typeof RNRandomBytes === 'undefined') {
         // CLI/CI environment
         // crypto should be provided globally by test launcher
         return crypto.randomBytes(32, (err, buf) => {
@@ -55,7 +55,7 @@ export class LegacyWallet extends AbstractWallet {
           that.secret = bitcoin.ECPair.makeRandom({
             rng: function(length) {
               return buf;
-            }
+            },
           }).toWIF();
           resolve();
         });
@@ -66,9 +66,9 @@ export class LegacyWallet extends AbstractWallet {
         if (err) throw new Error(err);
         that.secret = bitcoin.ECPair.makeRandom({
           rng: function(length) {
-            const b = Buffer.from(bytes, "base64");
+            const b = Buffer.from(bytes, 'base64');
             return b;
-          }
+          },
         }).toWIF();
         resolve();
       });
@@ -85,7 +85,7 @@ export class LegacyWallet extends AbstractWallet {
     try {
       const keyPair = bitcoin.ECPair.fromWIF(this.secret);
       address = bitcoin.payments.p2pkh({
-        pubkey: keyPair.publicKey
+        pubkey: keyPair.publicKey,
       }).address;
     } catch (err) {
       return false;
@@ -120,9 +120,7 @@ export class LegacyWallet extends AbstractWallet {
   async fetchUtxo() {
     try {
       this.utxo = [];
-      const utxos = await BlueElectrum.multiGetUtxoByAddress([
-        this.getAddress()
-      ]);
+      const utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
       this.utxo = utxos;
     } catch (err) {
       console.warn(err.message);
@@ -139,12 +137,9 @@ export class LegacyWallet extends AbstractWallet {
     const txids_to_update = [];
     try {
       this._lastTxFetch = +new Date();
-      const txids = await BlueElectrum.getTransactionsByAddress(
-        this.getAddress()
-      );
+      const txids = await BlueElectrum.getTransactionsByAddress(this.getAddress());
       for (const tx of txids) {
-        if (!this.transactionConfirmed(tx.tx_hash))
-          txids_to_update.push(tx.tx_hash);
+        if (!this.transactionConfirmed(tx.tx_hash)) txids_to_update.push(tx.tx_hash);
       }
       await this._update_unconfirmed_tx(txids_to_update);
     } catch (Err) {
@@ -180,17 +175,8 @@ export class LegacyWallet extends AbstractWallet {
       u.amount = u.amount.toString(10);
     }
     // console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
-    const amountPlusFee = parseFloat(
-      new BigNumber(amount).plus(fee).toString(10)
-    );
-    return signer.createTransaction(
-      utxos,
-      toAddress,
-      amountPlusFee,
-      fee,
-      this.getSecret(),
-      this.getAddress()
-    );
+    const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+    return signer.createTransaction(utxos, toAddress, amountPlusFee, fee, this.getSecret(), this.getAddress());
   }
 
   getLatestTransactionTime() {
@@ -213,11 +199,11 @@ export class LegacyWallet extends AbstractWallet {
       }
       return array[0];
     })([
-      "0326b7107b4149559d18ce80612ef812",
-      "a133eb7ccacd4accb80cb1225de4b155",
-      "7c2b1628d27b4bd3bf8eaee7149c577f",
-      "f1e5a02b9ec84ec4bc8db2349022e5f5",
-      "e5926dbeb57145979153adc41305b183"
+      '0326b7107b4149559d18ce80612ef812',
+      'a133eb7ccacd4accb80cb1225de4b155',
+      '7c2b1628d27b4bd3bf8eaee7149c577f',
+      'f1e5a02b9ec84ec4bc8db2349022e5f5',
+      'e5926dbeb57145979153adc41305b183',
     ]);
   }
 
@@ -243,9 +229,7 @@ export class LegacyWallet extends AbstractWallet {
 
   async _update_unconfirmed_tx(txid_list) {
     try {
-      const txs_full = await BlueElectrum.multiGetTransactionsFullByTxid(
-        txid_list
-      );
+      const txs_full = await BlueElectrum.multiGetTransactionsFullByTxid(txid_list);
       const unconfirmed_transactions = [];
       for (const tx of txs_full) {
         let value = 0;

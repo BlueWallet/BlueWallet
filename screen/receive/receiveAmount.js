@@ -1,14 +1,7 @@
-import React, { Component } from "react";
-import {
-  View,
-  Share,
-  TextInput,
-  KeyboardAvoidingView,
-  Dimensions,
-  ScrollView
-} from "react-native";
-import QRCode from "react-native-qrcode-svg";
-import bip21 from "bip21";
+import React, { Component } from 'react';
+import { View, Share, TextInput, KeyboardAvoidingView, Dimensions, ScrollView } from 'react-native';
+import QRCode from 'react-native-qrcode-svg';
+import bip21 from 'bip21';
 import {
   SafeBlueArea,
   BlueCard,
@@ -16,31 +9,31 @@ import {
   BlueNavigationStyle,
   BlueBitcoinAmount,
   BlueText,
-  BlueCopyTextToClipboard
-} from "../../BlueComponents";
-import PropTypes from "prop-types";
-import Privacy from "../../Privacy";
+  BlueCopyTextToClipboard,
+} from '../../BlueComponents';
+import PropTypes from 'prop-types';
+import Privacy from '../../Privacy';
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
-const loc = require("../../loc");
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
 export default class ReceiveAmount extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.receive.header,
-    headerLeft: null
+    headerLeft: null,
   });
 
   static propTypes = {
     navigation: PropTypes.shape({
       state: PropTypes.shape({
         params: PropTypes.shape({
-          address: PropTypes.string
-        })
-      })
-    })
+          address: PropTypes.string,
+        }),
+      }),
+    }),
   };
 
   constructor(props) {
@@ -52,7 +45,7 @@ export default class ReceiveAmount extends Component {
       addressText: address,
       amount: undefined,
       label: undefined,
-      amountSet: false
+      amountSet: false,
     };
   }
 
@@ -76,24 +69,23 @@ export default class ReceiveAmount extends Component {
       <View>
         <View
           style={{
-            flexDirection: "row",
-            borderColor: "#d2d2d2",
-            borderBottomColor: "#d2d2d2",
+            flexDirection: 'row',
+            borderColor: '#d2d2d2',
+            borderBottomColor: '#d2d2d2',
             borderWidth: 1.0,
             borderBottomWidth: 0.5,
-            backgroundColor: "#f5f5f5",
+            backgroundColor: '#f5f5f5',
             minHeight: 44,
             height: 44,
             marginHorizontal: 20,
-            alignItems: "center",
+            alignItems: 'center',
             marginVertical: 8,
-            borderRadius: 4
-          }}
-        >
+            borderRadius: 4,
+          }}>
           <TextInput
             onChangeText={text => this.setState({ label: text })}
             placeholder={loc.receive.details.label}
-            value={this.state.label || ""}
+            value={this.state.label || ''}
             numberOfLines={1}
             style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
             editable={!this.state.isLoading}
@@ -107,8 +99,8 @@ export default class ReceiveAmount extends Component {
                 amountSet: true,
                 bip21: bip21.encode(this.state.address, {
                   amount: this.state.amount,
-                  label: this.state.label
-                })
+                  label: this.state.label,
+                }),
               });
             }}
           />
@@ -119,36 +111,34 @@ export default class ReceiveAmount extends Component {
 
   renderWithSetAmount() {
     return (
-      <View style={{ justifyContent: "space-between" }}>
+      <View style={{ justifyContent: 'space-between' }}>
         <BlueText
           style={{
-            color: "#0c2550",
-            fontWeight: "600",
-            textAlign: "center",
-            paddingBottom: 24
+            color: '#0c2550',
+            fontWeight: '600',
+            textAlign: 'center',
+            paddingBottom: 24,
           }}
-          numberOfLines={1}
-        >
+          numberOfLines={1}>
           {this.state.label}
         </BlueText>
         <View
           style={{
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 16
-          }}
-        >
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingHorizontal: 16,
+          }}>
           <QRCode
             value={this.state.bip21}
-            logo={require("../../img/qr-code.png")}
+            logo={require('../../img/qr-code.png')}
             size={this.determineSize()}
             logoSize={90}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={"Q"}
+            ecl={'Q'}
           />
         </View>
-        <View style={{ alignItems: "center", justifyContent: "space-between" }}>
+        <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
           <BlueCopyTextToClipboard text={this.state.bip21} />
         </View>
       </View>
@@ -162,31 +152,28 @@ export default class ReceiveAmount extends Component {
           <View
             style={{
               flex: 1,
-              backgroundColor: "#FFFFFF",
-              justifyContent: "space-between"
-            }}
-          >
+              backgroundColor: '#FFFFFF',
+              justifyContent: 'space-between',
+            }}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
-                amount={this.state.amount || ""}
+                amount={this.state.amount || ''}
                 onChangeText={text => this.setState({ amount: text })}
                 disabled={this.state.amountSet}
               />
-              {this.state.amountSet
-                ? this.renderWithSetAmount()
-                : this.renderDefault()}
+              {this.state.amountSet ? this.renderWithSetAmount() : this.renderDefault()}
             </KeyboardAvoidingView>
             {this.state.amountSet && (
               <BlueCard>
                 <BlueButton
                   icon={{
-                    name: "share-alternative",
-                    type: "entypo",
-                    color: BlueApp.settings.buttonTextColor
+                    name: 'share-alternative',
+                    type: 'entypo',
+                    color: BlueApp.settings.buttonTextColor,
                   }}
                   onPress={async () => {
                     Share.share({
-                      message: this.state.bip21
+                      message: this.state.bip21,
                     });
                   }}
                   title={loc.receive.details.share}

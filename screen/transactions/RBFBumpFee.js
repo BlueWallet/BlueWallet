@@ -1,30 +1,25 @@
 /* global alert */
-import React from "react";
-import { ActivityIndicator, View } from "react-native";
-import {
-  BlueSpacing20,
-  SafeBlueArea,
-  BlueText,
-  BlueNavigationStyle
-} from "../../BlueComponents";
-import PropTypes from "prop-types";
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from "../../class";
-import CPFP from "./CPFP";
+import React from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
+import PropTypes from 'prop-types';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import CPFP from './CPFP';
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
+const BlueApp = require('../../BlueApp');
 
 export default class RBFBumpFee extends CPFP {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(null, false),
-    title: "Bump fee (RBF)"
+    title: 'Bump fee (RBF)',
   });
 
   async componentDidMount() {
-    console.log("transactions/RBFBumpFee - componentDidMount");
+    console.log('transactions/RBFBumpFee - componentDidMount');
     this.setState({
       isLoading: true,
-      newFeeRate: "",
-      nonReplaceable: false
+      newFeeRate: '',
+      nonReplaceable: false,
     });
     await this.checkPossibilityOfRBFBumpFee();
   }
@@ -34,11 +29,7 @@ export default class RBFBumpFee extends CPFP {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
 
-    const tx = new HDSegwitBech32Transaction(
-      null,
-      this.state.txid,
-      this.state.wallet
-    );
+    const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
@@ -49,7 +40,7 @@ export default class RBFBumpFee extends CPFP {
         nonReplaceable: false,
         feeRate: info.feeRate + 1,
         isLoading: false,
-        tx
+        tx,
       });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
     } else {
@@ -68,12 +59,12 @@ export default class RBFBumpFee extends CPFP {
         this.setState({
           stage: 2,
           txhex: newTx.toHex(),
-          newTxid: newTx.getId()
+          newTxid: newTx.getId(),
         });
         this.setState({ isLoading: false });
       } catch (_) {
         this.setState({ isLoading: false });
-        alert("Failed: " + _.message);
+        alert('Failed: ' + _.message);
       }
     }
   }
@@ -81,8 +72,7 @@ export default class RBFBumpFee extends CPFP {
   onSuccessBroadcast() {
     // porting memo from old tx:
     if (BlueApp.tx_metadata[this.state.txid]) {
-      BlueApp.tx_metadata[this.state.newTxid] =
-        BlueApp.tx_metadata[this.state.txid];
+      BlueApp.tx_metadata[this.state.newTxid] = BlueApp.tx_metadata[this.state.txid];
     }
   }
 
@@ -118,7 +108,7 @@ export default class RBFBumpFee extends CPFP {
     }
 
     return this.renderStage1(
-      "We will replace this transaction with the one with higher fees, so it should be mined faster. This is called RBF - Replace By Fee."
+      'We will replace this transaction with the one with higher fees, so it should be mined faster. This is called RBF - Replace By Fee.',
     );
   }
 }
@@ -130,8 +120,8 @@ RBFBumpFee.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         txid: PropTypes.string,
-        wallet: PropTypes.object
-      })
-    })
-  })
+        wallet: PropTypes.object,
+      }),
+    }),
+  }),
 };

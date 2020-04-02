@@ -1,14 +1,14 @@
-import { AbstractHDWallet } from "./abstract-hd-wallet";
-import { NativeModules } from "react-native";
-import bip39 from "bip39";
-import BigNumber from "bignumber.js";
-import b58 from "bs58check";
+import { AbstractHDWallet } from './abstract-hd-wallet';
+import { NativeModules } from 'react-native';
+import bip39 from 'bip39';
+import BigNumber from 'bignumber.js';
+import b58 from 'bs58check';
 
-const bitcoin = require("bitcoinjs-lib");
-const BlueElectrum = require("../BlueElectrum");
-const HDNode = require("bip32");
-const coinSelectAccumulative = require("coinselect/accumulative");
-const coinSelectSplit = require("coinselect/split");
+const bitcoin = require('bitcoinjs-lib');
+const BlueElectrum = require('../BlueElectrum');
+const HDNode = require('bip32');
+const coinSelectAccumulative = require('coinselect/accumulative');
+const coinSelectSplit = require('coinselect/split');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -18,8 +18,8 @@ const { RNRandomBytes } = NativeModules;
  * @see https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki
  */
 export class HDSegwitBech32Wallet extends AbstractHDWallet {
-  static type = "HDsegwitBech32";
-  static typeReadable = "HD SegWit (BIP84 Bech32 Native)";
+  static type = 'HDsegwitBech32';
+  static typeReadable = 'HD SegWit (BIP84 Bech32 Native)';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
 
   constructor() {
@@ -53,13 +53,13 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   async generate() {
     const that = this;
     return new Promise(function(resolve) {
-      if (typeof RNRandomBytes === "undefined") {
+      if (typeof RNRandomBytes === 'undefined') {
         // CLI/CI environment
         // crypto should be provided globally by test launcher
         return crypto.randomBytes(32, (err, buf) => {
           // eslint-disable-line
           if (err) throw err;
-          that.setSecret(bip39.entropyToMnemonic(buf.toString("hex")));
+          that.setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
           resolve();
         });
       }
@@ -67,7 +67,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       // RN environment
       RNRandomBytes.randomBytes(32, (err, bytes) => {
         if (err) throw new Error(err);
-        const b = Buffer.from(bytes, "base64").toString("hex");
+        const b = Buffer.from(bytes, 'base64').toString('hex');
         that.setSecret(bip39.entropyToMnemonic(b));
         resolve();
       });
@@ -104,15 +104,13 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       this._node0 = hdNode.derive(0);
     }
     for (let index = 0; index < this.num_addresses; index++) {
-      const address = this.constructor._nodeToBech32SegwitAddress(
-        this._node0.derive(index)
-      );
+      const address = this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index));
       this._address.push(address);
       this._address_to_wif_cache[address] = this._getWIFByIndex(index);
       this._addr_balances[address] = {
         total: 0,
         c: 0,
-        u: 0
+        u: 0,
       };
       console.warn(this._addr_balances);
     }
@@ -127,9 +125,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       this._node0 = hdNode.derive(0);
     }
     console.warn(this._node0.derive(index).publicKey);
-    console.warn(
-      this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index))
-    );
+    console.warn(this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index)));
     return this._node0.derive(index).publicKey;
   }
 
@@ -155,7 +151,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     // bitcoinjs does not support zpub yet, so we just convert it from xpub
     let data = b58.decode(xpub);
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from("04b24746", "hex"), data]);
+    data = Buffer.concat([Buffer.from('04b24746', 'hex'), data]);
     this._xpub = b58.encode(data);
 
     return this._xpub;
@@ -178,7 +174,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * @deprecated
    */
   createTx(utxos, amount, fee, address) {
-    throw new Error("Deprecated");
+    throw new Error('Deprecated');
   }
 
   /**
@@ -191,15 +187,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction(
-    utxos,
-    targets,
-    feeRate,
-    changeAddress,
-    sequence,
-    skipSigning = false
-  ) {
-    if (!changeAddress) throw new Error("No change address provided");
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false) {
+    if (!changeAddress) throw new Error('No change address provided');
     sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
     let algo = coinSelectAccumulative;
     if (targets.length === 1 && targets[0] && !targets[0].value) {
@@ -210,7 +199,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
-      throw new Error("Not enough balance. Try sending smaller amount");
+      throw new Error('Not enough balance. Try sending smaller amount');
     }
 
     const psbt = new bitcoin.Psbt();
@@ -231,7 +220,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       if (!skipSigning) {
         // skiping signing related stuff
         if (!input.address || !this._getWifForAddress(input.address))
-          throw new Error("Internal error: no address or WIF to sign input");
+          throw new Error('Internal error: no address or WIF to sign input');
       }
       const pubkey = this._getPubkeyByAddress(input.address);
       const masterFingerprint = Buffer.from([0x00, 0x00, 0x00, 0x00]);
@@ -247,13 +236,13 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
           {
             masterFingerprint,
             path,
-            pubkey
-          }
+            pubkey,
+          },
         ],
         witnessUtxo: {
           script: p2wpkh.output,
-          value: input.value
-        }
+          value: input.value,
+        },
       });
     });
 
@@ -273,16 +262,16 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
 
       const outputData = {
         address: output.address,
-        value: output.value
+        value: output.value,
       };
 
       if (change) {
-        outputData["bip32Derivation"] = [
+        outputData['bip32Derivation'] = [
           {
             masterFingerprint,
             path,
-            pubkey
-          }
+            pubkey,
+          },
         ];
       }
 
@@ -326,7 +315,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    */
   static _nodeToBech32SegwitAddress(hdNode) {
     return bitcoin.payments.p2wpkh({
-      pubkey: hdNode.publicKey
+      pubkey: hdNode.publicKey,
     }).address;
   }
 
@@ -339,7 +328,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static _zpubToXpub(zpub) {
     let data = b58.decode(zpub);
     data = data.slice(4);
-    data = Buffer.concat([Buffer.from("0488b21e", "hex"), data]);
+    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
 
     return b58.encode(data);
   }
@@ -353,7 +342,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   async broadcastTx(txhex) {
     const broadcast = await BlueElectrum.broadcastV2(txhex);
     console.log({ broadcast });
-    if (broadcast.indexOf("successfully") !== -1) return true;
+    if (broadcast.indexOf('successfully') !== -1) return true;
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 }

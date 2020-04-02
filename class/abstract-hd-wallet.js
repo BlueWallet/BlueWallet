@@ -1,15 +1,15 @@
-import { LegacyWallet } from "./legacy-wallet";
+import { LegacyWallet } from './legacy-wallet';
 
-const bip39 = require("bip39");
-const BlueElectrum = require("../BlueElectrum");
+const bip39 = require('bip39');
+const BlueElectrum = require('../BlueElectrum');
 
 export class AbstractHDWallet extends LegacyWallet {
-  static type = "abstract";
-  static typeReadable = "abstract";
+  static type = 'abstract';
+  static typeReadable = 'abstract';
 
   constructor() {
     super();
-    this._xpub = ""; // cache
+    this._xpub = ''; // cache
     this._address = [];
     this._address_to_wif_cache = {};
     this._addr_balances = {};
@@ -23,7 +23,7 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   generate() {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   allowSend() {
@@ -36,9 +36,7 @@ export class AbstractHDWallet extends LegacyWallet {
 
   setSecret(newSecret) {
     this.secret = newSecret.trim().toLowerCase();
-    this.secret = this.secret
-      .replace(/[^a-zA-Z0-9]/g, " ")
-      .replace(/\s+/g, " ");
+    this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     this.generateAddresses();
     return this;
   }
@@ -73,36 +71,33 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   _getExternalWIFByIndex(index) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   _getInternalWIFByIndex(index) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   _getExternalAddressByIndex(index) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   _getInternalAddressByIndex(index) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   getXpub() {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   async fetchTransactions() {
     const txids_to_update = [];
     try {
       this._lastTxFetch = +new Date();
-      const tx_addr_dict = await BlueElectrum.multiGetHistoryByAddress(
-        this.getAddress()
-      );
+      const tx_addr_dict = await BlueElectrum.multiGetHistoryByAddress(this.getAddress());
       for (const addr in tx_addr_dict) {
         for (const tx of tx_addr_dict[addr]) {
-          if (!this.transactionConfirmed(tx.tx_hash))
-            txids_to_update.push(tx.tx_hash);
+          if (!this.transactionConfirmed(tx.tx_hash)) txids_to_update.push(tx.tx_hash);
         }
       }
       if (txids_to_update) await this._update_unconfirmed_tx(txids_to_update);
@@ -122,30 +117,25 @@ export class AbstractHDWallet extends LegacyWallet {
    * @return {String} WIF if found
    */
   _getWifForAddress(address) {
-    if (this._address_to_wif_cache[address])
-      return this._address_to_wif_cache[address];
-    throw new Error("Could not find WIF for " + address);
+    if (this._address_to_wif_cache[address]) return this._address_to_wif_cache[address];
+    throw new Error('Could not find WIF for ' + address);
   }
 
   createTx() {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   async fetchBalance() {
     try {
-      const balance = await BlueElectrum.multiGetBalanceByAddress(
-        this.getAddress()
-      );
+      const balance = await BlueElectrum.multiGetBalanceByAddress(this.getAddress());
       this.balance = balance.balance + balance.unconfirmed_balance;
       this.unconfirmed_balance = balance.unconfirmed_balance;
       this._lastBalanceFetch = +new Date();
       for (const address in balance.addresses) {
         this._addr_balances[address] = {
-          total:
-            balance.addresses[address].unconfirmed +
-            balance.addresses[address].confirmed,
+          total: balance.addresses[address].unconfirmed + balance.addresses[address].confirmed,
           c: balance.addresses[address].confirmed,
-          u: balance.addresses[address].unconfirmed
+          u: balance.addresses[address].unconfirmed,
         };
       }
     } catch (err) {
@@ -168,14 +158,14 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   _getDerivationPathByAddress(address) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   _getNodePubkeyByIndex(address) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   generateAddresses() {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 }

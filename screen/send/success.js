@@ -1,83 +1,79 @@
-import React, { Component } from "react";
-import ReactNativeHapticFeedback from "react-native-haptic-feedback";
-import { View } from "react-native";
-import { Text, Icon } from "react-native-elements";
-import { BlueButton, SafeBlueArea, BlueCard } from "../../BlueComponents";
-import { BitcoinUnit } from "../../models/bitcoinUnits";
-import PropTypes from "prop-types";
+import React, { Component } from 'react';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { View } from 'react-native';
+import { Text, Icon } from 'react-native-elements';
+import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import PropTypes from 'prop-types';
 
-const loc = require("../../loc");
+const loc = require('../../loc');
 
 export default class Success extends Component {
   static navigationOptions = {
     header: null,
-    gesturesEnabled: false
+    gesturesEnabled: false,
   };
 
   constructor(props) {
     super(props);
-    console.log("send/success constructor");
+    console.log('send/success constructor');
 
     this.state = {
-      amount: props.navigation.getParam("amount"),
-      fee: props.navigation.getParam("fee") || 0,
-      amountUnit: props.navigation.getParam("amountUnit") || BitcoinUnit.BTC,
-      invoiceDescription: props.navigation.getParam("invoiceDescription") || ""
+      amount: props.navigation.getParam('amount'),
+      fee: props.navigation.getParam('fee') || 0,
+      amountUnit: props.navigation.getParam('amountUnit') || BitcoinUnit.BTC,
+      invoiceDescription: props.navigation.getParam('invoiceDescription') || '',
     };
   }
 
   async componentDidMount() {
-    console.log("send/success - componentDidMount");
-    ReactNativeHapticFeedback.trigger("notificationSuccess", {
-      ignoreAndroidSystemSettings: false
+    console.log('send/success - componentDidMount');
+    ReactNativeHapticFeedback.trigger('notificationSuccess', {
+      ignoreAndroidSystemSettings: false,
     });
   }
 
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueCard style={{ alignItems: "center", flex: 1 }}>
+        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "center",
+              flexDirection: 'row',
+              justifyContent: 'center',
               paddingTop: 76,
-              paddingBottom: 16
-            }}
-          >
+              paddingBottom: 16,
+            }}>
             <Text
               style={{
-                color: "#0f5cc0",
+                color: '#0f5cc0',
                 fontSize: 36,
-                fontWeight: "600"
-              }}
-            >
+                fontWeight: '600',
+              }}>
               {this.state.amount}
             </Text>
             <Text
               style={{
-                color: "#0f5cc0",
+                color: '#0f5cc0',
                 fontSize: 16,
                 marginHorizontal: 4,
                 paddingBottom: 6,
-                fontWeight: "600",
-                alignSelf: "flex-end"
-              }}
-            >
-              {" " + this.state.amountUnit}
+                fontWeight: '600',
+                alignSelf: 'flex-end',
+              }}>
+              {' ' + this.state.amountUnit}
             </Text>
           </View>
           {this.state.fee > 0 && (
             <Text
               style={{
-                color: "#37c0a1",
+                color: '#37c0a1',
                 fontSize: 14,
                 marginHorizontal: 4,
                 paddingBottom: 6,
-                fontWeight: "500",
-                alignSelf: "center"
-              }}
-            >
+                fontWeight: '500',
+                alignSelf: 'center',
+              }}>
               {loc.send.create.fee}: {this.state.fee} {BitcoinUnit.BTC}
             </Text>
           )}
@@ -85,30 +81,28 @@ export default class Success extends Component {
             <Text
               numberOfLines={0}
               style={{
-                color: "#37c0a1",
+                color: '#37c0a1',
                 fontSize: 14,
                 marginHorizontal: 4,
                 paddingBottom: 6,
-                fontWeight: "500",
-                alignSelf: "center"
-              }}
-            >
+                fontWeight: '500',
+                alignSelf: 'center',
+              }}>
               {this.state.invoiceDescription}
             </Text>
           )}
         </BlueCard>
         <View
           style={{
-            backgroundColor: "#ccddf9",
+            backgroundColor: '#ccddf9',
             width: 120,
             height: 120,
             borderRadius: 60,
-            alignSelf: "center",
-            justifyContent: "center",
+            alignSelf: 'center',
+            justifyContent: 'center',
             marginTop: 43,
-            marginBottom: 53
-          }}
-        >
+            marginBottom: 53,
+          }}>
           <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
         </View>
         <BlueCard>
@@ -133,8 +127,8 @@ Success.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        fee: PropTypes.number
-      })
-    })
-  })
+        fee: PropTypes.number,
+      }),
+    }),
+  }),
 };

@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { View, ActivityIndicator, Text, TouchableOpacity } from "react-native";
+import React, { Component } from 'react';
+import { View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import {
   BlueButton,
   SafeBlueArea,
@@ -10,26 +10,26 @@ import {
   BlueText,
   BlueLoading,
   BlueSpacing20,
-  BlueNavigationStyle
-} from "../../BlueComponents";
-import PropTypes from "prop-types";
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from "../../class";
-import { BitcoinUnit } from "../../models/bitcoinUnits";
-import { Icon } from "react-native-elements";
-import Handoff from "react-native-handoff";
+  BlueNavigationStyle,
+} from '../../BlueComponents';
+import PropTypes from 'prop-types';
+import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { Icon } from 'react-native-elements';
+import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
-const BlueApp = require("../../BlueApp");
-const loc = require("../../loc");
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 const buttonStatus = Object.freeze({
   possible: 1,
   unknown: 2,
-  notPossible: 3
+  notPossible: 3,
 });
 
 export default class TransactionsStatus extends Component {
   static navigationOptions = () => ({
-    ...BlueNavigationStyle()
+    ...BlueNavigationStyle(),
   });
 
   constructor(props) {
@@ -47,8 +47,7 @@ export default class TransactionsStatus extends Component {
         }
         for (const output of foundTx.outputs) {
           if (output.addresses) to = to.concat(output.addresses);
-          if (output.scriptPubKey && output.scriptPubKey.addresses)
-            to = to.concat(output.scriptPubKey.addresses);
+          if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
       }
     }
@@ -66,14 +65,14 @@ export default class TransactionsStatus extends Component {
       wallet,
       isCPFPpossible: buttonStatus.unknown,
       isRBFBumpFeePossible: buttonStatus.unknown,
-      isRBFCancelPossible: buttonStatus.unknown
+      isRBFCancelPossible: buttonStatus.unknown,
     };
   }
 
   async componentDidMount() {
-    console.log("transactions/details - componentDidMount");
+    console.log('transactions/details - componentDidMount');
     this.setState({
-      isLoading: false
+      isLoading: false,
     });
 
     try {
@@ -84,7 +83,7 @@ export default class TransactionsStatus extends Component {
       this.setState({
         isCPFPpossible: buttonStatus.notPossible,
         isRBFBumpFeePossible: buttonStatus.notPossible,
-        isRBFCancelPossible: buttonStatus.notPossible
+        isRBFCancelPossible: buttonStatus.notPossible,
       });
     }
   }
@@ -94,15 +93,8 @@ export default class TransactionsStatus extends Component {
       return this.setState({ isCPFPpossible: buttonStatus.notPossible });
     }
 
-    const tx = new HDSegwitBech32Transaction(
-      null,
-      this.state.tx.hash,
-      this.state.wallet
-    );
-    if (
-      (await tx.isToUsTransaction()) &&
-      (await tx.getRemoteConfirmationsNum()) === 0
-    ) {
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
       return this.setState({ isCPFPpossible: buttonStatus.possible });
     } else {
       return this.setState({ isCPFPpossible: buttonStatus.notPossible });
@@ -114,11 +106,7 @@ export default class TransactionsStatus extends Component {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
     }
 
-    const tx = new HDSegwitBech32Transaction(
-      null,
-      this.state.tx.hash,
-      this.state.wallet
-    );
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
@@ -135,11 +123,7 @@ export default class TransactionsStatus extends Component {
       return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
     }
 
-    const tx = new HDSegwitBech32Transaction(
-      null,
-      this.state.tx.hash,
-      this.state.wallet
-    );
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
@@ -170,38 +154,30 @@ export default class TransactionsStatus extends Component {
   }
 
   render() {
-    if (this.state.isLoading || !this.state.hasOwnProperty("tx")) {
+    if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
       return <BlueLoading />;
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: "always" }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <Handoff
           title={`Bitcoin Vault Transaction ${this.state.tx.txid}`}
           type="io.goldwallet.wallet"
           url={`http://explorer.bitcoinvault.global/tx/${this.state.tx.txid}`}
         />
-        <View style={{ flex: 1, justifyContent: "space-between" }}>
+        <View style={{ flex: 1, justifyContent: 'space-between' }}>
           <BlueCard>
             <TouchableOpacity onPress={() => this.changeWalletBalanceUnit()}>
-              <View style={{ alignItems: "center" }}>
-                <Text
-                  style={{ color: "#2f5fb3", fontSize: 36, fontWeight: "600" }}
-                >
-                  {loc.formatBalanceWithoutSuffix(
-                    this.state.tx.value,
-                    this.state.wallet.preferredBalanceUnit,
-                    true
-                  )}{" "}
-                  {this.state.wallet.preferredBalanceUnit !==
-                    BitcoinUnit.LOCAL_CURRENCY && (
+              <View style={{ alignItems: 'center' }}>
+                <Text style={{ color: '#2f5fb3', fontSize: 36, fontWeight: '600' }}>
+                  {loc.formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
+                  {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
                     <Text
                       style={{
-                        color: "#2f5fb3",
+                        color: '#2f5fb3',
                         fontSize: 16,
-                        fontWeight: "600"
-                      }}
-                    >
+                        fontWeight: '600',
+                      }}>
                       {this.state.wallet.preferredBalanceUnit}
                     </Text>
                   )}
@@ -211,11 +187,11 @@ export default class TransactionsStatus extends Component {
 
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash]["memo"]) {
+                if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
                   return (
-                    <View style={{ alignItems: "center", marginVertical: 8 }}>
-                      <Text style={{ color: "#9aa0aa", fontSize: 14 }}>
-                        {BlueApp.tx_metadata[this.state.tx.hash]["memo"]}
+                    <View style={{ alignItems: 'center', marginVertical: 8 }}>
+                      <Text style={{ color: '#9aa0aa', fontSize: 14 }}>
+                        {BlueApp.tx_metadata[this.state.tx.hash]['memo']}
                       </Text>
                       <BlueSpacing20 />
                     </View>
@@ -223,10 +199,8 @@ export default class TransactionsStatus extends Component {
                 }
               } else {
                 return (
-                  <View style={{ alignItems: "center", marginVertical: 8 }}>
-                    <Text style={{ color: "#9aa0aa", fontSize: 14 }}>
-                      {this.state.tx.walletLabel}
-                    </Text>
+                  <View style={{ alignItems: 'center', marginVertical: 8 }}>
+                    <Text style={{ color: '#9aa0aa', fontSize: 14 }}>{this.state.tx.walletLabel}</Text>
                     <BlueSpacing20 />
                   </View>
                 );
@@ -235,35 +209,28 @@ export default class TransactionsStatus extends Component {
 
             <View
               style={{
-                backgroundColor: "#ccddf9",
+                backgroundColor: '#ccddf9',
                 width: 120,
                 height: 120,
                 borderRadius: 60,
-                alignSelf: "center",
-                justifyContent: "center",
+                alignSelf: 'center',
+                justifyContent: 'center',
                 marginTop: 43,
-                marginBottom: 53
-              }}
-            >
+                marginBottom: 53,
+              }}>
               <View>
-                <Icon
-                  name="check"
-                  size={50}
-                  type="font-awesome"
-                  color="#0f5cc0"
-                />
+                <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
               <View
                 style={{
                   marginBottom: -40,
                   minWidth: 30,
                   minHeight: 30,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  alignSelf: "flex-end",
-                  borderRadius: 15
-                }}
-              >
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  alignSelf: 'flex-end',
+                  borderRadius: 15,
+                }}>
                 {(() => {
                   if (!this.state.tx.confirmations) {
                     return (
@@ -288,25 +255,19 @@ export default class TransactionsStatus extends Component {
               </View>
             </View>
 
-            {this.state.tx.hasOwnProperty("fee") && (
+            {this.state.tx.hasOwnProperty('fee') && (
               <View style={{ marginTop: 15, marginBottom: 13 }}>
                 <BlueText
                   style={{
                     fontSize: 11,
-                    fontWeight: "500",
+                    fontWeight: '500',
                     marginBottom: 4,
-                    color: "#00c49f",
-                    alignSelf: "center"
-                  }}
-                >
-                  {loc.send.create.fee.toLowerCase()}{" "}
-                  {loc.formatBalanceWithoutSuffix(
-                    this.state.tx.fee,
-                    this.state.wallet.preferredBalanceUnit,
-                    true
-                  )}{" "}
-                  {this.state.wallet.preferredBalanceUnit !==
-                    BitcoinUnit.LOCAL_CURRENCY &&
+                    color: '#00c49f',
+                    alignSelf: 'center',
+                  }}>
+                  {loc.send.create.fee.toLowerCase()}{' '}
+                  {loc.formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
+                  {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY &&
                     this.state.wallet.preferredBalanceUnit}
                 </BlueText>
               </View>
@@ -315,33 +276,26 @@ export default class TransactionsStatus extends Component {
             <View
               style={{
                 borderRadius: 11,
-                backgroundColor: "#eef0f4",
+                backgroundColor: '#eef0f4',
                 width: 109,
                 height: 21,
-                alignSelf: "center",
-                alignItems: "center",
-                justifyContent: "center"
-              }}
-            >
-              <Text style={{ color: "#9aa0aa", fontSize: 11 }}>
-                {this.state.tx.confirmations} confirmations
-              </Text>
+                alignSelf: 'center',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={{ color: '#9aa0aa', fontSize: 11 }}>{this.state.tx.confirmations} confirmations</Text>
             </View>
           </BlueCard>
 
-          <View style={{ alignSelf: "center", justifyContent: "center" }}>
+          <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
             {(() => {
-              if (
-                this.state.tx.confirmations === 0 &&
-                this.state.wallet &&
-                this.state.wallet.allowRBF()
-              ) {
+              if (this.state.tx.confirmations === 0 && this.state.wallet && this.state.wallet.allowRBF()) {
                 return (
                   <React.Fragment>
                     <BlueButton
                       onPress={() =>
-                        this.props.navigation.navigate("RBF", {
-                          txid: this.state.tx.hash
+                        this.props.navigation.navigate('RBF', {
+                          txid: this.state.tx.hash,
                         })
                       }
                       title="Replace-By-Fee (RBF)"
@@ -365,9 +319,9 @@ export default class TransactionsStatus extends Component {
                   <React.Fragment>
                     <BlueButton
                       onPress={() =>
-                        this.props.navigation.navigate("CPFP", {
+                        this.props.navigation.navigate('CPFP', {
                           txid: this.state.tx.hash,
-                          wallet: this.state.wallet
+                          wallet: this.state.wallet,
                         })
                       }
                       title="Bump Fee"
@@ -386,16 +340,14 @@ export default class TransactionsStatus extends Component {
                     <BlueSpacing20 />
                   </React.Fragment>
                 );
-              } else if (
-                this.state.isRBFBumpFeePossible === buttonStatus.possible
-              ) {
+              } else if (this.state.isRBFBumpFeePossible === buttonStatus.possible) {
                 return (
                   <React.Fragment>
                     <BlueButton
                       onPress={() =>
-                        this.props.navigation.navigate("RBFBumpFee", {
+                        this.props.navigation.navigate('RBFBumpFee', {
                           txid: this.state.tx.hash,
-                          wallet: this.state.wallet
+                          wallet: this.state.wallet,
                         })
                       }
                       title="Bump Fee"
@@ -411,27 +363,24 @@ export default class TransactionsStatus extends Component {
                     <ActivityIndicator />
                   </React.Fragment>
                 );
-              } else if (
-                this.state.isRBFCancelPossible === buttonStatus.possible
-              ) {
+              } else if (this.state.isRBFCancelPossible === buttonStatus.possible) {
                 return (
                   <React.Fragment>
                     <TouchableOpacity style={{ marginVertical: 16 }}>
                       <Text
                         onPress={() =>
-                          this.props.navigation.navigate("RBFCancel", {
+                          this.props.navigation.navigate('RBFCancel', {
                             txid: this.state.tx.hash,
-                            wallet: this.state.wallet
+                            wallet: this.state.wallet,
                           })
                         }
                         style={{
-                          color: "#d0021b",
+                          color: '#d0021b',
                           fontSize: 15,
-                          fontWeight: "500",
-                          textAlign: "center"
-                        }}
-                      >
-                        {"Cancel Transaction"}
+                          fontWeight: '500',
+                          textAlign: 'center',
+                        }}>
+                        {'Cancel Transaction'}
                       </Text>
                     </TouchableOpacity>
                   </React.Fragment>
@@ -441,26 +390,20 @@ export default class TransactionsStatus extends Component {
 
             <TouchableOpacity
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 16
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: 16,
               }}
               onPress={() =>
-                this.props.navigation.navigate("TransactionDetails", {
-                  hash: this.state.tx.hash
+                this.props.navigation.navigate('TransactionDetails', {
+                  hash: this.state.tx.hash,
                 })
-              }
-            >
-              <Text style={{ color: "#9aa0aa", fontSize: 14, marginRight: 8 }}>
+              }>
+              <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
                 {loc.send.create.details.toLowerCase()}
               </Text>
-              <Icon
-                name="angle-right"
-                size={18}
-                type="font-awesome"
-                color="#9aa0aa"
-              />
+              <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
             </TouchableOpacity>
           </View>
         </View>
@@ -475,8 +418,8 @@ TransactionsStatus.propTypes = {
     navigate: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        hash: PropTypes.string
-      })
-    })
-  })
+        hash: PropTypes.string,
+      }),
+    }),
+  }),
 };

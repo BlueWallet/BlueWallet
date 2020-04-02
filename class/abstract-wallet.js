@@ -1,10 +1,10 @@
-import { BitcoinUnit, Chain } from "../models/bitcoinUnits";
+import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
 
-const createHash = require("create-hash");
+const createHash = require('create-hash');
 
 export class AbstractWallet {
-  static type = "abstract";
-  static typeReadable = "abstract";
+  static type = 'abstract';
+  static typeReadable = 'abstract';
 
   static fromJson(obj) {
     const obj2 = JSON.parse(obj);
@@ -19,8 +19,8 @@ export class AbstractWallet {
   constructor() {
     this.type = this.constructor.type;
     this.typeReadable = this.constructor.typeReadable;
-    this.label = "";
-    this.secret = ""; // private key or recovery phrase
+    this.label = '';
+    this.secret = ''; // private key or recovery phrase
     this.balance = 0; // SAT
     this.unconfirmed_balance = 0; // SAT
     this.transactions = [];
@@ -35,10 +35,10 @@ export class AbstractWallet {
   }
 
   getID() {
-    return createHash("sha256")
+    return createHash('sha256')
       .update(this.getSecret())
       .digest()
-      .toString("hex");
+      .toString('hex');
   }
 
   getTransactions() {
@@ -129,7 +129,7 @@ export class AbstractWallet {
   // createTx () { throw Error('not implemented') }
 
   getAddress() {
-    throw Error("not implemented");
+    throw Error('not implemented');
   }
 
   getAddressAsync() {

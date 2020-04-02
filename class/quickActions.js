@@ -1,5 +1,5 @@
-import QuickActions from "react-native-quick-actions";
-import { Platform } from "react-native";
+import QuickActions from 'react-native-quick-actions';
+import { Platform } from 'react-native';
 
 export default class DeviceQuickActions {
   static shared = new DeviceQuickActions();
@@ -20,23 +20,19 @@ export default class DeviceQuickActions {
     QuickActions.isSupported((error, supported) => {
       if (supported && error === null) {
         const shortcutItems = [];
-        const loc = require("../loc/");
+        const loc = require('../loc/');
         for (const wallet of DeviceQuickActions.shared.wallets) {
           shortcutItems.push({
-            type: "Wallets", // Required
+            type: 'Wallets', // Required
             title: wallet.getLabel(), // Optional, if empty, `type` will be used instead
             subtitle:
               wallet.hideBalance || wallet.getBalance() <= 0
-                ? ""
-                : loc.formatBalance(
-                    Number(wallet.getBalance()),
-                    wallet.getPreferredBalanceUnit(),
-                    true
-                  ),
+                ? ''
+                : loc.formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             userInfo: {
-              url: `goldwallet://wallet/${wallet.getID()}` // Provide any custom data like deep linking URL
+              url: `goldwallet://wallet/${wallet.getID()}`, // Provide any custom data like deep linking URL
             },
-            icon: Platform.select({ android: "quickactions", ios: "bookmark" })
+            icon: Platform.select({ android: 'quickactions', ios: 'bookmark' }),
           });
         }
         QuickActions.setShortcutItems(shortcutItems);

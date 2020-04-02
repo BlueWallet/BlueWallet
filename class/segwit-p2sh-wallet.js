@@ -1,8 +1,8 @@
-import { LegacyWallet } from "./legacy-wallet";
+import { LegacyWallet } from './legacy-wallet';
 
-const bitcoin = require("bitcoinjs-lib");
-const signer = require("../models/signer");
-const BigNumber = require("bignumber.js");
+const bitcoin = require('bitcoinjs-lib');
+const signer = require('../models/signer');
+const BigNumber = require('bignumber.js');
 
 /**
  * Creates Segwit P2SH Bitcoin address
@@ -14,21 +14,21 @@ function pubkeyToP2shSegwitAddress(pubkey, network) {
   network = network || bitcoin.networks.bitcoin;
   const { address } = bitcoin.payments.p2sh({
     redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
-    network
+    network,
   });
   return address;
 }
 
 export class SegwitP2SHWallet extends LegacyWallet {
-  static type = "segwitP2SH";
-  static typeReadable = "SegWit (P2SH)";
+  static type = 'segwitP2SH';
+  static typeReadable = 'SegWit (P2SH)';
 
   allowRBF() {
     return true;
   }
 
   static witnessToAddress(witness) {
-    const pubKey = Buffer.from(witness, "hex");
+    const pubKey = Buffer.from(witness, 'hex');
     return pubkeyToP2shSegwitAddress(pubKey);
   }
 
@@ -39,12 +39,12 @@ export class SegwitP2SHWallet extends LegacyWallet {
    * @returns {boolean|string} Either p2sh address or false
    */
   static scriptPubKeyToAddress(scriptPubKey) {
-    const scriptPubKey2 = Buffer.from(scriptPubKey, "hex");
+    const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
     let ret;
     try {
       ret = bitcoin.payments.p2sh({
         output: scriptPubKey2,
-        network: bitcoin.networks.bitcoin
+        network: bitcoin.networks.bitcoin,
       }).address;
     } catch (_) {
       return false;
@@ -59,7 +59,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
       const keyPair = bitcoin.ECPair.fromWIF(this.secret);
       const pubKey = keyPair.publicKey;
       if (!keyPair.compressed) {
-        console.warn("only compressed public keys are good for segwit");
+        console.warn('only compressed public keys are good for segwit');
         return false;
       }
       address = pubkeyToP2shSegwitAddress(pubKey);
@@ -94,9 +94,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
       u.amount = u.amount.toString(10);
     }
     // console.log('creating tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
-    const amountPlusFee = parseFloat(
-      new BigNumber(amount).plus(fee).toString(10)
-    );
+    const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
     // to compensate that module substracts fee from amount
     return signer.createSegwitTransaction(
       utxos,
@@ -105,7 +103,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
       fee,
       this.getSecret(),
       this.getAddress(),
-      sequence
+      sequence,
     );
   }
 }

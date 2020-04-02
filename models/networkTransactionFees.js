@@ -1,19 +1,19 @@
-import { BitcoinUnit } from "./bitcoinUnits";
-import BigNumber from "bignumber.js";
+import { BitcoinUnit } from './bitcoinUnits';
+import BigNumber from 'bignumber.js';
 
-const loc = require("../loc");
+const loc = require('../loc');
 
-const BlueElectrum = require("../BlueElectrum");
+const BlueElectrum = require('../BlueElectrum');
 
 export const NetworkTransactionFeeType = Object.freeze({
-  FAST: "Fast",
-  MEDIUM: "MEDIUM",
-  SLOW: "SLOW",
-  CUSTOM: "CUSTOM"
+  FAST: 'Fast',
+  MEDIUM: 'MEDIUM',
+  SLOW: 'SLOW',
+  CUSTOM: 'CUSTOM',
 });
 
 export class NetworkTransactionFee {
-  static StorageKey = "NetworkTransactionFee";
+  static StorageKey = 'NetworkTransactionFee';
 
   constructor(fastestFee = 1, halfHourFee = 1, hourFee = 1) {
     this.fastestFee = fastestFee;
@@ -27,27 +27,27 @@ export default class NetworkTransactionFees {
     return new Promise(async (resolve, reject) => {
       try {
         const response = await BlueElectrum.estimateFees();
-        if (typeof response === "object") {
+        if (typeof response === 'object') {
           const fast = loc.formatBalanceWithoutSuffix(
             new BigNumber(response.fast)
               .multipliedBy(1)
               .toNumber()
               .toFixed(0),
-            BitcoinUnit.SATS
+            BitcoinUnit.SATS,
           );
           const medium = loc.formatBalanceWithoutSuffix(
             new BigNumber(response.medium)
               .multipliedBy(1)
               .toNumber()
               .toFixed(0),
-            BitcoinUnit.SATS
+            BitcoinUnit.SATS,
           );
           const slow = loc.formatBalanceWithoutSuffix(
             new BigNumber(response.slow)
               .multipliedBy(1)
               .toNumber()
               .toFixed(0),
-            BitcoinUnit.SATS
+            BitcoinUnit.SATS,
           );
           const networkFee = new NetworkTransactionFee(fast, medium, slow);
           resolve(networkFee);
