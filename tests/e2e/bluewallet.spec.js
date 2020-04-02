@@ -1,10 +1,6 @@
 /* global it, describe, expect, element, by, waitFor, device */
 
 describe('BlueWallet UI Tests', () => {
-  it('can launch', async () => {
-    await yo('WalletsList');
-  });
-
   it('can encrypt storage, with plausible deniability', async () => {
     await yo('WalletsList');
 
@@ -207,7 +203,7 @@ describe('BlueWallet UI Tests', () => {
     await yo('cr34t3d'); // success
   });
 
-  it('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
+  it.skip('can encrypt storage, and decrypt storage, but this time the fake one', async () => {
     // this test mostly repeats previous one, except in the end it logins with FAKE password to unlock FAKE
     // storage bucket, and then decrypts it. effectively, everything from MAIN storage bucket is lost
     if (process.env.TRAVIS) return; // skipping on CI to not take time (plus it randomly fails)

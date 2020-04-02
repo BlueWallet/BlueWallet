@@ -3,6 +3,7 @@ import { createStackNavigator, createAppContainer } from 'react-navigation';
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
 import ReleaseNotes from './screen/settings/releasenotes';
+import Licensing from './screen/settings/licensing';
 import Selftest from './screen/selftest';
 import Language from './screen/settings/language';
 import Currency from './screen/settings/currency';
@@ -119,6 +120,10 @@ const WalletsStackNavigator = createStackNavigator(
     },
     Selftest: {
       screen: Selftest,
+    },
+    Licensing: {
+      screen: Licensing,
+      path: 'Licensing',
     },
     DefaultView: {
       screen: DefaultView,
