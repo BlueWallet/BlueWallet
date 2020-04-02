@@ -21,7 +21,6 @@ import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 let EV = require('../../events');
-let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -179,7 +178,6 @@ export default class WalletsAdd extends Component {
                           BlueApp.wallets.push(w);
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
-                          A(A.ENUM.CREATED_WALLET);
                           ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                           if (w.type === HDSegwitP2SHWallet.type || w.type === HDSegwitBech32Wallet.type) {
                             this.props.navigation.navigate('PleaseBackup', {

@@ -24,7 +24,6 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 let EV = require('../../events');
-let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -66,7 +65,6 @@ export default class WalletsImport extends Component {
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       EV(EV.enum.WALLETS_COUNT_CHANGED);
-      A(A.ENUM.CREATED_WALLET);
       this.props.navigation.dismiss();
     }
   }

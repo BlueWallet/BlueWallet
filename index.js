@@ -9,8 +9,6 @@ import App from './App';
 import LottieView from 'lottie-react-native';
 import UnlockWith from './UnlockWith.js';
 
-const A = require('./analytics');
-
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
   Error.captureStackTrace = () => {};
@@ -28,7 +26,6 @@ class BlueAppComponent extends React.Component {
   }
 
   setIsMigratingData = async () => {
-    A(A.ENUM.INIT);
     this.setState({ isMigratingData: false });
   };
 

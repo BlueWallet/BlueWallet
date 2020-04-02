@@ -13,7 +13,6 @@ import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/onAppLaunch';
-const A = require('./analytics');
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -110,16 +109,11 @@ export default class App extends React.Component {
   _handleAppStateChange = async nextAppState => {
     if (BlueApp.getWallets().length > 0) {
       if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
-        A(A.ENUM.APP_UNSUSPENDED);
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
           wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
         );
-        if (
-          !isAddressFromStoredWallet &&
-          this.state.clipboardContent !== clipboard &&
-          (this.isBitcoinAddress(clipboard))
-        ) {
+        if (!isAddressFromStoredWallet && this.state.clipboardContent !== clipboard && this.isBitcoinAddress(clipboard)) {
           this.setState({ isClipboardContentModalVisible: true });
         }
         this.setState({ clipboardContent: clipboard });
@@ -181,7 +175,6 @@ export default class App extends React.Component {
           }),
         );
     } else {
-        return;
     }
   };
 

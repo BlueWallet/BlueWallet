@@ -1,22 +1,4 @@
 PODS:
-  - appcenter (2.6.0):
-    - AppCenterReactNativeShared
-    - React
-  - appcenter-analytics (2.6.0):
-    - AppCenter/Analytics
-    - AppCenterReactNativeShared
-    - React
-  - appcenter-crashes (2.6.0):
-    - AppCenter/Crashes
-    - AppCenterReactNativeShared
-    - React
-  - AppCenter/Analytics (2.5.1):
-    - AppCenter/Core
-  - AppCenter/Core (2.5.1)
-  - AppCenter/Crashes (2.5.1):
-    - AppCenter/Core
-  - AppCenterReactNativeShared (2.6.0):
-    - AppCenter/Core (= 2.5.1)
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.4):
     - React
@@ -131,7 +113,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.6.2):
+  - RNCAsyncStorage (1.7.1):
     - React
   - RNDefaultPreference (1.4.1):
     - React
@@ -160,9 +142,9 @@ PODS:
     - React
   - RNWatch (0.4.1):
     - React
-  - Sentry (4.4.2):
-    - Sentry/Core (= 4.4.2)
-  - Sentry/Core (4.4.2)
+  - Sentry (4.4.3):
+    - Sentry/Core (= 4.4.3)
+  - Sentry/Core (4.4.3)
   - swift_qrcodejs (1.1.2)
   - TcpSockets (3.3.2):
     - React
@@ -171,9 +153,6 @@ PODS:
   - yoga (0.60.5.React)
 
 DEPENDENCIES:
-  - appcenter (from `../node_modules/appcenter/ios`)
-  - appcenter-analytics (from `../node_modules/appcenter-analytics/ios`)
-  - appcenter-crashes (from `../node_modules/appcenter-crashes/ios`)
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EFQRCode (= 5.1.0)
@@ -226,9 +205,7 @@ DEPENDENCIES:
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
-    - AppCenter
-    - AppCenterReactNativeShared
+  trunk:
     - boost-for-react-native
     - EFQRCode
     - lottie-ios
@@ -236,12 +213,6 @@ SPEC REPOS:
     - swift_qrcodejs
 
 EXTERNAL SOURCES:
-  appcenter:
-    :path: "../node_modules/appcenter/ios"
-  appcenter-analytics:
-    :path: "../node_modules/appcenter-analytics/ios"
-  appcenter-crashes:
-    :path: "../node_modules/appcenter-crashes/ios"
   BVLinearGradient:
     :path: "../node_modules/react-native-linear-gradient"
   DoubleConversion:
@@ -342,11 +313,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  AppCenter: fddcbac6e4baae3d93a196ceb0bfe0e4ce407dec
-  appcenter: dc687dcf81280ccab1dc938b0b974d265144a802
-  appcenter-analytics: fa8dba207d07733dcbda749d262fde3e7161258d
-  appcenter-crashes: fa97ffec69882486d7183193cc9394473757d1ad
-  AppCenterReactNativeShared: d5e360f8a4cb5126d29e31ab98051d2f070ba631
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
@@ -364,12 +330,12 @@ SPEC CHECKSUMS:
   React-jsinspector: e08662d1bf5b129a3d556eb9ea343a3f40353ae4
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 203091b4bf99d48b788a0682ad573e8718724893
+  react-native-camera: f4f2144140ae1e808cad97cc7caf013767c11f1b
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
-  react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
-  react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
-  react-native-slider: 6d83f7b8076a84e965a43fbdcfcf9dac19cea42e
-  react-native-webview: f72ac4078e115dfa741cc588acb1cca25566457d
+  react-native-image-picker: 7a85cf7b0a53845f03ae52fb4592a2748ded069b
+  react-native-randombytes: 3638d24759d67c68f6ccba60c52a7a8a8faa6a23
+  react-native-slider: 884693dd50f84745baa511ecdcde4c16f32182fb
+  react-native-webview: 2d8de2be422f0f8b9ba38db3f013f9ebfdb9b78f
   React-RCTActionSheet: b0f1ea83f4bf75fb966eae9bfc47b78c8d3efd90
   React-RCTAnimation: 359ba1b5690b1e87cc173558a78e82d35919333e
   React-RCTBlob: 5e2b55f76e9a1c7ae52b826923502ddc3238df24
@@ -382,9 +348,9 @@ SPEC CHECKSUMS:
   React-RCTWebSocket: cd932a16b7214898b6b7f788c8bddb3637246ac4
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 5ae4d57458804e99f73d427214442a6b10a53856
-  RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
-  RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
+  RNCAsyncStorage: 44395cb9c7c1523104c2b499eb426ef7aff82bca
+  RNDefaultPreference: 628cb35719f2fe4111c000ccfa7e186400bbc47e
+  RNDeviceInfo: 687c1b2ab6d86ff1ca1208783320cd144138c7f2
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
@@ -396,12 +362,12 @@ SPEC CHECKSUMS:
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
-  Sentry: bba998b0fb157fdd6596aa73290a9d67ae47be79
+  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
-  TcpSockets: 8d839b9b14f6f344d98e4642ded13ab3112b462d
-  ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e
+  TcpSockets: 14306fb79f9750ea7d2ddd02d8bed182abb01797
+  ToolTipMenu: 8ac61aded0fbc4acfe7e84a7d0c9479d15a9a382
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: f93db402b02d7f01a8bc51d9b2cc10a39391b081
+PODFILE CHECKSUM: 6e4becf6b95fb1241cd3ac1084da0a8cb3db7069
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4
