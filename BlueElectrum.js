@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import { Platform } from 'react-native';
-import { AppStorage } from './class';
+import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from './class';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 let reverse = require('buffer-reverse');
@@ -27,6 +27,10 @@ const hardcodedPeers = [
 let mainClient: ElectrumClient = false;
 let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
+let serverName = false;
+let disableBatching = false;
+
+let txhashHeightCache = {};
 
 async function connectMain() {
   let usingPeer = await getRandomHardcodedPeer();
@@ -54,8 +58,13 @@ async function connectMain() {
     const ver = await mainClient.initElectrum({ client: 'bluewallet', version: '1.4' });
     if (ver && ver[0]) {
       console.log('connected to ', ver);
+      serverName = ver[0];
       mainConnected = true;
       wasConnectedAtLeastOnce = true;
+      if (ver[0].startsWith('ElectrumPersonalServer') || ver[0].startsWith('electrs')) {
+        // TODO: once they release support for batching - disable batching only for lower versions
+        disableBatching = true;
+      }
       // AsyncStorage.setItem(storageKey, JSON.stringify(peers));  TODO: refactor
     }
   } catch (e) {
@@ -154,6 +163,7 @@ module.exports.getTransactionsByAddress = async function(address) {
   let hash = bitcoin.crypto.sha256(script);
   let reversedHash = Buffer.from(reverse(hash));
   let history = await mainClient.blockchainScripthash_getHistory(reversedHash.toString('hex'));
+  if (history.tx_hash) txhashHeightCache[history.tx_hash] = history.height; // cache tx height
   return history;
 };
 
@@ -224,7 +234,16 @@ module.exports.multiGetBalanceByAddress = async function(addresses, batchsize) {
       scripthash2addr[reversedHash] = addr;
     }
 
-    let balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
+    let balances = [];
+
+    if (disableBatching) {
+      for (let sh of scripthashes) {
+        let balance = await mainClient.blockchainScripthash_getBalance(sh);
+        balances.push({ result: balance, param: sh });
+      }
+    } else {
+      balances = await mainClient.blockchainScripthash_getBalanceBatch(scripthashes);
+    }
 
     for (let bal of balances) {
       ret.balance += +bal.result.confirmed;
@@ -254,7 +273,13 @@ module.exports.multiGetUtxoByAddress = async function(addresses, batchsize) {
       scripthash2addr[reversedHash] = addr;
     }
 
-    let results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
+    let results = [];
+
+    if (disableBatching) {
+      // ElectrumPersonalServer doesnt support `blockchain.scripthash.listunspent`
+    } else {
+      results = await mainClient.blockchainScripthash_listunspentBatch(scripthashes);
+    }
 
     for (let utxos of results) {
       ret[scripthash2addr[utxos.param]] = utxos.result;
@@ -289,10 +314,20 @@ module.exports.multiGetHistoryByAddress = async function(addresses, batchsize) {
       scripthash2addr[reversedHash] = addr;
     }
 
-    let results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
+    let results = [];
+
+    if (disableBatching) {
+      for (let sh of scripthashes) {
+        let history = await mainClient.blockchainScripthash_getHistory(sh);
+        results.push({ result: history, param: sh });
+      }
+    } else {
+      results = await mainClient.blockchainScripthash_getHistoryBatch(scripthashes);
+    }
 
     for (let history of results) {
       ret[scripthash2addr[history.param]] = history.result;
+      if (history.result[0]) txhashHeightCache[history.result[0].tx_hash] = history.result[0].height; // cache tx height
       for (let hist of ret[scripthash2addr[history.param]]) {
         hist.address = scripthash2addr[history.param];
       }
@@ -309,10 +344,35 @@ module.exports.multiGetTransactionByTxid = async function(txids, batchsize, verb
   verbose = verbose !== false;
   if (!mainClient) throw new Error('Electrum client is not connected');
   let ret = {};
+  txids = [...new Set(txids)]; // deduplicate just for any case
 
   let chunks = splitIntoChunks(txids, batchsize);
   for (let chunk of chunks) {
-    let results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
+    let results = [];
+
+    if (disableBatching) {
+      for (let txid of chunk) {
+        try {
+          // in case of ElectrumPersonalServer it might not track some transactions (like source transactions for our transactions)
+          // so we wrap it in try-catch
+          let tx = await mainClient.blockchainTransaction_get(txid, verbose);
+          if (typeof tx === 'string' && verbose) {
+            // apparently electrum server (EPS?) didnt recognize VERBOSE parameter, and  sent us plain txhex instead of decoded tx.
+            // lets decode it manually on our end then:
+            tx = txhexToElectrumTransaction(tx);
+            if (txhashHeightCache[txid]) {
+              // got blockheight where this tx was confirmed
+              tx.confirmations = this.estimateCurrentBlockheight() - txhashHeightCache[txid];
+              tx.time = this.calculateBlockTime(txhashHeightCache[txid]);
+              tx.blocktime = this.calculateBlockTime(txhashHeightCache[txid]);
+            }
+          }
+          results.push({ result: tx, param: txid });
+        } catch (_) {}
+      }
+    } else {
+      results = await mainClient.blockchainTransaction_getBatch(chunk, verbose);
+    }
 
     for (let txdata of results) {
       ret[txdata.param] = txdata.result;
@@ -400,6 +460,23 @@ module.exports.broadcastV2 = async function(hex) {
   return mainClient.blockchainTransaction_broadcast(hex);
 };
 
+module.exports.estimateCurrentBlockheight = function() {
+  const baseTs = 1585837504347; // uS
+  const baseHeight = 624083;
+  return Math.floor(baseHeight + (+new Date() - baseTs) / 1000 / 60 / 10);
+};
+
+/**
+ *
+ * @param height
+ * @returns {number} Timestamp in seconds
+ */
+module.exports.calculateBlockTime = function(height) {
+  const baseTs = 1585837504; // sec
+  const baseHeight = 624083;
+  return baseTs + (height - baseHeight) * 10 * 60;
+};
+
 /**
  *
  * @param host
@@ -434,3 +511,70 @@ let splitIntoChunks = function(arr, chunkSize) {
   }
   return groups;
 };
+
+function txhexToElectrumTransaction(txhex) {
+  let tx = bitcoin.Transaction.fromHex(txhex);
+
+  let ret = {
+    txid: tx.getId(),
+    hash: tx.getId(),
+    version: tx.version,
+    size: Math.ceil(txhex.length / 2),
+    vsize: tx.virtualSize(),
+    weight: tx.weight(),
+    locktime: tx.locktime,
+    vin: [],
+    vout: [],
+    hex: txhex,
+    blockhash: '',
+    confirmations: 0,
+    time: 0,
+    blocktime: 0,
+  };
+
+  for (let inn of tx.ins) {
+    let txinwitness = [];
+    if (inn.witness[0]) txinwitness.push(inn.witness[0].toString('hex'));
+    if (inn.witness[1]) txinwitness.push(inn.witness[1].toString('hex'));
+
+    ret.vin.push({
+      txid: reverse(inn.hash).toString('hex'),
+      vout: inn.index,
+      scriptSig: { hex: inn.script.toString('hex'), asm: '' },
+      txinwitness,
+      sequence: inn.sequence,
+    });
+  }
+
+  let n = 0;
+  for (let out of tx.outs) {
+    let value = new BigNumber(out.value).dividedBy(100000000).toNumber();
+    let address = false;
+    let type = false;
+
+    if (SegwitBech32Wallet.scriptPubKeyToAddress(out.script.toString('hex'))) {
+      address = SegwitBech32Wallet.scriptPubKeyToAddress(out.script.toString('hex'));
+      type = 'witness_v0_keyhash';
+    } else if (SegwitP2SHWallet.scriptPubKeyToAddress(out.script.toString('hex'))) {
+      address = SegwitP2SHWallet.scriptPubKeyToAddress(out.script.toString('hex'));
+      type = '???'; // TODO
+    } else if (LegacyWallet.scriptPubKeyToAddress(out.script.toString('hex'))) {
+      address = LegacyWallet.scriptPubKeyToAddress(out.script.toString('hex'));
+      type = '???'; // TODO
+    }
+
+    ret.vout.push({
+      value,
+      n,
+      scriptPubKey: {
+        asm: '',
+        hex: out.script.toString('hex'),
+        reqSigs: 1, // todo
+        type,
+        addresses: [address],
+      },
+    });
+    n++;
+  }
+  return ret;
+}
