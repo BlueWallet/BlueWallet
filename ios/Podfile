@@ -50,24 +50,3 @@ target 'GoldWallet' do
     
     sharedPods    
 end
-
-target 'GoldWalletTests' do
-    inherit! :search_paths
-    # Pods for testing
-    
-end
-
-target 'GoldWalletWatch' do
-    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
-    #  use_frameworks!
-    # Pods for GoldWalletWatch
-    platform :watchos, '5.0'
-end
-
-target 'GoldWalletWatch Extension' do
-    # Comment the next line if you're not using Swift and don't want to use dynamic frameworks
-    #  use_frameworks!
-    platform :watchos, '5.0'
-    pod 'EFQRCode', '5.1.0'
-    # Pods for GoldWalletWatch Extension
-end

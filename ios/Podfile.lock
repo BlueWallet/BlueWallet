@@ -3,8 +3,6 @@ PODS:
   - BVLinearGradient (2.5.4):
     - React
   - DoubleConversion (1.1.6)
-  - EFQRCode (5.1.0):
-    - swift_qrcodejs (~> 1.1.1)
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
@@ -145,7 +143,6 @@ PODS:
   - Sentry (4.4.3):
     - Sentry/Core (= 4.4.3)
   - Sentry/Core (4.4.3)
-  - swift_qrcodejs (1.1.2)
   - TcpSockets (3.3.2):
     - React
   - ToolTipMenu (5.2.1):
@@ -155,7 +152,6 @@ PODS:
 DEPENDENCIES:
   - BVLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
-  - EFQRCode (= 5.1.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
@@ -207,10 +203,8 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - boost-for-react-native
-    - EFQRCode
     - lottie-ios
     - Sentry
-    - swift_qrcodejs
 
 EXTERNAL SOURCES:
   BVLinearGradient:
@@ -316,7 +310,6 @@ SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: 8cbc5155c978f2e43098818c91d206d07aae6d30
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   lottie-ios: c38c3178ae8c4a8f200661aa5f80b9f1ca7f56b3
@@ -363,11 +356,10 @@ SPEC CHECKSUMS:
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
   Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
-  swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   TcpSockets: 14306fb79f9750ea7d2ddd02d8bed182abb01797
   ToolTipMenu: 8ac61aded0fbc4acfe7e84a7d0c9479d15a9a382
   yoga: 312528f5bbbba37b4dcea5ef00e8b4033fdd9411
 
-PODFILE CHECKSUM: 6e4becf6b95fb1241cd3ac1084da0a8cb3db7069
+PODFILE CHECKSUM: b905b4946ad477f9bcf29903fa7869aea3353679
 
 COCOAPODS: 1.8.4
