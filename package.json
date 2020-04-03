@@ -3,14 +3,17 @@
   "version": "4.8.3",
   "devDependencies": {
     "@babel/core": "^7.5.0",
+    "@babel/preset-flow": "^7.9.0",
     "@babel/runtime": "^7.5.1",
     "@react-native-community/eslint-config": "^0.0.5",
+    "@types/jest": "^25.1.4",
+    "@types/react": "^16.9.31",
+    "@types/react-native": "^0.62.1",
+    "@types/react-test-renderer": "^16.9.2",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
-    "babel-cli": "^6.26.0",
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
-    "babel-preset-flow": "^6.23.0",
     "eslint": "^6.0.1",
     "eslint-config-prettier": "^6.10.1",
     "eslint-plugin-babel": "^5.3.0",
@@ -31,7 +34,7 @@
     "prettier-eslint-cli": "^5.0.0",
     "react-test-renderer": "16.8.6",
     "rn-nodeify": "github:tradle/rn-nodeify"
-    },
+  },
   "scripts": {
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i; npm start -- --reset-cache",
     "releasenotes2json": "./release-notes.sh > release-notes.txt; node -e 'console.log(JSON.stringify(require(\"fs\").readFileSync(\"release-notes.txt\", \"utf8\")));' > release-notes.json",
@@ -55,6 +58,7 @@
     ]
   },
   "dependencies": {
+    "@babel/cli": "^7.8.4",
     "@babel/preset-env": "7.5.0",
     "@react-native-community/async-storage": "1.7.1",
     "@react-native-community/blur": "3.3.1",
@@ -129,6 +133,7 @@
     "readable-stream": "3.4.0",
     "secure-random": "1.1.2",
     "stream-browserify": "2.0.2",
+    "typescript": "^3.8.3",
     "url": "0.11.0",
     "util": "0.12.1",
     "wif": "2.0.6"
