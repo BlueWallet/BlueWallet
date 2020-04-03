@@ -13,7 +13,6 @@ import {
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-const BlueApp = require('../../BlueApp');
 /** @type {AppStorage} */
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
