@@ -9,6 +9,7 @@ import {
   HDSegwitBech32Wallet,
   LightningCustodianWallet,
   PlaceholderWallet,
+  SegwitBech32Wallet,
 } from '../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const EV = require('../events');
@@ -138,11 +139,19 @@ export default class WalletImport {
         let legacyWallet = new LegacyWallet();
         legacyWallet.setSecret(importText);
 
+        let segwitBech32Wallet = new SegwitBech32Wallet();
+        segwitBech32Wallet.setSecret(importText);
+
         await legacyWallet.fetchBalance();
+        await segwitBech32Wallet.fetchBalance();
         if (legacyWallet.getBalance() > 0) {
           // yep, its legacy we're importing
           await legacyWallet.fetchTransactions();
           return WalletImport._saveWallet(legacyWallet);
+        } else if (segwitBech32Wallet.getBalance() > 0) {
+          // yep, its single-address bech32 wallet
+          await segwitBech32Wallet.fetchTransactions();
+          return WalletImport._saveWallet(segwitBech32Wallet);
         } else {
           // by default, we import wif as Segwit P2SH
           await segwitWallet.fetchBalance();

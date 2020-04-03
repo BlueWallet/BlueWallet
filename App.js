@@ -110,9 +110,13 @@ export default class App extends React.Component {
       if (this.state.appState.match(/background/) && nextAppState === 'active') {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
         const clipboard = await Clipboard.getString();
-        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
-          wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
-        );
+        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
+          if (wallet.chain === Chain.ONCHAIN) {
+            return wallet.weOwnAddress(clipboard);
+          } else {
+            return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+          }
+        });
         const isBitcoinAddress =
           DeeplinkSchemaMatch.isBitcoinAddress(clipboard) || BitcoinBIP70TransactionDecode.matchesPaymentURL(clipboard);
         const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);

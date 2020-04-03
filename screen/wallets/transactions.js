@@ -31,9 +31,10 @@ import {
 import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
+import HandoffSettings from '../../class/handoff';
+import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -76,6 +77,7 @@ export default class WalletTransactions extends Component {
     const wallet = props.navigation.getParam('wallet');
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
+      isHandOffUseEnabled: false,
       isLoading: true,
       isManageFundsModalVisible: false,
       showShowFlatListRefreshControl: false,
@@ -87,11 +89,13 @@ export default class WalletTransactions extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     this.props.navigation.setParams({ isLoading: false });
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
+    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
+    this.setState({ isHandOffUseEnabled });
   }
 
   /**
@@ -222,12 +226,13 @@ export default class WalletTransactions extends Component {
            */}
           {this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
+          {this.state.wallet.allowHodlHodlTrading() && this.renderHodlHodlButton()}
         </View>
         <Text
           style={{
             flex: 1,
             marginLeft: 16,
-            marginTop: 24,
+            marginTop: 8,
             marginBottom: 8,
             fontWeight: 'bold',
             fontSize: 24,
@@ -375,6 +380,29 @@ export default class WalletTransactions extends Component {
     );
   };
 
+  renderHodlHodlButton = () => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.props.navigation.navigate('HodlHodl', { fromWallet: this.state.wallet });
+        }}
+        style={{
+          marginLeft: 5,
+          backgroundColor: '#f2f2f2',
+          borderRadius: 9,
+          minHeight: 49,
+          flex: 1,
+          paddingHorizontal: 8,
+          justifyContent: 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <Text style={{ color: '#062453', fontSize: 18 }}>local trader</Text>
+      </TouchableOpacity>
+    );
+  };
+
   onWalletSelect = async wallet => {
     if (wallet) {
       NavigationService.navigate('WalletTransactions', {
@@ -420,11 +448,13 @@ export default class WalletTransactions extends Component {
 
   renderItem = item => {
     return (
-      <BlueTransactionListItem
-        item={item.item}
-        itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
-        shouldRefresh={this.state.timeElapsed}
-      />
+      <View style={{ marginHorizontal: 4 }}>
+        <BlueTransactionListItem
+          item={item.item}
+          itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
+          shouldRefresh={this.state.timeElapsed}
+        />
+      </View>
     );
   };
 
@@ -432,7 +462,7 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={{ flex: 1 }}>
-        {this.state.wallet.chain === Chain.ONCHAIN && (
+        {this.state.wallet.chain === Chain.ONCHAIN && this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
             type="io.bluewallet.bluewallet"

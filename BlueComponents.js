@@ -581,16 +581,17 @@ export class BlueListItem extends Component {
         bottomDivider
         containerStyle={{
           backgroundColor: 'transparent',
-          borderBottomStartRadius: 20,
-          borderBottomEndRadius: 20,
           borderBottomColor: '#ededed',
+          paddingTop: 16,
+          paddingBottom: 16,
         }}
         titleStyle={{
           color: BlueApp.settings.foregroundColor,
           fontSize: 16,
           fontWeight: '500',
+          marginLeft: 16,
         }}
-        subtitleStyle={{ color: BlueApp.settings.alternativeTextColor }}
+        subtitleStyle={{ color: BlueApp.settings.alternativeTextColor, marginLeft: 16, fontWeight: '400', width: 230 }}
         subtitleNumberOfLines={1}
         titleNumberOfLines={0}
         {...this.props}
@@ -1025,6 +1026,12 @@ const stylesBlueIcon = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#f8d2d2',
   },
+  ballOutgoingExpired: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#EEF0F4',
+  },
   ballTransparrent: {
     width: 30,
     height: 30,
@@ -1109,15 +1116,8 @@ export class BlueTransactionExpiredIcon extends Component {
     return (
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
-          <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon
-              {...this.props}
-              name="hourglass-end"
-              size={16}
-              type="font-awesome"
-              color={BlueApp.settings.outgoingForegroundColor}
-              iconStyle={{ left: 0, top: 6 }}
-            />
+          <View style={stylesBlueIcon.ballOutgoingExpired}>
+            <Icon {...this.props} name="clock" size={16} type="octicon" color="#9AA0AA" iconStyle={{ left: 0, top: 6 }} />
           </View>
         </View>
       </View>
@@ -1482,7 +1482,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
         if (item.ispaid) {
           color = BlueApp.settings.successColor;
         } else {
-          color = BlueApp.settings.failedColor;
+          color = '#9AA0AA';
         }
       }
     } else if (item.value / 100000000 < 0) {
@@ -1672,7 +1672,7 @@ export class BlueListTransactionItem extends Component {
         if (item.ispaid) {
           color = '#37c0a1';
         } else {
-          color = '#FF0000';
+          color = '#9AA0AA';
         }
       }
     } else if (item.value / 100000000 < 0) {
