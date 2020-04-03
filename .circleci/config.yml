@@ -20,4 +20,4 @@ jobs:
             - node_modules
 
       # run tests!
-      - run: npm t || npm t
+      - run: npm t || npm t || npm t
