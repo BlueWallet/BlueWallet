@@ -52,6 +52,15 @@ export class HodlHodlApi {
     };
   }
 
+  _getHeadersWithoutAuthorization() {
+    return {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      },
+    };
+  }
+
   async getCountries() {
     let response = await this._api.get('/api/v1/countries', this._getHeaders());
 
@@ -120,7 +129,7 @@ export class HodlHodlApi {
     for (let key in pagination) {
       uri.push('pagination[' + key + ']=' + pagination[key]);
     }
-    let response = await this._api.get('/api/v1/offers?' + uri.join('&'), this._getHeaders());
+    let response = await this._api.get('/api/v1/offers?' + uri.join('&'), this._getHeadersWithoutAuthorization());
 
     let json = response.body;
     if (!json || !json.offers || json.status === 'error') {
