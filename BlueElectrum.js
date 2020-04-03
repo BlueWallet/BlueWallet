@@ -149,6 +149,7 @@ module.exports.getConfig = async function() {
     host: mainClient.host,
     port: mainClient.port,
     status: mainClient.status && mainConnected ? 1 : 0,
+    serverName,
   };
 };
 
