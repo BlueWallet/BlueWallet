@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Platform, TouchableOpacity } from 'react-native';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, SafeBlueArea, BlueNavigationStyle, BlueCard } from '../../BlueComponents';

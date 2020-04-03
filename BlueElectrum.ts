@@ -1,3 +1,4 @@
+// @ts-nocheck
 import AsyncStorage from '@react-native-community/async-storage';
 import { Platform } from 'react-native';
 import { AppStorage } from './class';
