@@ -20,6 +20,7 @@ import {
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
+import ImagePicker from 'react-native-image-picker';
 import {
   BlueSendButtonIcon,
   BlueListItem,
@@ -35,11 +36,13 @@ import Modal from 'react-native-modal';
 import NavigationService from '../../NavigationService';
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
+import ActionSheet from '../ActionSheet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 let EV = require('../../events');
 let BlueElectrum = require('../../BlueElectrum');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -458,6 +461,85 @@ export default class WalletTransactions extends Component {
     );
   };
 
+  onBarCodeRead = ret => {
+    if (!this.state.isLoading) {
+      this.setState({ isLoading: true }, () => {
+        this.setState({ isLoading: false });
+        this.props.navigation.navigate(this.state.wallet.chain === Chain.ONCHAIN ? 'SendDetails' : 'ScanLndInvoice', {
+          fromSecret: this.state.wallet.getSecret(),
+          uri: ret.data ? ret.data : ret,
+          fromWallet: this.state.wallet,
+        });
+      });
+    }
+  };
+
+  choosePhoto = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.onBarCodeRead({ data: result });
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
+  sendButtonLongPress = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheet.showActionSheetWithOptions(
+        { options: [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'], cancelButtonIndex: 0 },
+        buttonIndex => {
+          if (buttonIndex === 1) {
+            this.choosePhoto();
+          } else if (buttonIndex === 2) {
+            this.props.navigation.navigate('ScanQRCode', {
+              launchedBy: this.props.navigation.state.routeName,
+              onBarScanned: this.onBarCodeRead,
+              showFileImportButton: false,
+            });
+          }
+        },
+      );
+    } else if (Platform.OS === 'android') {
+      ActionSheet.showActionSheetWithOptions({
+        title: '',
+        message: '',
+        buttons: [
+          {
+            text: loc.send.details.cancel,
+            onPress: () => {},
+            style: 'cancel',
+          },
+          {
+            text: 'Choose Photo',
+            onPress: this.choosePhoto,
+          },
+          {
+            text: 'Scan QR Code',
+            onPress: () =>
+              this.props.navigation.navigate('ScanQRCode', {
+                launchedBy: this.props.navigation.state.routeName,
+                onBarScanned: this.onBarCodeRead,
+                showFileImportButton: false,
+              }),
+          },
+        ],
+      });
+    }
+  };
+
   render() {
     const { navigate } = this.props.navigation;
     return (
@@ -615,6 +697,7 @@ export default class WalletTransactions extends Component {
             ) {
               return (
                 <BlueSendButtonIcon
+                  onLongPress={this.sendButtonLongPress}
                   onPress={() => {
                     if (this.state.wallet.chain === Chain.OFFCHAIN) {
                       navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
@@ -696,5 +779,8 @@ WalletTransactions.propTypes = {
     goBack: PropTypes.func,
     getParam: PropTypes.func,
     setParams: PropTypes.func,
+    state: PropTypes.shape({
+      routeName: PropTypes.string,
+    }),
   }),
 };
