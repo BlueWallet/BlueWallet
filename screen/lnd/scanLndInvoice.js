@@ -1,16 +1,6 @@
 /* global alert */
 import React from 'react';
-import {
-  Text,
-  ActivityIndicator,
-  Platform,
-  KeyboardAvoidingView,
-  View,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  Keyboard,
-  ScrollView,
-} from 'react-native';
+import { Text, ActivityIndicator, KeyboardAvoidingView, View, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueButton,
@@ -243,7 +233,7 @@ export default class ScanLndInvoice extends React.Component {
             }
           >
             <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
-            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 4, marginRight: 4 }}>
               {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
