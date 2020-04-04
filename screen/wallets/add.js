@@ -20,11 +20,9 @@ import {
   BlueFormLabel,
   BlueButton,
   SafeBlueArea,
-  BlueFormInput,
   BlueNavigationStyle,
   BlueButtonLink,
   BlueSpacing20,
-  BlueSpacing10,
 } from '../../BlueComponents';
 import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
 import PropTypes from 'prop-types';
