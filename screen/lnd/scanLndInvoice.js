@@ -223,7 +223,7 @@ export default class ScanLndInvoice extends React.Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: '#000000'}}>
+      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'flex-end' }}>
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -266,13 +266,10 @@ export default class ScanLndInvoice extends React.Component {
       return <BlueLoading />;
     }
     return (
-       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-              <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-
-          <ScrollView style={{ flex: 1, backgroundColor: 'red' }}>
-       
-          
-            <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={20}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}>
+            <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
               <View style={{ marginTop: 60 }}>
                 <BlueBitcoinAmount
                   pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
@@ -339,16 +336,11 @@ export default class ScanLndInvoice extends React.Component {
                 </BlueCard>
               </BlueCard>
             </KeyboardAvoidingView>
-
             {this.renderWalletSelectionButton()}
-          
-        
           </ScrollView>
-                    </TouchableWithoutFeedback>
-
-          <BlueDismissKeyboardInputAccessory />
-        </SafeBlueArea>
-      
+        </View>
+        <BlueDismissKeyboardInputAccessory />
+      </SafeBlueArea>
     );
   }
 }
