@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Keyboard,
+  ScrollView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
@@ -222,7 +223,7 @@ export default class ScanLndInvoice extends React.Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'flex-end', backgroundColor: '#000000'}}>
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -265,9 +266,12 @@ export default class ScanLndInvoice extends React.Component {
       return <BlueLoading />;
     }
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <View style={{ flex: 1, justifyContent: 'space-between' }}>
+       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+              <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+
+          <ScrollView style={{ flex: 1, backgroundColor: 'red' }}>
+       
+          
             <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={20}>
               <View style={{ marginTop: 60 }}>
                 <BlueBitcoinAmount
@@ -337,10 +341,14 @@ export default class ScanLndInvoice extends React.Component {
             </KeyboardAvoidingView>
 
             {this.renderWalletSelectionButton()}
-          </View>
+          
+        
+          </ScrollView>
+                    </TouchableWithoutFeedback>
+
           <BlueDismissKeyboardInputAccessory />
         </SafeBlueArea>
-      </TouchableWithoutFeedback>
+      
     );
   }
 }
