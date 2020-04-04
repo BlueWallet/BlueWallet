@@ -268,7 +268,7 @@ export default class ScanLndInvoice extends React.Component {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
           <View style={{ flex: 1, justifyContent: 'space-between' }}>
-            <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
+            <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : 'padding'} keyboardVerticalOffset={20}>
               <View style={{ marginTop: 60 }}>
                 <BlueBitcoinAmount
                   pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
