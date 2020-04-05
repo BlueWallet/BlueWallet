@@ -17,6 +17,7 @@ import {
   Linking,
   KeyboardAvoidingView,
   Alert,
+  Clipboard,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { NavigationEvents } from 'react-navigation';
@@ -496,10 +497,14 @@ export default class WalletTransactions extends Component {
     );
   };
 
+  copyFromClipbard = async () => {
+    this.onBarCodeRead({ data: await Clipboard.getString() });
+  };
+
   sendButtonLongPress = () => {
     if (Platform.OS === 'ios') {
       ActionSheet.showActionSheetWithOptions(
-        { options: [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'], cancelButtonIndex: 0 },
+        { options: [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code', 'Copy from Clipboard'], cancelButtonIndex: 0 },
         buttonIndex => {
           if (buttonIndex === 1) {
             this.choosePhoto();
@@ -509,6 +514,8 @@ export default class WalletTransactions extends Component {
               onBarScanned: this.onBarCodeRead,
               showFileImportButton: false,
             });
+          } else if (buttonIndex === 3) {
+            this.copyFromClipbard();
           }
         },
       );
@@ -534,6 +541,10 @@ export default class WalletTransactions extends Component {
                 onBarScanned: this.onBarCodeRead,
                 showFileImportButton: false,
               }),
+          },
+          {
+            text: 'Copy From Clipboard',
+            onPress: this.copyFromClipbard,
           },
         ],
       });
