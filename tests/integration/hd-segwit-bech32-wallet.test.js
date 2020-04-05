@@ -6,7 +6,7 @@ global.net = require('net'); // needed by Electrum client. For RN it is proviced
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -197,6 +197,15 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(txFound, 4);
 
     await hd.fetchUtxo();
+    assert.strictEqual(hd.getUtxo().length, 2);
+    assert.strictEqual(hd.getDerivedUtxoFromOurTransaction().length, 2);
+    let u1 = hd.getUtxo()[0];
+    let u2 = hd.getDerivedUtxoFromOurTransaction()[0];
+    delete u1.confirmations;
+    delete u2.confirmations;
+    delete u1.height;
+    delete u2.height;
+    assert.deepStrictEqual(u1, u2);
     let changeAddress = await hd.getChangeAddressAsync();
     assert.ok(changeAddress && changeAddress.startsWith('bc1'));
 
