@@ -44,6 +44,7 @@ import sendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
+import Broadcast from './screen/send/broadcast';
 
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import LappBrowser from './screen/lnd/browser';
@@ -172,7 +173,8 @@ const WalletsStackNavigator = createStackNavigator(
 const CreateTransactionStackNavigator = createStackNavigator({
   SendDetails: {
     routeName: 'SendDetails',
-    screen: sendDetails,
+    // screen: sendDetails,
+    screen: Broadcast,
   },
   Confirm: {
     screen: Confirm,
@@ -198,6 +200,9 @@ const CreateTransactionStackNavigator = createStackNavigator({
     navigationOptions: {
       headerRight: null,
     },
+  },
+  Broadcast: {
+    screen: Broadcast,
   },
 });
 

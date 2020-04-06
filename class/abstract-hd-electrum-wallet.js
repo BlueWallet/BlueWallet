@@ -983,7 +983,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
    * @param {String} txhex
    * @returns {Promise<boolean>}
    */
-  async broadcastTx(txhex) {
+  static async broadcastTx(txhex) {
     let broadcast = await BlueElectrum.broadcastV2(txhex);
     console.log({ broadcast });
     if (broadcast.indexOf('successfully') !== -1) return true;
