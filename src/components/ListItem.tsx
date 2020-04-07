@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   textContainer: {
-    marginLeft: 20,
+    paddingLeft: 20,
   },
   title: {
     ...typography.caption,
