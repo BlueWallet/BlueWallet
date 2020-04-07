@@ -1,12 +1,10 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
-import { LegacyWallet, SegwitP2SHWallet, AppStorage } from '../../class';
+import { LegacyWallet, SegwitP2SHWallet } from '../../class';
 import TestRenderer from 'react-test-renderer';
 import Settings from '../../screen/settings/settings';
 import Selftest from '../../screen/selftest';
 import { BlueHeader } from '../../BlueComponents';
-import { FiatUnit } from '../../models/fiatUnit';
-import AsyncStorage from '@react-native-community/async-storage';
 
 global.net = require('net');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
@@ -14,39 +12,6 @@ const assert = require('assert');
 
 jest.mock('react-native-qrcode-svg', () => 'Video');
 jest.useFakeTimers();
-
-/**
- * Tests failing: Cannot find module 'Picker' from 'App.test.js'
- * Comment branch: 24-create-re-usable-menu-list-item-component
- */
-// jest.mock('Picker', () => {
-//   // eslint-disable-next-line import/no-unresolved
-//   const React = require('React');
-//   const PropTypes = require('prop-types');
-//   return class MockPicker extends React.Component {
-//     static Item = props => React.createElement('Item', props, props.children);
-//     static propTypes = { children: PropTypes.any };
-//     static defaultProps = { children: '' };
-
-//     render() {
-//       return React.createElement('Picker', this.props, this.props.children);
-//     }
-//   };
-// });
-
-// jest.mock('ScrollView', () => {
-//   const RealComponent = require.requireActual('ScrollView');
-//   const React = require('React');
-//   class ScrollView extends React.Component {
-//     scrollTo() {}
-
-//     render() {
-//       return React.createElement('ScrollView', this.props, this.props.children);
-//     }
-//   }
-//   ScrollView.propTypes = RealComponent.propTypes;
-//   return ScrollView;
-// });
 
 jest.mock('amplitude-js', () => ({
   getInstance: function() {

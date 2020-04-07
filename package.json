@@ -165,11 +165,6 @@
       "yarn lint:fix"
     ]
   },
-  "rnpm": {
-    "assets": [
-   "./src/assets/fonts/"
-    ]
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
