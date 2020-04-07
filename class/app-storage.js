@@ -303,7 +303,7 @@ export class AppStorage {
         };
         await WatchConnectivity.shared.sendWalletsToWatch();
 
-        const isStorageEncrypted = await this.storageIsEncrypted;
+        const isStorageEncrypted = await this.storageIsEncrypted();
         if (isStorageEncrypted) {
           DeviceQuickActions.clearShortcutItems();
           DeviceQuickActions.removeAllWallets();
