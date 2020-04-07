@@ -1,9 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import HDSegwitBech32Wallet from '../../class/hd-segwit-bech32-wallet';
-import { SafeBlueArea, BlueCard, BlueButton, BlueFormInput, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
+import { HDSegwitBech32Wallet } from '../../class/hd-segwit-bech32-wallet';
+import {
+  SafeBlueArea,
+  BlueCard,
+  BlueButton,
+  BlueFormInput,
+  BlueSpacing10,
+  BlueLoading,
+  BlueTextCentered,
+  BlueFormLabel,
+} from '../../BlueComponents';
 import BlueElectrum from '../../BlueElectrum';
 
 const BROADCAST_RESULT = {
@@ -40,14 +49,17 @@ export default function Broadcast() {
 
   return (
     <SafeBlueArea style={styles.blueArea}>
-      <View style={styles.wrapper}>
-        <BlueCard>
-          <BlueFormInput textInputRef={inputRef} multiline numberOfLines={8} value={tx} onChangeText={handleUpdateTx} />
-          <BlueSpacing10 />
-          <BlueButton title="BROADCAST" onPress={handleBroadcast} />
-        </BlueCard>
-        <BroadcastResult result={broadcastResult} />
-      </View>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+        <View style={styles.wrapper}>
+          <BlueCard>
+            <BlueFormLabel>Add transaction hash</BlueFormLabel>
+            <BlueFormInput textInputRef={inputRef} multiline numberOfLines={8} value={tx} onChangeText={handleUpdateTx} />
+            <BlueSpacing10 />
+            <BlueButton title="BROADCAST" onPress={handleBroadcast} />
+          </BlueCard>
+          <BroadcastResult result={broadcastResult} />
+        </View>
+      </KeyboardAvoidingView>
     </SafeBlueArea>
   );
 }
