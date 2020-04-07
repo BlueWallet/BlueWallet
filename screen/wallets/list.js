@@ -13,33 +13,33 @@ import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 
-let EV = require('../../events');
+const EV = require('../../events');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const BlueElectrum = require('../../BlueElectrum');
 
 export default class WalletsList extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    headerStyle: {
-      backgroundColor: '#FFFFFF',
-      borderBottomWidth: 0,
-      elevation: 0,
-    },
-    headerRight: (
-      <TouchableOpacity
-        style={{
-          marginHorizontal: 16,
-          width: 40,
-          height: 40,
-          justifyContent: 'center',
-          alignItems: 'flex-end',
-        }}
-        onPress={() => navigation.navigate('Settings')}>
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
-      </TouchableOpacity>
-    ),
-  });
+  // static navigationOptions = ({ navigation }) => ({
+  //   headerStyle: {
+  //     backgroundColor: '#FFFFFF',
+  //     borderBottomWidth: 0,
+  //     elevation: 0,
+  //   },
+  //   headerRight: (
+  //     <TouchableOpacity
+  //       style={{
+  //         marginHorizontal: 16,
+  //         width: 40,
+  //         height: 40,
+  //         justifyContent: 'center',
+  //         alignItems: 'flex-end',
+  //       }}
+  //       onPress={() => navigation.navigate('Settings')}>
+  //       <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+  //     </TouchableOpacity>
+  //   ),
+  // });
 
   constructor(props) {
     super(props);

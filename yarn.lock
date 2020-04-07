@@ -7787,6 +7787,11 @@ react-native-elements@0.19.0:
     opencollective "^1.0.3"
     prop-types "^15.5.8"
 
+react-native-fast-image@^8.1.5:
+  version "8.1.5"
+  resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.1.5.tgz#0a6404c988dad68c98d26f91155d0a5293ba2ea5"
+  integrity sha512-DoAWGLeQ2hbllummrpXH9B38OgM0TFmNYCF34F90/hdHZirqUtYHzF4QDdb/NV7ebSijHmM3mpkzct8PXtcYyg==
+
 react-native-flexi-radio-button@0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/react-native-flexi-radio-button/-/react-native-flexi-radio-button-0.2.2.tgz#a0180393c531ba3477722c6e42a31ceb1c11623b"

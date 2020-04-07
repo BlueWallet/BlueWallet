@@ -16,6 +16,10 @@
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
 		906451CAD44154C2950030EC /* libPods-GoldWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 731973BA0AC6EA78962CE5B6 /* libPods-GoldWallet.a */; };
+		A298644F243B5FDD00A8F351 /* Ubuntu-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */; };
+		A2986450243B5FDD00A8F351 /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */; };
+		A2986451243B5FDD00A8F351 /* Ubuntu-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644D243B5FDD00A8F351 /* Ubuntu-Bold.ttf */; };
+		A2986452243B5FDD00A8F351 /* Ubuntu-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -86,6 +90,10 @@
 		9B3A324B70BC8C6D9314FD4F /* Pods-GoldWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GoldWallet.debug.xcconfig"; path = "Pods/Target Support Files/Pods-GoldWallet/Pods-GoldWallet.debug.xcconfig"; sourceTree = "<group>"; };
 		9DF4E6C040764E4BA1ACC1EB /* libTcpSockets.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libTcpSockets.a; sourceTree = "<group>"; };
 		9F1F51A83D044F3BB26A35FC /* libRNSVG-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNSVG-tvOS.a"; sourceTree = "<group>"; };
+		A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Ubuntu-Medium.ttf"; path = "../src/assets/fonts/Ubuntu-Medium.ttf"; sourceTree = "<group>"; };
+		A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Ubuntu-Light.ttf"; path = "../src/assets/fonts/Ubuntu-Light.ttf"; sourceTree = "<group>"; };
+		A298644D243B5FDD00A8F351 /* Ubuntu-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Ubuntu-Bold.ttf"; path = "../src/assets/fonts/Ubuntu-Bold.ttf"; sourceTree = "<group>"; };
+		A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Ubuntu-Regular.ttf"; path = "../src/assets/fonts/Ubuntu-Regular.ttf"; sourceTree = "<group>"; };
 		A7C4B1FDAD264618BAF8C335 /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
 		A9166D490AEF4938BD6621CF /* Feather.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Feather.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Feather.ttf"; sourceTree = "<group>"; };
 		AB2325650CE04F018697ACFE /* libRNReactNativeHapticFeedback.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNReactNativeHapticFeedback.a; sourceTree = "<group>"; };
@@ -186,6 +194,10 @@
 				E8E8CE89B3D142C6A8A56C34 /* Octicons.ttf */,
 				4D746BBE67E84684848246E2 /* SimpleLineIcons.ttf */,
 				47C436B1EF23484B8181DBEA /* Zocial.ttf */,
+				A298644D243B5FDD00A8F351 /* Ubuntu-Bold.ttf */,
+				A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */,
+				A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */,
+				A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -328,6 +340,10 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
+				A2986451243B5FDD00A8F351 /* Ubuntu-Bold.ttf in Resources */,
+				A2986450243B5FDD00A8F351 /* Ubuntu-Light.ttf in Resources */,
+				A298644F243B5FDD00A8F351 /* Ubuntu-Medium.ttf in Resources */,
+				A2986452243B5FDD00A8F351 /* Ubuntu-Regular.ttf in Resources */,
 				3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

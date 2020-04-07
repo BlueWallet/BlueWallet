@@ -61,7 +61,7 @@
 	<key>NSCalendarsUsageDescription</key>
 	<string>This alert should not show up as we do not require this data</string>
 	<key>NSCameraUsageDescription</key>
-	<string>In order to quickly scan the recipient's address, we need your permission to use the camera to scan their QR Code.</string>
+	<string>In order to quickly scan the recipient&apos;s address, we need your permission to use the camera to scan their QR Code.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>In order to confirm your identity, we need your permission to use FaceID.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -95,6 +95,10 @@
 		<string>Octicons.ttf</string>
 		<string>SimpleLineIcons.ttf</string>
 		<string>Zocial.ttf</string>
+		<string>Ubuntu-Bold.ttf</string>
+		<string>Ubuntu-Light.ttf</string>
+		<string>Ubuntu-Medium.ttf</string>
+		<string>Ubuntu-Regular.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -114,6 +118,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
