@@ -171,8 +171,8 @@ export class LegacyWallet extends AbstractWallet {
     // transforming UTXOs fields to how module expects it
     for (const u of utxos) {
       u.confirmations = 6; // hack to make module accept 0 confirmation
-      u.amount = u.amount.dividedBy(100000000);
-      u.amount = u.amount.toString(10);
+      u.value = u.value / 100000000;
+      u.value = u.value.toString(10);
     }
     // console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
     const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));

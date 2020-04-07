@@ -107,6 +107,9 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   getAddress() {
+    if (!this._address) {
+      this.generateAddresses();
+    }
     return this._address;
   }
   /**

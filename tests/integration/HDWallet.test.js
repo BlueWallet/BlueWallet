@@ -35,26 +35,27 @@ beforeAll(async () => {
 
 it('can convert witness to address', () => {
   let address = SegwitP2SHWallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
-  assert.strictEqual(address, '34ZVGb3gT8xMLT6fpqC6dNVqJtJmvdjbD7');
+  assert.strictEqual(address, 'RC9fRZSXW4SYKHmSAuWdJGU6vdUezHmowA');
 
   address = SegwitP2SHWallet.scriptPubKeyToAddress('a914e286d58e53f9247a4710e51232cce0686f16873c87');
-  assert.strictEqual(address, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
+  assert.strictEqual(address, 'RVvxKKBuC7jRDuYxmmXTex4F4Bqs86Vfca');
 
   address = SegwitBech32Wallet.witnessToAddress('035c618df829af694cb99e664ce1b34f80ad2c3b49bcd0d9c0b1836c66b2d25fd8');
-  assert.strictEqual(address, 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv');
+  assert.strictEqual(address, 'royale1quhnve8q4tk3unhmjts7ymxv8cd6w9xv80d8n3p');
 
   address = SegwitBech32Wallet.scriptPubKeyToAddress('00144d757460da5fcaf84cc22f3847faaa1078e84f6a');
-  assert.strictEqual(address, 'bc1qf46hgcx6tl90snxz9uuy0742zpuwsnm27ysdh7');
+  assert.strictEqual(address, 'royale1qf46hgcx6tl90snxz9uuy0742zpuwsnm2ldam6n');
 });
 
 it('can create a Segwit HD (BIP49)', async function() {
   const mnemonic =
-    'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
+    'fiber quiz produce chuckle sort crisp price direct speak recipe adult layer thumb lift tape start peace wave jungle fluid green interest cave learn';
   const hd = new HDSegwitP2SHWallet();
   hd.setSecret(mnemonic);
-  assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
-  assert.strictEqual('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
-  assert.strictEqual('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei', hd._getInternalAddressByIndex(0));
+  hd.generateAddresses();
+  assert.strictEqual(hd.getAddress()[0], 'RVUYxQnej5m99PEr5qKrMS128czSCSPz4W');
+  assert.strictEqual(hd.getAddress()[1], 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX');
+  assert.strictEqual(hd.getAddress()[2], 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
   assert.strictEqual(true, hd.validateMnemonic());
 
   await hd.fetchBalance();
@@ -63,22 +64,16 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.ok(hd._lastTxFetch === 0);
   await hd.fetchTransactions();
   assert.ok(hd._lastTxFetch > 0);
-  assert.strictEqual(hd.transactions.length, 4);
+  assert.strictEqual(hd.transactions.length, 2);
 
-  assert.strictEqual('L4MqtwJm6hkbACLG4ho5DF8GhcXdLEbbvpJnbzA9abfD6RDpbr2m', hd._getExternalWIFByIndex(0));
+  assert.strictEqual(hd._getWIFByIndex(0), 'L5KcrwqMGgEtVnsM4ZGS6XdRoBDinfb1hfFW61RhsY9QuumePh8b');
   assert.strictEqual(
-    'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp',
     hd.getXpub(),
+    'ypub6Wj9dHZAtSM3DQB6kG37aK5i1yJbBoM2d1W57aMkyLx4cNyGqWYpGvL194zA4HSxWpQyoPrsXE2PP4pNUqu5cvvHUK2ZpfUeHFmuK4THAD3',
   );
-
-  // checking that internal pointer and async address getter return the same address
-  const freeAddress = await hd.getAddressAsync();
-  assert.strictEqual(hd._getExternalAddressByIndex(hd.next_free_address_index), freeAddress);
-  const freeChangeAddress = await hd.getChangeAddressAsync();
-  assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), freeChangeAddress);
 });
 
-it('HD (BIP49) can work with a gap', async function() {
+xit('HD (BIP49) can work with a gap', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   const hd = new HDSegwitP2SHWallet();
   hd._xpub =
@@ -96,7 +91,7 @@ it('HD (BIP49) can work with a gap', async function() {
   assert.ok(hd.transactions.length >= 3);
 });
 
-it('Segwit HD (BIP49) can batch fetch many txs', async function() {
+it.skip('Segwit HD (BIP49) can batch fetch many txs', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   const hd = new HDSegwitP2SHWallet();
   hd._xpub =
@@ -106,11 +101,11 @@ it('Segwit HD (BIP49) can batch fetch many txs', async function() {
   assert.ok(hd.getTransactions().length === 153);
 });
 
-it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
+it.skip('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagging behind', async function() {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
   const hd = new HDSegwitP2SHWallet();
   hd._xpub =
-    'ypub6WZ2c7YJ1SQ1rBYftwMqwV9bBmybXzETFxWmkzMz25bCf6FkDdXjNgR7zRW8JGSnoddNdUH7ZQS7JeQAddxdGpwgPskcsXFcvSn1JdGVcPQ';
+    'ypub6Wj9dHZAtSM3DQB6kG37aK5i1yJbBoM2d1W57aMkyLx4cNyGqWYpGvL194zA4HSxWpQyoPrsXE2PP4pNUqu5cvvHUK2ZpfUeHFmuK4THAD3';
   hd.next_free_change_address_index = 40;
   hd.next_free_address_index = 50;
   await hd.fetchBalance();
@@ -118,14 +113,15 @@ it('Segwit HD (BIP49) can fetch more data if pointers to last_used_addr are lagg
   assert.strictEqual(hd.getTransactions().length, 153);
 });
 
-it('Segwit HD (BIP49) can generate addressess only via ypub', function() {
+xit('Segwit HD (BIP49) can generate addressess only via ypub', function() {
   const ypub =
     'ypub6WhHmKBmHNjcrUVNCa3sXduH9yxutMipDcwiKW31vWjcMbfhQHjXdyx4rqXbEtVgzdbhFJ5mZJWmfWwnP4Vjzx97admTUYKQt6b9D7jjSCp';
   const hd = new HDSegwitP2SHWallet();
   hd._xpub = ypub;
-  assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', hd._getExternalAddressByIndex(0));
-  assert.strictEqual('35p5LwCAE7mH2css7onyQ1VuS1jgWtQ4U3', hd._getExternalAddressByIndex(1));
-  assert.strictEqual('32yn5CdevZQLk3ckuZuA8fEKBco8mEkLei', hd._getInternalAddressByIndex(0));
+  hd.generateAddresses();
+  assert.strictEqual(hd.getAddress()[0], 'RVUYxQnej5m99PEr5qKrMS128czSCSPz4W');
+  assert.strictEqual(hd.getAddress()[1], 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX');
+  assert.strictEqual(hd.getAddress()[2], 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
 });
 
 it('can generate Segwit HD (BIP49)', async () => {
@@ -158,7 +154,7 @@ it('HD (BIP49) can create TX', async () => {
   await hd.fetchUtxo();
   await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
   await hd.getAddressAsync(); // to refresh internal pointer to next free address
-  let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  let txhex = hd.createTx(hd.utxo, 0.000014, 0.000001, 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
   assert.strictEqual(
     txhex,
     '0100000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad15ffffffff02780500000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87b45f00000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd8702483045022100f489dfbd372b66348a25f6e9ba1b5eb88a3646efcd75ef1211c96cf46eed692c0220416ac99a94c5f4a076588291d9857fc5b854e02404d69635dc35e82fde3ecd9701210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
@@ -172,24 +168,24 @@ it('HD (BIP49) can create TX', async () => {
   assert.strictEqual(tx.outs[1].value, 25400);
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
-  assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+  assert.strictEqual('RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe', toAddress);
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 
   //
 
-  txhex = hd.createTx(hd.utxo, 0.000015, 0.000001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  txhex = hd.createTx(hd.utxo, 0.000015, 0.000001, 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
   tx = bitcoin.Transaction.fromHex(txhex);
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 2);
 
   //
 
-  txhex = hd.createTx(hd.utxo, 0.00025, 0.00001, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  txhex = hd.createTx(hd.utxo, 0.00025, 0.00001, 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
   tx = bitcoin.Transaction.fromHex(txhex);
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 1);
   toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
-  assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+  assert.strictEqual('RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe', toAddress);
 
   // testing sendMAX
   hd.utxo = [
@@ -197,33 +193,33 @@ it('HD (BIP49) can create TX', async () => {
       txid: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       vout: 0,
       amount: 26000,
-      address: '39SpCj47M88ajRBTbkfaKRgpaX7FTLQJz5',
-      wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
+      address: 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX',
+      wif: 'KzfH6KQz3zg8zh7b1gn2hdi8XvqM3tbHgY8NrABnowPuRJ8WNb6t',
     },
     {
       txid: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
       vout: 0,
       amount: 26000,
-      address: '39SpCj47M88ajRBTbkfaKRgpaX7FTLQJz5',
-      wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
+      address: 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX',
+      wif: 'KzfH6KQz3zg8zh7b1gn2hdi8XvqM3tbHgY8NrABnowPuRJ8WNb6t',
     },
     {
       txid: 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc',
       vout: 0,
       amount: 26000,
-      address: '39SpCj47M88ajRBTbkfaKRgpaX7FTLQJz5',
-      wif: 'L3fg5Jb6tJDVMvoG2boP4u3CxjX1Er3e7Z4zDALQdGgVLLE8zVUr',
+      address: '39SpCj47M88ajRBTbkfaKRA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdXRgpaX7FTLQJz5',
+      wif: 'KzfH6KQz3zg8zh7b1gn2hdi8XvqM3tbHgY8NrABnowPuRJ8WNb6t',
     },
   ];
-  txhex = hd.createTx(hd.utxo, BitcoinUnit.MAX, 0.00003, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  txhex = hd.createTx(hd.utxo, BitcoinUnit.MAX, 0.00003, 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
   tx = bitcoin.Transaction.fromHex(txhex);
   assert.strictEqual(tx.outs.length, 1);
   assert.strictEqual(tx.outs[0].value, 75000);
 });
 
-it('Segwit HD (BIP49) can fetch UTXO', async function() {
+xit('Segwit HD (BIP49) can fetch UTXO', async function() {
   const hd = new HDSegwitP2SHWallet();
-  hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
+  hd._address = ['YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba', 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT']; // hacking internals
   await hd.fetchUtxo();
   assert.ok(hd.utxo.length >= 12);
   assert.ok(typeof hd.utxo[0].confirmations === 'number');
@@ -232,8 +228,8 @@ it('Segwit HD (BIP49) can fetch UTXO', async function() {
   assert.ok(hd.utxo[0].amount);
   assert.ok(
     hd.utxo[0].address &&
-      (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' ||
-        hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
+      (hd.utxo[0].address === 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba' ||
+        hd.utxo[0].address === 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT'),
   );
 });
 
@@ -333,10 +329,10 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
     'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
   const hd = new HDLegacyP2PKHWallet();
   hd._xpub = xpub;
-  assert.strictEqual(hd._getExternalAddressByIndex(0), '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG');
-  assert.strictEqual(hd._getInternalAddressByIndex(0), '1KZjqYHm7a1DjhjcdcjfQvYfF2h6PqatjX');
-  assert.strictEqual(hd._getExternalAddressByIndex(1), '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5');
-  assert.strictEqual(hd._getInternalAddressByIndex(1), '13CW9WWBsWpDUvLtbFqYziWBWTYUoQb4nU');
+  hd.generateAddresses();
+  assert.strictEqual(hd.getAddress()[0], 'YR1SxEKM4F5oEDg8SUQ216vZcYyKHjoubG');
+  assert.strictEqual(hd.getAddress()[1], 'YnaF465GEdDKdyHigKuJWRhZF4f8bdodUy');
+  assert.strictEqual(hd.getAddress()[2], 'Ybybns4oH3xN5asG274kRRSjhK8AoQgC2D');
 });
 
 it('Legacy HD (BIP44) can create TX', async () => {
@@ -351,7 +347,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
   await hd.fetchUtxo();
   await hd.getChangeAddressAsync(); // to refresh internal pointer to next free address
   await hd.getAddressAsync(); // to refresh internal pointer to next free address
-  let txhex = hd.createTx(hd.utxo, 0.0008, 0.000005, '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK');
+  let txhex = hd.createTx(hd.utxo, 0.0008, 0.000005, 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX');
 
   assert.strictEqual(
     txhex,
@@ -365,7 +361,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.outs[1].value, 19500); // change
   const toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
-  assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
+  assert.strictEqual(toAddress, 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX');
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 
   // checking that change amount is at least 3x of fee, otherwise screw the change, just add it to fee.
@@ -378,9 +374,9 @@ it('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.outs[0].value, 99800);
 });
 
-it('Legacy HD (BIP44) can fetch UTXO', async function() {
+xit('Legacy HD (BIP44) can fetch UTXO', async function() {
   const hd = new HDLegacyP2PKHWallet();
-  hd.usedAddresses = ['1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55', '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV']; // hacking internals
+  hd._address = ['YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba', 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT']; // hacking internals
   await hd.fetchUtxo();
   assert.ok(hd.utxo.length >= 12);
   assert.ok(typeof hd.utxo[0].confirmations === 'number');
@@ -389,102 +385,7 @@ it('Legacy HD (BIP44) can fetch UTXO', async function() {
   assert.ok(hd.utxo[0].amount);
   assert.ok(
     hd.utxo[0].address &&
-      (hd.utxo[0].address === '1Ez69SnzzmePmZX3WpEzMKTrcBF2gpNQ55' ||
-        hd.utxo[0].address === '1BiTCHeYzJNMxBLFCMkwYXNdFEdPJP53ZV'),
+      (hd.utxo[0].address === 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba' ||
+        hd.utxo[0].address === 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT'),
   );
-});
-
-it('HD breadwallet works', async function() {
-  if (!process.env.HD_MNEMONIC_BREAD) {
-    console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
-    return;
-  }
-  jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
-  const hdBread = new HDLegacyBreadwalletWallet();
-  hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
-
-  assert.strictEqual(hdBread.validateMnemonic(), true);
-  assert.strictEqual(hdBread._getExternalAddressByIndex(0), '1ARGkNMdsBE36fJhddSwf8PqBXG3s4d2KU');
-  assert.strictEqual(hdBread._getInternalAddressByIndex(0), '1JLvA5D7RpWgChb4A5sFcLNrfxYbyZdw3V');
-
-  assert.strictEqual(
-    hdBread.getXpub(),
-    'xpub68nLLEi3KERQY7jyznC9PQSpSjmekrEmN8324YRCXayMXaavbdEJsK4gEcX2bNf9vGzT4xRks9utZ7ot1CTHLtdyCn9udvv1NWvtY7HXroh',
-  );
-  await hdBread.fetchBalance();
-  assert.strictEqual(hdBread.balance, 0);
-
-  assert.ok(hdBread._lastTxFetch === 0);
-  await hdBread.fetchTransactions();
-  assert.ok(hdBread._lastTxFetch > 0);
-  assert.strictEqual(hdBread.transactions.length, 177);
-  for (const tx of hdBread.getTransactions()) {
-    assert.ok(tx.confirmations);
-  }
-
-  assert.strictEqual(hdBread.next_free_address_index, 10);
-  assert.strictEqual(hdBread.next_free_change_address_index, 118);
-
-  // checking that internal pointer and async address getter return the same address
-  const freeAddress = await hdBread.getAddressAsync();
-  assert.strictEqual(hdBread._getExternalAddressByIndex(hdBread.next_free_address_index), freeAddress);
-});
-
-it('can convert blockchain.info TX to blockcypher TX format', () => {
-  const blockchaininfotx = {
-    hash: '25aa409a9ecbea6a987b35cef18ffa9c53f5ba985bdaadffaac85cdf9fdbb9e1',
-    ver: 1,
-    vin_sz: 1,
-    vout_sz: 1,
-    size: 189,
-    weight: 756,
-    fee: 1184,
-    relayed_by: '0.0.0.0',
-    lock_time: 0,
-    tx_index: 357712243,
-    double_spend: false,
-    result: -91300,
-    balance: 0,
-    time: 1530469581,
-    block_height: 530072,
-    inputs: [
-      {
-        prev_out: {
-          value: 91300,
-          tx_index: 357704878,
-          n: 1,
-          spent: true,
-          script: '76a9147580ebb44301a1165e73e25bcccd7372e1bbfe9c88ac',
-          type: 0,
-          addr: '1BiJW1jyUaxcJp2JWwbPLPzB1toPNWTFJV',
-          xpub: {
-            m:
-              'xpub68nLLEi3KERQY7jyznC9PQSpSjmekrEmN8324YRCXayMXaavbdEJsK4gEcX2bNf9vGzT4xRks9utZ7ot1CTHLtdyCn9udvv1NWvtY7HXroh',
-            path: 'M/1/117',
-          },
-        },
-        sequence: 4294967295,
-        script:
-          '47304402206f676bd8c87dcf6f9e5016a8d222b06cd542d824e3b22c9ae937c05e59590f7602206cfb75a516e70a79e5f33031a189ebca55f1339be8fcd94b1e1fc9149b55354201210339b7fc52be2c33a64f8f4020c9e80fb23f5ee89992a8c5dd070309b001f16a21',
-        witness: '',
-      },
-    ],
-    out: [
-      {
-        value: 90116,
-        tx_index: 357712243,
-        n: 0,
-        spent: true,
-        script: 'a914e286d58e53f9247a4710e51232cce0686f16873c87',
-        type: 0,
-        addr: '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC',
-      },
-    ],
-  };
-  const blockcyphertx = HDSegwitP2SHWallet.convertTx(blockchaininfotx);
-  assert.ok(blockcyphertx.received); // time
-  assert.ok(blockcyphertx.hash);
-  assert.ok(blockcyphertx.value);
-  assert.ok(typeof blockcyphertx.confirmations === 'number');
-  assert.ok(blockcyphertx.outputs);
 });

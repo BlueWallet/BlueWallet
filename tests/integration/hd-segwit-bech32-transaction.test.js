@@ -22,18 +22,17 @@ beforeAll(async () => {
 describe('HDSegwitBech32Transaction', () => {
   it('can decode & check sequence', async function() {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
-    let T = new HDSegwitBech32Transaction(null, 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b');
-    assert.strictEqual(await T.getMaxUsedSequence(), 0xffffffff);
-    assert.strictEqual(await T.isSequenceReplaceable(), false);
-
+    let T = new HDSegwitBech32Transaction(null, '99a385c93ccca11c10a61517c7a61c35c3c4b81c3e02a8deadc277d4b66eb47a');
+    assert.strictEqual(await T.getMaxUsedSequence(), 0xfffffffd);
+    assert.strictEqual(await T.isSequenceReplaceable(), true);
     // 881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e
     T = new HDSegwitBech32Transaction(
-      '02000000000102f1155666b534f7cb476a0523a45dc8731d38d56b5b08e877c968812423fbd7f3010000000000000000d8a2882a692ee759b43e6af48ac152dd3410cc4b7d25031e83b3396c16ffbc8900000000000000000002400d03000000000017a914e286d58e53f9247a4710e51232cce0686f16873c870695010000000000160014d3e2ecbf4d91321794e0297e0284c47527cf878b02483045022100d18dc865fb4d087004d021d480b983b8afb177a1934ce4cd11cf97b03e17944f02206d7310687a84aab5d4696d535bca69c2db4449b48feb55fff028aa004f2d1744012103af4b208608c75f38e78f6e5abfbcad9c360fb60d3e035193b2cd0cdc8fc0155c0247304402207556e859845df41d897fe442f59b6106c8fa39c74ba5b7b8e3268ab0aebf186f0220048a9f3742339c44a1e5c78b491822b96070bcfda3f64db9dc6434f8e8068475012102456e5223ed3884dc6b0e152067fd836e3eb1485422eda45558bf83f59c6ad09f00000000',
+      '0200000000010145d7fe10a2990327904f6b9f73d24f7d74c824d119b85e34c4100cd70828daa00100000000fdffffff02005039278c0400001976a91406aaf09fad86d04c02be6685796efc0cf317f24d88ac768381f9040d00001600148e2ad749c3ad8a9abd6d247d1112bbdf1cda282502483045022100fad6623ec5019526c4826055e891aea9be42d6ce6030acfc9773072c9b1ca13f02207b9fe22d56f934556ba2b3ba5fb87341a8bbbfab9a5e59925add5b706e9b55cb01210294315589c16e49c096e68216bda14149f719f1bcb45d37ba5feb9b5d715b23de235e0000',
     );
-    assert.strictEqual(await T.getMaxUsedSequence(), 0);
+    assert.strictEqual(await T.getMaxUsedSequence(), 0xfffffffd);
     assert.strictEqual(await T.isSequenceReplaceable(), true);
 
-    assert.ok((await T.getRemoteConfirmationsNum()) >= 292);
+    assert.ok((await T.getRemoteConfirmationsNum()) >= 1624);
   });
 
   it('can tell if its our transaction', async function() {

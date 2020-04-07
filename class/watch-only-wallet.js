@@ -71,11 +71,11 @@ export class WatchOnlyWallet extends LegacyWallet {
       for (const k of Object.keys(this._hdWalletInstance)) {
         hdWalletInstance[k] = this._hdWalletInstance[k];
       }
-      hdWalletInstance.generateAddresses();
       // deleting properties that cant survive serialization/deserialization:
       delete hdWalletInstance._node1;
       delete hdWalletInstance._node0;
     }
+    hdWalletInstance.generateAddresses();
     this._hdWalletInstance = hdWalletInstance;
   }
 

@@ -42,10 +42,10 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npm run releasenotes2json; npx jetify",
-    "test": "npm run unit && npm run jest",
+    "test": "yarn jest",
     "jest": "node node_modules/jest/bin/jest.js tests/integration/*",
     "lint": "eslint screen/** class/** models/** loc/** tests/**",
-    "lint:fix": "npm run lint -- --fix --quiet",
+    "lint:fix": "yarn lint -- --fix --quiet",
     "unit": "./node_modules/.bin/mocha tests/unit/*"
   },
   "jest": {
@@ -60,7 +60,7 @@
   "dependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/preset-env": "7.5.0",
-    "@react-native-community/async-storage": "1.7.1",
+    "@react-native-community/async-storage": "1.9.0",
     "@react-native-community/blur": "3.3.1",
     "@react-native-community/slider": "2.0.0-rc.1",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
@@ -134,6 +134,7 @@
     "readable-stream": "3.4.0",
     "secure-random": "1.1.2",
     "stream-browserify": "2.0.2",
+    "ts-jest": "^25.3.1",
     "typescript": "^3.8.3",
     "url": "0.11.0",
     "util": "0.12.1",
@@ -161,8 +162,8 @@
   },
   "lint-staged": {
     "./**/*.{ts,tsx,js,jsx}": [
-      "npm run test",
-      "npm run lint:fix"
+      "yarn test",
+      "yarn lint:fix"
     ]
   },
   "husky": {

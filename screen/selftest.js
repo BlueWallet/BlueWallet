@@ -63,8 +63,8 @@ export default class Selftest extends Component {
       //
 
       let l = new LegacyWallet();
-      l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
-      if (l.getAddress() !== '19AAjaTUbRjQCMuVczepkoPswiZRhjtg31') {
+      l.setSecret('L5KcrwqMGgEtVnsM4ZGS6XdRoBDinfb1hfFW61RhsY9QuumePh8b');
+      if (l.getAddress() !== 'YXiAStqJWhEGxf2G7kgoAU1w6khDVWgxJm') {
         errorMessage += 'failed to generate legacy address from WIF; ';
         isOk = false;
       }
@@ -72,25 +72,20 @@ export default class Selftest extends Component {
       // utxos as received from blockcypher
       let utxos = [
         {
-          tx_hash: '2f445cf016fa2772db7d473bff97515355b4e6148e1c980ce351d47cf54c517f',
-          block_height: 523186,
-          tx_input_n: -1,
-          tx_output_n: 1,
-          value: 100000,
-          ref_balance: 100000,
-          spent: false,
-          confirmations: 215,
-          confirmed: '2018-05-18T03:16:34Z',
-          double_spend: false,
+          height: 24097,
+          value: 20000,
+          address: 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba',
+          txid: '7f3b9e032a84413d7a5027b0d020f8acf80ad28f68b5bce8fa8ac357248c5b80',
+          vout: 0,
         },
       ];
-      let toAddr = '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB';
+      let toAddr = 'royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u';
       let amount = 0.0009;
       let fee = 0.0001;
       let txHex = l.createTx(utxos, amount, fee, toAddr);
       if (
         txHex !==
-        '01000000017f514cf57cd451e30c981c8e14e6b455535197ff3b477ddb7227fa16f05c442f010000006b483045022100b9a6545847bd30418c133437c7660a6676afafe6e7e837a37ef2ead931ebd586022056bc43cbf71855d0719f54151c8fcaaaa03367ecafdd7296dbe39f042e432f4f012103aea0dfd576151cb399347aa6732f8fdf027b9ea3ea2e65fb754803f776e0a509ffffffff01905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac00000000'
+        '0100000001805b8c2457c38afae8bcb5688fd20af8acf820d0b027507a3d41842a039e3b7f000000006a47304402201340b46e892c82d61bdbd88d74bb28e1af9de02f676146e6e3897357b736906d02200397ee1258179c37682f4abe65a84cf9a4d5efc8ad206e2644c3df78f7c6967001210271fadbb34b835770448fe296a8dacc61826d1e5ec5f5deb699837dfb04a24d09ffffffff01905f0100000000001600148e2ad749c3ad8a9abd6d247d1112bbdf1cda282500000000'
       ) {
         errorMessage += 'failed to create TX from legacy address; ';
         isOk = false;
@@ -100,38 +95,21 @@ export default class Selftest extends Component {
       // utxos as received from blockcypher
       utxos = [
         {
-          amount: '0.002',
-          block_height: 523416,
-          confirmations: 6,
-          confirmed: '2018-05-19T15:46:43Z',
-          double_spend: false,
-          ref_balance: 300000,
-          spent: false,
-          tx_hash: 'dc3605040a03724bc584ed43bc22a559f5d32a1b0708ca05b20b9018fdd523ef',
-          tx_input_n: -1,
-          tx_output_n: 0,
-          txid: 'dc3605040a03724bc584ed43bc22a559f5d32a1b0708ca05b20b9018fdd523ef',
-          value: 200000,
-          vout: 0,
+          height: 24097,
+          value: 20000,
+          address: 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba',
+          txid: '7f3b9e032a84413d7a5027b0d020f8acf80ad28f68b5bce8fa8ac357248c5b80',
         },
         {
-          amount: '0.001',
-          block_height: 523186,
-          confirmations: 6,
-          confirmed: '2018-05-18T03:16:34Z',
-          double_spend: false,
-          ref_balance: 100000,
-          spent: false,
-          tx_hash: 'c473c104febfe6621804976d1082a1468c1198d0339e35f30a8ba1515d9eb017',
-          tx_input_n: -1,
-          tx_output_n: 0,
-          txid: 'c473c104febfe6621804976d1082a1468c1198d0339e35f30a8ba1515d9eb017',
-          value: 100000,
-          vout: 0,
+          height: 123,
+          value: 40000,
+          address: 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT',
+          txid: '99a385c93ccca11c10a61517c7a61c35c3c4b81c3e02a8deadc277d4b66eb47a',
+          vout: 5,
         },
       ];
 
-      toAddr = '1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB';
+      toAddr = 'royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u';
       amount = 0.0009;
       fee = 0.0001;
       try {
@@ -142,7 +120,7 @@ export default class Selftest extends Component {
       }
       if (
         txHex !==
-        '0100000002ef23d5fd18900bb205ca08071b2ad3f559a522bc43ed84c54b72030a040536dc000000006a47304402206b4f03e471d60dff19f4df1a8203ca97f6282658160034cea0f2b7d748c33d9802206058d23861dabdfb252c8df14249d1a2b00345dd90d32ab451cc3c6cfcb3b402012103aea0dfd576151cb399347aa6732f8fdf027b9ea3ea2e65fb754803f776e0a509ffffffff17b09e5d51a18b0af3359e33d098118c46a182106d97041862e6bffe04c173c4000000006b4830450221009785a61358a1ee7ab5885a98b111275226e0046a48b69980c4f53ecf99cdce0a02200503249e0b23d633ec1fbae5d41a0dcf9758dce3560066d1aee9ecfbfeefcfb7012103aea0dfd576151cb399347aa6732f8fdf027b9ea3ea2e65fb754803f776e0a509ffffffff02905f0100000000001976a914aa381cd428a4e91327fd4434aa0a08ff131f1a5a88ac400d0300000000001976a914597ce022baa887799951e0496c769d9cc0c759dc88ac00000000'
+        '0100000002805b8c2457c38afae8bcb5688fd20af8acf820d0b027507a3d41842a039e3b7f000000006a473044022053cb5b71519c0168c4432516789bac2a1fe4a4da9c625b2d9d7c77b480f44ea8022071b77df76f88435199abe7edecd81e09abf3cb050f29d77c56cec8244fadb71601210271fadbb34b835770448fe296a8dacc61826d1e5ec5f5deb699837dfb04a24d09ffffffff7ab46eb6d477c2addea8023e1cb8c4c3351ca6c71715a6101ca1cc3cc985a399050000006a473044022061e12e9cc675a65234c67ae1af146a49c5d038b14663821cac0e122f1b34ca53022032c68aec78ebdbdbe07acd571676d14641e9166680ab81e52c85c94f9d02f89901210271fadbb34b835770448fe296a8dacc61826d1e5ec5f5deb699837dfb04a24d09ffffffff01905f0100000000001600148e2ad749c3ad8a9abd6d247d1112bbdf1cda282500000000'
       ) {
         errorMessage += 'failed to create TX from legacy address; ';
         isOk = false;
@@ -151,8 +129,8 @@ export default class Selftest extends Component {
       //
 
       l = new SegwitP2SHWallet();
-      l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
-      if (l.getAddress() !== '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53') {
+      l.setSecret('L5KcrwqMGgEtVnsM4ZGS6XdRoBDinfb1hfFW61RhsY9QuumePh8b');
+      if (l.getAddress() !== 'RVUYxQnej5m99PEr5qKrMS128czSCSPz4W') {
         errorMessage += 'failed to generate segwit P2SH address from WIF; ';
         isOk = false;
       }
@@ -162,30 +140,25 @@ export default class Selftest extends Component {
       // utxos as received from blockcypher
       const utxo = [
         {
-          tx_hash: '0f5eea78fb19e72b55bd119252ff29fc16c503d0e956a9c1b5b2ab0e95e0c323',
-          block_height: 514991,
-          tx_input_n: -1,
-          tx_output_n: 2,
-          value: 110000,
-          ref_balance: 546,
-          spent: false,
-          confirmations: 9,
-          confirmed: '2018-03-24T18:13:36Z',
-          double_spend: false,
+          height: 24097,
+          value: 200000,
+          address: 'RVUYxQnej5m99PEr5qKrMS128czSCSPz4W',
+          txid: '7f3b9e032a84413d7a5027b0d020f8acf80ad28f68b5bce8fa8ac357248c5b80',
+          vout: 0,
         },
       ];
 
-      const tx = l.createTx(utxo, 0.001, 0.0001, '1QHf8Gp3wfmFiSdEX4FtrssCGR68diN1cj');
+      const tx = l.createTx(utxo, 0.001, 0.0001, 'YRMrqNUKAfA2bQ7RmSz1hLYCeGAtci8NkT');
       const txDecoded = bitcoin.Transaction.fromHex(tx);
       const txid = txDecoded.getId();
 
-      if (txid !== '110f51d28d585e922adbf701cba802e549b8fe3a53fa5d62426ab42549c9b6de') {
+      if (txid !== '15e9e40712c2b2421230ccfcac8cd5b8d3e4703cee612cf24cf8c6ff7892492f') {
         errorMessage += 'created txid doesnt match; ';
         isOk = false;
       }
       if (
         tx !==
-        '0100000000010123c3e0950eabb2b5c1a956e9d003c516fc29ff529211bd552be719fb78ea5e0f0200000017160014597ce022baa887799951e0496c769d9cc0c759dc0000000001a0860100000000001976a914ff715fb722cb10646d80709aeac7f2f4ee00278f88ac02473044022075670317a0e5b5d4eef154b03db97396a64cbc6ef3b576d98367e1a83c1c488002206d6df1e8085fd711d6ea264de3803340f80fa2c6e30683879d9ad40f3228c56c012103aea0dfd576151cb399347aa6732f8fdf027b9ea3ea2e65fb754803f776e0a50900000000'
+        '01000000000101805b8c2457c38afae8bcb5688fd20af8acf820d0b027507a3d41842a039e3b7f00000000171600145b8edf676e7cf478c7ea5c24975559d7df2229730000000002a0860100000000001976a91415e718b98502832b2fe146430ef89e466fda000688ac905f01000000000017a914dd8884d77835ddaea750605abdcd4ef74696836f870247304402207706b6f700c149f92ee17b8d1b01c2e6184fe4a50d6cbf52010322903b8a547402202296622b204fe14f9b5e76c8c290567394873dd6fafa57163845f3d6619f8d6e01210271fadbb34b835770448fe296a8dacc61826d1e5ec5f5deb699837dfb04a24d0900000000'
       ) {
         errorMessage += 'created tx hex doesnt match; ';
         isOk = false;
@@ -196,7 +169,7 @@ export default class Selftest extends Component {
       let satoshiPerByte = feeSatoshi.dividedBy(Math.round(tx.length / 2));
       satoshiPerByte = Math.round(satoshiPerByte.toString(10));
 
-      if (satoshiPerByte !== 46) {
+      if (satoshiPerByte !== 40) {
         errorMessage += 'created tx satoshiPerByte doesnt match; ';
         isOk = false;
       }
@@ -219,7 +192,7 @@ export default class Selftest extends Component {
       const seed = bip39.mnemonicToSeed(mnemonic);
       const root = bitcoin.bip32.fromSeed(seed);
 
-      const path = "m/49'/0'/0'/0/0";
+      const path = "m/49'/440'/0'/0/0";
       const child = root.derivePath(path);
       const address = bitcoin.payments.p2sh({
         redeem: bitcoin.payments.p2wpkh({
@@ -229,7 +202,7 @@ export default class Selftest extends Component {
         network: bitcoin.networks.bitcoin,
       }).address;
 
-      if (address !== '3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK') {
+      if (address !== 'RLDnrkrVbNNJZTf1wc5CBbnRsfbwePh7mT') {
         errorMessage += 'bip49 is not ok; ';
         isOk = false;
       }
@@ -238,7 +211,7 @@ export default class Selftest extends Component {
       if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
         const hd = new HDSegwitP2SHWallet();
         const hashmap = {};
-        for (let c = 0; c < 1000; c++) {
+        for (let c = 0; c < 10; c++) {
           await hd.generate();
           const secret = hd.getSecret();
           if (hashmap[secret]) {
@@ -260,21 +233,11 @@ export default class Selftest extends Component {
 
         const hd3 = new HDSegwitP2SHWallet();
         hd3._xpub =
-          'ypub6Wb82D7F38b48uzRVyTwydMCPcos4njzygPRCJ4x1enm6EA5YUthtWgJUPYiFTs7Sk53q8rJ9d1SJ2fBNqsyhjUTDR7gyF1SXbBnaa9xcQj';
+          'ypub6Wj9dHZAtSM3DQB6kG37aK5i1yJbBoM2d1W57aMkyLx4cNyGqWYpGvL194zA4HSxWpQyoPrsXE2PP4pNUqu5cvvHUK2ZpfUeHFmuK4THAD3';
         await hd3.fetchBalance();
-        if (hd3.getBalance() !== 26000) throw new Error('Could not fetch HD balance');
+        if (hd3.getBalance() !== b0) throw new Error('Could not fetch HD balance');
         await hd3.fetchTransactions();
-        if (hd3.transactions.length !== 1) throw new Error('Could not fetch HD transactions');
-
-        //
-
-        const hd4 = new HDSegwitBech32Wallet();
-        hd4._xpub =
-          'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP';
-        await hd4.fetchBalance();
-        if (hd4.getBalance() !== 200000) throw new Error('Could not fetch HD Bech32 balance');
-        await hd4.fetchTransactions();
-        if (hd4.getTransactions().length !== 4) throw new Error('Could not fetch HD Bech32 transactions');
+        if (hd3.transactions.length !== 2) throw new Error('Could not fetch HD transactions');
       } else {
         console.warn('skipping RN-specific test');
       }
