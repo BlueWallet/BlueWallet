@@ -1,3 +1,4 @@
 export { BottomTabBarIcon } from './BottomTabBarIcon';
-export { HeaderTitle } from './HeaderTitle';
 export { BottomTabBarComponent } from './BottomTabBarComponent';
+export { GradientView } from './GradientView';
+export { Header } from './Header';

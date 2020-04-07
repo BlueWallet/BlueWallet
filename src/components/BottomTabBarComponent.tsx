@@ -3,14 +3,16 @@ import { BottomTabBar } from 'react-navigation-tabs';
 import { StyleSheet } from 'react-native';
 
 import { palette } from 'styles';
+import { GradientView } from './GradientView';
 
 export const BottomTabBarComponent = (props: any) => {
-  // add gradient here
-  return <BottomTabBar {...props} style={styles.container} />;
+  return (
+    <GradientView variant={GradientView.Variant.Primary}>
+      <BottomTabBar {...props} style={styles.tabBar} />
+    </GradientView>
+  );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: palette.textGrey,
-  },
+  tabBar: { backgroundColor: palette.transparent },
 });

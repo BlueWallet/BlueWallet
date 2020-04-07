@@ -658,7 +658,6 @@ export class BlueHeader extends Component {
           borderBottomColor: 'transparent',
           borderBottomWidth: 0,
         }}
-        statusBarProps={{ barStyle: 'default' }}
       />
     );
   }
@@ -674,7 +673,6 @@ export class BlueHeaderDefaultSub extends Component {
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
           }}
-          statusBarProps={{ barStyle: 'default' }}
           leftComponent={
             <Text
               adjustsFontSizeToFit
@@ -720,7 +718,6 @@ export class BlueHeaderDefaultMain extends Component {
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
           }}
-          statusBarProps={{ barStyle: 'default' }}
           leftComponent={
             <Text
               numberOfLines={0}

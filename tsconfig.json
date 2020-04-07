@@ -15,10 +15,11 @@
     "resolveJsonModule": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
+    "baseUrl": "./src",
   },
   "exclude": [
     "node_modules",
     "babel.config.js",
     "jest.config.js"
-  ]
+  ],
 }

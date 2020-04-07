@@ -32,7 +32,6 @@
     "metro-react-native-babel-preset": "^0.56.0",
     "prettier-eslint": "^9.0.1",
     "prettier-eslint-cli": "^5.0.0",
-    "react-test-renderer": "1.1.2",
     "rn-nodeify": "github:tradle/rn-nodeify"
   },
   "scripts": {
@@ -108,7 +107,7 @@
     "react-native-haptic-feedback": "1.7.1",
     "react-native-image-picker": "1.1.0",
     "react-native-level-fs": "3.0.1",
-    "react-native-linear-gradient": "2.5.4",
+    "react-native-linear-gradient": "2.5.6",
     "react-native-modal": "11.1.0",
     "react-native-obscure": "1.2.1",
     "react-native-popup-menu-android": "1.0.3",

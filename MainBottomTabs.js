@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, StyleSheet } from 'react-native';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 
 import SettingsContainer from './screen/settings/settings';
@@ -44,7 +45,7 @@ import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
 
-import { HeaderTitle } from 'components';
+import { Header } from 'components';
 
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
@@ -57,7 +58,7 @@ const WalletsStackNavigator = createStackNavigator({
     screen: WalletsList,
     path: 'wallets',
     navigationOptions: {
-      headerTitle: () => <HeaderTitle title="Wallets" />,
+      header: () => <Header title="Wallets" />,
     },
   },
   WalletTransactions: {
@@ -188,9 +189,6 @@ const MainBottomTabs = createStackNavigator(
     Wallets: {
       screen: WalletsStackNavigator,
       path: 'wallets',
-      navigationOptions: {
-        headerTitle: () => <HeaderTitle title="Wallets" />,
-      },
     },
     AddWallet: {
       screen: CreateWalletStackNavigator,

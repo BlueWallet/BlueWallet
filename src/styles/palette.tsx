@@ -15,4 +15,10 @@ export const palette = {
   error: 'rgb(244, 94, 89)',
   shadow: 'rgba(0, 0, 0, 0.12)',
   transparent: 'transparent',
+  white: 'rgb(255, 255, 255)',
+};
+
+export const gradients = {
+  Primary: [palette.gradientPrimaryFirst, palette.gradientPrimarySecond],
+  Secondary: [palette.gradientSecondaryFirst, palette.gradientSecondarySecond],
 };

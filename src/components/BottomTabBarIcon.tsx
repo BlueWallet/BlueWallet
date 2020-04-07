@@ -1,5 +1,5 @@
 import React from 'react';
-import FastImage, { FastImageSource } from 'react-native-fast-image';
+import { Image, FastImageSource } from './Image';
 import { StyleSheet } from 'react-native';
 
 export interface BottomTabBarIconProps {
@@ -9,7 +9,7 @@ export interface BottomTabBarIconProps {
 export class BottomTabBarIcon extends React.PureComponent<BottomTabBarIconProps> {
   render() {
     const { source } = this.props;
-    return <FastImage source={source} style={styles.image} />;
+    return <Image source={source} style={styles.image} />;
   }
 }
 
