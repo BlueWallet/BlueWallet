@@ -1,15 +1,6 @@
 /* global alert */
 import React from 'react';
-import {
-  Text,
-  ActivityIndicator,
-  Platform,
-  KeyboardAvoidingView,
-  View,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  Keyboard,
-} from 'react-native';
+import { Text, ActivityIndicator, KeyboardAvoidingView, View, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueButton,
@@ -222,7 +213,7 @@ export default class ScanLndInvoice extends React.Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'flex-end' }}>
         {!this.state.isLoading && (
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
@@ -242,7 +233,7 @@ export default class ScanLndInvoice extends React.Component {
             }
           >
             <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
-            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 4, marginRight: 4 }}>
               {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
@@ -265,10 +256,10 @@ export default class ScanLndInvoice extends React.Component {
       return <BlueLoading />;
     }
     return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <View style={{ flex: 1, justifyContent: 'space-between' }}>
-            <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
+          <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}>
+            <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
               <View style={{ marginTop: 60 }}>
                 <BlueBitcoinAmount
                   pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
@@ -335,12 +326,11 @@ export default class ScanLndInvoice extends React.Component {
                 </BlueCard>
               </BlueCard>
             </KeyboardAvoidingView>
-
             {this.renderWalletSelectionButton()}
-          </View>
-          <BlueDismissKeyboardInputAccessory />
-        </SafeBlueArea>
-      </TouchableWithoutFeedback>
+          </ScrollView>
+        </View>
+        <BlueDismissKeyboardInputAccessory />
+      </SafeBlueArea>
     );
   }
 }
