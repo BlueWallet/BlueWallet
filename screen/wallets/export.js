@@ -5,7 +5,7 @@ import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTex
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
-import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
@@ -96,7 +96,7 @@ export default class WalletExport extends Component {
           />
 
           <BlueSpacing20 />
-          {this.state.wallet.type === LightningCustodianWallet.type ? (
+          {this.state.wallet.type === LightningCustodianWallet.type || this.state.wallet.type === WatchOnlyWallet.type ? (
             <BlueCopyTextToClipboard text={this.state.wallet.getSecret()} />
           ) : (
             <BlueText style={{ alignItems: 'center', paddingHorizontal: 16, fontSize: 16, color: '#0C2550', lineHeight: 24 }}>
