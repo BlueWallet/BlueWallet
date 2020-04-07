@@ -51,7 +51,7 @@ install:
   - echo y | sdkmanager --no_https "system-images;android-$API;$EMU_FLAVOR;$ABI" >/dev/null # install our emulator
 
   # Set up KVM on linux for hardware acceleration. Manually here so it only happens for emulator tests, takes ~30s
-  - sudo -E apt-get -yq --no-install-suggests --no-install-recommends install bridge-utils libpulse0 libvirt-bin qemu-kvm virtinst ubuntu-vm-builder
+  - sudo -E apt-get -yq --no-install-suggests --no-install-recommends install bridge-utils libpulse0 libvirt-bin libxcursor1 qemu-kvm virtinst ubuntu-vm-builder
   - sudo adduser $USER libvirt
   - sudo adduser $USER kvm
 
