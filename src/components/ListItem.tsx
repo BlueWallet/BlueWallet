@@ -13,7 +13,7 @@ interface Props {
 
 export const ListItem = ({ title, source, onSwitchValueChange, switchValue }: Props) => (
   <View style={styles.container}>
-    {!!source && <Image source={source} style={styles.image} />}
+    <Image source={source} style={styles.image} />
     <View style={styles.textContainer}>
       <Text style={styles.title}>{title}</Text>
     </View>
