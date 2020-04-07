@@ -12,10 +12,13 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
 const ScanQRCode = ({
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   onBarScanned = useNavigationParam('onBarScanned'),
   cameraPreviewIsPaused = false,
   showCloseButton = true,
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   showFileImportButton = useNavigationParam('showFileImportButton') || false,
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   launchedBy = useNavigationParam('launchedBy'),
 }) => {
   if (!launchedBy || !onBarScanned) console.warn('Necessary params missing');

@@ -9,7 +9,7 @@ const ReleaseNotes = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   return isLoading ? (
     (<BlueLoading />)

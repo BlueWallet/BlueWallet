@@ -8,7 +8,7 @@ const Licensing = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   return isLoading ? (
     (<BlueLoading />)

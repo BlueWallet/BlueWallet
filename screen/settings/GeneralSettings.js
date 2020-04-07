@@ -36,45 +36,36 @@ const GeneralSettings = () => {
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
       <ScrollView>
+        {BlueApp.getWallets().length > 1 && (
+          <>
+            <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
+          </>
+        )}
+        {Platform.OS === 'ios' ? (
+          <>
+            <BlueListItem hideChevron title={'Continuity'} switchButton onSwitch={onHandOffEnabledSwitch} switched={isHandoffUseEnabled} />
+            <BlueCard>
+              <BlueText>
+                When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected devices.
+              </BlueText>
+            </BlueCard>
+            <BlueSpacing20 />
+          </>
+        ) : null}
+        <BlueListItem
+          hideChevron
+          title={loc.settings.enable_advanced_mode}
+          switchButton
+          onSwitch={onAdvancedModeSwitch}
+          switched={isAdancedModeEnabled}
+        />
         <BlueCard>
-          {BlueApp.getWallets().length > 1 && (
-            <>
-              <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
-            </>
-          )}
-          {Platform.OS === 'ios' ? (
-            <>
-              <BlueListItem
-                hideChevron
-                title={'Continuity'}
-                switchButton
-                onSwitch={onHandOffEnabledSwitch}
-                switched={isHandoffUseEnabled}
-              />
-              <BlueCard>
-                <BlueText>
-                  When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected
-                  devices.
-                </BlueText>
-              </BlueCard>
-              <BlueSpacing20 />
-            </>
-          ) : null}
-          <BlueListItem
-            hideChevron
-            title={loc.settings.enable_advanced_mode}
-            switchButton
-            onSwitch={onAdvancedModeSwitch}
-            switched={isAdancedModeEnabled}
-          />
-          <BlueCard>
-            <BlueText>
-              When enabled, you will see advanced options such as different wallet types and the ability to specify the LNDHub instance you
-              wish to connect to.
-            </BlueText>
-          </BlueCard>
-          <BlueSpacing20 />
+          <BlueText>
+            When enabled, you will see advanced options such as different wallet types and the ability to specify the LNDHub instance you
+            wish to connect to.
+          </BlueText>
         </BlueCard>
+        <BlueSpacing20 />
       </ScrollView>
     </SafeBlueArea>
   );

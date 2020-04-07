@@ -10,15 +10,15 @@ const NetworkSettings = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   return isLoading ? (
     <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
       <ScrollView>
-        <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
         <BlueListItem title={'Electrum server'} component={TouchableOpacity} onPress={() => navigate('ElectrumSettings')} />
+        <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
       </ScrollView>
     </SafeBlueArea>
   );

@@ -40,6 +40,7 @@ export default class App extends React.Component {
     AppState.addEventListener('change', this._handleAppStateChange);
     QuickActions.popInitialAction().then(this.popInitialAction);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
+    this._handleAppStateChange(undefined);
   }
 
   popInitialAction = async data => {
@@ -107,7 +108,7 @@ export default class App extends React.Component {
 
   _handleAppStateChange = async nextAppState => {
     if (BlueApp.getWallets().length > 0) {
-      if (this.state.appState.match(/background/) && nextAppState === 'active') {
+      if ((this.state.appState.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
@@ -138,7 +139,9 @@ export default class App extends React.Component {
         }
         this.setState({ clipboardContent: clipboard });
       }
-      this.setState({ appState: nextAppState });
+      if (nextAppState) {
+        this.setState({ appState: nextAppState });
+      }
     }
   };
 

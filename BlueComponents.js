@@ -1429,13 +1429,10 @@ export class NewWalletPanel extends Component {
 export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC, shouldRefresh }) => {
   const [transactionTimeToReadable, setTransactionTimeToReadable] = useState('...');
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
-  const calculateTimeLabel = () => {
-    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
-    return setTransactionTimeToReadable(transactionTimeToReadable);
-  };
 
   useEffect(() => {
-    calculateTimeLabel();
+    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
+    return setTransactionTimeToReadable(transactionTimeToReadable);
   }, [item, itemPriceUnit, shouldRefresh]);
 
   const txMemo = () => {

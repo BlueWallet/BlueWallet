@@ -10,7 +10,7 @@ const Settings = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   return isLoading ? (
     <BlueLoading />
