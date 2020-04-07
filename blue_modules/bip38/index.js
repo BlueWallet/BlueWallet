@@ -1,3 +1,4 @@
+const BlueCrypto = require('react-native-blue-crypto');
 var aes = require('browserify-aes')
 var assert = require('assert')
 var Buffer = require('safe-buffer').Buffer
@@ -41,6 +42,18 @@ function getAddress (d, compressed) {
   return bs58check.encode(payload)
 }
 
+async function scryptWrapper(secret, salt, N, r, p, dkLen, progressCallback) {
+  if (BlueCrypto.isAvailable()) {
+    secret = Buffer.from(secret).toString('hex');
+    salt = Buffer.from(salt).toString('hex');
+    const hex = await BlueCrypto.scrypt(secret, salt, N, r, p, dkLen);
+    return Buffer.from(hex, 'hex');
+  } else {
+    // fallback to js implementation
+    return scrypt(secret, salt, N, r, p, dkLen, progressCallback);
+  }
+}
+
 async function encryptRaw (buffer, compressed, passphrase, progressCallback, scryptParams) {
   if (buffer.length !== 32) throw new Error('Invalid private key length')
   scryptParams = scryptParams || SCRYPT_PARAMS
@@ -54,7 +67,7 @@ async function encryptRaw (buffer, compressed, passphrase, progressCallback, scr
   var r = scryptParams.r
   var p = scryptParams.p
 
-  var scryptBuf = await scrypt(secret, salt, N, r, p, 64, progressCallback)
+  var scryptBuf = await scryptWrapper(secret, salt, N, r, p, 64, progressCallback)
   var derivedHalf1 = scryptBuf.slice(0, 32)
   var derivedHalf2 = scryptBuf.slice(32, 64)
 
@@ -103,7 +116,7 @@ async function decryptRaw (buffer, passphrase, progressCallback, scryptParams) {
   var p = scryptParams.p
 
   var salt = buffer.slice(3, 7)
-  var scryptBuf = await scrypt(passphrase, salt, N, r, p, 64, progressCallback)
+  var scryptBuf = await scryptWrapper(passphrase, salt, N, r, p, 64, progressCallback)
   var derivedHalf1 = scryptBuf.slice(0, 32)
   var derivedHalf2 = scryptBuf.slice(32, 64)
 
@@ -161,7 +174,7 @@ async function decryptECMult (buffer, passphrase, progressCallback, scryptParams
   var N = scryptParams.N
   var r = scryptParams.r
   var p = scryptParams.p
-  var preFactor = await scrypt(passphrase, ownerSalt, N, r, p, 32, progressCallback)
+  var preFactor = await scryptWrapper(passphrase, ownerSalt, N, r, p, 32, progressCallback)
 
   var passFactor
   if (hasLotSeq) {
@@ -174,7 +187,7 @@ async function decryptECMult (buffer, passphrase, progressCallback, scryptParams
   var passInt = BigInteger.fromBuffer(passFactor)
   var passPoint = curve.G.multiply(passInt).getEncoded(true)
 
-  var seedBPass = await scrypt(passPoint, Buffer.concat([addressHash, ownerEntropy]), 1024, 1, 1, 64)
+  var seedBPass = await scryptWrapper(passPoint, Buffer.concat([addressHash, ownerEntropy]), 1024, 1, 1, 64)
 
   var derivedHalf1 = seedBPass.slice(0, 32)
   var derivedHalf2 = seedBPass.slice(32, 64)
