@@ -21,6 +21,7 @@ import {
   Clipboard,
   Platform,
   TextInput,
+  ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
@@ -45,6 +46,89 @@ if (aspectRatio > 1.6) {
 } else {
   isIpad = true;
 }
+
+export class TraderMain extends Component {
+  render() {
+  return (
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginVertical: 24, justifyContent: 'space-between' }}>
+          <Text style={{ fontWeight: 'bold', fontSize: 24, color: BlueApp.settings.foregroundColor }}>
+            local trader
+          </Text>
+          <View style={{ backgroundColor: '#CCDDF9', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 20}}>
+            <Text style={{alignItems: 'center', color: '#2F5FB3', fontWeight: 'bold', fontSize: 11 }}>see all</Text>
+          </View>
+        </View>
+        <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', paddingHorizontal: 16 }}>
+
+          {/* 1st block */}
+          <View style={{ minWidth: 140, maxWidth: 160, backgroundColor: '#EEF0F4', borderRadius: 8, padding: 8, justifyContent: 'space-around', marginRight: 16  }}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ width: 32, marginRight: 8 }}>
+                <Image 
+                  style={{ width: 32, height: 32, borderRadius: 40 }}
+                  source={{uri: 'https://hodlhodl-exchange.s3.amazonaws.com/uploads/account/avatar/ea/0b/b1/eb/6e11ff0205ff59977e4cec15.jpg'}}
+                />
+              </View>
+              <View style={{ }}>
+                <Text style={{ marginBottom: 2, fontWeight: 'bold', fontSize: 15, color: BlueApp.settings.foregroundColor }}>Yo yo</Text>
+                <Text style={{ fontSize: 9, color: '#9AA0AA' }}>97%</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 16 }}>
+              <View style={{ backgroundColor: '#fff', borderRadius: 20, paddingVertical: 5, paddingHorizontal: 8 }}>
+                <Text style={{alignItems: 'center', color: '#9AA0AA', fontWeight: '400' }}>$7534.34</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* 2nd block */}
+          <View style={{ minWidth: 140, maxWidth: 160, backgroundColor: '#EEF0F4', borderRadius: 8, padding: 8, justifyContent: 'space-around', marginRight: 16  }}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ width: 32, marginRight: 8 }}>
+                <Image 
+                  style={{ width: 32, height: 32, borderRadius: 40 }}
+                  source={{uri: 'https://hodlhodl-exchange.s3.amazonaws.com/uploads/account/avatar/ea/0b/b1/eb/6e11ff0205ff59977e4cec15.jpg'}}
+                />
+              </View>
+              <View style={{  }}>
+                <Text numberOfLines={1} ellipsizeMode='tail' style={{ marginBottom: 2, fontWeight: 'bold', fontSize: 15, color: BlueApp.settings.foregroundColor }}>asdfsd</Text>
+                <Text style={{ fontSize: 9, color: '#9AA0AA' }}>97%</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 16 }}>
+              <View style={{ backgroundColor: '#fff', borderRadius: 20, paddingVertical: 5, paddingHorizontal: 8 }}>
+                <Text style={{alignItems: 'center', color: '#9AA0AA', fontWeight: '400' }}>$7534.34</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* 3rd block */}
+          <View style={{ minWidth: 140, maxWidth: 160, backgroundColor: '#EEF0F4', borderRadius: 8, padding: 8, justifyContent: 'space-around', marginRight: 16  }}>
+            <View style={{ flexDirection: 'row' }}>
+              <View style={{ width: 32, marginRight: 8 }}>
+                <Image 
+                  style={{ width: 32, height: 32, borderRadius: 40 }}
+                  source={{uri: 'https://hodlhodl-exchange.s3.amazonaws.com/uploads/account/avatar/ea/0b/b1/eb/6e11ff0205ff59977e4cec15.jpg'}}
+                />
+              </View>
+              <View style={{ }}>
+                <Text style={{ marginBottom: 2, fontWeight: 'bold', fontSize: 15, color: BlueApp.settings.foregroundColor }}>Yo yo</Text>
+                <Text style={{ fontSize: 9, color: '#9AA0AA' }}>97%</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', marginTop: 16 }}>
+              <View style={{ backgroundColor: '#fff', borderRadius: 20, paddingVertical: 5, paddingHorizontal: 8 }}>
+                <Text style={{alignItems: 'center', color: '#9AA0AA', fontWeight: '400' }}>$7534.34</Text>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
+};
+
 
 export class BlueButton extends Component {
   render() {
