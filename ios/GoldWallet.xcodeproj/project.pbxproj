@@ -20,6 +20,7 @@
 		A2986450243B5FDD00A8F351 /* Ubuntu-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */; };
 		A2986451243B5FDD00A8F351 /* Ubuntu-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644D243B5FDD00A8F351 /* Ubuntu-Bold.ttf */; };
 		A2986452243B5FDD00A8F351 /* Ubuntu-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */; };
+		DFBAFB8E324E44CAB8783CBE /* Fontisto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3C6EEFCB4A9A4DFD805B33D4 /* Fontisto.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -120,6 +121,7 @@
 		FC63C7054F1C4FDFB7A830E5 /* libRCTPrivacySnapshot.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTPrivacySnapshot.a; sourceTree = "<group>"; };
 		FC98DC24A81A463AB8B2E6B1 /* libRNImagePicker.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNImagePicker.a; sourceTree = "<group>"; };
 		FD7977067E1A496F94D8B1B7 /* libRNDeviceInfo.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNDeviceInfo.a; sourceTree = "<group>"; };
+		3C6EEFCB4A9A4DFD805B33D4 /* Fontisto.ttf */ = {isa = PBXFileReference; name = "Fontisto.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Fontisto.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -198,6 +200,7 @@
 				A298644C243B5FDD00A8F351 /* Ubuntu-Light.ttf */,
 				A298644B243B5FDD00A8F351 /* Ubuntu-Medium.ttf */,
 				A298644E243B5FDD00A8F351 /* Ubuntu-Regular.ttf */,
+				3C6EEFCB4A9A4DFD805B33D4 /* Fontisto.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -345,6 +348,7 @@
 				A298644F243B5FDD00A8F351 /* Ubuntu-Medium.ttf in Resources */,
 				A2986452243B5FDD00A8F351 /* Ubuntu-Regular.ttf in Resources */,
 				3208E93922F63279007F5A27 /* AppCenter-Config.plist in Resources */,
+				DFBAFB8E324E44CAB8783CBE /* Fontisto.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
