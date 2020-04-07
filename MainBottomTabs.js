@@ -173,8 +173,7 @@ const WalletsStackNavigator = createStackNavigator(
 const CreateTransactionStackNavigator = createStackNavigator({
   SendDetails: {
     routeName: 'SendDetails',
-    // screen: sendDetails,
-    screen: Broadcast,
+    screen: sendDetails,
   },
   Confirm: {
     screen: Confirm,
@@ -330,10 +329,12 @@ const MainBottomTabs = createStackNavigator(
       },
     },
 
-    //
-
     ReceiveDetails: {
       screen: receiveDetails,
+    },
+
+    Broadcast: {
+      screen: Broadcast,
     },
 
     //

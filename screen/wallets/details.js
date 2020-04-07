@@ -260,7 +260,16 @@ export default class WalletDetails extends Component {
                     />
                   )}
                   <BlueSpacing20 />
-
+                  <BlueButton
+                    icon={{
+                      name: 'broadcast-tower',
+                      type: 'font-awesome',
+                      color: BlueApp.settings.buttonTextColor,
+                    }}
+                    onPress={() => this.props.navigation.navigate('Broadcast')}
+                    title="Broadcast transaction"
+                  />
+                  <BlueSpacing20 />
                   <TouchableOpacity
                     style={{ alignItems: 'center' }}
                     onPress={() => {

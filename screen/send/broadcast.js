@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { StyleSheet, View } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import AbstractHDElectrumWallet from '../../class/abstract-hd-electrum-wallet';
+import HDSegwitBech32Wallet from '../../class/hd-segwit-bech32-wallet';
 import { SafeBlueArea, BlueCard, BlueButton, BlueFormInput, BlueSpacing10, BlueLoading, BlueTextCentered } from '../../BlueComponents';
 import BlueElectrum from '../../BlueElectrum';
 
@@ -23,7 +23,8 @@ export default function Broadcast() {
     try {
       await BlueElectrum.ping();
       await BlueElectrum.waitTillConnected();
-      const result = await AbstractHDElectrumWallet.broadcastTx(tx);
+      const walletObj = new HDSegwitBech32Wallet();
+      const result = await walletObj.broadcastTx(tx);
       console.log('broadcast result = ', result);
       setBroadcastResult(result);
     } catch (error) {
@@ -51,7 +52,19 @@ export default function Broadcast() {
   );
 }
 
-function BroadcastResult({ result = BROADCAST_RESULT.none }) {
+const styles = StyleSheet.create({
+  wrapper: {
+    marginTop: 16,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  blueArea: {
+    flex: 1,
+    paddingTop: 19,
+  },
+});
+
+function BroadcastResult({ result }) {
   switch (result) {
     case BROADCAST_RESULT.pending: {
       return <BlueLoading />;
@@ -71,15 +84,3 @@ function BroadcastResult({ result = BROADCAST_RESULT.none }) {
 BroadcastResult.propTypes = {
   result: PropTypes.oneOf(BROADCAST_RESULT),
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    marginTop: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  blueArea: {
-    flex: 1,
-    paddingTop: 19,
-  },
-});
