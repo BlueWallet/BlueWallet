@@ -1,3 +1,21 @@
+v5.3.0
+======
+
+* ADD: Open clipboard modal if address is detected at launch
+* ADD: Copy from clipboard on actionsheet
+* ADD: support for Electrum Personal Server and Electrs (disable protocol batching)
+* ADD: avatars in HodlHodl offers list
+* ADD: Long Press on Send. More optins to come
+* FIX: Remove quick actions if storage is encrypted (improves plausible deniability)
+* FIX: allow copy to clipboard on watch-only wallets
+* FIX: electrum connection status now updates realtime
+* FIX: import single-address bech32 wallet from WIF (closes #911)
+* FIX: duplicate input detected error (closes #912)
+* FIX: Error in back button - Marketplace #922
+* FIX: Don't display clipboard modal if content is from a lightning wallet
+* REF: some love to the about section
+
+
 v5.2.0
 ======
 
@@ -47,23 +65,3 @@ v4.9.4
 * FIX: Handle both chains
 * FIX: deeplinking (safello etc)
 * DEL: Remove alerts from main list
-
-v4.9.2
-======
-
-* ADD: Swipe to Scan
-* ADD: Handle clipboard content with both bitcoin: and lightning:
-* ADD: Ask user if they have backed up their seed phrase
-* ADD: Export screen allows copying to clipboard if its a LNDHub wallet
-* ADD: Show LNDHub backup when creating lnd wallet
-* ADD: CLP Fiat
-* FIX: TX Time visual glitch
-* FIX: Show an alert when theres a fetch transactions error
-* FIX: TX list uses whole canvas area
-* FIX: Don't allow empty wallet labels
-* FIX: Wallet type selecion clipping on advanced mode
-* FIX: Receive address was not being rendered
-* FIX: Don't show wallet export warning if wallet was imported
-* REF: Reworked Import wallet flow
-* REF: BIP49 to use electrum
-* REF: Custom receive
