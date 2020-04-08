@@ -11,7 +11,15 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem, TraderMain } from '../../BlueComponents';
+import {
+  BlueLoading,
+  SafeBlueArea,
+  WalletsCarousel,
+  BlueList,
+  BlueHeaderDefaultMain,
+  BlueTransactionListItem,
+  TraderMain,
+} from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
