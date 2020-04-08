@@ -11,14 +11,14 @@ export const MessageScreen = () => {
   const title: string = useNavigationParam('title');
   const source: FastImageSource = useNavigationParam('source');
   const description: string = useNavigationParam('description');
-  const button: ButtonProps | undefined = useNavigationParam('button');
+  const buttonProps: ButtonProps | undefined = useNavigationParam('buttonProps');
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
       <Image source={source} style={styles.image} resizeMode="contain" />
       <Text style={styles.description}>{description}</Text>
-      {button && <Button {...button} />}
+      {buttonProps && <Button {...buttonProps} />}
     </View>
   );
 };
