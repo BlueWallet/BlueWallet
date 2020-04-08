@@ -53,12 +53,8 @@ export class TraderMain extends Component {
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, marginVertical: 24, justifyContent: 'space-between' }}>
           <Text style={{ fontWeight: 'bold', fontSize: 24, color: BlueApp.settings.foregroundColor }}>local trader</Text>
-          <View style={{ backgroundColor: '#CCDDF9', borderRadius: 20, justifyContent: 'center' }}>
-            <Text
-              style={{ alignItems: 'center', color: '#2F5FB3', fontWeight: 'bold', fontSize: 12, marginHorizontal: 16, marginVertical: 2 }}
-            >
-              see all
-            </Text>
+          <View style={{ justifyContent: 'center' }}>
+            <Text style={{ alignItems: 'center', color: '#2F5FB3', fontWeight: 'bold', fontSize: 12 }}>see all</Text>
           </View>
         </View>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: 'row', paddingHorizontal: 16 }}>
