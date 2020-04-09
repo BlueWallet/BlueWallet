@@ -26,7 +26,7 @@ export default function Broadcast() {
   const [tx, setTx] = useState('');
   const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
   const inputRef = useRef();
-  const handleUpdateTx = nextValue => setTx(nextValue);
+  const handleUpdateTx = nextValue => setTx(nextValue.trim());
   const handleBroadcast = async () => {
     setBroadcastResult(BROADCAST_RESULT.pending);
     try {
@@ -49,7 +49,7 @@ export default function Broadcast() {
 
   return (
     <SafeBlueArea style={styles.blueArea}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps>
         <View style={styles.wrapper}>
           <BlueCard>
             <BlueFormLabel>Add transaction hash</BlueFormLabel>

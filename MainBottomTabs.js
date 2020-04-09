@@ -335,6 +335,9 @@ const MainBottomTabs = createStackNavigator(
 
     Broadcast: {
       screen: Broadcast,
+      navigationOptions: () => ({
+        title: 'Broadcast tx',
+      }),
     },
 
     //
