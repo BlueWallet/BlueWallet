@@ -56,6 +56,7 @@ export const typography = StyleSheet.create({
     fontFamily: fonts.ubuntu.light,
     fontSize: 14,
     letterSpacing: 0,
+    lineHeight: 19,
   },
   overline: {
     fontFamily: fonts.ubuntu.light,
