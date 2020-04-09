@@ -258,7 +258,7 @@ export default class WalletsList extends Component {
     if (wallets[0] === false) {
       return (
         <ListEmptyState
-          variant={ListEmptyState.Variant.AddressBook}
+          variant={ListEmptyState.Variant.Dashboard}
           onPress={() => this.props.navigation.navigate('AddWallet')}
         />
       );
