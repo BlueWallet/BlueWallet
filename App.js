@@ -15,7 +15,7 @@ import Modal from 'react-native-modal';
 
 import MainBottomTabs from './MainBottomTabs';
 import { RootNavigator } from 'navigators';
-import NavigationService from './NavigationService';
+import { NavigationService } from './src/services';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import url from 'url';

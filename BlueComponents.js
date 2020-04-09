@@ -24,7 +24,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
-import NavigationService from './NavigationService';
+import { NavigationService } from './src/services';
 import WalletGradient from './class/walletGradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';

@@ -30,7 +30,7 @@ import WalletGradient from '../../class/walletGradient';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
 import Modal from 'react-native-modal';
-import NavigationService from '../../NavigationService';
+import { NavigationService } from '../../src/services';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');

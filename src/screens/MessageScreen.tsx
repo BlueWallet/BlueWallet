@@ -7,11 +7,18 @@ import { Button } from 'components/Button';
 
 import { typography, palette } from 'styles';
 
+export interface MessageProps {
+  title: string;
+  source: FastImageSource;
+  description: string;
+  buttonProps?: ButtonProps;
+}
+
 export const MessageScreen = () => {
   const title: string = useNavigationParam('title');
   const source: FastImageSource = useNavigationParam('source');
   const description: string = useNavigationParam('description');
-  const buttonProps: ButtonProps | undefined = useNavigationParam('buttonProps');
+  const buttonProps: ButtonProps = useNavigationParam('buttonProps');
 
   return (
     <View style={styles.container}>
