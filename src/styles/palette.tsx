@@ -19,6 +19,14 @@ export const palette = {
 };
 
 export const gradients = {
-  Primary: [palette.gradientPrimaryFirst, palette.gradientPrimarySecond],
-  Secondary: [palette.gradientSecondaryFirst, palette.gradientSecondarySecond],
+  Primary: {
+    colors: [palette.gradientPrimaryFirst, palette.gradientPrimarySecond],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  Secondary: {
+    colors: [palette.gradientSecondaryFirst, palette.gradientSecondarySecond],
+    start: { x: 1, y: 0 },
+    end: { x: 1, y: 1 },
+  },
 };

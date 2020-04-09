@@ -19,7 +19,7 @@ export class GradientView extends PureComponent<Props> {
   render() {
     const { variant, style, children } = this.props;
     return (
-      <LinearGradient colors={gradients[variant]} style={style} {...this.props}>
+      <LinearGradient {...gradients[variant]} style={style} {...this.props}>
         {children}
       </LinearGradient>
     );
