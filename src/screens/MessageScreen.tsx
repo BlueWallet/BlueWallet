@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, FastImageSource } from 'components/Image';
 import { ButtonProps } from 'react-native-elements';
-import { Text, View, StyleSheet } from 'react-native';
+import { Text, View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { useNavigationParam } from 'react-navigation-hooks';
 import { Button } from 'components/Button';
 
@@ -12,6 +12,7 @@ export interface MessageProps {
   source: FastImageSource;
   description: string;
   buttonProps?: ButtonProps;
+  imageStyle?: StyleProp<ViewStyle>;
 }
 
 export const MessageScreen = () => {
@@ -19,11 +20,12 @@ export const MessageScreen = () => {
   const source: FastImageSource = useNavigationParam('source');
   const description: string = useNavigationParam('description');
   const buttonProps: ButtonProps = useNavigationParam('buttonProps');
+  const imageStyle: StyleProp<ViewStyle> = useNavigationParam('imageStyle');
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <Image source={source} style={styles.image} resizeMode="contain" />
+      <Image source={source} style={[styles.image, imageStyle]} resizeMode="contain" />
       <Text style={styles.description}>{description}</Text>
       {buttonProps && <Button {...buttonProps} />}
     </View>
