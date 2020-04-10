@@ -31,6 +31,8 @@ it('bip38 decodes slow', async () => {
   let encryptedKey = '6PnU5voARjBBykwSddwCdcn6Eu9EcsK24Gs5zWxbJbPZYW7eiYQP8XgKbN';
   let callbackWasCalled = false;
   let decryptedKey = await bip38.decrypt(encryptedKey, 'qwerty', () => {
+    // callbacks make sense only with pure js scrypt implementation (nodejs and browsers).
+    // on RN scrypt is handled by native module and takes ~4 secs
     callbackWasCalled = true;
   });
   assert.ok(callbackWasCalled);
@@ -39,4 +41,13 @@ it('bip38 decodes slow', async () => {
     wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed),
     'KxqRtpd9vFju297ACPKHrGkgXuberTveZPXbRDiQ3MXZycSQYtjc',
   );
+
+  let wasError = false;
+  try {
+    await bip38.decrypt(encryptedKey, 'a');
+  } catch (_) {
+    wasError = true;
+  }
+
+  assert.ok(wasError);
 });

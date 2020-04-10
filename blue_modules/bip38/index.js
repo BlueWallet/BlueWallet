@@ -146,6 +146,7 @@ async function decrypt (string, passphrase, progressCallback, scryptParams) {
 
 async function decryptECMult (buffer, passphrase, progressCallback, scryptParams) {
   passphrase = Buffer.from(passphrase, 'utf8')
+  const bufferOrig = buffer;
   buffer = buffer.slice(1) // FIXME: we can avoid this
   scryptParams = scryptParams || SCRYPT_PARAMS
 
@@ -211,6 +212,13 @@ async function decryptECMult (buffer, passphrase, progressCallback, scryptParams
 
   // d = passFactor * factorB (mod n)
   var d = passInt.multiply(factorB).mod(curve.n)
+
+  // added by overtorment: see https://github.com/bitcoinjs/bip38/issues/60
+  // verify salt matches address
+  var address = getAddress(d, compressed)
+  var checksum = hash256(address).slice(0, 4)
+  var salt = bufferOrig.slice(3, 7)
+  assert.deepEqual(salt, checksum)
 
   return {
     privateKey: d.toBuffer(32),
