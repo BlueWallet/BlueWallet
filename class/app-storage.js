@@ -302,8 +302,15 @@ export class AppStorage {
           await this.saveToDisk();
         };
         await WatchConnectivity.shared.sendWalletsToWatch();
-        DeviceQuickActions.setWallets(this.wallets);
-        DeviceQuickActions.setQuickActions();
+
+        const isStorageEncrypted = await this.storageIsEncrypted();
+        if (isStorageEncrypted) {
+          DeviceQuickActions.clearShortcutItems();
+          DeviceQuickActions.removeAllWallets();
+        } else {
+          DeviceQuickActions.setWallets(this.wallets);
+          DeviceQuickActions.setQuickActions();
+        }
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data

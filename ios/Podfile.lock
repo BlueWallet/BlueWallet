@@ -194,13 +194,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.17.0):
+  - react-native-camera (3.19.1):
     - React
-    - react-native-camera/RCT (= 3.17.0)
-    - react-native-camera/RN (= 3.17.0)
-  - react-native-camera/RCT (3.17.0):
+    - react-native-camera/RCT (= 3.19.1)
+    - react-native-camera/RN (= 3.19.1)
+  - react-native-camera/RCT (3.19.1):
     - React
-  - react-native-camera/RN (3.17.0):
+  - react-native-camera/RN (3.19.1):
     - React
   - react-native-document-picker (3.2.0):
     - React
@@ -497,7 +497,7 @@ SPEC CHECKSUMS:
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 4ead7a30a89f275f531d80aa720cc69363c38135
+  react-native-camera: 2eb144a4572d9342bddc946f4c0c3bc2b50e374e
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8

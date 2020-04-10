@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.2.2",
+  "version": "5.3.1",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.6.2",
@@ -10,7 +10,7 @@
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.9.0",
     "babel-preset-flow": "^6.23.0",
-    "detox": "16.0.0",
+    "detox": "16.1.1",
     "eslint": "^6.5.1",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.0",
@@ -57,7 +57,7 @@
     ]
   },
   "dependencies": {
-    "@babel/preset-env": "7.8.4",
+    "@babel/preset-env": "7.8.7",
     "@react-native-community/async-storage": "1.7.1",
     "@react-native-community/blur": "3.4.1",
     "@react-native-community/slider": "2.0.8",
@@ -76,7 +76,7 @@
     "buffer-reverse": "1.0.1",
     "coinselect": "3.1.11",
     "crypto-js": "3.1.9-1",
-    "dayjs": "1.8.20",
+    "dayjs": "1.8.23",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#2a5bb11dd9a8d89f328049d9ed59bce49d88a15d",
     "eslint-config-prettier": "6.10.0",
