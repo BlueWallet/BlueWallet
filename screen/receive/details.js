@@ -20,9 +20,12 @@ import Privacy from '../../Privacy';
 import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import Modal from 'react-native-modal';
+import HandoffSettings from '../../class/handoff';
+import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
+
 
 export default class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -37,6 +40,7 @@ export default class ReceiveDetails extends Component {
 
     this.state = {
       secret: secret,
+      isHandOffUseEnabled: false,
       address: '',
       customLabel: '',
       customAmount: 0,
@@ -117,6 +121,7 @@ export default class ReceiveDetails extends Component {
         this.renderReceiveDetails();
       }
     }
+    HandoffSettings.isHandoffUseEnabled().then(value => this.setState({ isHandOffUseEnabled: value }));
   }
 
   componentWillUnmount() {
@@ -200,6 +205,13 @@ export default class ReceiveDetails extends Component {
   render() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
+        {this.state.isHandOffUseEnabled && this.state.address !== undefined && (
+          <Handoff
+            title={`Bitcoin Transaction ${this.state.address}`}
+            type="io.bluewallet.bluewallet"
+            url={`https://blockstream.info/tx/${this.state.address}`}
+          />
+        )}
         <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
           <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
             {this.state.isCustom && (
