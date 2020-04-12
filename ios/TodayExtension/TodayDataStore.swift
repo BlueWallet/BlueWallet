@@ -25,13 +25,13 @@ struct TodayDataStore {
   }
   
   var rateDoubleValue: Double? {
-    let rateDigits = rate.replacingOccurrences(of: ",", with: "");
     let numberFormatter = NumberFormatter()
     numberFormatter.numberStyle = .decimal
+    numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
     numberFormatter.maximumFractionDigits = 2
     numberFormatter.minimumFractionDigits = 2
     
-    if let rateDoubleValue =  numberFormatter.number(from: rateDigits) {
+    if let rateDoubleValue =  numberFormatter.number(from: rate) {
       return rateDoubleValue.doubleValue
     }
     
@@ -39,17 +39,16 @@ struct TodayDataStore {
   }
   
   var formattedRate: String? {
-    let rateDigits = rate.replacingOccurrences(of: ",", with: "");
     let numberFormatter = NumberFormatter()
+    numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
     numberFormatter.numberStyle = .decimal
     numberFormatter.maximumFractionDigits = 2
     numberFormatter.minimumFractionDigits = 2
-    if let rateNumber = numberFormatter.number(from: rateDigits) {
+    if let rateNumber = numberFormatter.number(from: rate) {
       numberFormatter.numberStyle = .currency
-      numberFormatter.locale = Locale(identifier: API.getUserPreferredCurrencyLocale())
       return numberFormatter.string(from: rateNumber);
     }
-    return nil
+    return rate
   }
 }
 

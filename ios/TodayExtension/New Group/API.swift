@@ -15,7 +15,7 @@ class API {
     
     URLSession.shared.dataTask(with: url) { (data, response, error) in
       guard let dataResponse = data,
-        let json = try? JSONSerialization.jsonObject(with: dataResponse, options: .mutableContainers) as? Dictionary<String, Any>,
+        let json = ((try? JSONSerialization.jsonObject(with: dataResponse, options: .mutableContainers) as? Dictionary<String, Any>) as Dictionary<String, Any>??),
         error == nil else {
           print(error?.localizedDescription ?? "Response Error")
           completion(nil, error)
