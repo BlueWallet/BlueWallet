@@ -4,6 +4,7 @@ import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavig
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
 const bitcoin = require('bitcoinjs-lib');
+const BlueCrypto = require('react-native-blue-crypto');
 let BigNumber = require('bignumber.js');
 let encryption = require('../encryption');
 let BlueElectrum = require('../BlueElectrum');
@@ -251,6 +252,14 @@ export default class Selftest extends Component {
         if (hd4.getTransactions().length !== 4) throw new Error('Could not fetch HD Bech32 transactions');
       } else {
         // skipping RN-specific test
+      }
+
+      //
+
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        const hex = await BlueCrypto.scrypt('717765727479', '4749345a22b23cf3', 64, 8, 8, 32); // using non-default parameters to speed it up (not-bip38 compliant)
+        if (hex.toUpperCase() !== 'F36AB2DC12377C788D61E6770126D8A01028C8F6D8FE01871CE0489A1F696A90')
+          throw new Error('react-native-blue-crypto is not ok');
       }
 
       //

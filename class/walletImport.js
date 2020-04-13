@@ -17,6 +17,9 @@ const A = require('../analytics');
 /** @type {AppStorage} */
 const BlueApp = require('../BlueApp');
 const loc = require('../loc');
+const bip38 = require('../blue_modules/bip38');
+const wif = require('wif');
+const prompt = require('../prompt');
 
 export default class WalletImport {
   /**
@@ -88,6 +91,8 @@ export default class WalletImport {
     }
     const placeholderWallet = WalletImport.addPlaceholderWallet(importText);
     // Plan:
+    // -2. check if BIP38 encrypted
+    // -1. check lightning custodian
     // 0. check if its HDSegwitBech32Wallet (BIP84)
     // 1. check if its HDSegwitP2SHWallet (BIP49)
     // 2. check if its HDLegacyP2PKHWallet (BIP44)
@@ -99,6 +104,21 @@ export default class WalletImport {
     // 7. check if its private key (legacy address) TODO
 
     try {
+      if (importText.startsWith('6P')) {
+        let password = false;
+        do {
+          password = await prompt('This looks like password-protected private key (BIP38)', 'Enter password to decrypt', false);
+        } while (!password);
+
+        let decryptedKey = await bip38.decrypt(importText, password, status => {
+          console.warn(status.percent + '%');
+        });
+
+        if (decryptedKey) {
+          importText = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
+        }
+      }
+
       // is it lightning custodian?
       if (importText.indexOf('blitzhub://') !== -1 || importText.indexOf('lndhub://') !== -1) {
         let lnd = new LightningCustodianWallet();
