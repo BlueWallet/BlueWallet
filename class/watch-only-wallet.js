@@ -183,6 +183,10 @@ export class WatchOnlyWallet extends LegacyWallet {
     return this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub');
   }
 
+  allowHodlHodlTrading() {
+    return this.isHd();
+  }
+
   useWithHardwareWalletEnabled() {
     return !!this.use_with_hardware_wallet;
   }
