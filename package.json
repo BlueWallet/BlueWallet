@@ -105,7 +105,7 @@
     "react-native-elements": "0.19.0",
     "react-native-flexi-radio-button": "0.2.2",
     "react-native-fs": "2.16.6",
-    "react-native-gesture-handler": "1.5.6",
+    "react-native-gesture-handler": "1.6.1",
     "react-native-handoff": "git+https://github.com/marcosrdz/react-native-handoff.git",
     "react-native-haptic-feedback": "1.9.0",
     "react-native-image-picker": "1.1.0",
