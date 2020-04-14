@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { HDSegwitBech32Wallet } from '../../class';
+import { requestPayjoin } from './payjoinClient';
 let loc = require('../../loc');
 let EV = require('../../events');
 let currency = require('../../currency');
@@ -35,6 +36,8 @@ export default class Confirm extends Component {
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
       fromWallet: props.navigation.getParam('fromWallet'),
+      payjoinEndpointUrl: props.navigation.getParam('fromWallet'),
+      psbt: props.navigation.getParam('psbt')
     };
   }
 
@@ -44,49 +47,92 @@ export default class Confirm extends Component {
     this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
 
+  payjoin(){
+    if(this.state.payjoinEndpointUrl && this.state.psbt){
+      let proposedPayjoinPsbt = null;
+      this.setState({ isLoading: true }, async () => {
+        try {
+          await BlueElectrum.ping();
+          await BlueElectrum.waitTillConnected();
+  
+          if (! (await guard())){
+            return;
+          }
+        const api = new Frisbee({
+          baseURI: this.state.payjoinEndpointUrl,
+          headers: { "Content-Type": "text/plain"}
+        });
+        const psbt  = this.state.psbt;
+        
+        proposedPayjoinPsbt = await requestPayjoin(psbt, async (psbt)=>{ 
+          var resp = await api.post('', { body: psbt.toHex()});
+          if(!resp.err && resp.body){
+            return bitcoin.Psbt.fromHex(resp.body);
+          }
+          return null;
+        });
+        await this.broadcastTransaction(proposedPayjoinPsbt.extractTransaction())
+      } 
+      catch{
+        await this.broadcastTransaction(this.state.tx);
+        return;
+      }
+    });
+  }
+}
+
+guard(){
+  if (this.isBiometricUseCapableAndEnabled) {
+    if (!(await Biometric.unlockWithBiometrics())) {
+      this.setState({ isLoading: false });
+      return false;
+    }
+  }
+  return true;
+}
+
+broadcastTransaction(tx){
+  let result = await this.state.fromWallet.broadcastTx(tx);
+  if (result && result.code) {
+    if (result.code === 1) {
+      const message = result.message.split('\n');
+      throw new Error(`${message[0]}: ${message[2]}`);
+    }
+  } else {
+    console.log('broadcast result = ', result);
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+    let amount = 0;
+    const recipients = this.state.recipients;
+    if (recipients[0].amount === BitcoinUnit.MAX) {
+      amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
+    } else {
+      for (const recipient of recipients) {
+        amount += recipient.amount ? +recipient.amount : recipient.value;
+      }
+    }
+    if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
+      amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+    }
+    this.props.navigation.navigate('Success', {
+      fee: Number(this.state.fee),
+      amount,
+      dismissModal: () => this.props.navigation.dismiss(),
+    });
+    this.setState({ isLoading: false });
+  }
+}
+
   broadcast() {
     this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
 
-        if (this.isBiometricUseCapableAndEnabled) {
-          if (!(await Biometric.unlockWithBiometrics())) {
-            this.setState({ isLoading: false });
-            return;
-          }
+        if (! (await guard())){
+          return;
         }
 
-        let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-        if (result && result.code) {
-          if (result.code === 1) {
-            const message = result.message.split('\n');
-            throw new Error(`${message[0]}: ${message[2]}`);
-          }
-        } else {
-          console.log('broadcast result = ', result);
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-          let amount = 0;
-          const recipients = this.state.recipients;
-          if (recipients[0].amount === BitcoinUnit.MAX) {
-            amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
-          } else {
-            for (const recipient of recipients) {
-              amount += recipient.amount ? +recipient.amount : recipient.value;
-            }
-          }
-
-          if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
-            amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
-          }
-
-          this.props.navigation.navigate('Success', {
-            fee: Number(this.state.fee),
-            amount,
-            dismissModal: () => this.props.navigation.dismiss(),
-          });
-          this.setState({ isLoading: false });
-        }
+        await this.broadcastTransaction(this.state.tx);
       } catch (error) {
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         this.setState({ isLoading: false });
@@ -140,6 +186,11 @@ export default class Confirm extends Component {
     return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, margin: 16 }} />;
   };
 
+  renderPayjoinButton = ()=>{
+    if(!this.state.payjoinEndpointUrl || this.state.isLoading) return;
+    return <BlueButton onPress={() => this.payjoin()} title="Payjoin" />;
+  }
+
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
@@ -169,6 +220,7 @@ export default class Confirm extends Component {
                 {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
               </Text>
               <BlueSpacing40 />
+              {this.renderPayjoinButton()}
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (

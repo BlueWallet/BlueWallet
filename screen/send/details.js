@@ -49,6 +49,7 @@ const { width } = Dimensions.get('window');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 
+
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
@@ -104,6 +105,7 @@ export default class SendDetails extends Component {
         feeSliderValue: 1,
         bip70TransactionExpiration: null,
         renderWalletSelectionButtonHidden: false,
+        payjoinEndpointUrl: null
       };
     }
   }
@@ -175,6 +177,7 @@ export default class SendDetails extends Component {
               memo: options.label || options.message,
               bip70TransactionExpiration: null,
               isLoading: false,
+              payjoinEndpointUrl: options.pj || null,
             });
           } else {
             this.setState({ isLoading: false });
@@ -276,6 +279,7 @@ export default class SendDetails extends Component {
     let parsedBitcoinUri = null;
     let address = uri || '';
     let memo = '';
+    let payjoinEndpointUrl = null;
     try {
       parsedBitcoinUri = bip21.decode(uri);
       address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
@@ -287,9 +291,12 @@ export default class SendDetails extends Component {
         if (parsedBitcoinUri.options.hasOwnProperty('label')) {
           memo = parsedBitcoinUri.options.label || memo;
         }
+        if (parsedBitcoinUri.options.hasOwnProperty('pj')) {
+          payjoinEndpointUrl = parsedBitcoinUri.options.pj
+        }
       }
     } catch (_) {}
-    return { address, amount, memo };
+    return { address, amount, memo, payjoinEndpointUrl };
   }
 
   recalculateAvailableBalance(balance, amount, fee) {
@@ -578,6 +585,8 @@ export default class SendDetails extends Component {
       tx: tx.toHex(),
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
+      payjoinEndpointUrl: this.state.payjoinEndpointUrl,
+      psbt: psbt.toHex()
     });
     this.setState({ isLoading: false });
   }
@@ -846,6 +855,48 @@ export default class SendDetails extends Component {
     this.setState({ isTransactionReplaceable: value });
   };
 
+  renderPayjoinSection = () =>{
+    if(!this.state.payjoinEndpointUrl) return;
+
+    return (
+      <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
+        <TextInput
+                keyboardType="url"
+                ref={ref => {
+                  this.textInput = ref;
+                }}
+                value={this.state.payjoinEndpointUrl.toString()}
+                onChangeText={value => {
+                  this.setState({ payjoinEndpointUrl: value});
+                }}
+                editable={!this.state.isLoading}
+                placeholderTextColor="#37c0a1"
+                placeholder="Payjoin Endpoint URL"
+              />
+              <TouchableOpacity
+          disabled={this.state.isLoading}
+          onPress={() => {
+            this.setState({payjoinEndpointUrl: null})
+            Keyboard.dismiss();
+          }}
+          style={{
+            height: 36,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            backgroundColor: '#9AA0AA',
+            borderRadius: 4,
+            paddingVertical: 4,
+            paddingHorizontal: 8,
+            marginHorizontal: 4,
+          }}
+        >
+          <Text style={{ marginLeft: 4, color: BlueApp.settings.inverseForegroundColor }}>Disable payjoin</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   renderCreateButton = () => {
     return (
       <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
@@ -932,7 +983,7 @@ export default class SendDetails extends Component {
                 transactions[index].amount = recipient.amount;
                 this.setState({ addresses: transactions, memo: memo, fee, feeSliderValue, isLoading: false });
               } catch (_e) {
-                const { address, amount, memo } = this.decodeBitcoinUri(text);
+                const { address, amount, memo, payjoinEndpointUrl } = this.decodeBitcoinUri(text);
                 item.address = address || text;
                 item.amount = amount || item.amount;
                 transactions[index] = item;
@@ -941,6 +992,7 @@ export default class SendDetails extends Component {
                   memo: memo || this.state.memo,
                   isLoading: false,
                   bip70TransactionExpiration: null,
+                  payjoinEndpointUrl: payjoinEndpointUrl
                 });
               }
             }}
@@ -1058,9 +1110,10 @@ export default class SendDetails extends Component {
                   }}
                 >
                   <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
-                  <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+                  <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b2</Text>
                 </View>
               </TouchableOpacity>
+              {this.renderPayjoinSection()}
               {this.renderCreateButton()}
               {this.renderFeeSelectionModal()}
               {this.renderAdvancedTransactionOptionsModal()}
