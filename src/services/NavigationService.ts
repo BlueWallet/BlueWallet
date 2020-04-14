@@ -1,7 +1,10 @@
 import { MessageProps } from 'screens/MessageScreen';
+import { EditTextProps } from 'screens/EditTextScreen';
 import { NavigationContainerComponent, NavigationActions } from 'react-navigation';
 
-type ScreenProps = Partial<MessageProps>;
+type MessageScreenProps = Partial<MessageProps>;
+type EditTextScreenProps = Partial<EditTextProps>;
+type ScreenProps = MessageScreenProps | EditTextScreenProps;
 
 export default class NavigationService {
   navigator?: NavigationContainerComponent;

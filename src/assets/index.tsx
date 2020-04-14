@@ -8,4 +8,5 @@ export const images = {
   success: require('./images/bvWalletIconSuccess.png'),
   dashboardNoWallet: require('./images/bvWalletIconNoCards.png'),
   addressBookNoContacts: require('./images/addressBookNoContacts.png'),
+  backArrow: require('./images/navigationBarBackArrow.png'),
 };

@@ -7,6 +7,10 @@ interface Props {
   label: string;
   suffix?: string;
   error?: string;
+  value?: string;
+  onFocus?: () => void;
+  autoFocus?: boolean;
+  setValue?: (value: string) => void;
 }
 
 interface State {
@@ -19,10 +23,14 @@ export class InputItem extends Component<Props, State> {
   state = {
     isActive: false,
     isAnimatedFocused: new Animated.Value(0),
-    value: '',
+    value: this.props.value ? this.props.value : '',
   };
 
   onFocus = () => {
+    const { onFocus } = this.props;
+    if (onFocus) {
+      return onFocus();
+    }
     this.setState({
       isActive: true,
     });
@@ -48,6 +56,9 @@ export class InputItem extends Component<Props, State> {
 
   onChangeText = (text: string) => {
     this.setState({ value: text });
+    if (this.props.setValue) {
+      this.props.setValue(text);
+    }
   };
 
   render() {
