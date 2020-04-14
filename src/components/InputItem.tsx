@@ -23,7 +23,7 @@ export class InputItem extends Component<Props, State> {
   state = {
     isActive: false,
     isAnimatedFocused: new Animated.Value(0),
-    value: this.props.value ? this.props.value : '',
+    value: this.props.value || '',
   };
 
   onFocus = () => {
