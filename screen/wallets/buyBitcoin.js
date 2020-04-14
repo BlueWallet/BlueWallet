@@ -65,7 +65,7 @@ export default class BuyBitcoin extends Component {
 
     const { safelloStateToken } = this.props.navigation.state.params;
 
-    let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
+    let uri = 'https://5e95d8d25746df00075de081--unruffled-booth-c4339d.netlify.com/buy-bitcoin-redirect.html?address=' + this.state.address;
 
     if (safelloStateToken) {
       uri += '&safelloStateToken=' + safelloStateToken;
