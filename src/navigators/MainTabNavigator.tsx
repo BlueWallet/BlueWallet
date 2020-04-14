@@ -1,5 +1,4 @@
 import React from 'react';
-import { View } from 'react-native';
 import { createBottomTabNavigator } from 'react-navigation';
 
 import MainBottomTabs from '../../MainBottomTabs';
@@ -7,10 +6,11 @@ import { AddressBookNavigator } from './AddressBookNavigator';
 import { BottomTabBarIcon, BottomTabBarComponent } from 'components';
 import { images } from 'assets';
 import { palette } from 'styles';
+import { Route } from 'consts';
 
 export const MainTabNavigator = createBottomTabNavigator(
   {
-    Dashboard: {
+    [Route.Dashboard]: {
       screen: MainBottomTabs,
       navigationOptions: {
         title: 'Dashboard',
@@ -19,7 +19,7 @@ export const MainTabNavigator = createBottomTabNavigator(
         ),
       },
     },
-    AddressBook: {
+    [Route.AddressBook]: {
       screen: AddressBookNavigator,
       navigationOptions: {
         title: 'Address book',
@@ -28,7 +28,7 @@ export const MainTabNavigator = createBottomTabNavigator(
         ),
       },
     },
-    Settings: {
+    [Route.Settings]: {
       screen: AddressBookNavigator,
       navigationOptions: {
         title: 'Settings',
