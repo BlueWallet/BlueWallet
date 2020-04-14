@@ -209,7 +209,7 @@ export default class ReceiveDetails extends Component {
           <Handoff
             title={`Bitcoin Transaction ${this.state.address}`}
             type="io.bluewallet.bluewallet"
-            url={`https://blockstream.info/tx/${this.state.address}`}
+            url={`https://blockstream.info/address/${this.state.address}`}
           />
         )}
         <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
