@@ -71,6 +71,7 @@ export default class Confirm extends Component {
           }
           return null;
         });
+        //TODO: sign proposedPayjoinPsbt
         await this.broadcastTransaction(proposedPayjoinPsbt.extractTransaction())
       } 
       catch{
