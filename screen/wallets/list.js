@@ -394,7 +394,7 @@ export default class WalletsList extends Component {
                     <FlatList
                       ListHeaderComponent={this.renderListHeaderComponent}
                       ListEmptyComponent={
-                        <View style={{ top: 50, height: 100 }}>
+                        <View style={{ top: 80, height: 160 }}>
                           <Text
                             style={{
                               fontSize: 18,
@@ -409,6 +409,7 @@ export default class WalletsList extends Component {
                               fontSize: 18,
                               color: '#9aa0aa',
                               textAlign: 'center',
+                              fontWeight: '600'
                             }}
                           >
                             {loc.wallets.list.empty_txs2}

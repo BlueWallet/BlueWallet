@@ -20,6 +20,7 @@ module.exports = {
       create_a_wallet: 'Stvori novi volet',
       create_a_wallet1: 'Ne košta ništa i možete',
       create_a_wallet2: 'ih stvoriti moliko želite',
+      create_a_button: 'dodaj sada',
       latest_transaction: 'posljednja transakcija',
       empty_txs1: 'Vaše transakcije će se pojaviti ovdje',
       empty_txs2: 'trenutno nema nijedne',

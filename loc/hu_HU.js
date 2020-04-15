@@ -20,6 +20,7 @@ module.exports = {
       create_a_wallet: 'Új tárca',
       create_a_wallet1: 'Ingyenes, és annyit hozhatsz létre',
       create_a_wallet2: 'amennyit szeretnél',
+      create_a_button: 'add hozzá',
       latest_transaction: 'utolsó tranzakció',
       empty_txs1: 'A tranzakcióid itt fognak megjelenni',
       empty_txs2: 'de még nem volt tranzakciód!',

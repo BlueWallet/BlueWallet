@@ -20,6 +20,7 @@ module.exports = {
       create_a_wallet: 'Cüzdan oluştur',
       create_a_wallet1: 'Oluşturması bedava ve',
       create_a_wallet2: 'istediğiniz kadar oluşturabilirsiniz',
+      create_a_button: 'şimdi ekle',
       latest_transaction: 'en son işlem',
       empty_txs1: 'İşlemleriniz burada görünür,',
       empty_txs2: 'şu anda hiç yok',
