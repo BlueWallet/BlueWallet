@@ -52,5 +52,15 @@ export function requestPayjoin(psbt, remoteCall) {
         payjoinPsbt.updateOutput(index, originalOutput)
     })
   }
-  //
+  //TODO: check payjoinPsbt.version == psbt.version
+  //TODO: check payjoinPsbt.locktime == psbt.locktime
+  //TODO: check payjoinPsbt.inputs where input belongs to us, that it is not finalized
+  //TODO: check payjoinPsbt.inputs where input belongs to us, that it is was included in psbt.inputs
+  //TODO: check payjoinPsbt.inputs where input belongs to us, that its sequence has not changed from that of psbt.inputs
+  //TODO: check payjoinPsbt.inputs where input is new, that it is finalized
+  //TODO: check payjoinPsbt.inputs where input is new, that it is the same type as all other inputs from psbt.inputs (all==P2WPKH || all = P2SH-P2WPKH)
+  //TODO: check psbt.inputs that payjoinPsbt.inputs contains them all
+  //TODO: check payjoinPsbt.inputs > psbt.inputs
+  //TODO: check that if spend amount of payjoinPsbt > spend amount of psbt:
+  //TODO: * check if the difference is due to adjusting fee to increase transaction size
 }
