@@ -409,7 +409,7 @@ export default class WalletsList extends Component {
                               fontSize: 18,
                               color: '#9aa0aa',
                               textAlign: 'center',
-                              fontWeight: '600'
+                              fontWeight: '600',
                             }}
                           >
                             {loc.wallets.list.empty_txs2}
