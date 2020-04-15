@@ -19,6 +19,7 @@ export const FlatButton = (props: Props) => (
     titleStyle={[
       props.buttonType && props.buttonType === ButtonType.Warning ? styles.warningTitle : styles.standardTitle,
       typography.button,
+      props.titleStyle,
     ]}
   />
 );
