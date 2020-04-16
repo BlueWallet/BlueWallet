@@ -4,7 +4,7 @@ import { ViewStyle } from 'react-native';
 
 import { gradients } from 'styles';
 
-enum GradientVariant {
+export enum GradientVariant {
   Primary = 'Primary',
   Secondary = 'Secondary',
 }

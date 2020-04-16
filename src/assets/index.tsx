@@ -9,4 +9,5 @@ export const images = {
   dashboardNoWallet: require('./images/bvWalletIconNoCards.png'),
   addressBookNoContacts: require('./images/addressBookNoContacts.png'),
   backArrow: require('./images/navigationBarBackArrow.png'),
+  successBadge: require('./images/groupCopy2.png'),
 };

@@ -9,4 +9,8 @@ export const en = {
     noContactsDesc1: 'No contacts to show. \n Click ',
     noContactsDesc2: ' to add your first contact.',
   },
+  walletModal: {
+    btcv: 'BTCV',
+    wallets: 'Wallets',
+  },
 };

@@ -5,3 +5,5 @@ export { Header } from './Header';
 export { ListEmptyState } from './ListEmptyState';
 export { InputItem } from './InputItem';
 export { TextAreaItem } from './TextAreaItem';
+export { Button } from './Button';
+export { FlatButton } from './FlatButton';
