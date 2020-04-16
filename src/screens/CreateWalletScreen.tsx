@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 
 import { ScreenTemplate, Text, InputItem, Header, Button, FlatButton, RadioGroup, RadioButton } from 'app/components';
-import { Route } from 'app/consts';
+import { Route, Wallet } from 'app/consts';
 import { AppStorage, HDSegwitBech32Wallet, HDSegwitP2SHWallet, SegwitP2SHWallet, BlueApp, EV } from 'app/legacy';
 import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
@@ -91,7 +91,14 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
   };
 
   get canCreateWallet(): boolean {
-    return this.state.activeBitcoin && !!this.state.label;
+    return this.state.activeBitcoin && !!this.state.label && !this.validationError;
+  }
+
+  get validationError(): string | undefined {
+    const walletLabels = BlueApp.getWallets().map((wallet: Wallet) => wallet.label) || [];
+    if (walletLabels.includes(this.state.label)) {
+      return 'Name is already in use. Please enter a valid name.';
+    }
   }
 
   renderAdvancedSection() {
@@ -144,7 +151,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
         }>
         <Text style={styles.subtitle}>{i18n.wallets.add.subtitle}</Text>
         <Text style={styles.description}>{i18n.wallets.add.description}</Text>
-        <InputItem setValue={this.setLabel} label={i18n.wallets.add.inputLabel} />
+        <InputItem error={this.validationError} setValue={this.setLabel} label={i18n.wallets.add.inputLabel} />
         {this.renderAdvancedSection()}
       </ScreenTemplate>
     );

@@ -3,7 +3,6 @@ export enum Route {
   WalletDetails = 'WalletDetails',
   AddressBook = 'AddressBook',
   Settings = 'Settings',
-  AddWallet = 'AddWallet',
   CreateWallet = 'CreateWallet',
   ImportWallet = 'ImportWallet',
 }

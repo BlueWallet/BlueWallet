@@ -56,7 +56,7 @@ const WalletsStackNavigator = createStackNavigator({
     path: 'wallets',
     // headerMode: 'none',
     navigationOptions: {
-      header: () => <Header title="Wallets" addFunction={() => NavigationService.navigate('AddWallet')} />,
+      header: () => <Header title="Wallets" addFunction={() => NavigationService.navigate('CreateWallet')} />,
     },
   },
   WalletTransactions: {

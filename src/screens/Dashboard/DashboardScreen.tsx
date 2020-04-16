@@ -250,7 +250,7 @@ export class DashboardScreen extends Component<Props, State> {
     return (
       <ListEmptyState
         variant={ListEmptyState.Variant.Dashboard}
-        onPress={() => this.props.navigation.navigate(Route.AddWallet)}
+        onPress={() => this.props.navigation.navigate(Route.CreateWallet)}
       />
     );
   }

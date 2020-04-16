@@ -150,7 +150,7 @@ export default class WalletsList extends Component {
       });
     } else {
       // if its out of index - this must be last card with incentive to create wallet
-      this.props.navigation.navigate('AddWallet');
+      this.props.navigation.navigate('CreateWallet');
     }
   }
 
@@ -281,7 +281,7 @@ export default class WalletsList extends Component {
           }>
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list.title}
-            onNewWalletPress={() => this.props.navigation.navigate('AddWallet')}
+            onNewWalletPress={() => this.props.navigation.navigate('CreateWallet')}
           />
           <WalletsCarousel
             removeClippedSubviews={false}
