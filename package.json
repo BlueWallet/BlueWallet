@@ -45,6 +45,7 @@
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || detox build -c android.emu.debug; detox test -c android.emu.debug",
     "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/",
     "lint:fix": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/ --fix",
+    "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs ./node_modules/.bin/eslint --fix; exit 0",
     "unit": "node node_modules/jest/bin/jest.js tests/unit/*"
   },
   "jest": {
@@ -79,6 +80,7 @@
     "dayjs": "1.8.23",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#2a5bb11dd9a8d89f328049d9ed59bce49d88a15d",
+    "electrum-mnemonic": "1.0.5",
     "eslint-config-prettier": "6.10.0",
     "eslint-config-standard": "12.0.0",
     "eslint-config-standard-react": "7.0.2",
@@ -90,6 +92,7 @@
     "lottie-react-native": "3.1.1",
     "node-libs-react-native": "1.0.3",
     "path-browserify": "1.0.0",
+    "pbkdf2": "3.0.17",
     "prettier": "1.19.1",
     "process": "0.11.10",
     "prop-types": "15.7.2",
