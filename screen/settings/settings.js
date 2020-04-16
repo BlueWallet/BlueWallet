@@ -1,5 +1,8 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import React, { Component, useEffect, useState } from 'react';
 import { ScrollView, View, Switch, TouchableOpacity } from 'react-native';
+import { useNavigation } from 'react-navigation-hooks';
+
 import {
   BlueText,
   BlueCard,
@@ -9,10 +12,8 @@ import {
   BlueHeaderDefaultSub,
   BlueListItem,
 } from '../../BlueComponents';
-import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../../class';
 import Biometric from '../../class/biometrics';
-import { useNavigation } from 'react-navigation-hooks';
 
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');

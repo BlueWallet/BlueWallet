@@ -1,4 +1,5 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
@@ -11,19 +12,19 @@ import {
   TouchableWithoutFeedback,
   Switch,
 } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
+import Biometric from '../../class/biometrics';
 import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 
+const BlueApp = require('../../BlueApp');
 const EV = require('../../events');
+const loc = require('../../loc');
 const prompt = require('../../prompt');
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 
 export default class WalletDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -127,13 +128,13 @@ export default class WalletDetails extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return (
+      return ((
         <View style={{ flex: 1 }}>
           <ActivityIndicator />
         </View>
-      );
+      ));
     }
-    return (
+    return ((
       <SafeBlueArea style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={{ flex: 1 }}>
@@ -299,7 +300,7 @@ export default class WalletDetails extends Component {
           </View>
         </TouchableWithoutFeedback>
       </SafeBlueArea>
-    );
+    ));
   }
 }
 

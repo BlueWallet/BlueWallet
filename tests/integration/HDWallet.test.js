@@ -1,16 +1,11 @@
 /* global it, jasmine, afterAll, beforeAll */
-import {
-  SegwitP2SHWallet,
-  SegwitBech32Wallet,
-  HDSegwitP2SHWallet,
-  HDLegacyBreadwalletWallet,
-  HDLegacyP2PKHWallet,
-} from '../../class';
+import { SegwitP2SHWallet, SegwitBech32Wallet, HDSegwitP2SHWallet, HDLegacyP2PKHWallet } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 
+const assert = require('assert');
 const bitcoin = require('bitcoinjs-lib');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
-const assert = require('assert');
+
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../BlueElectrum');
 // so it connects ASAP

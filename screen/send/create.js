@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   TextInput,
@@ -12,14 +13,15 @@ import {
   Text,
   View,
 } from 'react-native';
+
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
 const currency = require('../../currency');
+const loc = require('../../loc');
 
 export default class SendCreate extends Component {
   static navigationOptions = () => ({

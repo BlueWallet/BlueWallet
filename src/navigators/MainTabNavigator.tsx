@@ -1,12 +1,13 @@
 import React from 'react';
 import { createBottomTabNavigator } from 'react-navigation';
 
+import { images } from 'app/assets';
+import { BottomTabBarIcon, BottomTabBarComponent } from 'app/components';
+import { Route } from 'app/consts';
+import { palette } from 'app/styles';
+
 import MainBottomTabs from '../../MainBottomTabs';
 import { AddressBookNavigator } from './AddressBookNavigator';
-import { BottomTabBarIcon, BottomTabBarComponent } from 'components';
-import { images } from 'assets';
-import { palette } from 'styles';
-import { Route } from 'consts';
 
 export const MainTabNavigator = createBottomTabNavigator(
   {

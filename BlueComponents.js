@@ -1,8 +1,7 @@
 /* eslint react/prop-types: 0 */
-import React, { Component, useEffect, useState } from 'react';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { BlurView } from '@react-native-community/blur';
 import PropTypes from 'prop-types';
-import { Icon, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
+import React, { Component, useEffect, useState } from 'react';
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -21,24 +20,26 @@ import {
   Platform,
   TextInput,
 } from 'react-native';
+import { Icon, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
 import LinearGradient from 'react-native-linear-gradient';
-import Carousel from 'react-native-snap-carousel';
-import { BitcoinUnit } from './models/bitcoinUnits';
-import { NavigationService } from './src/services';
-import WalletGradient from './class/walletGradient';
-import ToolTip from 'react-native-tooltip';
-import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
-import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
-import Biometric from './class/biometrics';
+import Carousel from 'react-native-snap-carousel';
+import ToolTip from 'react-native-tooltip';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const loc = require('./loc/');
-/** @type {AppStorage} */
+import Biometric from './class/biometrics';
+import WalletGradient from './class/walletGradient';
+import { BitcoinUnit } from './models/bitcoinUnits';
+import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
+import { NavigationService } from './src/services';
+
+const BigNumber = require('bignumber.js');
+
 const BlueApp = require('./BlueApp');
+const loc = require('./loc/');
 
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
-const BigNumber = require('bignumber.js');
 
 let isIpad;
 if (aspectRatio > 1.6) {

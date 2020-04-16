@@ -1,9 +1,10 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, Image, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
-import Biometric from './class/biometrics';
-import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
+
+import Biometric from './class/biometrics';
 /** @type {AppStorage} */
 
 const BlueApp = require('./BlueApp');

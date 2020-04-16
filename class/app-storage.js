@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+
+import WatchConnectivity from '../WatchConnectivity';
 import {
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
@@ -9,7 +11,6 @@ import {
   SegwitBech32Wallet,
   HDSegwitBech32Wallet,
 } from './';
-import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quickActions';
 
 const encryption = require('../encryption');

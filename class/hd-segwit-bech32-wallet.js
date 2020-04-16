@@ -1,14 +1,16 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
-import { NativeModules } from 'react-native';
-import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
+import bip39 from 'bip39';
 import b58 from 'bs58check';
+import { NativeModules } from 'react-native';
 
-const bitcoin = require('bitcoinjs-lib');
-const BlueElectrum = require('../BlueElectrum');
+import { AbstractHDWallet } from './abstract-hd-wallet';
+
 const HDNode = require('bip32');
+const bitcoin = require('bitcoinjs-lib');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
+
+const BlueElectrum = require('../BlueElectrum');
 
 const { RNRandomBytes } = NativeModules;
 
@@ -32,7 +34,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     return true;
   }
 
-  allowSendMax(): boolean {
+  allowSendMax() {
     return true;
   }
 

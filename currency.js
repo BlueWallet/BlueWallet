@@ -1,17 +1,18 @@
-import Frisbee from "frisbee";
-import AsyncStorage from "@react-native-community/async-storage";
-import { AppStorage } from "./class";
-import { FiatUnit } from "./models/fiatUnit";
-import DefaultPreference from "react-native-default-preference";
-import DeviceQuickActions from "./class/quickActions";
+import AsyncStorage from '@react-native-community/async-storage';
+import Frisbee from 'frisbee';
+import DefaultPreference from 'react-native-default-preference';
 
-const BigNumber = require("bignumber.js");
+import { AppStorage } from './class';
+import DeviceQuickActions from './class/quickActions';
+import { FiatUnit } from './models/fiatUnit';
+
+const BigNumber = require('bignumber.js');
 
 let preferredFiatCurrency = FiatUnit.USD;
 const exchangeRates = {};
 
 const STRUCT = {
-  LAST_UPDATED: "LAST_UPDATED"
+  LAST_UPDATED: 'LAST_UPDATED',
 };
 
 /**
@@ -22,31 +23,17 @@ const STRUCT = {
  * @returns {Promise<void>}
  */
 async function setPrefferedCurrency(item) {
-  await AsyncStorage.setItem(
-    AppStorage.PREFERRED_CURRENCY,
-    JSON.stringify(item)
-  );
-  await DefaultPreference.setName("group.io.goldwallet.wallet");
-  await DefaultPreference.set("preferredCurrency", item.endPointKey);
-  await DefaultPreference.set(
-    "preferredCurrencyLocale",
-    item.locale.replace("-", "_")
-  );
+  await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(item));
+  await DefaultPreference.setName('group.io.goldwallet.wallet');
+  await DefaultPreference.set('preferredCurrency', item.endPointKey);
+  await DefaultPreference.set('preferredCurrencyLocale', item.locale.replace('-', '_'));
   DeviceQuickActions.setQuickActions();
 }
 
 async function getPreferredCurrency() {
-  const preferredCurrency = await JSON.parse(
-    await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY)
-  );
-  await DefaultPreference.set(
-    "preferredCurrency",
-    preferredCurrency.endPointKey
-  );
-  await DefaultPreference.set(
-    "preferredCurrencyLocale",
-    preferredCurrency.locale.replace("-", "_")
-  );
+  const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
+  await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
+  await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
   return preferredCurrency;
 }
 
@@ -57,20 +44,16 @@ async function updateExchangeRate() {
   }
 
   try {
-    preferredFiatCurrency = JSON.parse(
-      await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY)
-    );
+    preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
   } catch (_) {}
   preferredFiatCurrency = preferredFiatCurrency || FiatUnit.USD;
 
   let json;
   try {
     const api = new Frisbee({
-      baseURI: "https://api.coindesk.com"
+      baseURI: 'https://api.coindesk.com',
     });
-    const response = await api.get(
-      "/v1/bpi/currentprice/" + preferredFiatCurrency.endPointKey + ".json"
-    );
+    const response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
     json = JSON.parse(response.body);
     if (
       !json ||
@@ -78,29 +61,21 @@ async function updateExchangeRate() {
       !json.bpi[preferredFiatCurrency.endPointKey] ||
       !json.bpi[preferredFiatCurrency.endPointKey].rate_float
     ) {
-      throw new Error("Could not update currency rate: " + response.err);
+      throw new Error('Could not update currency rate: ' + response.err);
     }
   } catch (Err) {
     console.warn(Err);
-    const lastSavedExchangeRate = JSON.parse(
-      await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES)
-    );
-    exchangeRates["BTC_" + preferredFiatCurrency.endPointKey] =
-      lastSavedExchangeRate["BTC_" + preferredFiatCurrency.endPointKey] * 1;
+    const lastSavedExchangeRate = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
+    exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] =
+      lastSavedExchangeRate['BTC_' + preferredFiatCurrency.endPointKey] * 1;
     return;
   }
 
   exchangeRates[STRUCT.LAST_UPDATED] = +new Date();
-  exchangeRates["BTC_" + preferredFiatCurrency.endPointKey] =
+  exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] =
     json.bpi[preferredFiatCurrency.endPointKey].rate_float * 1;
-  await AsyncStorage.setItem(
-    AppStorage.EXCHANGE_RATES,
-    JSON.stringify(exchangeRates)
-  );
-  await AsyncStorage.setItem(
-    AppStorage.PREFERRED_CURRENCY,
-    JSON.stringify(preferredFiatCurrency)
-  );
+  await AsyncStorage.setItem(AppStorage.EXCHANGE_RATES, JSON.stringify(exchangeRates));
+  await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(preferredFiatCurrency));
   DeviceQuickActions.setQuickActions();
 }
 
@@ -116,15 +91,15 @@ async function startUpdater() {
 }
 
 function satoshiToLocalCurrency(satoshi) {
-  if (!exchangeRates["BTC_" + preferredFiatCurrency.endPointKey]) {
+  if (!exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]) {
     startUpdater();
-    return "...";
+    return '...';
   }
 
   let b = new BigNumber(satoshi);
   b = b
     .dividedBy(100000000)
-    .multipliedBy(exchangeRates["BTC_" + preferredFiatCurrency.endPointKey])
+    .multipliedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey])
     .toString(10);
   b = parseFloat(b).toFixed(2);
 
@@ -132,17 +107,17 @@ function satoshiToLocalCurrency(satoshi) {
 
   try {
     formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
-      style: "currency",
+      style: 'currency',
       currency: preferredFiatCurrency.endPointKey,
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     });
   } catch (error) {
     console.warn(error);
     console.log(error);
     formatter = new Intl.NumberFormat(FiatUnit.USD.locale, {
-      style: "currency",
+      style: 'currency',
       currency: preferredFiatCurrency.endPointKey,
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     });
   }
 

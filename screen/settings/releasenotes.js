@@ -1,7 +1,9 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
+
 import { BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+
 /** @type {AppStorage} */
 const notes = require('../../release-notes');
 

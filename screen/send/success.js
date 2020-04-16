@@ -1,10 +1,11 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { View } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import PropTypes from 'prop-types';
 
 const loc = require('../../loc');
 

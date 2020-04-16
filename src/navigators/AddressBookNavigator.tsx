@@ -1,7 +1,7 @@
 import { createStackNavigator } from 'react-navigation';
 
-import { AddressBookScreen } from 'screens';
-import { Route } from 'consts';
+import { Route } from 'app/consts';
+import { AddressBookScreen } from 'app/screens';
 
 export const AddressBookNavigator = createStackNavigator(
   {

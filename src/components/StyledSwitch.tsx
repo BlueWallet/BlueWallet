@@ -1,6 +1,7 @@
 import React from 'react';
 import { Switch } from 'react-native';
-import { palette } from 'styles';
+
+import { palette } from 'app/styles';
 
 interface Props {
   onValueChange?: (value: boolean) => void;

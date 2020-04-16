@@ -1,6 +1,6 @@
 import { createStackNavigator } from 'react-navigation';
 
-import { EditTextScreen } from 'screens/EditTextScreen';
+import { EditTextScreen } from 'app/screens/EditTextScreen';
 
 export const EditTextNavigator = createStackNavigator(
   {

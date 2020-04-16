@@ -1,11 +1,11 @@
 import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-import { Image } from './Image';
-import { images } from 'assets';
-import { typography, palette } from 'styles';
+import { images } from 'app/assets';
+import { en } from 'app/locale';
+import { typography, palette } from 'app/styles';
 
-import { en } from 'locale';
+import { Image } from './Image';
 import { StyledText } from './StyledText';
 
 enum ImageVariant {

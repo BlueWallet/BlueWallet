@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, GestureResponderEvent, StyleSheet } from 'react-native';
-import { palette, typography } from 'styles';
+
+import { palette, typography } from 'app/styles';
 
 interface Props {
   title: string;

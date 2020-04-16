@@ -1,31 +1,30 @@
 /* eslint-disable camelcase */
-const pbkdf2 = require("pbkdf2");
+const pbkdf2 = require('pbkdf2');
 
 const MAX_VALUE = 0x7fffffff;
 
 // N = Cpu cost, r = Memory cost, p = parallelization cost
 async function scrypt(key, salt, N, r, p, dkLen, progressCallback) {
-  if (N === 0 || (N & (N - 1)) !== 0)
-    throw Error("N must be > 0 and a power of 2");
+  if (N === 0 || (N & (N - 1)) !== 0) throw Error('N must be > 0 and a power of 2');
 
-  if (N > MAX_VALUE / 128 / r) throw Error("Parameter N is too large");
-  if (r > MAX_VALUE / 128 / p) throw Error("Parameter r is too large");
+  if (N > MAX_VALUE / 128 / r) throw Error('Parameter N is too large');
+  if (r > MAX_VALUE / 128 / p) throw Error('Parameter r is too large');
 
-  var XY = new Buffer(256 * r);
-  var V = new Buffer(128 * r * N);
-
-  // pseudo global
-  var B32 = new Int32Array(16); // salsa20_8
-  var x = new Int32Array(16); // salsa20_8
-  var _X = new Buffer(64); // blockmix_salsa8
+  const XY = new Buffer(256 * r);
+  const V = new Buffer(128 * r * N);
 
   // pseudo global
-  var B = pbkdf2.pbkdf2Sync(key, salt, 1, p * 128 * r, "sha256");
+  const B32 = new Int32Array(16); // salsa20_8
+  const x = new Int32Array(16); // salsa20_8
+  const _X = new Buffer(64); // blockmix_salsa8
 
-  var tickCallback;
+  // pseudo global
+  const B = pbkdf2.pbkdf2Sync(key, salt, 1, p * 128 * r, 'sha256');
+
+  let tickCallback;
   if (progressCallback) {
-    var totalOps = p * N * 2;
-    var currentOp = 0;
+    const totalOps = p * N * 2;
+    let currentOp = 0;
 
     tickCallback = function() {
       return new Promise(function(resolve, reject) {
@@ -36,7 +35,7 @@ async function scrypt(key, salt, N, r, p, dkLen, progressCallback) {
           progressCallback({
             current: currentOp,
             total: totalOps,
-            percent: (currentOp / totalOps) * 100.0
+            percent: (currentOp / totalOps) * 100.0,
           });
           setTimeout(resolve, 10);
         } else {
@@ -48,18 +47,18 @@ async function scrypt(key, salt, N, r, p, dkLen, progressCallback) {
 
   for (let i = 0; i < p; i++) {
     await smix(B, i * 128 * r, r, N, V, XY);
-    if (typeof shold_stop_bip38 !== "undefined") break;
+    if (typeof shold_stop_bip38 !== 'undefined') break;
   }
 
-  return pbkdf2.pbkdf2Sync(key, B, 1, dkLen, "sha256");
+  return pbkdf2.pbkdf2Sync(key, B, 1, dkLen, 'sha256');
 
   // all of these functions are actually moved to the top
   // due to function hoisting
 
   async function smix(B, Bi, r, N, V, XY) {
-    var Xi = 0;
-    var Yi = 128 * r;
-    var i;
+    const Xi = 0;
+    const Yi = 128 * r;
+    let i;
 
     B.copy(XY, Xi, Bi, Bi + Yi);
 
@@ -69,19 +68,19 @@ async function scrypt(key, salt, N, r, p, dkLen, progressCallback) {
 
       if (tickCallback) {
         await tickCallback();
-        if (typeof shold_stop_bip38 !== "undefined") break;
+        if (typeof shold_stop_bip38 !== 'undefined') break;
       }
     }
 
     for (i = 0; i < N; i++) {
-      var offset = Xi + (2 * r - 1) * 64;
-      var j = XY.readUInt32LE(offset) & (N - 1);
+      const offset = Xi + (2 * r - 1) * 64;
+      const j = XY.readUInt32LE(offset) & (N - 1);
       blockxor(V, j * Yi, XY, Xi, Yi);
       blockmix_salsa8(XY, Xi, Yi, r);
 
       if (tickCallback) {
         await tickCallback();
-        if (typeof shold_stop_bip38 !== "undefined") break;
+        if (typeof shold_stop_bip38 !== 'undefined') break;
       }
     }
 
@@ -89,7 +88,7 @@ async function scrypt(key, salt, N, r, p, dkLen, progressCallback) {
   }
 
   function blockmix_salsa8(BY, Bi, Yi, r) {
-    var i;
+    let i;
 
     arraycopy(BY, Bi + (2 * r - 1) * 64, _X, 0, 64);
 
@@ -113,7 +112,7 @@ async function scrypt(key, salt, N, r, p, dkLen, progressCallback) {
   }
 
   function salsa20_8(B) {
-    var i;
+    let i;
 
     for (i = 0; i < 16; i++) {
       B32[i] = (B[i * 4 + 0] & 0xff) << 0;
@@ -163,7 +162,7 @@ async function scrypt(key, salt, N, r, p, dkLen, progressCallback) {
     for (i = 0; i < 16; ++i) B32[i] = x[i] + B32[i];
 
     for (i = 0; i < 16; i++) {
-      var bi = i * 4;
+      const bi = i * 4;
       B[bi + 0] = (B32[i] >> 0) & 0xff;
       B[bi + 1] = (B32[i] >> 8) & 0xff;
       B[bi + 2] = (B32[i] >> 16) & 0xff;

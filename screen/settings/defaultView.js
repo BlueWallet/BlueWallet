@@ -1,7 +1,8 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { TouchableOpacity, View } from 'react-native';
+
 import { SafeBlueArea, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import OnAppLaunch from '../../class/onAppLaunch';
 
 const BlueApp = require('../../BlueApp');

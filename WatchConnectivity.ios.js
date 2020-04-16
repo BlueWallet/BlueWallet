@@ -1,7 +1,7 @@
-import * as Watch from "react-native-watch-connectivity";
-import { InteractionManager } from "react-native";
+import { InteractionManager } from 'react-native';
+import * as Watch from 'react-native-watch-connectivity';
 
-const loc = require("./loc");
+const loc = require('./loc');
 
 export default class WatchConnectivity {
   isAppInstalled = false;
@@ -19,25 +19,23 @@ export default class WatchConnectivity {
         WatchConnectivity.shared.isAppInstalled = isAppInstalled;
         Watch.subscribeToWatchState((err, watchState) => {
           if (!err) {
-            if (watchState === "Activated") {
+            if (watchState === 'Activated') {
               WatchConnectivity.shared.sendWalletsToWatch();
             }
           }
         });
         Watch.subscribeToMessages(async (err, message, reply) => {
           if (!err) {
-            if (message.request === "createInvoice") {
+            if (message.request === 'createInvoice') {
               const createInvoiceRequest = await this.handleLightningInvoiceCreateRequest(
                 message.walletIndex,
                 message.amount,
-                message.description
+                message.description,
               );
               reply({ invoicePaymentRequest: createInvoiceRequest });
-            } else if (message.message === "sendApplicationContext") {
-              await WatchConnectivity.shared.sendWalletsToWatch(
-                WatchConnectivity.shared.wallets
-              );
-            } else if (message.message === "fetchTransactions") {
+            } else if (message.message === 'sendApplicationContext') {
+              await WatchConnectivity.shared.sendWalletsToWatch(WatchConnectivity.shared.wallets);
+            } else if (message.message === 'fetchTransactions') {
               await WatchConnectivity.shared.fetchTransactionsFunction();
             }
           } else {
@@ -61,10 +59,7 @@ export default class WatchConnectivity {
   }
 
   async sendWalletsToWatch(allWallets) {
-    if (
-      allWallets === undefined &&
-      WatchConnectivity.shared.wallets !== undefined
-    ) {
+    if (allWallets === undefined && WatchConnectivity.shared.wallets !== undefined) {
       allWallets = WatchConnectivity.shared.wallets;
     }
     if (allWallets && allWallets.length === 0) {
@@ -76,7 +71,7 @@ export default class WatchConnectivity {
         const wallets = [];
 
         for (const wallet of allWallets) {
-          let receiveAddress = "";
+          let receiveAddress = '';
           if (wallet.allowReceive()) {
             if (wallet.getAddressAsync) {
               try {
@@ -93,92 +88,56 @@ export default class WatchConnectivity {
           const transactions = wallet.getTransactions(10);
           const watchTransactions = [];
           for (const transaction of transactions) {
-            let type = "pendingConfirmation";
-            let memo = "";
+            let type = 'pendingConfirmation';
+            let memo = '';
             let amount = 0;
 
-            if (
-              transaction.hasOwnProperty("confirmations") &&
-              !(transaction.confirmations > 0)
-            ) {
-              type = "pendingConfirmation";
-            } else if (
-              transaction.type === "user_invoice" ||
-              transaction.type === "payment_request"
-            ) {
+            if (transaction.hasOwnProperty('confirmations') && !(transaction.confirmations > 0)) {
+              type = 'pendingConfirmation';
+            } else if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
-              const invoiceExpiration =
-                transaction.timestamp + transaction.expire_time;
+              const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
               if (invoiceExpiration > now) {
-                type = "pendingConfirmation";
+                type = 'pendingConfirmation';
               } else if (invoiceExpiration < now) {
                 if (transaction.ispaid) {
-                  type = "received";
+                  type = 'received';
                 } else {
-                  type = "sent";
+                  type = 'sent';
                 }
               }
             } else if (transaction.value / 100000000 < 0) {
-              type = "sent";
+              type = 'sent';
             } else {
-              type = "received";
+              type = 'received';
             }
-            if (
-              transaction.type === "user_invoice" ||
-              transaction.type === "payment_request"
-            ) {
-              amount = isNaN(transaction.value) ? "0" : amount;
+            if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
+              amount = isNaN(transaction.value) ? '0' : amount;
               const currentDate = new Date();
               const now = (currentDate.getTime() / 1000) | 0;
-              const invoiceExpiration =
-                transaction.timestamp + transaction.expire_time;
+              const invoiceExpiration = transaction.timestamp + transaction.expire_time;
 
               if (invoiceExpiration > now) {
-                amount = loc
-                  .formatBalance(
-                    transaction.value,
-                    wallet.getPreferredBalanceUnit(),
-                    true
-                  )
-                  .toString();
+                amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
               } else if (invoiceExpiration < now) {
                 if (transaction.ispaid) {
-                  amount = loc
-                    .formatBalance(
-                      transaction.value,
-                      wallet.getPreferredBalanceUnit(),
-                      true
-                    )
-                    .toString();
+                  amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
                 } else {
                   amount = loc.lnd.expired;
                 }
               } else {
-                amount = loc
-                  .formatBalance(
-                    transaction.value,
-                    wallet.getPreferredBalanceUnit(),
-                    true
-                  )
-                  .toString();
+                amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
               }
             } else {
-              amount = loc
-                .formatBalance(
-                  transaction.value,
-                  wallet.getPreferredBalanceUnit(),
-                  true
-                )
-                .toString();
+              amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
             }
             if (
               WatchConnectivity.shared.tx_metadata[transaction.hash] &&
-              WatchConnectivity.shared.tx_metadata[transaction.hash]["memo"]
+              WatchConnectivity.shared.tx_metadata[transaction.hash]['memo']
             ) {
-              memo =
-                WatchConnectivity.shared.tx_metadata[transaction.hash]["memo"];
+              memo = WatchConnectivity.shared.tx_metadata[transaction.hash]['memo'];
             } else if (transaction.memo) {
               memo = transaction.memo;
             }
@@ -186,26 +145,22 @@ export default class WatchConnectivity {
               type,
               amount,
               memo,
-              time: loc.transactionTimeToReadable(transaction.received)
+              time: loc.transactionTimeToReadable(transaction.received),
             };
             watchTransactions.push(watchTX);
           }
           wallets.push({
             label: wallet.getLabel(),
-            balance: loc.formatBalance(
-              Number(wallet.getBalance()),
-              wallet.getPreferredBalanceUnit(),
-              true
-            ),
+            balance: loc.formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             type: wallet.type,
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
             receiveAddress: receiveAddress,
-            transactions: watchTransactions
+            transactions: watchTransactions,
           });
         }
         Watch.updateApplicationContext({
           wallets,
-          randomID: Math.floor(Math.random() * 11)
+          randomID: Math.floor(Math.random() * 11),
         });
         return { wallets };
       }

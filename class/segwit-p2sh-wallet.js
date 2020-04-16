@@ -1,8 +1,9 @@
 import { LegacyWallet } from './legacy-wallet';
 
-const bitcoin = require('bitcoinjs-lib');
-const signer = require('../models/signer');
 const BigNumber = require('bignumber.js');
+const bitcoin = require('bitcoinjs-lib');
+
+const signer = require('../models/signer');
 
 /**
  * Creates Segwit P2SH Bitcoin address

@@ -1,6 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
 
 const bip39 = require('bip39');
+
 const BlueElectrum = require('../BlueElectrum');
 
 export class AbstractHDWallet extends LegacyWallet {

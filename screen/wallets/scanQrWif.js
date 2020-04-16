@@ -1,8 +1,11 @@
 /* global alert */
+import bip21 from 'bip21';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
-import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import { RNCamera } from 'react-native-camera';
+
+import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
 import {
   SegwitP2SHWallet,
   LegacyWallet,
@@ -10,16 +13,16 @@ import {
   HDLegacyP2PKHWallet,
   HDSegwitBech32Wallet,
 } from '../../class';
-import PropTypes from 'prop-types';
 import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
-import bip21 from 'bip21';
+
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
-const EV = require('../../events');
-const bip38 = require('../../bip38');
 const wif = require('wif');
-const prompt = require('../../prompt');
+
+const BlueApp = require('../../BlueApp');
+const bip38 = require('../../bip38');
+const EV = require('../../events');
 const loc = require('../../loc');
+const prompt = require('../../prompt');
 
 export default class ScanQrWif extends React.Component {
   static navigationOptions = {

@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
-import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import React, { Component } from 'react';
 import { WebView } from 'react-native-webview';
+
+import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');

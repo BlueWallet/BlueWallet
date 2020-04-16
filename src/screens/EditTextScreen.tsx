@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Header, InputItem } from 'components';
-import { Button } from 'components/Button';
-import { useNavigationParam } from 'react-navigation-hooks';
 import { NavigationScreenProps } from 'react-navigation';
+import { useNavigationParam } from 'react-navigation-hooks';
+
+import { Header, InputItem, Button } from 'app/components';
 
 export interface EditTextProps {
   title: string;

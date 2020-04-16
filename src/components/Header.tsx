@@ -1,12 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-
-import { GradientView } from './GradientView';
-import { getStatusBarHeight, palette, typography } from 'styles';
-import { Image } from './Image';
-import { images } from 'assets';
 import { NavigationScreenProps } from 'react-navigation';
+
+import { images } from 'app/assets';
+import { getStatusBarHeight, palette, typography } from 'app/styles';
+
 import { FlatButton } from './FlatButton';
+import { GradientView } from './GradientView';
+import { Image } from './Image';
 
 interface Props extends Partial<NavigationScreenProps> {
   title: string;

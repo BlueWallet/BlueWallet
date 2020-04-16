@@ -1,6 +1,8 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ScrollView } from 'react-native';
+
 import {
   BlueLoading,
   BlueButton,
@@ -10,12 +12,12 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
 } from '../BlueComponents';
-import PropTypes from 'prop-types';
+
 /** @type {AppStorage} */
 const BlueApp = require('../BlueApp');
-const prompt = require('../prompt');
 const EV = require('../events');
 const loc = require('../loc');
+const prompt = require('../prompt');
 
 export default class PlausibleDeniability extends Component {
   static navigationOptions = {

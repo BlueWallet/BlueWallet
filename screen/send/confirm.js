@@ -1,21 +1,24 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-elements';
-import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
-import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet } from '../../class';
 
-const loc = require('../../loc');
-const EV = require('../../events');
-const currency = require('../../currency');
-const BlueElectrum = require('../../BlueElectrum');
+import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
+import { HDSegwitBech32Wallet } from '../../class';
+import Biometric from '../../class/biometrics';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
+
 const Bignumber = require('bignumber.js');
-/** @type {AppStorage} */
+
 const BlueApp = require('../../BlueApp');
+const BlueElectrum = require('../../BlueElectrum');
+const currency = require('../../currency');
+const EV = require('../../events');
+const loc = require('../../loc');
+
+/** @type {AppStorage} */
 
 export default class Confirm extends Component {
   static navigationOptions = () => ({
@@ -98,7 +101,7 @@ export default class Confirm extends Component {
   }
 
   _renderItem = ({ index, item }) => {
-    return (
+    return ((
       <>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <Text
@@ -138,11 +141,11 @@ export default class Confirm extends Component {
           </BlueText>
         )}
       </>
-    );
+    ));
   };
 
   renderSeparator = () => {
-    return (
+    return ((
       <View
         style={{
           backgroundColor: BlueApp.settings.inputBorderColor,
@@ -150,11 +153,11 @@ export default class Confirm extends Component {
           margin: 16,
         }}
       />
-    );
+    ));
   };
 
   render() {
-    return (
+    return ((
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
         <View
           style={{
@@ -230,7 +233,7 @@ export default class Confirm extends Component {
           </View>
         </View>
       </SafeBlueArea>
-    );
+    ));
   }
 }
 

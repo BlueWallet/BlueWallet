@@ -1,5 +1,12 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, FlatList, InteractionManager, RefreshControl, ScrollView } from 'react-native';
+import { Icon } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { NavigationEvents } from 'react-navigation';
+
+import { ListEmptyState } from 'app/components';
+
 import {
   BlueLoading,
   SafeBlueArea,
@@ -8,17 +15,12 @@ import {
   BlueHeaderDefaultMain,
   BlueTransactionListItem,
 } from '../../BlueComponents';
-import { Icon } from 'react-native-elements';
-import { NavigationEvents } from 'react-navigation';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import PropTypes from 'prop-types';
-import { ListEmptyState } from 'components';
 
-const EV = require('../../events');
-/** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
+/** @type {AppStorage} */
 const BlueElectrum = require('../../BlueElectrum');
+const EV = require('../../events');
+const loc = require('../../loc');
 
 export default class WalletsList extends Component {
   // static navigationOptions = ({ navigation }) => ({

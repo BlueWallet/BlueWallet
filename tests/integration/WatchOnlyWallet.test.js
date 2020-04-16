@@ -2,6 +2,7 @@
 import { WatchOnlyWallet } from '../../class';
 
 const assert = require('assert');
+
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
@@ -27,7 +28,7 @@ describe('Watch only wallet', () => {
 
   it('can fetch tx', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
 
     w.setSecret('RAvAthYyPGVEUMWRHBwod63XSKYcx6aF28');
     await w.fetchTransactions();

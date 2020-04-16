@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, TextInput as BaseTextInput, View, Text, Animated } from 'react-native';
 
-import { palette, typography, fonts } from 'styles';
+import { palette, typography, fonts } from 'app/styles';
 
 interface Props {
   label: string;

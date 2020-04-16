@@ -1,8 +1,10 @@
 /** @type {AppStorage}  */
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { TextInput, View, ActivtyIndicator } from 'react-native';
 import { FormValidationMessage } from 'react-native-elements';
+
 import {
   BlueLoading,
   BlueSpacing20,
@@ -13,10 +15,10 @@ import {
   BlueSpacing,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 
-const bitcoinjs = require('bitcoinjs-lib');
 const BigNumber = require('bignumber.js');
+const bitcoinjs = require('bitcoinjs-lib');
+
 const BlueApp = require('../../BlueApp');
 
 export default class SendCreate extends Component {

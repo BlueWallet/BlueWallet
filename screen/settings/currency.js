@@ -1,12 +1,13 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FlatList, TouchableOpacity, ActivityIndicator, View } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
+
+import { SafeBlueArea, BlueNavigationStyle, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
 import { FiatUnit } from '../../models/fiatUnit';
 
-const loc = require('../../loc');
 const currency = require('../../currency');
+const loc = require('../../loc');
 
 export default class Currency extends Component {
   static navigationOptions = () => ({

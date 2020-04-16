@@ -1,8 +1,10 @@
 import React from 'react';
-import { BottomTabBar } from 'react-navigation-tabs';
 import { StyleSheet } from 'react-native';
+// @ts-ignore
+import { BottomTabBar } from 'react-navigation-tabs';
 
-import { palette } from 'styles';
+import { palette } from 'app/styles';
+
 import { GradientView } from './GradientView';
 
 export const BottomTabBarComponent = (props: any) => {

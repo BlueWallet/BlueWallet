@@ -1,7 +1,10 @@
+import bip21 from 'bip21';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, InteractionManager, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import bip21 from 'bip21';
+import Share from 'react-native-share';
+
 import {
   BlueLoading,
   SafeBlueArea,
@@ -11,10 +14,9 @@ import {
   BlueNavigationStyle,
   is,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
-import Share from 'react-native-share';
 import { Chain } from '../../models/bitcoinUnits';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');

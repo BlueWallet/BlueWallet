@@ -1,13 +1,15 @@
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-import React from 'react';
 import './shim.js';
-import { AppRegistry, StatusBar } from 'react-native';
-import WalletMigrate from './screen/wallets/walletMigrate';
-import { name as appName } from './app.json';
-import App from './App';
+
 import LottieView from 'lottie-react-native';
+import React from 'react';
+import { AppRegistry, StatusBar } from 'react-native';
+
+import App from './App';
 import UnlockWith from './UnlockWith.js';
+import { name as appName } from './app.json';
+import WalletMigrate from './screen/wallets/walletMigrate';
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging

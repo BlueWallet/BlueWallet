@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+
+import { NavigationService } from 'app/services';
+
 import { InputItem } from './InputItem';
-import { NavigationService } from 'services';
 
 interface Props {
   label: string;

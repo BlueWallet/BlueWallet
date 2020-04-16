@@ -1,14 +1,9 @@
 /* global alert */
-import {
-  SegwitP2SHWallet,
-  LegacyWallet,
-  WatchOnlyWallet,
-  HDSegwitP2SHWallet,
-  HDLegacyP2PKHWallet,
-  HDSegwitBech32Wallet,
-} from '../../class';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { KeyboardAvoidingView, Platform, Dimensions, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -20,13 +15,19 @@ import {
   BlueSpacing20,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
+import {
+  SegwitP2SHWallet,
+  LegacyWallet,
+  WatchOnlyWallet,
+  HDSegwitP2SHWallet,
+  HDLegacyP2PKHWallet,
+  HDSegwitBech32Wallet,
+} from '../../class';
 
-let EV = require('../../events');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
+const EV = require('../../events');
 const loc = require('../../loc');
 
 const { width } = Dimensions.get('window');

@@ -1,13 +1,13 @@
-import { AbstractWallet } from './abstract-wallet';
-import { useBlockcypherTokens } from './constants';
 import { NativeModules } from 'react-native';
 
-const bitcoin = require('bitcoinjs-lib');
+import { AbstractWallet } from './abstract-wallet';
 
 const { RNRandomBytes } = NativeModules;
 const BigNumber = require('bignumber.js');
-const signer = require('../models/signer');
+const bitcoin = require('bitcoinjs-lib');
+
 const BlueElectrum = require('../BlueElectrum');
+const signer = require('../models/signer');
 
 /**
  *  Has private key and single address like "1ABCD....."

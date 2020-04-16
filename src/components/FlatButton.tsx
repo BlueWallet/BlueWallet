@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Button, ButtonProps } from 'react-native-elements';
-import { palette, typography } from 'styles';
+
+import { palette, typography } from 'app/styles';
 
 export enum ButtonType {
   Standard,

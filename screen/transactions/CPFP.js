@@ -1,6 +1,10 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, Clipboard } from 'react-native';
+import { Icon, Text } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueSpacing20,
   BlueReplaceFeeSuggestions,
@@ -11,16 +15,14 @@ import {
   BlueSpacing,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import { Icon, Text } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-/** @type {AppStorage} */
-const EV = require('../../events');
-const BlueElectrum = require('../../BlueElectrum');
-const loc = require('../../loc');
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
+const BlueElectrum = require('../../BlueElectrum');
+const EV = require('../../events');
+const loc = require('../../loc');
+/** @type {AppStorage} */
 
 export default class CPFP extends Component {
   static navigationOptions = () => ({
@@ -130,11 +132,11 @@ export default class CPFP extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return (
+      return ((
         <View style={{ flex: 1, paddingTop: 20 }}>
           <ActivityIndicator />
         </View>
-      );
+      ));
     }
 
     if (this.state.stage === 3) {
@@ -146,7 +148,7 @@ export default class CPFP extends Component {
     }
 
     if (this.state.nonReplaceable) {
-      return (
+      return ((
         <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -156,7 +158,7 @@ export default class CPFP extends Component {
 
           <BlueText h4>This transaction is not bumpable</BlueText>
         </SafeBlueArea>
-      );
+      ));
     }
 
     return this.renderStage1(
@@ -166,7 +168,7 @@ export default class CPFP extends Component {
   }
 
   renderStage2() {
-    return (
+    return ((
       <View style={{ flex: 1, paddingTop: 20 }}>
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
@@ -216,11 +218,11 @@ export default class CPFP extends Component {
           <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
         </BlueCard>
       </View>
-    );
+    ));
   }
 
   renderStage3() {
-    return (
+    return ((
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View
@@ -254,11 +256,11 @@ export default class CPFP extends Component {
           />
         </BlueCard>
       </SafeBlueArea>
-    );
+    ));
   }
 
   renderStage1(text) {
-    return (
+    return ((
       <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
         <BlueSpacing />
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
@@ -276,7 +278,7 @@ export default class CPFP extends Component {
           />
         </BlueCard>
       </SafeBlueArea>
-    );
+    ));
   }
 }
 

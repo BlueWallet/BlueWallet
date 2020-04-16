@@ -1,11 +1,12 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Image, TouchableOpacity, Platform } from 'react-native';
-import PropTypes from 'prop-types';
 import { RNCamera } from 'react-native-camera';
-import { SafeBlueArea } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
+
+import { SafeBlueArea } from '../../BlueComponents';
 
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 

@@ -1,4 +1,5 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
@@ -10,8 +11,11 @@ import {
   Clipboard,
   Linking,
 } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import { RNCamera } from 'react-native-camera';
 import { Icon, Text } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import QRCode from 'react-native-qrcode-svg';
+
 import {
   BlueButton,
   BlueText,
@@ -21,16 +25,14 @@ import {
   BlueSpacing20,
   BlueCopyToClipboardButton,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { RNCamera } from 'react-native-camera';
 
-const loc = require('../../loc');
-const EV = require('../../events');
-const BlueElectrum = require('../../BlueElectrum');
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
+
+const BlueApp = require('../../BlueApp');
+const BlueElectrum = require('../../BlueElectrum');
+const EV = require('../../events');
+const loc = require('../../loc');
+/** @type {AppStorage} */
 
 const { height, width } = Dimensions.get('window');
 

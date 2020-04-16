@@ -1,6 +1,8 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Dimensions, ActivityIndicator, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+
 import {
   BlueSpacing20,
   SafeBlueArea,
@@ -8,9 +10,9 @@ import {
   BlueNavigationStyle,
   BlueCopyTextToClipboard,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');

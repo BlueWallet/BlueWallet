@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-community/async-storage';
+import * as Sentry from '@sentry/react-native';
 import React from 'react';
 import {
   Linking,
@@ -9,21 +11,20 @@ import {
   Platform,
   View,
 } from 'react-native';
-import { createAppContainer, NavigationActions } from 'react-navigation';
-import AsyncStorage from '@react-native-community/async-storage';
-import Modal from 'react-native-modal';
-
-import MainBottomTabs from './MainBottomTabs';
-import { RootNavigator } from 'navigators';
-import { NavigationService } from './src/services';
-import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import url from 'url';
-import { AppStorage } from './class';
-import { Chain } from './models/bitcoinUnits';
+import Modal from 'react-native-modal';
 import QuickActions from 'react-native-quick-actions';
-import * as Sentry from '@sentry/react-native';
+import { createAppContainer, NavigationActions } from 'react-navigation';
+import url from 'url';
+
+import { RootNavigator } from 'app/navigators';
+
+import { BlueTextCentered, BlueButton } from './BlueComponents';
+import MainBottomTabs from './MainBottomTabs';
+import { AppStorage } from './class';
 import OnAppLaunch from './class/onAppLaunch';
+import { Chain } from './models/bitcoinUnits';
+import { NavigationService } from './src/services';
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -34,9 +35,9 @@ if (process.env.NODE_ENV !== 'development') {
 const bitcoin = require('bitcoinjs-lib');
 
 const bitcoinModalString = 'Bitcoin address';
+const BlueApp = require('./BlueApp');
 const loc = require('./loc');
 /** @type {AppStorage} */
-const BlueApp = require('./BlueApp');
 
 const AppContainer = createAppContainer(RootNavigator);
 

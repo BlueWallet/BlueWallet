@@ -1,15 +1,16 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, ActivityIndicator, Image, Text } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
-import SortableList from 'react-native-sortable-list';
-import LinearGradient from 'react-native-linear-gradient';
-import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import LinearGradient from 'react-native-linear-gradient';
+import SortableList from 'react-native-sortable-list';
+
+import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
 
+const BlueApp = require('../../BlueApp');
 const EV = require('../../events');
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 const loc = require('../../loc/');
 
 export default class ReorderWallets extends Component {

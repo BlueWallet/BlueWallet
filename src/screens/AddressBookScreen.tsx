@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 
-import { ListEmptyState } from 'components';
+import { ListEmptyState } from 'app/components';
 
 export class AddressBookScreen extends PureComponent {
   render() {

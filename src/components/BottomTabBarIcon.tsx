@@ -1,6 +1,7 @@
 import React from 'react';
-import { Image, FastImageSource } from './Image';
 import { StyleSheet } from 'react-native';
+
+import { Image, FastImageSource } from './Image';
 
 export interface BottomTabBarIconProps {
   source: FastImageSource;

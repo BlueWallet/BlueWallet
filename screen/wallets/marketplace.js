@@ -1,8 +1,9 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { BackHandler } from 'react-native';
 import { WebView } from 'react-native-webview';
+
 import { BlueLoading, BlueNavigationStyle } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 
 export default class Marketplace extends Component {
   static navigationOptions = ({ navigation }) => ({

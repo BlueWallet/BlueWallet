@@ -1,4 +1,7 @@
 /* global alert */
+import AsyncStorage from '@react-native-community/async-storage';
+import Slider from '@react-native-community/slider';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +20,9 @@ import {
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import AsyncStorage from '@react-native-community/async-storage';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import Modal from 'react-native-modal';
+
 import {
   BlueCreateTxNavigationStyle,
   BlueButton,
@@ -29,19 +34,15 @@ import {
   BlueListItem,
   BlueText,
 } from '../../BlueComponents';
-import Slider from '@react-native-community/slider';
-import PropTypes from 'prop-types';
-import Modal from 'react-native-modal';
-import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnlyWallet } from '../../class';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 
-const bitcoin = require('bitcoinjs-lib');
-const bip21 = require('bip21');
 const BigNumber = require('bignumber.js');
+const bip21 = require('bip21');
+const bitcoin = require('bitcoinjs-lib');
 
 const { width } = Dimensions.get('window');
 /** @type {AppStorage} */

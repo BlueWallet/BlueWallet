@@ -1,6 +1,6 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { Chain } from '../../models/bitcoinUnits';
 import {
   Text,
   Platform,
@@ -17,8 +17,11 @@ import {
   Linking,
   KeyboardAvoidingView,
 } from 'react-native';
-import PropTypes from 'prop-types';
+import { Icon } from 'react-native-elements';
+import Handoff from 'react-native-handoff';
+import Modal from 'react-native-modal';
 import { NavigationEvents } from 'react-navigation';
+
 import {
   BlueSendButtonIcon,
   BlueListItem,
@@ -27,15 +30,14 @@ import {
   BlueWalletNavigationHeader,
 } from '../../BlueComponents';
 import WalletGradient from '../../class/walletGradient';
-import { Icon } from 'react-native-elements';
-import Handoff from 'react-native-handoff';
-import Modal from 'react-native-modal';
+import { Chain } from '../../models/bitcoinUnits';
 import { NavigationService } from '../../src/services';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const loc = require('../../loc');
-const EV = require('../../events');
 const BlueElectrum = require('../../BlueElectrum');
+const EV = require('../../events');
+const loc = require('../../loc');
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation }) => {

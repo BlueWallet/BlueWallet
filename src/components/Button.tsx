@@ -1,7 +1,9 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Button as ElementsButton, ButtonProps } from 'react-native-elements';
-import { palette, typography } from 'styles';
+
+import { palette, typography } from 'app/styles';
+
 import { LinearGradient } from './Gradient';
 import { Image, FastImageSource } from './Image';
 

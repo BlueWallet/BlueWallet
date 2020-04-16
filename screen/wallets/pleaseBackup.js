@@ -1,10 +1,11 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ActivityIndicator, View, BackHandler, Text } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import { Badge } from 'react-native-elements';
-import PropTypes from 'prop-types';
-import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
+
+import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
+import Privacy from '../../Privacy';
 
 const loc = require('../../loc');
 

@@ -1,8 +1,8 @@
 // import { LegacyWallet } from './legacy-wallet';
-import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
-import { WatchOnlyWallet } from './watch-only-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
+import { WatchOnlyWallet } from './watch-only-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#FFD700', '#8E7B00'];

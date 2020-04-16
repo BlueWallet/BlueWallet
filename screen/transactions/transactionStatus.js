@@ -1,5 +1,9 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { Icon } from 'react-native-elements';
+import Handoff from 'react-native-handoff';
+
 import {
   BlueButton,
   SafeBlueArea,
@@ -12,11 +16,9 @@ import {
   BlueSpacing20,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
-import { Icon } from 'react-native-elements';
-import Handoff from 'react-native-handoff';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');

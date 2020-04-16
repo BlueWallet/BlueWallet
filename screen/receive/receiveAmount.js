@@ -1,7 +1,9 @@
+import bip21 from 'bip21';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, Share, TextInput, KeyboardAvoidingView, Dimensions, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import bip21 from 'bip21';
+
 import {
   SafeBlueArea,
   BlueCard,
@@ -11,8 +13,8 @@ import {
   BlueText,
   BlueCopyTextToClipboard,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');

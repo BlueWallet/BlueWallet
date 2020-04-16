@@ -1,5 +1,7 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ActivityIndicator, View, TextInput } from 'react-native';
+
 import {
   BlueSpacing20,
   BlueButton,
@@ -9,8 +11,8 @@ import {
   BlueSpacing,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { SegwitBech32Wallet } from '../../class';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 

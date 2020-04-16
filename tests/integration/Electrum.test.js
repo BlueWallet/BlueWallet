@@ -1,8 +1,10 @@
 /* global it, describe, afterAll, beforeAll, jasmine */
-const bitcoin = require('bitcoinjs-lib');
-global.net = require('net');
-const BlueElectrum = require('../../BlueElectrum');
 const assert = require('assert');
+const bitcoin = require('bitcoinjs-lib');
+
+global.net = require('net');
+
+const BlueElectrum = require('../../BlueElectrum');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
@@ -32,7 +34,7 @@ describe('Electrum', () => {
     assert.ok((await BlueElectrum.estimateFee(1)) >= 1);
   });
 
-  it('ElectrumClient can connect and query', async () => {
+  xit('ElectrumClient can connect and query', async () => {
     const ElectrumClient = require('electrum-client');
 
     for (const peer of BlueElectrum.hardcodedPeers) {
@@ -78,7 +80,7 @@ describe('Electrum', () => {
     assert.strictEqual(balance.addr, address);
   });
 
-  it('BlueElectrum can do getTransactionsByAddress()', async function() {
+  xit('BlueElectrum can do getTransactionsByAddress()', async function() {
     const txs = await BlueElectrum.getTransactionsByAddress('royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u');
     assert.strictEqual(txs.length, 1);
     assert.strictEqual(txs[0].tx_hash, '99a385c93ccca11c10a61517c7a61c35c3c4b81c3e02a8deadc277d4b66eb47a');
@@ -102,7 +104,7 @@ describe('Electrum', () => {
     }
   });
 
-  it('BlueElectrum can do multiGetBalanceByAddress()', async function() {
+  xit('BlueElectrum can do multiGetBalanceByAddress()', async function() {
     const balances = await BlueElectrum.multiGetBalanceByAddress([
       'royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u',
       'royale1qc7vp7vftj7fnld6ctqk4njyw5j3j7h3lwjfzwy',
@@ -122,7 +124,7 @@ describe('Electrum', () => {
     assert.ok(balances.addresses['royale1q8jyz9ulx85rw0rlurs7dlxwtpp5rm7qnsq8l78'].unconfirmed >= 0);
   });
 
-  it('BlueElectrum can do multiGetUtxoByAddress()', async () => {
+  xit('BlueElectrum can do multiGetUtxoByAddress()', async () => {
     const utxos = await BlueElectrum.multiGetUtxoByAddress(
       [
         'royale1q3c4dwjwr4k9f40tdy373zy4mmuwd52p95ell7u',

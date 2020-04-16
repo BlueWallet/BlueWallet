@@ -7,3 +7,5 @@ export { InputItem } from './InputItem';
 export { TextAreaItem } from './TextAreaItem';
 export { Button } from './Button';
 export { FlatButton } from './FlatButton';
+// @ts-ignore
+export { Image, FastImageSource } from './Image';

@@ -1,4 +1,6 @@
 /* global alert */
+import AsyncStorage from '@react-native-community/async-storage';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   Alert,
@@ -11,7 +13,9 @@ import {
   View,
   TextInput,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueTextCentered,
   BlueText,
@@ -25,15 +29,12 @@ import {
   BlueSpacing20,
   BlueSpacing10,
 } from '../../BlueComponents';
-import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button';
-import PropTypes from 'prop-types';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 import { AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
 
-let EV = require('../../events');
-/** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
+const EV = require('../../events');
+/** @type {AppStorage} */
 const loc = require('../../loc');
 
 export default class WalletsAdd extends Component {

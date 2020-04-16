@@ -1,8 +1,9 @@
 import { createStackNavigator } from 'react-navigation';
 
-import { MainTabNavigator } from './MainTabNavigator';
-import { MessageScreen } from 'screens';
+import { MessageScreen } from 'app/screens';
+
 import { EditTextNavigator } from './EditTextNavigator';
+import { MainTabNavigator } from './MainTabNavigator';
 
 export const RootNavigator = createStackNavigator(
   {

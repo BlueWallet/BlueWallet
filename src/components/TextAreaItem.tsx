@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { StyleSheet, TextInput as BaseTextInput, StyleProp, ViewStyle } from 'react-native';
 
-import { palette, typography } from 'styles';
+import { palette, typography } from 'app/styles';
 
 interface Props {
   style?: StyleProp<ViewStyle>;

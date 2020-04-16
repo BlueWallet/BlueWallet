@@ -1,14 +1,16 @@
-import { AbstractHDWallet } from './abstract-hd-wallet';
+import BigNumber from 'bignumber.js';
+import bip39 from 'bip39';
+import b58 from 'bs58check';
 import Frisbee from 'frisbee';
 import { NativeModules } from 'react-native';
-import bip39 from 'bip39';
-import BigNumber from 'bignumber.js';
-import b58 from 'bs58check';
-import signer from '../models/signer';
-import { BitcoinUnit } from '../models/bitcoinUnits';
 
-const bitcoin = require('bitcoinjs-lib');
+import { BitcoinUnit } from '../models/bitcoinUnits';
+import signer from '../models/signer';
+import { AbstractHDWallet } from './abstract-hd-wallet';
+
 const HDNode = require('bip32');
+const bitcoin = require('bitcoinjs-lib');
+
 const BlueElectrum = require('../BlueElectrum');
 
 const { RNRandomBytes } = NativeModules;

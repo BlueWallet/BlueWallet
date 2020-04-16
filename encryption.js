@@ -1,4 +1,4 @@
-const CryptoJS = require("crypto-js");
+const CryptoJS = require('crypto-js');
 
 module.exports.encrypt = function(data, password) {
   const ciphertext = CryptoJS.AES.encrypt(data, password);

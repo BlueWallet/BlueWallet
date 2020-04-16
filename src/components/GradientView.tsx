@@ -1,8 +1,9 @@
-import { LinearGradient } from './Gradient';
 import React, { PureComponent, ReactChild } from 'react';
 import { ViewStyle } from 'react-native';
 
-import { gradients } from 'styles';
+import { gradients } from 'app/styles';
+
+import { LinearGradient } from './Gradient';
 
 export enum GradientVariant {
   Primary = 'Primary',

@@ -16,10 +16,14 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "baseUrl": "./src",
+    "skipLibCheck": true,
+    "paths": {
+      "app/*": ["./*"]
+    }
   },
   "exclude": [
     "node_modules",
     "babel.config.js",
     "jest.config.js"
-  ],
+  ]
 }

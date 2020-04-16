@@ -1,5 +1,5 @@
-import QuickActions from 'react-native-quick-actions';
 import { Platform } from 'react-native';
+import QuickActions from 'react-native-quick-actions';
 
 export default class DeviceQuickActions {
   static shared = new DeviceQuickActions();

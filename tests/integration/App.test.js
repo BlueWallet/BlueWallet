@@ -1,10 +1,11 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
-import { LegacyWallet, SegwitP2SHWallet } from '../../class';
 import TestRenderer from 'react-test-renderer';
-import Settings from '../../screen/settings/settings';
-import Selftest from '../../screen/selftest';
+
 import { BlueHeader } from '../../BlueComponents';
+import { LegacyWallet, SegwitP2SHWallet } from '../../class';
+import Selftest from '../../screen/selftest';
+import Settings from '../../screen/settings/settings';
 
 global.net = require('net');
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
@@ -101,7 +102,7 @@ it('Wallet can fetch balance', async () => {
 
 it('Wallet can fetch UTXO', async () => {
   jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
-  let w = new LegacyWallet();
+  const w = new LegacyWallet();
   w._address = 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba';
   assert.strictEqual(w.getAddress(), 'YWw3NfAvYyZfMgzqooG4b4NYUzBdAToYba');
   await w.fetchUtxo();

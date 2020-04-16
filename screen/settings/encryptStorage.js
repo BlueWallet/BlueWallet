@@ -1,7 +1,9 @@
 /* global alert */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View } from 'react-native';
 import { FormValidationMessage } from 'react-native-elements';
+
 import {
   BlueLoading,
   BlueSpacing20,
@@ -11,11 +13,11 @@ import {
   BlueText,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
-const prompt = require('../../prompt');
 const loc = require('../../loc');
+const prompt = require('../../prompt');
 
 export default class EncryptStorage extends Component {
   static navigationOptions = () => ({

@@ -1,5 +1,9 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { ScrollView, Linking, Dimensions } from 'react-native';
+import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
+import Rate, { AndroidMarket } from 'react-native-rate';
+
 import {
   BlueTextCentered,
   BlueLoading,
@@ -7,16 +11,11 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueText,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
-import Rate, { AndroidMarket } from 'react-native-rate';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 
 const { width, height } = Dimensions.get('window');
+const BlueApp = require('../../BlueApp');
 const loc = require('../../loc/');
 
 export default class About extends Component {

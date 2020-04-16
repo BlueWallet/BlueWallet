@@ -1,5 +1,7 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+
 import {
   SafeBlueArea,
   BlueCard,
@@ -10,11 +12,12 @@ import {
   BlueCopyToClipboardButton,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+
 /** @type {AppStorage} */
+const dayjs = require('dayjs');
+
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
-const dayjs = require('dayjs');
 
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;

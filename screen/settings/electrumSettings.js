@@ -1,8 +1,9 @@
 /* global alert */
+import AsyncStorage from '@react-native-community/async-storage';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { View, TextInput } from 'react-native';
-import { AppStorage } from '../../class';
-import AsyncStorage from '@react-native-community/async-storage';
+
 import {
   BlueLoading,
   BlueSpacing20,
@@ -12,10 +13,10 @@ import {
   BlueNavigationStyle,
   BlueText,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import { AppStorage } from '../../class';
 
-const loc = require('../../loc');
 const BlueElectrum = require('../../BlueElectrum');
+const loc = require('../../loc');
 
 export default class ElectrumSettings extends Component {
   static navigationOptions = () => ({

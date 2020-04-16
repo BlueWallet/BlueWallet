@@ -1,9 +1,9 @@
-import { BitcoinUnit } from './bitcoinUnits';
 import BigNumber from 'bignumber.js';
 
-const loc = require('../loc');
+import { BitcoinUnit } from './bitcoinUnits';
 
 const BlueElectrum = require('../BlueElectrum');
+const loc = require('../loc');
 
 export const NetworkTransactionFeeType = Object.freeze({
   FAST: 'Fast',

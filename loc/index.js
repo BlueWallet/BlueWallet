@@ -1,12 +1,14 @@
-import Localization from 'react-localization';
 import AsyncStorage from '@react-native-community/async-storage';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import Localization from 'react-localization';
+
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
-import relativeTime from 'dayjs/plugin/relativeTime';
 
-const dayjs = require('dayjs');
-const currency = require('../currency');
 const BigNumber = require('bignumber.js');
+const dayjs = require('dayjs');
+
+const currency = require('../currency');
 
 let strings;
 dayjs.extend(relativeTime);

@@ -1,6 +1,6 @@
 /* global describe, it */
-const bitcoinjs = require('bitcoinjs-lib');
 const assert = require('assert');
+const bitcoinjs = require('bitcoinjs-lib');
 
 describe('unit - signer', function() {
   describe('createSegwitTransaction()', function() {

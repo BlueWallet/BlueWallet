@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { palette, typography } from 'styles';
+
+import { palette, typography } from 'app/styles';
+
 import { Image, FastImageSource } from './Image';
 import { StyledSwitch } from './StyledSwitch';
 

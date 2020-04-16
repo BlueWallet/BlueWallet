@@ -1,5 +1,6 @@
 /* global describe, it */
 const assert = require('assert');
+
 const c = require('../../encryption');
 
 describe('unit - encryption', function() {
