@@ -235,4 +235,19 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(totalInput - totalOutput, fee);
     assert.strictEqual(outputs[outputs.length - 1].address, changeAddress);
   });
+
+  it('wasEverUsed() works', async () => {
+    if (!process.env.HD_MNEMONIC) {
+      console.error('process.env.HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC);
+    assert.ok(await hd.wasEverUsed());
+
+    hd = new HDSegwitBech32Wallet();
+    await hd.generate();
+    assert.ok(!(await hd.wasEverUsed()), hd.getSecret());
+  });
 });
