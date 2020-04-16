@@ -3,6 +3,9 @@ export const en = {
     noWallets: 'No wallets',
     noWalletsDesc1: 'No wallets to show. ',
     noWalletsDesc2: ' to add your first wallet.',
+    send: 'Send coins',
+    receive: 'Receive coins',
+    noTransactions: 'No transactions to show.',
   },
   addressBook: {
     noContacts: 'No contacts',
@@ -12,5 +15,9 @@ export const en = {
   walletModal: {
     btcv: 'BTCV',
     wallets: 'Wallets',
+  },
+  wallet: {
+    none: 'None',
+    latest: 'Latest transaction',
   },
 };

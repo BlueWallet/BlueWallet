@@ -257,14 +257,14 @@ export default class WalletsList extends Component {
     if (this.state.isLoading) {
       return <BlueLoading />;
     }
-    if (wallets[0] === false) {
-      return (
-        <ListEmptyState
-          variant={ListEmptyState.Variant.Dashboard}
-          onPress={() => this.props.navigation.navigate('AddWallet')}
-        />
-      );
-    }
+    // if (wallets[0] === false) {
+    //   return (
+    //     <ListEmptyState
+    //       variant={ListEmptyState.Variant.Dashboard}
+    //       onPress={() => this.props.navigation.navigate('AddWallet')}
+    //     />
+    //   );
+    // }
     return (
       <SafeBlueArea style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <NavigationEvents

@@ -9,3 +9,5 @@ export { Button } from './Button';
 export { FlatButton } from './FlatButton';
 // @ts-ignore
 export { Image, FastImageSource } from './Image';
+export { StyledText } from './StyledText';
+export * from './Gradient';

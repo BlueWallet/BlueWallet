@@ -33,6 +33,11 @@ export const typography = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0,
   },
+  headline7: {
+    fontFamily: fonts.ubuntu.medium,
+    fontSize: 16,
+    letterSpacing: 0,
+  },
   subtitle1: {
     fontFamily: fonts.ubuntu.light,
     fontSize: 16,
@@ -41,6 +46,11 @@ export const typography = StyleSheet.create({
   subtitle2: {
     fontFamily: fonts.ubuntu.bold,
     fontSize: 10,
+    letterSpacing: 0,
+  },
+  subtitle3: {
+    fontFamily: fonts.ubuntu.medium,
+    fontSize: 12,
     letterSpacing: 0,
   },
   body: {

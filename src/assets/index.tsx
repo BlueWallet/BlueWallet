@@ -10,4 +10,14 @@ export const images = {
   addressBookNoContacts: require('./images/addressBookNoContacts.png'),
   backArrow: require('./images/navigationBarBackArrow.png'),
   successBadge: require('./images/groupCopy2.png'),
+  yellowMinus: require('./images/yellowMinus.png'),
+  yellowPlus: require('./images/yellowPlus.png'),
+  coin: require('./images/coin.png'),
+  noTransactions: require('./images/bvWalletIconNoTransactions.png'),
+  coinLogoInCircle: require('./images/coinLogoInCircle.png'),
+};
+
+export const icons = {
+  iconDropdown: require('./images/iconDropdown.png'),
+  addIcon: require('./images/addIcon.png'),
 };

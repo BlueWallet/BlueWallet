@@ -40,3 +40,4 @@ EV.enum = {
 };
 
 module.exports = EV;
+export default EV;

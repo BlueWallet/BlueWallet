@@ -71,3 +71,4 @@ BlueApp.startAndDecrypt = startAndDecrypt;
 currency.startUpdater();
 
 module.exports = BlueApp;
+export default BlueApp;

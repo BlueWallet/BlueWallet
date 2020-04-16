@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 
-import { images } from 'app/assets';
+import { images, icons } from 'app/assets';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
 
 import { FlatButton } from './FlatButton';
@@ -13,9 +13,10 @@ interface Props extends Partial<NavigationScreenProps> {
   title: string;
   isBackArrow?: boolean;
   isCancelButton?: boolean;
+  addFunction?: () => void;
 }
 
-export const Header = ({ title, isBackArrow, isCancelButton, navigation }: Props) => {
+export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunction }: Props) => {
   const onLeftItemPress = () => navigation!.pop();
   const renderBackArrow = () => <Image style={styles.image} source={images.backArrow} />;
   const renderCancelButton = () => (
@@ -40,6 +41,11 @@ export const Header = ({ title, isBackArrow, isCancelButton, navigation }: Props
       <>
         {renderLeftItem()}
         <Text style={styles.title}>{title}</Text>
+        {!!addFunction && (
+          <TouchableOpacity style={styles.rightElement} onPress={addFunction}>
+            <Image source={icons.addIcon} style={styles.addIcon} />
+          </TouchableOpacity>
+        )}
       </>
     </GradientView>
   );
@@ -70,5 +76,15 @@ const styles = StyleSheet.create({
   image: {
     width: 8,
     height: 13,
+  },
+  addIcon: {
+    height: 12,
+    width: 12,
+  },
+  rightElement: {
+    position: 'absolute',
+    padding: 8,
+    right: 11,
+    top: getStatusBarHeight() + 9,
   },
 });
