@@ -75,7 +75,6 @@ export default class WalletsAdd extends Component {
   onSelect(index, value) {
     this.setState({
       selectedIndex: index,
-      selectedValue: value,
     });
   }
 

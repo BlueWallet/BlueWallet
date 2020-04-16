@@ -4,6 +4,8 @@ export enum Route {
   AddressBook = 'AddressBook',
   Settings = 'Settings',
   AddWallet = 'AddWallet',
+  CreateWallet = 'CreateWallet',
+  ImportWallet = 'ImportWallet',
 }
 
 export interface Wallet {

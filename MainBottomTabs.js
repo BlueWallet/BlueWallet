@@ -30,7 +30,6 @@ import rbfBumpFee from './screen/transactions/RBFBumpFee';
 import rbfCancel from './screen/transactions/RBFCancel';
 import details from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
-import AddWallet from './screen/wallets/add';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
@@ -171,29 +170,11 @@ const CreateTransactionStackNavigator = createStackNavigator({
   },
 });
 
-const CreateWalletStackNavigator = createStackNavigator({
-  AddWallet: {
-    screen: AddWallet,
-  },
-  ImportWallet: {
-    screen: ImportWallet,
-  },
-  PleaseBackup: {
-    screen: PleaseBackup,
-  },
-});
-
 const MainBottomTabs = createStackNavigator(
   {
     Wallets: {
       screen: WalletsStackNavigator,
       path: 'wallets',
-    },
-    AddWallet: {
-      screen: CreateWalletStackNavigator,
-      // navigationOptions: {
-      //   header: null,
-      // },
     },
     ScanQrWif: {
       screen: scanQrWif,

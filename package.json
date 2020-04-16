@@ -49,7 +49,8 @@
     "lint-src": "eslint screen/** class/** models/** loc/** tests/**",
     "lint-src:fix": "yarn lint-src -- --fix --quiet",
     "unit": "./node_modules/.bin/mocha tests/unit/*",
-    "typescript:check": "tsc --noEmit"
+    "typescript:check": "tsc --noEmit",
+    "precommit": "yarn lint-staged"
   },
   "jest": {
     "preset": "react-native",
@@ -165,8 +166,10 @@
   },
   "lint-staged": {
     "./**/*.{ts,tsx,js,jsx}": [
-      "yarn test",
       "yarn lint-src:fix"
+    ],
+    "./**/*.{ts|tsx}": [
+      "yarn typescript:check"
     ]
   },
   "husky": {

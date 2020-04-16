@@ -13,3 +13,6 @@ export { StyledText } from './StyledText';
 export * from './Gradient';
 // @ts-ignore
 export { WalletItemProps, WalletItem } from './WalletItem';
+export { ScreenTemplate } from './ScreenTemplate';
+export { Text } from './Text';
+export { RadioGroup, RadioButton } from './RadioButtons';

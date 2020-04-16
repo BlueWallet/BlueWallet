@@ -4,11 +4,11 @@ import { createStackNavigator, NavigationSceneRendererProps } from 'react-naviga
 import { MessageScreen, ActionSheet } from 'app/screens';
 
 import { EditTextNavigator } from './EditTextNavigator';
-import { MainTabNavigator } from './MainTabNavigator';
+import { MainCardStackNavigator } from './MainCardStackNavigator';
 
 export const RootNavigator = createStackNavigator(
   {
-    MainTabNavigator,
+    MainCardStackNavigator,
     Message: MessageScreen,
     ActionSheet: ActionSheet,
     EditTextNavigator,
