@@ -218,16 +218,7 @@ export default class WalletTransactions extends Component {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
-          {/*
-            So the idea here, due to Apple banning native Lapp marketplace, is:
-            On Android everythins works as it worked before. Single "Marketplace" button that leads to LappBrowser that
-            opens /marketplace/ url of offchain wallet type, and /marketplace-btc/ for onchain.
-            On iOS its more complicated - we have one button that opens same page _externally_ (in Safari), and second
-            button that opens actual LappBrowser but with _blank_ page. This is important to not trigger Apple.
-            Blank page is also the way Trust Wallet does it with Dapp Browser.
-
-            For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
-           */}
+          {this.state.wallet.getBalance() > 0 && this.renderSellFiat()}
           {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
@@ -370,6 +361,38 @@ export default class WalletTransactions extends Component {
         }}
       >
         <Text style={{ color: '#062453', fontSize: 18 }}>LApp Browser</Text>
+      </TouchableOpacity>
+    );
+  };
+  renderSellFiat = () => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          this.props.navigation.navigate('BuyBitcoin', {
+            address: this.state.wallet.getAddress(),
+            secret: this.state.wallet.getSecret(),
+          })
+        }
+        style={{
+          marginLeft: 5,
+          backgroundColor: '#f2f2f2',
+          borderRadius: 9,
+          minHeight: 49,
+          flex: 1,
+          paddingHorizontal: 8,
+          justifyContent: 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}
+      >
+        <Text
+          style={{
+            color: '#062453',
+            fontSize: 18,
+          }}
+        >
+          {loc.wallets.list.tap_here_to_buy}
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -583,47 +606,62 @@ export default class WalletTransactions extends Component {
             }}
             ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
-              <ScrollView style={{ minHeight: 100 }} contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16 }}>
+              <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 40 }}
+              >
                 <Text
                   numberOfLines={0}
                   style={{
                     fontSize: 18,
                     color: '#9aa0aa',
                     textAlign: 'center',
+                    marginVertical: 16,
                   }}
                 >
                   {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
                 </Text>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: '#9aa0aa',
-                    textAlign: 'center',
-                  }}
-                >
-                  {(this.isLightning() && loc.wallets.list.empty_txs2_lightning) || loc.wallets.list.empty_txs2}
-                </Text>
-
-                <Text />
-                <Text />
-
-                {!this.isLightning() && (
+                {this.isLightning() && (
                   <Text
                     style={{
                       fontSize: 18,
                       color: '#9aa0aa',
                       textAlign: 'center',
-                      textDecorationLine: 'underline',
+                      fontWeight: '600',
                     }}
+                  >
+                    {loc.wallets.list.empty_txs2_lightning}
+                  </Text>
+                )}
+
+                {!this.isLightning() && (
+                  <TouchableOpacity
                     onPress={() =>
                       this.props.navigation.navigate('BuyBitcoin', {
                         address: this.state.wallet.getAddress(),
                         secret: this.state.wallet.getSecret(),
                       })
                     }
+                    style={{
+                      backgroundColor: '#007AFF',
+                      minWidth: 260,
+                      borderRadius: 8,
+                      alignSelf: 'center',
+                      paddingVertical: 14,
+                      paddingHorizontal: 32,
+                    }}
                   >
-                    {loc.wallets.list.tap_here_to_buy}
-                  </Text>
+                    <Text
+                      style={{
+                        fontSize: 15,
+                        color: '#fff',
+                        textAlign: 'center',
+                        fontWeight: '600',
+                      }}
+                    >
+                      {loc.wallets.list.tap_here_to_buy}
+                    </Text>
+                  </TouchableOpacity>
                 )}
               </ScrollView>
             }
