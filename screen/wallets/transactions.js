@@ -230,7 +230,6 @@ export default class WalletTransactions extends Component {
            */}
           {this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
-          {this.state.wallet.allowHodlHodlTrading() && this.renderHodlHodlButton()}
         </View>
         <Text
           style={{
@@ -380,29 +379,6 @@ export default class WalletTransactions extends Component {
         }}
       >
         <Text style={{ color: '#062453', fontSize: 18 }}>LApp Browser</Text>
-      </TouchableOpacity>
-    );
-  };
-
-  renderHodlHodlButton = () => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          this.props.navigation.navigate('HodlHodl', { fromWallet: this.state.wallet });
-        }}
-        style={{
-          marginLeft: 5,
-          backgroundColor: '#f2f2f2',
-          borderRadius: 9,
-          minHeight: 49,
-          flex: 1,
-          paddingHorizontal: 8,
-          justifyContent: 'center',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
-      >
-        <Text style={{ color: '#062453', fontSize: 18 }}>local trader</Text>
       </TouchableOpacity>
     );
   };

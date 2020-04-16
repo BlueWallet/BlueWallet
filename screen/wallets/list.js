@@ -344,7 +344,7 @@ export default class WalletsList extends Component {
             justifyContent: 'space-between',
             alignItems: 'center',
             marginHorizontal: 16,
-            marginVertical: 8,
+            marginBottom: 16,
             backgroundColor: '#eef0f4',
             padding: 16,
             borderRadius: 6,
