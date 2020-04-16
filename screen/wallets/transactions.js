@@ -228,7 +228,7 @@ export default class WalletTransactions extends Component {
 
             For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
            */}
-          {this.renderMarketplaceButton()}
+          {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
         <Text
@@ -307,11 +307,7 @@ export default class WalletTransactions extends Component {
       android: (
         <TouchableOpacity
           onPress={() => {
-            if (this.state.wallet.type === LightningCustodianWallet.type) {
-              this.props.navigation.navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
-            } else {
-              this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
-            }
+            this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
           }}
           style={{
             backgroundColor: '#f2f2f2',
@@ -331,12 +327,7 @@ export default class WalletTransactions extends Component {
         this.state.wallet.getBalance() > 0 ? (
           <TouchableOpacity
             onPress={async () => {
-              if (this.state.wallet.type === LightningCustodianWallet.type) {
-                Linking.openURL('https://bluewallet.io/marketplace/');
-              } else {
-                let address = await this.state.wallet.getAddressAsync();
-                Linking.openURL('https://bluewallet.io/marketplace-btc/?address=' + address);
-              }
+              Linking.openURL('https://bluewallet.io/marketplace/');
             }}
             style={{
               backgroundColor: '#f2f2f2',
