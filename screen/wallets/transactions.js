@@ -289,6 +289,19 @@ export default class WalletTransactions extends Component {
             />
 
             <BlueListItem
+              hideChevron
+              component={TouchableOpacity}
+              onPress={a => {
+                this.setState({ isManageFundsModalVisible: false }, async () => {
+                  this.props.navigation.navigate('BuyBitcoin', {
+                    wallet: this.state.wallet,
+                  });
+                });
+              }}
+              title={'Refill with bank card'}
+            />
+
+            <BlueListItem
               title={loc.lnd.withdraw}
               hideChevron
               component={TouchableOpacity}
@@ -650,8 +663,7 @@ export default class WalletTransactions extends Component {
                     }}
                     onPress={() =>
                       this.props.navigation.navigate('BuyBitcoin', {
-                        address: this.state.wallet.getAddress(),
-                        secret: this.state.wallet.getSecret(),
+                        wallet: this.state.wallet,
                       })
                     }
                   >

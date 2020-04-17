@@ -253,8 +253,7 @@ export default class WalletDetails extends Component {
                       }}
                       onPress={() =>
                         this.props.navigation.navigate('BuyBitcoin', {
-                          address: this.state.wallet.getAddress(),
-                          secret: this.state.wallet.getSecret(),
+                          wallet: this.state.wallet,
                         })
                       }
                       title={loc.wallets.details.buy_bitcoin}
