@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 
 import { images, icons } from 'app/assets';
@@ -9,7 +9,10 @@ import { FlatButton } from './FlatButton';
 import { GradientView } from './GradientView';
 import { Image } from './Image';
 
-const HEADER_HEIGHT = 38;
+const HEADER_HEIGHT = Platform.select({
+  ios: 44,
+  android: 38,
+}) as number;
 
 interface Props extends Partial<NavigationScreenProps> {
   title: string;
