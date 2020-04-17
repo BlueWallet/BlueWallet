@@ -35,7 +35,9 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   getAddress() {
-    return this.secret;
+    if (this.isAddressValid(this.secret)) return this.secret; // handling case when there is an XPUB there
+    if (this._hdWalletInstance) throw new Error('Should not be used in watch-only HD wallets');
+    throw new Error('Not initialized');
   }
 
   createTx(utxos, amount, fee, toAddress, memo) {
@@ -119,6 +121,11 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error('Not initialized');
   }
 
+  getNextFreeAddressIndex() {
+    if (this._hdWalletInstance) return this._hdWalletInstance.next_free_address_index;
+    throw new Error('Not initialized');
+  }
+
   async getChangeAddressAsync() {
     if (this._hdWalletInstance) return this._hdWalletInstance.getChangeAddressAsync();
     throw new Error('Not initialized');
@@ -181,6 +188,15 @@ export class WatchOnlyWallet extends LegacyWallet {
 
   isHd() {
     return this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub');
+  }
+
+  weOwnAddress(address) {
+    if (this.isHd()) {
+      if (this._hdWalletInstance) return this._hdWalletInstance.weOwnAddress(address);
+      throw new Error('Not initialized');
+    }
+
+    return this.getAddress() === address;
   }
 
   allowHodlHodlTrading() {

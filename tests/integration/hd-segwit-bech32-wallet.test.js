@@ -49,6 +49,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(await hd.getAddressAsync(), hd._getExternalAddressByIndex(2));
     assert.strictEqual(await hd.getChangeAddressAsync(), hd._getInternalAddressByIndex(2));
     assert.strictEqual(hd.next_free_address_index, 2);
+    assert.strictEqual(hd.getNextFreeAddressIndex(), 2);
     assert.strictEqual(hd.next_free_change_address_index, 2);
 
     // now fetch txs
@@ -81,6 +82,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(await hd.getAddressAsync(), hd._getExternalAddressByIndex(2));
     assert.strictEqual(await hd.getChangeAddressAsync(), hd._getInternalAddressByIndex(2));
     assert.strictEqual(hd.next_free_address_index, 2);
+    assert.strictEqual(hd.getNextFreeAddressIndex(), 2);
     assert.strictEqual(hd.next_free_change_address_index, 2);
   });
 
@@ -153,6 +155,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     assert.ok(hd.next_free_change_address_index > 0);
     assert.ok(hd.next_free_address_index > 0);
+    assert.ok(hd.getNextFreeAddressIndex() > 0);
 
     start = +new Date();
     await hd.fetchTransactions();

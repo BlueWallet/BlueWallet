@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
 
 export default class BuyBitcoin extends Component {
@@ -15,47 +15,54 @@ export default class BuyBitcoin extends Component {
 
   constructor(props) {
     super(props);
-    let address = props.navigation.state.params.address;
-    let secret = props.navigation.state.params.secret;
+    let wallet = props.navigation.state.params.wallet;
 
     this.state = {
       isLoading: true,
-      address: address,
-      secret: secret,
-      addressText: '',
+      wallet,
+      address: '',
     };
   }
 
   async componentDidMount() {
     console.log('buyBitcoin - componentDidMount');
 
-    /**  @type {AbstractWallet}   */
-    let wallet;
-    let address = this.state.address;
-    for (let w of BlueApp.getWallets()) {
-      if ((address && w.getAddress() === this.state.address) || w.getSecret() === this.state.secret) {
-        // found our wallet
-        wallet = w;
-      }
-    }
+    /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */
+    let wallet = this.state.wallet;
 
-    if (wallet && wallet.getAddressAsync) {
-      setTimeout(async () => {
-        address = await wallet.getAddressAsync();
-        BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
-        this.setState({
-          address: address,
-          addressText: address,
-          isLoading: false,
-        });
-      }, 1);
-    } else {
+    let address = '';
+
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      address = wallet.getAddress();
       this.setState({
         isLoading: false,
         address,
-        addressText: address,
       });
+      return;
     }
+
+    // otherwise, lets call widely-used getAddressAsync()
+
+    try {
+      address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(2000)]);
+    } catch (_) {}
+
+    if (!address) {
+      // either sleep expired or getAddressAsync threw an exception
+      if (LightningCustodianWallet.type === wallet.type) {
+        // not much we can do, lets hope refill address was cached previously
+        address = wallet.getAddress() || '';
+      } else {
+        // plain hd wallet (either HD or watchonly-wrapped). trying next free address
+        address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
+      }
+    }
+
+    this.setState({
+      isLoading: false,
+      address,
+    });
   }
 
   render() {
@@ -86,8 +93,7 @@ BuyBitcoin.propTypes = {
     goBack: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        address: PropTypes.string,
-        secret: PropTypes.string,
+        wallet: PropTypes.object,
         safelloStateToken: PropTypes.string,
       }),
     }),
