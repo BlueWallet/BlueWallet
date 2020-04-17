@@ -68,7 +68,7 @@ export default WalletDetailsScreen;
 
 const styles = StyleSheet.create({
   showWalletXPUBContainer: {
-    marginTop: 16,
+    marginTop: 20,
   },
   deleteWalletButtonContainer: {
     marginTop: 12,
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     marginTop: 32,
   },
   typeContainer: {
-    marginTop: 16,
+    marginTop: 4,
   },
   typeLabel: {
     color: palette.textGrey,

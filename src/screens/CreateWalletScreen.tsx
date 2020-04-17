@@ -162,14 +162,15 @@ export default CreateWalletScreen;
 
 const styles = StyleSheet.create({
   subtitle: {
-    marginTop: 36,
-    marginBottom: 16,
+    marginTop: 12,
+    marginBottom: 18,
     ...typography.headline4,
     textAlign: 'center',
   },
   description: {
-    marginBottom: 40,
+    marginBottom: 52,
     color: palette.textGrey,
+    ...typography.caption,
     textAlign: 'center',
   },
   advancedOptionsLabel: {
