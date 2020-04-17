@@ -42,6 +42,13 @@ module.exports = {
       multipleAddresses: 'Multiple addresses',
       singleAddress: 'Single address',
     },
+    addSuccess: {
+      title: 'Add new wallet',
+      subtitle: 'Success',
+      description:
+        'Your wallet has been created. Please take a moment to write down this mnemonic phrase on a piece of paper. It’s your backup. You can use it to restore the wallet on other devices.',
+      okButton: 'OK, I wrote this down!',
+    },
     details: {
       latestTransaction: 'Latest transaction',
       typeLabel: 'Type',

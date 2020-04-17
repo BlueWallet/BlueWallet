@@ -9,25 +9,31 @@ import { AppStorage, HDSegwitBech32Wallet, HDSegwitP2SHWallet, SegwitP2SHWallet,
 import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
+import CreateWalletSuccessScreen from './CreateWalletSuccessScreen';
+
 type Props = NavigationInjectedProps;
 
 interface State {
   label: string;
   isLoading: boolean;
+  isSuccess: boolean;
   activeBitcoin: boolean;
   isAdvancedOptionsEnabled: boolean;
   walletBaseURI: string;
   selectedIndex: number;
+  secret: string[];
 }
 
 export class CreateWalletScreen extends React.PureComponent<Props, State> {
   state: State = {
     label: '',
     isLoading: false,
+    isSuccess: false,
     activeBitcoin: false,
     isAdvancedOptionsEnabled: false,
     walletBaseURI: '',
     selectedIndex: 0,
+    secret: [],
   };
 
   static navigationOptions = (props: NavigationScreenProps) => ({
@@ -81,13 +87,9 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       BlueApp.wallets.push(wallet);
       await BlueApp.saveToDisk();
       EV(EV.enum.WALLETS_COUNT_CHANGED);
-      this.props.navigation.goBack();
-      // if (wallet.type === HDSegwitP2SHWallet.type || wallet.type === HDSegwitBech32Wallet.type) {
-      //   this.props.navigation.navigate('PleaseBackup', {
-      //     secret: wallet.getSecret(),
-      //   });
-      // }
+      this.setState({ isSuccess: true, secret: wallet.getSecret().split(' ') });
     }
+    this.setState({ isLoading: false });
   };
 
   get canCreateWallet(): boolean {
@@ -132,6 +134,9 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
   }
 
   render() {
+    if (this.state.isSuccess) {
+      return <CreateWalletSuccessScreen secret={this.state.secret} navigation={this.props.navigation} />;
+    }
     return (
       <ScreenTemplate
         footer={

@@ -18,3 +18,4 @@ export { Text } from './Text';
 export { RadioGroup, RadioButton } from './RadioButtons';
 export { WalletCard } from './WalletCard';
 export { GenericInputItem } from './GenericInputItem';
+export { Chip } from './Chip';
