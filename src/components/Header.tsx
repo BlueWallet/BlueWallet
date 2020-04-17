@@ -9,6 +9,8 @@ import { FlatButton } from './FlatButton';
 import { GradientView } from './GradientView';
 import { Image } from './Image';
 
+const HEADER_HEIGHT = 38;
+
 interface Props extends Partial<NavigationScreenProps> {
   title: string;
   isBackArrow?: boolean;
@@ -53,10 +55,11 @@ export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunc
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: getStatusBarHeight() + 11,
-    paddingBottom: 11,
+    paddingTop: getStatusBarHeight(),
+    height: HEADER_HEIGHT + getStatusBarHeight(),
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     width: '100%',
   },
   title: {
@@ -65,8 +68,12 @@ const styles = StyleSheet.create({
   },
   backArrowContainer: {
     position: 'absolute',
-    bottom: 14,
-    left: 28,
+    height: HEADER_HEIGHT,
+    width: HEADER_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: getStatusBarHeight(),
+    left: 10,
   },
   cancelButtonContainer: {
     position: 'absolute',
@@ -83,8 +90,11 @@ const styles = StyleSheet.create({
   },
   rightElement: {
     position: 'absolute',
-    padding: 8,
-    right: 11,
-    top: getStatusBarHeight() + 9,
+    height: HEADER_HEIGHT,
+    width: HEADER_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    right: 10,
+    top: getStatusBarHeight(),
   },
 });
