@@ -80,7 +80,7 @@
     "dayjs": "1.8.23",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#2a5bb11dd9a8d89f328049d9ed59bce49d88a15d",
-    "electrum-mnemonic": "1.0.5",
+    "electrum-mnemonic": "1.0.7",
     "eslint-config-prettier": "6.10.0",
     "eslint-config-standard": "12.0.0",
     "eslint-config-standard-react": "7.0.2",
