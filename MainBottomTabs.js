@@ -31,12 +31,8 @@ import rbfCancel from './screen/transactions/RBFCancel';
 import details from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
-import WalletDetails from './screen/wallets/details';
 import WalletExport from './screen/wallets/export';
-import ImportWallet from './screen/wallets/import';
-import WalletsList from './screen/wallets/list';
 import Marketplace from './screen/wallets/marketplace';
-import PleaseBackup from './screen/wallets/pleaseBackup';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import scanQrWif from './screen/wallets/scanQrWif';
 import SelectWallet from './screen/wallets/selectWallet';
@@ -69,9 +65,6 @@ const WalletsStackNavigator = createStackNavigator({
   },
   TransactionDetails: {
     screen: details,
-  },
-  WalletDetails: {
-    screen: WalletDetails,
   },
   RBF: {
     screen: rbf,

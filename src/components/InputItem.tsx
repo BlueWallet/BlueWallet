@@ -11,6 +11,7 @@ interface Props {
   onFocus?: () => void;
   autoFocus?: boolean;
   setValue?: (value: string) => void;
+  focused?: boolean;
 }
 
 interface State {
@@ -20,11 +21,14 @@ interface State {
 }
 
 export class InputItem extends Component<Props, State> {
-  state = {
-    isActive: false,
-    isAnimatedFocused: new Animated.Value(0),
-    value: this.props.value || '',
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isActive: false,
+      isAnimatedFocused: new Animated.Value(props.focused ? 1 : 0),
+      value: this.props.value || '',
+    };
+  }
 
   onFocus = () => {
     const { onFocus } = this.props;

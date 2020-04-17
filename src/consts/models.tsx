@@ -17,4 +17,5 @@ export interface Wallet {
   getLabel: () => string;
   address: string;
   secret: string;
+  typeReadable: string;
 }

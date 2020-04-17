@@ -23,5 +23,5 @@ export const GenericInputItem = (props: Props) => {
       onSave: handleValueSave,
     });
 
-  return <InputItem value={value} onFocus={onFocus} label={label} />;
+  return <InputItem focused value={value} onFocus={onFocus} label={label} />;
 };

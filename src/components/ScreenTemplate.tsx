@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
     paddingHorizontal: 20,
+    paddingTop: 24,
   },
   footer: {
     paddingHorizontal: 20,

@@ -344,7 +344,7 @@ export class AppStorage {
    * To access transactions - get them from each respective wallet.
    * If index is present then fetch only from this specific wallet.
    *
-   * @param index {Integer} Index of the wallet in this.wallets array,
+   * @param index {Integer=} Index of the wallet in this.wallets array,
    *                        blank to fetch from all wallets
    * @return {Promise.<void>}
    */

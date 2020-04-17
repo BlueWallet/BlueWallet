@@ -2,6 +2,8 @@
 import React, { Component } from 'react';
 import { List } from 'react-native-elements';
 
+import { BlueApp } from 'app/legacy';
+
 export class BlueList extends Component {
   render() {
     return (
