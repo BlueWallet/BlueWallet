@@ -26,7 +26,6 @@ import Handoff from 'react-native-handoff';
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
-
 export default class ReceiveDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
