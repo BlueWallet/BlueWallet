@@ -12,12 +12,13 @@ interface Props {
   label: string;
   onSendPress: () => void;
   onReceivePress: () => void;
+  onSelectPress: () => void;
 }
 
-export const DashboardHeader = ({ balance, unit, label, onSendPress, onReceivePress }: Props) => {
+export const DashboardHeader = ({ balance, unit, label, onSendPress, onReceivePress, onSelectPress }: Props) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity style={styles.chooseWalletButton}>
+      <TouchableOpacity style={styles.chooseWalletButton} onPress={onSelectPress}>
         <Text style={styles.chooseWalletButtonText}>{`${balance} ${unit} `}</Text>
         <Image source={icons.iconDropdown} style={styles.icon} />
       </TouchableOpacity>

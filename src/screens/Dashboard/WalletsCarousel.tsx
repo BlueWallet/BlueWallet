@@ -20,7 +20,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = SCREEN_WIDTH * 0.82;
 const ITEM_HEIGHT = ITEM_WIDTH * 0.63;
 export class WalletsCarousel extends Component<Props> {
-  carouselRef = React.createRef();
+  carouselRef = React.createRef() as any;
 
   renderItem({ item }: { item: Wallet }) {
     return (
@@ -48,12 +48,16 @@ export class WalletsCarousel extends Component<Props> {
     );
   }
 
+  snap = (index: number) => {
+    this.carouselRef.current!.snapToItem(index, true);
+  };
+
   render() {
     return (
       <View>
         <Carousel
           {...this.props}
-          ref={this.carouselRef}
+          ref={this.carouselRef as any}
           renderItem={this.renderItem}
           sliderWidth={SCREEN_WIDTH}
           itemWidth={SCREEN_WIDTH * 0.82}

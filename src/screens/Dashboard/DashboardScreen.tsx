@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, InteractionManager, ScrollView, RefreshControl } from 'react-native';
-import { NavigationEvents, NavigationScreenProp, NavigationState, NavigationParams } from 'react-navigation';
+import { NavigationEvents, NavigationInjectedProps } from 'react-navigation';
 
 import { images } from 'app/assets';
 import { ListEmptyState, Image } from 'app/components';
@@ -23,9 +23,7 @@ interface State {
   dataSource: any;
 }
 
-interface Props {
-  navigation: NavigationScreenProp<NavigationState, NavigationParams>;
-}
+type Props = NavigationInjectedProps;
 
 export class DashboardScreen extends Component<Props, State> {
   constructor(props: Props) {
@@ -37,12 +35,14 @@ export class DashboardScreen extends Component<Props, State> {
       lastSnappedTo: 0,
       dataSource: null,
     };
+
     EV(EV.enum.WALLETS_COUNT_CHANGED, this.redrawScreen.bind(this));
 
     // here, when we receive TRANSACTIONS_COUNT_CHANGED we do not query
     // remote server, we just redraw the screen
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED, this.redrawScreen.bind(this));
   }
+  walletCarouselRef = React.createRef();
 
   componentDidMount() {
     this.redrawScreen();
@@ -114,16 +114,17 @@ export class DashboardScreen extends Component<Props, State> {
     });
   }
 
-  onSnapToItem(index: number) {
+  chooseItemFromModal = async (index: number) => {
     this.setState({ lastSnappedTo: index });
+    this.walletCarouselRef!.current.snap(index);
+  };
 
-    if (index < BlueApp.getWallets().length) {
-      // not the last
-    }
+  onSnapToItem = async (index: number) => {
+    this.setState({ lastSnappedTo: index });
 
     // now, lets try to fetch balance and txs for this wallet in case it has changed
     this.lazyRefreshWallet(index);
-  }
+  };
 
   async lazyRefreshWallet(index: number) {
     const wallets = BlueApp.getWallets();
@@ -191,6 +192,15 @@ export class DashboardScreen extends Component<Props, State> {
     });
   };
 
+  showModal = () => {
+    const { wallets, lastSnappedTo } = this.state;
+    this.props.navigation.navigate('ActionSheet', {
+      wallets: wallets,
+      selectedIndex: lastSnappedTo,
+      onPress: this.chooseItemFromModal,
+    });
+  };
+
   render() {
     const { wallets, lastSnappedTo, isLoading } = this.state;
     const activeWallet = wallets[lastSnappedTo];
@@ -213,6 +223,7 @@ export class DashboardScreen extends Component<Props, State> {
             }}
           />
           <DashboardHeader
+            onSelectPress={this.showModal}
             balance={activeWallet.balance}
             label={activeWallet.label}
             unit={activeWallet.preferredBalanceUnit}
@@ -220,8 +231,9 @@ export class DashboardScreen extends Component<Props, State> {
             onSendPress={this.sendCoins}
           />
           <WalletsCarousel
+            ref={this.walletCarouselRef as any}
             data={wallets}
-            keyExtractor={this._keyExtractor as any}
+            keyExtractor={this._keyExtractor as as}
             onSnapToItem={index => {
               this.onSnapToItem(index);
             }}

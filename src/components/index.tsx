@@ -11,3 +11,5 @@ export { FlatButton } from './FlatButton';
 export { Image, FastImageSource } from './Image';
 export { StyledText } from './StyledText';
 export * from './Gradient';
+// @ts-ignore
+export { WalletItemProps, WalletItem } from './WalletItem';

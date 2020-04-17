@@ -1,7 +1,9 @@
 import React from 'react';
-import { GradientVariant, GradientView } from './GradientView';
 import { Text, StyleSheet } from 'react-native';
-import { typography, palette } from 'styles';
+
+import { typography, palette } from 'app/styles';
+
+import { GradientVariant, GradientView } from './GradientView';
 
 interface Props {
   title: string;

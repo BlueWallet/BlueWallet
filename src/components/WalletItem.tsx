@@ -1,11 +1,13 @@
 import React from 'react';
-import { GradientVariant } from './GradientView';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+
+import { images } from 'app/assets';
+import { en } from 'app/locale';
+import { typography, palette } from 'app/styles';
+
 import { Avatar } from './Avatar';
-import { typography, palette } from 'styles';
-import { en } from 'locale';
+import { GradientVariant } from './GradientView';
 import { Image } from './Image';
-import { images } from 'assets';
 
 export interface WalletItemProps {
   name: string;
@@ -18,13 +20,13 @@ export interface WalletItemProps {
 }
 
 export const WalletItem = (props: WalletItemProps) => {
-  const { name, value, title, variant, selected, onPress, key } = props;
+  const { name, value, title, selected, onPress, key } = props;
   const onWalletPress = () => onPress(key);
 
   return (
     <TouchableOpacity key={key} style={styles.container} onPress={onWalletPress}>
       <View>
-        <Avatar variant={variant} title={title} />
+        <Avatar variant={GradientVariant.Primary} title={title} />
         {selected && <Image style={styles.image} source={images.successBadge} />}
       </View>
       <View style={styles.textContainer}>

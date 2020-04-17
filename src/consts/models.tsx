@@ -6,14 +6,14 @@ export enum Route {
   AddWallet = 'AddWallet',
 }
 
-export type Wallet = {
+export interface Wallet {
   balance: number;
   preferredBalanceUnit: string;
   label: string;
-  transactions: Array<any>;
+  transactions: any[];
   getBalance: () => void;
   getLatestTransactionTime: () => void;
   getLabel: () => string;
   address: string;
   secret: string;
-};
+}
