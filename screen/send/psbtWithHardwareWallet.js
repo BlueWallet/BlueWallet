@@ -23,6 +23,7 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
+  BlueBigCheckmark
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Share from 'react-native-share';
@@ -180,20 +181,7 @@ export default class PsbtWithHardwareWallet extends Component {
   _renderSuccess() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View
-          style={{
-            backgroundColor: '#ccddf9',
-            width: 120,
-            height: 120,
-            borderRadius: 60,
-            alignSelf: 'center',
-            justifyContent: 'center',
-            marginTop: 143,
-            marginBottom: 53,
-          }}
-        >
-          <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-        </View>
+        <BlueBigCheckmark style={{ marginTop: 143, marginBottom: 53 }} />
         <BlueCard>
           <BlueButton onPress={this.props.navigation.dismiss} title={loc.send.success.done} />
         </BlueCard>

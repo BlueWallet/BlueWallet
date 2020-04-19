@@ -9,6 +9,7 @@ import {
   BlueCopyTextToClipboard,
   BlueNavigationStyle,
   BlueSpacing20,
+  BlueBigCheckmark
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -187,20 +188,7 @@ export default class LNDViewInvoice extends Component {
             </View>
 
             <View style={{ flex: 3, alignItems: 'center', justifyContent: 'center' }}>
-              <View
-                style={{
-                  backgroundColor: '#ccddf9',
-                  width: 120,
-                  height: 120,
-                  borderRadius: 60,
-                  alignSelf: 'center',
-                  justifyContent: 'center',
-                  marginTop: -100,
-                  marginBottom: 16,
-                }}
-              >
-                <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-              </View>
+              <BlueBigCheckmark style={{ marginTop: -100, marginBottom: 16 }} />
               <BlueText>{loc.lndViewInvoice.has_been_paid}</BlueText>
             </View>
             <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 24, alignItems: 'center' }}>
