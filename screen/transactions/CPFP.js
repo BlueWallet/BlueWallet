@@ -10,11 +10,11 @@ import {
   BlueText,
   BlueSpacing,
   BlueNavigationStyle,
-  BlueBigCheckmark
+  BlueBigCheckmark,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import { Icon, Text } from 'react-native-elements';
+import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
 let EV = require('../../events');

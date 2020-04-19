@@ -14,7 +14,7 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { Icon, Text } from 'react-native-elements';
+import { Text } from 'react-native-elements';
 import {
   BlueButton,
   BlueText,
@@ -23,7 +23,7 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
-  BlueBigCheckmark
+  BlueBigCheckmark,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Share from 'react-native-share';
