@@ -58,7 +58,7 @@ export default function Broadcast() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
         <View style={styles.wrapper}>
           {BROADCAST_RESULT.success !== broadcastResult && (
-            <BlueCard>
+            <BlueCard style={styles.mainCard}>
               <View style={styles.topFormRow}>
                 <BlueFormLabel>{broadcastResult}</BlueFormLabel>
                 {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   wrapper: {
     marginTop: 16,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   blueArea: {
     flex: 1,
@@ -96,15 +96,24 @@ const styles = StyleSheet.create({
   link: {
     color: 'blue',
   },
+  mainCard: {
+    padding: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
   topFormRow: {
     flex: 0.1,
+    flexBasis: 0.1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingBottom: 10,
     paddingTop: 0,
     paddingRight: 100,
-    height: 40,
+    height: 30,
+    maxHeight: 30,
   },
 });
 
