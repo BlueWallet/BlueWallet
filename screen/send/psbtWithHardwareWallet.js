@@ -122,7 +122,6 @@ export default class PsbtWithHardwareWallet extends Component {
         await BlueElectrum.waitTillConnected();
         let result = await this.state.fromWallet.broadcastTx(this.state.txhex);
         if (result) {
-          console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ success: true, isLoading: false });
           if (this.state.memo) {

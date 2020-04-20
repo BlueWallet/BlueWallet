@@ -15,13 +15,14 @@ import {
   BlueBigCheckmark,
 } from '../../BlueComponents';
 import BlueElectrum from '../../BlueElectrum';
+const bitcoin = require('bitcoinjs-lib');
 
-const BROADCAST_RESULT = {
+const BROADCAST_RESULT = Object.freeze({
   none: 'Input transaction hash',
   pending: 'pending',
   success: 'success',
   error: 'error',
-};
+});
 
 export default function Broadcast() {
   const [tx, setTx] = useState('');
@@ -36,9 +37,10 @@ export default function Broadcast() {
       await BlueElectrum.waitTillConnected();
       const walletObj = new HDSegwitBech32Wallet();
       const result = await walletObj.broadcastTx(txHex);
-      // i.e. {"broadcast": "dfb835b9f60d5ae5dad13830a0fed1cd5cc4ab354ae023d375c44da57482aff3"}
-      if (result && result.broadcast) {
-        setTx(result.broadcast);
+      if (result) {
+        let tx = bitcoin.Transaction.fromHex(txHex);
+        const txid = tx.getId();
+        setTx(txid);
         setBroadcastResult(BROADCAST_RESULT.success);
       } else {
         setBroadcastResult(BROADCAST_RESULT.error);

@@ -51,7 +51,6 @@ export default class CPFP extends Component {
         await BlueElectrum.waitTillConnected();
         let result = await this.state.wallet.broadcastTx(this.state.txhex);
         if (result) {
-          console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ stage: 3, isLoading: false });
           this.onSuccessBroadcast();
