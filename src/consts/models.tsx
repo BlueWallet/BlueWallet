@@ -6,6 +6,7 @@ export enum Route {
   Message = 'Message',
   CreateWallet = 'CreateWallet',
   ImportWallet = 'ImportWallet',
+  DeleteWallet = 'DeleteWallet',
 }
 
 export interface Wallet {

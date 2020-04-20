@@ -12,7 +12,7 @@ import {
   ButtonType,
   Text,
 } from 'app/components';
-import { Wallet } from 'app/consts';
+import { Wallet, Route } from 'app/consts';
 import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
@@ -27,7 +27,10 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
 
   showWalletXPUB = () => null;
 
-  deleteWallet = () => null;
+  deleteWallet = (wallet: Wallet) =>
+    this.props.navigation.navigate(Route.DeleteWallet, {
+      wallet,
+    });
 
   render() {
     const wallet = this.props.navigation.getParam('wallet');
@@ -42,7 +45,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
               containerStyle={styles.showWalletXPUBContainer}
             />
             <FlatButton
-              onPress={this.deleteWallet}
+              onPress={this.deleteWallet.bind(this, wallet)}
               title={i18n.wallets.details.deleteWallet}
               containerStyle={styles.deleteWalletButtonContainer}
               buttonType={ButtonType.Warning}

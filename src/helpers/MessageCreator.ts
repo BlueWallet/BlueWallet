@@ -1,4 +1,3 @@
-import { StyleProp, ViewStyle } from 'react-native';
 import { ButtonProps } from 'react-native-elements';
 
 import { images as appImages } from 'app/assets';
