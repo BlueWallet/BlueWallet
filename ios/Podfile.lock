@@ -192,6 +192,8 @@ PODS:
   - React-jsinspector (0.61.5)
   - react-native-biometrics (2.0.0):
     - React
+  - react-native-blue-crypto (1.0.0):
+    - React
   - react-native-blur (0.8.0):
     - React
   - react-native-camera (3.21.0):
@@ -255,7 +257,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.7.1):
+  - RNCAsyncStorage (1.8.1):
     - React
   - RNDefaultPreference (1.4.1):
     - React
@@ -263,7 +265,7 @@ PODS:
     - React
   - RNFS (2.16.6):
     - React
-  - RNGestureHandler (1.5.6):
+  - RNGestureHandler (1.6.1):
     - React
   - RNHandoff (0.0.3):
     - React
@@ -315,6 +317,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - react-native-biometrics (from `../node_modules/react-native-biometrics`)
+  - react-native-blue-crypto (from `../node_modules/react-native-blue-crypto`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
@@ -398,6 +401,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   react-native-biometrics:
     :path: "../node_modules/react-native-biometrics"
+  react-native-blue-crypto:
+    :path: "../node_modules/react-native-blue-crypto"
   react-native-blur:
     :path: "../node_modules/@react-native-community/blur"
   react-native-camera:
@@ -496,6 +501,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: d5525f9ed5f782fdbacb64b9b01a43a9323d2386
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
+  react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: a9749fa0c1162cdb2f56b93a5d97a72ebd56694f
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
@@ -517,11 +523,11 @@ SPEC CHECKSUMS:
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 8539fc80a0075fcc9c8e2dff84cd22dc5bf1dacf
+  RNCAsyncStorage: 00bdf63f7f1e0f11d3323533dba4f222e58bf092
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
-  RNGestureHandler: 911d3b110a7a233a34c4f800e7188a84b75319c6
+  RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: d44a8bca6ee08f5d890ecccddaec2810955ffbb3
