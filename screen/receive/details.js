@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
+import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
 import bip21 from 'bip21';
 import {
   BlueLoading,
@@ -15,7 +16,6 @@ import {
   BlueSpacing20,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
@@ -26,120 +26,113 @@ import Handoff from 'react-native-handoff';
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
-export default class ReceiveDetails extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.receive.header,
-    headerLeft: null,
-  });
+const ReceiveDetails = () => {
+  const secret = useNavigationParam('secret');
+  const [wallet, setWallet] = useState();
+  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
+  const [address, setAddress] = useState('');
+  const [customLabel, setCustomLabel] = useState();
+  const [customAmount, setCustomAmount] = useState(0);
+  const [bip21encoded, setBip21encoded] = useState();
+  const [qrCodeSVG, setQrCodeSVG] = useState();
+  const [isCustom, setIsCustom] = useState(false);
+  const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
+  const { navigate, goBack } = useNavigation();
 
-  constructor(props) {
-    super(props);
-    let secret = props.navigation.state.params.secret || '';
-
-    this.state = {
-      secret: secret,
-      isHandOffUseEnabled: false,
-      address: '',
-      customLabel: '',
-      customAmount: 0,
-      bip21encoded: undefined,
-      isCustom: false,
-      isCustomModalVisible: false,
-    };
-  }
-
-  renderReceiveDetails = async () => {
-    this.wallet.setUserHasSavedExport(true);
+  const renderReceiveDetails = useCallback(async () => {
+    console.log('receive/details - componentDidMount');
+    wallet.setUserHasSavedExport(true);
     await BlueApp.saveToDisk();
     let address;
-    if (this.wallet.getAddressAsync) {
-      if (this.wallet.chain === Chain.ONCHAIN) {
+    if (wallet.getAddressAsync) {
+      if (wallet.chain === Chain.ONCHAIN) {
         try {
-          address = await Promise.race([this.wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = this.wallet._getExternalAddressByIndex(this.wallet.next_free_address_index);
+          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
-        this.setState({
-          address: address,
-        });
-      } else if (this.wallet.chain === Chain.OFFCHAIN) {
+        setAddress(address);
+      } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
-          await Promise.race([this.wallet.getAddressAsync(), BlueApp.sleep(1000)]);
-          address = this.wallet.getAddress();
+          await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          address = wallet.getAddress();
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = this.wallet.getAddress();
+          address = wallet.getAddress();
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       }
-      this.setState({
-        address: address,
-      });
-    } else if (this.wallet.getAddress) {
-      this.setState({
-        address: this.wallet.getAddress(),
-      });
+      setAddress(address);
+    } else if (wallet.getAddress) {
+      setAddress(wallet.getAddress());
     }
     InteractionManager.runAfterInteractions(async () => {
-      const bip21encoded = bip21.encode(this.state.address);
-      this.setState({ bip21encoded });
+      const bip21encoded = bip21.encode(address);
+      setBip21encoded(bip21encoded);
     });
-  };
+  }, [wallet]);
 
-  componentDidMount() {
+  useEffect(() => {
     Privacy.enableBlur();
-    console.log('receive/details - componentDidMount');
 
-    for (let w of BlueApp.getWallets()) {
-      if (w.getSecret() === this.state.secret) {
-        // found our wallet
-        this.wallet = w;
-      }
-    }
-    if (this.wallet) {
-      if (!this.wallet.getUserHasSavedExport()) {
+    setWallet(BlueApp.getWallets().find(w => w.getSecret() === secret));
+
+    if (wallet) {
+      if (!wallet.getUserHasSavedExport()) {
         BlueAlertWalletExportReminder({
-          onSuccess: this.renderReceiveDetails,
+          onSuccess: renderReceiveDetails,
           onFailure: () => {
-            this.props.navigation.goBack();
-            this.props.navigation.navigate('WalletExport', {
-              wallet: this.wallet,
+            goBack();
+            navigate('WalletExport', {
+              wallet: wallet,
             });
           },
         });
       } else {
-        this.renderReceiveDetails();
+        renderReceiveDetails();
       }
     }
-    HandoffSettings.isHandoffUseEnabled().then(value => this.setState({ isHandOffUseEnabled: value }));
-  }
+    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    return () => Privacy.disableBlur();
+  }, [goBack, navigate, renderReceiveDetails, secret, wallet]);
 
-  componentWillUnmount() {
-    Privacy.disableBlur();
-  }
+  const dismissCustomAmountModal = () => {
+    Keyboard.dismiss();
+    setIsCustomModalVisible(false);
+  };
 
-  renderCustomAmountModal = () => {
+  const showCustomAmountModal = () => {
+    setIsCustomModalVisible(true);
+  };
+
+  const createCustomAmountAddress = () => {
+    setIsCustom(true);
+    setIsCustomModalVisible(false);
+    setBip21encoded(bip21.encode(address, { amount: customAmount, label: customLabel }));
+  };
+
+  const clearCustomAmount = () => {
+    setIsCustom(false);
+    setIsCustomModalVisible(false);
+    setCustomAmount('');
+    setCustomLabel('');
+    setBip21encoded(bip21.encode(address));
+  };
+
+  const renderCustomAmountModal = () => {
     return (
-      <Modal
-        isVisible={this.state.isCustomModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isCustomModalVisible: false });
-        }}
-      >
+      <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <BlueBitcoinAmount amount={this.state.customAmount || ''} onChangeText={text => this.setState({ customAmount: text })} />
+            <BlueBitcoinAmount amount={customAmount || ''} onChangeText={setCustomAmount} />
             <View
               style={{
                 flexDirection: 'row',
@@ -157,38 +150,18 @@ export default class ReceiveDetails extends Component {
               }}
             >
               <TextInput
-                onChangeText={text => this.setState({ customLabel: text })}
+                onChangeText={setCustomLabel}
                 placeholder={loc.receive.details.label}
-                value={this.state.customLabel || ''}
+                value={customLabel || ''}
                 numberOfLines={1}
                 style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
               />
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton
-                title={loc.receive.details.create}
-                onPress={() => {
-                  this.setState({
-                    isCustom: true,
-                    isCustomModalVisible: false,
-                    bip21encoded: bip21.encode(this.state.address, { amount: this.state.customAmount, label: this.state.customLabel }),
-                  });
-                }}
-              />
+              <BlueButton title={loc.receive.details.create} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
-              <BlueButtonLink
-                title="Reset"
-                onPress={() => {
-                  this.setState({
-                    isCustom: false,
-                    isCustomModalVisible: false,
-                    customAmount: '',
-                    customLabel: '',
-                    bip21encoded: bip21.encode(this.state.addresss),
-                  });
-                }}
-              />
+              <BlueButtonLink title="Reset" onPress={clearCustomAmount} />
             </View>
             <BlueSpacing20 />
           </View>
@@ -197,87 +170,91 @@ export default class ReceiveDetails extends Component {
     );
   };
 
-  showCustomAmountModal = () => {
-    this.setState({ isCustomModalVisible: true });
+  const handleShareButtonPressed = () => {
+    if (qrCodeSVG === undefined) {
+      Share.open({ message: bip21encoded }).catch(error => console.log(error));
+    } else {
+      InteractionManager.runAfterInteractions(async () => {
+        qrCodeSVG.toDataURL(data => {
+          let shareImageBase64 = {
+            message: bip21encoded,
+            url: `data:image/png;base64,${data}`,
+          };
+          Share.open(shareImageBase64).catch(error => console.log(error));
+        });
+      });
+    }
   };
 
-  render() {
-    return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        {this.state.isHandOffUseEnabled && this.state.address !== undefined && (
-          <Handoff
-            title={`Bitcoin Transaction ${this.state.address}`}
-            type="io.bluewallet.bluewallet"
-            url={`https://blockstream.info/address/${this.state.address}`}
-          />
-        )}
-        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
-          <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
-            {this.state.isCustom && (
-              <>
-                <BlueText
-                  style={{ color: '#0c2550', fontWeight: '600', fontSize: 36, textAlign: 'center', paddingBottom: 24 }}
-                  numberOfLines={1}
-                >
-                  {this.state.customAmount} {BitcoinUnit.BTC}
-                </BlueText>
-                <BlueText style={{ color: '#0c2550', fontWeight: '600', textAlign: 'center', paddingBottom: 24 }} numberOfLines={1}>
-                  {this.state.customLabel}
-                </BlueText>
-              </>
-            )}
-            {this.state.bip21encoded === undefined ? (
-              <View style={{ alignItems: 'center', width: 300, height: 300 }}>
-                <BlueLoading />
-              </View>
-            ) : (
-              <QRCode
-                value={this.state.bip21encoded}
-                logo={require('../../img/qr-code.png')}
-                size={(is.ipad() && 300) || 300}
-                logoSize={90}
-                color={BlueApp.settings.foregroundColor}
-                logoBackgroundColor={BlueApp.settings.brandingColor}
-                ecl={'H'}
-                getRef={c => (this.qrCodeSVG = c)}
-              />
-            )}
-            <BlueCopyTextToClipboard text={this.state.isCustom ? this.state.bip21encoded : this.state.address} />
-          </View>
-          <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
-            <BlueButtonLink title={loc.receive.details.setAmount} onPress={this.showCustomAmountModal} />
-            <View>
-              <BlueButton
-                icon={{
-                  name: 'share-alternative',
-                  type: 'entypo',
-                  color: BlueApp.settings.buttonTextColor,
-                }}
-                onPress={async () => {
-                  if (this.qrCodeSVG === undefined) {
-                    Share.open({ message: this.state.bip21encoded }).catch(error => console.log(error));
-                  } else {
-                    InteractionManager.runAfterInteractions(async () => {
-                      this.qrCodeSVG.toDataURL(data => {
-                        let shareImageBase64 = {
-                          message: this.state.bip21encoded,
-                          url: `data:image/png;base64,${data}`,
-                        };
-                        Share.open(shareImageBase64).catch(error => console.log(error));
-                      });
-                    });
-                  }
-                }}
-                title={loc.receive.details.share}
-              />
+  return (
+    <SafeBlueArea style={{ flex: 1 }}>
+      {isHandOffUseEnabled && address !== undefined && (
+        <Handoff
+          title={`Bitcoin Transaction ${address}`}
+          type="io.bluewallet.bluewallet"
+          url={`https://blockstream.info/address/${address}`}
+        />
+      )}
+      <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
+        <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
+          {isCustom && (
+            <>
+              <BlueText
+                style={{ color: '#0c2550', fontWeight: '600', fontSize: 36, textAlign: 'center', paddingBottom: 24 }}
+                numberOfLines={1}
+              >
+                {customAmount} {BitcoinUnit.BTC}
+              </BlueText>
+              <BlueText style={{ color: '#0c2550', fontWeight: '600', textAlign: 'center', paddingBottom: 24 }} numberOfLines={1}>
+                {customLabel}
+              </BlueText>
+            </>
+          )}
+          {bip21encoded === undefined ? (
+            <View style={{ alignItems: 'center', width: 300, height: 300 }}>
+              <BlueLoading />
             </View>
+          ) : (
+            <QRCode
+              value={bip21encoded}
+              logo={require('../../img/qr-code.png')}
+              size={(is.ipad() && 300) || 300}
+              logoSize={90}
+              color={BlueApp.settings.foregroundColor}
+              logoBackgroundColor={BlueApp.settings.brandingColor}
+              ecl={'H'}
+              getRef={setQrCodeSVG}
+            />
+          )}
+          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
+        </View>
+        <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
+          <BlueButtonLink title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
+          <View>
+            <BlueButton
+              icon={{
+                name: 'share-alternative',
+                type: 'entypo',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={handleShareButtonPressed}
+              title={loc.receive.details.share}
+            />
           </View>
-          {this.renderCustomAmountModal()}
-        </ScrollView>
-      </SafeBlueArea>
-    );
-  }
-}
+        </View>
+        {renderCustomAmountModal()}
+      </ScrollView>
+    </SafeBlueArea>
+  );
+};
+
+ReceiveDetails.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.receive.header,
+  headerLeft: null,
+});
+
+export default ReceiveDetails;
 
 const styles = StyleSheet.create({
   modalContent: {
@@ -296,15 +273,3 @@ const styles = StyleSheet.create({
     margin: 0,
   },
 });
-
-ReceiveDetails.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    navigate: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        secret: PropTypes.string,
-      }),
-    }),
-  }),
-};
