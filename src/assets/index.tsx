@@ -10,6 +10,8 @@ export const images = {
   addressBookNoContacts: require('./images/addressBookNoContacts.png'),
   backArrow: require('./images/navigationBarBackArrow.png'),
   successBadge: require('./images/groupCopy2.png'),
+  processingState: require('./images/processingState.png'),
+  errorState: require('./images/errorState.png'),
   yellowMinus: require('./images/yellowMinus.png'),
   yellowPlus: require('./images/yellowPlus.png'),
   coin: require('./images/coin.png'),

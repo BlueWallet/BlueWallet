@@ -1,17 +1,18 @@
 import { Easing, Animated } from 'react-native';
 import { createStackNavigator, NavigationSceneRendererProps } from 'react-navigation';
 
-import { MessageScreen, ActionSheet } from 'app/screens';
+import { ActionSheet } from 'app/screens';
 
 import { EditTextNavigator } from './EditTextNavigator';
 import { MainCardStackNavigator } from './MainCardStackNavigator';
+import { MessageNavigator } from './MessageNavigator';
 
 export const RootNavigator = createStackNavigator(
   {
     MainCardStackNavigator,
-    Message: MessageScreen,
     ActionSheet: ActionSheet,
     EditTextNavigator,
+    MessageNavigator,
   },
   {
     headerMode: 'none',

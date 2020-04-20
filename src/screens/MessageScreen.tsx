@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import React, { useEffect, useLayoutEffect } from 'react';
+import { Text, View, StyleSheet, StyleProp, ViewStyle, BackHandler } from 'react-native';
 import { ButtonProps } from 'react-native-elements';
 import { useNavigationParam } from 'react-navigation-hooks';
 
@@ -12,6 +12,7 @@ export interface MessageProps {
   description: string;
   buttonProps?: ButtonProps;
   imageStyle?: StyleProp<ViewStyle>;
+  asyncTask?: () => void;
 }
 
 export const MessageScreen = () => {
@@ -20,6 +21,24 @@ export const MessageScreen = () => {
   const description: string = useNavigationParam('description');
   const buttonProps: ButtonProps = useNavigationParam('buttonProps');
   const imageStyle: StyleProp<ViewStyle> = useNavigationParam('imageStyle');
+  const asyncTask = useNavigationParam('asyncTask');
+
+  useEffect(() => {
+    const onBackPress = () => true;
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    if (asyncTask) {
+      const asynchrousTask = async () => {
+        await asyncTask();
+      };
+
+      asynchrousTask();
+    }
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    };
+  }, [asyncTask]);
 
   return (
     <View style={styles.container}>
@@ -34,11 +53,10 @@ export const MessageScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    padding: 50,
+    padding: 20,
   },
-  title: { ...typography.headline4 },
+  title: { ...typography.headline4, marginTop: '30%' },
   image: {
     height: 172,
     width: '100%',
@@ -50,6 +68,6 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
     textAlign: 'center',
     lineHeight: 19,
-    marginBottom: 97,
+    flexGrow: 1,
   },
 });

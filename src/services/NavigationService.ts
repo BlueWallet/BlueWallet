@@ -1,8 +1,8 @@
-import { NavigationContainerComponent, NavigationActions } from 'react-navigation';
+import { NavigationContainerComponent, NavigationActions, StackActions } from 'react-navigation';
+import { EditTextProps } from 'screens/EditTextScreen';
+import { MessageProps } from 'screens/MessageScreen';
 
 import { Wallet } from 'app/consts';
-import { EditTextProps } from 'app/screens/EditTextScreen';
-import { MessageProps } from 'app/screens/MessageScreen';
 
 type MessageScreenProps = Partial<MessageProps>;
 type EditTextScreenProps = Partial<EditTextProps>;
@@ -23,5 +23,19 @@ export default class NavigationService {
         params,
       }),
     );
+  };
+
+  navigateWithReset = (routeName: string, params?: ScreenProps) => {
+    const navigateAction = StackActions.reset({
+      index: 0,
+      key: null,
+      actions: [
+        NavigationActions.navigate({
+          routeName,
+          params,
+        }),
+      ],
+    });
+    this.navigator!.dispatch(navigateAction);
   };
 }

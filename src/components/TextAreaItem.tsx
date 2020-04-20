@@ -1,11 +1,13 @@
 import React, { PureComponent } from 'react';
-import { StyleSheet, TextInput as BaseTextInput, StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, TextInput as BaseTextInput, StyleProp, ViewStyle, Text } from 'react-native';
 
 import { palette, typography } from 'app/styles';
 
 interface Props {
   style?: StyleProp<ViewStyle>;
   placeholder?: string;
+  onChangeText?: (text: string) => void;
+  error?: string;
 }
 
 interface State {
@@ -20,19 +22,23 @@ export class TextAreaItem extends PureComponent<Props, State> {
   onBlur = () => this.setState({ isActive: false });
 
   render() {
-    const { style, placeholder } = this.props;
+    const { style, placeholder, onChangeText, error } = this.props;
     const { isActive } = this.state;
     return (
-      <BaseTextInput
-        style={[styles.input, isActive && styles.inputActive, style]}
-        placeholder={placeholder}
-        placeholderTextColor={palette.textGrey}
-        numberOfLines={100}
-        selectionColor={palette.textSecondary}
-        multiline={true}
-        onFocus={this.onFocus}
-        onBlur={this.onBlur}
-      />
+      <>
+        <BaseTextInput
+          style={[styles.input, isActive && styles.inputActive, style, !!error && styles.isError]}
+          placeholder={placeholder}
+          placeholderTextColor={palette.textGrey}
+          numberOfLines={100}
+          selectionColor={palette.textSecondary}
+          multiline={true}
+          onFocus={this.onFocus}
+          onBlur={this.onBlur}
+          onChangeText={onChangeText}
+        />
+        {!!error && <Text style={styles.error}>{error}</Text>}
+      </>
     );
   }
 }
@@ -49,5 +55,13 @@ const styles = StyleSheet.create({
   },
   inputActive: {
     borderColor: palette.textSecondary,
+  },
+  isError: {
+    borderColor: palette.error,
+  },
+  error: {
+    marginTop: 3,
+    ...typography.subtitle2,
+    color: palette.error,
   },
 });
