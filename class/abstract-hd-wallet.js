@@ -23,6 +23,10 @@ export class AbstractHDWallet extends LegacyWallet {
     this.gap_limit = 20;
   }
 
+  getNextFreeAddressIndex() {
+    return this.next_free_address_index;
+  }
+
   prepareForSerialization() {
     // deleting structures that cant be serialized
     delete this._node0;

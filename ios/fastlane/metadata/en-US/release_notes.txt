@@ -1,3 +1,13 @@
+v5.3.2
+======
+
+* ADD: Handoff Receive Address
+* FIX: BIP38 import support (password-protected private key from paper wallet)
+* FIX: iOS widget not working
+* FIX: negative confirmation num for electrum personal server
+* FIX: Keyboard avoiding
+* FIX: allow LocalTrader for watch-only HD wallets
+
 v5.3.0
 ======
 
@@ -50,18 +60,3 @@ v5.0.0
 * FIX: lnurl scan to receive is not returning the correct view (closes #828)
 * FIX: watch-only delete wallet doesnt have confirmation now
 * FIX: typo in spanish
-
-v4.9.4
-======
-
-* REL: ver bump 4.9.4
-* FIX: Lint
-* FIX: Listen to lnd invoice changes
-* FIX: There's two refresh icons on the main view, when you pull-to-refresh
-* FIX: Crash on scan in wallets import when closing the view
-* FIX: Allow walet change on invoice creation
-* FIX: Allow wallet text input to be empty for new wallet naming
-* FIX: LN Invoice amount renders 0
-* FIX: Handle both chains
-* FIX: deeplinking (safello etc)
-* DEL: Remove alerts from main list

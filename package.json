@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.3.1",
+  "version": "5.3.3",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.6.2",
@@ -45,6 +45,7 @@
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || detox build -c android.emu.debug; detox test -c android.emu.debug",
     "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/",
     "lint:fix": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/ --fix",
+    "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs ./node_modules/.bin/eslint --fix; exit 0",
     "unit": "node node_modules/jest/bin/jest.js tests/unit/*"
   },
   "jest": {
@@ -58,12 +59,12 @@
   },
   "dependencies": {
     "@babel/preset-env": "7.8.7",
-    "@react-native-community/async-storage": "1.7.1",
+    "@react-native-community/async-storage": "1.8.1",
     "@react-native-community/blur": "3.4.1",
     "@react-native-community/slider": "2.0.8",
     "@react-native-community/viewpager": "3.3.0",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
-    "@sentry/react-native": "1.3.1",
+    "@sentry/react-native": "1.3.5",
     "amplitude-js": "5.9.0",
     "bech32": "1.1.3",
     "bignumber.js": "9.0.0",
@@ -79,6 +80,7 @@
     "dayjs": "1.8.23",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#2a5bb11dd9a8d89f328049d9ed59bce49d88a15d",
+    "electrum-mnemonic": "1.0.7",
     "eslint-config-prettier": "6.10.0",
     "eslint-config-standard": "12.0.0",
     "eslint-config-standard-react": "7.0.2",
@@ -90,6 +92,7 @@
     "lottie-react-native": "3.1.1",
     "node-libs-react-native": "1.0.3",
     "path-browserify": "1.0.0",
+    "pbkdf2": "3.0.17",
     "prettier": "1.19.1",
     "process": "0.11.10",
     "prop-types": "15.7.2",
@@ -105,7 +108,7 @@
     "react-native-elements": "0.19.0",
     "react-native-flexi-radio-button": "0.2.2",
     "react-native-fs": "2.16.6",
-    "react-native-gesture-handler": "1.5.6",
+    "react-native-gesture-handler": "1.6.1",
     "react-native-handoff": "git+https://github.com/marcosrdz/react-native-handoff.git",
     "react-native-haptic-feedback": "1.9.0",
     "react-native-image-picker": "1.1.0",

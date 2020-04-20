@@ -12,6 +12,9 @@ const reverse = require('buffer-reverse');
 
 const { RNRandomBytes } = NativeModules;
 
+/**
+ * Electrum - means that it utilizes Electrum protocol for blockchain data
+ */
 export class AbstractHDElectrumWallet extends AbstractHDWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
@@ -985,5 +988,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     console.log({ broadcast });
     if (broadcast.indexOf('successfully') !== -1) return true;
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
+  }
+
+  /**
+   * Probes zero address in external hierarchy for transactions, if there are any returns TRUE.
+   * Zero address is a pretty good indicator, since its a first one to fund the wallet. How can you use the wallet and
+   * not fund it first?
+   *
+   * @returns {Promise<boolean>}
+   */
+  async wasEverUsed() {
+    let txs = await BlueElectrum.getTransactionsByAddress(this._getExternalAddressByIndex(0));
+    return txs.length > 0;
   }
 }

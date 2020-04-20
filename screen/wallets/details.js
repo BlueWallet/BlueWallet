@@ -270,9 +270,7 @@ export default class WalletDetails extends Component {
                       {this.renderMarketplaceButton()}
                     </React.Fragment>
                   )}
-
                   <BlueSpacing20 />
-
                   <TouchableOpacity
                     style={{ alignItems: 'center' }}
                     onPress={() => {

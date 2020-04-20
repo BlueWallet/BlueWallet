@@ -171,4 +171,8 @@ export class AbstractWallet {
   useWithHardwareWalletEnabled() {
     return false;
   }
+
+  async wasEverUsed() {
+    throw new Error('Not implemented');
+  }
 }

@@ -49,6 +49,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(await hd.getAddressAsync(), hd._getExternalAddressByIndex(2));
     assert.strictEqual(await hd.getChangeAddressAsync(), hd._getInternalAddressByIndex(2));
     assert.strictEqual(hd.next_free_address_index, 2);
+    assert.strictEqual(hd.getNextFreeAddressIndex(), 2);
     assert.strictEqual(hd.next_free_change_address_index, 2);
 
     // now fetch txs
@@ -81,6 +82,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(await hd.getAddressAsync(), hd._getExternalAddressByIndex(2));
     assert.strictEqual(await hd.getChangeAddressAsync(), hd._getInternalAddressByIndex(2));
     assert.strictEqual(hd.next_free_address_index, 2);
+    assert.strictEqual(hd.getNextFreeAddressIndex(), 2);
     assert.strictEqual(hd.next_free_change_address_index, 2);
   });
 
@@ -153,6 +155,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     assert.ok(hd.next_free_change_address_index > 0);
     assert.ok(hd.next_free_address_index > 0);
+    assert.ok(hd.getNextFreeAddressIndex() > 0);
 
     start = +new Date();
     await hd.fetchTransactions();
@@ -231,5 +234,20 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     assert.strictEqual(totalInput - totalOutput, fee);
     assert.strictEqual(outputs[outputs.length - 1].address, changeAddress);
+  });
+
+  it('wasEverUsed() works', async () => {
+    if (!process.env.HD_MNEMONIC) {
+      console.error('process.env.HD_MNEMONIC not set, skipped');
+      return;
+    }
+
+    let hd = new HDSegwitBech32Wallet();
+    hd.setSecret(process.env.HD_MNEMONIC);
+    assert.ok(await hd.wasEverUsed());
+
+    hd = new HDSegwitBech32Wallet();
+    await hd.generate();
+    assert.ok(!(await hd.wasEverUsed()), hd.getSecret());
   });
 });
