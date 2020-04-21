@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Contact } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
 import { Text } from './Text';
@@ -12,7 +11,7 @@ const getInitials = (name: string): string => {
 };
 
 interface Props {
-  contact: Contact;
+  name: string;
 }
 
 export class ContactAvatar extends React.PureComponent<Props> {
@@ -20,7 +19,7 @@ export class ContactAvatar extends React.PureComponent<Props> {
     return (
       <View style={styles.wrapper}>
         <View style={styles.container}>
-          <Text style={styles.initials}>{getInitials(this.props.contact.name)}</Text>
+          <Text style={styles.initials}>{getInitials(this.props.name)}</Text>
         </View>
       </View>
     );

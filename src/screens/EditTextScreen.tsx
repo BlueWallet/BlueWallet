@@ -23,7 +23,7 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
   };
 
   return (
-    <ScreenTemplate footer={<Button title="Save" onPress={handlePressOnSaveButton} />}>
+    <ScreenTemplate footer={<Button title="Save" onPress={handlePressOnSaveButton} disabled={!value} />}>
       <View style={styles.inputItemContainer}>
         <InputItem label={label} value={value} setValue={setValue} autoFocus={true} />
       </View>

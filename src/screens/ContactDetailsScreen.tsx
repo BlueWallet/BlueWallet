@@ -20,10 +20,41 @@ interface Props extends NavigationScreenProps<{ contact: Contact }> {
   updateContact: (contact: Contact) => UpdateContactAction;
 }
 
-export class ContactDetailsScreen extends React.PureComponent<Props> {
+interface State {
+  name: string;
+  address: string;
+}
+
+export class ContactDetailsScreen extends React.PureComponent<Props, State> {
   static navigationOptions = (props: NavigationScreenProps<{ contact: Contact }>) => ({
     header: <Header navigation={props.navigation} isBackArrow title={props.navigation.getParam('contact').name} />,
   });
+
+  constructor(props: Props) {
+    super(props);
+    const contact = props.navigation.getParam('contact');
+    this.state = {
+      name: contact.name,
+      address: contact.address,
+    };
+  }
+
+  setName = (name: string) => {
+    this.setState({ name });
+    this.saveChanges({ name });
+  };
+
+  setAddress = (address: string) => {
+    this.setState({ address });
+    this.saveChanges({ address });
+  };
+
+  saveChanges = (changes: Partial<Contact>) => {
+    const contact = this.props.navigation.getParam('contact');
+    const updatedContact = { ...contact, ...changes };
+    this.props.navigation.setParams({ contact: updatedContact });
+    this.props.updateContact(updatedContact);
+  };
 
   navigateToSendCoins = () => null;
 
@@ -32,7 +63,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props> {
   deleteContact = () => null;
 
   render() {
-    const contact = this.props.navigation.getParam('contact');
+    const { name, address } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -51,19 +82,21 @@ export class ContactDetailsScreen extends React.PureComponent<Props> {
             />
           </>
         }>
-        <ContactAvatar contact={contact} />
+        <ContactAvatar name={name} />
         <View style={styles.nameInputContainer}>
           <GenericInputItem
             title={i18n.contactDetails.editName}
             label={i18n.contactDetails.nameLabel}
-            value={contact.name}
+            value={name}
+            onSave={this.setName}
           />
         </View>
         <View style={styles.addressInputContainer}>
           <GenericInputItem
             title={i18n.contactDetails.editAddress}
             label={i18n.contactDetails.addressLabel}
-            value={contact.address}
+            value={address}
+            onSave={this.setAddress}
           />
         </View>
       </ScreenTemplate>
