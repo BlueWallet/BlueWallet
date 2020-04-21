@@ -243,4 +243,13 @@ module.exports = {
     successDescription: 'Hooray! You have successfully\nadded your contact.',
     successButton: 'Return to Address book',
   },
+  contactDetails: {
+    nameLabel: 'Name',
+    addressLabel: 'Address',
+    editName: 'Edit name',
+    editAddress: 'Edit address',
+    sendCoinsButton: 'Send coins',
+    showQRCodeButton: 'Show QR code',
+    deleteButton: 'Delete contact',
+  },
 };

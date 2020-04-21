@@ -16,6 +16,7 @@ export const palette = {
   border: 'rgb(204, 204, 204)',
   error: 'rgb(244, 94, 89)',
   shadow: 'rgba(0, 0, 0, 0.12)',
+  shadowLight: 'rgba(0, 0, 0, 0.08)',
   transparent: 'transparent',
   white: 'rgb(255, 255, 255)',
   searchBar: 'rgba(255, 255, 255, 0.2)',

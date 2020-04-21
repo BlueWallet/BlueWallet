@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 import { useNavigationParam } from 'react-navigation-hooks';
 
-import { Header, InputItem, Button } from 'app/components';
+import { Header, InputItem, Button, ScreenTemplate } from 'app/components';
 
 export interface EditTextProps {
   title: string;
@@ -23,12 +23,11 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenTemplate footer={<Button title="Save" onPress={handlePressOnSaveButton} />}>
       <View style={styles.inputItemContainer}>
         <InputItem label={label} value={value} setValue={setValue} autoFocus={true} />
       </View>
-      <Button title="Save" onPress={handlePressOnSaveButton} containerStyle={styles.buttonContainer} />
-    </View>
+    </ScreenTemplate>
   );
 };
 
@@ -44,13 +43,5 @@ const styles = StyleSheet.create({
   inputItemContainer: {
     paddingTop: 20,
     width: '100%',
-  },
-  buttonContainer: {
-    justifyContent: 'flex-end',
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    padding: 20,
   },
 });

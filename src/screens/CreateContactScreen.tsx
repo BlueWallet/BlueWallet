@@ -42,8 +42,8 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
   createContact = () => {
     this.props.createContact({
       id: uuidv4(),
-      name: this.state.name,
-      address: this.state.address,
+      name: this.state.name.trim(),
+      address: this.state.address.trim(),
     });
     this.showSuccessImportMessageScreen();
     this.setState({

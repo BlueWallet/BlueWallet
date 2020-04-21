@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, View, StyleSheet, StyleProp, ViewStyle, BackHandler } from 'react-native';
+import { Text, View, StyleSheet, StyleProp, ViewStyle, BackHandler, StatusBar } from 'react-native';
 import { ButtonProps } from 'react-native-elements';
 import { useNavigationParam } from 'react-navigation-hooks';
 
@@ -42,6 +42,7 @@ export const MessageScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" />
       <Text style={styles.title}>{title}</Text>
       <Image source={source} style={[styles.image, imageStyle]} resizeMode="contain" />
       <Text style={styles.description}>{description}</Text>

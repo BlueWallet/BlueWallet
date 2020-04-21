@@ -17,6 +17,8 @@ interface Props extends NavigationInjectedProps {
 export class ContactListScreen extends PureComponent<Props> {
   navigateToAddContact = () => this.props.navigation.navigate(Route.CreateContact);
 
+  navigateToContactDetails = (contact: Contact) => this.props.navigation.navigate(Route.ContactDetails, { contact });
+
   render() {
     return (
       <>
@@ -25,7 +27,7 @@ export class ContactListScreen extends PureComponent<Props> {
           <SearchBar />
         </ContactListHeader>
         {this.props.contacts && this.props.contacts.length ? (
-          <ContactList contacts={this.props.contacts} />
+          <ContactList contacts={this.props.contacts} navigateToContactDetails={this.navigateToContactDetails} />
         ) : (
           <ListEmptyState variant={ListEmptyState.Variant.ContactList} onPress={this.navigateToAddContact} />
         )}

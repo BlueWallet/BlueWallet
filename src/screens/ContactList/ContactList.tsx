@@ -7,6 +7,7 @@ import { palette, typography } from 'app/styles';
 
 interface Props {
   contacts: Contact[];
+  navigateToContactDetails: (contact: Contact) => void;
 }
 
 export class ContactList extends React.PureComponent<Props> {
@@ -29,7 +30,7 @@ export class ContactList extends React.PureComponent<Props> {
   }
 
   renderItem = ({ item }: { item: Contact }) => (
-    <TouchableOpacity style={styles.contact}>
+    <TouchableOpacity style={styles.contact} onPress={() => this.props.navigateToContactDetails(item)}>
       <Text style={styles.contactName}>{item.name}</Text>
     </TouchableOpacity>
   );
