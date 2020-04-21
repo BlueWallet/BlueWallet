@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 import { images } from 'app/assets';
 import i18n, { en } from 'app/locale';
-import { typography } from 'app/styles';
+import { palette, typography } from 'app/styles';
 
 import { Image } from './Image';
 import { StyledText } from './StyledText';
@@ -70,6 +70,7 @@ const styles = StyleSheet.create({
   description: {
     ...typography.caption,
     textAlign: 'center',
+    color: palette.textGrey,
     lineHeight: 19,
   },
 });

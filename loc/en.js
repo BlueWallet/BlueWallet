@@ -232,4 +232,12 @@ module.exports = {
     noContactsDesc1: 'No contacts to show. \n Click ',
     noContactsDesc2: ' to add your first contact.',
   },
+  contactCreate: {
+    screenTitle: 'Add new contact',
+    subtitle: 'New contact',
+    description: 'Please enter name and address\nfor your new contact.',
+    nameLabel: 'Name',
+    addressLabel: 'Address',
+    buttonLabel: 'Add new contact',
+  },
 };

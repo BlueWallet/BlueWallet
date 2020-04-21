@@ -9,6 +9,7 @@ import {
   ExportWalletScreen,
   DeleteWalletScreen,
   ExportWalletXpubScreen,
+  CreateContactScreen,
 } from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
@@ -25,6 +26,7 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.WalletDetails]: WalletDetailsScreen,
     [Route.ExportWallet]: ExportWalletScreen,
     [Route.ExportWalletXpub]: ExportWalletXpubScreen,
+    [Route.CreateContact]: CreateContactScreen,
   },
   {
     mode: 'card',

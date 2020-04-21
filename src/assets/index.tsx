@@ -25,4 +25,5 @@ export const images = {
 export const icons = {
   iconDropdown: require('./images/iconDropdown.png'),
   addIcon: require('./images/addIcon.png'),
+  qrCode: require('./images/qrCode.png'),
 };

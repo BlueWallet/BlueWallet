@@ -2,6 +2,7 @@ export enum Route {
   Dashboard = 'Dashboard',
   WalletDetails = 'WalletDetails',
   ContactList = 'ContactList',
+  CreateContact = 'CreateContact',
   Settings = 'Settings',
   Message = 'Message',
   CreateWallet = 'CreateWallet',
@@ -31,4 +32,5 @@ export interface Wallet {
 export interface Contact {
   id: string;
   name: string;
+  address: string;
 }

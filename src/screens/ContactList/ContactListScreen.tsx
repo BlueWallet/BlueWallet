@@ -3,13 +3,14 @@ import { StatusBar } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 
 import { ListEmptyState, SearchBar } from 'app/components';
+import { Route } from 'app/consts';
 
 import { ContactListHeader } from './ContactListHeader';
 
 type Props = NavigationInjectedProps;
 
 export class ContactListScreen extends PureComponent<Props> {
-  navigateToAddContact = () => null;
+  navigateToAddContact = () => this.props.navigation.navigate(Route.CreateContact);
 
   render() {
     return (
@@ -18,7 +19,7 @@ export class ContactListScreen extends PureComponent<Props> {
         <ContactListHeader onAddButtonPress={this.navigateToAddContact}>
           <SearchBar />
         </ContactListHeader>
-        <ListEmptyState variant={ListEmptyState.Variant.ContactList} onPress={() => {}} />
+        <ListEmptyState variant={ListEmptyState.Variant.ContactList} onPress={this.navigateToAddContact} />
       </>
     );
   }
