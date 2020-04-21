@@ -225,4 +225,11 @@ module.exports = {
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node',
   },
+  contactList: {
+    bottomNavigationLabel: 'Address book',
+    screenTitle: 'Address book',
+    noContacts: 'No contacts',
+    noContactsDesc1: 'No contacts to show. \n Click ',
+    noContactsDesc2: ' to add your first contact.',
+  },
 };

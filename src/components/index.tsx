@@ -20,3 +20,4 @@ export { WalletCard } from './WalletCard';
 export { GenericInputItem } from './GenericInputItem';
 export { Chip } from './Chip';
 export { TransactionItem } from './TransactionItem';
+export { SearchBar } from './SearchBar';

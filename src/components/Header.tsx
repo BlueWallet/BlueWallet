@@ -9,7 +9,7 @@ import { FlatButton } from './FlatButton';
 import { GradientView } from './GradientView';
 import { Image } from './Image';
 
-const HEADER_HEIGHT = Platform.select({
+export const HEADER_HEIGHT = Platform.select({
   ios: 44,
   android: 38,
 }) as number;

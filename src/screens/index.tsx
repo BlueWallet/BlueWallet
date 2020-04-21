@@ -1,4 +1,4 @@
-export { AddressBookScreen } from './AddressBookScreen';
+export { default as ContactListScreen } from './ContactList/ContactListScreen';
 export { MessageScreen } from './MessageScreen';
 export { DashboardScreen } from './Dashboard/DashboardScreen';
 export { ActionSheet } from './Dashboard/ActionSheet';

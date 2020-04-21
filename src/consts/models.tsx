@@ -1,7 +1,7 @@
 export enum Route {
   Dashboard = 'Dashboard',
   WalletDetails = 'WalletDetails',
-  AddressBook = 'AddressBook',
+  ContactList = 'ContactList',
   Settings = 'Settings',
   Message = 'Message',
   CreateWallet = 'CreateWallet',

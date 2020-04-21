@@ -2,15 +2,15 @@ import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import { images } from 'app/assets';
-import { en } from 'app/locale';
-import { typography, palette } from 'app/styles';
+import i18n, { en } from 'app/locale';
+import { typography } from 'app/styles';
 
 import { Image } from './Image';
 import { StyledText } from './StyledText';
 
 enum ImageVariant {
   Dashboard = 'dashboardNoWallet',
-  AddressBook = 'addressBookNoContacts',
+  ContactList = 'addressBookNoContacts',
 }
 interface Props {
   variant: ImageVariant;
@@ -32,9 +32,9 @@ export class ListEmptyState extends PureComponent<Props> {
   renderAddressBookDescription = () => (
     <>
       <Text style={styles.description}>
-        {en.addressBook.noContactsDesc1}
+        {i18n.contactList.noContactsDesc1}
         <StyledText onPress={this.props.onPress} title="here" />
-        {en.addressBook.noContactsDesc2}
+        {i18n.contactList.noContactsDesc2}
       </Text>
     </>
   );
@@ -44,7 +44,7 @@ export class ListEmptyState extends PureComponent<Props> {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>
-          {variant == ImageVariant.Dashboard ? en.dashboard.noWallets : en.addressBook.noContacts}
+          {variant == ImageVariant.Dashboard ? en.dashboard.noWallets : i18n.contactList.noContacts}
         </Text>
         <Image source={images[variant]} style={styles.image} resizeMode="contain" />
         {variant == ImageVariant.Dashboard ? this.renderDashboardDescription() : this.renderAddressBookDescription()}
@@ -71,9 +71,5 @@ const styles = StyleSheet.create({
     ...typography.caption,
     textAlign: 'center',
     lineHeight: 19,
-  },
-  link: {
-    ...typography.headline5,
-    color: palette.textSecondary,
   },
 });

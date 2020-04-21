@@ -4,10 +4,12 @@ import { createBottomTabNavigator } from 'react-navigation';
 import { images } from 'app/assets';
 import { BottomTabBarIcon, BottomTabBarComponent } from 'app/components';
 import { Route } from 'app/consts';
+import i18n from 'app/locale';
+import { ContactListScreen } from 'app/screens';
 import { palette } from 'app/styles';
 
 import MainBottomTabs from '../../MainBottomTabs';
-import { AddressBookNavigator } from './AddressBookNavigator';
+import SettingsScreen from '../../screen/settings/settings';
 
 export const MainTabNavigator = createBottomTabNavigator(
   {
@@ -20,17 +22,17 @@ export const MainTabNavigator = createBottomTabNavigator(
         ),
       },
     },
-    [Route.AddressBook]: {
-      screen: AddressBookNavigator,
+    [Route.ContactList]: {
+      screen: ContactListScreen,
       navigationOptions: {
-        title: 'Address book',
+        title: i18n.contactList.bottomNavigationLabel,
         tabBarIcon: ({ focused }: { focused: boolean }) => (
           <BottomTabBarIcon source={focused ? images.addressBook : images.addressBookInactive} />
         ),
       },
     },
     [Route.Settings]: {
-      screen: AddressBookNavigator,
+      screen: SettingsScreen,
       navigationOptions: {
         title: 'Settings',
         tabBarIcon: ({ focused }: { focused: boolean }) => (
