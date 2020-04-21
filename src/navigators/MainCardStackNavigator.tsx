@@ -2,8 +2,13 @@ import { createStackNavigator } from 'react-navigation';
 
 import { Route } from 'app/consts';
 import { MainTabNavigator } from 'app/navigators/MainTabNavigator';
-import { CreateWalletScreen, WalletDetailsScreen, ImportWalletScreen } from 'app/screens';
-import { DeleteWalletScreen } from 'app/screens/DeleteWalletScreen';
+import {
+  CreateWalletScreen,
+  WalletDetailsScreen,
+  ImportWalletScreen,
+  ExportWalletScreen,
+  DeleteWalletScreen,
+} from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
   {
@@ -17,6 +22,7 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.ImportWallet]: ImportWalletScreen,
     [Route.DeleteWallet]: DeleteWalletScreen,
     [Route.WalletDetails]: WalletDetailsScreen,
+    [Route.ExportWallet]: ExportWalletScreen,
   },
   {
     mode: 'card',

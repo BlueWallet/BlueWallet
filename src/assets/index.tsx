@@ -17,6 +17,7 @@ export const images = {
   coin: require('./images/coin.png'),
   noTransactions: require('./images/bvWalletIconNoTransactions.png'),
   coinLogoInCircle: require('./images/coinLogoInCircle.png'),
+  qrCode: require('./images/qr-code.png'),
   close: require('./images/close.png'),
   scanQRcrosshair: require('./images/scanQRcrosshair.png'),
 };

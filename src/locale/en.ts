@@ -26,6 +26,10 @@ export const en = {
     scanQrCode: 'or scan QR code',
     walletInUseValidationError: 'Wallet is already in use. Please enter a valid wallet.',
   },
+  exportWallet: {
+    title: 'Mnemonic phrase',
+    header: 'Export wallet',
+  },
   deleteWallet: {
     title: 'Delete your wallet',
     header: 'Delete wallet',

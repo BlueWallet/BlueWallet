@@ -23,7 +23,10 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
     header: <Header navigation={props.navigation} isBackArrow title={props.navigation.getParam('wallet').label} />,
   });
 
-  navigateToWalletExport = () => null;
+  navigateToWalletExport = () =>
+    this.props.navigation.navigate(Route.ExportWallet, {
+      wallet: this.props.navigation.getParam('wallet'),
+    });
 
   showWalletXPUB = () => null;
 
@@ -40,7 +43,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
           <>
             <Button onPress={this.navigateToWalletExport} title={i18n.wallets.details.exportWallet} />
             <Button
-              onPress={this.navigateToWalletExport}
+              onPress={this.showWalletXPUB}
               title={i18n.wallets.details.showWalletXPUB}
               containerStyle={styles.showWalletXPUBContainer}
             />
