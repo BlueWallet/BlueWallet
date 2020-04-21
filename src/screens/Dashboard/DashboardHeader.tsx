@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { icons, images } from 'app/assets';
 import { Image } from 'app/components';
-import { en } from 'app/locale';
+import i18n, { en } from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 interface Props {
@@ -19,7 +19,7 @@ export const DashboardHeader = ({ balance, unit, label, onSendPress, onReceivePr
   return (
     <View style={styles.header}>
       <TouchableOpacity style={styles.chooseWalletButton} onPress={onSelectPress}>
-        <Text style={styles.chooseWalletButtonText}>{`${balance} ${unit} `}</Text>
+        <Text style={styles.chooseWalletButtonText}>{i18n.formatBalance(Number(balance), unit, true)}</Text>
         <Image source={icons.iconDropdown} style={styles.icon} />
       </TouchableOpacity>
       <View style={styles.descriptionContainer}>

@@ -1443,18 +1443,18 @@ export class NewWalletPanel extends Component {
 }
 
 export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
-  const calculateTimeLabel = useCallback(() => {
-    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
-    return setTransactionTimeToReadable(transactionTimeToReadable);
-  });
-  const interval = setInterval(() => calculateTimeLabel(), 60000);
+  // const calculateTimeLabel = useCallback(() => {
+  //   const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
+  //   return setTransactionTimeToReadable(transactionTimeToReadable);
+  // });
+  // const interval = setInterval(() => calculateTimeLabel(), 60000);
   const [transactionTimeToReadable, setTransactionTimeToReadable] = useState('...');
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
 
-  useEffect(() => {
-    calculateTimeLabel();
-    return () => clearInterval(interval);
-  }, [calculateTimeLabel, interval, item, itemPriceUnit]);
+  // useEffect(() => {
+  //   calculateTimeLabel();
+  //   return () => clearInterval(interval);
+  // }, [calculateTimeLabel, interval, item, itemPriceUnit]);
 
   const txMemo = () => {
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash]['memo']) {

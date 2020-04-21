@@ -32,6 +32,7 @@ import details from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import WalletExport from './screen/wallets/export';
+import WalletsList from './screen/wallets/list';
 import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import scanQrWif from './screen/wallets/scanQrWif';

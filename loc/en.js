@@ -95,7 +95,7 @@ module.exports = {
       tabBarLabel: 'Transactions',
       title: 'transactions',
       description: 'A list of ingoing or outgoing transactions of your wallets',
-      conf: 'conf',
+      conf: 'Confiramtions',
     },
     details: {
       title: 'Transaction',
