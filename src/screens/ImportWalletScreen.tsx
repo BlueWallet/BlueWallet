@@ -3,11 +3,11 @@ import { View, StyleSheet, Text } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { NavigationScreenProps } from 'react-navigation';
 
-import { Header, TextAreaItem, FlatButton } from 'app/components';
+import { Header, TextAreaItem, FlatButton, ScreenTemplate } from 'app/components';
 import { Button } from 'app/components/Button';
 import { Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import { en } from 'app/locale';
+import i18n, { en } from 'app/locale';
 import { NavigationService } from 'app/services';
 import { typography, palette } from 'app/styles';
 
@@ -21,7 +21,6 @@ import {
   HDSegwitBech32Wallet,
 } from '../../class';
 import EV from '../../events';
-import loc from '../../loc';
 
 export const ImportWalletScreen = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
@@ -79,7 +78,7 @@ export const ImportWalletScreen = () => {
       ReactNativeHapticFeedback.trigger('notificationSuccess', {
         ignoreAndroidSystemSettings: false,
       });
-      w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
+      w.setLabel(i18n.wallets.import.imported + ' ' + w.typeReadable);
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -216,7 +215,17 @@ export const ImportWalletScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenTemplate
+      footer={
+        <>
+          <Button disabled={isButtonDisabled} title={en.importWallet.import} onPress={onImportButtonPress} />
+          <FlatButton
+            containerStyle={styles.scanQRCodeButtonContainer}
+            title={en.importWallet.scanQrCode}
+            onPress={onScanQrCodeButtonPress}
+          />
+        </>
+      }>
       <View style={styles.inputItemContainer}>
         <Text style={styles.title}>{en.importWallet.title}</Text>
         <Text style={styles.subtitle}>{en.importWallet.subtitle}</Text>
@@ -227,14 +236,7 @@ export const ImportWalletScreen = () => {
           style={styles.textArea}
         />
       </View>
-      <Button
-        disabled={isButtonDisabled}
-        title={en.importWallet.import}
-        onPress={onImportButtonPress}
-        containerStyle={styles.importButton}
-      />
-      <FlatButton title={en.importWallet.scanQrCode} onPress={onScanQrCodeButtonPress} />
-    </View>
+    </ScreenTemplate>
   );
 };
 
@@ -262,17 +264,11 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     textAlign: 'center',
   },
-  importButton: {
-    justifyContent: 'flex-end',
-    paddingTop: 32,
-    paddingBottom: 20,
-  },
   textArea: {
     marginTop: 24,
     height: 250,
   },
-  container: {
-    flex: 1,
-    padding: 20,
+  scanQRCodeButtonContainer: {
+    marginTop: 12,
   },
 });

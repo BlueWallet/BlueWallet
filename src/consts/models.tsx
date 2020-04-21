@@ -6,6 +6,7 @@ export enum Route {
   Message = 'Message',
   CreateWallet = 'CreateWallet',
   ImportWallet = 'ImportWallet',
+  ImportWalletQRCode = 'ImportWalletQRCode',
   DeleteWallet = 'DeleteWallet',
 }
 
