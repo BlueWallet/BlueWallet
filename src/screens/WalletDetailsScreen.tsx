@@ -27,9 +27,9 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
 
   showWalletXPUB = () => null;
 
-  deleteWallet = (wallet: Wallet) =>
+  deleteWallet = () =>
     this.props.navigation.navigate(Route.DeleteWallet, {
-      wallet,
+      wallet: this.props.navigation.getParam('wallet'),
     });
 
   render() {
@@ -45,7 +45,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
               containerStyle={styles.showWalletXPUBContainer}
             />
             <FlatButton
-              onPress={this.deleteWallet.bind(this, wallet)}
+              onPress={this.deleteWallet}
               title={i18n.wallets.details.deleteWallet}
               containerStyle={styles.deleteWalletButtonContainer}
               buttonType={ButtonType.Warning}
