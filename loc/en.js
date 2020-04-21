@@ -239,5 +239,8 @@ module.exports = {
     nameLabel: 'Name',
     addressLabel: 'Address',
     buttonLabel: 'Add new contact',
+    successTitle: 'Success',
+    successDescription: 'Hooray! You have successfully\nadded your contact.',
+    successButton: 'Return to Address book',
   },
 };

@@ -1,10 +1,10 @@
-import React, { useEffect, useLayoutEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Text, View, StyleSheet, StyleProp, ViewStyle, BackHandler } from 'react-native';
 import { ButtonProps } from 'react-native-elements';
 import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Button, Image, FastImageSource } from 'app/components';
-import { typography, palette } from 'app/styles';
+import { typography, palette, ifIphoneX } from 'app/styles';
 
 export interface MessageProps {
   title: string;
@@ -55,6 +55,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 20,
+    paddingBottom: ifIphoneX(54, 20),
   },
   title: { ...typography.headline4, marginTop: '30%' },
   image: {

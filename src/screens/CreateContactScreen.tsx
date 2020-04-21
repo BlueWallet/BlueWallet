@@ -6,7 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { icons } from 'app/assets';
 import { Button, Header, InputItem, ScreenTemplate, Text, Image } from 'app/components';
-import { Contact } from 'app/consts';
+import { Contact, Route } from 'app/consts';
+import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import i18n from 'app/locale';
 import { createContact, CreateContactAction } from 'app/state/contacts/actions';
 import { palette, typography } from 'app/styles';
@@ -44,8 +45,23 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
       name: this.state.name,
       address: this.state.address,
     });
-    this.props.navigation.goBack();
+    this.showSuccessImportMessageScreen();
+    this.setState({
+      name: '',
+      address: '',
+    });
   };
+
+  showSuccessImportMessageScreen = () =>
+    CreateMessage({
+      title: i18n.contactCreate.successTitle,
+      description: i18n.contactCreate.successDescription,
+      type: MessageType.success,
+      buttonProps: {
+        title: i18n.contactCreate.successButton,
+        onPress: () => this.props.navigation.navigate(Route.ContactList),
+      },
+    });
 
   render() {
     return (
