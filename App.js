@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-community/async-storage';
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
 import {
@@ -15,16 +14,17 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Modal from 'react-native-modal';
 import QuickActions from 'react-native-quick-actions';
 import { createAppContainer, NavigationActions } from 'react-navigation';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import url from 'url';
 
 import { RootNavigator } from 'app/navigators';
+import { NavigationService } from 'app/services';
+import { persistor, store } from 'app/state/store';
 
 import { BlueTextCentered, BlueButton } from './BlueComponents';
-import MainBottomTabs from './MainBottomTabs';
-import { AppStorage } from './class';
 import OnAppLaunch from './class/onAppLaunch';
 import { Chain } from './models/bitcoinUnits';
-import { NavigationService } from './src/services';
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -37,7 +37,6 @@ const bitcoin = require('bitcoinjs-lib');
 const bitcoinModalString = 'Bitcoin address';
 const BlueApp = require('./BlueApp');
 const loc = require('./loc');
-/** @type {AppStorage} */
 
 const AppContainer = createAppContainer(RootNavigator);
 
@@ -243,15 +242,19 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <AppContainer
-          ref={nav => {
-            this.navigator = nav;
-            NavigationService.setTopLevelNavigator(nav);
-          }}
-        />
-        {this.renderClipboardContentModal()}
-      </View>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <View style={{ flex: 1 }}>
+            <AppContainer
+              ref={nav => {
+                this.navigator = nav;
+                NavigationService.setTopLevelNavigator(nav);
+              }}
+            />
+            {this.renderClipboardContentModal()}
+          </View>
+        </PersistGate>
+      </Provider>
     );
   }
 }

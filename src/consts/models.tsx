@@ -27,3 +27,8 @@ export interface Wallet {
   secret: string;
   typeReadable: string;
 }
+
+export interface Contact {
+  id: string;
+  name: string;
+}
