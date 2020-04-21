@@ -2,10 +2,13 @@
 import bip21 from 'bip21';
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ActivityIndicator, Image, View, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Image, View, TouchableOpacity, StatusBar, StyleSheet, Dimensions } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 
-import { BlueText, SafeBlueArea, BlueButton } from '../../BlueComponents';
+import { images } from 'app/assets';
+import { getStatusBarHeight } from 'app/styles';
+
+import { BlueText, BlueButton } from '../../BlueComponents';
 import {
   SegwitP2SHWallet,
   LegacyWallet,
@@ -24,6 +27,9 @@ const EV = require('../../events');
 const loc = require('../../loc');
 const prompt = require('../../prompt');
 
+const { height, width } = Dimensions.get('window');
+const SCAN_CODE_AFTER_MS = 2 * 1000; // in miliseconds
+
 export default class ScanQrWif extends React.Component {
   static navigationOptions = {
     header: null,
@@ -33,7 +39,7 @@ export default class ScanQrWif extends React.Component {
 
   onBarCodeScanned = async ret => {
     if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
-    if (+new Date() - this.lastTimeIveBeenHere < 6000) {
+    if (+new Date() - this.lastTimeIveBeenHere < SCAN_CODE_AFTER_MS) {
       this.lastTimeIveBeenHere = +new Date();
       return;
     }
@@ -273,29 +279,28 @@ export default class ScanQrWif extends React.Component {
         {(() => {
           if (this.state.message) {
             return (
-              <SafeBlueArea>
-                <View
-                  style={{
-                    flex: 1,
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}>
-                  <BlueText>{this.state.message}</BlueText>
-                  <BlueButton
-                    icon={{ name: 'ban', type: 'font-awesome' }}
-                    onPress={async () => {
-                      this.setState({ message: false });
+              <View
+                style={{
+                  flex: 1,
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <BlueText>{this.state.message}</BlueText>
+                <BlueButton
+                  icon={{ name: 'ban', type: 'font-awesome' }}
+                  onPress={async () => {
+                    this.setState({ message: false });
                       shold_stop_bip38 = true; // eslint-disable-line
-                    }}
-                    title={loc.wallets.scanQrWif.cancel}
-                  />
-                </View>
-              </SafeBlueArea>
+                  }}
+                  title={loc.wallets.scanQrWif.cancel}
+                />
+              </View>
             );
           } else {
             return (
-              <SafeBlueArea style={{ flex: 1 }}>
+              <>
+                <StatusBar hidden />
                 <RNCamera
                   captureAudio={false}
                   androidCameraPermissionOptions={{
@@ -309,21 +314,13 @@ export default class ScanQrWif extends React.Component {
                   ref={ref => (this.cameraRef = ref)}
                   barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
                 />
-                <TouchableOpacity
-                  style={{
-                    width: 40,
-                    height: 40,
-                    marginLeft: 24,
-                    backgroundColor: '#FFFFFF',
-                    justifyContent: 'center',
-                    borderRadius: 20,
-                    position: 'absolute',
-                    top: 64,
-                  }}
-                  onPress={() => this.props.navigation.goBack(null)}>
-                  <Image style={{ alignSelf: 'center' }} source={require('../../img/close.png')} />
+                <View style={styles.crosshairContainer}>
+                  <Image style={styles.crosshair} source={images.scanQRcrosshair} />
+                </View>
+                <TouchableOpacity style={styles.closeButton} onPress={() => this.props.navigation.goBack()}>
+                  <Image source={images.close} />
                 </TouchableOpacity>
-              </SafeBlueArea>
+              </>
             );
           }
         })()}
@@ -339,3 +336,24 @@ ScanQrWif.propTypes = {
     navigate: PropTypes.func,
   }),
 };
+
+const styles = StyleSheet.create({
+  crosshairContainer: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  crosshair: {
+    width: width * 0.58,
+    height: width * 0.58,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    top: getStatusBarHeight(),
+    right: 20,
+  },
+});

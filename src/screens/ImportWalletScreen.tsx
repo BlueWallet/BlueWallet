@@ -67,7 +67,7 @@ export const ImportWalletScreen = () => {
   };
 
   const onScanQrCodeButtonPress = () => {
-    // implement
+    NavigationService.navigate(Route.ImportWalletQRCode);
   };
 
   const saveWallet = async (w: any) => {

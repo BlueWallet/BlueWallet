@@ -1,8 +1,10 @@
 import { Easing, Animated } from 'react-native';
 import { createStackNavigator, NavigationSceneRendererProps } from 'react-navigation';
 
+import { Route } from 'app/consts';
 import { ActionSheet } from 'app/screens';
 
+import ImportWalletQRCodeScreen from '../../screen/wallets/scanQrWif';
 import { EditTextNavigator } from './EditTextNavigator';
 import { MainCardStackNavigator } from './MainCardStackNavigator';
 import { MessageNavigator } from './MessageNavigator';
@@ -10,6 +12,7 @@ import { MessageNavigator } from './MessageNavigator';
 export const RootNavigator = createStackNavigator(
   {
     MainCardStackNavigator,
+    [Route.ImportWalletQRCode]: ImportWalletQRCodeScreen,
     ActionSheet: ActionSheet,
     EditTextNavigator,
     MessageNavigator,
