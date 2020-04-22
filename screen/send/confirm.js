@@ -7,7 +7,16 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet } from '../../class';
+import {
+  HDLegacyElectrumSeedP2PKHWallet,
+  HDLegacyP2PKHWallet,
+  HDSegwitBech32Wallet,
+  HDSegwitP2SHWallet,
+  HDLegacyBreadwalletWallet,
+  LegacyWallet,
+  SegwitP2SHWallet,
+  SegwitBech32Wallet,
+} from '../../class';
 let loc = require('../../loc');
 let EV = require('../../events');
 let currency = require('../../currency');
@@ -68,7 +77,7 @@ export default class Confirm extends Component {
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           let amount = 0;
           const recipients = this.state.recipients;
-          if (recipients[0].amount === BitcoinUnit.MAX) {
+          if (recipients[0].amount === BitcoinUnit.MAX || !recipients[0].amount) {
             amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
           } else {
             for (const recipient of recipients) {
@@ -76,7 +85,19 @@ export default class Confirm extends Component {
             }
           }
 
-          if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
+          // wallets that support new createTransaction() instead of deprecated createTx()
+          if (
+            [
+              HDSegwitBech32Wallet.type,
+              HDSegwitP2SHWallet.type,
+              HDLegacyP2PKHWallet.type,
+              HDLegacyBreadwalletWallet.type,
+              HDLegacyElectrumSeedP2PKHWallet.type,
+              LegacyWallet.type,
+              SegwitP2SHWallet.type,
+              SegwitBech32Wallet.type,
+            ].includes(this.state.fromWallet.type)
+          ) {
             amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           }
 
@@ -106,7 +127,7 @@ export default class Confirm extends Component {
               fontWeight: '600',
             }}
           >
-            {item.amount === BitcoinUnit.MAX
+            {!item.amount || item.amount === BitcoinUnit.MAX
               ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
               : item.amount || currency.satoshiToBTC(item.value)}
           </Text>

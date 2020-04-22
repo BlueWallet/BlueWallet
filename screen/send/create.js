@@ -104,7 +104,7 @@ export default class SendCreate extends Component {
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
           <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
           <Text style={styles.transactionDetailsSubtitle}>
-            {item.amount === BitcoinUnit.MAX
+            {item.amount === BitcoinUnit.MAX || !item.amount
               ? currency.satoshiToBTC(this.state.wallet.getBalance()) - this.state.fee
               : item.amount || currency.satoshiToBTC(item.value)}{' '}
             {BitcoinUnit.BTC}

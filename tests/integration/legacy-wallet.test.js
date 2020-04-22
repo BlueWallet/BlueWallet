@@ -76,8 +76,8 @@ describe('LegacyWallet', function() {
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
 
     assert.ok(w.getUtxo()[0]['value']);
-    assert.ok(w.getUtxo()[0]['tx_output_n'] === 0 || w.getUtxo()[0]['tx_output_n'] === 1, JSON.stringify(w.getUtxo()[0]));
-    assert.ok(w.getUtxo()[0]['tx_hash']);
+    assert.ok(w.getUtxo()[0]['vout'] === 1, JSON.stringify(w.getUtxo()[0]));
+    assert.ok(w.getUtxo()[0]['txid']);
     assert.ok(w.getUtxo()[0]['confirmations']);
   });
 });
@@ -109,9 +109,9 @@ describe('SegwitBech32Wallet', function() {
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
 
     assert.ok(w.getUtxo()[0]['value']);
-    assert.ok(w.getUtxo()[0]['tx_output_n'] === 0);
-    assert.ok(w.getUtxo()[0]['tx_hash']);
-    assert.ok(w.getUtxo()[0]['confirmations']);
+    assert.ok(w.getUtxo()[0]['vout'] === 0);
+    assert.ok(w.getUtxo()[0]['txid']);
+    assert.ok(w.getUtxo()[0]['confirmations'], JSON.stringify(w.getUtxo()[0], null, 2));
     // double fetch shouldnt duplicate UTXOs:
     await w.fetchUtxo();
     const l2 = w.getUtxo().length;

@@ -40,10 +40,6 @@ export class WatchOnlyWallet extends LegacyWallet {
     throw new Error('Not initialized');
   }
 
-  createTx(utxos, amount, fee, toAddress, memo) {
-    throw new Error('Not supported');
-  }
-
   valid() {
     if (this.secret.startsWith('xpub') || this.secret.startsWith('ypub') || this.secret.startsWith('zpub')) return true;
 

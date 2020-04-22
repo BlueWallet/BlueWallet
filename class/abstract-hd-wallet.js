@@ -1,6 +1,5 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
-const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
 const BlueElectrum = require('../BlueElectrum');
 
@@ -42,56 +41,7 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   getTransactions() {
-    // need to reformat txs, as we are expected to return them in blockcypher format,
-    // but they are from blockchain.info actually (for all hd wallets)
-
-    let uniq = {};
-    let txs = [];
-    for (let tx of this.transactions) {
-      if (uniq[tx.hash]) continue;
-      uniq[tx.hash] = 1;
-      txs.push(AbstractHDWallet.convertTx(tx));
-    }
-
-    return txs;
-  }
-
-  static convertTx(tx) {
-    // console.log('converting', tx);
-    var clone = Object.assign({}, tx);
-    clone.received = new Date(clone.time * 1000).toISOString();
-    clone.outputs = clone.out;
-    if (clone.confirmations === undefined) {
-      clone.confirmations = 0;
-    }
-    for (let o of clone.outputs) {
-      o.addresses = [o.addr];
-    }
-    for (let i of clone.inputs) {
-      if (i.prev_out && i.prev_out.addr) {
-        i.addresses = [i.prev_out.addr];
-      }
-    }
-
-    if (!clone.value) {
-      let value = 0;
-      for (let inp of clone.inputs) {
-        if (inp.prev_out && inp.prev_out.xpub) {
-          // our owned
-          value -= inp.prev_out.value;
-        }
-      }
-
-      for (let out of clone.out) {
-        if (out.xpub) {
-          // to us
-          value += out.value;
-        }
-      }
-      clone.value = value;
-    }
-
-    return clone;
+    throw new Error('Not implemented');
   }
 
   setSecret(newSecret) {
@@ -362,202 +312,15 @@ export class AbstractHDWallet extends LegacyWallet {
     throw new Error('Could not find WIF for ' + address);
   }
 
-  createTx() {
-    throw new Error('Not implemented');
-  }
-
   async fetchBalance() {
-    try {
-      let that = this;
-
-      // refactor me
-      // eslint-disable-next-line
-      async function binarySearchIterationForInternalAddress(index, maxUsedIndex = 0, minUnusedIndex = 100500100, depth = 0) {
-        if (depth >= 20) return maxUsedIndex + 1; // fail
-        let txs = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(index));
-        if (txs.length === 0) {
-          if (index === 0) return 0;
-          minUnusedIndex = Math.min(minUnusedIndex, index); // set
-          index = Math.floor((index - maxUsedIndex) / 2 + maxUsedIndex);
-        } else {
-          maxUsedIndex = Math.max(maxUsedIndex, index); // set
-          let txs2 = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(index + 1));
-          if (txs2.length === 0) return index + 1; // thats our next free address
-
-          index = Math.round((minUnusedIndex - index) / 2 + index);
-        }
-
-        return binarySearchIterationForInternalAddress(index, maxUsedIndex, minUnusedIndex, depth + 1);
-      }
-
-      // refactor me
-      // eslint-disable-next-line
-      async function binarySearchIterationForExternalAddress(index, maxUsedIndex = 0, minUnusedIndex = 100500100, depth = 0) {
-        if (depth >= 20) return maxUsedIndex + 1; // fail
-        let txs = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(index));
-        if (txs.length === 0) {
-          if (index === 0) return 0;
-          minUnusedIndex = Math.min(minUnusedIndex, index); // set
-          index = Math.floor((index - maxUsedIndex) / 2 + maxUsedIndex);
-        } else {
-          maxUsedIndex = Math.max(maxUsedIndex, index); // set
-          let txs2 = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(index + 1));
-          if (txs2.length === 0) return index + 1; // thats our next free address
-
-          index = Math.round((minUnusedIndex - index) / 2 + index);
-        }
-
-        return binarySearchIterationForExternalAddress(index, maxUsedIndex, minUnusedIndex, depth + 1);
-      }
-
-      if (this.next_free_change_address_index === 0 && this.next_free_address_index === 0) {
-        // assuming that this is freshly imported/created wallet, with no internal variables set
-        // wild guess - its completely empty wallet:
-        let completelyEmptyWallet = false;
-        let txs = await BlueElectrum.getTransactionsByAddress(that._getInternalAddressByIndex(0));
-        if (txs.length === 0) {
-          let txs2 = await BlueElectrum.getTransactionsByAddress(that._getExternalAddressByIndex(0));
-          if (txs2.length === 0) {
-            // yep, completely empty wallet
-            completelyEmptyWallet = true;
-          }
-        }
-
-        // wrong guess. will have to rescan
-        if (!completelyEmptyWallet) {
-          // so doing binary search for last used address:
-          this.next_free_change_address_index = await binarySearchIterationForInternalAddress(1000);
-          this.next_free_address_index = await binarySearchIterationForExternalAddress(1000);
-        }
-      } // end rescanning fresh wallet
-
-      // finally fetching balance
-      await this._fetchBalance();
-    } catch (err) {
-      console.warn(err);
-    }
-  }
-
-  async _fetchBalance() {
-    // probing future addressess in hierarchy whether they have any transactions, in case
-    // our 'next free addr' pointers are lagging behind
-    let tryAgain = false;
-    let txs = await BlueElectrum.getTransactionsByAddress(
-      this._getExternalAddressByIndex(this.next_free_address_index + this.gap_limit - 1),
-    );
-    if (txs.length > 0) {
-      // whoa, someone uses our wallet outside! better catch up
-      this.next_free_address_index += this.gap_limit;
-      tryAgain = true;
-    }
-
-    txs = await BlueElectrum.getTransactionsByAddress(
-      this._getInternalAddressByIndex(this.next_free_change_address_index + this.gap_limit - 1),
-    );
-    if (txs.length > 0) {
-      this.next_free_change_address_index += this.gap_limit;
-      tryAgain = true;
-    }
-
-    // FIXME: refactor me ^^^ can be batched in single call
-
-    if (tryAgain) return this._fetchBalance();
-
-    // next, business as usuall. fetch balances
-
-    this.usedAddresses = [];
-    // generating all involved addresses:
-    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
-      this.usedAddresses.push(this._getExternalAddressByIndex(c));
-    }
-    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
-      this.usedAddresses.push(this._getInternalAddressByIndex(c));
-    }
-    let balance = await BlueElectrum.multiGetBalanceByAddress(this.usedAddresses);
-    this.balance = balance.balance;
-    this.unconfirmed_balance = balance.unconfirmed_balance;
-    this._lastBalanceFetch = +new Date();
-  }
-
-  async _fetchUtxoBatch(addresses) {
-    const api = new Frisbee({
-      baseURI: 'https://blockchain.info',
-    });
-
-    addresses = addresses.join('|');
-    let utxos = [];
-
-    let response;
-    let uri;
-    try {
-      uri = 'https://blockchain.info' + '/unspent?active=' + addresses + '&limit=1000';
-      response = await api.get('/unspent?active=' + addresses + '&limit=1000');
-      // this endpoint does not support offset of some kind o_O
-      // so doing only one call
-      let json = response.body;
-      if (typeof json === 'undefined' || typeof json.unspent_outputs === 'undefined') {
-        throw new Error('Could not fetch UTXO from API ' + response.err);
-      }
-
-      for (let unspent of json.unspent_outputs) {
-        // a lil transform for signer module
-        unspent.txid = unspent.tx_hash_big_endian;
-        unspent.vout = unspent.tx_output_n;
-        unspent.amount = unspent.value;
-
-        unspent.address = bitcoin.address.fromOutputScript(Buffer.from(unspent.script, 'hex'));
-        utxos.push(unspent);
-      }
-    } catch (err) {
-      console.warn(err, { uri });
-    }
-
-    return utxos;
+    throw new Error('Not implemented');
   }
 
   /**
    * @inheritDoc
    */
   async fetchUtxo() {
-    if (this.usedAddresses.length === 0) {
-      // just for any case, refresh balance (it refreshes internal `this.usedAddresses`)
-      await this.fetchBalance();
-    }
-
-    this.utxo = [];
-    let addresses = this.usedAddresses;
-    addresses.push(this._getExternalAddressByIndex(this.next_free_address_index));
-    addresses.push(this._getInternalAddressByIndex(this.next_free_change_address_index));
-
-    let duplicateUtxos = {};
-
-    let batch = [];
-    for (let addr of addresses) {
-      batch.push(addr);
-      if (batch.length >= 75) {
-        let utxos = await this._fetchUtxoBatch(batch);
-        for (let utxo of utxos) {
-          let key = utxo.txid + utxo.vout;
-          if (!duplicateUtxos[key]) {
-            this.utxo.push(utxo);
-            duplicateUtxos[key] = 1;
-          }
-        }
-        batch = [];
-      }
-    }
-
-    // final batch
-    if (batch.length > 0) {
-      let utxos = await this._fetchUtxoBatch(batch);
-      for (let utxo of utxos) {
-        let key = utxo.txid + utxo.vout;
-        if (!duplicateUtxos[key]) {
-          this.utxo.push(utxo);
-          duplicateUtxos[key] = 1;
-        }
-      }
-    }
+    throw new Error('Not implemented');
   }
 
   weOwnAddress(addr) {

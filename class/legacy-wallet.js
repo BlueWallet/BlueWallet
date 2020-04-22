@@ -3,9 +3,9 @@ import { HDSegwitBech32Wallet } from './';
 import { NativeModules } from 'react-native';
 const bitcoin = require('bitcoinjs-lib');
 const { RNRandomBytes } = NativeModules;
-const BigNumber = require('bignumber.js');
-const signer = require('../models/signer');
 const BlueElectrum = require('../BlueElectrum');
+const coinSelectAccumulative = require('coinselect/accumulative');
+const coinSelectSplit = require('coinselect/split');
 
 /**
  *  Has private key and single address like "1ABCD....."
@@ -104,8 +104,7 @@ export class LegacyWallet extends AbstractWallet {
     try {
       let balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
       this.balance = Number(balance.confirmed);
-      this.unconfirmed_balance = new BigNumber(balance.unconfirmed);
-      this.unconfirmed_balance = this.unconfirmed_balance.dividedBy(100000000).toString() * 1; // wtf
+      this.unconfirmed_balance = Number(balance.unconfirmed);
       this._lastBalanceFetch = +new Date();
     } catch (Error) {
       console.warn(Error);
@@ -124,20 +123,35 @@ export class LegacyWallet extends AbstractWallet {
       for (let arr of Object.values(utxos)) {
         this.utxo = this.utxo.concat(arr);
       }
+
+      // now we need to fetch txhash for each input as required by PSBT
+      if (LegacyWallet.type !== this.type) return; // but only for LEGACY single-address wallets
+      let txhexes = await BlueElectrum.multiGetTransactionByTxid(
+        this.utxo.map(u => u['txId']),
+        50,
+        false,
+      );
+
+      let newUtxos = [];
+      for (let u of this.utxo) {
+        if (txhexes[u.txId]) u.txhex = txhexes[u.txId];
+        newUtxos.push(u);
+      }
+
+      this.utxo = newUtxos;
     } catch (Error) {
       console.warn(Error);
-    }
-
-    // backward compatibility
-    for (let u of this.utxo) {
-      u.tx_output_n = u.vout;
-      u.tx_hash = u.txId;
-      u.confirmations = u.height ? 1 : 0;
     }
   }
 
   getUtxo() {
-    return this.utxo;
+    let ret = [];
+    for (let u of this.utxo) {
+      if (u.txId) u.txid = u.txId;
+      if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
+      ret.push(u);
+    }
+    return ret;
   }
 
   /**
@@ -241,29 +255,84 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   /**
-   * Takes UTXOs, transforms them into
-   * format expected by signer module, creates tx and returns signed string txhex.
    *
-   * @param utxos Unspent outputs, expects blockcypher format
-   * @param amount
-   * @param fee
-   * @param toAddress
-   * @param memo
-   * @return string Signed txhex ready for broadcast
+   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String, txhex: String, }>} List of spendable utxos
+   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
+   * @param feeRate {Number} satoshi per byte
+   * @param changeAddress {String} Excessive coins will go back to that address
+   * @param sequence {Number} Used in RBF
+   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
+   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
+   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTx(utxos, amount, fee, toAddress, memo) {
-    // transforming UTXOs fields to how module expects it
-    for (let u of utxos) {
-      u.confirmations = 6; // hack to make module accept 0 confirmations
-      u.txid = u.tx_hash;
-      u.vout = u.tx_output_n;
-      u.amount = new BigNumber(u.value);
-      u.amount = u.amount.dividedBy(100000000);
-      u.amount = u.amount.toString(10);
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+    if (!changeAddress) throw new Error('No change address provided');
+    sequence = sequence || 0xffffffff; // disable RBF by default
+
+    let algo = coinSelectAccumulative;
+    if (targets.length === 1 && targets[0] && !targets[0].value) {
+      // we want to send MAX
+      algo = coinSelectSplit;
     }
-    // console.log('creating legacy tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
-    return signer.createTransaction(utxos, toAddress, amountPlusFee, fee, this.getSecret(), this.getAddress());
+
+    let { inputs, outputs, fee } = algo(utxos, targets, feeRate);
+
+    // .inputs and .outputs will be undefined if no solution was found
+    if (!inputs || !outputs) {
+      throw new Error('Not enough balance. Try sending smaller amount');
+    }
+
+    let psbt = new bitcoin.Psbt();
+
+    let c = 0;
+    let values = {};
+    let keyPair;
+
+    inputs.forEach(input => {
+      if (!skipSigning) {
+        // skiping signing related stuff
+        keyPair = bitcoin.ECPair.fromWIF(this.secret); // secret is WIF
+      }
+      values[c] = input.value;
+      c++;
+
+      if (!input.txhex) throw new Error('UTXO is missing txhex of the input, which is required by PSBT for non-segwit input');
+
+      psbt.addInput({
+        hash: input.txid,
+        index: input.vout,
+        sequence,
+        // non-segwit inputs now require passing the whole previous tx as Buffer
+        nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+      });
+    });
+
+    outputs.forEach(output => {
+      // if output has no address - this is change output
+      if (!output.address) {
+        output.address = changeAddress;
+      }
+
+      let outputData = {
+        address: output.address,
+        value: output.value,
+      };
+
+      psbt.addOutput(outputData);
+    });
+
+    if (!skipSigning) {
+      // skiping signing related stuff
+      for (let cc = 0; cc < c; cc++) {
+        psbt.signInput(cc, keyPair);
+      }
+    }
+
+    let tx;
+    if (!skipSigning) {
+      tx = psbt.finalizeAllInputs().extractTransaction();
+    }
+    return { tx, inputs, outputs, fee, psbt };
   }
 
   getLatestTransactionTime() {
@@ -315,5 +384,15 @@ export class LegacyWallet extends AbstractWallet {
 
   weOwnAddress(address) {
     return this.getAddress() === address || this._address === address;
+  }
+
+  allowSendMax() {
+    return true;
+  }
+
+  async getChangeAddressAsync() {
+    return new Promise(resolve => {
+      resolve(this.getAddress());
+    });
   }
 }
