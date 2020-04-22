@@ -20,6 +20,8 @@ export const images = {
   qrCode: require('./images/qr-code.png'),
   close: require('./images/close.png'),
   scanQRcrosshair: require('./images/scanQRcrosshair.png'),
+  bigMinus: require('./images/bigMinus.png'),
+  bigPlus: require('./images/bigPlus.png'),
 };
 
 export const icons = {

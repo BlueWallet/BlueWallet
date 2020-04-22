@@ -64,9 +64,9 @@ const WalletsStackNavigator = createStackNavigator({
   TransactionStatus: {
     screen: TransactionStatus,
   },
-  TransactionDetails: {
-    screen: details,
-  },
+  // TransactionDetails: {
+  //   screen: details,
+  // },
   RBF: {
     screen: rbf,
   },

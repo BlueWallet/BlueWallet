@@ -33,6 +33,10 @@ export const typography = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0,
   },
+  headline8: {
+    fontFamily: fonts.ubuntu.bold,
+    fontSize: 21,
+  },
   headline7: {
     fontFamily: fonts.ubuntu.medium,
     fontSize: 16,

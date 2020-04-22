@@ -32,7 +32,7 @@ export class DashboardScreen extends Component<Props, State> {
   
     const allWalletsBalance = BlueApp.getBalance()
     const AllWallets = BlueApp.getWallets()
-    const wallets = AllWallets.length >1 ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets] : AllWallets
+    const wallets = AllWallets.length > 1 ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets] : AllWallets
 
     this.state = {
       isLoading: true,

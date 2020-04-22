@@ -14,6 +14,7 @@ export interface EditTextProps {
 
 export const EditTextScreen = (props: NavigationScreenProps) => {
   const label: string = useNavigationParam('label');
+  const header: React.ReactNode = useNavigationParam('header');
   const onSave: (value: string) => void = useNavigationParam('onSave');
   const [value, setValue] = useState(useNavigationParam('value') || '');
 
@@ -24,6 +25,7 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
 
   return (
     <ScreenTemplate footer={<Button title="Save" onPress={handlePressOnSaveButton} disabled={!value} />}>
+      {header}
       <View style={styles.inputItemContainer}>
         <InputItem label={label} value={value} setValue={setValue} autoFocus={true} />
       </View>

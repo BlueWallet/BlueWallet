@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
@@ -13,12 +13,12 @@ export interface TransactionItemProps {
   value: number;
 }
 
-export const TransactionItem = ({ item }: { item: TransactionItemProps }) => {
+export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps; onPress: (item: any) => void }) => {
   const confirmations = () => {
     return i18n.transactions.list.conf + ': ' + (item.confirmations < 7 ? item.confirmations : '6') + '/6 ';
   };
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
       <View style={styles.leftColumn}>
         <Text style={typography.headline5}>{item.walletLabel}</Text>
         <Text style={styles.label}>{confirmations()}</Text>
@@ -28,7 +28,7 @@ export const TransactionItem = ({ item }: { item: TransactionItemProps }) => {
         <Text style={typography.headline5}>{i18n.formatBalanceWithoutSuffix(Number(item.value))}</Text>
         <Text style={typography.headline5}>{item.walletPreferredBalanceUnit}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

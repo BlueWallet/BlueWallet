@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, StyleProp, TextStyle } from 'react-native';
 
 import { palette, typography } from 'app/styles';
 
@@ -7,13 +7,14 @@ import { Text } from './Text';
 
 interface Props {
   label: string;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export class Chip extends React.PureComponent<Props> {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.label}>{this.props.label}</Text>
+        <Text style={[styles.label, this.props.textStyle]}>{this.props.label}</Text>
       </View>
     );
   }
