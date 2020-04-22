@@ -22,6 +22,7 @@ export interface Wallet {
   getBalance: () => void;
   getLatestTransactionTime: () => void;
   getLabel: () => string;
+  setLabel: (label: string) => void;
   getAddress: () => string;
   getSecret: () => string;
   getXpub: () => string;

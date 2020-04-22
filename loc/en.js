@@ -56,6 +56,7 @@ module.exports = {
       exportWallet: 'Export wallet',
       showWalletXPUB: 'Show wallet XPUB',
       deleteWallet: 'Delete wallet',
+      nameEdit: 'Edit name',
     },
     export: {
       title: 'wallet export',

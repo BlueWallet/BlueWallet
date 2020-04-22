@@ -18,10 +18,22 @@ import { palette, typography } from 'app/styles';
 
 type Props = NavigationInjectedProps<{ wallet: Wallet }>;
 
-export class WalletDetailsScreen extends React.PureComponent<Props> {
+interface State {
+  label: string;
+}
+
+export class WalletDetailsScreen extends React.PureComponent<Props, State> {
   static navigationOptions = (props: NavigationScreenProps<{ wallet: Wallet }>) => ({
     header: <Header navigation={props.navigation} isBackArrow title={props.navigation.getParam('wallet').label} />,
   });
+
+  constructor(props: Props) {
+    super(props);
+    const wallet = props.navigation.getParam('wallet');
+    this.state = {
+      label: wallet.getLabel(),
+    };
+  }
 
   navigateToWalletExport = () => this.navigateWithWallet(Route.ExportWallet);
 
@@ -34,8 +46,16 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
       wallet: this.props.navigation.getParam('wallet'),
     });
 
+  setLabel = (label: string) => {
+    const wallet = this.props.navigation.getParam('wallet');
+    this.props.navigation.setParams({ wallet });
+    this.setState({ label });
+    wallet.setLabel(label);
+  };
+
   render() {
     const wallet = this.props.navigation.getParam('wallet');
+    const { label } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -53,12 +73,18 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
               buttonType={ButtonType.Warning}
             />
           </>
-        }>
+        }
+      >
         <View style={styles.walletContainer}>
           <WalletCard wallet={wallet} containerStyle={styles.walletContainerInner} />
         </View>
         <View style={styles.nameInputContainer}>
-          <GenericInputItem title="" label={i18n.wallets.details.nameLabel} value={wallet.getLabel()} />
+          <GenericInputItem
+            title={i18n.wallets.details.nameEdit}
+            label={i18n.wallets.details.nameLabel}
+            value={label}
+            onSave={this.setLabel}
+          />
         </View>
         <View style={styles.typeContainer}>
           <Text style={styles.typeLabel}>{i18n.wallets.details.typeLabel}</Text>

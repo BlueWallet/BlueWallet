@@ -21,7 +21,9 @@ interface Props {
   containerStyle?: StyleProp<ViewStyle>;
 }
 
-export class WalletCard extends React.PureComponent<Props> {
+// NOTE do not make it PureComponent as we are mutating wallet objects
+// when changing their labels, so it won't rerender
+export class WalletCard extends React.Component<Props> {
   render() {
     const { showEditButton, wallet, containerStyle } = this.props;
     return (

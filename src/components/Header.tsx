@@ -34,7 +34,8 @@ export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunc
       return (
         <TouchableOpacity
           style={isBackArrow ? styles.backArrowContainer : styles.cancelButtonContainer}
-          onPress={onLeftItemPress}>
+          onPress={onLeftItemPress}
+        >
           {leftItem}
         </TouchableOpacity>
       );
@@ -45,7 +46,9 @@ export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunc
     <GradientView variant={GradientView.Variant.Primary} style={styles.container}>
       <>
         {renderLeftItem()}
-        <Text style={styles.title}>{title}</Text>
+        <Text numberOfLines={1} style={styles.title}>
+          {title}
+        </Text>
         {!!addFunction && (
           <TouchableOpacity style={styles.rightElement} onPress={addFunction}>
             <Image source={icons.addIcon} style={styles.addIcon} />
@@ -68,6 +71,7 @@ const styles = StyleSheet.create({
   title: {
     ...typography.headline4,
     color: palette.white,
+    paddingHorizontal: 40,
   },
   backArrowContainer: {
     position: 'absolute',
@@ -77,11 +81,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     top: getStatusBarHeight(),
     left: 10,
+    zIndex: 10,
   },
   cancelButtonContainer: {
     position: 'absolute',
-    bottom: 0,
-    left: 20,
+    height: HEADER_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: getStatusBarHeight(),
+    left: 16,
+    zIndex: 10,
   },
   image: {
     width: 8,
@@ -99,5 +108,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     right: 10,
     top: getStatusBarHeight(),
+    zIndex: 10,
   },
 });
