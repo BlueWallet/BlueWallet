@@ -3,7 +3,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 import { useNavigationParam } from 'react-navigation-hooks';
 
-import { Button, Header } from 'app/components';
+import { Button, Header, ScreenTemplate } from 'app/components';
 import { Wallet } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { BlueApp } from 'app/legacy';
@@ -31,41 +31,38 @@ export const DeleteWalletScreen = (props: NavigationScreenProps) => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScreenTemplate
+      footer={
+        <View style={styles.buttonContainer}>
+          <Button
+            title={en.deleteWallet.no}
+            onPress={onNoButtonPress}
+            type="outline"
+            containerStyle={styles.noButton}
+          />
+          <Button title={en.deleteWallet.yes} onPress={onYesButtonPress} containerStyle={styles.yesButton} />
+        </View>
+      }>
       <Text style={styles.title}>{en.deleteWallet.title}</Text>
       <Text style={styles.description}>
         {en.deleteWallet.description1} {wallet.label}
         {en.deleteWallet.description2}
       </Text>
-      <View style={styles.buttonContainer}>
-        <Button title={en.deleteWallet.no} onPress={onNoButtonPress} type="outline" containerStyle={styles.noButton} />
-        <Button title={en.deleteWallet.yes} onPress={onYesButtonPress} containerStyle={styles.yesButton} />
-      </View>
-    </View>
+    </ScreenTemplate>
   );
 };
 
 DeleteWalletScreen.navigationOptions = () => ({
-  header: (
-    <View>
-      <Header title={en.deleteWallet.header} />
-    </View>
-  ),
+  header: <Header title={en.deleteWallet.header} />,
 });
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
   title: { ...typography.headline4, marginTop: 16, textAlign: 'center' },
   description: {
     ...typography.caption,
     color: palette.textGrey,
     textAlign: 'center',
-    lineHeight: 19,
     marginTop: 18,
-    flexGrow: 1,
   },
   buttonContainer: { flexDirection: 'row', width: '50%' },
   noButton: { paddingRight: 10, width: '100%' },

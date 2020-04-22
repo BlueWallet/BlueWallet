@@ -23,15 +23,14 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
     header: <Header navigation={props.navigation} isBackArrow title={props.navigation.getParam('wallet').label} />,
   });
 
-  navigateToWalletExport = () =>
-    this.props.navigation.navigate(Route.ExportWallet, {
-      wallet: this.props.navigation.getParam('wallet'),
-    });
+  navigateToWalletExport = () => this.navigateWithWallet(Route.ExportWallet);
 
-  showWalletXPUB = () => null;
+  navigateToWalletXpub = () => this.navigateWithWallet(Route.ExportWalletXpub);
 
-  deleteWallet = () =>
-    this.props.navigation.navigate(Route.DeleteWallet, {
+  navigateToDeleteWallet = () => this.navigateWithWallet(Route.DeleteWallet);
+
+  navigateWithWallet = (route: Route) =>
+    this.props.navigation.navigate(route, {
       wallet: this.props.navigation.getParam('wallet'),
     });
 
@@ -43,12 +42,12 @@ export class WalletDetailsScreen extends React.PureComponent<Props> {
           <>
             <Button onPress={this.navigateToWalletExport} title={i18n.wallets.details.exportWallet} />
             <Button
-              onPress={this.showWalletXPUB}
+              onPress={this.navigateToWalletXpub}
               title={i18n.wallets.details.showWalletXPUB}
               containerStyle={styles.showWalletXPUBContainer}
             />
             <FlatButton
-              onPress={this.deleteWallet}
+              onPress={this.navigateToDeleteWallet}
               title={i18n.wallets.details.deleteWallet}
               containerStyle={styles.deleteWalletButtonContainer}
               buttonType={ButtonType.Warning}

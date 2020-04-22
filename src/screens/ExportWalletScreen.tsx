@@ -47,11 +47,7 @@ export const ExportWalletScreen = () => {
 };
 
 ExportWalletScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: (
-    <View>
-      <Header title={en.exportWallet.header} isCancelButton={true} navigation={props.navigation} />
-    </View>
-  ),
+  header: <Header title={en.exportWallet.header} isCancelButton={true} navigation={props.navigation} />,
 });
 
 const styles = StyleSheet.create({
@@ -62,8 +58,6 @@ const styles = StyleSheet.create({
   title: { ...typography.headline4, marginTop: 16, textAlign: 'center' },
   address: {
     ...typography.caption,
-    textAlign: 'center',
-    lineHeight: 19,
     marginTop: 18,
     flexGrow: 1,
   },

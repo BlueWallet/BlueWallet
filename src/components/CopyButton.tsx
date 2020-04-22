@@ -1,5 +1,6 @@
+import Clipboard from '@react-native-community/clipboard';
 import React, { useState } from 'react';
-import { StyleSheet, Clipboard } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { typography } from 'app/styles';
 
@@ -11,9 +12,9 @@ interface Props {
 
 export const CopyButton = ({ textToCopy }: Props) => {
   const [isCopied, setIsCopied] = useState(false);
-  const copyToClipboard = async () => {
+  const copyToClipboard = () => {
     setIsCopied(true);
-    await Clipboard.setString(textToCopy);
+    Clipboard.setString(textToCopy);
   };
   return <FlatButton titleStyle={styles.titleStyle} title={isCopied ? 'Copied!' : 'Copy'} onPress={copyToClipboard} />;
 };

@@ -30,6 +30,9 @@ export const en = {
     title: 'Mnemonic phrase',
     header: 'Export wallet',
   },
+  exportWalletXpub: {
+    header: 'Wallet XPUB',
+  },
   deleteWallet: {
     title: 'Delete your wallet',
     header: 'Delete wallet',

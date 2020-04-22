@@ -9,6 +9,7 @@ export enum Route {
   ExportWallet = 'ExportWallet',
   ImportWalletQRCode = 'ImportWalletQRCode',
   DeleteWallet = 'DeleteWallet',
+  ExportWalletXpub = 'ExportWalletXub',
 }
 
 export interface Wallet {
@@ -21,6 +22,7 @@ export interface Wallet {
   getLabel: () => string;
   getAddress: () => string;
   getSecret: () => string;
+  getXpub: () => string;
   address: string;
   secret: string;
   typeReadable: string;
