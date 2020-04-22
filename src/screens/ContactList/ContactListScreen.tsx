@@ -14,20 +14,38 @@ interface Props extends NavigationInjectedProps {
   contacts: Contact[];
 }
 
-export class ContactListScreen extends PureComponent<Props> {
+interface State {
+  query: '';
+}
+
+export class ContactListScreen extends PureComponent<Props, State> {
+  state: State = {
+    query: '',
+  };
+
   navigateToAddContact = () => this.props.navigation.navigate(Route.CreateContact);
 
   navigateToContactDetails = (contact: Contact) => this.props.navigation.navigate(Route.ContactDetails, { contact });
+
+  setQuery = (query: string) => this.setState({ query });
+
+  get filteredContacts(): Contact[] {
+    return this.props.contacts.filter(contact => contact.name.includes(this.state.query));
+  }
 
   render() {
     return (
       <>
         <StatusBar barStyle="light-content" />
         <ContactListHeader onAddButtonPress={this.navigateToAddContact}>
-          <SearchBar />
+          <SearchBar query={this.state.query} setQuery={this.setQuery} />
         </ContactListHeader>
         {this.props.contacts && this.props.contacts.length ? (
-          <ContactList contacts={this.props.contacts} navigateToContactDetails={this.navigateToContactDetails} />
+          <ContactList
+            query={this.state.query}
+            contacts={this.filteredContacts}
+            navigateToContactDetails={this.navigateToContactDetails}
+          />
         ) : (
           <ListEmptyState variant={ListEmptyState.Variant.ContactList} onPress={this.navigateToAddContact} />
         )}

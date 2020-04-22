@@ -1,12 +1,15 @@
 import React from 'react';
-import { SectionList, SectionListData, StyleSheet, TouchableOpacity } from 'react-native';
+import { SectionList, SectionListData, StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import { Text } from 'app/components';
+import { images } from 'app/assets';
+import { Text, Image } from 'app/components';
 import { Contact } from 'app/consts';
+import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
 interface Props {
   contacts: Contact[];
+  query: string;
   navigateToContactDetails: (contact: Contact) => void;
 }
 
@@ -39,6 +42,13 @@ export class ContactList extends React.PureComponent<Props> {
     <Text style={styles.header}>{section.title}</Text>
   );
 
+  renderListEmpty = () => (
+    <View style={styles.listEmptyContainer}>
+      <Image source={images.addressBookNotFound} style={styles.listEmptyImage} />
+      <Text style={styles.listEmptyText}>{`${i18n.contactList.noResults}"${this.props.query}"`}</Text>
+    </View>
+  );
+
   render() {
     return (
       <SectionList
@@ -46,6 +56,7 @@ export class ContactList extends React.PureComponent<Props> {
         renderItem={this.renderItem}
         renderSectionHeader={this.renderSectionHeader}
         contentContainerStyle={styles.contentContainer}
+        ListEmptyComponent={this.renderListEmpty}
       />
     );
   }
@@ -66,5 +77,18 @@ const styles = StyleSheet.create({
   },
   contactName: {
     ...typography.headline5,
+  },
+  listEmptyContainer: {
+    alignItems: 'center',
+  },
+  listEmptyImage: {
+    width: 172,
+    height: 139,
+    marginTop: 44,
+    marginBottom: 40,
+  },
+  listEmptyText: {
+    ...typography.caption,
+    color: palette.textGrey,
   },
 });

@@ -226,11 +226,14 @@ module.exports = {
     open_direct_channel: 'Open direct channel with this node',
   },
   contactList: {
+    cancel: 'Cancel',
+    search: 'Search',
     bottomNavigationLabel: 'Address book',
     screenTitle: 'Address book',
     noContacts: 'No contacts',
     noContactsDesc1: 'No contacts to show. \n Click ',
     noContactsDesc2: ' to add your first contact.',
+    noResults: 'No results for',
   },
   contactCreate: {
     screenTitle: 'Add new contact',

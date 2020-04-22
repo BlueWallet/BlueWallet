@@ -1,13 +1,66 @@
 import React from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
-import { palette } from 'app/styles';
+import { icons, images } from 'app/assets';
+import { FlatButton } from 'app/components/FlatButton';
+import i18n from 'app/locale';
+import { palette, typography } from 'app/styles';
 
-export class SearchBar extends React.PureComponent {
+import { Image } from './Image';
+
+interface Props {
+  query: string;
+  setQuery: (query: string) => void;
+}
+
+interface State {
+  focused: boolean;
+}
+
+export class SearchBar extends React.PureComponent<Props, State> {
+  state: State = {
+    focused: false,
+  };
+
+  clear = () => this.props.setQuery('');
+
+  cancelSearch = () => Keyboard.dismiss();
+
+  focus = () => this.setState({ focused: true });
+
+  blur = () => this.setState({ focused: false });
+
   render() {
+    const { focused } = this.state;
     return (
       <View style={styles.container}>
-        <TextInput style={styles.textInput} />
+        <View style={styles.inputContainer}>
+          <Image source={icons.search} style={styles.searchIcon} />
+          <TextInput
+            onChangeText={this.props.setQuery}
+            value={this.props.query}
+            autoCorrect={false}
+            selectionColor={palette.secondary}
+            style={styles.textInput}
+            onFocus={this.focus}
+            onBlur={this.blur}
+            placeholderTextColor={palette.textWhiteMuted}
+            placeholder={i18n.contactList.search}
+          />
+          {focused && (
+            <TouchableOpacity style={styles.clearButton} onPress={this.clear}>
+              <Image source={images.cancelSmall} style={styles.clearImage} />
+            </TouchableOpacity>
+          )}
+        </View>
+        {focused && (
+          <FlatButton
+            onPress={this.cancelSearch}
+            containerStyle={styles.cancelButtonContainer}
+            titleStyle={typography.headline4}
+            title={i18n.contactList.cancel}
+          />
+        )}
       </View>
     );
   }
@@ -19,10 +72,42 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     paddingTop: 8,
     paddingHorizontal: 20,
+    flexDirection: 'row',
   },
   textInput: {
+    flex: 1,
+    ...typography.subtitle1,
+    color: palette.white,
+  },
+  inputContainer: {
+    backgroundColor: palette.searchBar,
     height: 36,
     borderRadius: 10,
-    backgroundColor: palette.searchBar,
+    paddingStart: 46,
+    paddingEnd: 46,
+    flex: 1,
+  },
+  searchIcon: {
+    width: 22,
+    height: 22,
+    position: 'absolute',
+    left: 12,
+    top: 8,
+  },
+  cancelButtonContainer: {
+    marginStart: 12,
+  },
+  clearButton: {
+    height: 36,
+    width: 36,
+    position: 'absolute',
+    top: 0,
+    right: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  clearImage: {
+    width: 14,
+    height: 14,
   },
 });

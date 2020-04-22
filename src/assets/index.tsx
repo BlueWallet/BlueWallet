@@ -8,6 +8,7 @@ export const images = {
   success: require('./images/bvWalletIconSuccess.png'),
   dashboardNoWallet: require('./images/bvWalletIconNoCards.png'),
   addressBookNoContacts: require('./images/addressBookNoContacts.png'),
+  addressBookNotFound: require('./images/bvAppIconsSearchx2.png'),
   backArrow: require('./images/navigationBarBackArrow.png'),
   successBadge: require('./images/groupCopy2.png'),
   processingState: require('./images/processingState.png'),
@@ -23,10 +24,12 @@ export const images = {
   goldWalletLogoBlack: require('./images/bv017LogoGoldWalletRgbV3HorizontalBlack.png'),
   bigMinus: require('./images/bigMinus.png'),
   bigPlus: require('./images/bigPlus.png'),
+  cancelSmall: require('./images/cancelSmall.png'),
 };
 
 export const icons = {
   iconDropdown: require('./images/iconDropdown.png'),
+  search: require('./images/iconSearch.png'),
   addIcon: require('./images/addIcon.png'),
   buildIcon: require('./images/buildIcon.png'),
   dataUsageIcon: require('./images/dataUsageIcon.png'),
