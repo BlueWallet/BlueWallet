@@ -64,7 +64,8 @@ export default class Language extends Component {
           console.warn('setLanguage', item.value);
           loc.saveLanguage(item.value);
           return this.setState({ language: item.value });
-        }}>
+        }}
+      >
         <BlueListItem
           title={item.label}
           {...(this.state.language === item.value

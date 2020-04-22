@@ -232,7 +232,8 @@ export default class WalletsList extends Component {
             fontSize: 24,
             marginVertical: 8,
             color: BlueApp.settings.foregroundColor,
-          }}>
+          }}
+        >
           {loc.transactions.list.title}
         </Text>
       </View>
@@ -278,7 +279,8 @@ export default class WalletsList extends Component {
               onRefresh={() => this.refreshTransactions()}
               refreshing={!this.state.isFlatListRefreshControlHidden}
             />
-          }>
+          }
+        >
           <BlueHeaderDefaultMain
             leftText={loc.wallets.list.title}
             onNewWalletPress={() => this.props.navigation.navigate('CreateWallet')}
@@ -304,7 +306,8 @@ export default class WalletsList extends Component {
                       fontSize: 18,
                       color: '#9aa0aa',
                       textAlign: 'center',
-                    }}>
+                    }}
+                  >
                     {loc.wallets.list.empty_txs1}
                   </Text>
                   <Text
@@ -312,7 +315,8 @@ export default class WalletsList extends Component {
                       fontSize: 18,
                       color: '#9aa0aa',
                       textAlign: 'center',
-                    }}>
+                    }}
+                  >
                     {loc.wallets.list.empty_txs2}
                   </Text>
                 </View>

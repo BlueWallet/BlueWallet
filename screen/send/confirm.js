@@ -109,7 +109,8 @@ export default class Confirm extends Component {
               color: '#0f5cc0',
               fontSize: 36,
               fontWeight: '600',
-            }}>
+            }}
+          >
             {item.amount === BitcoinUnit.MAX
               ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
               : item.amount || currency.satoshiToBTC(item.value)}
@@ -122,7 +123,8 @@ export default class Confirm extends Component {
               paddingBottom: 6,
               fontWeight: '600',
               alignSelf: 'flex-end',
-            }}>
+            }}
+          >
             {' ' + BitcoinUnit.BTC}
           </Text>
         </View>
@@ -136,7 +138,8 @@ export default class Confirm extends Component {
               alignSelf: 'flex-end',
               marginRight: 18,
               marginVertical: 8,
-            }}>
+            }}
+          >
             {index + 1} of {this.state.recipients.length}
           </BlueText>
         )}
@@ -164,7 +167,8 @@ export default class Confirm extends Component {
             marginTop: 16,
             alignItems: 'center',
             justifyContent: 'space-between',
-          }}>
+          }}
+        >
           <FlatList
             scrollEnabled={this.state.recipients.length > 1}
             extraData={this.state.recipients}
@@ -180,7 +184,8 @@ export default class Confirm extends Component {
               justifyContent: 'center',
               paddingTop: 16,
               paddingBottom: 16,
-            }}>
+            }}
+          >
             <BlueCard>
               <Text
                 style={{
@@ -190,7 +195,8 @@ export default class Confirm extends Component {
                   paddingBottom: 6,
                   fontWeight: '500',
                   alignSelf: 'center',
-                }}>
+                }}
+              >
                 {loc.send.create.fee}: {loc.formatBalance(this.state.feeSatoshi, BitcoinUnit.BTC)}
               </Text>
               <BlueSpacing40 />
@@ -218,14 +224,16 @@ export default class Confirm extends Component {
                     wallet: this.state.fromWallet,
                     feeSatoshi: this.state.feeSatoshi,
                   });
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     color: '#0c2550',
                     fontSize: 15,
                     fontWeight: '500',
                     alignSelf: 'center',
-                  }}>
+                  }}
+                >
                   {loc.transactions.details.transaction_details}
                 </Text>
               </TouchableOpacity>

@@ -55,7 +55,8 @@ export default class WalletTransactions extends Component {
             navigation.navigate('WalletDetails', {
               wallet: navigation.state.params.wallet,
             })
-          }>
+          }
+        >
           <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       ),
@@ -211,7 +212,8 @@ export default class WalletTransactions extends Component {
             fontWeight: 'bold',
             fontSize: 24,
             color: BlueApp.settings.foregroundColor,
-          }}>
+          }}
+        >
           {loc.transactions.list.title}
         </Text>
       </View>
@@ -283,7 +285,8 @@ export default class WalletTransactions extends Component {
               flexDirection: 'row',
               margin: 16,
               justifyContent: 'space-evenly',
-            }}></View>
+            }}
+          ></View>
           <FlatList
             onEndReachedThreshold={0.3}
             onEndReached={() => {
@@ -310,14 +313,16 @@ export default class WalletTransactions extends Component {
                   flex: 1,
                   justifyContent: 'center',
                   paddingHorizontal: 16,
-                }}>
+                }}
+              >
                 <Text
                   numberOfLines={0}
                   style={{
                     fontSize: 18,
                     color: '#9aa0aa',
                     textAlign: 'center',
-                  }}>
+                  }}
+                >
                   {true && loc.wallets.list.empty_txs1}
                 </Text>
                 <Text
@@ -325,7 +330,8 @@ export default class WalletTransactions extends Component {
                     fontSize: 18,
                     color: '#9aa0aa',
                     textAlign: 'center',
-                  }}>
+                  }}
+                >
                   {true && loc.wallets.list.empty_txs2}
                 </Text>
 
@@ -356,7 +362,8 @@ export default class WalletTransactions extends Component {
             borderRadius: 30,
             minHeight: 48,
             overflow: 'hidden',
-          }}>
+          }}
+        >
           {(() => {
             if (this.state.wallet.allowReceive()) {
               return (

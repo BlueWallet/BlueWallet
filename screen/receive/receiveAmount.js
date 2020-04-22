@@ -83,7 +83,8 @@ export default class ReceiveAmount extends Component {
             alignItems: 'center',
             marginVertical: 8,
             borderRadius: 4,
-          }}>
+          }}
+        >
           <TextInput
             onChangeText={text => this.setState({ label: text })}
             placeholder={loc.receive.details.label}
@@ -121,7 +122,8 @@ export default class ReceiveAmount extends Component {
             textAlign: 'center',
             paddingBottom: 24,
           }}
-          numberOfLines={1}>
+          numberOfLines={1}
+        >
           {this.state.label}
         </BlueText>
         <View
@@ -129,7 +131,8 @@ export default class ReceiveAmount extends Component {
             justifyContent: 'center',
             alignItems: 'center',
             paddingHorizontal: 16,
-          }}>
+          }}
+        >
           <QRCode
             value={this.state.bip21}
             logo={require('../../img/qr-code.png')}
@@ -156,7 +159,8 @@ export default class ReceiveAmount extends Component {
               flex: 1,
               backgroundColor: '#FFFFFF',
               justifyContent: 'space-between',
-            }}>
+            }}
+          >
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 amount={this.state.amount || ''}

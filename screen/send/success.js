@@ -44,13 +44,15 @@ export default class Success extends Component {
               justifyContent: 'center',
               paddingTop: 76,
               paddingBottom: 16,
-            }}>
+            }}
+          >
             <Text
               style={{
                 color: '#0f5cc0',
                 fontSize: 36,
                 fontWeight: '600',
-              }}>
+              }}
+            >
               {this.state.amount}
             </Text>
             <Text
@@ -61,7 +63,8 @@ export default class Success extends Component {
                 paddingBottom: 6,
                 fontWeight: '600',
                 alignSelf: 'flex-end',
-              }}>
+              }}
+            >
               {' ' + this.state.amountUnit}
             </Text>
           </View>
@@ -74,7 +77,8 @@ export default class Success extends Component {
                 paddingBottom: 6,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}>
+              }}
+            >
               {loc.send.create.fee}: {this.state.fee} {BitcoinUnit.BTC}
             </Text>
           )}
@@ -88,7 +92,8 @@ export default class Success extends Component {
                 paddingBottom: 6,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}>
+              }}
+            >
               {this.state.invoiceDescription}
             </Text>
           )}
@@ -103,7 +108,8 @@ export default class Success extends Component {
             justifyContent: 'center',
             marginTop: 43,
             marginBottom: 53,
-          }}>
+          }}
+        >
           <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
         </View>
         <BlueCard>

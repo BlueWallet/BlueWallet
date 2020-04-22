@@ -44,7 +44,8 @@ export default class Currency extends Component {
             await currency.startUpdater();
             this.setState({ isSavingNewPreferredCurrency: false });
           });
-        }}>
+        }}
+      >
         <BlueListItem
           title={item.endPointKey + ' (' + item.symbol + ')'}
           {...(this.state.selectedCurrency.endPointKey === item.endPointKey

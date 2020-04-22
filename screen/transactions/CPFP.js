@@ -198,20 +198,23 @@ export default class CPFP extends Component {
                 fontSize: 15,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}>
+              }}
+            >
               Copy and broadcast later
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ marginVertical: 24 }}
-            onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
+            onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}
+          >
             <Text
               style={{
                 color: '#9aa0aa',
                 fontSize: 15,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}>
+              }}
+            >
               Verify on coinb.in
             </Text>
           </TouchableOpacity>
@@ -244,7 +247,8 @@ export default class CPFP extends Component {
             justifyContent: 'center',
             marginTop: 43,
             marginBottom: 53,
-          }}>
+          }}
+        >
           <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
         </View>
         <BlueCard>

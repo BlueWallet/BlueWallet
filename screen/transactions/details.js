@@ -113,7 +113,8 @@ export default class TransactionsDetails extends Component {
                     flexDirection: 'row',
                     marginBottom: 4,
                     justifyContent: 'space-between',
-                  }}>
+                  }}
+                >
                   <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>
                     {loc.transactions.details.from}
                   </BlueText>
@@ -133,7 +134,8 @@ export default class TransactionsDetails extends Component {
                     flexDirection: 'row',
                     marginBottom: 4,
                     justifyContent: 'space-between',
-                  }}>
+                  }}
+                >
                   <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>
                     {loc.transactions.details.to}
                   </BlueText>
@@ -160,7 +162,8 @@ export default class TransactionsDetails extends Component {
                     flexDirection: 'row',
                     marginBottom: 4,
                     justifyContent: 'space-between',
-                  }}>
+                  }}
+                >
                   <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Transaction ID</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.tx.txid} />
                 </View>
@@ -173,7 +176,8 @@ export default class TransactionsDetails extends Component {
                         Linking.openURL(url);
                       }
                     });
-                  }}>
+                  }}
+                >
                   <BlueText style={{ marginBottom: 26, color: '#2f5fb3' }}>
                     {loc.transactions.details.show_in_block_explorer}
                   </BlueText>

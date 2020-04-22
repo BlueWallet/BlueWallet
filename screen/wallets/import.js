@@ -255,7 +255,8 @@ export default class WalletsImport extends Component {
         <View
           style={{
             alignItems: 'center',
-          }}>
+          }}
+        >
           <BlueButton
             disabled={!this.state.label}
             title={loc.wallets.import.do_import}

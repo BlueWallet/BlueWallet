@@ -133,7 +133,8 @@ export default class PsbtWithHardwareWallet extends Component {
             right: 16,
             top: 64,
           }}
-          onPress={() => this.setState({ renderScanner: false })}>
+          onPress={() => this.setState({ renderScanner: false })}
+        >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
       </SafeBlueArea>
@@ -153,7 +154,8 @@ export default class PsbtWithHardwareWallet extends Component {
             justifyContent: 'center',
             marginTop: 143,
             marginBottom: 53,
-          }}>
+          }}
+        >
           <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
         </View>
         <BlueCard>
@@ -194,20 +196,23 @@ export default class PsbtWithHardwareWallet extends Component {
                 fontSize: 15,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}>
+              }}
+            >
               Copy and broadcast later
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ marginVertical: 24 }}
-            onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
+            onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}
+          >
             <Text
               style={{
                 color: '#9aa0aa',
                 fontSize: 15,
                 fontWeight: '500',
                 alignSelf: 'center',
-              }}>
+              }}
+            >
               Verify on coinb.in
             </Text>
           </TouchableOpacity>
@@ -240,7 +245,8 @@ export default class PsbtWithHardwareWallet extends Component {
               justifyContent: 'center',
               paddingTop: 16,
               paddingBottom: 16,
-            }}>
+            }}
+          >
             <BlueCard>
               <BlueText>
                 This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.

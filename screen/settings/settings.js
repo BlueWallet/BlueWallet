@@ -108,7 +108,8 @@ export const Settings = () => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-              }}>
+              }}
+            >
               <BlueText>{loc.settings.enable_advanced_mode}</BlueText>
               <Switch value={advancedModeEnabled} onValueChange={onAdvancedModeSwitch} />
             </View>

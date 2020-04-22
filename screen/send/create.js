@@ -123,20 +123,23 @@ export default class SendCreate extends Component {
                     fontSize: 15,
                     fontWeight: '500',
                     alignSelf: 'center',
-                  }}>
+                  }}
+                >
                   Copy and broadcast later
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ marginVertical: 24 }}
-                onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
+                onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}
+              >
                 <Text
                   style={{
                     color: '#9aa0aa',
                     fontSize: 15,
                     fontWeight: '500',
                     alignSelf: 'center',
-                  }}>
+                  }}
+                >
                   Verify on coinb.in
                 </Text>
               </TouchableOpacity>

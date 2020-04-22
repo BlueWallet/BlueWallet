@@ -179,7 +179,8 @@ export default class TransactionsStatus extends Component {
                         color: '#2f5fb3',
                         fontSize: 16,
                         fontWeight: '600',
-                      }}>
+                      }}
+                    >
                       {this.state.wallet.preferredBalanceUnit}
                     </Text>
                   )}
@@ -219,7 +220,8 @@ export default class TransactionsStatus extends Component {
                 justifyContent: 'center',
                 marginTop: 43,
                 marginBottom: 53,
-              }}>
+              }}
+            >
               <View>
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
@@ -232,7 +234,8 @@ export default class TransactionsStatus extends Component {
                   justifyContent: 'center',
                   alignSelf: 'flex-end',
                   borderRadius: 15,
-                }}>
+                }}
+              >
                 {(() => {
                   if (!this.state.tx.confirmations) {
                     return (
@@ -266,7 +269,8 @@ export default class TransactionsStatus extends Component {
                     marginBottom: 4,
                     color: '#00c49f',
                     alignSelf: 'center',
-                  }}>
+                  }}
+                >
                   {loc.send.create.fee.toLowerCase()}{' '}
                   {loc.formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
                   {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY &&
@@ -284,7 +288,8 @@ export default class TransactionsStatus extends Component {
                 alignSelf: 'center',
                 alignItems: 'center',
                 justifyContent: 'center',
-              }}>
+              }}
+            >
               <Text style={{ color: '#9aa0aa', fontSize: 11 }}>{this.state.tx.confirmations} confirmations</Text>
             </View>
           </BlueCard>
@@ -381,7 +386,8 @@ export default class TransactionsStatus extends Component {
                           fontSize: 15,
                           fontWeight: '500',
                           textAlign: 'center',
-                        }}>
+                        }}
+                      >
                         {'Cancel Transaction'}
                       </Text>
                     </TouchableOpacity>
@@ -401,7 +407,8 @@ export default class TransactionsStatus extends Component {
                 this.props.navigation.navigate('TransactionDetails', {
                   hash: this.state.tx.hash,
                 })
-              }>
+              }
+            >
               <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
                 {loc.send.create.details.toLowerCase()}
               </Text>

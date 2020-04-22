@@ -42,7 +42,8 @@ export default class WalletDetails extends Component {
           if (navigation.state.params.saveAction) {
             navigation.getParam('saveAction')();
           }
-        }}>
+        }}
+      >
         <Text style={{ color: '#0c2550' }}>{loc.wallets.details.save}</Text>
       </TouchableOpacity>
     ),
@@ -145,7 +146,8 @@ export default class WalletDetails extends Component {
                   fontWeight: '500',
                   fontSize: 14,
                   marginVertical: 16,
-                }}>
+                }}
+              >
                 {loc.wallets.add.wallet_name.toLowerCase()}
               </Text>
 
@@ -161,7 +163,8 @@ export default class WalletDetails extends Component {
                   height: 44,
                   alignItems: 'center',
                   borderRadius: 4,
-                }}>
+                }}
+              >
                 <TextInput
                   placeholder={loc.send.details.note_placeholder}
                   value={this.state.walletName}
@@ -179,7 +182,8 @@ export default class WalletDetails extends Component {
                   fontWeight: '500',
                   fontSize: 14,
                   marginVertical: 12,
-                }}>
+                }}
+              >
                 {loc.wallets.details.type.toLowerCase()}
               </Text>
               <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
@@ -195,7 +199,8 @@ export default class WalletDetails extends Component {
                         flexDirection: 'row',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                      }}>
+                      }}
+                    >
                       <BlueText>{'Use with hardware wallet'}</BlueText>
                       <Switch
                         value={this.state.useWithHardwareWallet}
@@ -285,13 +290,15 @@ export default class WalletDetails extends Component {
                       ],
                       { cancelable: false },
                     );
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       color: '#d0021b',
                       fontSize: 15,
                       fontWeight: '500',
-                    }}>
+                    }}
+                  >
                     {loc.wallets.details.delete}
                   </Text>
                 </TouchableOpacity>

@@ -87,7 +87,8 @@ export default class ElectrumSettings extends Component {
               height: 44,
               alignItems: 'center',
               borderRadius: 4,
-            }}>
+            }}
+          >
             <TextInput
               placeholder={'host, for example 111.222.333.444'}
               value={this.state.host}
@@ -116,7 +117,8 @@ export default class ElectrumSettings extends Component {
               height: 44,
               alignItems: 'center',
               borderRadius: 4,
-            }}>
+            }}
+          >
             <TextInput
               placeholder={'TCP port, usually 50001'}
               value={this.state.port}

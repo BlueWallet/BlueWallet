@@ -672,7 +672,8 @@ export default class SendDetails extends Component {
           }
           Keyboard.dismiss();
           this.setState({ isFeeSelectionModalVisible: false });
-        }}>
+        }}
+      >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <TouchableOpacity style={styles.satoshisTextInput} onPress={() => this.textInput.focus()}>
@@ -720,7 +721,8 @@ export default class SendDetails extends Component {
                   fontSize: 16,
                   alignSelf: 'flex-end',
                   marginBottom: 14,
-                }}>
+                }}
+              >
                 sat/b
               </Text>
             </TouchableOpacity>
@@ -746,13 +748,15 @@ export default class SendDetails extends Component {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     marginTop: 14,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       fontWeight: '500',
                       fontSize: 13,
                       color: '#37c0a1',
-                    }}>
+                    }}
+                  >
                     slow
                   </Text>
                   <Text
@@ -760,7 +764,8 @@ export default class SendDetails extends Component {
                       fontWeight: '500',
                       fontSize: 13,
                       color: '#37c0a1',
-                    }}>
+                    }}
+                  >
                     fast
                   </Text>
                 </View>
@@ -781,7 +786,8 @@ export default class SendDetails extends Component {
         onBackdropPress={() => {
           Keyboard.dismiss();
           this.setState({ isAdvancedTransactionOptionsVisible: false });
-        }}>
+        }}
+      >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.advancedTransactionOptionsModalContent}>
             {this.state.fromWallet.allowSendMax() && (
@@ -854,7 +860,8 @@ export default class SendDetails extends Component {
           alignContent: 'center',
           backgroundColor: '#FFFFFF',
           minHeight: 44,
-        }}>
+        }}
+      >
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
@@ -876,7 +883,8 @@ export default class SendDetails extends Component {
                 onWalletSelect: this.onWalletSelect,
                 chainType: Chain.ONCHAIN,
               })
-            }>
+            }
+          >
             <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>
               {loc.wallets.select_wallet.toLowerCase()}
             </Text>
@@ -888,7 +896,8 @@ export default class SendDetails extends Component {
             flexDirection: 'row',
             alignItems: 'center',
             marginVertical: 4,
-          }}>
+          }}
+        >
           <TouchableOpacity
             style={{ flexDirection: 'row', alignItems: 'center' }}
             onPress={() =>
@@ -896,7 +905,8 @@ export default class SendDetails extends Component {
                 onWalletSelect: this.onWalletSelect,
                 chainType: Chain.ONCHAIN,
               })
-            }>
+            }
+          >
             <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
           </TouchableOpacity>
         </View>
@@ -984,7 +994,8 @@ export default class SendDetails extends Component {
                 alignSelf: 'flex-end',
                 marginRight: 18,
                 marginVertical: 8,
-              }}>
+              }}
+            >
               {index + 1} of {this.state.addresses.length}
             </BlueText>
           )}
@@ -1047,7 +1058,8 @@ export default class SendDetails extends Component {
                 onLayout={() => this.scrollView.scrollToEnd()}
                 onMomentumScrollEnd={this.handlePageChange}
                 scrollEnabled={this.state.addresses.length > 1}
-                scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}>
+                scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
+              >
                 {this.renderBitcoinTransactionInfoFields()}
               </ScrollView>
               <View
@@ -1065,7 +1077,8 @@ export default class SendDetails extends Component {
                   alignItems: 'center',
                   marginVertical: 8,
                   borderRadius: 4,
-                }}>
+                }}
+              >
                 <TextInput
                   onChangeText={text => this.setState({ memo: text })}
                   placeholder={loc.send.details.note_placeholder}
@@ -1085,7 +1098,8 @@ export default class SendDetails extends Component {
                   marginHorizontal: 20,
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                }}>
+                }}
+              >
                 <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
                 <View
                   style={{
@@ -1097,14 +1111,16 @@ export default class SendDetails extends Component {
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingHorizontal: 10,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       color: '#37c0a1',
                       marginBottom: 0,
                       marginRight: 4,
                       textAlign: 'right',
-                    }}>
+                    }}
+                  >
                     {this.state.fee}
                   </Text>
                   <Text
@@ -1112,7 +1128,8 @@ export default class SendDetails extends Component {
                       color: '#37c0a1',
                       paddingRight: 4,
                       textAlign: 'left',
-                    }}>
+                    }}
+                  >
                     sat/b
                   </Text>
                 </View>

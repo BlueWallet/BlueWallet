@@ -269,7 +269,8 @@ export default class ScanQrWif extends React.Component {
             paddingTop: 20,
             justifyContent: 'center',
             alignContent: 'center',
-          }}>
+          }}
+        >
           <ActivityIndicator />
         </View>
       );
@@ -285,7 +286,8 @@ export default class ScanQrWif extends React.Component {
                   flexDirection: 'column',
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}>
+                }}
+              >
                 <BlueText>{this.state.message}</BlueText>
                 <BlueButton
                   icon={{ name: 'ban', type: 'font-awesome' }}

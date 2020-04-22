@@ -159,7 +159,8 @@ export default class RBF extends Component {
               alignItems: 'center',
               marginVertical: 8,
               borderRadius: 4,
-            }}>
+            }}
+          >
             <TextInput
               onChangeText={text => this.setState({ newDestinationAddress: text })}
               placeholder={'receiver address here'}
@@ -181,7 +182,8 @@ export default class RBF extends Component {
               alignItems: 'center',
               marginVertical: 8,
               borderRadius: 4,
-            }}>
+            }}
+          >
             <TextInput
               onChangeText={text => this.setState({ feeDelta: text })}
               keyboardType={'numeric'}

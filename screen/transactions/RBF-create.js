@@ -205,7 +205,8 @@ export default class SendCreate extends Component {
               flex: 1,
               justifyContent: 'center',
               alignContent: 'center',
-            }}>
+            }}
+          >
             <BlueText h4 style={{ textAlign: 'center' }}>
               This transaction is not replaceable
             </BlueText>

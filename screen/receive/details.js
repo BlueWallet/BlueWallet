@@ -114,7 +114,8 @@ export default class ReceiveDetails extends Component {
               marginTop: 32,
               alignItems: 'center',
               paddingHorizontal: 16,
-            }}>
+            }}
+          >
             {this.state.bip21encoded === undefined ? (
               <View style={{ alignItems: 'center', width: 300, height: 300 }}>
                 <BlueLoading />
@@ -138,7 +139,8 @@ export default class ReceiveDetails extends Component {
               alignItems: 'center',
               alignContent: 'flex-end',
               marginBottom: 24,
-            }}>
+            }}
+          >
             <BlueButtonLink
               title={loc.receive.details.setAmount}
               onPress={() => {

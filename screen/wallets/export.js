@@ -82,7 +82,8 @@ export default class WalletExport extends Component {
             justifyContent: 'center',
             paddingHorizontal: 0,
           }}
-          onLayout={this.onLayout}>
+          onLayout={this.onLayout}
+        >
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>

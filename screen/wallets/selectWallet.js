@@ -49,7 +49,8 @@ export default class SelectWallet extends Component {
             ignoreAndroidSystemSettings: false,
           });
           this.props.navigation.getParam('onWalletSelect')(item);
-        }}>
+        }}
+      >
         <View
           shadowOpacity={40 / 100}
           shadowOffset={{ width: 0, height: 0 }}
@@ -58,7 +59,8 @@ export default class SelectWallet extends Component {
             backgroundColor: 'transparent',
             padding: 10,
             marginVertical: 17,
-          }}>
+          }}
+        >
           <LinearGradient
             shadowColor="#000000"
             colors={WalletGradient.gradientsFor(item.type)}
@@ -67,7 +69,8 @@ export default class SelectWallet extends Component {
               borderRadius: 10,
               minHeight: 164,
               elevation: 5,
-            }}>
+            }}
+          >
             <Image
               source={require('../../img/btc-shape.png')}
               style={{
@@ -86,7 +89,8 @@ export default class SelectWallet extends Component {
                 backgroundColor: 'transparent',
                 fontSize: 19,
                 color: '#fff',
-              }}>
+              }}
+            >
               {item.getLabel()}
             </Text>
             {item.hideBalance ? (
@@ -100,7 +104,8 @@ export default class SelectWallet extends Component {
                   fontWeight: 'bold',
                   fontSize: 36,
                   color: '#fff',
-                }}>
+                }}
+              >
                 {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
               </Text>
             )}
@@ -111,7 +116,8 @@ export default class SelectWallet extends Component {
                 backgroundColor: 'transparent',
                 fontSize: 13,
                 color: '#fff',
-              }}>
+              }}
+            >
               {loc.wallets.list.latest_transaction}
             </Text>
             <Text
@@ -121,7 +127,8 @@ export default class SelectWallet extends Component {
                 fontWeight: 'bold',
                 fontSize: 16,
                 color: '#fff',
-              }}>
+              }}
+            >
               {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
             </Text>
           </LinearGradient>
@@ -139,7 +146,8 @@ export default class SelectWallet extends Component {
             justifyContent: 'center',
             alignContent: 'center',
             paddingTop: 20,
-          }}>
+          }}
+        >
           <ActivityIndicator />
         </View>
       );
@@ -152,7 +160,8 @@ export default class SelectWallet extends Component {
               justifyContent: 'center',
               alignItems: 'center',
               paddingTop: 20,
-            }}>
+            }}
+          >
             <BlueText style={{ textAlign: 'center' }}>There are currently no Bitcoin wallets available.</BlueText>
             <BlueSpacing20 />
             <BlueText style={{ textAlign: 'center' }}>

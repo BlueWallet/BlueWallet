@@ -111,7 +111,8 @@ export default class WalletsAdd extends Component {
               alignItems: 'center',
               marginVertical: 16,
               borderRadius: 4,
-            }}>
+            }}
+          >
             <TextInput
               value={this.state.label}
               placeholderTextColor="#81868e"
@@ -132,7 +133,8 @@ export default class WalletsAdd extends Component {
                   <View
                     style={{
                       height: 140,
-                    }}>
+                    }}
+                  >
                     <BlueSpacing20 />
                     <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
                     <RadioGroup onSelect={(index, value) => this.onSelect(index, value)} selectedIndex={0}>
@@ -157,7 +159,8 @@ export default class WalletsAdd extends Component {
                 alignItems: 'center',
                 flex: 1,
                 marginVertical: 32,
-              }}>
+              }}
+            >
               {!this.state.isLoading ? (
                 <BlueButton
                   title={loc.wallets.add.create}
