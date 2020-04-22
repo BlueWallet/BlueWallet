@@ -71,7 +71,6 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
             disabled={!this.canCreateContact}
             onPress={this.createContact}
             title={i18n.contactCreate.buttonLabel}
-            containerStyle={styles.buttonContainer}
           />
         }
       >
@@ -109,9 +108,6 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
     ...typography.caption,
     textAlign: 'center',
-  },
-  buttonContainer: {
-    marginBottom: 20,
   },
   scanQRCodeButton: {
     position: 'absolute',

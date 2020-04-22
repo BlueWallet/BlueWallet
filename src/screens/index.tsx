@@ -10,5 +10,6 @@ export { DeleteWalletScreen } from './DeleteWalletScreen';
 export { ExportWalletXpubScreen } from './ExportWalletXpubScreen';
 export { SettingsScreen } from './Settings/SettingsScreen';
 export { default as CreateContactScreen } from './CreateContactScreen';
+export { default as ContactQRCodeScreen } from './ContactQRCodeScreen';
 export { default as ContactDetailsScreen } from './ContactDetailsScreen';
 export { TransactionDetailsScreen } from './TransactionDetailsScreen';

@@ -12,7 +12,7 @@ import {
   ScreenTemplate,
   ContactAvatar,
 } from 'app/components';
-import { Contact } from 'app/consts';
+import { Contact, Route } from 'app/consts';
 import i18n from 'app/locale';
 import { UpdateContactAction, updateContact } from 'app/state/contacts/actions';
 
@@ -58,7 +58,10 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
 
   navigateToSendCoins = () => null;
 
-  navigateToContactQRCode = () => null;
+  navigateToContactQRCode = () => {
+    const contact = this.props.navigation.getParam('contact');
+    this.props.navigation.navigate(Route.ContactQRCode, { contact });
+  };
 
   deleteContact = () => null;
 
@@ -92,14 +95,12 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
             onSave={this.setName}
           />
         </View>
-        <View style={styles.addressInputContainer}>
-          <GenericInputItem
-            title={i18n.contactDetails.editAddress}
-            label={i18n.contactDetails.addressLabel}
-            value={address}
-            onSave={this.setAddress}
-          />
-        </View>
+        <GenericInputItem
+          title={i18n.contactDetails.editAddress}
+          label={i18n.contactDetails.addressLabel}
+          value={address}
+          onSave={this.setAddress}
+        />
       </ScreenTemplate>
     );
   }
@@ -124,5 +125,4 @@ const styles = StyleSheet.create({
   nameInputContainer: {
     marginTop: 32,
   },
-  addressInputContainer: {},
 });

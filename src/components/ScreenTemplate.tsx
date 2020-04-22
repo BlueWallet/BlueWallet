@@ -32,7 +32,8 @@ export class ScreenTemplate extends React.PureComponent<Props> {
           <KeyboardAvoidingView
             keyboardVerticalOffset={getStatusBarHeight() + 52}
             behavior={Platform.OS == 'ios' ? 'padding' : undefined}
-            style={styles.footer}>
+            style={styles.footer}
+          >
             {footer}
           </KeyboardAvoidingView>
         )}
@@ -52,6 +53,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: 20,
-    paddingBottom: 12,
+    marginBottom: 12,
   },
 });
