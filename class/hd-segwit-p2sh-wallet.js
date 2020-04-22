@@ -1,8 +1,5 @@
 import bip39 from 'bip39';
-import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
-import signer from '../models/signer';
-import { BitcoinUnit } from '../models/bitcoinUnits';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
@@ -97,36 +94,31 @@ export class HDSegwitP2SHWallet extends AbstractHDElectrumWallet {
     return this._xpub;
   }
 
-  /**
-   *
-   * @param utxos
-   * @param amount Either float (BTC) or string 'MAX' (BitcoinUnit.MAX) to send all
-   * @param fee
-   * @param address
-   * @returns {string}
-   */
-  createTx(utxos, amount, fee, address) {
-    for (let utxo of utxos) {
-      utxo.wif = this._getWifForAddress(utxo.address);
-    }
+  _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
+    const pubkey = this._getPubkeyByAddress(input.address);
+    const path = this._getDerivationPathByAddress(input.address, 49);
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+    let p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
 
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+    psbt.addInput({
+      hash: input.txid,
+      index: input.vout,
+      sequence,
+      bip32Derivation: [
+        {
+          masterFingerprint: masterFingerprintBuffer,
+          path,
+          pubkey,
+        },
+      ],
+      witnessUtxo: {
+        script: p2sh.output,
+        value: input.amount || input.value,
+      },
+      redeemScript: p2wpkh.output,
+    });
 
-    if (amount === BitcoinUnit.MAX) {
-      amountPlusFee = new BigNumber(0);
-      for (let utxo of utxos) {
-        amountPlusFee = amountPlusFee.plus(utxo.amount);
-      }
-      amountPlusFee = amountPlusFee.dividedBy(100000000).toString(10);
-    }
-
-    return signer.createHDSegwitTransaction(
-      utxos,
-      address,
-      amountPlusFee,
-      fee,
-      this._getInternalAddressByIndex(this.next_free_change_address_index),
-    );
+    return psbt;
   }
 
   /**
