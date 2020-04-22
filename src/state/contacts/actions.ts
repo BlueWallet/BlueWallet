@@ -3,6 +3,7 @@ import { Contact } from 'app/consts';
 export enum ContactsAction {
   CreateContact = 'CreateContact',
   UpdateContact = 'UpdateContact',
+  DeleteContact = 'DeleteContact',
 }
 
 export interface CreateContactAction {
@@ -15,7 +16,12 @@ export interface UpdateContactAction {
   contact: Contact;
 }
 
-export type ContactsActionType = CreateContactAction | UpdateContactAction;
+export interface DeleteContactAction {
+  type: ContactsAction.DeleteContact;
+  contact: Contact;
+}
+
+export type ContactsActionType = CreateContactAction | UpdateContactAction | DeleteContactAction;
 
 export const createContact = (contact: Contact): CreateContactAction => ({
   type: ContactsAction.CreateContact,
@@ -24,5 +30,10 @@ export const createContact = (contact: Contact): CreateContactAction => ({
 
 export const updateContact = (contact: Contact): UpdateContactAction => ({
   type: ContactsAction.UpdateContact,
+  contact,
+});
+
+export const deleteContact = (contact: Contact): DeleteContactAction => ({
+  type: ContactsAction.DeleteContact,
   contact,
 });

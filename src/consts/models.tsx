@@ -4,6 +4,8 @@ export enum Route {
   ContactList = 'ContactList',
   ContactDetails = 'ContactDetails',
   CreateContact = 'CreateContact',
+  DeleteContact = 'DeleteContact',
+  ContactQRCode = 'ContactQRCode',
   Settings = 'Settings',
   Message = 'Message',
   CreateWallet = 'CreateWallet',
@@ -13,7 +15,6 @@ export enum Route {
   DeleteWallet = 'DeleteWallet',
   ExportWalletXpub = 'ExportWalletXub',
   TransactionDetails = 'TransactionDetails',
-  ContactQRCode = 'ContactQRCode',
 }
 
 export interface Wallet {

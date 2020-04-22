@@ -253,4 +253,15 @@ module.exports = {
     deleteButton: 'Delete contact',
     share: 'Share',
   },
+  contactDelete: {
+    title: 'Delete your contact',
+    header: 'Delete contact',
+    description1: 'Are you sure you want to delete',
+    description2: "?\nYou can't undone it.",
+    no: 'No',
+    yes: 'Yes',
+    success: 'Success',
+    successDescription: 'Your contact has been successfully deleted.\nYou can now return to Address book.',
+    successButton: 'Return to Address book',
+  },
 };

@@ -63,7 +63,10 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
     this.props.navigation.navigate(Route.ContactQRCode, { contact });
   };
 
-  deleteContact = () => null;
+  deleteContact = () => {
+    const contact = this.props.navigation.getParam('contact');
+    this.props.navigation.navigate(Route.DeleteContact, { contact });
+  };
 
   render() {
     const { name, address } = this.state;

@@ -13,6 +13,7 @@ import {
   ContactDetailsScreen,
   TransactionDetailsScreen,
   ContactQRCodeScreen,
+  DeleteContactScreen,
 } from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
@@ -32,6 +33,7 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.CreateContact]: CreateContactScreen,
     [Route.ContactDetails]: ContactDetailsScreen,
     [Route.ContactQRCode]: ContactQRCodeScreen,
+    [Route.DeleteContact]: DeleteContactScreen,
     [Route.TransactionDetails]: TransactionDetailsScreen,
   },
   {
