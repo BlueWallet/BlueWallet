@@ -466,9 +466,9 @@ module.exports.broadcastV2 = async function(hex) {
 };
 
 module.exports.estimateCurrentBlockheight = function() {
-  const baseTs = 1585837504347; // uS
-  const baseHeight = 624197;
-  return Math.floor(baseHeight + (+new Date() - baseTs) / 1000 / 60 / 10);
+  const baseTs = 1587570465609; // uS
+  const baseHeight = 627179;
+  return Math.floor(baseHeight + (+new Date() - baseTs) / 1000 / 60 / 9.5);
 };
 
 /**
