@@ -73,7 +73,8 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
             title={i18n.contactCreate.buttonLabel}
             containerStyle={styles.buttonContainer}
           />
-        }>
+        }
+      >
         <Text style={styles.subtitle}>{i18n.contactCreate.subtitle}</Text>
         <Text style={styles.description}>{i18n.contactCreate.description}</Text>
         <InputItem setValue={this.setName} label={i18n.contactCreate.nameLabel} />

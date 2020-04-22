@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, StyleProp, ViewStyle } from 'react-native';
 
 import { palette, typography } from 'app/styles';
 
@@ -11,15 +11,26 @@ interface Props {
   source: FastImageSource;
   switchValue?: boolean;
   onSwitchValueChange?: (value: boolean) => void;
+  iconWidth?: number;
+  iconHeight?: number;
 }
 
-export const ListItem = ({ title, source, onSwitchValueChange, switchValue }: Props) => (
+export const ListItem = ({ title, source, onSwitchValueChange, switchValue, iconWidth, iconHeight }: Props) => (
   <View style={styles.container}>
-    <Image source={source} style={styles.image} />
+    <View style={styles.imageContainer}>
+      <Image
+        source={source}
+        style={[
+          styles.image,
+          typeof iconWidth === 'number' && { width: iconWidth },
+          typeof iconHeight === 'number' && { height: iconHeight },
+        ]}
+      />
+    </View>
     <View style={styles.textContainer}>
       <Text style={styles.title}>{title}</Text>
     </View>
-    {!!switchValue && (
+    {typeof switchValue === 'boolean' && (
       <View style={styles.switchContainer}>
         <StyledSwitch onValueChange={onSwitchValueChange} value={switchValue} />
       </View>
@@ -31,8 +42,7 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     flexDirection: 'row',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
+    paddingVertical: 8,
     alignItems: 'center',
   },
   textContainer: {
@@ -45,6 +55,10 @@ const styles = StyleSheet.create({
   image: {
     width: 19,
     height: 19,
+  },
+  imageContainer: {
+    width: 21,
+    height: 21,
   },
   switchContainer: {
     flexGrow: 1,

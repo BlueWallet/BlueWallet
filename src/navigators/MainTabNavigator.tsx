@@ -9,7 +9,7 @@ import { ContactListScreen } from 'app/screens';
 import { palette } from 'app/styles';
 
 import MainBottomTabs from '../../MainBottomTabs';
-import SettingsScreen from '../../screen/settings/settings';
+import { SettingsNavigator } from './SettingsNavigator';
 
 export const MainTabNavigator = createBottomTabNavigator(
   {
@@ -32,7 +32,7 @@ export const MainTabNavigator = createBottomTabNavigator(
       },
     },
     [Route.Settings]: {
-      screen: SettingsScreen,
+      screen: SettingsNavigator,
       navigationOptions: {
         title: 'Settings',
         tabBarIcon: ({ focused }: { focused: boolean }) => (

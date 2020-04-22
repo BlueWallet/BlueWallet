@@ -209,7 +209,8 @@ export default class App extends React.Component {
         style={styles.bottomModal}
         onBackdropPress={() => {
           this.setState({ isClipboardContentModalVisible: false });
-        }}>
+        }}
+      >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <BlueTextCentered>

@@ -81,7 +81,8 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
               buttonType={ButtonType.Warning}
             />
           </>
-        }>
+        }
+      >
         <ContactAvatar name={name} />
         <View style={styles.nameInputContainer}>
           <GenericInputItem

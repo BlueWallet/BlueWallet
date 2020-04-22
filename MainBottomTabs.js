@@ -22,7 +22,6 @@ import ElectrumSettings from './screen/settings/electrumSettings';
 import EncryptStorage from './screen/settings/encryptStorage';
 import Language from './screen/settings/language';
 import ReleaseNotes from './screen/settings/releasenotes';
-import SettingsContainer from './screen/settings/settings';
 import cpfp from './screen/transactions/CPFP';
 import rbf from './screen/transactions/RBF';
 import createrbf from './screen/transactions/RBF-create';
@@ -32,7 +31,6 @@ import details from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import WalletExport from './screen/wallets/export';
-import WalletsList from './screen/wallets/list';
 import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import scanQrWif from './screen/wallets/scanQrWif';
@@ -81,18 +79,6 @@ const WalletsStackNavigator = createStackNavigator({
   },
   RBFCancel: {
     screen: rbfCancel,
-  },
-  Settings: {
-    screen: SettingsContainer,
-    path: 'Settings',
-    navigationOptions: {
-      headerStyle: {
-        backgroundColor: '#FFFFFF',
-        borderBottomWidth: 0,
-        elevation: 0,
-      },
-      headerTintColor: '#0c2550',
-    },
   },
   SelectWallet: {
     screen: SelectWallet,
