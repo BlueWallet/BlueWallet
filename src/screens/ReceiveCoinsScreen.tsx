@@ -12,6 +12,7 @@ import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
 import { Chain } from '../../models/bitcoinUnits';
+import { DashboardHeader } from './Dashboard/DashboardHeader';
 
 type Props = NavigationInjectedProps<{ secret: string }>;
 
@@ -21,6 +22,7 @@ interface State {
   bip21encoded: any;
   amount: number;
   address: string;
+  wallet: any;
 }
 export class ReceiveCoinsScreen extends Component<Props, State> {
   static navigationOptions = (props: NavigationScreenProps<{ transaction: Transaction }>) => {
@@ -34,66 +36,71 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     const secret = props.navigation.getParam('secret') || '';
 
     this.state = {
-      secret,
+      secret: secret,
       addressText: '',
       bip21encoded: undefined,
       amount: 0,
       address: '',
+      wallet: {},
     };
   }
   qrCodeSVG: any = null;
   async componentDidMount() {
     console.log('receive/details - componentDidMount');
 
-    {
-      let address;
-      let wallet;
-      for (const w of BlueApp.getWallets()) {
-        if (w.getSecret() === this.state.secret) {
-          // found our wallet
-          wallet = w;
-        }
+    await this.updateData();
+  }
+
+  updateData = async () => {
+    let address;
+    let wallet;
+    for (const w of BlueApp.getWallets()) {
+      if (w.getSecret() === this.state.secret) {
+        // found our wallet
+        wallet = w;
       }
-      if (wallet) {
-        if (wallet.getAddressForTransaction) {
-          if (wallet.chain === Chain.ONCHAIN) {
-            try {
-              address = await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
-            } catch (_) {}
-            if (!address) {
-              // either sleep expired or getAddressAsync threw an exception
-              console.warn('either sleep expired or getAddressAsync threw an exception');
-              address = wallet.getAddressForTransaction();
-            } else {
-              BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
-            }
-            this.setState({
-              address: address,
-              addressText: address,
-            });
-          } else if (wallet.chain === Chain.OFFCHAIN) {
-            try {
-              await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
-              address = wallet.getAddress();
-            } catch (_) {}
-            if (!address) {
-              // either sleep expired or getAddressAsync threw an exception
-              console.warn('either sleep expired or getAddressAsync threw an exception');
-              address = wallet.getAddress();
-            } else {
-              BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
-            }
+    }
+    if (wallet) {
+      if (wallet.getAddressForTransaction) {
+        if (wallet.chain === Chain.ONCHAIN) {
+          try {
+            address = await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
+          } catch (_) {}
+          if (!address) {
+            // either sleep expired or getAddressAsync threw an exception
+            console.warn('either sleep expired or getAddressAsync threw an exception');
+            address = wallet.getAddressForTransaction();
+          } else {
+            BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
           }
           this.setState({
             address: address,
             addressText: address,
           });
-        } else if (wallet.getAddress) {
-          this.setState({
-            address: wallet.getAddress(),
-            addressText: wallet.getAddress(),
-          });
+        } else if (wallet.chain === Chain.OFFCHAIN) {
+          try {
+            await Promise.race([wallet.getAddressForTransaction(), BlueApp.sleep(1000)]);
+            address = wallet.getAddress();
+          } catch (_) {}
+          if (!address) {
+            // either sleep expired or getAddressAsync threw an exception
+            console.warn('either sleep expired or getAddressAsync threw an exception');
+            address = wallet.getAddress();
+          } else {
+            BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
+          }
         }
+        this.setState({
+          address: address,
+          addressText: address,
+          wallet,
+        });
+      } else if (wallet.getAddress) {
+        this.setState({
+          address: wallet.getAddress(),
+          addressText: wallet.getAddress(),
+          wallet,
+        });
       }
     }
 
@@ -101,7 +108,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
       const bip21encoded = bip21.encode(this.state.address);
       this.setState({ bip21encoded });
     });
-  }
+  };
 
   updateAmount = (amount: number) => {
     const bip21encoded = bip21.encode(this.state.address, {
@@ -140,6 +147,23 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     }
   };
 
+  chooseItemFromModal = async (index: number) => {
+    const wallets = BlueApp.getWallets();
+
+    const wallet = wallets[index];
+    this.setState({ wallet, secret: wallet.getSecret() }, this.updateData);
+  };
+
+  showModal = () => {
+    const wallets = BlueApp.getWallets();
+    const selectedIndex = wallets.findIndex(wallet => wallet.label === this.state.wallet.label);
+    this.props.navigation.navigate('ActionSheet', {
+      wallets: wallets,
+      selectedIndex,
+      onPress: this.chooseItemFromModal,
+    });
+  };
+
   render() {
     const { amount, addressText, bip21encoded } = this.state;
     return (
@@ -148,6 +172,12 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
           <Button title={i18n.receive.details.share} onPress={this.share} containerStyle={styles.buttonContainer} />
         }
       >
+        <DashboardHeader
+          onSelectPress={this.showModal}
+          balance={BlueApp.getBalance()}
+          label={this.state.wallet.label}
+          unit={this.state.wallet.preferredBalanceUnit}
+        />
         <View style={styles.qrcontainer}>
           <QRCode
             value={bip21encoded}
@@ -175,7 +205,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: 140,
     height: 140,
-    marginTop: 150,
   },
   address: { ...typography.headline9, alignSelf: 'center', marginVertical: 30 },
   inputTitle: { ...typography.headline4, alignSelf: 'center', marginVertical: 20 },

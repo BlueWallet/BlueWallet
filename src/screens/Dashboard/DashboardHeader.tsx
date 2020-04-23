@@ -10,8 +10,8 @@ interface Props {
   balance: number;
   unit: string;
   label: string;
-  onSendPress: () => void;
-  onReceivePress: () => void;
+  onSendPress?: () => void;
+  onReceivePress?: () => void;
   onSelectPress: () => void;
 }
 
@@ -26,16 +26,18 @@ export const DashboardHeader = ({ balance, unit, label, onSendPress, onReceivePr
         <Text style={styles.buttonDescription}>{label}</Text>
         <Image source={images.coin} style={styles.coinIcon} />
       </View>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.circleButton} onPress={onSendPress}>
-          <Image source={images.yellowMinus} style={styles.circleButtonImage} />
-          <Text style={styles.circleButtonText}>{en.dashboard.send}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.circleButton} onPress={onReceivePress}>
-          <Image source={images.yellowPlus} style={styles.circleButtonImage} />
-          <Text style={styles.circleButtonText}>{en.dashboard.receive}</Text>
-        </TouchableOpacity>
-      </View>
+      {onReceivePress && onSelectPress && (
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity style={styles.circleButton} onPress={onSendPress}>
+            <Image source={images.yellowMinus} style={styles.circleButtonImage} />
+            <Text style={styles.circleButtonText}>{en.dashboard.send}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.circleButton} onPress={onReceivePress}>
+            <Image source={images.yellowPlus} style={styles.circleButtonImage} />
+            <Text style={styles.circleButtonText}>{en.dashboard.receive}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
