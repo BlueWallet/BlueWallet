@@ -43,10 +43,12 @@ export interface Contact {
 }
 
 export interface Transaction {
+  hash: string;
   value: number;
   time: number;
   walletLabel: string;
   confirmations: number;
   inputs: any[];
   outputs: any[];
+  note?: string;
 }

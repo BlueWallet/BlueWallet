@@ -13,5 +13,5 @@ export { default as CreateContactScreen } from './CreateContactScreen';
 export { default as DeleteContactScreen } from './DeleteContactScreen';
 export { default as ContactQRCodeScreen } from './ContactQRCodeScreen';
 export { default as ContactDetailsScreen } from './ContactDetailsScreen';
-export { TransactionDetailsScreen } from './TransactionDetailsScreen';
+export { default as TransactionDetailsScreen } from './TransactionDetailsScreen';
 export { ReceiveCoinsScreen } from './ReceiveCoinsScreen';

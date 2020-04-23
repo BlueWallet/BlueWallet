@@ -3,12 +3,15 @@ import moment from 'moment';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, Linking, TouchableOpacity } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Image, Header, StyledText, Chip, ScreenTemplate } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Transaction } from 'app/consts';
 import i18n from 'app/locale';
+import { ApplicationState } from 'app/state';
+import { createTransaction, createTransactionAction, updateTransaction } from 'app/state/transactions/actions';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
@@ -27,9 +30,13 @@ function arrDiff(a1, a2) {
   return ret;
 }
 
-type Props = NavigationScreenProps<{ transaction: Transaction }>;
+interface Props extends NavigationScreenProps<{ transaction: Transaction }> {
+  createTransaction: (transaction: Transaction) => createTransactionAction;
+  updateTransaction: (transaction: Transaction) => updateTransactionAction;
+}
 
 interface State {
+  hash: string;
   isLoading: boolean;
   tx: any;
   from: any[];
@@ -49,6 +56,13 @@ export class TransactionDetailsScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const { hash } = props.navigation.getParam('transaction');
+    let note = '';
+    props.transactions.filter(transaction => {
+      if (transaction.hash == hash) {
+        note = transaction.note;
+      }
+    });
+
     let foundTx = {};
     let from = [];
     let to = [];
@@ -75,12 +89,13 @@ export class TransactionDetailsScreen extends Component<Props, State> {
       }
     }
     this.state = {
+      hash,
       isLoading: true,
       tx: foundTx,
       from,
       to,
       wallet,
-      note: '',
+      note,
     };
   }
 
@@ -102,6 +117,18 @@ export class TransactionDetailsScreen extends Component<Props, State> {
   };
 
   updateNote = (note: string) => {
+    if (!this.state.note) {
+      this.props.createTransaction({
+        hash: this.state.hash,
+        note,
+      });
+    } else {
+      this.props.updateTransaction({
+        hash: this.state.hash,
+        note,
+      });
+    }
+
     this.setState({
       note,
     });
@@ -201,6 +228,20 @@ export class TransactionDetailsScreen extends Component<Props, State> {
     );
   }
 }
+
+const mapStateToProps = (state: ApplicationState) => ({
+  transactions: Object.values(state.transactions.transactions),
+});
+
+const mapDispatchToProps = {
+  createTransaction,
+  updateTransaction,
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(TransactionDetailsScreen);
 
 const styles = StyleSheet.create({
   headerContainer: {
