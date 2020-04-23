@@ -15,6 +15,8 @@ export enum Route {
   DeleteWallet = 'DeleteWallet',
   ExportWalletXpub = 'ExportWalletXub',
   TransactionDetails = 'TransactionDetails',
+  ReceiveCoins = 'ReceiveCoins',
+  EditText = 'EditText',
 }
 
 export interface Wallet {

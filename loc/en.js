@@ -157,14 +157,15 @@ module.exports = {
     },
   },
   receive: {
-    header: 'Receive',
+    header: 'Receive coins',
     details: {
       title: 'Share this address with payer',
-      share: 'share',
+      share: 'Share',
       copiedToClipboard: 'Copied to clipboard.',
       label: 'Description',
+      amount: 'Amount',
       create: 'Create',
-      setAmount: 'Receive with amount',
+      receiveWithAmount: 'Receive with amount',
     },
     scan_lnurl: 'Scan to receive',
   },
