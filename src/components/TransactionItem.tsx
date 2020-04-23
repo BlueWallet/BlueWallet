@@ -25,8 +25,12 @@ export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps;
         <Text style={styles.label}>{moment.unix(item.time).format('LT')}</Text>
       </View>
       <View style={styles.rightColumn}>
-        <Text style={typography.headline5}>{i18n.formatBalanceWithoutSuffix(Number(item.value))}</Text>
-        <Text style={typography.headline5}>{item.walletPreferredBalanceUnit}</Text>
+        <Text style={[typography.headline5, { color: item.value < 0 ? palette.textRed : palette.textBlack }]}>
+          {i18n.formatBalanceWithoutSuffix(Number(item.value))}
+        </Text>
+        <Text style={[typography.headline5, { color: item.value < 0 ? palette.textRed : palette.textBlack }]}>
+          {item.walletPreferredBalanceUnit}
+        </Text>
       </View>
     </TouchableOpacity>
   );

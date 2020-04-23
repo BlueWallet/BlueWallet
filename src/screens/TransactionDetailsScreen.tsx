@@ -140,6 +140,8 @@ export class TransactionDetailsScreen extends Component<Props, State> {
 
   render() {
     const transaction: Transaction = this.props.navigation.getParam('transaction');
+    const fromValue = this.state.from.filter(onlyUnique).join(', ');
+    const toValue = arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ');
     return (
       <ScreenTemplate>
         {this.renderHeader()}
@@ -155,18 +157,19 @@ export class TransactionDetailsScreen extends Component<Props, State> {
           </View>
         )}
         <View style={styles.contentRowContainer}>
-          <Text style={styles.contentRowTitle}>{i18n.transactions.details.from}</Text>
-          <Text style={styles.contentRowBody}>{this.state.from.filter(onlyUnique).join(', ')}</Text>
+          <View style={styles.row}>
+            <Text style={styles.contentRowTitle}>{i18n.transactions.details.from}</Text>
+            <CopyButton textToCopy={fromValue} />
+          </View>
+          <Text style={styles.contentRowBody}>{fromValue}</Text>
           <StyledText title={i18n.transactions.details.sendCoins} onPress={this.sendCoins} />
         </View>
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>
             <Text style={styles.contentRowTitle}>{i18n.transactions.details.to}</Text>
-            <CopyButton textToCopy={arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')} />
+            <CopyButton textToCopy={toValue} />
           </View>
-          <Text style={styles.contentRowBody}>
-            {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
-          </Text>
+          <Text style={styles.contentRowBody}>{toValue}</Text>
         </View>
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>
