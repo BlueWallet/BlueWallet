@@ -81,7 +81,7 @@ module.exports = {
       error: 'Failed to import. Please, make sure that the provided data is valid.',
       success: 'Success',
       do_import: 'Import',
-      scan_qr: '...scan QR or import file instead?',
+      scan_qr: 'Scan or import a file',
     },
     scanQrWif: {
       go_back: 'Go Back',

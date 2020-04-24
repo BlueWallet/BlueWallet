@@ -93,8 +93,8 @@ export default class WalletsAdd extends Component {
 
     return (
       <SafeBlueArea>
-        <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
-          <ScrollView>
+        <ScrollView>
+          <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
             <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
             <View
               style={{
@@ -336,8 +336,8 @@ export default class WalletsAdd extends Component {
                 }}
               />
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
