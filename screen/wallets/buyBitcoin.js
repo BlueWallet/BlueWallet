@@ -3,6 +3,7 @@ import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+const currency = require('../../currency');
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
 
@@ -27,6 +28,9 @@ export default class BuyBitcoin extends Component {
   async componentDidMount() {
     console.log('buyBitcoin - componentDidMount');
 
+    let preferredCurrency = await currency.getPreferredCurrency();
+    preferredCurrency = preferredCurrency.endPointKey;
+
     /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */
     let wallet = this.state.wallet;
 
@@ -38,6 +42,7 @@ export default class BuyBitcoin extends Component {
       this.setState({
         isLoading: false,
         address,
+        preferredCurrency,
       });
       return;
     }
@@ -62,6 +67,7 @@ export default class BuyBitcoin extends Component {
     this.setState({
       isLoading: false,
       address,
+      preferredCurrency,
     });
   }
 
@@ -76,6 +82,10 @@ export default class BuyBitcoin extends Component {
 
     if (safelloStateToken) {
       uri += '&safelloStateToken=' + safelloStateToken;
+    }
+
+    if (this.state.preferredCurrency) {
+      uri += '&currency=' + this.state.preferredCurrency;
     }
 
     return (
