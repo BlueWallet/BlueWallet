@@ -438,23 +438,21 @@ export default class SendDetails extends Component {
     /** @type {HDSegwitBech32Wallet} */
     const wallet = this.state.fromWallet;
     await wallet.fetchUtxo();
-    const firstTransaction = this.state.addresses[0];
     const changeAddress = await wallet.getChangeAddressAsync();
-    let satoshis = new BigNumber(firstTransaction.amount).multipliedBy(100000000).toNumber();
     const requestedSatPerByte = +this.state.fee.toString().replace(/\D/g, '');
-    console.log({ satoshis, requestedSatPerByte, utxo: wallet.getUtxo() });
+    console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
 
     let targets = [];
     for (const transaction of this.state.addresses) {
-      const amount =
-        transaction.amount === BitcoinUnit.MAX ? BitcoinUnit.MAX : new BigNumber(transaction.amount).multipliedBy(100000000).toNumber();
-      if (amount > 0.0 || amount === BitcoinUnit.MAX) {
-        targets.push({ address: transaction.address, value: amount });
+      if (transaction.amount === BitcoinUnit.MAX) {
+        // single output with MAX
+        targets = [{ address: transaction.address }];
+        break;
       }
-    }
-
-    if (firstTransaction.amount === BitcoinUnit.MAX) {
-      targets = [{ address: firstTransaction.address }];
+      const value = new BigNumber(transaction.amount).multipliedBy(100000000).toNumber();
+      if (value > 0) {
+        targets.push({ address: transaction.address, value });
+      }
     }
 
     let { tx, fee, psbt } = wallet.createTransaction(

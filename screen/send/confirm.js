@@ -127,7 +127,7 @@ export default class Confirm extends Component {
               fontWeight: '600',
             }}
           >
-            {!item.amount || item.amount === BitcoinUnit.MAX
+            {!item.value || item.value === BitcoinUnit.MAX
               ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
               : item.amount || currency.satoshiToBTC(item.value)}
           </Text>
