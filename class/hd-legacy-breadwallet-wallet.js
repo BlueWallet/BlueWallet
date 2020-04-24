@@ -1,5 +1,5 @@
-import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 import bip39 from 'bip39';
+import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 const bip32 = require('bip32');
 const bitcoinjs = require('bitcoinjs-lib');
 
@@ -7,7 +7,7 @@ const bitcoinjs = require('bitcoinjs-lib');
  * HD Wallet (BIP39).
  * In particular, Breadwallet-compatible (Legacy addresses)
  */
-export class HDLegacyBreadwalletWallet extends AbstractHDElectrumWallet {
+export class HDLegacyBreadwalletWallet extends HDLegacyP2PKHWallet {
   static type = 'HDLegacyBreadwallet';
   static typeReadable = 'HD Legacy Breadwallet (P2PKH)';
 
@@ -77,6 +77,10 @@ export class HDLegacyBreadwalletWallet extends AbstractHDElectrumWallet {
     const path = `m/0'/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
-    return child.keyPair.toWIF();
+    return child.toWIF();
+  }
+
+  allowSendMax() {
+    return true;
   }
 }
