@@ -47,7 +47,7 @@ export class SearchBar extends React.PureComponent<Props, State> {
             placeholderTextColor={palette.textWhiteMuted}
             placeholder={i18n.contactList.search}
           />
-          {focused && (
+          {!!this.props.query && (
             <TouchableOpacity style={styles.clearButton} onPress={this.clear}>
               <Image source={images.cancelSmall} style={styles.clearImage} />
             </TouchableOpacity>

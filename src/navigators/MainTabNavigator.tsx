@@ -44,6 +44,8 @@ export const MainTabNavigator = createBottomTabNavigator(
   {
     tabBarComponent: props => <BottomTabBarComponent {...props} />,
     tabBarOptions: {
+      // @ts-ignore
+      keyboardHidesTabBar: true,
       activeTintColor: palette.secondary,
       inactiveTintColor: palette.textWhiteMuted,
     },
