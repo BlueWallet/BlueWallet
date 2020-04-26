@@ -62,64 +62,62 @@ const WalletsImport = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-      <ScrollView>
-        <KeyboardAvoidingView behavior="position" enabled>
-          <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
-          <BlueSpacing20 />
-          <BlueFormMultiInput
-            value={importText}
-            contextMenuHidden
-            onChangeText={setImportText}
-            inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
-            onFocus={() => setIsToolbarVisibleForAndroid(true)}
-            onBlur={() => setIsToolbarVisibleForAndroid(false)}
-          />
-          {Platform.select({
-            ios: (
-              <BlueDoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => {
-                  setImportText('');
-                  Keyboard.dismiss();
-                }}
-                onPasteTapped={text => {
-                  setImportText(text);
-                  Keyboard.dismiss();
-                }}
-              />
-            ),
-            android: isToolbarVisibleForAndroid && (
-              <BlueDoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => {
-                  setImportText('');
-                  Keyboard.dismiss();
-                }}
-                onPasteTapped={text => {
-                  setImportText(text);
-                  Keyboard.dismiss();
-                }}
-              />
-            ),
-          })}
-        </KeyboardAvoidingView>
+      <KeyboardAvoidingView behavior="position" enabled>
+        <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
         <BlueSpacing20 />
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <BlueButton
-            disabled={importText.trim().length === 0}
-            title={loc.wallets.import.do_import}
-            buttonStyle={{
-              width: width / 1.5,
-            }}
-            onPress={importButtonPressed}
-          />
-          <BlueSpacing20 />
-          <BlueButtonLink
-            title={loc.wallets.import.scan_qr}
-            onPress={() => {
-              navigate('ScanQRCode', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
-            }}
-          />
-        </View>
-      </ScrollView>
+        <BlueFormMultiInput
+          value={importText}
+          contextMenuHidden
+          onChangeText={setImportText}
+          inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+          onFocus={() => setIsToolbarVisibleForAndroid(true)}
+          onBlur={() => setIsToolbarVisibleForAndroid(false)}
+        />
+        {Platform.select({
+          ios: (
+            <BlueDoneAndDismissKeyboardInputAccessory
+              onClearTapped={() => {
+                setImportText('');
+                Keyboard.dismiss();
+              }}
+              onPasteTapped={text => {
+                setImportText(text);
+                Keyboard.dismiss();
+              }}
+            />
+          ),
+          android: isToolbarVisibleForAndroid && (
+            <BlueDoneAndDismissKeyboardInputAccessory
+              onClearTapped={() => {
+                setImportText('');
+                Keyboard.dismiss();
+              }}
+              onPasteTapped={text => {
+                setImportText(text);
+                Keyboard.dismiss();
+              }}
+            />
+          ),
+        })}
+      </KeyboardAvoidingView>
+      <BlueSpacing20 />
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <BlueButton
+          disabled={importText.trim().length === 0}
+          title={loc.wallets.import.do_import}
+          buttonStyle={{
+            width: width / 1.5,
+          }}
+          onPress={importButtonPressed}
+        />
+        <BlueSpacing20 />
+        <BlueButtonLink
+          title={loc.wallets.import.scan_qr}
+          onPress={() => {
+            navigate('ScanQRCode', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
+          }}
+        />
+      </View>
     </SafeBlueArea>
   );
 };
