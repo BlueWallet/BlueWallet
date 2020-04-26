@@ -938,11 +938,10 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
       <View
         style={{
           backgroundColor: '#eef0f4',
-          height: 44,
-          flex: 1,
           flexDirection: 'row',
           justifyContent: 'flex-end',
           alignItems: 'center',
+          maxHeight: 44,
         }}
       >
         <BlueButtonLink title="Clear" onPress={this.props.onClearTapped} />
@@ -954,7 +953,7 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
     if (Platform.OS === 'ios') {
       return <InputAccessoryView nativeID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}>{inputView}</InputAccessoryView>;
     } else {
-      return <KeyboardAvoidingView style={{ height: 44 }}>{inputView}</KeyboardAvoidingView>;
+      return <KeyboardAvoidingView>{inputView}</KeyboardAvoidingView>;
     }
   }
 }
