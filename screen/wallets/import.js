@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { ScrollView, KeyboardAvoidingView, Platform, Dimensions, View, Keyboard } from 'react-native';
+import { KeyboardAvoidingView, Platform, Dimensions, View, Keyboard } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
