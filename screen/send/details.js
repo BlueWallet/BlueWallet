@@ -309,32 +309,6 @@ export default class SendDetails extends Component {
     return (availableBalance === 'NaN' && balance) || availableBalance;
   }
 
-  calculateFee(utxos, txhex, utxoIsInSatoshis) {
-    let index = {};
-    let c = 1;
-    index[0] = 0;
-    for (let utxo of utxos) {
-      if (!utxoIsInSatoshis) {
-        utxo.amount = new BigNumber(utxo.amount).multipliedBy(100000000).toNumber();
-      }
-      index[c] = utxo.amount + index[c - 1];
-      c++;
-    }
-
-    let tx = bitcoin.Transaction.fromHex(txhex);
-    let totalInput = index[tx.ins.length];
-    // ^^^ dumb way to calculate total input. we assume that signer uses utxos sequentially
-    // so total input == sum of yongest used inputs (and num of used inputs is `tx.ins.length`)
-    // TODO: good candidate to refactor and move to appropriate class. some day
-
-    let totalOutput = 0;
-    for (let o of tx.outs) {
-      totalOutput += o.value * 1;
-    }
-
-    return new BigNumber(totalInput - totalOutput).dividedBy(100000000).toNumber();
-  }
-
   async processBIP70Invoice(text) {
     try {
       if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
@@ -760,7 +734,11 @@ export default class SendDetails extends Component {
   renderCreateButton = () => {
     return (
       <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
-        {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.createTransaction()} title={'Next'} />}
+        {this.state.isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <BlueButton onPress={() => this.createTransaction()} title={'Next'} testID={'CreateTransactionButton'} />
+        )}
       </View>
     );
   };
