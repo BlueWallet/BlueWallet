@@ -71,6 +71,7 @@ const WalletsImport = () => {
       <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput
+        testID="MnemonicInput"
         value={importText}
         contextMenuHidden
         onChangeText={setImportText}
@@ -80,6 +81,7 @@ const WalletsImport = () => {
       <BlueSpacing20 />
       <View style={{ flex: 1, alignItems: 'center' }}>
         <BlueButton
+          testID="DoImport"
           disabled={importText.trim().length === 0}
           title={loc.wallets.import.do_import}
           buttonStyle={{

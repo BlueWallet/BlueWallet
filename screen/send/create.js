@@ -131,6 +131,7 @@ export default class SendCreate extends Component {
             <BlueCard style={{ alignItems: 'center', flex: 1 }}>
               <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
               <TextInput
+                testID={'TxhexInput'}
                 style={{
                   borderColor: '#ebebeb',
                   backgroundColor: '#d2f8d6',

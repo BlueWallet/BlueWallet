@@ -121,6 +121,7 @@ export default class Confirm extends Component {
       <>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <Text
+            testID={'TransactionValue'}
             style={{
               color: '#0f5cc0',
               fontSize: 36,
@@ -197,6 +198,7 @@ export default class Confirm extends Component {
               )}
 
               <TouchableOpacity
+                testID={'TransactionDetailsButton'}
                 style={{ marginVertical: 24 }}
                 onPress={async () => {
                   if (this.isBiometricUseCapableAndEnabled) {

@@ -329,6 +329,7 @@ export default class WalletsAdd extends Component {
                 )}
               </View>
               <BlueButtonLink
+                testID="ImportWallet"
                 style={{ marginBottom: 0, marginTop: 24 }}
                 title={loc.wallets.add.import_wallet}
                 onPress={() => {

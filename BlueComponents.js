@@ -313,6 +313,7 @@ export class BlueWalletNavigationHeader extends Component {
             <BluePrivateBalance />
           ) : (
             <Text
+              testID={'WalletBalance'}
               numberOfLines={1}
               adjustsFontSizeToFit
               style={{
@@ -1256,7 +1257,7 @@ export class BlueReceiveButtonIcon extends Component {
 export class BlueSendButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props}>
+      <TouchableOpacity {...this.props} testID={'SendButton'}>
         <View
           style={{
             flex: 1,
@@ -2075,6 +2076,7 @@ export class BlueAddressInput extends Component {
         }}
       >
         <TextInput
+          testID={'AddressInput'}
           onChangeText={text => {
             this.props.onChangeText(text);
           }}
@@ -2268,6 +2270,7 @@ export class BlueBitcoinAmount extends Component {
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
             <TextInput
               {...this.props}
+              testID={'BitcoinAmountInput'}
               keyboardType="numeric"
               onChangeText={text => {
                 text = text.trim();
