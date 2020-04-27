@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { ScrollView, KeyboardAvoidingView, Platform, Dimensions, View, Keyboard } from 'react-native';
+import { Platform, Dimensions, View, Keyboard } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -25,8 +25,14 @@ const WalletsImport = () => {
 
   useEffect(() => {
     Privacy.enableBlur();
-    return () => Privacy.disableBlur();
-  });
+    Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setIsToolbarVisibleForAndroid(true));
+    Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', () => setIsToolbarVisibleForAndroid(false));
+    return () => {
+      Keyboard.removeListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide');
+      Keyboard.removeListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow');
+      Privacy.disableBlur();
+    };
+  }, []);
 
   const importButtonPressed = () => {
     if (importText.trim().length === 0) {
@@ -62,64 +68,59 @@ const WalletsImport = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
-      <ScrollView>
-        <KeyboardAvoidingView behavior="position" enabled>
-          <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
-          <BlueSpacing20 />
-          <BlueFormMultiInput
-            value={importText}
-            contextMenuHidden
-            onChangeText={setImportText}
-            inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
-            onFocus={() => setIsToolbarVisibleForAndroid(true)}
-            onBlur={() => setIsToolbarVisibleForAndroid(false)}
-          />
-          {Platform.select({
-            ios: (
-              <BlueDoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => {
-                  setImportText('');
-                  Keyboard.dismiss();
-                }}
-                onPasteTapped={text => {
-                  setImportText(text);
-                  Keyboard.dismiss();
-                }}
-              />
-            ),
-            android: isToolbarVisibleForAndroid && (
-              <BlueDoneAndDismissKeyboardInputAccessory
-                onClearTapped={() => {
-                  setImportText('');
-                  Keyboard.dismiss();
-                }}
-                onPasteTapped={text => {
-                  setImportText(text);
-                  Keyboard.dismiss();
-                }}
-              />
-            ),
-          })}
-        </KeyboardAvoidingView>
+      <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
+      <BlueSpacing20 />
+      <BlueFormMultiInput
+        value={importText}
+        contextMenuHidden
+        onChangeText={setImportText}
+        inputAccessoryViewID={BlueDoneAndDismissKeyboardInputAccessory.InputAccessoryViewID}
+      />
+
+      <BlueSpacing20 />
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <BlueButton
+          disabled={importText.trim().length === 0}
+          title={loc.wallets.import.do_import}
+          buttonStyle={{
+            width: width / 1.5,
+          }}
+          onPress={importButtonPressed}
+        />
         <BlueSpacing20 />
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          <BlueButton
-            disabled={importText.trim().length === 0}
-            title={loc.wallets.import.do_import}
-            buttonStyle={{
-              width: width / 1.5,
+        <BlueButtonLink
+          title={loc.wallets.import.scan_qr}
+          onPress={() => {
+            navigate('ScanQRCode', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
+          }}
+        />
+      </View>
+      {Platform.select({
+        ios: (
+          <BlueDoneAndDismissKeyboardInputAccessory
+            onClearTapped={() => {
+              setImportText('');
+              Keyboard.dismiss();
             }}
-            onPress={importButtonPressed}
-          />
-          <BlueSpacing20 />
-          <BlueButtonLink
-            title={loc.wallets.import.scan_qr}
-            onPress={() => {
-              navigate('ScanQRCode', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
+            onPasteTapped={text => {
+              setImportText(text);
+              Keyboard.dismiss();
             }}
           />
-        </View>
-      </ScrollView>
+        ),
+        android: isToolbarVisibleForAndroid && (
+          <BlueDoneAndDismissKeyboardInputAccessory
+            onClearTapped={() => {
+              setImportText('');
+              Keyboard.dismiss();
+            }}
+            onPasteTapped={text => {
+              setImportText(text);
+              Keyboard.dismiss();
+            }}
+          />
+        ),
+      })}
     </SafeBlueArea>
   );
 };
