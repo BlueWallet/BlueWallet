@@ -44,6 +44,7 @@ import sendCreate from './screen/send/create';
 import Confirm from './screen/send/confirm';
 import PsbtWithHardwareWallet from './screen/send/psbtWithHardwareWallet';
 import Success from './screen/send/success';
+import Broadcast from './screen/send/broadcast';
 
 import ScanLndInvoice from './screen/lnd/scanLndInvoice';
 import LappBrowser from './screen/lnd/browser';
@@ -199,6 +200,9 @@ const CreateTransactionStackNavigator = createStackNavigator({
       headerRight: null,
     },
   },
+  Broadcast: {
+    screen: Broadcast,
+  },
 });
 
 const LNDCreateInvoiceStackNavigator = createStackNavigator({
@@ -325,10 +329,15 @@ const MainBottomTabs = createStackNavigator(
       },
     },
 
-    //
-
     ReceiveDetails: {
       screen: receiveDetails,
+    },
+
+    Broadcast: {
+      screen: Broadcast,
+      navigationOptions: () => ({
+        title: 'Broadcast tx',
+      }),
     },
 
     //

@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
-import bip21 from 'bip21';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -21,6 +20,7 @@ import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -75,7 +75,7 @@ const ReceiveDetails = () => {
       setAddress(wallet.getAddress());
     }
     InteractionManager.runAfterInteractions(async () => {
-      const bip21encoded = bip21.encode(address);
+      const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
       setBip21encoded(bip21encoded);
     });
   }, [wallet]);
@@ -116,7 +116,7 @@ const ReceiveDetails = () => {
   const createCustomAmountAddress = () => {
     setIsCustom(true);
     setIsCustomModalVisible(false);
-    setBip21encoded(bip21.encode(address, { amount: customAmount, label: customLabel }));
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount: customAmount, label: customLabel }));
   };
 
   const clearCustomAmount = () => {
@@ -124,7 +124,7 @@ const ReceiveDetails = () => {
     setIsCustomModalVisible(false);
     setCustomAmount('');
     setCustomLabel('');
-    setBip21encoded(bip21.encode(address));
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
   };
 
   const renderCustomAmountModal = () => {

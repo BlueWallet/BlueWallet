@@ -67,13 +67,9 @@ export default class Confirm extends Component {
         }
 
         let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-        if (result && result.code) {
-          if (result.code === 1) {
-            const message = result.message.split('\n');
-            throw new Error(`${message[0]}: ${message[2]}`);
-          }
+        if (!result) {
+          throw new Error(`Broadcast failed`);
         } else {
-          console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           let amount = 0;
           const recipients = this.state.recipients;

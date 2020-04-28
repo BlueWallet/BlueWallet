@@ -35,18 +35,16 @@ import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import { HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
-import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const bitcoin = require('bitcoinjs-lib');
-const bip21 = require('bip21');
 let BigNumber = require('bignumber.js');
 const { width } = Dimensions.get('window');
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
@@ -73,6 +71,7 @@ export default class SendDetails extends Component {
     if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
     let fromSecret;
     if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
+    /** @type {LegacyWallet} */
     let fromWallet = null;
     if (props.navigation.state.params) fromWallet = props.navigation.state.params.fromWallet;
 
@@ -136,12 +135,10 @@ export default class SendDetails extends Component {
           bip70TransactionExpiration: bip70.bip70TransactionExpiration,
         });
       } else {
+        console.warn('2');
         let recipients = this.state.addresses;
-        const dataWithoutSchema = data.replace('bitcoin:', '');
-        if (
-          btcAddressRx.test(dataWithoutSchema) ||
-          ((dataWithoutSchema.indexOf('bc1') === 0 || dataWithoutSchema.indexOf('BC1') === 0) && dataWithoutSchema.indexOf('?') === -1)
-        ) {
+        const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
+        if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
           recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
           this.setState({
             address: recipients,
@@ -155,12 +152,12 @@ export default class SendDetails extends Component {
             if (!data.toLowerCase().startsWith('bitcoin:')) {
               data = `bitcoin:${data}`;
             }
-            const decoded = bip21.decode(data);
+            const decoded = DeeplinkSchemaMatch.bip21decode(data);
             address = decoded.address;
             options = decoded.options;
           } catch (error) {
             data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
-            const decoded = bip21.decode(data);
+            const decoded = DeeplinkSchemaMatch.bip21decode(data);
             decoded.options.amount = 0;
             address = decoded.address;
             options = decoded.options;
@@ -277,7 +274,7 @@ export default class SendDetails extends Component {
     let address = uri || '';
     let memo = '';
     try {
-      parsedBitcoinUri = bip21.decode(uri);
+      parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
       address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
       if (parsedBitcoinUri.hasOwnProperty('options')) {
         if (parsedBitcoinUri.options.hasOwnProperty('amount')) {

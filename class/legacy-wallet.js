@@ -1,6 +1,7 @@
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from './';
 import { NativeModules } from 'react-native';
+
 const bitcoin = require('bitcoinjs-lib');
 const { RNRandomBytes } = NativeModules;
 const BlueElectrum = require('../BlueElectrum');
@@ -245,13 +246,17 @@ export class LegacyWallet extends AbstractWallet {
     return hd.getTransactions.apply(this);
   }
 
+  /**
+   * Broadcast txhex. Can throw an exception if failed
+   *
+   * @param {String} txhex
+   * @returns {Promise<boolean>}
+   */
   async broadcastTx(txhex) {
-    try {
-      const broadcast = await BlueElectrum.broadcast(txhex);
-      return broadcast;
-    } catch (error) {
-      return error;
-    }
+    let broadcast = await BlueElectrum.broadcastV2(txhex);
+    console.log({ broadcast });
+    if (broadcast.indexOf('successfully') !== -1) return true;
+    return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
   }
 
   /**
