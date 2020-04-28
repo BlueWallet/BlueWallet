@@ -261,11 +261,11 @@ export default class SendDetails extends Component {
   }
 
   _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true });
+    this.setState({ renderWalletSelectionButtonHidden: true, isAmountToolbarVisibleForAndroid: true });
   };
 
   _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false });
+    this.setState({ renderWalletSelectionButtonHidden: false, isAmountToolbarVisibleForAndroid: false });
   };
 
   decodeBitcoinUri(uri) {
@@ -805,8 +805,6 @@ export default class SendDetails extends Component {
               this.setState({ addresses: transactions });
             }}
             inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
-            onFocus={() => this.setState({ isAmountToolbarVisibleForAndroid: true })}
-            onBlur={() => this.setState({ isAmountToolbarVisibleForAndroid: false })}
           />
           <BlueAddressInput
             onChangeText={async text => {
