@@ -17,6 +17,9 @@ export enum Route {
   TransactionDetails = 'TransactionDetails',
   ReceiveCoins = 'ReceiveCoins',
   EditText = 'EditText',
+  ElectrumServer = 'ElectrumServer',
+  AboutUs = 'AboutUs',
+  SelectLanguage = 'SelectLanguage',
 }
 
 export interface Wallet {

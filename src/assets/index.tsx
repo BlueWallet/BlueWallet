@@ -38,4 +38,7 @@ export const icons = {
   infoIcon: require('./images/infoIcon.png'),
   fingerprintIcon: require('./images/fingerprintIcon.png'),
   qrCode: require('./images/qrCode.png'),
+  github: require('./images/github.png'),
+  star: require('./images/star.png'),
+  success: require('./images/success.png'),
 };

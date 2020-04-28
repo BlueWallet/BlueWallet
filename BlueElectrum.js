@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 
+import { AppStorage } from './class';
+
 //import { AppStorage } from './class/app-storage';
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -7,7 +9,7 @@ const reverse = require('buffer-reverse');
 const ElectrumClient = require('electrum-client');
 
 const storageKey = 'ELECTRUM_PEERS';
-const defaultPeer = { host: '188.166.204.85', tcp: '50001' };
+export const defaultPeer = { host: '188.166.204.85', tcp: '50001' };
 const hardcodedPeers = [{ host: '188.166.204.85', tcp: '50001' }, { host: '157.245.20.66', tcp: '50001' }];
 
 let mainClient = false;
@@ -15,11 +17,9 @@ let mainConnected = false;
 let wasConnectedAtLeastOnce = false;
 
 async function connectMain() {
-  let usingPeer = await getRandomHardcodedPeer();
-  const savedPeer = null;
-  if (savedPeer && savedPeer.host && savedPeer.tcp) {
-    usingPeer = savedPeer;
-  }
+  const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
+  const tcp = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
+  const usingPeer = !!host && !!tcp ? { host, tcp } : await getRandomHardcodedPeer();
 
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
@@ -29,6 +29,10 @@ async function connectMain() {
       mainConnected = false;
     };
     await mainClient.connect();
+    if (host !== usingPeer.host || tcp !== usingPeer.tcp) {
+      await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, usingPeer.host);
+      await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, usingPeer.tcp);
+    }
     const ver = await mainClient.server_version('2.7.11', '1.4');
     if (ver && ver[0]) {
       console.log('connected to ', ver);

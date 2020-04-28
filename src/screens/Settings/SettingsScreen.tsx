@@ -5,12 +5,14 @@ import { NavigationScreenProps } from 'react-navigation';
 
 import { images, icons } from 'app/assets';
 import { Image, ScreenTemplate, Header, ListItem } from 'app/components';
+import { Route } from 'app/consts';
 import { AppStorage, Biometric } from 'app/legacy';
 import i18n from 'app/locale';
 
 import { LabeledSettingsRow } from './LabeledSettingsRow';
 
-export const SettingsScreen = () => {
+export const SettingsScreen = (props: NavigationScreenProps) => {
+  const { navigation } = props;
   const [isLoading, setIsLoading] = useState(true);
   const [isAdvancedOptions, setIsAdvancedOptions] = useState(false);
   const [biometrics, setBiometrics] = useState({
@@ -18,6 +20,12 @@ export const SettingsScreen = () => {
     isBiometricsEnabled: false,
     biometricsType: '',
   });
+
+  const navigateToElectrumServer = () => navigation.navigate(Route.ElectrumServer);
+
+  const navigateToAboutUs = () => navigation.navigate(Route.AboutUs);
+
+  const navigateToSelectLanguage = () => navigation.navigate(Route.SelectLanguage);
 
   const onAdvancedOptionsChange = async (value: boolean) => {
     if (value) {
@@ -53,8 +61,8 @@ export const SettingsScreen = () => {
 
   const renderGeneralSettings = () => (
     <>
-      <ListItem title={i18n.settings.language} source={icons.languageIcon} />
-      <ListItem title={i18n.settings.electrumServer} source={icons.dataUsageIcon} />
+      <ListItem onPress={navigateToSelectLanguage} title={i18n.settings.language} source={icons.languageIcon} />
+      <ListItem onPress={navigateToElectrumServer} title={i18n.settings.electrumServer} source={icons.dataUsageIcon} />
       <ListItem
         title={i18n.settings.advancedOptions}
         source={icons.buildIcon}
@@ -68,7 +76,11 @@ export const SettingsScreen = () => {
 
   const renderSecuritySettings = () => (
     <>
-      <ListItem title={i18n.settings.changePin} source={icons.lockIcon} iconWidth={15} iconHeight={20} />
+      {/**
+       * Commented as it's not yet implemented.
+       * It will be implemented in next scope.
+       *  <ListItem title={i18n.settings.changePin} source={icons.lockIcon} iconWidth={15} iconHeight={20} />
+       */}
       <ListItem
         title={i18n.settings.fingerprintLogin}
         source={icons.fingerprintIcon}
@@ -80,7 +92,9 @@ export const SettingsScreen = () => {
     </>
   );
 
-  const renderAboutSettings = () => <ListItem title={i18n.settings.aboutUs} source={icons.infoIcon} />;
+  const renderAboutSettings = () => (
+    <ListItem onPress={navigateToAboutUs} title={i18n.settings.aboutUs} source={icons.infoIcon} />
+  );
 
   return isLoading ? null : (
     <ScreenTemplate>

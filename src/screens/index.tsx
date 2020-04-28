@@ -15,3 +15,6 @@ export { default as ContactQRCodeScreen } from './ContactQRCodeScreen';
 export { default as ContactDetailsScreen } from './ContactDetailsScreen';
 export { default as TransactionDetailsScreen } from './TransactionDetailsScreen';
 export { ReceiveCoinsScreen } from './ReceiveCoinsScreen';
+export { ElectrumServerScreen } from './Settings/ElectrumServerScreen';
+export { AboutUsScreen } from './Settings/AboutUsScreen';
+export { SelectLanguageScreen } from './Settings/SelectLanguageScreen';

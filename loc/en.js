@@ -186,6 +186,33 @@ module.exports = {
     aboutUs: 'About us',
     header: 'Settings',
   },
+  aboutUs: {
+    header: 'About us',
+    releaseNotes: 'Release notes',
+    runSelfTest: 'Run self test',
+    buildWithAwesome: 'Build with awesome:',
+    rateGoldWallet: 'Rate GoldWallet',
+    goToOurGithub: 'Go to our Github',
+    alwaysBackupYourKeys: 'Always backup your keys',
+    title: 'Gold wallet is a free and open source Bitcoin wallet. Licensed MIT.',
+  },
+  electrumServer: {
+    header: 'Electrum server',
+    save: 'Save',
+    useDefault: 'Use default',
+    host: 'host',
+    port: 'port',
+    successfullSave: 'Your changes have been saved successfully. Restart may be required for changes to take effect.',
+    connectionError: "Can't connect to provided Electrum server",
+  },
+  selectLanguage: {
+    header: 'Language',
+    restartInfo: 'When selecting a new language, restarting GoldWallet may be required for the change to take effect',
+    confirmation: 'Confirmation',
+    confirm: 'Confirm',
+    alertDescription: 'Select language and restart the application?',
+    cancel: 'Cancel',
+  },
   plausibledeniability: {
     title: 'Plausible Deniability',
     help:

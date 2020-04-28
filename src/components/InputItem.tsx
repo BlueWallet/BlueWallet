@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, TextInput as BaseTextInput, View, Text, Animated } from 'react-native';
+import { StyleSheet, TextInput as BaseTextInput, View, Text, Animated, KeyboardType } from 'react-native';
 
 import { palette, typography, fonts } from 'app/styles';
 
@@ -12,6 +12,7 @@ interface Props {
   autoFocus?: boolean;
   setValue?: (value: string) => void;
   focused?: boolean;
+  keyboardType?: KeyboardType;
 }
 
 interface State {

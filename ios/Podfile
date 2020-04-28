@@ -55,4 +55,6 @@ target 'GoldWallet' do
     # React Native requirements
     
     sharedPods    
+  pod 'react-native-restart', :path => '../node_modules/react-native-restart'
+
 end
