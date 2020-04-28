@@ -7,7 +7,16 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-import { HDSegwitBech32Wallet } from '../../class';
+import {
+  HDLegacyElectrumSeedP2PKHWallet,
+  HDLegacyP2PKHWallet,
+  HDSegwitBech32Wallet,
+  HDSegwitP2SHWallet,
+  HDLegacyBreadwalletWallet,
+  LegacyWallet,
+  SegwitP2SHWallet,
+  SegwitBech32Wallet,
+} from '../../class';
 let loc = require('../../loc');
 let EV = require('../../events');
 let currency = require('../../currency');
@@ -58,17 +67,13 @@ export default class Confirm extends Component {
         }
 
         let result = await this.state.fromWallet.broadcastTx(this.state.tx);
-        if (result && result.code) {
-          if (result.code === 1) {
-            const message = result.message.split('\n');
-            throw new Error(`${message[0]}: ${message[2]}`);
-          }
+        if (!result) {
+          throw new Error(`Broadcast failed`);
         } else {
-          console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           let amount = 0;
           const recipients = this.state.recipients;
-          if (recipients[0].amount === BitcoinUnit.MAX) {
+          if (recipients[0].amount === BitcoinUnit.MAX || !recipients[0].amount) {
             amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
           } else {
             for (const recipient of recipients) {
@@ -76,7 +81,19 @@ export default class Confirm extends Component {
             }
           }
 
-          if (this.state.fromWallet.type === HDSegwitBech32Wallet.type) {
+          // wallets that support new createTransaction() instead of deprecated createTx()
+          if (
+            [
+              HDSegwitBech32Wallet.type,
+              HDSegwitP2SHWallet.type,
+              HDLegacyP2PKHWallet.type,
+              HDLegacyBreadwalletWallet.type,
+              HDLegacyElectrumSeedP2PKHWallet.type,
+              LegacyWallet.type,
+              SegwitP2SHWallet.type,
+              SegwitBech32Wallet.type,
+            ].includes(this.state.fromWallet.type)
+          ) {
             amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           }
 
@@ -100,13 +117,14 @@ export default class Confirm extends Component {
       <>
         <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
           <Text
+            testID={'TransactionValue'}
             style={{
               color: '#0f5cc0',
               fontSize: 36,
               fontWeight: '600',
             }}
           >
-            {item.amount === BitcoinUnit.MAX
+            {!item.value || item.value === BitcoinUnit.MAX
               ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
               : item.amount || currency.satoshiToBTC(item.value)}
           </Text>
@@ -176,6 +194,7 @@ export default class Confirm extends Component {
               )}
 
               <TouchableOpacity
+                testID={'TransactionDetailsButton'}
                 style={{ marginVertical: 24 }}
                 onPress={async () => {
                   if (this.isBiometricUseCapableAndEnabled) {

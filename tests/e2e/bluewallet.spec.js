@@ -1,5 +1,8 @@
 /* global it, describe, expect, element, by, waitFor, device */
 
+const bitcoin = require('bitcoinjs-lib');
+const assert = require('assert');
+
 describe('BlueWallet UI Tests', () => {
   it('selftest passes', async () => {
     await waitFor(element(by.id('WalletsList')))
@@ -300,6 +303,78 @@ describe('BlueWallet UI Tests', () => {
     await yo('WalletsList');
     await expect(element(by.id('cr34t3d'))).toBeVisible();
   });
+
+  it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction', async () => {
+    if (!process.env.HD_MNEMONIC_BIP84) {
+      console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
+      return;
+    }
+    await yo('WalletsList');
+
+    // going to Import Wallet screen and importing mnemonic for existing BIP84 wallet with real balance
+    await element(by.id('CreateAWallet')).tap();
+    await element(by.id('ImportWallet')).tap();
+    await element(by.id('MnemonicInput')).typeText(process.env.HD_MNEMONIC_BIP84);
+    try {
+      await element(by.id('DoImport')).tap();
+    } catch (_) {}
+    await sleep(60000);
+    await sup('OK', 3 * 61000); // waiting for wallet import
+    await element(by.text('OK')).tap();
+    // ok, wallet imported
+
+    // lets go inside wallet
+    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
+    // label might change in the future; see HDSegwitBech32Wallet.typeReadable
+    expect(element(by.id('WalletBalance'))).toHaveText('0.00105526 BTC');
+
+    // lets create real transaction:
+    await element(by.id('SendButton')).tap();
+    await element(by.id('AddressInput')).typeText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
+    await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+
+    // created. verifying:
+    await yo('TransactionValue');
+    expect(element(by.id('TransactionValue'))).toHaveText('0.0005');
+    await element(by.id('TransactionDetailsButton')).tap();
+
+    // now, a hack to extract element text. warning, this might break in future
+    // @see https://github.com/wix/detox/issues/445
+
+    let txhex = '';
+    try {
+      await expect(element(by.id('TxhexInput'))).toHaveText('_unfoundable_text');
+    } catch (error) {
+      if (device.getPlatform() === 'ios') {
+        const start = `accessibilityLabel was "`;
+        const end = '" on ';
+        const errorMessage = error.message.toString();
+        const [, restMessage] = errorMessage.split(start);
+        const [label] = restMessage.split(end);
+        txhex = label;
+      } else {
+        const start = 'Got:';
+        const end = '}"';
+        const errorMessage = error.message.toString();
+        const [, restMessage] = errorMessage.split(start);
+        const [label] = restMessage.split(end);
+        const value = label.split(',');
+        var combineText = value.find(i => i.includes('text=')).trim();
+        const [, elementText] = combineText.split('=');
+        txhex = elementText;
+      }
+    }
+
+    let transaction = bitcoin.Transaction.fromHex(txhex);
+    assert.strictEqual(transaction.ins.length, 2);
+    assert.strictEqual(transaction.outs.length, 2);
+    assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
+    assert.strictEqual(transaction.outs[0].value, 50000);
+  });
 });
 
 async function sleep(ms) {
@@ -308,6 +383,12 @@ async function sleep(ms) {
 
 async function yo(id, timeout = 33000) {
   return waitFor(element(by.id(id)))
+    .toBeVisible()
+    .withTimeout(timeout);
+}
+
+async function sup(text, timeout = 33000) {
+  return waitFor(element(by.text(text)))
     .toBeVisible()
     .withTimeout(timeout);
 }

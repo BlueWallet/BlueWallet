@@ -20,7 +20,7 @@ import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
 import ViewPager from '@react-native-community/viewpager';
 import ScanQRCode from '../send/ScanQRCode';
-import DeeplinkSchemaMatch from '../../class/deeplinkSchemaMatch';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */

@@ -14,7 +14,7 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { Icon, Text } from 'react-native-elements';
+import { Text } from 'react-native-elements';
 import {
   BlueButton,
   BlueText,
@@ -23,6 +23,7 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
+  BlueBigCheckmark,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Share from 'react-native-share';
@@ -121,7 +122,6 @@ export default class PsbtWithHardwareWallet extends Component {
         await BlueElectrum.waitTillConnected();
         let result = await this.state.fromWallet.broadcastTx(this.state.txhex);
         if (result) {
-          console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ success: true, isLoading: false });
           if (this.state.memo) {
@@ -180,20 +180,7 @@ export default class PsbtWithHardwareWallet extends Component {
   _renderSuccess() {
     return (
       <SafeBlueArea style={{ flex: 1 }}>
-        <View
-          style={{
-            backgroundColor: '#ccddf9',
-            width: 120,
-            height: 120,
-            borderRadius: 60,
-            alignSelf: 'center',
-            justifyContent: 'center',
-            marginTop: 143,
-            marginBottom: 53,
-          }}
-        >
-          <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-        </View>
+        <BlueBigCheckmark style={{ marginTop: 143, marginBottom: 53 }} />
         <BlueCard>
           <BlueButton onPress={this.props.navigation.dismiss} title={loc.send.success.done} />
         </BlueCard>

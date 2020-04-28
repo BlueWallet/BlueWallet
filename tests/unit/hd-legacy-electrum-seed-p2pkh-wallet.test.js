@@ -4,12 +4,8 @@ let assert = require('assert');
 
 describe('HDLegacyElectrumSeedP2PKHWallet', () => {
   it('can import mnemonics and generate addresses and WIFs', async function() {
-    if (!process.env.HD_ELECTRUM_SEED_LEGACY) {
-      console.error('process.env.HD_ELECTRUM_SEED_LEGACY not set, skipped');
-      return;
-    }
     let hd = new HDLegacyElectrumSeedP2PKHWallet();
-    hd.setSecret(process.env.HD_ELECTRUM_SEED_LEGACY);
+    hd.setSecret('receive happy  wash prosper update    pet neck acid try profit proud hungry  ');
     assert.ok(hd.validateMnemonic());
 
     let address = hd._getExternalAddressByIndex(0);
@@ -23,6 +19,15 @@ describe('HDLegacyElectrumSeedP2PKHWallet', () => {
 
     wif = hd._getInternalWIFByIndex(0);
     assert.strictEqual(wif, 'L52d26QmYGW8ctHo1omM5fZeJMgaonSkEWCGpnEekNvkVUoqTsNF');
+
+    assert.strictEqual(
+      hd._getPubkeyByAddress(hd._getExternalAddressByIndex(0)).toString('hex'),
+      '02a6e6b674f82796cb4776673d824bf0673364fab24e62dcbfff4c1a5b69e3519b',
+    );
+    assert.strictEqual(
+      hd._getPubkeyByAddress(hd._getInternalAddressByIndex(0)).toString('hex'),
+      '0344708260d2a832fd430285a0b915859d73e6ed4c6c6a9cb73e9069a9de56fb23',
+    );
 
     hd.setSecret('bs');
     assert.ok(!hd.validateMnemonic());

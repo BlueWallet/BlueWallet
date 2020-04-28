@@ -270,6 +270,7 @@ export default class WalletDetails extends Component {
                       {this.renderMarketplaceButton()}
                     </React.Fragment>
                   )}
+                  <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
                   <BlueSpacing20 />
                   <TouchableOpacity
                     style={{ alignItems: 'center' }}

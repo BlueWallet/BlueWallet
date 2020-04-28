@@ -72,7 +72,7 @@ export class AbstractWallet {
    * @returns {number} Available to spend amount, int, in sats
    */
   getBalance() {
-    return this.balance;
+    return this.balance + (this.getUnconfirmedBalance() < 0 ? this.getUnconfirmedBalance() : 0);
   }
 
   getPreferredBalanceUnit() {
@@ -116,7 +116,7 @@ export class AbstractWallet {
    * Returns delta of unconfirmed balance. For example, if theres no
    * unconfirmed balance its 0
    *
-   * @return {number}
+   * @return {number} Satoshis
    */
   getUnconfirmedBalance() {
     return this.unconfirmed_balance;
@@ -158,7 +158,27 @@ export class AbstractWallet {
     return 0;
   }
 
-  // createTx () { throw Error('not implemented') }
+  /**
+   * @deprecated
+   */
+  createTx() {
+    throw Error('not implemented');
+  }
+
+  /**
+   *
+   * @param utxos {Array.<{vout: Number, value: Number, txId: String, address: String}>} List of spendable utxos
+   * @param targets {Array.<{value: Number, address: String}>} Where coins are going. If theres only 1 target and that target has no value - this will send MAX to that address (respecting fee rate)
+   * @param feeRate {Number} satoshi per byte
+   * @param changeAddress {String} Excessive coins will go back to that address
+   * @param sequence {Number} Used in RBF
+   * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
+   * @param masterFingerprint {number} Decimal number of wallet's master fingerprint
+   * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
+   */
+  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false, masterFingerprint) {
+    throw Error('not implemented');
+  }
 
   getAddress() {
     throw Error('not implemented');
