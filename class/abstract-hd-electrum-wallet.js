@@ -989,19 +989,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   /**
-   * Broadcast txhex. Can throw an exception if failed
-   *
-   * @param {String} txhex
-   * @returns {Promise<boolean>}
-   */
-  async broadcastTx(txhex) {
-    let broadcast = await BlueElectrum.broadcastV2(txhex);
-    console.log({ broadcast });
-    if (broadcast.indexOf('successfully') !== -1) return true;
-    return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
-  }
-
-  /**
    * Probes zero address in external hierarchy for transactions, if there are any returns TRUE.
    * Zero address is a pretty good indicator, since its a first one to fund the wallet. How can you use the wallet and
    * not fund it first?
