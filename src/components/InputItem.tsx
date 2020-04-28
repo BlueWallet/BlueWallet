@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, TextInput as BaseTextInput, View, Text, Animated, KeyboardType } from 'react-native';
+import { StyleSheet, TextInput as BaseTextInput, View, Text, Animated, TextInputProps } from 'react-native';
 
 import { palette, typography, fonts } from 'app/styles';
 
-interface Props {
+interface Props extends TextInputProps {
   label: string;
   suffix?: string;
   error?: string;
@@ -12,7 +12,6 @@ interface Props {
   autoFocus?: boolean;
   setValue?: (value: string) => void;
   focused?: boolean;
-  keyboardType?: KeyboardType;
 }
 
 interface State {

@@ -6,6 +6,7 @@ import { NavigationScreenProps } from 'react-navigation';
 
 import { icons } from 'app/assets';
 import { ScreenTemplate, Button, Header } from 'app/components';
+import { Route } from 'app/consts';
 import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
@@ -44,7 +45,7 @@ export const AboutUsScreen = (props: NavigationScreenProps) => {
     });
   };
 
-  const navigateToReleaseNotes = () => props.navigation.navigate('ReleaseNotes');
+  const navigateToReleaseNotes = () => props.navigation.navigate(Route.ReleaseNotes);
 
   const goToGithub = () => {
     Linking.openURL('https://github.com/bitcoinvault/GoldWallet');

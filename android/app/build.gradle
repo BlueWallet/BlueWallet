@@ -152,7 +152,6 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-restart')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
     // JSC from node_modules

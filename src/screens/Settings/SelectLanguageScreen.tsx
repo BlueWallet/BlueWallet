@@ -9,10 +9,35 @@ import { ScreenTemplate, Header, Image } from 'app/components';
 import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
+interface Language {
+  label: string;
+  value: string;
+}
+
+interface LanguageItemProps {
+  language: Language;
+  selectedLanguageValue: string;
+  onLanguageSelect: (value: string) => void;
+}
+
+const LanguageItem = ({ language, selectedLanguageValue, onLanguageSelect }: LanguageItemProps) => {
+  const handleLanguageSelect = () => onLanguageSelect(language.value);
+  return (
+    <TouchableOpacity key={language.value} onPress={handleLanguageSelect} style={styles.langaugeItemContainer}>
+      <Text style={styles.languageItem}>{language.label}</Text>
+      {language.value === selectedLanguageValue && (
+        <View style={styles.successImageContainer}>
+          <Image source={icons.success} style={styles.successImage} />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
+
 export const SelectLanguageScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
-  const availableLanguages = [
+  const [selectedLanguageValue, setselectedLanguageValue] = useState('en');
+  const availableLanguages: Language[] = [
     { label: 'English (EN)', value: 'en' },
     { label: 'Afrikaans (AFR)', value: 'zar_afr' },
     { label: 'Chinese (ZH)', value: 'zh_cn' },
@@ -46,10 +71,10 @@ export const SelectLanguageScreen = () => {
   useEffect(() => {
     (async () => {
       const language = await AsyncStorage.getItem('lang');
-      setSelectedLanguage(language || 'en');
+      setselectedLanguageValue(language || 'en');
       setIsLoading(false);
     })();
-  }, [selectedLanguage]);
+  }, [selectedLanguageValue]);
 
   const onLanguageSelect = (value: string) => {
     Alert.alert(
@@ -60,7 +85,7 @@ export const SelectLanguageScreen = () => {
           text: i18n.selectLanguage.confirm,
           onPress: () => {
             i18n.saveLanguage(value);
-            setSelectedLanguage(value);
+            setselectedLanguageValue(value);
             RNRestart.Restart();
           },
         },
@@ -86,18 +111,12 @@ export const SelectLanguageScreen = () => {
       }
     >
       {availableLanguages.map(language => (
-        <TouchableOpacity
+        <LanguageItem
+          language={language}
+          selectedLanguageValue={selectedLanguageValue}
+          onLanguageSelect={onLanguageSelect}
           key={language.value}
-          onPress={() => onLanguageSelect(language.value)}
-          style={styles.langaugeItemContainer}
-        >
-          <Text style={styles.languageItem}>{language.label}</Text>
-          {language.value === selectedLanguage && (
-            <View style={styles.successImageContainer}>
-              <Image source={icons.success} style={styles.successImage} />
-            </View>
-          )}
-        </TouchableOpacity>
+        />
       ))}
     </ScreenTemplate>
   );

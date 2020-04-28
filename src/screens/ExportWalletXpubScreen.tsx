@@ -4,12 +4,11 @@ import QRCode from 'react-native-qrcode-svg';
 import { NavigationScreenProps } from 'react-navigation';
 import { useNavigationParam } from 'react-navigation-hooks';
 
-import { images } from 'app/assets';
 import { Header, ScreenTemplate } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Wallet } from 'app/consts';
 import { en } from 'app/locale';
-import { typography, palette } from 'app/styles';
+import { typography } from 'app/styles';
 
 export const ExportWalletXpubScreen = () => {
   const wallet: Wallet = useNavigationParam('wallet');
@@ -19,14 +18,7 @@ export const ExportWalletXpubScreen = () => {
     <ScreenTemplate>
       <Text style={styles.title}>{wallet.label}</Text>
       <View style={styles.qrCodeContainer}>
-        <QRCode
-          value={xpub}
-          logo={images.qrCode}
-          size={160}
-          logoSize={40}
-          logoBackgroundColor={palette.background}
-          ecl={'H'}
-        />
+        <QRCode value={xpub} size={140} ecl={'H'} />
       </View>
       <Text style={styles.xpub}>{xpub}</Text>
       <CopyButton textToCopy={xpub} />

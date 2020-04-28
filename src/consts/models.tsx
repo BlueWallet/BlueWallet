@@ -20,6 +20,7 @@ export enum Route {
   ElectrumServer = 'ElectrumServer',
   AboutUs = 'AboutUs',
   SelectLanguage = 'SelectLanguage',
+  ReleaseNotes = 'ReleaseNotes',
 }
 
 export interface Wallet {
