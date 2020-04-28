@@ -455,9 +455,16 @@ export default class WalletTransactions extends Component {
     clearInterval(this.interval);
   }
 
-  navigateToSendScreen = () => {
+  navigateToSendScreen = async () => {
+    let address;
+    try {
+      address = this.state.wallet.getAddress();
+    } catch (e) {
+      console.log(e);
+      address = await this.state.wallet.getAddressAsync();
+    }
     this.props.navigation.navigate('SendDetails', {
-      fromAddress: this.state.wallet.getAddress(),
+      fromAddress: address,
       fromSecret: this.state.wallet.getSecret(),
       fromWallet: this.state.wallet,
     });
