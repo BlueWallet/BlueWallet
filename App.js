@@ -10,7 +10,7 @@ import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/onAppLaunch';
-import DeeplinkSchemaMatch from './class/deeplinkSchemaMatch';
+import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import BitcoinBIP70TransactionDecode from './bip70/bip70';
 const A = require('./analytics');
 
