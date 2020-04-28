@@ -56,6 +56,10 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return false;
   }
 
+  /**
+   *
+   * @inheritDoc
+   */
   getUnconfirmedBalance() {
     let ret = 0;
     for (let bal of Object.values(this._balances_by_external_index)) {
@@ -751,8 +755,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return ret;
   }
 
-  _getDerivationPathByAddress(address) {
-    const path = "m/84'/0'/0'";
+  _getDerivationPathByAddress(address, BIP = 84) {
+    const path = `m/${BIP}'/0'/0'`;
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return path + '/0/' + c;
     }
@@ -763,6 +767,11 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     return false;
   }
 
+  /**
+   *
+   * @param address {string} Address that belongs to this wallet
+   * @returns {Buffer|boolean} Either buffer with pubkey or false
+   */
   _getPubkeyByAddress(address) {
     for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
       if (this._getExternalAddressByIndex(c) === address) return this._getNodePubkeyByIndex(0, c);
@@ -782,13 +791,6 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       if (this._getInternalAddressByIndex(c) === address) return true;
     }
     return false;
-  }
-
-  /**
-   * @deprecated
-   */
-  createTx(utxos, amount, fee, address) {
-    throw new Error('Deprecated');
   }
 
   /**
@@ -838,7 +840,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
         // skiping signing related stuff
         if (!input.address || !this._getWifForAddress(input.address)) throw new Error('Internal error: no address or WIF to sign input');
       }
-      let pubkey = this._getPubkeyByAddress(input.address);
+
       let masterFingerprintBuffer;
       if (masterFingerprint) {
         let masterFingerprintHex = Number(masterFingerprint).toString(16);
@@ -850,24 +852,8 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       }
       // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
-      let path = this._getDerivationPathByAddress(input.address);
-      const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
-      psbt.addInput({
-        hash: input.txId,
-        index: input.vout,
-        sequence,
-        bip32Derivation: [
-          {
-            masterFingerprint: masterFingerprintBuffer,
-            path,
-            pubkey,
-          },
-        ],
-        witnessUtxo: {
-          script: p2wpkh.output,
-          value: input.value,
-        },
-      });
+
+      psbt = this._addPsbtInput(psbt, input, sequence, masterFingerprintBuffer);
     });
 
     outputs.forEach(output => {
@@ -924,6 +910,31 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       tx = psbt.finalizeAllInputs().extractTransaction();
     }
     return { tx, inputs, outputs, fee, psbt };
+  }
+
+  _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
+    const pubkey = this._getPubkeyByAddress(input.address);
+    const path = this._getDerivationPathByAddress(input.address);
+    const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
+
+    psbt.addInput({
+      hash: input.txId,
+      index: input.vout,
+      sequence,
+      bip32Derivation: [
+        {
+          masterFingerprint: masterFingerprintBuffer,
+          path,
+          pubkey,
+        },
+      ],
+      witnessUtxo: {
+        script: p2wpkh.output,
+        value: input.value,
+      },
+    });
+
+    return psbt;
   }
 
   /**

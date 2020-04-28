@@ -104,9 +104,9 @@ export default class SendCreate extends Component {
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
           <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
           <Text style={styles.transactionDetailsSubtitle}>
-            {item.amount === BitcoinUnit.MAX
+            {item.value === BitcoinUnit.MAX || !item.value
               ? currency.satoshiToBTC(this.state.wallet.getBalance()) - this.state.fee
-              : item.amount || currency.satoshiToBTC(item.value)}{' '}
+              : currency.satoshiToBTC(item.value)}{' '}
             {BitcoinUnit.BTC}
           </Text>
           {this.state.recipients.length > 1 && (
@@ -131,6 +131,7 @@ export default class SendCreate extends Component {
             <BlueCard style={{ alignItems: 'center', flex: 1 }}>
               <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
               <TextInput
+                testID={'TxhexInput'}
                 style={{
                   borderColor: '#ebebeb',
                   backgroundColor: '#d2f8d6',

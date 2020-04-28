@@ -3,41 +3,49 @@ const bitcoin = require('bitcoinjs-lib');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
 
-/**
- * Creates Segwit P2SH Bitcoin address
- * @param pubkey
- * @param network
- * @returns {String}
- */
-function pubkeyToP2shSegwitAddress(pubkey, network) {
-  network = network || bitcoin.networks.bitcoin;
-  const { address } = bitcoin.payments.p2sh({
-    redeem: bitcoin.payments.p2wpkh({ pubkey, network }),
-    network,
-  });
-  return address;
-}
+export class SegwitBech32Wallet extends LegacyWallet {
+  static type = 'segwitBech32';
+  static typeReadable = 'P2 WPKH';
 
-export class SegwitP2SHWallet extends LegacyWallet {
-  static type = 'segwitP2SH';
-  static typeReadable = 'SegWit (P2SH)';
+  getAddress() {
+    if (this._address) return this._address;
+    let address;
+    try {
+      let keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      if (!keyPair.compressed) {
+        console.warn('only compressed public keys are good for segwit');
+        return false;
+      }
+      address = bitcoin.payments.p2wpkh({
+        pubkey: keyPair.publicKey,
+      }).address;
+    } catch (err) {
+      return false;
+    }
+    this._address = address;
+
+    return this._address;
+  }
 
   static witnessToAddress(witness) {
     const pubKey = Buffer.from(witness, 'hex');
-    return pubkeyToP2shSegwitAddress(pubKey);
+    return bitcoin.payments.p2wpkh({
+      pubkey: pubKey,
+      network: bitcoin.networks.bitcoin,
+    }).address;
   }
 
   /**
-   * Converts script pub key to p2sh address if it can. Returns FALSE if it cant.
+   * Converts script pub key to bech32 address if it can. Returns FALSE if it cant.
    *
    * @param scriptPubKey
-   * @returns {boolean|string} Either p2sh address or false
+   * @returns {boolean|string} Either bech32 address or false
    */
   static scriptPubKeyToAddress(scriptPubKey) {
     const scriptPubKey2 = Buffer.from(scriptPubKey, 'hex');
     let ret;
     try {
-      ret = bitcoin.payments.p2sh({
+      ret = bitcoin.payments.p2wpkh({
         output: scriptPubKey2,
         network: bitcoin.networks.bitcoin,
       }).address;
@@ -45,25 +53,6 @@ export class SegwitP2SHWallet extends LegacyWallet {
       return false;
     }
     return ret;
-  }
-
-  getAddress() {
-    if (this._address) return this._address;
-    let address;
-    try {
-      let keyPair = bitcoin.ECPair.fromWIF(this.secret);
-      let pubKey = keyPair.publicKey;
-      if (!keyPair.compressed) {
-        console.warn('only compressed public keys are good for segwit');
-        return false;
-      }
-      address = pubkeyToP2shSegwitAddress(pubKey);
-    } catch (err) {
-      return false;
-    }
-    this._address = address;
-
-    return this._address;
   }
 
   /**
@@ -110,17 +99,15 @@ export class SegwitP2SHWallet extends LegacyWallet {
 
       const pubkey = keyPair.publicKey;
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
-      let p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
 
       psbt.addInput({
         hash: input.txid,
         index: input.vout,
         sequence,
         witnessUtxo: {
-          script: p2sh.output,
+          script: p2wpkh.output,
           value: input.value,
         },
-        redeemScript: p2wpkh.output,
       });
     });
 
@@ -150,6 +137,10 @@ export class SegwitP2SHWallet extends LegacyWallet {
       tx = psbt.finalizeAllInputs().extractTransaction();
     }
     return { tx, inputs, outputs, fee, psbt };
+  }
+
+  allowSend() {
+    return true;
   }
 
   allowSendMax() {

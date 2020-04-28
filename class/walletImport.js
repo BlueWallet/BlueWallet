@@ -204,12 +204,14 @@ export default class WalletImport {
         }
       }
 
-      let hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();
-      hdElectrumSeedLegacy.setSecret(importText);
-      if (await hdElectrumSeedLegacy.wasEverUsed()) {
-        // not fetching txs or balances, fuck it, yolo, life is too short
-        return WalletImport._saveWallet(hdElectrumSeedLegacy);
-      }
+      try {
+        let hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();
+        hdElectrumSeedLegacy.setSecret(importText);
+        if (await hdElectrumSeedLegacy.wasEverUsed()) {
+          // not fetching txs or balances, fuck it, yolo, life is too short
+          return WalletImport._saveWallet(hdElectrumSeedLegacy);
+        }
+      } catch (_) {}
 
       let hd2 = new HDSegwitP2SHWallet();
       hd2.setSecret(importText);

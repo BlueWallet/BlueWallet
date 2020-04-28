@@ -1,9 +1,8 @@
 import bip39 from 'bip39';
-import BigNumber from 'bignumber.js';
-import signer from '../models/signer';
 import { AbstractHDElectrumWallet } from './abstract-hd-electrum-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const HDNode = require('bip32');
+const BlueElectrum = require('../BlueElectrum');
 
 /**
  * HD Wallet (BIP39).
@@ -83,18 +82,49 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
     return (this.internal_addresses_cache[index] = address);
   }
 
-  createTx(utxos, amount, fee, address) {
-    for (let utxo of utxos) {
-      utxo.wif = this._getWifForAddress(utxo.address);
+  async fetchUtxo() {
+    await super.fetchUtxo();
+    // now we need to fetch txhash for each input as required by PSBT
+    let txhexes = await BlueElectrum.multiGetTransactionByTxid(
+      this.getUtxo().map(x => x['txid']),
+      50,
+      false,
+    );
+
+    let newUtxos = [];
+    for (let u of this.getUtxo()) {
+      if (txhexes[u.txid]) u.txhex = txhexes[u.txid];
+      newUtxos.push(u);
     }
 
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
-    return signer.createHDTransaction(
-      utxos,
-      address,
-      amountPlusFee,
-      fee,
-      this._getInternalAddressByIndex(this.next_free_change_address_index),
-    );
+    return newUtxos;
+  }
+
+  _addPsbtInput(psbt, input, sequence, masterFingerprintBuffer) {
+    const pubkey = this._getPubkeyByAddress(input.address);
+    const path = this._getDerivationPathByAddress(input.address, 44);
+
+    if (!input.txhex) throw new Error('UTXO is missing txhex of the input, which is required by PSBT for non-segwit input');
+
+    psbt.addInput({
+      hash: input.txid,
+      index: input.vout,
+      sequence,
+      bip32Derivation: [
+        {
+          masterFingerprint: masterFingerprintBuffer,
+          path,
+          pubkey,
+        },
+      ],
+      // non-segwit inputs now require passing the whole previous tx as Buffer
+      nonWitnessUtxo: Buffer.from(input.txhex, 'hex'),
+    });
+
+    return psbt;
+  }
+
+  allowSendMax() {
+    return true;
   }
 }

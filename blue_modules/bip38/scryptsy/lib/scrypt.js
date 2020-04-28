@@ -10,13 +10,13 @@ async function scrypt (key, salt, N, r, p, dkLen, progressCallback) {
   if (N > MAX_VALUE / 128 / r) throw Error('Parameter N is too large')
   if (r > MAX_VALUE / 128 / p) throw Error('Parameter r is too large')
 
-  var XY = new Buffer(256 * r)
-  var V = new Buffer(128 * r * N)
+  var XY = Buffer.alloc(256 * r)
+  var V = Buffer.alloc(128 * r * N)
 
   // pseudo global
   var B32 = new Int32Array(16) // salsa20_8
   var x = new Int32Array(16) // salsa20_8
-  var _X = new Buffer(64) // blockmix_salsa8
+  var _X = Buffer.alloc(64) // blockmix_salsa8
 
   // pseudo global
   var B = pbkdf2.pbkdf2Sync(key, salt, 1, p * 128 * r, 'sha256')
