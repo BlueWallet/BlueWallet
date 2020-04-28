@@ -1,13 +1,12 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, Text } from 'react-native';
+import { ActivityIndicator, Linking, StyleSheet, View, KeyboardAvoidingView, Platform, Text, TextInput } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { HDSegwitBech32Wallet } from '../../class/hd-segwit-bech32-wallet';
+import { HDSegwitBech32Wallet } from '../../class';
 import {
   SafeBlueArea,
   BlueCard,
   BlueButton,
-  BlueFormInput,
   BlueSpacing10,
   BlueSpacing20,
   BlueFormLabel,
@@ -28,7 +27,6 @@ export default function Broadcast() {
   const [tx, setTx] = useState('');
   const [txHex, setTxHex] = useState('');
   const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
-  const inputRef = useRef();
   const handleUpdateTxHex = nextValue => setTxHex(nextValue.trim());
   const handleBroadcast = async () => {
     setBroadcastResult(BROADCAST_RESULT.pending);
@@ -51,10 +49,6 @@ export default function Broadcast() {
     }
   };
 
-  useEffect(() => {
-    inputRef.current.focus();
-  }, []);
-
   return (
     <SafeBlueArea style={styles.blueArea}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null} keyboardShouldPersistTaps="handled">
@@ -65,7 +59,30 @@ export default function Broadcast() {
                 <BlueFormLabel>{broadcastResult}</BlueFormLabel>
                 {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
               </View>
-              <BlueFormInput textInputRef={inputRef} multiline numberOfLines={8} value={txHex} onChangeText={handleUpdateTxHex} />
+              <TextInput
+                style={{
+                  flex: 1,
+                  borderColor: '#ebebeb',
+                  backgroundColor: '#d2f8d6',
+                  borderRadius: 4,
+                  marginTop: 20,
+                  color: '#37c0a1',
+                  fontWeight: '500',
+                  fontSize: 14,
+                  paddingHorizontal: 16,
+                  paddingBottom: 16,
+                  paddingTop: 16,
+                }}
+                maxHeight={100}
+                minHeight={100}
+                maxWidth={'100%'}
+                minWidth={'100%'}
+                multiline
+                editable
+                value={txHex}
+                onChangeText={handleUpdateTxHex}
+              />
+
               <BlueSpacing10 />
               <BlueButton title="BROADCAST" onPress={handleBroadcast} disabled={broadcastResult === BROADCAST_RESULT.pending} />
             </BlueCard>
