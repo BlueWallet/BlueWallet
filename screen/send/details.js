@@ -669,11 +669,8 @@ export default class SendDetails extends Component {
                 onSwitch={this.onReplaceableFeeSwitchValueChanged}
               />
             )}
-            {this.state.fromWallet.type === WatchOnlyWallet.type &&
-              this.state.fromWallet.isHd() &&
-              this.state.fromWallet.getSecret().startsWith('zpub') && (
-                <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
-              )}
+
+            <BlueListItem title="Import Transaction" hideChevron component={TouchableOpacity} onPress={this.importTransaction} />
             {this.state.fromWallet.allowBatchSend() && (
               <>
                 <BlueListItem
