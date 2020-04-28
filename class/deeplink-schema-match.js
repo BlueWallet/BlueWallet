@@ -5,6 +5,7 @@ import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
 const bitcoin = require('bitcoinjs-lib');
+const bip21 = require('bip21');
 const BlueApp: AppStorage = require('../BlueApp');
 
 class DeeplinkSchemaMatch {
@@ -194,6 +195,7 @@ class DeeplinkSchemaMatch {
   static isBitcoinAddress(address) {
     address = address
       .replace('bitcoin:', '')
+      .replace('BITCOIN:', '')
       .replace('bitcoin=', '')
       .split('?')[0];
     let isValidBitcoinAddress = false;
@@ -228,14 +230,14 @@ class DeeplinkSchemaMatch {
   }
 
   static isBothBitcoinAndLightning(url) {
-    if (url.includes('lightning') && url.includes('bitcoin')) {
-      const txInfo = url.split(/(bitcoin:|lightning:|lightning=|bitcoin=)+/);
+    if (url.includes('lightning') && (url.includes('bitcoin') || url.includes('BITCOIN'))) {
+      const txInfo = url.split(/(bitcoin:|BITCOIN:|lightning:|lightning=|bitcoin=)+/);
       let bitcoin;
       let lndInvoice;
       for (const [index, value] of txInfo.entries()) {
         try {
           // Inside try-catch. We dont wan't to  crash in case of an out-of-bounds error.
-          if (value.startsWith('bitcoin')) {
+          if (value.startsWith('bitcoin') || value.startsWith('BITCOIN')) {
             bitcoin = `bitcoin:${txInfo[index + 1]}`;
             if (!DeeplinkSchemaMatch.isBitcoinAddress(bitcoin)) {
               bitcoin = false;
@@ -260,6 +262,14 @@ class DeeplinkSchemaMatch {
       }
     }
     return undefined;
+  }
+
+  static bip21decode(uri) {
+    return bip21.decode(uri.replace('BITCOIN:', 'bitcoin:'));
+  }
+
+  static bip21encode() {
+    return bip21.encode.apply(bip21, arguments);
   }
 }
 
