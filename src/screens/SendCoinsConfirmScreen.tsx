@@ -17,10 +17,10 @@ const BlueElectrum = require('../../BlueElectrum');
 const currency = require('../../currency');
 const EV = require('../../events');
 
-const ScreenFooter = (onPress: () => void) => (
+const ScreenFooter = (onSendPress: () => void, onDetailsPress: () => void) => (
   <View style={styles.footer}>
-    <Button title={i18n.send.confirm.sendNow} containerStyle={styles.buttonContainer} onPress={onPress} />
-    <StyledText title={i18n.transactions.details.transactionDetails} />
+    <Button title={i18n.send.confirm.sendNow} containerStyle={styles.buttonContainer} onPress={onSendPress} />
+    <StyledText title={i18n.transactions.details.transactionDetails} onPress={onDetailsPress} />
   </View>
 );
 
@@ -97,6 +97,19 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     });
   };
 
+  goToDetails = () => {
+    const { navigation } = this.props;
+    this.props.navigation.navigate(Route.SendTransactionDetails, {
+      fee: navigation.getParam('fee'),
+      recipients: navigation.getParam('recipients'),
+      size: Math.round(navigation.getParam('tx').length / 2),
+      tx: navigation.getParam('tx'),
+      satoshiPerByte: navigation.getParam('satoshiPerByte'),
+      wallet: this.state.fromWallet,
+      feeSatoshi: this.state.feeSatoshi,
+    });
+  };
+
   render() {
     const { navigation } = this.props;
     const fromWallet = navigation.getParam('fromWallet');
@@ -104,7 +117,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     const item = recipients[0];
     const fee = navigation.getParam('fee');
     return (
-      <ScreenTemplate footer={ScreenFooter(this.broadcast)}>
+      <ScreenTemplate footer={ScreenFooter(this.broadcast, this.goToDetails)}>
         <View style={styles.container}>
           <View>
             <View style={styles.chooseWalletButton}>

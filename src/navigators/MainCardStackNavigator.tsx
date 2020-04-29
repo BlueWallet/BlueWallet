@@ -20,6 +20,7 @@ import {
   SelectLanguageScreen,
   SendCoinsScreen,
   SendCoinsConfirmScreen,
+  SendTransactionDetailsScreen,
 } from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
@@ -47,6 +48,7 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.SelectLanguage]: SelectLanguageScreen,
     [Route.SendCoins]: SendCoinsScreen,
     [Route.SendCoinsConfirm]: SendCoinsConfirmScreen,
+    [Route.SendTransactionDetails]: SendTransactionDetailsScreen,
   },
   {
     mode: 'card',

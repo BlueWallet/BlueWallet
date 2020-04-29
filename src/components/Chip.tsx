@@ -22,7 +22,6 @@ export class Chip extends React.PureComponent<Props> {
 
 const styles = StyleSheet.create({
   container: {
-    height: 32,
     paddingHorizontal: 8,
     backgroundColor: palette.backgroundDarker,
     borderRadius: 4,
@@ -32,5 +31,6 @@ const styles = StyleSheet.create({
   label: {
     ...typography.headline5,
     lineHeight: 32,
+    textAlign: 'center',
   },
 });

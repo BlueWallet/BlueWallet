@@ -21,3 +21,4 @@ export { SelectLanguageScreen } from './Settings/SelectLanguageScreen';
 export { SendCoinsScreen } from './SendCoinsScreen';
 export { SendCoinsConfirmScreen } from './SendCoinsConfirmScreen';
 export { TransactionSuccessScreen } from './TransactionSuccessScreen';
+export { SendTransactionDetailsScreen } from './SendTransactionDetailsScreen';
