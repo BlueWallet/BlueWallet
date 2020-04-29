@@ -18,9 +18,10 @@ module.exports = {
       header:
         'Un portefeuille represente une paire de clées (publique/privée) et une adresse que vous pouvez partager pour recevoir des transactions.',
       add: 'Ajouter un portefeuille',
-      create_a_wallet: 'Créer un portefeuille',
+      create_a_wallet: 'Ajouter un portefeuille',
       create_a_wallet1: "C'est gratuit et vous pouvez en créer",
       create_a_wallet2: 'autant que vous souhaitez',
+      create_a_button: 'Ajouter maintenant',
       latest_transaction: 'dernière transaction',
       empty_txs1: 'Vos transactions apparaîtront ici,',
       empty_txs2: 'Aucune pour le moment',

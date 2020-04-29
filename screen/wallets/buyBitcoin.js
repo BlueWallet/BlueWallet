@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
+import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
@@ -89,11 +89,13 @@ export default class BuyBitcoin extends Component {
     }
 
     return (
-      <WebView
-        source={{
-          uri,
-        }}
-      />
+      <SafeBlueArea style={{ flex: 1 }}>
+        <WebView
+          source={{
+            uri,
+          }}
+        />
+      </SafeBlueArea>
     );
   }
 }

@@ -11,6 +11,8 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Switch,
+  Platform,
+  Linking,
 } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -114,6 +116,30 @@ export default class WalletDetails extends Component {
       return { useWithHardwareWallet: !!value, wallet };
     });
   }
+
+  renderMarketplaceButton = () => {
+    return Platform.select({
+      android: (
+        <BlueButton
+          onPress={() =>
+            this.props.navigation.navigate('Marketplace', {
+              fromWallet: this.state.wallet,
+            })
+          }
+          title="Marketplace"
+        />
+      ),
+      ios:
+        this.state.wallet.getBalance() > 0 ? (
+          <BlueButton
+            onPress={async () => {
+              Linking.openURL('https://bluewallet.io/marketplace-btc/');
+            }}
+            title="Marketplace"
+          />
+        ) : null,
+    });
+  };
 
   render() {
     if (this.state.isLoading) {
@@ -241,25 +267,9 @@ export default class WalletDetails extends Component {
                       />
 
                       <BlueSpacing20 />
+                      {this.renderMarketplaceButton()}
                     </React.Fragment>
                   )}
-
-                  {this.state.wallet.type !== LightningCustodianWallet.type && (
-                    <BlueButton
-                      icon={{
-                        name: 'shopping-cart',
-                        type: 'font-awesome',
-                        color: BlueApp.settings.buttonTextColor,
-                      }}
-                      onPress={() =>
-                        this.props.navigation.navigate('BuyBitcoin', {
-                          wallet: this.state.wallet,
-                        })
-                      }
-                      title={loc.wallets.details.buy_bitcoin}
-                    />
-                  )}
-                  <BlueSpacing20 />
                   <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
                   <BlueSpacing20 />
                   <TouchableOpacity

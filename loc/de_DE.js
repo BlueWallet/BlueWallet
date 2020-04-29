@@ -21,6 +21,7 @@ module.exports = {
       create_a_wallet: 'Wallet erstellen',
       create_a_wallet1: 'Es ist kostenlos und du kannst',
       create_a_wallet2: 'so viele Wallets erstellen, wie du möchtest',
+      create_a_button: 'Jetzt hinzufügen',
       latest_transaction: 'Lezte Transaktion',
       empty_txs1: 'Deine Transaktionen erscheinen hier',
       empty_txs2: 'Noch keine Transaktionen',

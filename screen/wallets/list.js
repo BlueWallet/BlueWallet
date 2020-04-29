@@ -332,6 +332,36 @@ export default class WalletsList extends Component {
     );
   };
 
+  renderLocalTrader = () => {
+    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            this.props.navigation.navigate('HodlHodl', { fromWallet: this.state.wallet });
+          }}
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginHorizontal: 16,
+            marginBottom: 16,
+            backgroundColor: '#eef0f4',
+            padding: 16,
+            borderRadius: 6,
+          }}
+        >
+          <View style={{ flexDirection: 'column' }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#0C2550' }}>Local Trader</Text>
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#9AA0AA' }}>A p2p marketplace</Text>
+          </View>
+          <View style={{ flexDirection: 'column', backgroundColor: '#007AFF', borderRadius: 16 }}>
+            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, fontSize: 13, color: '#fff', fontWeight: '600' }}>New</Text>
+          </View>
+        </TouchableOpacity>
+      );
+    }
+  };
+
   render() {
     if (this.state.isLoading) {
       return <BlueLoading />;
@@ -391,10 +421,11 @@ export default class WalletsList extends Component {
                     ref={c => (this.walletsCarousel = c)}
                   />
                   <BlueList>
+                    {this.renderLocalTrader()}
                     <FlatList
                       ListHeaderComponent={this.renderListHeaderComponent}
                       ListEmptyComponent={
-                        <View style={{ top: 50, height: 100 }}>
+                        <View style={{ top: 80, height: 160 }}>
                           <Text
                             style={{
                               fontSize: 18,
@@ -409,6 +440,7 @@ export default class WalletsList extends Component {
                               fontSize: 18,
                               color: '#9aa0aa',
                               textAlign: 'center',
+                              fontWeight: '600',
                             }}
                           >
                             {loc.wallets.list.empty_txs2}

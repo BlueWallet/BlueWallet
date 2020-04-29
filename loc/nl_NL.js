@@ -20,6 +20,7 @@ module.exports = {
       create_a_wallet: 'Portemonnee aanmaken',
       create_a_wallet1: 'Het is gratis en u kunt er',
       create_a_wallet2: 'zoveel maken als u wilt',
+      create_a_button: 'Voeg nu toe',
       latest_transaction: 'laatste transactie',
       empty_txs1: 'Uw transacties verschijnen hier,',
       empty_txs2: 'geen transacties op dit moment',

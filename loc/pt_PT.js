@@ -20,6 +20,7 @@ module.exports = {
       create_a_wallet: 'Adicionar uma wallet',
       create_a_wallet1: 'É gratuito e pode',
       create_a_wallet2: 'adicionar quantas quiser',
+      create_a_button: 'Adicionar agora',
       latest_transaction: 'últimas transacções',
       empty_txs1: 'As suas transacções aparecerão aqui,',
       empty_txs2: 'nenhuma de momento',
