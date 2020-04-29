@@ -270,8 +270,12 @@ export default class WalletDetails extends Component {
                       {this.renderMarketplaceButton()}
                     </React.Fragment>
                   )}
-                  <BlueSpacing20 />
-                  <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
+                  {(this.state.wallet.type !== LightningCustodianWallet.type && (
+                    <React.Fragment>
+                    <BlueSpacing20 />
+                      <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
+                    </React.Fragment>
+                  ))}
                   <BlueSpacing20 />
                   <TouchableOpacity
                     style={{ alignItems: 'center' }}
