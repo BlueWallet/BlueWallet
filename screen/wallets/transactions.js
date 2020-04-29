@@ -428,7 +428,6 @@ export default class WalletTransactions extends Component {
       }
       this.props.navigation.navigate('SendDetails', {
         memo: loc.lnd.refill_lnd_balance,
-        fromSecret: wallet.getSecret(),
         address: toAddress,
         fromWallet: wallet,
       });
@@ -446,8 +445,6 @@ export default class WalletTransactions extends Component {
 
   navigateToSendScreen = () => {
     this.props.navigation.navigate('SendDetails', {
-      fromAddress: this.state.wallet.getAddress(),
-      fromSecret: this.state.wallet.getSecret(),
       fromWallet: this.state.wallet,
     });
   };
@@ -470,6 +467,7 @@ export default class WalletTransactions extends Component {
         this.setState({ isLoading: false });
         this.props.navigation.navigate(this.state.wallet.chain === Chain.ONCHAIN ? 'SendDetails' : 'ScanLndInvoice', {
           fromSecret: this.state.wallet.getSecret(),
+          // ScanLndInvoice actrually uses `fromSecret` so keeping it for now
           uri: ret.data ? ret.data : ret,
           fromWallet: this.state.wallet,
         });

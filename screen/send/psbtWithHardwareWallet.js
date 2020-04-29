@@ -293,7 +293,9 @@ export default class PsbtWithHardwareWallet extends Component {
         <ScrollView centerContent contentContainerStyle={{ flexGrow: 1, justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
             <BlueCard>
-              <BlueText>This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.</BlueText>
+              <BlueText testID={'TextHelperForPSBT'}>
+                This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.
+              </BlueText>
               <BlueSpacing20 />
               <QRCode
                 value={this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}
