@@ -17,6 +17,7 @@ export default class BuyBitcoin extends Component {
   constructor(props) {
     super(props);
     let wallet = props.navigation.state.params.wallet;
+    if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
       isLoading: true,
@@ -105,7 +106,7 @@ BuyBitcoin.propTypes = {
     goBack: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
-        wallet: PropTypes.object,
+        wallet: PropTypes.object.isRequired,
         safelloStateToken: PropTypes.string,
       }),
     }),

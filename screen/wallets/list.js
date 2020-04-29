@@ -352,7 +352,7 @@ export default class WalletsList extends Component {
         >
           <View style={{ flexDirection: 'column' }}>
             <Text style={{ fontSize: 16, fontWeight: '600', color: '#0C2550' }}>Local Trader</Text>
-            <Text style={{ fontSize: 13, fontWeight: '500', color: '#9AA0AA' }}>A p2p marketplace</Text>
+            <Text style={{ fontSize: 13, fontWeight: '500', color: '#9AA0AA' }}>A p2p exchange</Text>
           </View>
           <View style={{ flexDirection: 'column', backgroundColor: '#007AFF', borderRadius: 16 }}>
             <Text style={{ paddingHorizontal: 16, paddingVertical: 8, fontSize: 13, color: '#fff', fontWeight: '600' }}>New</Text>

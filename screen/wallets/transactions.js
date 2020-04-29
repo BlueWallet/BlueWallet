@@ -218,7 +218,7 @@ export default class WalletTransactions extends Component {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
-          {this.state.wallet.getBalance() > 0 && this.renderSellFiat()}
+          {this.state.wallet.getTransactions().length > 0 && this.renderSellFiat()}
           {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
@@ -382,8 +382,7 @@ export default class WalletTransactions extends Component {
       <TouchableOpacity
         onPress={() =>
           this.props.navigation.navigate('BuyBitcoin', {
-            address: this.state.wallet.getAddress(),
-            secret: this.state.wallet.getSecret(),
+            wallet: this.state.wallet,
           })
         }
         style={{
