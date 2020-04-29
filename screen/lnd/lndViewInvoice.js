@@ -9,7 +9,7 @@ import {
   BlueCopyTextToClipboard,
   BlueNavigationStyle,
   BlueSpacing20,
-  BlueBigCheckmark
+  BlueBigCheckmark,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
