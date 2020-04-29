@@ -166,6 +166,17 @@ const WalletsStackNavigator = createStackNavigator(
     LNDViewAdditionalInvoiceInformation: {
       screen: LNDViewAdditionalInvoiceInformation,
     },
+    Broadcast: {
+      screen: Broadcast,
+      navigationOptions: () => ({
+        title: 'Broadcast',
+        headerStyle: {
+          backgroundColor: '#FFFFFF',
+          borderBottomWidth: 0,
+        },
+        headerTintColor: '#0c2550',
+      }),
+    },
   },
   { headerBackTitleVisible: false },
 );
@@ -199,9 +210,6 @@ const CreateTransactionStackNavigator = createStackNavigator({
     navigationOptions: {
       headerRight: null,
     },
-  },
-  Broadcast: {
-    screen: Broadcast,
   },
 });
 
@@ -331,13 +339,6 @@ const MainBottomTabs = createStackNavigator(
 
     ReceiveDetails: {
       screen: receiveDetails,
-    },
-
-    Broadcast: {
-      screen: Broadcast,
-      navigationOptions: () => ({
-        title: 'Broadcast tx',
-      }),
     },
 
     //
