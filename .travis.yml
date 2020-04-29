@@ -85,7 +85,7 @@ script:
   - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
   - npm i
   - npm i -g detox-cli
-  - npm run e2e:release
+  - npm run e2e:release || npm run e2e:release-no-build || npm run e2e:release-no-build
 
 after_failure: ./tests/e2e/upload-artifacts.sh
 
