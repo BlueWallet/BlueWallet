@@ -219,13 +219,18 @@ export default class WalletTransactions extends Component {
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
           {/*
-            So the idea here, due to Apple banning native Lapp marketplace, is:
-            On Android everythins works as it worked before. Single "Marketplace" button that leads to LappBrowser that
-            opens /marketplace/ url of offchain wallet type, and /marketplace-btc/ for onchain is not, but on the details.
-            On iOS its more complicated - we have one button that opens same page _externally_ (in Safari), and second
-            button that opens actual LappBrowser but with _blank_ page. This is important to not trigger Apple.
-            Blank page is also the way Trust Wallet does it with Dapp Browser.
-            For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
+            Current logic - Onchain:
+            - Shows buy button on middle when empty
+            - Show buy button on top when not empty
+            - Shows Marketplace button on details screen, open in browser (iOS)
+            - Shows Marketplace button on details screen, open in in-app (android)
+            Current logic - Offchain:
+            - Shows Lapp Browser empty (iOS)
+            - Shows Lapp Browser with marketplace (android)
+            - Shows Marketplace button to open in browser (iOS)
+
+            The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
+  
            */}
           {this.state.wallet.getTransactions().length > 0 &&
             this.state.wallet.type !== LightningCustodianWallet.type &&
@@ -322,6 +327,11 @@ export default class WalletTransactions extends Component {
       android: (
         <TouchableOpacity
           onPress={() => {
+            if (this.state.wallet.type === LightningCustodianWallet.type) {
+              this.props.navigation.navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
+            } else {
+              this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
+            }
             this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
           }}
           style={{
