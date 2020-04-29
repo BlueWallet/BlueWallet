@@ -218,6 +218,15 @@ export default class WalletTransactions extends Component {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
+          {/*
+            So the idea here, due to Apple banning native Lapp marketplace, is:
+            On Android everythins works as it worked before. Single "Marketplace" button that leads to LappBrowser that
+            opens /marketplace/ url of offchain wallet type, and /marketplace-btc/ for onchain is not, but on the details.
+            On iOS its more complicated - we have one button that opens same page _externally_ (in Safari), and second
+            button that opens actual LappBrowser but with _blank_ page. This is important to not trigger Apple.
+            Blank page is also the way Trust Wallet does it with Dapp Browser.
+            For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
+           */}
           {this.state.wallet.getTransactions().length > 0 &&
             this.state.wallet.type !== LightningCustodianWallet.type &&
             this.renderSellFiat()}
