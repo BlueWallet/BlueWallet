@@ -174,7 +174,7 @@ function removeTrailingZeros(value) {
  */
 strings.formatBalance = (balance, toUnit, withFormatting = false) => {
   if (toUnit === undefined) {
-    return balance + ' ' + BitcoinUnit.BTC;
+    return parseFloat(balance.toFixed(8)) + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
@@ -200,7 +200,7 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
  */
 strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = false) => {
   if (toUnit === undefined) {
-    return balance;
+    return parseFloat(balance.toFixed(8));
   }
   if (balance !== 0) {
     if (toUnit === BitcoinUnit.BTC) {
