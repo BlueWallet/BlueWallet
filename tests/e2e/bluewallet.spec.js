@@ -95,10 +95,13 @@ describe('BlueWallet UI Tests', () => {
     await element(by.type('android.widget.EditText')).typeText('qqq');
     await element(by.text('OK')).tap();
     await expect(element(by.text('Password is currently in use. Please, try a different password.'))).toBeVisible();
+    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.text('OK')).tap();
+    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
 
     // trying new password, but will mistype
     await element(by.id('CreateFakeStorageButton')).tap();
+    if (process.env.TRAVIS) await sleep(3000); // hopefully helps prevent crash
     await element(by.type('android.widget.EditText')).typeText('passwordForFakeStorage');
     await element(by.text('OK')).tap();
     await expect(element(by.text('Retype password'))).toBeVisible();
