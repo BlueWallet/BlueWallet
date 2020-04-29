@@ -363,7 +363,7 @@ describe('LightningCustodianWallet', () => {
     await l2.authorize();
     await l2.fetchTransactions();
     await l2.fetchBalance();
-    let oldBalance = +l2.balance;
+    const oldBalance = +l2.balance;
     let txLen = l2.transactions_raw.length;
 
     let decoded = l2.decodeInvoice(invoice);
@@ -396,7 +396,8 @@ describe('LightningCustodianWallet', () => {
     // transactions became more after paying an invoice
 
     await l2.fetchBalance();
-    assert.strictEqual(oldBalance - l2.balance, 3);
+    assert.ok(oldBalance - l2.balance >= 3);
+    assert.ok(oldBalance - l2.balance < 10); // sanity check
   });
 
   it('cant create zemo amt invoices yet', async () => {
