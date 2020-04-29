@@ -227,7 +227,9 @@ export default class WalletTransactions extends Component {
             Blank page is also the way Trust Wallet does it with Dapp Browser.
             For ONCHAIN wallet type no LappBrowser button should be displayed, its Lightning-network specific.
            */}
-          {this.state.wallet.getTransactions().length > 0 && this.state.wallet.type !== LightningCustodianWallet.type && this.renderSellFiat()}
+          {this.state.wallet.getTransactions().length > 0 &&
+            this.state.wallet.type !== LightningCustodianWallet.type &&
+            this.renderSellFiat()}
           {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
