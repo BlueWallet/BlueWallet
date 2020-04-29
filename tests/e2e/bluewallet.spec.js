@@ -309,30 +309,14 @@ describe('BlueWallet UI Tests', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-    await yo('WalletsList');
 
-    // going to Import Wallet screen and importing mnemonic for existing BIP84 wallet with real balance
-    await element(by.id('CreateAWallet')).tap();
-    await element(by.id('ImportWallet')).tap();
-    await element(by.id('MnemonicInput')).typeText(process.env.HD_MNEMONIC_BIP84);
-    try {
-      await element(by.id('DoImport')).tap();
-    } catch (_) {}
-    await sleep(60000);
-    await sup('OK', 3 * 61000); // waiting for wallet import
-    await element(by.text('OK')).tap();
-    // ok, wallet imported
-
-    // lets go inside wallet
-    await element(by.text('Imported HD SegWit (BIP84 Bech32 Native)')).tap();
-    // label might change in the future; see HDSegwitBech32Wallet.typeReadable
-    expect(element(by.id('WalletBalance'))).toHaveText('0.00105526 BTC');
+    await helperImportWallet(process.env.HD_MNEMONIC_BIP84, 'Imported HD SegWit (BIP84 Bech32 Native)', '0.00105526 BTC');
 
     // lets create real transaction:
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).typeText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
     await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
-    await sleep(5000);
+    if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
     } catch (_) {}
@@ -370,10 +354,30 @@ describe('BlueWallet UI Tests', () => {
     }
 
     let transaction = bitcoin.Transaction.fromHex(txhex);
-    assert.strictEqual(transaction.ins.length, 2);
+    assert.ok(transaction.ins.length === 1 || transaction.ins.length === 2); // depending on current fees gona use either 1 or 2 inputs
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
     assert.strictEqual(transaction.outs[0].value, 50000);
+  });
+
+  it('can import zpub as watch-only and create PSBT', async () => {
+    await helperImportWallet(
+      'zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP',
+      'Imported Watch-only',
+      '0.002 BTC',
+    );
+
+    await element(by.id('SendButton')).tap();
+    await element(by.text('OK')).tap();
+
+    await element(by.id('AddressInput')).typeText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
+    if (process.env.TRAVIS) await sleep(5000);
+    try {
+      await element(by.id('CreateTransactionButton')).tap();
+    } catch (_) {}
+
+    await yo('TextHelperForPSBT');
   });
 });
 
@@ -409,4 +413,25 @@ async function helperCreateWallet(walletName) {
   await element(by.id('PleasebackupOk')).tap();
   await expect(element(by.id('WalletsList'))).toBeVisible();
   await expect(element(by.id(walletName || 'cr34t3d'))).toBeVisible();
+}
+
+async function helperImportWallet(importText, expectedWalletLabel, expectedBalance) {
+  await yo('WalletsList');
+
+  // going to Import Wallet screen and importing mnemonic
+  await element(by.id('CreateAWallet')).tap();
+  await element(by.id('ImportWallet')).tap();
+  await element(by.id('MnemonicInput')).typeText(importText);
+  try {
+    await element(by.id('DoImport')).tap();
+  } catch (_) {}
+  if (process.env.TRAVIS) await sleep(60000);
+  await sup('OK', 3 * 61000); // waiting for wallet import
+  await element(by.text('OK')).tap();
+  // ok, wallet imported
+
+  // lets go inside wallet
+  await element(by.text(expectedWalletLabel)).tap();
+  // label might change in the future
+  expect(element(by.id('WalletBalance'))).toHaveText(expectedBalance);
 }

@@ -67,10 +67,6 @@ export default class SendDetails extends Component {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
 
-    let fromAddress;
-    if (props.navigation.state.params) fromAddress = props.navigation.state.params.fromAddress;
-    let fromSecret;
-    if (props.navigation.state.params) fromSecret = props.navigation.state.params.fromSecret;
     /** @type {LegacyWallet} */
     let fromWallet = null;
     if (props.navigation.state.params) fromWallet = props.navigation.state.params.fromWallet;
@@ -83,8 +79,6 @@ export default class SendDetails extends Component {
     } else {
       if (!fromWallet && wallets.length > 0) {
         fromWallet = wallets[0];
-        fromAddress = fromWallet.getAddress();
-        fromSecret = fromWallet.getSecret();
       }
       this.state = {
         isLoading: false,
@@ -93,9 +87,7 @@ export default class SendDetails extends Component {
         isAdvancedTransactionOptionsVisible: false,
         isTransactionReplaceable: fromWallet.type === HDSegwitBech32Wallet.type,
         recipientsScrollIndex: 0,
-        fromAddress,
         fromWallet,
-        fromSecret,
         addresses: [],
         memo: '',
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
@@ -466,7 +458,7 @@ export default class SendDetails extends Component {
 
   onWalletSelect = wallet => {
     const changeWallet = () => {
-      this.setState({ fromAddress: wallet.getAddress(), fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
+      this.setState({ fromWallet: wallet }, () => {
         this.renderNavigationHeader();
         this.props.navigation.pop();
       });
@@ -1012,9 +1004,7 @@ SendDetails.propTypes = {
       params: PropTypes.shape({
         amount: PropTypes.number,
         address: PropTypes.string,
-        fromAddress: PropTypes.string,
         satoshiPerByte: PropTypes.string,
-        fromSecret: PropTypes.fromSecret,
         fromWallet: PropTypes.fromWallet,
         memo: PropTypes.string,
         uri: PropTypes.string,
