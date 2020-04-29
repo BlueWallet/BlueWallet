@@ -16,11 +16,15 @@ export enum Route {
   ExportWalletXpub = 'ExportWalletXub',
   TransactionDetails = 'TransactionDetails',
   ReceiveCoins = 'ReceiveCoins',
+  SendCoins = 'SendCoins',
+  SendCoinsConfirm = 'SendCoinsConfirm',
   EditText = 'EditText',
   ElectrumServer = 'ElectrumServer',
   AboutUs = 'AboutUs',
   SelectLanguage = 'SelectLanguage',
   ReleaseNotes = 'ReleaseNotes',
+  ActionSheet = 'ActionSheet',
+  TransactionSuccess = 'TransactionSuccessScreen',
 }
 
 export interface Wallet {

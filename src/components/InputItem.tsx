@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     ...typography.caption,
   },
   isSuffix: {
-    paddingRight: 50,
+    paddingRight: 80,
   },
   isError: {
     borderBottomColor: palette.error,

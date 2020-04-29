@@ -105,7 +105,7 @@ module.exports = {
       copy: 'Copy',
       transactionId: 'Transaction ID',
       confirmations: 'confirmations',
-      transaction_details: 'Transaction details',
+      transactionDetails: 'Transaction details',
       viewInBlockRxplorer: 'View in block explorer',
       addNote: 'Add note',
       note: 'Note',
@@ -115,9 +115,12 @@ module.exports = {
     },
   },
   send: {
-    header: 'Send',
+    header: 'Send coins',
     success: {
+      title: 'Success',
+      description: 'Hooray! You have successfully finished the transaction.',
       done: 'Done',
+      return: 'Return to Dashboard',
     },
     details: {
       title: 'create transaction',
@@ -132,6 +135,10 @@ module.exports = {
       cancel: 'Cancel',
       scan: 'Scan',
       send: 'Send',
+      next: 'Next',
+      to: 'to',
+      feeUnit: 'Sat/B',
+      fee: 'Fee: ',
       create: 'Create Invoice',
       remaining_balance: 'Remaining balance',
       total_exceeds_balance: 'The sending amount exceeds the available balance.',
@@ -154,6 +161,9 @@ module.exports = {
       memo: 'Memo',
       broadcast: 'Broadcast',
       not_enough_fee: 'Not enough fee. Increase the fee',
+      setTransactionFee: 'Set a transaction fee',
+      headerText:
+        'When there is a large number of pending transaction on the network (>1500), the higher fee will result in your transaction being processed faster. The typical values are 1-500 sat/b',
     },
   },
   receive: {

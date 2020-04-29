@@ -188,8 +188,7 @@ export class DashboardScreen extends Component<Props, State> {
   sendCoins = () => {
     const { wallets, lastSnappedTo } = this.state;
     const activeWallet = wallets[lastSnappedTo].label === 'All wallets' ? wallets[1] : wallets[lastSnappedTo];
-
-    this.props.navigation.navigate('SendDetails', {
+    this.props.navigation.navigate(Route.SendCoins, {
       fromAddress: activeWallet.getAddress(),
       fromSecret: activeWallet.getSecret(),
       fromWallet: activeWallet,

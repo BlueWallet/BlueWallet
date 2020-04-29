@@ -18,3 +18,6 @@ export { ReceiveCoinsScreen } from './ReceiveCoinsScreen';
 export { ElectrumServerScreen } from './Settings/ElectrumServerScreen';
 export { AboutUsScreen } from './Settings/AboutUsScreen';
 export { SelectLanguageScreen } from './Settings/SelectLanguageScreen';
+export { SendCoinsScreen } from './SendCoinsScreen';
+export { SendCoinsConfirmScreen } from './SendCoinsConfirmScreen';
+export { TransactionSuccessScreen } from './TransactionSuccessScreen';

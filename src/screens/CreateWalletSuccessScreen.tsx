@@ -24,7 +24,8 @@ export class CreateWalletSuccessScreen extends React.PureComponent<Props> {
           <>
             <Button onPress={this.navigateBack} title={i18n.wallets.addSuccess.okButton} />
           </>
-        }>
+        }
+      >
         <Text style={styles.subtitle}>{i18n.wallets.addSuccess.subtitle}</Text>
         <Text style={styles.description}>{i18n.wallets.addSuccess.description}</Text>
         <View style={styles.mnemonicPhraseContainer}>

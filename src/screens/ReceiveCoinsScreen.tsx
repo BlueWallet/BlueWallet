@@ -165,7 +165,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
   };
 
   render() {
-    const { amount, addressText, bip21encoded } = this.state;
+    const { amount, addressText, bip21encoded, wallet } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -174,9 +174,9 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
       >
         <DashboardHeader
           onSelectPress={this.showModal}
-          balance={BlueApp.getBalance()}
-          label={this.state.wallet.label}
-          unit={this.state.wallet.preferredBalanceUnit}
+          balance={wallet.balance}
+          label={wallet.label}
+          unit={wallet.preferredBalanceUnit}
         />
         <View style={styles.qrcontainer}>
           <QRCode
