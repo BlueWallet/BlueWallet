@@ -41,6 +41,7 @@ interface State {
   bip70TransactionExpiration: null;
   renderWalletSelectionButtonHidden: boolean;
 }
+
 export class SendCoinsScreen extends Component<Props, State> {
   static navigationOptions = (props: NavigationScreenProps<{ transaction: Transaction }>) => {
     return {
@@ -95,7 +96,9 @@ export class SendCoinsScreen extends Component<Props, State> {
     });
 
     try {
-      const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
+      const cachedNetworkTransactionFees = JSON.parse((await AsyncStorage.getItem(
+        NetworkTransactionFee.StorageKey,
+      )) as string);
 
       if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
         this.setState({
@@ -251,7 +254,7 @@ export class SendCoinsScreen extends Component<Props, State> {
     const requestedSatPerByte = +this.state.fee.toString().replace(/\D/g, '');
     console.log({ satoshis, requestedSatPerByte, utxo: wallet.getUtxo() });
 
-    let targets = [];
+    let targets: any[] = [];
     for (const transaction of this.state.addresses) {
       const amount =
         transaction.amount === BitcoinUnit.MAX
@@ -548,8 +551,9 @@ export class SendCoinsScreen extends Component<Props, State> {
     for (const [index, item] of this.state.addresses.entries()) {
       rows.push(
         <InputItem
+          multiline
           label="Address"
-          suffix=""
+          style={styles.addressInput}
           setValue={async text => {
             text = text.trim();
             const transactions = this.state.addresses;
@@ -585,9 +589,6 @@ export class SendCoinsScreen extends Component<Props, State> {
 
   render() {
     const { fromWallet, fee, isLoading } = this.state;
-    for (const [index, item] of this.state.addresses.entries()) {
-      console.log('item', item);
-    }
     return (
       <ScreenTemplate
         footer={
@@ -657,5 +658,8 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     padding: 8,
+  },
+  addressInput: {
+    paddingEnd: 100,
   },
 });

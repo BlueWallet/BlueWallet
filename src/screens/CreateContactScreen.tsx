@@ -78,7 +78,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
         <Text style={styles.description}>{i18n.contactCreate.description}</Text>
         <InputItem setValue={this.setName} label={i18n.contactCreate.nameLabel} />
         <View>
-          <InputItem setValue={this.setAddress} label={i18n.contactCreate.addressLabel} />
+          <InputItem multiline setValue={this.setAddress} label={i18n.contactCreate.addressLabel} />
           <TouchableOpacity style={styles.scanQRCodeButton}>
             <Image style={styles.qrCodeImage} source={icons.qrCode} />
           </TouchableOpacity>

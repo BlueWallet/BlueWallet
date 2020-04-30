@@ -87,6 +87,7 @@ export class InputItem extends Component<Props, State> {
             !!suffix && styles.isSuffix,
             isActive && styles.isActiveInput,
             !!error && styles.isError,
+            this.props.style,
           ]}
           selectionColor={palette.textSecondary}
           onFocus={this.onFocus}
@@ -101,7 +102,7 @@ export class InputItem extends Component<Props, State> {
 
 const styles = StyleSheet.create({
   container: {
-    height: 70,
+    minHeight: 70,
   },
   label: {
     position: 'absolute',
@@ -110,11 +111,14 @@ const styles = StyleSheet.create({
     fontFamily: fonts.ubuntu.light,
   },
   input: {
+    marginTop: 6,
     color: palette.textBlack,
     paddingRight: 50,
-    height: 43,
+    minHeight: 27,
     borderBottomColor: palette.border,
     borderBottomWidth: 1,
+    paddingTop: 6,
+    paddingBottom: 8,
     ...typography.caption,
   },
   isSuffix: {
