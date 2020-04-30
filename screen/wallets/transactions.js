@@ -332,7 +332,6 @@ export default class WalletTransactions extends Component {
             } else {
               this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
             }
-            
           }}
           style={{
             backgroundColor: '#f2f2f2',

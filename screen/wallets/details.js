@@ -129,13 +129,14 @@ export default class WalletDetails extends Component {
           title="Marketplace"
         />
       ),
-      ios:
-          <BlueButton
-            onPress={async () => {
-              Linking.openURL('https://bluewallet.io/marketplace-btc/');
-            }}
-            title="Marketplace"
-          />
+      ios: (
+        <BlueButton
+          onPress={async () => {
+            Linking.openURL('https://bluewallet.io/marketplace-btc/');
+          }}
+          title="Marketplace"
+        />
+      ),
     });
   };
 
@@ -268,12 +269,12 @@ export default class WalletDetails extends Component {
                       {this.renderMarketplaceButton()}
                     </React.Fragment>
                   )}
-                  {(this.state.wallet.type !== LightningCustodianWallet.type && (
+                  {this.state.wallet.type !== LightningCustodianWallet.type && (
                     <React.Fragment>
-                    <BlueSpacing20 />
+                      <BlueSpacing20 />
                       <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
                     </React.Fragment>
-                  ))}
+                  )}
                   <BlueSpacing20 />
                   <TouchableOpacity
                     style={{ alignItems: 'center' }}

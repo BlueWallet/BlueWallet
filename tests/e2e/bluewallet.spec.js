@@ -4,7 +4,6 @@ const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
 describe('BlueWallet UI Tests', () => {
-
   it('selftest passes', async () => {
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
