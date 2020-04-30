@@ -7,7 +7,7 @@ import { useNavigationParam } from 'react-navigation-hooks';
 import { Header, ScreenTemplate } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Wallet } from 'app/consts';
-import { en } from 'app/locale';
+import i18n from 'app/locale';
 import { typography } from 'app/styles';
 
 export const ExportWalletXpubScreen = () => {
@@ -27,7 +27,7 @@ export const ExportWalletXpubScreen = () => {
 };
 
 ExportWalletXpubScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: <Header title={en.exportWalletXpub.header} isCancelButton={true} navigation={props.navigation} />,
+  header: <Header title={i18n.wallets.exportWalletXpub.header} isCancelButton={true} navigation={props.navigation} />,
 });
 
 const styles = StyleSheet.create({

@@ -19,7 +19,7 @@ it('bip38 decodes', async () => {
   );
 });
 
-it('bip38 decodes slow', async () => {
+xit('bip38 decodes slow', async () => {
   if (process.env.USER === 'burn' || process.env.USER === 'igor' || process.env.USER === 'overtorment') {
     // run only on circleCI
     return;

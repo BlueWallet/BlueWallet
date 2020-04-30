@@ -9,7 +9,7 @@ import SplashScreen from 'react-native-splash-screen';
 import App from './App';
 import UnlockWith from './UnlockWith.js';
 import { name as appName } from './app.json';
-import WalletMigrate from './screen/wallets/walletMigrate';
+import WalletMigrate from './walletMigrate';
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging

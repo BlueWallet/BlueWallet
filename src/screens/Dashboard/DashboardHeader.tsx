@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { icons, images } from 'app/assets';
 import { Image } from 'app/components';
-import i18n, { en } from 'app/locale';
+import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 interface Props {
@@ -30,11 +30,11 @@ export const DashboardHeader = ({ balance, unit, label, onSendPress, onReceivePr
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.circleButton} onPress={onSendPress}>
             <Image source={images.yellowMinus} style={styles.circleButtonImage} />
-            <Text style={styles.circleButtonText}>{en.dashboard.send}</Text>
+            <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.send}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.circleButton} onPress={onReceivePress}>
             <Image source={images.yellowPlus} style={styles.circleButtonImage} />
-            <Text style={styles.circleButtonText}>{en.dashboard.receive}</Text>
+            <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.receive}</Text>
           </TouchableOpacity>
         </View>
       )}

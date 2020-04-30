@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import { images } from 'app/assets';
-import i18n, { en } from 'app/locale';
+import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
 import { Image } from './Image';
@@ -22,9 +22,9 @@ export class ListEmptyState extends PureComponent<Props> {
 
   renderDashboardDescription = () => (
     <>
-      <Text style={styles.description}>{en.dashboard.noWalletsDesc1}</Text>
+      <Text style={styles.description}>{i18n.wallets.dashboard.noWalletsDesc1}</Text>
       <Text style={styles.description}>
-        <StyledText onPress={this.props.onPress} title="Click" /> {en.dashboard.noWalletsDesc2}
+        <StyledText onPress={this.props.onPress} title="Click" /> {i18n.wallets.dashboard.noWalletsDesc2}
       </Text>
     </>
   );
@@ -44,7 +44,7 @@ export class ListEmptyState extends PureComponent<Props> {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>
-          {variant == ImageVariant.Dashboard ? en.dashboard.noWallets : i18n.contactList.noContacts}
+          {variant == ImageVariant.Dashboard ? i18n.wallets.dashboard.noWallets : i18n.contactList.noContacts}
         </Text>
         <Image source={images[variant]} style={styles.image} resizeMode="contain" />
         {variant == ImageVariant.Dashboard ? this.renderDashboardDescription() : this.renderAddressBookDescription()}

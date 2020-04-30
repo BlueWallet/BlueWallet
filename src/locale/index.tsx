@@ -1,4 +1,3 @@
-export { en } from './en';
 import * as loc from '../../loc';
 
 const i18n: any = loc;

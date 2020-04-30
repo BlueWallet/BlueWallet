@@ -64,7 +64,8 @@ export default class UnlockWith extends Component {
             flex: 2,
             justifyContent: 'space-between',
             alignItems: 'center',
-          }}>
+          }}
+        >
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Image source={require('./img/qr-code.png')} style={{ width: 120, height: 120 }} />
           </View>

@@ -8,13 +8,13 @@ import i18n from 'app/locale';
 import { ContactListScreen } from 'app/screens';
 import { palette } from 'app/styles';
 
-import MainBottomTabs from '../../MainBottomTabs';
+import { DashboardNavigator } from './DashboardNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
 
 export const MainTabNavigator = createBottomTabNavigator(
   {
     [Route.Dashboard]: {
-      screen: MainBottomTabs,
+      screen: DashboardNavigator,
       navigationOptions: {
         title: 'Dashboard',
         tabBarIcon: ({ focused }: { focused: boolean }) => (

@@ -4,7 +4,7 @@ import { NavigationInjectedProps } from 'react-navigation';
 
 import { WalletItemProps, WalletItem, GradientView } from 'app/components';
 import { Wallet } from 'app/consts';
-import { en } from 'app/locale';
+import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
@@ -40,7 +40,7 @@ export const ActionSheet = (props: Props) => {
     <View style={styles.modal}>
       <ScrollView style={styles.containerStyle} bounces={false}>
         <View style={styles.breakLine} />
-        <Text style={styles.titleStyle}>{en.walletModal.wallets}</Text>
+        <Text style={styles.titleStyle}>{i18n.wallets.walletModal.wallets}</Text>
         <View style={styles.walletContainer}>{renderWalletItems()}</View>
       </ScrollView>
     </View>

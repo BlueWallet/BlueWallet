@@ -30,7 +30,7 @@ const prompt = require('../../prompt');
 const { height, width } = Dimensions.get('window');
 const SCAN_CODE_AFTER_MS = 2 * 1000; // in miliseconds
 
-export default class ScanQrWif extends React.Component {
+export default class ImportWalletQRCodeScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -293,7 +293,7 @@ export default class ScanQrWif extends React.Component {
                   icon={{ name: 'ban', type: 'font-awesome' }}
                   onPress={async () => {
                     this.setState({ message: false });
-                      shold_stop_bip38 = true; // eslint-disable-line
+                    shold_stop_bip38 = true; // eslint-disable-line
                   }}
                   title={loc.wallets.scanQrWif.cancel}
                 />
@@ -330,14 +330,6 @@ export default class ScanQrWif extends React.Component {
     );
   }
 }
-
-ScanQrWif.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    popToTop: PropTypes.func,
-    navigate: PropTypes.func,
-  }),
-};
 
 const styles = StyleSheet.create({
   crosshairContainer: {

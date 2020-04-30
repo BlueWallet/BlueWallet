@@ -7,7 +7,7 @@ import { Button, Header, ScreenTemplate } from 'app/components';
 import { Wallet } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { BlueApp } from 'app/legacy';
-import { en } from 'app/locale';
+import i18n from 'app/locale';
 import { NavigationService } from 'app/services';
 import { typography, palette } from 'app/styles';
 
@@ -20,11 +20,11 @@ export const DeleteWalletScreen = (props: NavigationScreenProps) => {
     BlueApp.deleteWallet(wallet);
     await BlueApp.saveToDisk();
     CreateMessage({
-      title: en.message.success,
-      description: en.message.successfullWalletDelete,
+      title: i18n.message.success,
+      description: i18n.message.successfullWalletDelete,
       type: MessageType.success,
       buttonProps: {
-        title: en.message.returnToDashboard,
+        title: i18n.message.returnToDashboard,
         onPress: () => NavigationService.navigateWithReset('MainCardStackNavigator'),
       },
     });
@@ -35,25 +35,26 @@ export const DeleteWalletScreen = (props: NavigationScreenProps) => {
       footer={
         <View style={styles.buttonContainer}>
           <Button
-            title={en.deleteWallet.no}
+            title={i18n.wallets.deleteWallet.no}
             onPress={onNoButtonPress}
             type="outline"
             containerStyle={styles.noButton}
           />
-          <Button title={en.deleteWallet.yes} onPress={onYesButtonPress} containerStyle={styles.yesButton} />
+          <Button title={i18n.wallets.deleteWallet.yes} onPress={onYesButtonPress} containerStyle={styles.yesButton} />
         </View>
-      }>
-      <Text style={styles.title}>{en.deleteWallet.title}</Text>
+      }
+    >
+      <Text style={styles.title}>{i18n.wallets.deleteWallet.title}</Text>
       <Text style={styles.description}>
-        {en.deleteWallet.description1} {wallet.label}
-        {en.deleteWallet.description2}
+        {i18n.wallets.deleteWallet.description1} {wallet.label}
+        {i18n.wallets.deleteWallet.description2}
       </Text>
     </ScreenTemplate>
   );
 };
 
 DeleteWalletScreen.navigationOptions = () => ({
-  header: <Header title={en.deleteWallet.header} />,
+  header: <Header title={i18n.wallets.deleteWallet.header} />,
 });
 
 const styles = StyleSheet.create({

@@ -2,9 +2,8 @@ import { Easing, Animated } from 'react-native';
 import { createStackNavigator, NavigationSceneRendererProps } from 'react-navigation';
 
 import { Route } from 'app/consts';
-import { ActionSheet, TransactionSuccessScreen } from 'app/screens';
+import { ActionSheet, TransactionSuccessScreen, ImportWalletQRCodeScreen } from 'app/screens';
 
-import ImportWalletQRCodeScreen from '../../screen/wallets/scanQrWif';
 import { EditTextNavigator } from './EditTextNavigator';
 import { MainCardStackNavigator } from './MainCardStackNavigator';
 import { MessageNavigator } from './MessageNavigator';

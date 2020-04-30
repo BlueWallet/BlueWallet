@@ -7,7 +7,7 @@ import { Header, TextAreaItem, FlatButton, ScreenTemplate } from 'app/components
 import { Button } from 'app/components/Button';
 import { Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import i18n, { en } from 'app/locale';
+import i18n from 'app/locale';
 import { NavigationService } from 'app/services';
 import { typography, palette } from 'app/styles';
 
@@ -29,30 +29,30 @@ export const ImportWalletScreen = () => {
 
   const showErrorMessageScreen = () =>
     CreateMessage({
-      title: en.message.somethingWentWrong,
-      description: en.message.somethingWentWrongWhileCreatingWallet,
+      title: i18n.message.somethingWentWrong,
+      description: i18n.message.somethingWentWrongWhileCreatingWallet,
       type: MessageType.error,
       buttonProps: {
-        title: en.message.returnToDashboard,
+        title: i18n.message.returnToDashboard,
         onPress: () => NavigationService.navigateWithReset('MainCardStackNavigator'),
       },
     });
 
   const showSuccessImportMessageScreen = () =>
     CreateMessage({
-      title: en.message.success,
-      description: en.message.successfullWalletImport,
+      title: i18n.message.success,
+      description: i18n.message.successfullWalletImport,
       type: MessageType.success,
       buttonProps: {
-        title: en.message.returnToDashboard,
+        title: i18n.message.returnToDashboard,
         onPress: () => NavigationService.navigateWithReset('MainCardStackNavigator'),
       },
     });
 
   const onImportButtonPress = async () => {
     CreateMessage({
-      title: en.message.creatingWallet,
-      description: en.message.creatingWalletDescription,
+      title: i18n.message.creatingWallet,
+      description: i18n.message.creatingWalletDescription,
       type: MessageType.processingState,
       asyncTask: () => importMnemonic(text),
     });
@@ -73,7 +73,7 @@ export const ImportWalletScreen = () => {
   const saveWallet = async (w: any) => {
     if (BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret)) {
       NavigationService.navigate(Route.ImportWallet);
-      setValidationError(en.importWallet.walletInUseValidationError);
+      setValidationError(i18n.wallets.importWallet.walletInUseValidationError);
     } else {
       ReactNativeHapticFeedback.trigger('notificationSuccess', {
         ignoreAndroidSystemSettings: false,
@@ -218,21 +218,22 @@ export const ImportWalletScreen = () => {
     <ScreenTemplate
       footer={
         <>
-          <Button disabled={isButtonDisabled} title={en.importWallet.import} onPress={onImportButtonPress} />
+          <Button disabled={isButtonDisabled} title={i18n.wallets.importWallet.import} onPress={onImportButtonPress} />
           <FlatButton
             containerStyle={styles.scanQRCodeButtonContainer}
-            title={en.importWallet.scanQrCode}
+            title={i18n.wallets.importWallet.scanQrCode}
             onPress={onScanQrCodeButtonPress}
           />
         </>
-      }>
+      }
+    >
       <View style={styles.inputItemContainer}>
-        <Text style={styles.title}>{en.importWallet.title}</Text>
-        <Text style={styles.subtitle}>{en.importWallet.subtitle}</Text>
+        <Text style={styles.title}>{i18n.wallets.importWallet.title}</Text>
+        <Text style={styles.subtitle}>{i18n.wallets.importWallet.subtitle}</Text>
         <TextAreaItem
           error={validationError}
           onChangeText={onChangeText}
-          placeholder={en.importWallet.placeholder}
+          placeholder={i18n.wallets.importWallet.placeholder}
           style={styles.textArea}
         />
       </View>
@@ -241,11 +242,7 @@ export const ImportWalletScreen = () => {
 };
 
 ImportWalletScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: (
-    <View>
-      <Header navigation={props.navigation} isBackArrow={true} title={en.importWallet.header} />
-    </View>
-  ),
+  header: <Header navigation={props.navigation} isBackArrow={true} title={i18n.wallets.importWallet.header} />,
 });
 
 const styles = StyleSheet.create({

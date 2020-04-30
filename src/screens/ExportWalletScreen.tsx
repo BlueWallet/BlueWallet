@@ -6,7 +6,7 @@ import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Header, Chip, ScreenTemplate } from 'app/components';
 import { Wallet } from 'app/consts';
-import { en } from 'app/locale';
+import i18n from 'app/locale';
 import { typography } from 'app/styles';
 
 export const ExportWalletScreen = () => {
@@ -15,7 +15,7 @@ export const ExportWalletScreen = () => {
 
   return (
     <ScreenTemplate>
-      <Text style={styles.title}>{en.exportWallet.title}</Text>
+      <Text style={styles.title}>{i18n.wallets.exportWallet.title}</Text>
       <View style={styles.qrCodeContainer}>{secret && <QRCode value={secret} size={140} ecl={'H'} />}</View>
       <View style={styles.mnemonicPhraseContainer}>
         {secret.split(' ').map((secret, index) => (
@@ -27,7 +27,7 @@ export const ExportWalletScreen = () => {
 };
 
 ExportWalletScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: <Header title={en.exportWallet.header} isCancelButton={true} navigation={props.navigation} />,
+  header: <Header title={i18n.wallets.exportWallet.header} isCancelButton={true} navigation={props.navigation} />,
 });
 
 const styles = StyleSheet.create({
