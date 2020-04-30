@@ -7,30 +7,60 @@ module.exports = {
     continue: 'Continue',
     ok: 'OK',
   },
+  message: {
+    somethingWentWrong: 'Something went wrong',
+    somethingWentWrongWhileCreatingWallet:
+      'Something went wrong while we were creating your wallet. Please return to Dashboard and try again.',
+    success: 'Success',
+    successfullWalletImport: 'Your wallet has been successfully imported. You can now return to Dashboard.',
+    successfullWalletDelete: 'Your wallet has been successfully deleted. You can now return to Dashboard.',
+    returnToDashboard: 'Return to Dashboard',
+    creatingWallet: 'Creating your wallet',
+    creatingWalletDescription: 'Please be patient while we create your wallet. It may take a while.',
+  },
   wallets: {
-    select_wallet: 'Select Wallet',
-    options: 'options',
-    createBitcoinWallet:
-      'You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?',
-    list: {
-      app_name: 'GoldWallet',
-      title: 'wallets',
-      header: 'A wallet represents a pair of a secret (private key) and an address you can share to receive coins.',
-      add: 'Add Wallet',
-      create_a_wallet: 'Create a wallet',
-      create_a_wallet1: "It's free and you can create",
-      create_a_wallet2: 'as many as you like',
-      latest_transaction: 'latest transaction',
-      empty_txs1: 'Your transactions will appear here,',
-      empty_txs2: 'none at the moment',
-      empty_txs1_lightning:
-        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
-      tap_here_to_buy: 'Tap here to buy Bitcoin',
+    dashboard: {
+      noWallets: 'No wallets',
+      noWalletsDesc1: 'No wallets to show. ',
+      noWalletsDesc2: ' to add your first wallet.',
+      send: 'Send coins',
+      receive: 'Receive coins',
+      noTransactions: 'No transactions to show.',
     },
-    reorder: {
-      title: 'Reorder Wallets',
+    walletModal: {
+      btcv: 'BTCV',
+      wallets: 'Wallets',
     },
+    importWallet: {
+      title: 'Import your wallet',
+      header: 'Import wallet',
+      subtitle:
+        "Write here your mnemonic, private key, WIF or anything you've got. GoldWallet will do its best to guess the correct format and import you wallet.",
+      placeholder: 'Mnemonic, private key, WIF',
+      import: 'Import',
+      scanQrCode: 'or scan QR code',
+      walletInUseValidationError: 'Wallet is already in use. Please enter a valid wallet.',
+    },
+    exportWallet: {
+      title: 'Mnemonic phrase',
+      header: 'Export wallet',
+    },
+    exportWalletXpub: {
+      header: 'Wallet XPUB',
+    },
+    deleteWallet: {
+      title: 'Delete your wallet',
+      header: 'Delete wallet',
+      description1: 'Are you sure you want to delete',
+      description2: "? You can't undone it.",
+      no: 'No',
+      yes: 'Yes',
+    },
+    wallet: {
+      none: 'None',
+      latest: 'Latest transaction',
+    },
+
     add: {
       title: 'Add new wallet',
       subtitle: 'Name your wallet',
@@ -61,10 +91,6 @@ module.exports = {
     export: {
       title: 'wallet export',
     },
-    xpub: {
-      title: 'wallet XPUB',
-      copiedToClipboard: 'Copied to clipboard.',
-    },
     import: {
       title: 'import',
       explanation:
@@ -93,9 +119,6 @@ module.exports = {
   },
   transactions: {
     list: {
-      tabBarLabel: 'Transactions',
-      title: 'transactions',
-      description: 'A list of ingoing or outgoing transactions of your wallets',
       conf: 'Confirmations',
     },
     details: {
@@ -155,23 +178,11 @@ module.exports = {
       total_exceeds_balance: 'The sending amount exceeds the available balance.',
     },
     confirm: {
-      header: 'Confirm',
       sendNow: 'Send now',
     },
     create: {
-      details: 'Details',
-      title: 'create transaction',
-      error: 'Error creating transaction. Invalid address or send amount?',
-      go_back: 'Go Back',
-      this_is_hex: 'This is transaction hex, signed and ready to be broadcast to the network.',
-      to: 'To',
       amount: 'Amount',
       fee: 'Fee',
-      tx_size: 'TX size',
-      satoshi_per_byte: 'Satoshi per byte',
-      memo: 'Memo',
-      broadcast: 'Broadcast',
-      not_enough_fee: 'Not enough fee. Increase the fee',
       setTransactionFee: 'Set a transaction fee',
       headerText:
         'When there is a large number of pending transaction on the network (>1500), the higher fee will result in your transaction being processed faster. The typical values are 1-500 sat/b',
@@ -180,20 +191,10 @@ module.exports = {
   receive: {
     header: 'Receive coins',
     details: {
-      title: 'Share this address with payer',
-      share: 'Share',
-      copiedToClipboard: 'Copied to clipboard.',
-      label: 'Description',
       amount: 'Amount',
-      create: 'Create',
+      share: 'Share',
       receiveWithAmount: 'Receive with amount',
     },
-    scan_lnurl: 'Scan to receive',
-  },
-  buyBitcoin: {
-    header: 'Buy Bitcoin',
-    tap_your_address: 'Tap your address to copy it to clipboard',
-    copied: 'Copied to Clipboard!',
   },
   settings: {
     language: 'Language',
@@ -233,46 +234,6 @@ module.exports = {
     confirm: 'Confirm',
     alertDescription: 'Select language and restart the application?',
     cancel: 'Cancel',
-  },
-  plausibledeniability: {
-    title: 'Plausible Deniability',
-    help:
-      'Under certain circumstances, you might be forced to disclose a password. To keep your coins safe, GoldWallet can create another encrypted storage, with a different password. Under pressure, you can disclose this password to a 3rd party. If entered in GoldWallet, it will unlock new fake storage. This will seem legit to a 3rd party, but will secretly keep your main storage with coins safe.',
-    help2:
-      'New storage will be fully functional, and you can store some minimum amounts there so it looks more believable.',
-    create_fake_storage: 'Create fake encrypted storage',
-    go_back: 'Go Back',
-    create_password: 'Create a password',
-    create_password_explanation: 'Password for fake storage should not match password for your main storage',
-    password_should_not_match: 'Password for fake storage should not match password for your main storage',
-    retype_password: 'Retype password',
-    passwords_do_not_match: 'Passwords do not match, try again',
-    success: 'Success',
-  },
-  lnd: {
-    title: 'manage funds',
-    choose_source_wallet: 'Choose a source wallet',
-    refill_lnd_balance: 'Refill Lightning wallet balance',
-    refill: 'Refill',
-    withdraw: 'Withdraw',
-    placeholder: 'Invoice',
-    expired: 'Expired',
-    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
-  },
-  pleasebackup: {
-    title: 'Your wallet is created...',
-    text:
-      "Please take a moment to write down this mnemonic phrase on a piece of paper. It's your backup you can use to restore the wallet on other device.",
-    ok: 'OK, I wrote this down!',
-  },
-  lndViewInvoice: {
-    wasnt_paid_and_expired: 'This invoice was not paid for and has expired',
-    has_been_paid: 'This invoice has been paid for',
-    please_pay: 'Please pay',
-    sats: 'sats',
-    for: 'For',
-    additional_info: 'Additional Information',
-    open_direct_channel: 'Open direct channel with this node',
   },
   contactList: {
     cancel: 'Cancel',

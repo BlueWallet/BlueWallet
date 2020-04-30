@@ -172,7 +172,7 @@
   },
   "lint-staged": {
     "./**/*.{ts,tsx,js,jsx}": [
-      "yarn lint-src:fix"
+      "yarn lint:fix"
     ],
     "./**/*.{ts|tsx}": [
       "yarn typescript:check"
