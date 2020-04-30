@@ -9,6 +9,22 @@ describe('unit - DeepLinkSchemaMatch', function() {
     assert.ok(DeeplinkSchemaMatch.hasSchema('bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=666&label=Yo'));
     assert.ok(DeeplinkSchemaMatch.hasSchema('BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE'));
     assert.ok(DeeplinkSchemaMatch.hasSchema('BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo'));
+    assert.ok(
+      DeeplinkSchemaMatch.hasSchema(
+        'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+      ),
+    );
+
+    assert.ok(DeeplinkSchemaMatch.hasSchema('bluewallet:bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
+    assert.ok(DeeplinkSchemaMatch.hasSchema('bluewallet:bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo'));
+    assert.ok(DeeplinkSchemaMatch.hasSchema('bluewallet:bitcoin:BC1QH6TF004TY7Z7UN2V5NTU4MKF630545GVHS45U7?amount=666&label=Yo'));
+    assert.ok(DeeplinkSchemaMatch.hasSchema('bluewallet:BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE'));
+    assert.ok(DeeplinkSchemaMatch.hasSchema('bluewallet:BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo'));
+    assert.ok(
+      DeeplinkSchemaMatch.hasSchema(
+        'bluewallet:lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+      ),
+    );
   });
 
   it('isBitcoin Address', () => {
@@ -55,16 +71,84 @@ describe('unit - DeepLinkSchemaMatch', function() {
     assert.ok(!DeeplinkSchemaMatch.isSafelloRedirect({ url: 'bluewallet:' }));
   });
 
-  it('navigationForRoute', () => {
-    const event = { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' };
-    DeeplinkSchemaMatch.navigationRouteFor(event, navValue => {
-      assert.strictEqual(navValue, {
-        routeName: 'SendDetails',
-        params: {
-          uri: event.url,
+  it('navigationForRoute', async () => {
+    const events = [
+      {
+        argument: { url: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' },
+        expected: {
+          routeName: 'SendDetails',
+          params: {
+            uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
+          },
         },
+      },
+      {
+        argument: { url: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' },
+        expected: {
+          routeName: 'SendDetails',
+          params: {
+            uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
+          },
+        },
+      },
+      {
+        argument: { url: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' },
+        expected: {
+          routeName: 'SendDetails',
+          params: {
+            uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo',
+          },
+        },
+      },
+      {
+        argument: { url: 'bluewallet:BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' },
+        expected: {
+          routeName: 'SendDetails',
+          params: {
+            uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo',
+          },
+        },
+      },
+      {
+        argument: {
+          url:
+            'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+        },
+        expected: {
+          routeName: 'ScanLndInvoice',
+          params: {
+            uri:
+              'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+          },
+        },
+      },
+      {
+        argument: {
+          url:
+            'bluewallet:lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+        },
+        expected: {
+          routeName: 'ScanLndInvoice',
+          params: {
+            uri:
+              'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+          },
+        },
+      },
+    ];
+
+    const asyncNavigationRouteFor = async function(event) {
+      return new Promise(function(resolve) {
+        DeeplinkSchemaMatch.navigationRouteFor(event, navValue => {
+          resolve(navValue);
+        });
       });
-    });
+    };
+
+    for (let event of events) {
+      let navValue = await asyncNavigationRouteFor(event.argument);
+      assert.deepStrictEqual(navValue, event.expected);
+    }
   });
 
   it('decodes bip21', () => {
