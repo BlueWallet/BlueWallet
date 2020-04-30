@@ -19,12 +19,19 @@ export class TransactionList extends Component<Props> {
 
   static getDerivedStateFromProps(props: Props) {
     const groupedTransactions = [] as any;
-    const dataToGroup = props.data.map((transaction: any) => ({
-      ...transaction,
-      day: moment.unix(transaction.time).format('ll'),
-      walletLabel: transaction.walletLabel || props.label,
-    }));
-    const uniqueValues = [...new Set(dataToGroup.map((item: any) => item.day))];
+    const dataToGroup = props.data
+      .map((transaction: any) => ({
+        ...transaction,
+        day: moment.unix(transaction.time).format('ll'),
+        walletLabel: transaction.walletLabel || props.label,
+      }))
+      .sort((a: any, b: any) => b.time - a.time);
+    const uniqueValues = [...new Set(dataToGroup.map((item: any) => item.day))].sort(
+      (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime(),
+    );
+
+    console.log('uniqueValues', uniqueValues);
+
     uniqueValues.map(uniqueValue =>
       groupedTransactions.push({
         title: uniqueValue,

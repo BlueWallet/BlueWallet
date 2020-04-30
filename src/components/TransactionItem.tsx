@@ -21,7 +21,7 @@ export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps;
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
       <View style={styles.leftColumn}>
         <Text style={typography.headline5} numberOfLines={1}>
-          {item.walletLabel}
+          {item.walletLabel === 'All wallets' ? i18n.transactions.details.noLabel : item.walletLabel}
         </Text>
         <Text style={styles.label}>{confirmations()}</Text>
         <Text style={styles.label}>{moment.unix(item.time).format('LT')}</Text>
@@ -49,6 +49,6 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: palette.textGrey,
   },
-  leftColumn: { justifyContent: 'space-between', maxWidth: '60%' },
+  leftColumn: { justifyContent: 'space-between', maxWidth: '75%' },
   rightColumn: { alignItems: 'flex-end' },
 });
