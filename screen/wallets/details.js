@@ -130,14 +130,12 @@ export default class WalletDetails extends Component {
         />
       ),
       ios:
-        this.state.wallet.getBalance() > 0 ? (
           <BlueButton
             onPress={async () => {
               Linking.openURL('https://bluewallet.io/marketplace-btc/');
             }}
             title="Marketplace"
           />
-        ) : null,
     });
   };
 
