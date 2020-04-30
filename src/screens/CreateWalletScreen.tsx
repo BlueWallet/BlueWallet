@@ -153,7 +153,8 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
               title={i18n.wallets.add.importWalletButton}
             />
           </>
-        }>
+        }
+      >
         <Text style={styles.subtitle}>{i18n.wallets.add.subtitle}</Text>
         <Text style={styles.description}>{i18n.wallets.add.description}</Text>
         <InputItem error={this.validationError} setValue={this.setLabel} label={i18n.wallets.add.inputLabel} />

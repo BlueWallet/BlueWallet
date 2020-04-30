@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.ubuntu.light,
   },
   input: {
+    color: palette.textBlack,
     paddingRight: 50,
     height: 43,
     borderBottomColor: palette.border,
