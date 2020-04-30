@@ -1,3 +1,21 @@
+v5.3.5
+======
+
+* ADD: support for Electrum Seed format, legacy BIP32 (closes #954)
+* ADD: refill lightning wallet with bank card
+* ADD: Local Trader CTA to main view
+* ADD: broadcast txhex screen
+* ADD: Broadcast on Network options
+* FIX: Hide toolbar when keyboard is dismissed
+* FIX: capitalized deeplink (closes #1005)
+* FIX: Import toolbar touch
+* FIX: pass local fiat currency to buy-bitcoin widget
+* REF: send functionality for all wallet types. All wallet types can now sendMAX
+* REF: Move the sell fiat button to the list header
+* REF: Move onchain marketplace to wallet details
+* REF: Cleaner wallet panel at blank state
+
+
 v5.3.2
 ======
 
@@ -36,27 +54,3 @@ v5.2.0
 * FIX: Allow use of Today extension on iOS 10
 * REF: General Settings
 * REF: electrum reconnect improvements
-
-v5.1.0
-======
-
-* FIX: weird import screen scan qr code behaviour
-* FIX: allow using unconfirmed utxo when creating transaction
-* REF: removed obsolete single address RBF;
-* REF: refactored breadwallet format a bit
-* FIX: Wallet name input character entry bug
-* REF: experimental - dont fetch transactions when importing wallet, only balance. should be faster. txs can be fetched later manually
-* FIX: Import ColdCard wallet using JSON's label.
-* REF: German translations
-* REF: now BIP44 works through electrum
-* REF: single-address wallets now work through electrum
-* REF: wallet export screen improvements
-
-v5.0.0
-======
-
-* ADD: Coldcard support
-* FIX: allow capitalized bech32 addresses (closes #838)
-* FIX: lnurl scan to receive is not returning the correct view (closes #828)
-* FIX: watch-only delete wallet doesnt have confirmation now
-* FIX: typo in spanish
