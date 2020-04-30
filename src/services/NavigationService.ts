@@ -3,11 +3,12 @@ import { EditTextProps } from 'screens/EditTextScreen';
 import { MessageProps } from 'screens/MessageScreen';
 
 import { Wallet } from 'app/consts';
+import { ScanQrCodeProps } from 'app/screens/ScanQrCodeScreen';
 
 type MessageScreenProps = Partial<MessageProps>;
 type EditTextScreenProps = Partial<EditTextProps>;
 type WalletDetailsScreenProps = { wallet: Wallet };
-type ScreenProps = MessageScreenProps | EditTextScreenProps | WalletDetailsScreenProps;
+type ScreenProps = MessageScreenProps | EditTextScreenProps | WalletDetailsScreenProps | ScanQrCodeProps;
 
 export default class NavigationService {
   navigator?: NavigationContainerComponent;

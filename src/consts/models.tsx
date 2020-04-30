@@ -26,6 +26,7 @@ export enum Route {
   ActionSheet = 'ActionSheet',
   TransactionSuccess = 'TransactionSuccessScreen',
   SendTransactionDetails = 'SendTransactionDetailsScreen',
+  ScanQrCode = 'ScanQrCode',
 }
 
 export interface Wallet {

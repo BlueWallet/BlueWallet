@@ -9,6 +9,7 @@ import { Button, Header, InputItem, ScreenTemplate, Text, Image } from 'app/comp
 import { Contact, Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import i18n from 'app/locale';
+import { NavigationService } from 'app/services';
 import { createContact, CreateContactAction } from 'app/state/contacts/actions';
 import { palette, typography } from 'app/styles';
 
@@ -39,6 +40,10 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
 
   setAddress = (address: string) => this.setState({ address });
 
+  onBarCodeScan = (address: string) => {
+    this.setAddress(address.substr(8));
+  };
+
   createContact = () => {
     this.props.createContact({
       id: uuidv4(),
@@ -49,6 +54,12 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
     this.setState({
       name: '',
       address: '',
+    });
+  };
+
+  onScanQrCodePress = () => {
+    NavigationService.navigate(Route.ScanQrCode, {
+      onBarCodeScan: this.onBarCodeScan,
     });
   };
 
@@ -64,6 +75,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
     });
 
   render() {
+    const { address } = this.state;
     return (
       <ScreenTemplate
         footer={
@@ -78,8 +90,14 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
         <Text style={styles.description}>{i18n.contactCreate.description}</Text>
         <InputItem setValue={this.setName} label={i18n.contactCreate.nameLabel} />
         <View>
-          <InputItem multiline setValue={this.setAddress} label={i18n.contactCreate.addressLabel} />
-          <TouchableOpacity style={styles.scanQRCodeButton}>
+          <InputItem
+            focused={!!address}
+            value={address}
+            multiline
+            setValue={this.setAddress}
+            label={i18n.contactCreate.addressLabel}
+          />
+          <TouchableOpacity style={styles.scanQRCodeButton} onPress={this.onScanQrCodePress}>
             <Image style={styles.qrCodeImage} source={icons.qrCode} />
           </TouchableOpacity>
         </View>

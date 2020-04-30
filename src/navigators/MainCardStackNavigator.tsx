@@ -21,6 +21,7 @@ import {
   SendCoinsScreen,
   SendCoinsConfirmScreen,
   SendTransactionDetailsScreen,
+  ScanQrCodeScreen,
 } from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
@@ -49,6 +50,7 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.SendCoins]: SendCoinsScreen,
     [Route.SendCoinsConfirm]: SendCoinsConfirmScreen,
     [Route.SendTransactionDetails]: SendTransactionDetailsScreen,
+    [Route.ScanQrCode]: ScanQrCodeScreen,
   },
   {
     mode: 'card',

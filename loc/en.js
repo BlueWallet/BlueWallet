@@ -316,4 +316,10 @@ module.exports = {
     successDescription: 'Your contact has been successfully deleted.\nYou can now return to Address book.',
     successButton: 'Return to Address book',
   },
+  scanQrCode: {
+    permissionTitle: 'Permission to use camera',
+    permissionMessage: 'We need your permission to use your camera',
+    ok: 'Ok',
+    cancel: 'Cancel',
+  },
 };
