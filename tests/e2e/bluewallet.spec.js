@@ -4,6 +4,7 @@ const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
 describe('BlueWallet UI Tests', () => {
+
   it('selftest passes', async () => {
     await waitFor(element(by.id('WalletsList')))
       .toBeVisible()
@@ -17,6 +18,16 @@ describe('BlueWallet UI Tests', () => {
     await waitFor(element(by.id('SelfTestOk')))
       .toBeVisible()
       .withTimeout(300 * 1000);
+  });
+
+  it('can create wallet, reload app and it persists', async () => {
+    await yo('WalletsList');
+
+    await helperCreateWallet();
+
+    await device.launchApp({ newInstance: true });
+    await yo('WalletsList');
+    await expect(element(by.id('cr34t3d'))).toBeVisible();
   });
 
   it('can encrypt storage, with plausible deniability', async () => {
@@ -295,16 +306,6 @@ describe('BlueWallet UI Tests', () => {
     // relaunch app
     await device.launchApp({ newInstance: true });
     await yo('fake_wallet'); // success, we are observing wallet in FAKE storage. wallet from main storage is lost
-  });
-
-  it('can create wallet, reload app and it persists', async () => {
-    await yo('WalletsList');
-
-    await helperCreateWallet();
-
-    await device.launchApp({ newInstance: true });
-    await yo('WalletsList');
-    await expect(element(by.id('cr34t3d'))).toBeVisible();
   });
 
   it('can import BIP84 mnemonic, fetch balance & transactions, then create a transaction', async () => {
