@@ -2,9 +2,9 @@ import 'intl';
 import 'intl/locale-data/jsonp/en';
 import './shim.js';
 
-import LottieView from 'lottie-react-native';
 import React from 'react';
 import { AppRegistry, StatusBar } from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
 
 import App from './App';
 import UnlockWith from './UnlockWith.js';
@@ -21,7 +21,6 @@ class BlueAppComponent extends React.Component {
     super(props);
     this.state = {
       isMigratingData: true,
-      onAnimationFinished: false,
       successfullyAuthenticated: false,
     };
   }
@@ -32,53 +31,30 @@ class BlueAppComponent extends React.Component {
   }
 
   setIsMigratingData = async () => {
-    this.setState({ isMigratingData: false });
-  };
-
-  onAnimationFinish = () => {
-    if (this.state.isMigratingData) {
-      this.loadingSplash.play(0);
-    } else {
-      this.setState({ onAnimationFinished: true });
-    }
+    SplashScreen.hide();
+    this.setState({
+      isMigratingData: false,
+    });
   };
 
   onSuccessfullyAuthenticated = () => {
-    this.setState({ successfullyAuthenticated: true });
+    this.setState({
+      successfullyAuthenticated: true,
+    });
   };
 
   render() {
     if (this.state.isMigratingData) {
-      return (
-        <LottieView
-          ref={ref => (this.loadingSplash = ref)}
-          onAnimationFinish={this.onAnimationFinish}
-          source={require('./img/bluewalletsplash.json')}
-          autoPlay
-          loop={false}
-        />
-      );
+      return null;
     } else {
-      if (this.state.onAnimationFinished) {
-        return this.state.successfullyAuthenticated ? (
-          <>
-            <StatusBar backgroundColor="rgba(0,0,0,0)" translucent />
-            <App />
-          </>
-        ) : (
-          <UnlockWith onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated} />
-        );
-      } else {
-        return (
-          <LottieView
-            ref={ref => (this.loadingSplash = ref)}
-            onAnimationFinish={this.onAnimationFinish}
-            source={require('./img/bluewalletsplash.json')}
-            autoPlay
-            loop={false}
-          />
-        );
-      }
+      return this.state.successfullyAuthenticated ? (
+        <>
+          <StatusBar backgroundColor="rgba(0,0,0,0)" translucent />
+          <App />
+        </>
+      ) : (
+        <UnlockWith onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated} />
+      );
     }
   }
 }
