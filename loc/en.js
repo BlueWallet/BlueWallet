@@ -20,6 +20,7 @@ module.exports = {
   },
   wallets: {
     dashboard: {
+      title: 'Wallets',
       noWallets: 'No wallets',
       noWalletsDesc1: 'No wallets to show. ',
       noWalletsDesc2: ' to add your first wallet.',

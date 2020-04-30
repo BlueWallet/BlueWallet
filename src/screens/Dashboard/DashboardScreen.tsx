@@ -28,7 +28,9 @@ type Props = NavigationInjectedProps;
 
 export class DashboardScreen extends Component<Props, State> {
   static navigationOptions = (props: NavigationScreenProps) => ({
-    header: () => <Header title="Wallets" addFunction={() => props.navigation.navigate(Route.CreateWallet)} />,
+    header: () => (
+      <Header title={i18n.wallets.dashboard.title} addFunction={() => props.navigation.navigate(Route.CreateWallet)} />
+    ),
   });
 
   constructor(props: Props) {
