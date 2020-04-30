@@ -15,7 +15,7 @@ interface Props extends NavigationInjectedProps {
 }
 
 interface State {
-  query: '';
+  query: string;
 }
 
 export class ContactListScreen extends PureComponent<Props, State> {
@@ -30,7 +30,7 @@ export class ContactListScreen extends PureComponent<Props, State> {
   setQuery = (query: string) => this.setState({ query });
 
   get filteredContacts(): Contact[] {
-    return this.props.contacts.filter(contact => contact.name.includes(this.state.query));
+    return this.props.contacts.filter(contact => contact.name.toLowerCase().includes(this.state.query.toLowerCase()));
   }
 
   render() {

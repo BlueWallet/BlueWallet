@@ -46,6 +46,7 @@ export class SearchBar extends React.PureComponent<Props, State> {
             onBlur={this.blur}
             placeholderTextColor={palette.textWhiteMuted}
             placeholder={i18n.contactList.search}
+            autoCapitalize="none"
           />
           {!!this.props.query && (
             <TouchableOpacity style={styles.clearButton} onPress={this.clear}>
