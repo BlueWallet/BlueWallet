@@ -12,6 +12,7 @@ import {
   ScreenTemplate,
   ContactAvatar,
 } from 'app/components';
+import { CopyButton } from 'app/components/CopyButton';
 import { Contact, Route } from 'app/consts';
 import i18n from 'app/locale';
 import { UpdateContactAction, updateContact } from 'app/state/contacts/actions';
@@ -98,12 +99,15 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
             onSave={this.setName}
           />
         </View>
-        <GenericInputItem
-          title={i18n.contactDetails.editAddress}
-          label={i18n.contactDetails.addressLabel}
-          value={address}
-          onSave={this.setAddress}
-        />
+        <View style={styles.addressInputContainer}>
+          <GenericInputItem
+            title={i18n.contactDetails.editAddress}
+            label={i18n.contactDetails.addressLabel}
+            value={address}
+            onSave={this.setAddress}
+          />
+          <CopyButton textToCopy={address} containerStyle={styles.copyButtonContainer} />
+        </View>
       </ScreenTemplate>
     );
   }
@@ -127,5 +131,13 @@ const styles = StyleSheet.create({
   },
   nameInputContainer: {
     marginTop: 32,
+  },
+  addressInputContainer: {
+    marginTop: 8,
+  },
+  copyButtonContainer: {
+    position: 'absolute',
+    right: -6,
+    top: -10,
   },
 });
