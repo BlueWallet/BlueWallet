@@ -218,6 +218,20 @@ export default class WalletTransactions extends Component {
     return (
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
+          {/*
+            Current logic - Onchain:
+            - Shows buy button on middle when empty
+            - Show buy button on top when not empty
+            - Shows Marketplace button on details screen, open in browser (iOS)
+            - Shows Marketplace button on details screen, open in in-app (android)
+            Current logic - Offchain:
+            - Shows Lapp Browser empty (iOS)
+            - Shows Lapp Browser with marketplace (android)
+            - Shows Marketplace button to open in browser (iOS)
+
+            The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
+  
+           */}
           {this.state.wallet.getTransactions().length > 0 &&
             this.state.wallet.type !== LightningCustodianWallet.type &&
             this.renderSellFiat()}
@@ -313,7 +327,12 @@ export default class WalletTransactions extends Component {
       android: (
         <TouchableOpacity
           onPress={() => {
-            this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
+            if (this.state.wallet.type === LightningCustodianWallet.type) {
+              this.props.navigation.navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
+            } else {
+              this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
+            }
+            
           }}
           style={{
             backgroundColor: '#f2f2f2',
