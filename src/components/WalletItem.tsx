@@ -2,12 +2,13 @@ import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import { images } from 'app/assets';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 import { Avatar } from './Avatar';
 import { GradientVariant } from './GradientView';
 import { Image } from './Image';
+
+const i18n = require('../../loc');
 
 export interface WalletItemProps {
   name: string;

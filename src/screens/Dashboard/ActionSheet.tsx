@@ -4,10 +4,10 @@ import { NavigationInjectedProps } from 'react-navigation';
 
 import { WalletItemProps, WalletItem, GradientView } from 'app/components';
 import { Wallet } from 'app/consts';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
+const i18n = require('../../../loc');
 
 interface Props extends NavigationInjectedProps {
   isVisible?: boolean;

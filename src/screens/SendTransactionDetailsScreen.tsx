@@ -4,12 +4,12 @@ import { NavigationInjectedProps } from 'react-navigation';
 
 import { Header, Chip, ScreenTemplate, Button } from 'app/components';
 import { Wallet } from 'app/consts';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 
 const currency = require('../../currency');
+const i18n = require('../../loc');
 
 type Props = NavigationInjectedProps<{
   fee: number;

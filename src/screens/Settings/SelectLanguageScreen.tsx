@@ -6,8 +6,9 @@ import { NavigationScreenProps } from 'react-navigation';
 
 import { icons } from 'app/assets';
 import { ScreenTemplate, Header, Image } from 'app/components';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
+
+const i18n = require('../../../loc');
 
 interface Language {
   label: string;

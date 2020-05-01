@@ -7,9 +7,10 @@ import { images, icons } from 'app/assets';
 import { Image, ScreenTemplate, Header, ListItem } from 'app/components';
 import { Route } from 'app/consts';
 import { AppStorage, Biometric } from 'app/legacy';
-import i18n from 'app/locale';
 
 import { LabeledSettingsRow } from './LabeledSettingsRow';
+
+const i18n = require('../../../loc');
 
 export const SettingsScreen = (props: NavigationScreenProps) => {
   const { navigation } = props;

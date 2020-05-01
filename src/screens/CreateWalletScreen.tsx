@@ -6,10 +6,11 @@ import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation
 import { ScreenTemplate, Text, InputItem, Header, Button, FlatButton, RadioGroup, RadioButton } from 'app/components';
 import { Route, Wallet } from 'app/consts';
 import { AppStorage, HDSegwitBech32Wallet, HDSegwitP2SHWallet, SegwitP2SHWallet, BlueApp, EV } from 'app/legacy';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
 import CreateWalletSuccessScreen from './CreateWalletSuccessScreen';
+
+const i18n = require('../../loc');
 
 type Props = NavigationInjectedProps;
 

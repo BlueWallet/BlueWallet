@@ -5,8 +5,9 @@ import { NavigationInjectedProps } from 'react-navigation';
 import { images } from 'app/assets';
 import { Button, Text, Image } from 'app/components';
 import { Route } from 'app/consts';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
+
+const i18n = require('../../loc');
 
 export class TransactionSuccessScreen extends React.PureComponent<NavigationInjectedProps> {
   navigateBack = () => this.props.navigation.navigate(Route.Dashboard);

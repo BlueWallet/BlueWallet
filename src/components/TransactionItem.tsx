@@ -2,8 +2,9 @@ import moment from 'moment';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
+
+const i18n = require('../../loc');
 
 export interface TransactionItemProps {
   confirmations: number;

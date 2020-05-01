@@ -4,12 +4,13 @@ import { createBottomTabNavigator } from 'react-navigation';
 import { images } from 'app/assets';
 import { BottomTabBarIcon, BottomTabBarComponent } from 'app/components';
 import { Route } from 'app/consts';
-import i18n from 'app/locale';
 import { ContactListScreen } from 'app/screens';
 import { palette } from 'app/styles';
 
 import { DashboardNavigator } from './DashboardNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
+
+const i18n = require('../../loc');
 
 export const MainTabNavigator = createBottomTabNavigator(
   {

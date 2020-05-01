@@ -13,8 +13,9 @@ import {
   Text,
 } from 'app/components';
 import { Wallet, Route } from 'app/consts';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
+
+const i18n = require('../../loc');
 
 type Props = NavigationInjectedProps<{ wallet: Wallet }>;
 

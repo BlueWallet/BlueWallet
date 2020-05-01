@@ -5,10 +5,10 @@ import { RNCamera } from 'react-native-camera';
 import { NavigationScreenProps } from 'react-navigation';
 
 import { images } from 'app/assets';
-import i18n from 'app/locale';
 import { getStatusBarHeight } from 'app/styles';
 
 const { width } = Dimensions.get('window');
+const i18n = require('../../loc');
 
 export interface ScanQrCodeProps {
   onBarCodeScan: (code: string) => void;

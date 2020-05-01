@@ -5,7 +5,6 @@ import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text } from 'app/components';
 import { Transaction, Route } from 'app/consts';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
 import { HDSegwitBech32Wallet } from '../../class';
@@ -16,6 +15,7 @@ const Bignumber = require('bignumber.js');
 const BlueElectrum = require('../../BlueElectrum');
 const currency = require('../../currency');
 const EV = require('../../events');
+const i18n = require('../../loc');
 
 const ScreenFooter = (onSendPress: () => void, onDetailsPress: () => void) => (
   <View style={styles.footer}>

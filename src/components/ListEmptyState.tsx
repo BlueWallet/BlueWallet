@@ -2,11 +2,12 @@ import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 import { images } from 'app/assets';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
 import { Image } from './Image';
 import { StyledText } from './StyledText';
+
+const i18n = require('../../loc');
 
 enum ImageVariant {
   Dashboard = 'dashboardNoWallet',

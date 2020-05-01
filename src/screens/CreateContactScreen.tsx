@@ -8,10 +8,11 @@ import { icons } from 'app/assets';
 import { Button, Header, InputItem, ScreenTemplate, Text, Image } from 'app/components';
 import { Contact, Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import i18n from 'app/locale';
 import { NavigationService } from 'app/services';
 import { createContact, CreateContactAction } from 'app/state/contacts/actions';
 import { palette, typography } from 'app/styles';
+
+const i18n = require('../../loc');
 
 interface Props extends NavigationScreenProps {
   createContact: (contact: Contact) => CreateContactAction;

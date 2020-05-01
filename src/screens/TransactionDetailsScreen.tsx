@@ -9,12 +9,13 @@ import { images } from 'app/assets';
 import { Image, Header, StyledText, Chip, ScreenTemplate } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Transaction } from 'app/consts';
-import i18n from 'app/locale';
 import { ApplicationState } from 'app/state';
 import { createTransaction, createTransactionAction, updateTransaction } from 'app/state/transactions/actions';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
+
+const i18n = require('../../loc');
 
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;

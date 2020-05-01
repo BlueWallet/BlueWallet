@@ -6,8 +6,9 @@ import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation
 
 import { Button, ContactAvatar, Header, ScreenTemplate } from 'app/components';
 import { Contact } from 'app/consts';
-import i18n from 'app/locale';
 import { typography } from 'app/styles';
+
+const i18n = require('../../loc');
 
 type Props = NavigationInjectedProps<{ contact: Contact }>;
 

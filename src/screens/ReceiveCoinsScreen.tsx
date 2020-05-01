@@ -7,12 +7,13 @@ import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation
 
 import { Header, ScreenTemplate, Button } from 'app/components';
 import { Transaction, Route } from 'app/consts';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
 import { Chain } from '../../models/bitcoinUnits';
 import { DashboardHeader } from './Dashboard/DashboardHeader';
+
+const i18n = require('../../loc');
 
 type Props = NavigationInjectedProps<{ secret: string }>;
 

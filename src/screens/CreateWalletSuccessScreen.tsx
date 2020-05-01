@@ -3,8 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 
 import { Button, Header, ScreenTemplate, Text, Chip } from 'app/components';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
+
+const i18n = require('../../loc');
 
 interface Props extends NavigationInjectedProps {
   secret: string[];

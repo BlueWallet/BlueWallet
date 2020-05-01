@@ -7,9 +7,10 @@ import { Button, Header, ScreenTemplate } from 'app/components';
 import { Wallet } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { BlueApp } from 'app/legacy';
-import i18n from 'app/locale';
 import { NavigationService } from 'app/services';
 import { typography, palette } from 'app/styles';
+
+const i18n = require('../../loc');
 
 export const DeleteWalletScreen = (props: NavigationScreenProps) => {
   const wallet: Wallet = useNavigationParam('wallet');

@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { icons, images } from 'app/assets';
 import { Image } from 'app/components';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
+
+const i18n = require('../../../loc');
 
 interface Props {
   balance: number;

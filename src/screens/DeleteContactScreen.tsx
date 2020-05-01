@@ -6,9 +6,10 @@ import { connect } from 'react-redux';
 import { Button, Header, ScreenTemplate } from 'app/components';
 import { Contact, Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import i18n from 'app/locale';
 import { deleteContact, DeleteContactAction } from 'app/state/contacts/actions';
 import { typography, palette } from 'app/styles';
+
+const i18n = require('../../loc');
 
 interface Props extends NavigationInjectedProps<{ contact: Contact }> {
   deleteContact: (contact: Contact) => DeleteContactAction;

@@ -14,8 +14,9 @@ import {
 } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
 import { Contact, Route } from 'app/consts';
-import i18n from 'app/locale';
 import { UpdateContactAction, updateContact } from 'app/state/contacts/actions';
+
+const i18n = require('../../loc');
 
 interface Props extends NavigationScreenProps<{ contact: Contact }> {
   updateContact: (contact: Contact) => UpdateContactAction;

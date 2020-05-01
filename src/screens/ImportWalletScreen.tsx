@@ -7,7 +7,6 @@ import { Header, TextAreaItem, FlatButton, ScreenTemplate } from 'app/components
 import { Button } from 'app/components/Button';
 import { Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import i18n from 'app/locale';
 import { NavigationService } from 'app/services';
 import { typography, palette } from 'app/styles';
 
@@ -21,6 +20,8 @@ import {
   HDSegwitBech32Wallet,
 } from '../../class';
 import EV from '../../events';
+
+const i18n = require('../../loc');
 
 export const ImportWalletScreen = () => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);

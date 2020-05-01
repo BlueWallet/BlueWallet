@@ -5,7 +5,6 @@ import { NavigationEvents, NavigationInjectedProps, NavigationScreenProps } from
 import { images } from 'app/assets';
 import { ListEmptyState, Image, WalletCard, ScreenTemplate, Header } from 'app/components';
 import { Wallet, Route } from 'app/consts';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../../BlueApp';
@@ -15,6 +14,7 @@ import { TransactionList } from './TransactionList';
 import { WalletsCarousel } from './WalletsCarousel';
 
 const BlueElectrum = require('../../../BlueElectrum');
+const i18n = require('../../../loc');
 
 interface State {
   wallets: Array<Wallet>;

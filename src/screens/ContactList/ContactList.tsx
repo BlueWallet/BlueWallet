@@ -4,8 +4,9 @@ import { SectionList, SectionListData, StyleSheet, TouchableOpacity, View } from
 import { images } from 'app/assets';
 import { Text, Image } from 'app/components';
 import { Contact } from 'app/consts';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
+
+const i18n = require('../../../loc');
 
 interface Props {
   contacts: Contact[];

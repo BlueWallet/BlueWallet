@@ -3,10 +3,11 @@ import { Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from 'react-n
 
 import { icons, images } from 'app/assets';
 import { FlatButton } from 'app/components/FlatButton';
-import i18n from 'app/locale';
 import { palette, typography } from 'app/styles';
 
 import { Image } from './Image';
+
+const i18n = require('../../loc');
 
 interface Props {
   query: string;

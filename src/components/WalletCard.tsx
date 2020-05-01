@@ -3,13 +3,14 @@ import { Dimensions, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-
 
 import { images } from 'app/assets';
 import { Route, Wallet } from 'app/consts';
-import i18n from 'app/locale';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
 import { GradientView } from './GradientView';
 import { Image } from './Image';
 import { StyledText } from './StyledText';
+
+const i18n = require('../../loc');
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = SCREEN_WIDTH * 0.82;

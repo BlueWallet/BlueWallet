@@ -6,8 +6,9 @@ import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Header, Chip, ScreenTemplate } from 'app/components';
 import { Wallet } from 'app/consts';
-import i18n from 'app/locale';
 import { typography } from 'app/styles';
+
+const i18n = require('../../loc');
 
 export const ExportWalletScreen = () => {
   const wallet: Wallet = useNavigationParam('wallet');

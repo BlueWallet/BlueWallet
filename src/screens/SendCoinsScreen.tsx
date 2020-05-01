@@ -5,7 +5,6 @@ import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation
 import { images, icons } from 'app/assets';
 import { Header, ScreenTemplate, Button, InputItem, StyledText, Image } from 'app/components';
 import { Transaction, Route } from 'app/consts';
-import i18n from 'app/locale';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
@@ -19,6 +18,8 @@ import { DashboardHeader } from './Dashboard/DashboardHeader';
 const BigNumber = require('bignumber.js');
 const bip21 = require('bip21');
 const bitcoin = require('bitcoinjs-lib');
+
+const i18n = require('../../loc');
 
 type Props = NavigationInjectedProps<{ fromSecret: string; fromAddress: string; fromWallet: any }>;
 

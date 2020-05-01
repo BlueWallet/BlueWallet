@@ -5,9 +5,9 @@ import { NavigationScreenProps } from 'react-navigation';
 
 import { ScreenTemplate, Button, FlatButton, InputItem, Header } from 'app/components';
 import { AppStorage, defaultPeer } from 'app/legacy';
-import i18n from 'app/locale';
 
 const BlueElectrum = require('../../../BlueElectrum');
+const i18n = require('../../../loc');
 
 export const ElectrumServerScreen = () => {
   const [isLoading, setIsLoading] = useState(true);

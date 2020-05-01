@@ -4,8 +4,9 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { icons } from 'app/assets';
 import { GradientView, Image } from 'app/components';
 import { HEADER_HEIGHT } from 'app/components/Header';
-import i18n from 'app/locale';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
+
+const i18n = require('../../../loc');
 
 interface Props {
   onAddButtonPress: () => void;
