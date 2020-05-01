@@ -30,8 +30,6 @@ export class TransactionList extends Component<Props> {
       (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime(),
     );
 
-    console.log('uniqueValues', uniqueValues);
-
     uniqueValues.map(uniqueValue =>
       groupedTransactions.push({
         title: uniqueValue,

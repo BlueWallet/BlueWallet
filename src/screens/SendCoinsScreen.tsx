@@ -632,7 +632,14 @@ export class SendCoinsScreen extends Component<Props, State> {
           </View>
           <View style={styles.addressContainer}>
             {this.renderAddressInput()}
-            <TouchableOpacity style={styles.addressBookIcon}>
+            <TouchableOpacity
+              style={styles.addressBookIcon}
+              onPress={() =>
+                this.props.navigation.navigate(Route.ChooseContactList, {
+                  onContactPress: this.processAddressData,
+                })
+              }
+            >
               <Image style={styles.icon} source={images.addressBook} />
             </TouchableOpacity>
             <TouchableOpacity

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { icons } from 'app/assets';
+import { icons, images } from 'app/assets';
 import { GradientView, Image } from 'app/components';
 import { HEADER_HEIGHT } from 'app/components/Header';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
@@ -9,19 +9,28 @@ import { getStatusBarHeight, palette, typography } from 'app/styles';
 const i18n = require('../../../loc');
 
 interface Props {
-  onAddButtonPress: () => void;
+  onAddButtonPress?: () => void;
   children: React.ReactNode;
+  onBackArrowPress?: () => void;
 }
 
 export class ContactListHeader extends React.PureComponent<Props> {
   render() {
+    const { onAddButtonPress, onBackArrowPress } = this.props;
     return (
       <GradientView variant={GradientView.Variant.Primary} style={styles.container}>
         <View style={styles.header}>
+          {!!onBackArrowPress && (
+            <TouchableOpacity style={styles.leftElement} onPress={onBackArrowPress}>
+              <Image style={styles.backIcon} source={images.backArrow} />
+            </TouchableOpacity>
+          )}
           <Text style={styles.title}>{i18n.contactList.screenTitle}</Text>
-          <TouchableOpacity style={styles.rightElement} onPress={this.props.onAddButtonPress}>
-            <Image source={icons.addIcon} style={styles.addIcon} />
-          </TouchableOpacity>
+          {!!onAddButtonPress && (
+            <TouchableOpacity style={styles.rightElement} onPress={onAddButtonPress}>
+              <Image source={icons.addIcon} style={styles.addIcon} />
+            </TouchableOpacity>
+          )}
         </View>
         {this.props.children}
       </GradientView>
@@ -48,6 +57,10 @@ const styles = StyleSheet.create({
     height: 12,
     width: 12,
   },
+  backIcon: {
+    width: 8,
+    height: 13,
+  },
   rightElement: {
     position: 'absolute',
     height: HEADER_HEIGHT,
@@ -56,5 +69,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     right: 10,
     top: 0,
+  },
+  leftElement: {
+    position: 'absolute',
+    height: HEADER_HEIGHT,
+    width: HEADER_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: 0,
+    left: 10,
   },
 });
