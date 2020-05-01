@@ -221,8 +221,6 @@ PODS:
     - React
   - react-native-splash-screen (3.2.0):
     - React
-  - react-native-webview (6.9.0):
-    - React
   - React-RCTActionSheet (0.61.5):
     - React-Core/RCTActionSheetHeaders (= 0.61.5)
   - React-RCTAnimation (0.61.5):
@@ -268,7 +266,7 @@ PODS:
     - React
   - RNDefaultPreference (1.4.1):
     - React
-  - RNDeviceInfo (4.0.1):
+  - RNDeviceInfo (5.5.6):
     - React
   - RNFastImage (8.1.5):
     - React
@@ -340,7 +338,6 @@ DEPENDENCIES:
   - react-native-restart (from `../node_modules/react-native-restart`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
-  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
   - React-RCTBlob (from `../node_modules/react-native/Libraries/Blob`)
@@ -434,8 +431,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/slider"
   react-native-splash-screen:
     :path: "../node_modules/react-native-splash-screen"
-  react-native-webview:
-    :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
     :path: "../node_modules/react-native/Libraries/ActionSheetIOS"
   React-RCTAnimation:
@@ -528,7 +523,6 @@ SPEC CHECKSUMS:
   react-native-restart: fff228304625f55de2ebd4de43938110f4c888ed
   react-native-slider: 884693dd50f84745baa511ecdcde4c16f32182fb
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
-  react-native-webview: 2d8de2be422f0f8b9ba38db3f013f9ebfdb9b78f
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
   React-RCTBlob: d89293cc0236d9cb0933d85e430b0bbe81ad1d72
@@ -544,7 +538,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 453cd7c335ec9ba3b877e27d02238956b76f3268
   RNCClipboard: 8148e21ac347c51fd6cd4b683389094c216bb543
   RNDefaultPreference: 628cb35719f2fe4111c000ccfa7e186400bbc47e
-  RNDeviceInfo: 687c1b2ab6d86ff1ca1208783320cd144138c7f2
+  RNDeviceInfo: 722dc13c269b9dbf305aa4b790d36731602e99b7
   RNFastImage: 35ae972d6727c84ee3f5c6897e07f84d0a3445e9
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0

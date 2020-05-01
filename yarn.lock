@@ -4771,7 +4771,7 @@ intl@1.2.5:
   resolved "https://registry.yarnpkg.com/intl/-/intl-1.2.5.tgz#82244a2190c4e419f8371f5aa34daa3420e2abde"
   integrity sha1-giRKIZDE5Bn4Nx9ao02qNCDiq94=
 
-invariant@2.2.4, invariant@^2.2.2, invariant@^2.2.4:
+invariant@^2.2.2, invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"
   integrity sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==
@@ -7537,10 +7537,10 @@ react-native-default-preference@1.4.1:
   resolved "https://registry.yarnpkg.com/react-native-default-preference/-/react-native-default-preference-1.4.1.tgz#3baccbc50ff3eff57d0c86128239667203405f63"
   integrity sha512-UHX8Hsgq2AwEI8SA1IkjU+u6y+Uroht0sCP70UVLhEZWyqRnn8elrcEjRSInWFNUwxSeFF/c7Tnf17fWFHZEcw==
 
-react-native-device-info@4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-4.0.1.tgz#bade972e7a995ac187a82745a458cba98b72dea0"
-  integrity sha512-a0Q/gwy1oQhu17CeMq9xMZ3Sl9foaj8hFwVuy9jieqkkoQwkHnPDI+R7bEW0MNMgUCPPrzzXvka+FLGOWVqacg==
+react-native-device-info@5.5.6:
+  version "5.5.6"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-5.5.6.tgz#139466e6e995e512bb03d5bdeef59bd4cfe21dcf"
+  integrity sha512-3slUaygctIs1UqsTeZIMpskOWm1FC9SouBxyX7rp6PbOmokZiSCO/c5noUx+ihGNRfUDTbyjZDrJBYEfRNXoZg==
 
 react-native-elements@0.19.0:
   version "0.19.0"
@@ -7753,14 +7753,6 @@ react-native-watch-connectivity@0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/react-native-watch-connectivity/-/react-native-watch-connectivity-0.4.1.tgz#d0f8b605ceb8da09c14ffe0070e0985665929ec0"
   integrity sha512-fMx3hRXinxAoC64YUL+UkXuwlgYeYp3ECKMucxFgRtouzfCC3RGD+wewY7vxgOrcjkKXusIbCdbU4gS2Lojhqw==
-
-react-native-webview@6.9.0:
-  version "6.9.0"
-  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-6.9.0.tgz#d637618fe65ddc9972a55a1d181fd6879a2fcebd"
-  integrity sha512-pipcyQNhSjSfMyle+JugLwYXJBJ0rQCnJOgkz7EcsZbrAvGjFbQOAjDRYi86y9Ibw+h+sjdhPWcLi/kSHScc+w==
-  dependencies:
-    escape-string-regexp "1.0.5"
-    invariant "2.2.4"
 
 react-native@0.61.5:
   version "0.61.5"
