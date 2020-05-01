@@ -218,7 +218,7 @@ module.exports = {
     rateGoldWallet: 'Rate GoldWallet',
     goToOurGithub: 'Go to our Github',
     alwaysBackupYourKeys: 'Always backup your keys',
-    title: 'Gold wallet is a free and open source Bitcoin wallet. Licensed MIT.',
+    title: 'Gold wallet is a free and open source Bitcoin Vault wallet. Licensed MIT.',
   },
   electrumServer: {
     header: 'Electrum server',

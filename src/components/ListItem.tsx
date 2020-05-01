@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 
 import { palette, typography } from 'app/styles';
@@ -25,8 +25,22 @@ export const ListItem = ({
   iconHeight,
   onPress,
 }: Props) => {
+  const [switchValueState, setSwitchValueState] = useState(false);
+
+  const isSwitch = () => onSwitchValueChange && typeof switchValue === 'boolean';
+
+  const onSwitchPress = () => {
+    setSwitchValueState(!switchValueState);
+    onSwitchValueChange(!switchValueState);
+  };
+
+  useEffect(() => {
+    if (isSwitch()) {
+      setSwitchValueState(switchValue);
+    }
+  }, []);
+
   const handleOnItemPress = () => {
-    !!onSwitchValueChange && onSwitchValueChange(!switchValue);
     !!onPress && onPress();
   };
 
@@ -47,9 +61,9 @@ export const ListItem = ({
           <Text style={styles.title}>{title}</Text>
         </View>
       </TouchableOpacity>
-      {typeof switchValue === 'boolean' && (
+      {isSwitch() && (
         <View>
-          <StyledSwitch onValueChange={onSwitchValueChange} value={switchValue} />
+          <StyledSwitch onValueChange={onSwitchPress} value={switchValueState} />
         </View>
       )}
     </View>

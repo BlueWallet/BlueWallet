@@ -80,7 +80,13 @@ export const AboutUsScreen = (props: NavigationScreenProps) => {
         title={i18n.aboutUs.releaseNotes}
         containerStyle={styles.buttonContainer}
       />
-      <Button title={i18n.aboutUs.runSelfTest} containerStyle={styles.buttonContainer} />
+      {/**
+       * Run self test is currently hidden, because it was returning error and the file
+       * was deleted in that PR:
+       * https://github.com/bitcoinvault/GoldWallet/pull/68
+       * error: https://files.slack.com/files-pri/T0115UMHJP9-F013J1UGAG0/image.png
+       * <Button title={i18n.aboutUs.runSelfTest} containerStyle={styles.buttonContainer} />
+       */}
       <Text style={styles.buildData}>{getBuildData()}</Text>
     </ScreenTemplate>
   );
