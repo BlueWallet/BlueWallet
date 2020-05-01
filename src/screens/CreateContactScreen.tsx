@@ -110,10 +110,7 @@ const mapDispatchToProps = {
   createContact,
 };
 
-export default connect(
-  null,
-  mapDispatchToProps,
-)(CreateContactScreen);
+export default connect(null, mapDispatchToProps)(CreateContactScreen);
 
 const styles = StyleSheet.create({
   subtitle: {

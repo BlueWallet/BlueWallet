@@ -29,7 +29,7 @@ export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps;
       </View>
       <View style={styles.rightColumn}>
         <Text style={[typography.headline5, { color: item.value < 0 ? palette.textRed : palette.textBlack }]}>
-          {i18n.formatBalanceWithoutSuffix(Number(item.value))}
+          {i18n.formatBalanceWithoutSuffix(Number(item.value), item.walletPreferredBalanceUnit)}
         </Text>
         <Text style={[typography.headline5, { color: item.value < 0 ? palette.textRed : palette.textBlack }]}>
           {item.walletPreferredBalanceUnit}

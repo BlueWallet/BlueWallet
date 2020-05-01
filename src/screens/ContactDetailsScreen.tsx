@@ -118,10 +118,7 @@ const mapDispatchToProps = {
   updateContact,
 };
 
-export default connect(
-  null,
-  mapDispatchToProps,
-)(ContactDetailsScreen);
+export default connect(null, mapDispatchToProps)(ContactDetailsScreen);
 
 const styles = StyleSheet.create({
   showWalletXPUBContainer: {

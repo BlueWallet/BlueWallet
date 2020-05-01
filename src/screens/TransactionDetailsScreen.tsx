@@ -137,13 +137,16 @@ export class TransactionDetailsScreen extends Component<Props, State> {
 
   renderHeader = () => {
     const transaction: Transaction = this.props.navigation.getParam('transaction');
-
+    const valuePreffix = transaction.value < 0 ? '' : '+';
     return (
       <View style={styles.headerContainer}>
         <Image source={transaction.value < 0 ? images.bigMinus : images.bigPlus} style={styles.image} />
         <Text style={styles.walletLabel}>{transaction.walletLabel}</Text>
         <Text style={[styles.value, { color: transaction.value < 0 ? palette.textRed : palette.textBlack }]}>
-          {i18n.formatBalanceWithoutSuffix(Number(transaction.value))}
+          {`${valuePreffix}${i18n.formatBalanceWithoutSuffix(
+            Number(transaction.value),
+            transaction.walletPreferredBalanceUnit,
+          )} ${transaction.walletPreferredBalanceUnit}`}
         </Text>
         <Chip
           label={`${transaction.confirmations < 7 ? transaction.confirmations : '6'} ${
@@ -239,10 +242,7 @@ const mapDispatchToProps = {
   updateTransaction,
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(TransactionDetailsScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(TransactionDetailsScreen);
 
 const styles = StyleSheet.create({
   headerContainer: {
