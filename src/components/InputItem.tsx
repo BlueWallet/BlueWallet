@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { StyleSheet, TextInput as BaseTextInput, View, Text, Animated, TextInputProps } from 'react-native';
 
 import { palette, typography, fonts } from 'app/styles';
@@ -20,7 +20,7 @@ interface State {
   value: string;
 }
 
-export class InputItem extends Component<Props, State> {
+export class InputItem extends PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -58,6 +58,12 @@ export class InputItem extends Component<Props, State> {
     }
   };
 
+  componentDidUpdate() {
+    if (this.props.value) {
+      this.onFocus();
+    }
+  }
+
   onChangeText = (text: string) => {
     this.setState({ value: text });
     if (this.props.setValue) {
@@ -76,6 +82,7 @@ export class InputItem extends Component<Props, State> {
       inputRange: [0, 1],
       outputRange: [14, 12],
     });
+
     return (
       <View style={styles.container}>
         <Animated.Text style={[styles.label, { top, fontSize }]}>{label}</Animated.Text>

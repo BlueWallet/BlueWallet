@@ -66,7 +66,10 @@ const mapDispatchToProps = {
   deleteContact,
 };
 
-export default connect(null, mapDispatchToProps)(DeleteContactScreen);
+export default connect(
+  null,
+  mapDispatchToProps,
+)(DeleteContactScreen);
 
 const styles = StyleSheet.create({
   title: { ...typography.headline4, marginTop: 16, textAlign: 'center' },

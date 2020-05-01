@@ -97,9 +97,9 @@ export class SendCoinsScreen extends Component<Props, State> {
     });
 
     try {
-      const cachedNetworkTransactionFees = JSON.parse(
-        (await AsyncStorage.getItem(NetworkTransactionFee.StorageKey)) as string,
-      );
+      const cachedNetworkTransactionFees = JSON.parse((await AsyncStorage.getItem(
+        NetworkTransactionFee.StorageKey,
+      )) as string);
 
       if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('halfHourFee')) {
         this.setState({
@@ -397,7 +397,6 @@ export class SendCoinsScreen extends Component<Props, State> {
     }
 
     if (error) {
-      console.warn('errororor');
       return;
     }
 
@@ -555,6 +554,7 @@ export class SendCoinsScreen extends Component<Props, State> {
           multiline
           label="Address"
           style={styles.addressInput}
+          value={this.state.addresses[index].address}
           setValue={async text => {
             text = text.trim();
             const transactions = this.state.addresses;
@@ -588,6 +588,22 @@ export class SendCoinsScreen extends Component<Props, State> {
     return rows;
   };
 
+  /**
+   * TODO: refactor this mess, get rid of regexp, use https://github.com/bitcoinjs/bitcoinjs-lib/issues/890 etc etc
+   *
+   * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
+   */
+  processAddressData = (data: string) => {
+    const newAddresses = {
+      address: data,
+      amount: this.state.addresses[0].amount,
+    };
+    this.setState({
+      addresses: [newAddresses],
+    });
+    return;
+  };
+
   render() {
     const { fromWallet, fee, isLoading } = this.state;
     return (
@@ -619,7 +635,14 @@ export class SendCoinsScreen extends Component<Props, State> {
             <TouchableOpacity style={styles.addressBookIcon}>
               <Image style={styles.icon} source={images.addressBook} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.qrCodeIcon}>
+            <TouchableOpacity
+              style={styles.qrCodeIcon}
+              onPress={() =>
+                this.props.navigation.navigate(Route.ScanQrCode, {
+                  onBarCodeScan: this.processAddressData,
+                })
+              }
+            >
               <Image style={styles.icon} source={icons.qrCode} />
             </TouchableOpacity>
           </View>
