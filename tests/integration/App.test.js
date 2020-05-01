@@ -4,7 +4,6 @@ import TestRenderer from 'react-test-renderer';
 import Settings from '../../screen/settings/settings';
 import Selftest from '../../screen/selftest';
 import { BlueHeader } from '../../BlueComponents';
-global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 jest.mock('react-native-qrcode-svg', () => 'Video');
 jest.useFakeTimers();
