@@ -214,7 +214,7 @@ PODS:
     - React
   - react-native-tcp (3.3.2):
     - React
-  - react-native-viewpager (3.3.0):
+  - react-native-viewpager (4.0.0):
     - React
   - react-native-webview (6.11.1):
     - React
@@ -277,7 +277,7 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.3.1):
+  - RNSentry (1.3.5):
     - React
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
@@ -509,7 +509,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
   react-native-tcp: be8e119e631970aaeda7f6e3207f6b7be72d5eb8
-  react-native-viewpager: 118e65d8c65c56fe48d12a35cdcf1fe7e027a366
+  react-native-viewpager: 82826c981b1ad277757388317686fad30210ed77
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
@@ -533,7 +533,7 @@ SPEC CHECKSUMS:
   RNRate: d44a8bca6ee08f5d890ecccddaec2810955ffbb3
   RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 6458ba85aa3f8ae291abed4f72abbd7080839c71
+  RNSentry: 8a47c89b65502d8d5b464dfb3aa5a13038e5bb08
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
