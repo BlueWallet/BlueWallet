@@ -21,7 +21,7 @@ const bitcoin = require('bitcoinjs-lib');
 
 const i18n = require('../../loc');
 
-type Props = NavigationInjectedProps<{ fromSecret: string; fromAddress: string; fromWallet: any }>;
+type Props = NavigationInjectedProps<{ fromSecret: string; fromAddress: string; fromWallet: any; toAddress?: string }>;
 
 interface State {
   isLoading: boolean;
@@ -57,7 +57,10 @@ export class SendCoinsScreen extends Component<Props, State> {
     let fromAddress = navigation.getParam('fromAddress');
     let fromSecret = navigation.getParam('fromSecret');
     let fromWallet = navigation.getParam('fromWallet');
+    const toAddress = navigation.getParam('toAddress');
     const wallets = BlueApp.getWallets();
+
+    const addresses = toAddress ? [{ address: toAddress }] : [];
 
     if (wallets.length === 0) {
       Alert.alert('Before creating a transaction, you must first add a Bitcoin wallet.');
@@ -79,7 +82,7 @@ export class SendCoinsScreen extends Component<Props, State> {
         fromAddress,
         fromWallet,
         fromSecret,
-        addresses: [],
+        addresses,
         memo: '',
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         fee: 1,
@@ -91,8 +94,10 @@ export class SendCoinsScreen extends Component<Props, State> {
   }
 
   async componentDidMount() {
+    const toAddress = this.props.navigation.getParam('toAddress');
+    const addresses = toAddress ? [{ address: toAddress }] : [new BitcoinTransaction()];
     this.setState({
-      addresses: [new BitcoinTransaction()],
+      addresses,
       isLoading: false,
     });
 
@@ -126,6 +131,7 @@ export class SendCoinsScreen extends Component<Props, State> {
   }
 
   processBIP70Invoice = async (text: string) => {
+    console.log('processBIP70Invoice called');
     try {
       if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
         return BitcoinBIP70TransactionDecode.decode(text)
