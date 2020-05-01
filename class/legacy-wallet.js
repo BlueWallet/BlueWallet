@@ -1,9 +1,8 @@
+import { randomBytes } from '../random';
 import { AbstractWallet } from './abstract-wallet';
 import { HDSegwitBech32Wallet } from './';
-import { NativeModules } from 'react-native';
 
 const bitcoin = require('bitcoinjs-lib');
-const { RNRandomBytes } = NativeModules;
 const BlueElectrum = require('../BlueElectrum');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
@@ -45,34 +44,8 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   async generate() {
-    let that = this;
-    return new Promise(function(resolve) {
-      if (typeof RNRandomBytes === 'undefined') {
-        // CLI/CI environment
-        // crypto should be provided globally by test launcher
-        return crypto.randomBytes(32, (err, buf) => { // eslint-disable-line
-          if (err) throw err;
-          that.secret = bitcoin.ECPair.makeRandom({
-            rng: function(length) {
-              return buf;
-            },
-          }).toWIF();
-          resolve();
-        });
-      }
-
-      // RN environment
-      RNRandomBytes.randomBytes(32, (err, bytes) => {
-        if (err) throw new Error(err);
-        that.secret = bitcoin.ECPair.makeRandom({
-          rng: function(length) {
-            let b = Buffer.from(bytes, 'base64');
-            return b;
-          },
-        }).toWIF();
-        resolve();
-      });
-    });
+    const buf = await randomBytes(32);
+    this.secret = bitcoin.ECPair.makeRandom({ rng: () => buf }).toWIF();
   }
 
   /**
