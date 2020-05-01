@@ -1,7 +1,6 @@
 /* global it */
 import { SegwitP2SHWallet, AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
-global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 
 it('Appstorage - loadFromDisk works', async () => {

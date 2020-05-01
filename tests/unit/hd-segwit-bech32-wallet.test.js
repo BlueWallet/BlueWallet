@@ -1,6 +1,5 @@
 /* global it, describe */
 import { HDSegwitBech32Wallet } from '../../class';
-global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
 let assert = require('assert');
 
 describe('Bech32 Segwit HD (BIP84)', () => {
