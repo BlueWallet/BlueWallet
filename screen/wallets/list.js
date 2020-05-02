@@ -420,39 +420,37 @@ export default class WalletsList extends Component {
                     }}
                     ref={c => (this.walletsCarousel = c)}
                   />
-                  <BlueList>
-                    {this.renderLocalTrader()}
-                    <FlatList
-                      ListHeaderComponent={this.renderListHeaderComponent}
-                      ListEmptyComponent={
-                        <View style={{ top: 80, height: 160 }}>
-                          <Text
-                            style={{
-                              fontSize: 18,
-                              color: '#9aa0aa',
-                              textAlign: 'center',
-                            }}
-                          >
-                            {loc.wallets.list.empty_txs1}
-                          </Text>
-                          <Text
-                            style={{
-                              fontSize: 18,
-                              color: '#9aa0aa',
-                              textAlign: 'center',
-                              fontWeight: '600',
-                            }}
-                          >
-                            {loc.wallets.list.empty_txs2}
-                          </Text>
-                        </View>
-                      }
-                      data={this.state.dataSource}
-                      extraData={this.state.dataSource}
-                      keyExtractor={this._keyExtractor}
-                      renderItem={this._renderItem}
-                    />
-                  </BlueList>
+                  {this.renderLocalTrader()}
+                  <BlueList
+                    ListHeaderComponent={this.renderListHeaderComponent}
+                    ListEmptyComponent={
+                      <View style={{ top: 80, height: 160 }}>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            color: '#9aa0aa',
+                            textAlign: 'center',
+                          }}
+                        >
+                          {loc.wallets.list.empty_txs1}
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            color: '#9aa0aa',
+                            textAlign: 'center',
+                            fontWeight: '600',
+                          }}
+                        >
+                          {loc.wallets.list.empty_txs2}
+                        </Text>
+                      </View>
+                    }
+                    data={this.state.dataSource}
+                    extraData={this.state.dataSource}
+                    keyExtractor={this._keyExtractor}
+                    renderItem={this._renderItem}
+                  />
                 </ScrollView>
               </View>
             </ViewPager>

@@ -2,7 +2,7 @@
 import React, { Component, useEffect, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import { Icon, FormLabel, FormInput, Text, Header, List, ListItem } from 'react-native-elements';
+import { Icon, FormLabel, FormInput, Text, Header, ListItem } from 'react-native-elements';
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -20,6 +20,7 @@ import {
   InputAccessoryView,
   Clipboard,
   Platform,
+  FlatList,
   TextInput,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -595,6 +596,8 @@ export class BlueListItem extends Component {
         subtitleStyle={{ color: BlueApp.settings.alternativeTextColor, marginLeft: 16, fontWeight: '400', width: 230 }}
         subtitleNumberOfLines={1}
         titleNumberOfLines={0}
+        chevron
+        Component={TouchableOpacity}
         {...this.props}
       />
     );
@@ -684,6 +687,7 @@ export class BlueHeaderDefaultSub extends Component {
       <SafeAreaView style={{ backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
           backgroundColor={BlueApp.settings.brandingColor}
+          leftContainerStyle={{ minWidth: 50 }}
           outerContainerStyles={{
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
@@ -732,11 +736,8 @@ export class BlueHeaderDefaultMain extends Component {
         <Header
           {...this.props}
           backgroundColor={BlueApp.settings.brandingColor}
-          outerContainerStyles={{
-            borderBottomColor: 'transparent',
-            borderBottomWidth: 0,
-          }}
           statusBarProps={{ barStyle: 'default' }}
+          leftContainerStyle={{ minWidth: 50 }}
           leftComponent={
             <Text
               numberOfLines={0}
@@ -814,14 +815,14 @@ export class BlueSpacing10 extends Component {
 export class BlueList extends Component {
   render() {
     return (
-      <List
+      <FlatList
         {...this.props}
-        containerStyle={{
-          backgroundColor: BlueApp.settings.brandingColor,
-          borderTopColor: 'transparent',
-          borderTopWidth: 0,
-          flex: 1,
-        }}
+        // containerStyle={{
+        //   backgroundColor: BlueApp.settings.brandingColor,
+        //   borderTopColor: 'transparent',
+        //   borderTopWidth: 0,
+        //   flex: 1,
+        // }}
       />
     );
   }
@@ -999,6 +1000,7 @@ const stylesBlueIcon = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#d2f8d6',
     transform: [{ rotate: '-45deg' }],
+    justifyContent: 'center',
   },
   ballIncomingWithoutRotate: {
     width: 30,
@@ -1019,6 +1021,7 @@ const stylesBlueIcon = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#f8d2d2',
     transform: [{ rotate: '225deg' }],
+    justifyContent: 'center',
   },
   ballOutgoingWithoutRotate: {
     width: 30,
@@ -1031,6 +1034,7 @@ const stylesBlueIcon = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: '#EEF0F4',
+    justifyContent: 'center',
   },
   ballTransparrent: {
     width: 30,
@@ -1081,7 +1085,6 @@ export class BlueTransactionIncomingIcon extends Component {
               size={16}
               type="font-awesome"
               color={BlueApp.settings.incomingForegroundColor}
-              iconStyle={{ left: 0, top: 8 }}
             />
           </View>
         </View>
@@ -1158,7 +1161,6 @@ export class BlueTransactionOffchainIcon extends Component {
               size={16}
               type="font-awesome"
               color={BlueApp.settings.outgoingForegroundColor}
-              iconStyle={{ left: 0, top: 7 }}
             />
           </View>
         </View>
@@ -1179,7 +1181,6 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
               size={16}
               type="font-awesome"
               color={BlueApp.settings.incomingForegroundColor}
-              iconStyle={{ left: 0, top: 7 }}
             />
           </View>
         </View>
@@ -1200,7 +1201,6 @@ export class BlueTransactionOutgoingIcon extends Component {
               size={16}
               type="font-awesome"
               color={BlueApp.settings.outgoingForegroundColor}
-              iconStyle={{ left: 0, top: 8 }}
             />
           </View>
         </View>
@@ -1571,19 +1571,15 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
 
   return (
     <BlueListItem
-      avatar={avatar()}
+      leftAvatar={avatar()}
       title={transactionTimeToReadable}
       titleNumberOfLines={subtitleNumberOfLines}
       subtitle={subtitle()}
       subtitleNumberOfLines={subtitleNumberOfLines}
       onPress={onPress}
       onLongPress={onLongPress}
-      badge={{
-        value: 3,
-        textStyle: { color: 'orange' },
-        containerStyle: { marginTop: 0 },
-      }}
-      hideChevron
+      chevron
+      Component={TouchableOpacity}
       rightTitle={rowTitle()}
       rightTitleStyle={rowTitleStyle()}
     />
@@ -1766,11 +1762,6 @@ export class BlueListTransactionItem extends Component {
         title={loc.transactionTimeToReadable(this.props.item.received)}
         subtitle={this.subtitle()}
         onPress={this.onPress}
-        badge={{
-          value: 3,
-          textStyle: { color: 'orange' },
-          containerStyle: { marginTop: 0 },
-        }}
         hideChevron
         rightTitle={this.rowTitle()}
         rightTitleStyle={this.rowTitleStyle()}
