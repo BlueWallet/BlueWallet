@@ -38,12 +38,17 @@ const GeneralSettings = () => {
       <ScrollView>
         {BlueApp.getWallets().length > 1 && (
           <>
-            <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
+            <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" chevron />
           </>
         )}
         {Platform.OS === 'ios' ? (
           <>
-            <BlueListItem hideChevron title={'Continuity'} switchButton onSwitch={onHandOffEnabledSwitch} switched={isHandoffUseEnabled} />
+            <BlueListItem
+              hideChevron
+              title={'Continuity'}
+              switchButton
+              switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
+            />
             <BlueCard>
               <BlueText>
                 When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected devices.
@@ -53,11 +58,8 @@ const GeneralSettings = () => {
           </>
         ) : null}
         <BlueListItem
-          hideChevron
           title={loc.settings.enable_advanced_mode}
-          switchButton
-          onSwitch={onAdvancedModeSwitch}
-          switched={isAdancedModeEnabled}
+          switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeEnabled }}
         />
         <BlueCard>
           <BlueText>

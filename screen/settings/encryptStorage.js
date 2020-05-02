@@ -140,11 +140,8 @@ export default class EncryptStorage extends Component {
             <>
               <BlueHeaderDefaultSub leftText="biometrics" rightComponent={null} />
               <BlueListItem
-                hideChevron
                 title={`Use ${this.state.biometrics.biometricsType}`}
-                switchButton
-                onSwitch={this.onUseBiometricSwitch}
-                switched={this.state.biometrics.isBiometricsEnabled}
+                switch={{ value: this.state.biometrics.isBiometricUseEnabled, onValueChange: this.onUseBiometricSwitch }}
               />
               <BlueCard>
                 <BlueText>
@@ -160,9 +157,7 @@ export default class EncryptStorage extends Component {
             testID="EncyptedAndPasswordProtected"
             hideChevron
             title="Encypted and Password protected"
-            switchButton
-            onSwitch={this.onEncryptStorageSwitch}
-            switched={this.state.storageIsEncrypted}
+            switch={{ onValueChange: this.onEncryptStorageSwitch, value: this.state.storageIsEncrypted }}
           />
           {Platform.OS === 'ios' && this.state.storageIsEncrypted && (
             <BlueListItem
@@ -170,22 +165,17 @@ export default class EncryptStorage extends Component {
               disabled={!this.state.storageIsEncrypted}
               switchDisabled={!this.state.storageIsEncrypted}
               title="Delete if BlueWallet is uninstalled"
-              switchButton
-              onSwitch={this.onDeleteWalletsAfterUninstallSwitch}
-              switched={this.state.deleteWalletsAfterUninstall}
+              switch={{ onValueChange: this.onDeleteWalletsAfterUninstallSwitch, value: this.state.deleteWalletsAfterUninstall }}
             />
           )}
           {this.state.storageIsEncrypted && (
-            <TouchableOpacity
-              disabled={!this.state.storageIsEncrypted}
+            <BlueListItem
               onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
-            >
-              <BlueListItem
-                disabled={!this.state.storageIsEncrypted}
-                title={loc.settings.plausible_deniability}
-                testID="PlausibleDeniabilityButton"
-              />
-            </TouchableOpacity>
+              disabled={!this.state.storageIsEncrypted}
+              title={loc.settings.plausible_deniability}
+              testID="PlausibleDeniabilityButton"
+              Component={TouchableOpacity}
+            />
           )}
         </ScrollView>
       </SafeBlueArea>

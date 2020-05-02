@@ -56,22 +56,19 @@ export default class Language extends Component {
 
   renderItem = ({ item }) => {
     return (
-      <TouchableOpacity
+      <BlueListItem
         onPress={() => {
           console.log('setLanguage', item.value);
           loc.saveLanguage(item.value);
           return this.setState({ language: item.value });
         }}
-      >
-        <BlueListItem
-          title={item.label}
-          {...(this.state.language === item.value
-            ? {
-                rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
-              }
-            : { hideChevron: true })}
-        />
-      </TouchableOpacity>
+        title={item.label}
+        {...(this.state.language === item.value
+          ? {
+              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+            }
+          : { hideChevron: true })}
+      />
     );
   };
 

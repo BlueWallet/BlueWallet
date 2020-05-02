@@ -52,17 +52,17 @@ const DefaultView = () => {
       <View>
         <BlueListItem
           title="View All Wallets"
-          hideChevron
-          switchButton
-          swithchEnabled={BlueApp.getWallets().length > 0}
-          switched={viewAllWalletsEnabled}
-          onSwitch={onViewAllWalletsSwitchValueChanged}
+          switch={{
+            onValueChange: onViewAllWalletsSwitchValueChanged,
+            value: viewAllWalletsEnabled,
+            disabled: BlueApp.getWallets().length <= 0,
+          }}
         />
         <BlueCard>
           <BlueText>When disabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
         </BlueCard>
         {!viewAllWalletsEnabled && (
-          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} />
+          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
         )}
       </View>
     </SafeBlueArea>

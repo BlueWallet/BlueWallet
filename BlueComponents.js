@@ -2,7 +2,7 @@
 import React, { Component, useEffect, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import { Icon, FormLabel, FormInput, Text, Header, ListItem } from 'react-native-elements';
+import { Icon, Input, Text, Header, ListItem } from 'react-native-elements';
 import {
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -596,7 +596,6 @@ export class BlueListItem extends Component {
         subtitleStyle={{ color: BlueApp.settings.alternativeTextColor, marginLeft: 16, fontWeight: '400', width: 230 }}
         subtitleNumberOfLines={1}
         titleNumberOfLines={0}
-        chevron
         Component={TouchableOpacity}
         {...this.props}
       />
@@ -606,14 +605,14 @@ export class BlueListItem extends Component {
 
 export class BlueFormLabel extends Component {
   render() {
-    return <FormLabel {...this.props} labelStyle={{ color: BlueApp.settings.foregroundColor, fontWeight: '400' }} />;
+    return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor, fontWeight: '400', marginLeft: 20 }} />;
   }
 }
 
 export class BlueFormInput extends Component {
   render() {
     return (
-      <FormInput
+      <Input
         {...this.props}
         inputStyle={{ color: BlueApp.settings.foregroundColor, maxWidth: width - 105 }}
         containerStyle={{
