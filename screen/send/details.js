@@ -265,6 +265,7 @@ export default class SendDetails extends Component {
     let parsedBitcoinUri = null;
     let address = uri || '';
     let memo = '';
+    let payjoinUrl = '';
     try {
       parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
       address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
@@ -276,9 +277,12 @@ export default class SendDetails extends Component {
         if (parsedBitcoinUri.options.hasOwnProperty('label')) {
           memo = parsedBitcoinUri.options.label || memo;
         }
+        if (parsedBitcoinUri.options.hasOwnProperty('pj')) {
+          payjoinUrl = parsedBitcoinUri.options.pj;
+        }
       }
     } catch (_) {}
-    return { address, amount, memo };
+    return { address, amount, memo, payjoinUrl };
   }
 
   recalculateAvailableBalance(balance, amount, fee) {
