@@ -67,7 +67,7 @@ export default class Confirm extends Component {
       console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
       console.log(this.state.psbt.toBase64());
       const broadcastStub = tx => console.log('Broadcasting payjoin transaction', tx);
-      const wallet = new PayjoinWallet(this.state.psbt, broadcastStub);
+      const wallet = new PayjoinWallet(this.state.psbt, broadcastStub, this.state.fromWallet);
       const payjoinClient = new PayjoinClient({
         wallet,
         payjoinUrl: this.state.payjoinUrl,

@@ -1,9 +1,12 @@
+import * as bitcoin from 'bitcoinjs-lib';
+
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 export default class PayjoinWallet {
-  constructor(psbt, broadcast) {
+  constructor(psbt, broadcast, wallet) {
     this.psbt = psbt;
     this.broadcast = broadcast;
+    this.wallet = wallet;
   }
 
   /**
@@ -14,7 +17,20 @@ export default class PayjoinWallet {
    * the payjoin server.
    */
   async getPsbt() {
-    return this.psbt;
+
+    // Nasty hack to get this working for now
+    const unfinalized = this.psbt.clone();
+    unfinalized.data.inputs.forEach((input, index) => {
+      delete input.finalScriptWitness;
+
+      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
+      const wif = this.wallet._getWifForAddress(address);
+      const keyPair = bitcoin.ECPair.fromWIF(wif);
+
+      unfinalized.signInput(index, keyPair);
+    });
+
+    return unfinalized;
   }
 
   /**
