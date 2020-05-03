@@ -57,7 +57,13 @@ export default class Confirm extends Component {
   }
 
   send() {
-    this.broadcast(this.state.tx);
+    if (!this.state.isPayjoinEnabled) {
+      console.log('Broadcast transaction', this.state.tx);
+      // this.broadcast(this.state.tx);
+    } else {
+      console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
+      // payjoin
+    }
   }
 
   broadcast(tx) {
