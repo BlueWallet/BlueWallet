@@ -458,6 +458,9 @@ export default class SendDetails extends Component {
       tx: tx.toHex(),
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
+      isPayjoinEnabled: this.state.isPayjoinEnabled,
+      payjoinUrl: this.state.payjoinUrl,
+      psbt
     });
     this.setState({ isLoading: false });
   }

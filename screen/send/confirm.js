@@ -44,6 +44,9 @@ export default class Confirm extends Component {
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
       fromWallet: props.navigation.getParam('fromWallet'),
+      isPayjoinEnabled: props.navigation.getParam('isPayjoinEnabled'),
+      payjoinUrl: props.navigation.getParam('payjoinUrl'),
+      psbt: props.navigation.getParam('psbt')
     };
   }
 
