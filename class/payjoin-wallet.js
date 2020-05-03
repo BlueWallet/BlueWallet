@@ -46,7 +46,16 @@ export default class PayjoinWallet {
    * for submission to the payjoin server.
    */
   async signPsbt(payjoinPsbt) {
-    // TODO: sign payjoinPsbt
+    // Do this without relying on private methods
+    payjoinPsbt.data.inputs.forEach((input, index) => {
+      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
+      try {
+        const wif = this.wallet._getWifForAddress(address);
+        const keyPair = bitcoin.ECPair.fromWIF(wif);
+        payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
+      } catch(e) {}
+    });
+
     return payjoinPsbt;
   }
 
