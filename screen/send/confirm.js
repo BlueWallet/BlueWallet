@@ -60,14 +60,19 @@ export default class Confirm extends Component {
   }
 
   send() {
+    const broadcast = async tx => {
+      console.log('Broadcasting');
+      console.log(tx);
+      return await this.broadcast(tx);
+    };
+
     if (!this.state.isPayjoinEnabled) {
       console.log('Broadcast transaction', this.state.tx);
-      // this.broadcast(this.state.tx);
+      broadcsat(this.state.tx);
     } else {
       console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
       console.log(this.state.psbt.toBase64());
-      const broadcastStub = tx => console.log('Broadcasting payjoin transaction', tx);
-      const wallet = new PayjoinWallet(this.state.psbt, broadcastStub, this.state.fromWallet);
+      const wallet = new PayjoinWallet(this.state.psbt, broadcast, this.state.fromWallet);
       const payjoinClient = new PayjoinClient({
         wallet,
         payjoinUrl: this.state.payjoinUrl,
@@ -77,7 +82,7 @@ export default class Confirm extends Component {
   }
 
   broadcast(tx) {
-    this.setState({ isLoading: true }, async () => {
+    return this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
