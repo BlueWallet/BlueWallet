@@ -813,17 +813,7 @@ export class BlueSpacing10 extends Component {
 
 export class BlueList extends Component {
   render() {
-    return (
-      <FlatList
-        {...this.props}
-        // containerStyle={{
-        //   backgroundColor: BlueApp.settings.brandingColor,
-        //   borderTopColor: 'transparent',
-        //   borderTopWidth: 0,
-        //   flex: 1,
-        // }}
-      />
-    );
+    return <FlatList {...this.props} />;
   }
 }
 
@@ -1078,13 +1068,7 @@ export class BlueTransactionIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncoming}>
-            <Icon
-              {...this.props}
-              name="arrow-down"
-              size={16}
-              type="font-awesome"
-              color={BlueApp.settings.incomingForegroundColor}
-            />
+            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} />
           </View>
         </View>
       </View>
@@ -1154,13 +1138,7 @@ export class BlueTransactionOffchainIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color={BlueApp.settings.outgoingForegroundColor}
-            />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} />
           </View>
         </View>
       </View>
@@ -1174,13 +1152,7 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
-            <Icon
-              {...this.props}
-              name="bolt"
-              size={16}
-              type="font-awesome"
-              color={BlueApp.settings.incomingForegroundColor}
-            />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} />
           </View>
         </View>
       </View>
@@ -1194,13 +1166,7 @@ export class BlueTransactionOutgoingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoing}>
-            <Icon
-              {...this.props}
-              name="arrow-down"
-              size={16}
-              type="font-awesome"
-              color={BlueApp.settings.outgoingForegroundColor}
-            />
+            <Icon {...this.props} name="arrow-down" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} />
           </View>
         </View>
       </View>

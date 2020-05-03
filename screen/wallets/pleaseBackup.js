@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
-import { Badge } from 'react-native-elements';
 import Privacy from '../../Privacy';
 import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
 const loc = require('../../loc');
@@ -29,21 +28,23 @@ const PleaseBackup = () => {
     let component = [];
     for (const [index, secret] of words.entries()) {
       component.push(
-        <View style={{ width: 'auto', marginRight: 8, marginBottom: 8 }} key={`${secret}${index}`}>
-          <Badge
-            containerStyle={{
-              backgroundColor: '#f5f5f5',
-              paddingTop: 6,
-              paddingBottom: 6,
-              paddingLeft: 8,
-              paddingRight: 8,
-              borderRadius: 4,
-            }}
-          >
-            <Text style={{ color: '#81868E', fontWeight: 'bold' }}>
-              {`${index}`}. {secret}
-            </Text>
-          </Badge>
+        <View
+          style={{
+            width: 'auto',
+            marginRight: 8,
+            marginBottom: 8,
+            backgroundColor: '#f5f5f5',
+            paddingTop: 6,
+            paddingBottom: 6,
+            paddingLeft: 8,
+            paddingRight: 8,
+            borderRadius: 4,
+          }}
+          key={`${secret}${index}`}
+        >
+          <Text style={{ color: '#81868E', fontWeight: 'bold' }}>
+            {`${index}`}. {secret}
+          </Text>
         </View>,
       );
     }

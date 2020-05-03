@@ -1,16 +1,5 @@
 import React, { Component } from 'react';
-import {
-  View,
-  StatusBar,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  FlatList,
-  InteractionManager,
-  RefreshControl,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { View, StatusBar, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, ScrollView, Alert } from 'react-native';
 import { BlueLoading, SafeBlueArea, WalletsCarousel, BlueList, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';

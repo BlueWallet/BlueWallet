@@ -16,8 +16,8 @@ const Settings = () => {
     <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-      <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
       <ScrollView>
+        <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
         <BlueListItem title={'General'} component={TouchableOpacity} onPress={() => navigate('GeneralSettings')} chevron />
         <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} chevron />
         <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} chevron />

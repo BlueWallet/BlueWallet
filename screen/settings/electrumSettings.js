@@ -5,7 +5,6 @@ import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
-import { Badge } from 'react-native-elements';
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
@@ -92,8 +91,8 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <BlueText style={{ textAlign: 'center', color: '#9AA0AA', marginBottom: 4 }}>Status</BlueText>
             <View style={{ width: 'auto', height: 34, flexWrap: 'wrap', justifyContent: 'center', flexDirection: 'row' }}>
-              <Badge
-                containerStyle={{
+              <View
+                style={{
                   backgroundColor: this.state.config.status === 1 ? '#D2F8D6' : '#F8D2D2',
                   paddingTop: 6,
                   paddingBottom: 6,
@@ -105,7 +104,7 @@ export default class ElectrumSettings extends Component {
                 <BlueText style={{ fontWeight: '600', color: this.state.config.status === 1 ? '#37C0A1' : '#D0021B' }}>
                   {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
                 </BlueText>
-              </Badge>
+              </View>
             </View>
             <BlueSpacing20 />
             <BlueText style={{ textAlign: 'center', color: '#0C2550' }} onPress={this.checkServer}>
