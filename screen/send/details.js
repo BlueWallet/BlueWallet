@@ -825,6 +825,7 @@ export default class SendDetails extends Component {
                   addresses: transactions,
                   memo: memo || this.state.memo,
                   payjoinUrl,
+                  isPayjoinEnabled: false,
                   isLoading: false,
                   bip70TransactionExpiration: null,
                 });
