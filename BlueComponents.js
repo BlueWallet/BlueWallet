@@ -686,7 +686,7 @@ export class BlueHeaderDefaultSub extends Component {
       <SafeAreaView style={{ backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
           backgroundColor={BlueApp.settings.brandingColor}
-          leftContainerStyle={{ minWidth: 50 }}
+          leftContainerStyle={{ minWidth: '100%' }}
           outerContainerStyles={{
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
@@ -736,7 +736,7 @@ export class BlueHeaderDefaultMain extends Component {
           {...this.props}
           backgroundColor={BlueApp.settings.brandingColor}
           statusBarProps={{ barStyle: 'default' }}
-          leftContainerStyle={{ minWidth: 50 }}
+          leftContainerStyle={{ minWidth: '100%' }}
           leftComponent={
             <Text
               numberOfLines={0}
