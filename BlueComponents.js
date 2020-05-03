@@ -588,7 +588,7 @@ export class BlueListItem extends Component {
           paddingBottom: 16,
         }}
         titleStyle={{
-          color: BlueApp.settings.foregroundColor,
+          color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.foregroundColor,
           fontSize: 16,
           fontWeight: '500',
           marginLeft: 16,

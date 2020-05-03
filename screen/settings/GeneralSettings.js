@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Platform, TouchableOpacity } from 'react-native';
+import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, SafeBlueArea, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
@@ -46,7 +46,7 @@ const GeneralSettings = () => {
             <BlueListItem
               hideChevron
               title={'Continuity'}
-              switchButton
+              Component={TouchableWithoutFeedback}
               switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
             />
             <BlueCard>
@@ -58,6 +58,7 @@ const GeneralSettings = () => {
           </>
         ) : null}
         <BlueListItem
+          Component={TouchableWithoutFeedback}
           title={loc.settings.enable_advanced_mode}
           switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeEnabled }}
         />

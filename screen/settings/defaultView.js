@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
 import OnAppLaunch from '../../class/onAppLaunch';
 import { useNavigation } from 'react-navigation-hooks';
@@ -52,6 +52,7 @@ const DefaultView = () => {
       <View>
         <BlueListItem
           title="View All Wallets"
+          Component={TouchableWithoutFeedback}
           switch={{
             onValueChange: onViewAllWalletsSwitchValueChanged,
             value: viewAllWalletsEnabled,

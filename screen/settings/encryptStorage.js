@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
+import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import {
   BlueLoading,
   BlueHeaderDefaultSub,
@@ -141,6 +141,7 @@ export default class EncryptStorage extends Component {
               <BlueHeaderDefaultSub leftText="biometrics" rightComponent={null} />
               <BlueListItem
                 title={`Use ${this.state.biometrics.biometricsType}`}
+                Component={TouchableWithoutFeedback}
                 switch={{ value: this.state.biometrics.isBiometricUseEnabled, onValueChange: this.onUseBiometricSwitch }}
               />
               <BlueCard>
@@ -157,15 +158,20 @@ export default class EncryptStorage extends Component {
             testID="EncyptedAndPasswordProtected"
             hideChevron
             title="Encypted and Password protected"
+            Component={TouchableWithoutFeedback}
             switch={{ onValueChange: this.onEncryptStorageSwitch, value: this.state.storageIsEncrypted }}
           />
           {Platform.OS === 'ios' && this.state.storageIsEncrypted && (
             <BlueListItem
               hideChevron
               disabled={!this.state.storageIsEncrypted}
-              switchDisabled={!this.state.storageIsEncrypted}
               title="Delete if BlueWallet is uninstalled"
-              switch={{ onValueChange: this.onDeleteWalletsAfterUninstallSwitch, value: this.state.deleteWalletsAfterUninstall }}
+              Component={TouchableWithoutFeedback}
+              switch={{
+                onValueChange: this.onDeleteWalletsAfterUninstallSwitch,
+                value: this.state.deleteWalletsAfterUninstall,
+                disabled: !this.state.storageIsEncrypted,
+              }}
             />
           )}
           {this.state.storageIsEncrypted && (
@@ -173,6 +179,7 @@ export default class EncryptStorage extends Component {
               onPress={() => this.props.navigation.navigate('PlausibleDeniability')}
               disabled={!this.state.storageIsEncrypted}
               title={loc.settings.plausible_deniability}
+              chevron
               testID="PlausibleDeniabilityButton"
               Component={TouchableOpacity}
             />
