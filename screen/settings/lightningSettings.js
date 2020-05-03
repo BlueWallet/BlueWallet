@@ -68,10 +68,11 @@ export default class LightningSettings extends Component {
           onPress={() => {
             Linking.openURL('https://github.com/BlueWallet/LndHub');
           }}
+          titleStyle={{ color: BlueApp.settings.buttonAlternativeTextColor }}
           title="github.com/BlueWallet/LndHub"
           color={BlueApp.settings.buttonTextColor}
           buttonStyle={{
-            backgroundColor: '#FFFFFF',
+            backgroundColor: 'transparent',
           }}
         />
 

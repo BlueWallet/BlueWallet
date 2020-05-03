@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Platform, TouchableOpacity } from 'react-native';
+import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, SafeBlueArea, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
@@ -38,12 +38,17 @@ const GeneralSettings = () => {
       <ScrollView>
         {BlueApp.getWallets().length > 1 && (
           <>
-            <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" />
+            <BlueListItem component={TouchableOpacity} onPress={() => navigate('DefaultView')} title="On Launch" chevron />
           </>
         )}
         {Platform.OS === 'ios' ? (
           <>
-            <BlueListItem hideChevron title={'Continuity'} switchButton onSwitch={onHandOffEnabledSwitch} switched={isHandoffUseEnabled} />
+            <BlueListItem
+              hideChevron
+              title={'Continuity'}
+              Component={TouchableWithoutFeedback}
+              switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
+            />
             <BlueCard>
               <BlueText>
                 When enabled, you will be able to view selected wallets, and transactions, using your other Apple iCloud connected devices.
@@ -53,11 +58,9 @@ const GeneralSettings = () => {
           </>
         ) : null}
         <BlueListItem
-          hideChevron
+          Component={TouchableWithoutFeedback}
           title={loc.settings.enable_advanced_mode}
-          switchButton
-          onSwitch={onAdvancedModeSwitch}
-          switched={isAdancedModeEnabled}
+          switch={{ onValueChange: onAdvancedModeSwitch, value: isAdancedModeEnabled }}
         />
         <BlueCard>
           <BlueText>

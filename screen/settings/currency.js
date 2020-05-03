@@ -38,8 +38,13 @@ const Currency = () => {
           extraData={data}
           renderItem={({ item }) => {
             return (
-              <TouchableOpacity
+              <BlueListItem
                 disabled={isSavingNewPreferredCurrency}
+                title={`${item.endPointKey} (${item.symbol})`}
+                {...(selectedCurrency.endPointKey === item.endPointKey
+                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  : { hideChevron: true })}
+                Component={TouchableOpacity}
                 onPress={async () => {
                   setIsSavingNewPreferredCurrency(true);
                   setSelectedCurrency(item);
@@ -47,14 +52,7 @@ const Currency = () => {
                   await currency.startUpdater();
                   setIsSavingNewPreferredCurrency(false);
                 }}
-              >
-                <BlueListItem
-                  title={`${item.endPointKey} (${item.symbol})`}
-                  {...(selectedCurrency.endPointKey === item.endPointKey
-                    ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
-                    : { hideChevron: true })}
-                />
-              </TouchableOpacity>
+              />
             );
           }}
         />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
 import OnAppLaunch from '../../class/onAppLaunch';
 import { useNavigation } from 'react-navigation-hooks';
@@ -52,17 +52,18 @@ const DefaultView = () => {
       <View>
         <BlueListItem
           title="View All Wallets"
-          hideChevron
-          switchButton
-          swithchEnabled={BlueApp.getWallets().length > 0}
-          switched={viewAllWalletsEnabled}
-          onSwitch={onViewAllWalletsSwitchValueChanged}
+          Component={TouchableWithoutFeedback}
+          switch={{
+            onValueChange: onViewAllWalletsSwitchValueChanged,
+            value: viewAllWalletsEnabled,
+            disabled: BlueApp.getWallets().length <= 0,
+          }}
         />
         <BlueCard>
           <BlueText>When disabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
         </BlueCard>
         {!viewAllWalletsEnabled && (
-          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} />
+          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
         )}
       </View>
     </SafeBlueArea>

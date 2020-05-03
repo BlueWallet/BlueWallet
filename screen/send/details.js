@@ -655,10 +655,8 @@ export default class SendDetails extends Component {
             {this.state.fromWallet.type === HDSegwitBech32Wallet.type && (
               <BlueListItem
                 title="Allow Fee Bump"
-                hideChevron
-                switchButton
-                switched={this.state.isTransactionReplaceable}
-                onSwitch={this.onReplaceableFeeSwitchValueChanged}
+                Component={TouchableWithoutFeedback}
+                switch={{ value: this.state.isTransactionReplaceable, onValueChange: this.onReplaceableFeeSwitchValueChanged }}
               />
             )}
             {this.state.fromWallet.type === WatchOnlyWallet.type &&

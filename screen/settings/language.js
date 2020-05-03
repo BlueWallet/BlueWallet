@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { FlatList } from 'react-native';
 import { BlueLoading, BlueText, SafeBlueArea, BlueListItem, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
@@ -56,22 +56,19 @@ export default class Language extends Component {
 
   renderItem = ({ item }) => {
     return (
-      <TouchableOpacity
+      <BlueListItem
         onPress={() => {
           console.log('setLanguage', item.value);
           loc.saveLanguage(item.value);
           return this.setState({ language: item.value });
         }}
-      >
-        <BlueListItem
-          title={item.label}
-          {...(this.state.language === item.value
-            ? {
-                rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
-              }
-            : { hideChevron: true })}
-        />
-      </TouchableOpacity>
+        title={item.label}
+        {...(this.state.language === item.value
+          ? {
+              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+            }
+          : { hideChevron: true })}
+      />
     );
   };
 

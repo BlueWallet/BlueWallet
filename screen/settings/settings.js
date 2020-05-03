@@ -16,14 +16,26 @@ const Settings = () => {
     <BlueLoading />
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-      <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
       <ScrollView>
-        <BlueListItem title={'General'} component={TouchableOpacity} onPress={() => navigate('GeneralSettings')} />
-        <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} />
-        <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} />
-        <BlueListItem title="Security" onPress={() => navigate('EncryptStorage')} component={TouchableOpacity} testID="SecurityButton" />
-        <BlueListItem title="Network" component={TouchableOpacity} onPress={() => navigate('NetworkSettings')} />
-        <BlueListItem title={loc.settings.about} component={TouchableOpacity} onPress={() => navigate('About')} testID="AboutButton" />
+        <BlueHeaderDefaultSub leftText={loc.settings.header} rightComponent={null} />
+        <BlueListItem title={'General'} component={TouchableOpacity} onPress={() => navigate('GeneralSettings')} chevron />
+        <BlueListItem title={loc.settings.currency} component={TouchableOpacity} onPress={() => navigate('Currency')} chevron />
+        <BlueListItem title={loc.settings.language} component={TouchableOpacity} onPress={() => navigate('Language')} chevron />
+        <BlueListItem
+          title="Security"
+          onPress={() => navigate('EncryptStorage')}
+          component={TouchableOpacity}
+          testID="SecurityButton"
+          chevron
+        />
+        <BlueListItem title="Network" component={TouchableOpacity} onPress={() => navigate('NetworkSettings')} chevron />
+        <BlueListItem
+          title={loc.settings.about}
+          component={TouchableOpacity}
+          onPress={() => navigate('About')}
+          testID="AboutButton"
+          chevron
+        />
       </ScrollView>
     </SafeBlueArea>
   );

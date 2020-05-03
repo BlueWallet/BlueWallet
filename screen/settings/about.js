@@ -133,6 +133,7 @@ const About = () => {
             type: 'font-awesome',
             color: '#9AA0AA',
           }}
+          chevron
           onPress={handleOnReleaseNotesPress}
           title="Release notes"
         />
@@ -142,6 +143,7 @@ const About = () => {
             type: 'octicon',
             color: 'black',
           }}
+          chevron
           onPress={handleOnLicensingPress}
           title="MIT License"
         />
@@ -151,6 +153,7 @@ const About = () => {
             type: 'font-awesome',
             color: '#FC0D44',
           }}
+          chevron
           onPress={handleOnSelfTestPress}
           title="Run self test"
           testID="RunSelfTestButton"
