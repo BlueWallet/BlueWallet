@@ -726,7 +726,6 @@ export default class SendDetails extends Component {
 
   onPayjoinSwitchValueChanged = value => {
     this.setState({ isPayjoinEnabled: value });
-    console.log({ isPayjoinEnabled: value });
   };
 
   renderCreateButton = () => {
