@@ -56,7 +56,11 @@ export default class Confirm extends Component {
     this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
 
-  broadcast() {
+  send() {
+    this.broadcast(this.state.tx);
+  }
+
+  broadcast(tx) {
     this.setState({ isLoading: true }, async () => {
       try {
         await BlueElectrum.ping();
@@ -69,7 +73,7 @@ export default class Confirm extends Component {
           }
         }
 
-        let result = await this.state.fromWallet.broadcastTx(this.state.tx);
+        let result = await this.state.fromWallet.broadcastTx(tx);
         if (!result) {
           throw new Error(`Broadcast failed`);
         } else {
@@ -193,7 +197,7 @@ export default class Confirm extends Component {
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
-                <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
+                <BlueButton onPress={() => this.send()} title={loc.send.confirm.sendNow} />
               )}
 
               <TouchableOpacity
