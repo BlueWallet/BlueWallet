@@ -2,6 +2,9 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-elements';
+import { Psbt } from 'bitcoinjs-lib';
+import { PayjoinClient } from 'payjoin-client';
+import PayjoinWallet from '../../class/payjoin-wallet';
 import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
@@ -62,7 +65,14 @@ export default class Confirm extends Component {
       // this.broadcast(this.state.tx);
     } else {
       console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
-      // payjoin
+      console.log(this.state.psbt.toBase64());
+      const broadcastStub = tx => console.log('Broadcasting payjoin transaction', tx);
+      const wallet = new PayjoinWallet(this.state.psbt, broadcastStub);
+      const payjoinClient = new PayjoinClient({
+        wallet,
+        payjoinUrl: this.state.payjoinUrl,
+      });
+      payjoinClient.run();
     }
   }
 
