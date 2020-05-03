@@ -817,13 +817,14 @@ export default class SendDetails extends Component {
                 transactions[index].amount = recipient.amount;
                 this.setState({ addresses: transactions, memo: memo, fee, feeSliderValue, isLoading: false });
               } catch (_e) {
-                const { address, amount, memo } = this.decodeBitcoinUri(text);
+                const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(text);
                 item.address = address || text;
                 item.amount = amount || item.amount;
                 transactions[index] = item;
                 this.setState({
                   addresses: transactions,
                   memo: memo || this.state.memo,
+                  payjoinUrl,
                   isLoading: false,
                   bip70TransactionExpiration: null,
                 });
@@ -954,6 +955,7 @@ export default class SendDetails extends Component {
                 <Switch
                   value={this.state.isPayjoinEnabled}
                   onValueChange={this.onPayjoinSwitchValueChanged}
+                  disabled={!this.state.payjoinUrl}
                 />
               </View>
 
