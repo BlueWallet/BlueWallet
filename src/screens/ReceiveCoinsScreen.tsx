@@ -180,14 +180,16 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
           unit={wallet.preferredBalanceUnit}
         />
         <View style={styles.qrcontainer}>
-          <QRCode
-            value={bip21encoded}
-            size={130}
-            color={BlueApp.settings.foregroundColor}
-            logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
-            getRef={c => (this.qrCodeSVG = c)}
-          />
+          {!!bip21encoded && (
+            <QRCode
+              value={bip21encoded.replace('bitcoin:', '')}
+              size={130}
+              color={BlueApp.settings.foregroundColor}
+              logoBackgroundColor={BlueApp.settings.brandingColor}
+              ecl={'H'}
+              getRef={c => (this.qrCodeSVG = c)}
+            />
+          )}
         </View>
         <Text style={styles.address}>{addressText}</Text>
         <Text style={styles.inputTitle}>{i18n.receive.details.receiveWithAmount}</Text>
