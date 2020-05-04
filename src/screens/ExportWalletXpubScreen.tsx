@@ -9,11 +9,14 @@ import { CopyButton } from 'app/components/CopyButton';
 import { Wallet } from 'app/consts';
 import { typography } from 'app/styles';
 
+import { WatchOnlyWallet } from '../../class';
+
 const i18n = require('../../loc');
 
 export const ExportWalletXpubScreen = () => {
   const wallet: Wallet = useNavigationParam('wallet');
-  const xpub = wallet.getXpub();
+  const isWatchOnlyWallet = wallet.type === WatchOnlyWallet.type;
+  const xpub = isWatchOnlyWallet ? wallet.secret : wallet.getXpub();
 
   return (
     <ScreenTemplate>

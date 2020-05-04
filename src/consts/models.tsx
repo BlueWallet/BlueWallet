@@ -44,6 +44,7 @@ export interface Wallet {
   getXpub: () => string;
   address: string;
   secret: string;
+  type: string;
   typeReadable: string;
 }
 

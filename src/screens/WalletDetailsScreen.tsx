@@ -15,6 +15,8 @@ import {
 import { Wallet, Route } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
+import { WatchOnlyWallet } from '../../class';
+
 const i18n = require('../../loc');
 
 type Props = NavigationInjectedProps<{ wallet: Wallet }>;
@@ -56,12 +58,13 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
 
   render() {
     const wallet = this.props.navigation.getParam('wallet');
+    const isWatchOnly = wallet.type === WatchOnlyWallet.type;
     const { label } = this.state;
     return (
       <ScreenTemplate
         footer={
           <>
-            <Button onPress={this.navigateToWalletExport} title={i18n.wallets.details.exportWallet} />
+            {!isWatchOnly && <Button onPress={this.navigateToWalletExport} title={i18n.wallets.details.exportWallet} />}
             <Button
               onPress={this.navigateToWalletXpub}
               title={i18n.wallets.details.showWalletXPUB}
