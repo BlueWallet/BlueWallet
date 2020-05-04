@@ -12,6 +12,7 @@ export interface TransactionItemProps {
   time: number;
   walletPreferredBalanceUnit: string;
   value: number;
+  note: string;
 }
 
 export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps; onPress: (item: any) => void }) => {
@@ -24,6 +25,7 @@ export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps;
         <Text style={typography.headline5} numberOfLines={1}>
           {item.walletLabel === 'All wallets' ? i18n.transactions.details.noLabel : item.walletLabel}
         </Text>
+        {!!item.note && <Text style={typography.caption}>{item.note}</Text>}
         <Text style={styles.label}>{confirmations()}</Text>
         <Text style={styles.label}>{moment.unix(item.time).format('LT')}</Text>
       </View>
@@ -43,7 +45,6 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: 58,
     marginVertical: 8,
   },
   label: {

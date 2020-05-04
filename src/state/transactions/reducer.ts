@@ -17,7 +17,7 @@ export const transactionsReducer = (state = initialState, action: TransactionsAc
         ...state,
         transactions: {
           ...state.transactions,
-          [action.transaction.hash]: action.transaction,
+          [action.transaction.txid]: action.transaction,
         },
       };
     case TransactionsAction.UpdateTransaction:
@@ -25,12 +25,12 @@ export const transactionsReducer = (state = initialState, action: TransactionsAc
         ...state,
         transactions: {
           ...state.transactions,
-          [action.transaction.hash]: action.transaction,
+          [action.transaction.txid]: action.transaction,
         },
       };
     case TransactionsAction.DeleteTransaction:
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [action.transaction.hash]: deleted, ...transactions } = state.transactions;
+      const { [action.transaction.txid]: deleted, ...transactions } = state.transactions;
       return {
         ...state,
         transactions,

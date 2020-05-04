@@ -56,6 +56,7 @@ export interface Contact {
 
 export interface Transaction {
   hash: string;
+  txid: string;
   value: number;
   time: number;
   walletLabel: string;

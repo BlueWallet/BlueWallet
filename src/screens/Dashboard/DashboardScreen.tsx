@@ -10,7 +10,7 @@ import { typography, palette } from 'app/styles';
 import BlueApp from '../../../BlueApp';
 import EV from '../../../events';
 import { DashboardHeader } from './DashboardHeader';
-import { TransactionList } from './TransactionList';
+import TransactionList from './TransactionList';
 import { WalletsCarousel } from './WalletsCarousel';
 
 const BlueElectrum = require('../../../BlueElectrum');
@@ -227,7 +227,6 @@ export class DashboardScreen extends Component<Props, State> {
   renderTransactionList = () => {
     const { wallets, lastSnappedTo, dataSource } = this.state;
     const activeWallet = wallets[lastSnappedTo];
-
     if (activeWallet.label !== 'All wallets') {
       // eslint-disable-next-line prettier/prettier
       return activeWallet.transactions?.length ? (
