@@ -1,1 +1,1 @@
-bitcoin,wallet,segwit,crypto,blockchain,btc,cryptocurrency,wallet,bread,samourai,lightning,ethereum
+bitcoin,wallet,bitcoin wallet,blockchain,btc,cryptocurrency,buy bitcoin,samourai,electrum,ethereum
