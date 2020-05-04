@@ -35,6 +35,10 @@ export class InputItem extends PureComponent<Props, State> {
     if (onFocus) {
       return onFocus();
     }
+    this.animateFocus();
+  };
+
+  animateFocus = () => {
     this.setState({
       isActive: true,
     });
@@ -60,7 +64,7 @@ export class InputItem extends PureComponent<Props, State> {
 
   componentDidUpdate() {
     if (this.props.value) {
-      this.onFocus();
+      this.animateFocus();
     }
   }
 
