@@ -4,11 +4,9 @@ const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');
 const HDNode = require('bip32');
 
-// This type of wallet should only accept a valid standard prefix
+const PREFIX = mn.PREFIXES.standard;
 const MNEMONIC_TO_SEED_OPTS = {
-  validPrefixes: [
-    mn.PREFIXES.standard,
-  ],
+  prefix: PREFIX,
 };
 
 /**
@@ -22,13 +20,7 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   static typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
 
   validateMnemonic() {
-    try {
-      // This type of wallet should only accept a valid standard prefix
-      mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS);
-      return true;
-    } catch (_) {
-      return false;
-    }
+    return mn.validateMnemonic(this.secret, PREFIX);
   }
 
   async generate() {
