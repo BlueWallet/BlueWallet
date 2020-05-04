@@ -11,6 +11,7 @@ import {
   PlaceholderWallet,
   SegwitBech32Wallet,
   HDLegacyElectrumSeedP2PKHWallet,
+  HDSegwitElectrumSeedP2WPKHWallet,
 } from '../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const EV = require('../events');
@@ -203,6 +204,15 @@ export default class WalletImport {
           return WalletImport._saveWallet(hd1);
         }
       }
+
+      try {
+        let hdElectrumSeedLegacy = new HDSegwitElectrumSeedP2WPKHWallet();
+        hdElectrumSeedLegacy.setSecret(importText);
+        if (await hdElectrumSeedLegacy.wasEverUsed()) {
+          // not fetching txs or balances, fuck it, yolo, life is too short
+          return WalletImport._saveWallet(hdElectrumSeedLegacy);
+        }
+      } catch (_) {}
 
       try {
         let hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();

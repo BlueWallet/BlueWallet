@@ -7,6 +7,10 @@ describe('HDLegacyElectrumSeedP2PKHWallet', () => {
     let hd = new HDLegacyElectrumSeedP2PKHWallet();
     hd.setSecret('receive happy  wash prosper update    pet neck acid try profit proud hungry  ');
     assert.ok(hd.validateMnemonic());
+    assert.strictEqual(
+      hd.getXpub(),
+      'xpub661MyMwAqRbcG6vx5SspHUzrhRtPKyeGp41JJLBi3kgeMCFkR6mzGkhEttBHTZg6FYYij52pqD2cW7XsutiZrRukXNLqeo87mZAV5k5bC22',
+    );
 
     let address = hd._getExternalAddressByIndex(0);
     assert.strictEqual(address, '1Ca9ZVshGdKiiMEMNTG1bYqbifYMZMwV8');

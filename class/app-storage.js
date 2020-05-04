@@ -12,6 +12,7 @@ import {
   PlaceholderWallet,
   LightningCustodianWallet,
   HDLegacyElectrumSeedP2PKHWallet,
+  HDSegwitElectrumSeedP2WPKHWallet,
 } from './';
 import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quickActions';
@@ -265,6 +266,9 @@ export class AppStorage {
               break;
             case HDLegacyElectrumSeedP2PKHWallet.type:
               unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key);
+              break;
+            case HDSegwitElectrumSeedP2WPKHWallet.type:
+              unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key);
               break;
             case LightningCustodianWallet.type:
               /** @type {LightningCustodianWallet} */
