@@ -4,6 +4,11 @@ const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');
 const HDNode = require('bip32');
 
+const PREFIX = mn.PREFIXES.standard;
+const MNEMONIC_TO_SEED_OPTS = {
+  prefix: PREFIX,
+};
+
 /**
  * ElectrumSeed means that instead of BIP39 seed format it works with the format invented by Electrum wallet. Otherwise
  * its a regular HD wallet that has all the properties of parent class.
@@ -15,12 +20,7 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   static typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
 
   validateMnemonic() {
-    try {
-      mn.mnemonicToSeedSync(this.secret);
-      return true;
-    } catch (_) {
-      return false;
-    }
+    return mn.validateMnemonic(this.secret, PREFIX);
   }
 
   async generate() {
@@ -31,8 +31,8 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret));
-    this._xpub = root.toBase58();
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
+    this._xpub = root.neutered().toBase58();
     return this._xpub;
   }
 
@@ -61,7 +61,7 @@ export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
   }
 
   _getWIFByIndex(internal, index) {
-    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret));
+    const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
     const path = `m/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
