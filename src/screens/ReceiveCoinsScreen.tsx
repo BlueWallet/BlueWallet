@@ -6,6 +6,7 @@ import Share from 'react-native-share';
 import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { Header, ScreenTemplate, Button } from 'app/components';
+import { CopyButton } from 'app/components/CopyButton';
 import { Transaction, Route } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
@@ -192,6 +193,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
           )}
         </View>
         <Text style={styles.address}>{addressText}</Text>
+        <CopyButton textToCopy={addressText} />
         <Text style={styles.inputTitle}>{i18n.receive.details.receiveWithAmount}</Text>
         <View style={styles.amountInput}>
           <Text style={styles.amount} onPress={this.editAmount}>
@@ -209,7 +211,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
   },
-  address: { ...typography.headline9, alignSelf: 'center', marginVertical: 30 },
+  address: { ...typography.headline9, alignSelf: 'center', marginTop: 30 },
   inputTitle: { ...typography.headline4, alignSelf: 'center', marginVertical: 20 },
   amountInput: { width: '100%', borderBottomColor: palette.grey, borderBottomWidth: 1, paddingBottom: 10 },
   amount: { ...typography.caption, color: palette.textGrey },
