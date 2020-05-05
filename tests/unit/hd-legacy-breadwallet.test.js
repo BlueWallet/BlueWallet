@@ -3,6 +3,10 @@ import { HDLegacyBreadwalletWallet } from '../../class';
 const assert = require('assert');
 
 it('Legacy HD Breadwallet works', async () => {
+  if (!process.env.HD_MNEMONIC_BREAD) {
+    console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
+    return;
+  }
   let hdBread = new HDLegacyBreadwalletWallet();
   hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
 
