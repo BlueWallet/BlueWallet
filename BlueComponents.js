@@ -734,31 +734,31 @@ export class BlueHeaderDefaultMain extends Component {
       <SafeAreaView style={{ backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
           {...this.props}
-          backgroundColor={BlueApp.settings.brandingColor}
           statusBarProps={{ barStyle: 'default' }}
-          leftContainerStyle={{ minWidth: '100%' }}
-          leftComponent={
-            <Text
-              numberOfLines={0}
-              style={{
-                fontWeight: 'bold',
-                fontSize: 34,
-                color: BlueApp.settings.foregroundColor,
-              }}
-            >
-              {
-                // eslint-disable-next-line
-                this.props.leftText
-              }
-            </Text>
-          }
+          leftComponent={{
+            // eslint-disable-next-line
+              text: this.props.leftText,
+            style: {
+              fontWeight: 'bold',
+              fontSize: 34,
+              color: BlueApp.settings.foregroundColor,
+            },
+          }}
+          leftContainerStyle={{
+            minWidth: '70%',
+          }}
+          bottomDivider={false}
+          containerStyle={{
+            backgroundColor: BlueApp.settings.brandingColor,
+            justifyContent: 'space-around',
+            borderBottomColor: BlueApp.settings.brandingColor,
+          }}
           rightComponent={
             this.props.onNewWalletPress && (
               <TouchableOpacity
                 onPress={this.props.onNewWalletPress}
                 style={{
                   height: 48,
-                  alignSelf: 'flex-end',
                 }}
               >
                 <BluePlusIcon />
