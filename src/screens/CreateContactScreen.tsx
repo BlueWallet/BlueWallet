@@ -42,7 +42,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
   setAddress = (address: string) => this.setState({ address });
 
   onBarCodeScan = (address: string) => {
-    this.setAddress(address.substr(8));
+    this.setAddress(address.replace('bitcoin:', ''));
   };
 
   createContact = () => {
