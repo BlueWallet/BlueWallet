@@ -111,12 +111,12 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
     });
   };
 
-  updateAmount = (amount: number) => {
+  updateAmount = (amount: string) => {
     const bip21encoded = bip21.encode(this.state.address, {
-      amount,
+      amount: amount.replace(',', '.'),
     });
     this.setState({
-      amount,
+      amount: parseFloat(amount.replace(',', '.')),
       bip21encoded,
     });
   };
@@ -126,7 +126,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
       title: i18n.receive.header,
       label: i18n.receive.details.amount,
       onSave: this.updateAmount,
-      value: this.state.amount,
+      value: this.state.amount.toString(),
     });
   };
 

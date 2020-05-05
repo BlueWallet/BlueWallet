@@ -538,8 +538,7 @@ export class SendCoinsScreen extends Component<Props, State> {
           label="Amount"
           suffix="BTCV"
           keyboardType="numeric"
-          // setValue={amount => this.setState({ amount })}
-          value={item.amount ? item.amount.toString() : null}
+          value={item.amount ? item.amount.toString().replace(',', '.') : null}
           setValue={text => {
             item.amount = text;
             const transactions = this.state.addresses;
@@ -600,9 +599,20 @@ export class SendCoinsScreen extends Component<Props, State> {
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
   processAddressData = (data: string) => {
+    const regex = /[?&]([^=#]+)=([^&#]*)/g;
+    const solvedData = regex.exec(data);
+    let address, amount;
+    if (!solvedData) {
+      address = data;
+      amount = this.state.addresses[0].amount;
+    } else {
+      const [param, _, value] = solvedData;
+      address = data.replace(param, '');
+      amount = value;
+    }
     const newAddresses = {
-      address: data,
-      amount: this.state.addresses[0].amount,
+      address,
+      amount,
     };
     this.setState({
       addresses: [newAddresses],
