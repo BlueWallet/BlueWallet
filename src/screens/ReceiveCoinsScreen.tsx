@@ -127,6 +127,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
       title: i18n.receive.header,
       label: i18n.receive.details.amount,
       onSave: this.updateAmount,
+      keyboardType: 'numeric',
       value: this.state.amount.toString(),
     });
   };
