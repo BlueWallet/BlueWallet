@@ -1,12 +1,3 @@
-import crypto from 'crypto';
-import { promisify } from 'util';
-
-jest.mock('../random', () => {
-  return {
-    randomBytes: jest.fn(size => promisify(crypto.randomBytes)(size)),
-  };
-});
-
 jest.mock('react-native-watch-connectivity', () => {
   return {
     getIsWatchAppInstalled: jest.fn(),
