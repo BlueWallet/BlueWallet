@@ -75,10 +75,6 @@ export class LegacyWallet extends AbstractWallet {
     });
   }
 
-  /**
-   *
-   * @returns {string}
-   */
   getAddress() {
     if (this._address) return this._address;
     let address;
