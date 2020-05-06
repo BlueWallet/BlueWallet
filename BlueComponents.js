@@ -80,23 +80,3 @@ export class BlueText extends Component {
     );
   }
 }
-export class BlueTextCentered extends Component {
-  render() {
-    return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center' }} />;
-  }
-}
-
-export class BlueHeader extends Component {
-  render() {
-    return (
-      <Header
-        {...this.props}
-        backgroundColor="transparent"
-        outerContainerStyles={{
-          borderBottomColor: 'transparent',
-          borderBottomWidth: 0,
-        }}
-      />
-    );
-  }
-}

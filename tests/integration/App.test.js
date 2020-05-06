@@ -1,8 +1,6 @@
 /* global describe, it, expect, jest, jasmine */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 
-import { BlueHeader } from '../../BlueComponents';
 import { LegacyWallet, SegwitP2SHWallet } from '../../class';
 
 global.net = require('net');
@@ -43,11 +41,6 @@ describe('unit - LegacyWallet', function() {
     assert.ok(!w.isAddressValid('RPuRPTc9o6DMLsESyhDSkPoinH4JX1RG24'));
     assert.ok(!w.isAddressValid('12345'));
   });
-});
-
-it('BlueHeader works', () => {
-  const rendered = TestRenderer.create(<BlueHeader />).toJSON();
-  expect(rendered).toBeTruthy();
 });
 
 it('SegwitP2SHWallet can generate segwit P2SH address from WIF', async () => {

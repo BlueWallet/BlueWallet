@@ -1,17 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
-import {
-  Linking,
-  DeviceEventEmitter,
-  AppState,
-  Clipboard,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-} from 'react-native';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import Modal from 'react-native-modal';
+import { Linking, DeviceEventEmitter, AppState, Clipboard, View } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { createAppContainer, NavigationActions } from 'react-navigation';
 import { Provider } from 'react-redux';
@@ -22,7 +11,6 @@ import { RootNavigator } from 'app/navigators';
 import { NavigationService } from 'app/services';
 import { persistor, store } from 'app/state/store';
 
-import { BlueTextCentered, BlueButton } from './BlueComponents';
 import OnAppLaunch from './class/onAppLaunch';
 import { Chain } from './models/bitcoinUnits';
 
@@ -36,7 +24,6 @@ const bitcoin = require('bitcoinjs-lib');
 
 const bitcoinModalString = 'Bitcoin address';
 const BlueApp = require('./BlueApp');
-const loc = require('./loc');
 
 const AppContainer = createAppContainer(RootNavigator);
 
@@ -171,12 +158,6 @@ export default class App extends React.Component {
     return isValidBitcoinAddress;
   }
 
-  isSafelloRedirect(event) {
-    let urlObject = url.parse(event.url, true); // eslint-disable-line
-
-    return !!urlObject.query['safello-state-token'];
-  }
-
   handleOpenURL = event => {
     if (event.url === null) {
       return;
@@ -197,50 +178,6 @@ export default class App extends React.Component {
     }
   };
 
-  renderClipboardContentModal = () => {
-    return (
-      <Modal
-        onModalShow={() =>
-          ReactNativeHapticFeedback.trigger('impactLight', {
-            ignoreAndroidSystemSettings: false,
-          })
-        }
-        isVisible={this.state.isClipboardContentModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          this.setState({ isClipboardContentModalVisible: false });
-        }}
-      >
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
-          <View style={styles.modalContent}>
-            <BlueTextCentered>
-              You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a
-              transaction?
-            </BlueTextCentered>
-            <View style={styles.modelContentButtonLayout}>
-              <BlueButton
-                noMinWidth
-                title={loc.send.details.cancel}
-                onPress={() => this.setState({ isClipboardContentModalVisible: false })}
-              />
-              <View style={{ marginHorizontal: 8 }} />
-              <BlueButton
-                noMinWidth
-                title="OK"
-                onPress={() => {
-                  this.setState({ isClipboardContentModalVisible: false }, async () => {
-                    const clipboard = await Clipboard.getString();
-                    setTimeout(() => this.handleOpenURL({ url: clipboard }), 100);
-                  });
-                }}
-              />
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
-    );
-  };
-
   render() {
     return (
       <Provider store={store}>
@@ -252,34 +189,9 @@ export default class App extends React.Component {
                 NavigationService.setTopLevelNavigator(nav);
               }}
             />
-            {this.renderClipboardContentModal()}
           </View>
         </PersistGate>
       </Provider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  modelContentButtonLayout: {
-    flexDirection: 'row',
-    margin: 16,
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-  },
-});
