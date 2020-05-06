@@ -1,25 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, KeyboardType } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Header, InputItem, Button, ScreenTemplate } from 'app/components';
 
-type KeyboardType =
-  | 'default'
-  | 'email-address'
-  | 'numeric'
-  | 'phone-pad'
-  | 'number-pad'
-  | 'decimal-pad'
-  | 'visible-password'
-  | 'ascii-capable'
-  | 'numbers-and-punctuation'
-  | 'url'
-  | 'name-phone-pad'
-  | 'twitter'
-  | 'web-search'
-  | undefined;
 export interface EditTextProps {
   title: string;
   onSave: (value: string) => void;

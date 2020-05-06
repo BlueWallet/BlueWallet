@@ -608,7 +608,6 @@ export class SendCoinsScreen extends Component<Props, State> {
     } else {
       address = data.split('?')[0].replace('bitcoin:', '');
       const [param, paramName, value] = solvedData;
-      console.log([param, paramName, value]);
       if (paramName === 'amount') {
         amount = value;
       } else {
