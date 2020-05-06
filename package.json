@@ -144,6 +144,7 @@
     "wif": "2.0.6"
   },
   "react-native": {
+    "crypto": "blue_modules/crypto",
     "path": "path-browserify",
     "fs": "react-native-level-fs",
     "_stream_transform": "readable-stream/transform",
