@@ -737,7 +737,7 @@ export class BlueHeaderDefaultMain extends Component {
           statusBarProps={{ barStyle: 'default' }}
           leftComponent={{
             // eslint-disable-next-line
-              text: this.props.leftText,
+            text: this.props.leftText,
             style: {
               fontWeight: 'bold',
               fontSize: 34,
@@ -746,19 +746,21 @@ export class BlueHeaderDefaultMain extends Component {
           }}
           leftContainerStyle={{
             minWidth: '70%',
+            height: 70,
           }}
           bottomDivider={false}
           containerStyle={{
-            backgroundColor: BlueApp.settings.brandingColor,
-            justifyContent: 'space-around',
+            height: 48,
+            flexDirection: 'row',
             borderBottomColor: BlueApp.settings.brandingColor,
+            backgroundColor: '#ffffff'
           }}
           rightComponent={
             this.props.onNewWalletPress && (
               <TouchableOpacity
                 onPress={this.props.onNewWalletPress}
                 style={{
-                  height: 48,
+                  height: 90,
                 }}
               >
                 <BluePlusIcon />
