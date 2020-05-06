@@ -591,9 +591,8 @@ export class BlueListItem extends Component {
           color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.foregroundColor,
           fontSize: 16,
           fontWeight: '500',
-          marginLeft: 16,
         }}
-        subtitleStyle={{ color: BlueApp.settings.alternativeTextColor, marginLeft: 16, fontWeight: '400', width: 230 }}
+        subtitleStyle={{ color: BlueApp.settings.alternativeTextColor, fontWeight: '400', width: 230 }}
         subtitleNumberOfLines={1}
         titleNumberOfLines={0}
         Component={TouchableOpacity}
