@@ -17,7 +17,9 @@ export const ExportWalletScreen = () => {
   return (
     <ScreenTemplate>
       <Text style={styles.title}>{i18n.wallets.exportWallet.title}</Text>
-      <View style={styles.qrCodeContainer}>{secret && <QRCode value={secret} size={140} ecl={'H'} />}</View>
+      <View style={styles.qrCodeContainer}>
+        {secret && <QRCode quietZone={10} value={secret} size={140} ecl={'H'} />}
+      </View>
       <View style={styles.mnemonicPhraseContainer}>
         {secret.split(' ').map((secret, index) => (
           <Chip key={index.toString()} label={`${index + 1}. ${secret}`} />

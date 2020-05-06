@@ -36,7 +36,7 @@ export class ContactQRCodeScreen extends React.PureComponent<Props> {
       <ScreenTemplate footer={<Button onPress={this.openShareDialog} title={i18n.contactDetails.share} />}>
         <ContactAvatar name={contact.name} />
         <View style={styles.qrCodeContainer}>
-          <QRCode value={contact.address} size={140} ecl={'H'} getRef={ref => (this.qrCodeSVG = ref)} />
+          <QRCode quietZone={10} value={contact.address} size={140} ecl={'H'} getRef={ref => (this.qrCodeSVG = ref)} />
         </View>
         <Text style={styles.address}>{contact.address}</Text>
       </ScreenTemplate>

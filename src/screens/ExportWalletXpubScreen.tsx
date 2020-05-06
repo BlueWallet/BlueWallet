@@ -22,7 +22,7 @@ export const ExportWalletXpubScreen = () => {
     <ScreenTemplate>
       <Text style={styles.title}>{wallet.label}</Text>
       <View style={styles.qrCodeContainer}>
-        <QRCode value={xpub} size={140} ecl={'H'} />
+        <QRCode quietZone={10} value={xpub} size={140} ecl={'H'} />
       </View>
       <Text style={styles.xpub}>{xpub}</Text>
       <CopyButton textToCopy={xpub} />

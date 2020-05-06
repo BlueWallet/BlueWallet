@@ -183,8 +183,9 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
         <View style={styles.qrcontainer}>
           {!!bip21encoded && (
             <QRCode
+              quietZone={10}
               value={bip21encoded.replace('bitcoin:', '')}
-              size={130}
+              size={140}
               color={BlueApp.settings.foregroundColor}
               logoBackgroundColor={BlueApp.settings.brandingColor}
               ecl={'H'}
