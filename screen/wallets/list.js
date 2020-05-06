@@ -265,7 +265,7 @@ export default class WalletsList extends Component {
       <View>
         <Text
           style={{
-            paddingLeft: 15,
+            paddingLeft: 16,
             fontWeight: 'bold',
             fontSize: 24,
             marginVertical: 8,
@@ -333,7 +333,7 @@ export default class WalletsList extends Component {
             justifyContent: 'space-between',
             alignItems: 'center',
             marginHorizontal: 16,
-            marginBottom: 16,
+            marginVertical: 16,
             backgroundColor: '#eef0f4',
             padding: 16,
             borderRadius: 6,
