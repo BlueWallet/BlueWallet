@@ -753,7 +753,7 @@ export class BlueHeaderDefaultMain extends Component {
             height: 48,
             flexDirection: 'row',
             borderBottomColor: BlueApp.settings.brandingColor,
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
           }}
           rightComponent={
             this.props.onNewWalletPress && (
