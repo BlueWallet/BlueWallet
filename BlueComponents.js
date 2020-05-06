@@ -750,7 +750,7 @@ export class BlueHeaderDefaultMain extends Component {
           }}
           bottomDivider={false}
           containerStyle={{
-            height: 48,
+            height: 64,
             flexDirection: 'row',
             borderBottomColor: BlueApp.settings.brandingColor,
             backgroundColor: '#ffffff',
