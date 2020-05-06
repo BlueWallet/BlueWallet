@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { NavigationInjectedProps } from 'react-navigation';
+import { View, Text, StyleSheet, InteractionManager, RefreshControl } from 'react-native';
+import { NavigationEvents, NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
-import { ListEmptyState, WalletCard, ScreenTemplate, Header, SearchBar, StyledText } from 'app/components';
-import { Wallet, Route, Transaction, CONST, Filters } from 'app/consts';
-import { isAllWallets } from 'app/helpers/helpers';
-import { SecureStorageService } from 'app/services';
+import { images } from 'app/assets';
+import { ListEmptyState, Image, WalletCard, ScreenTemplate, Header } from 'app/components';
+import { Wallet, Route, Transaction } from 'app/consts';
 import { ApplicationState } from 'app/state';
-import { loadTransactions, TransactionsActionType } from 'app/state/transactions/actions';
-import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
+import { typography, palette } from 'app/styles';
 
 import { DashboarContentdHeader } from './DashboarContentdHeader';
 import { DashboardHeader } from './DashboardHeader';
@@ -20,26 +18,20 @@ const i18n = require('../../../loc');
 
 interface Props extends NavigationInjectedProps {
   wallets: Wallet[];
-  transactions: Record<string, Transaction[]>;
-  allTransactions: Transaction[];
-  transactionNotes: Record<string, string>;
-  isInitialized: boolean;
-  loadWallets: () => Promise<WalletsActionType>;
-  loadTransactions: (walletAddress: string) => Promise<TransactionsActionType>;
+  transactions: Transaction[];
+  isLoading: boolean;
 }
 
 interface State {
-  isFetching: boolean;
-  filters: Filters;
-  query: string;
-  contentdHeaderHeight: number;
+  isFlatListRefreshControlHidden: boolean;
   lastSnappedTo: number;
 }
 
-class DashboardScreen extends Component<Props, State> {
-  static navigationOptions = () => ({
-    // must be dynamic, as function as language switch stops to work
-    tabBarLabel: i18n.tabNavigator.dashboard,
+export class DashboardScreen extends Component<Props, State> {
+  static navigationOptions = (props: NavigationScreenProps) => ({
+    header: () => (
+      <Header title={i18n.wallets.dashboard.title} addFunction={() => props.navigation.navigate(Route.CreateWallet)} />
+    ),
   });
   state: State = {
     query: '',
@@ -51,13 +43,43 @@ class DashboardScreen extends Component<Props, State> {
     lastSnappedTo: 0,
   };
 
-  walletCarouselRef = React.createRef<WalletsCarousel>();
-  screenTemplateRef = React.createRef<ScreenTemplate>();
-  componentDidMount() {
-    SecureStorageService.getSecuredValue('pin')
-      .then(() => {
-        SecureStorageService.getSecuredValue('transactionPassword').catch(() => {
-          this.props.navigation.navigate(Route.CreateTransactionPassword);
+  state: State = {
+    isFlatListRefreshControlHidden: true,
+    lastSnappedTo: 0,
+  };
+
+  walletCarouselRef = React.createRef();
+
+  refreshTransactions() {
+    if (!(this.state.lastSnappedTo < BlueApp.getWallets().length) && this.state.lastSnappedTo !== undefined) {
+      // last card, nop
+      console.log('last card, nop');
+      return;
+    }
+    this.setState(
+      {
+        isFlatListRefreshControlHidden: false,
+      },
+      () => {
+        InteractionManager.runAfterInteractions(async () => {
+          let noErr = true;
+          try {
+            await BlueElectrum.ping();
+            await BlueElectrum.waitTillConnected();
+            const balanceStart = +new Date();
+            await BlueApp.fetchWalletBalances(this.state.lastSnappedTo || 0);
+            const balanceEnd = +new Date();
+            console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
+            const start = +new Date();
+            await BlueApp.fetchWalletTransactions(this.state.lastSnappedTo || 0);
+            const end = +new Date();
+            console.log('fetch tx took', (end - start) / 1000, 'sec');
+          } catch (err) {
+            noErr = false;
+            console.warn(err);
+          }
+          if (noErr) await BlueApp.saveToDisk(); // caching
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         });
       })
       .catch(() => {
@@ -66,23 +88,68 @@ class DashboardScreen extends Component<Props, State> {
     this.props.loadWallets();
   }
 
-  refreshTransactions = async () => {
-    this.setState({ isFetching: true });
-    await this.props.loadWallets();
-
-    this.setState({ isFetching: false });
+  chooseItemFromModal = async (index: number) => {
+    this.setState({ lastSnappedTo: index });
   };
 
   chooseItemFromModal = (index: number) => {
     this.setState({ lastSnappedTo: index });
   };
 
-  _keyExtractor = (item: Wallet, index: number) => index.toString();
+  async lazyRefreshWallet(index: number) {
+    const wallets = BlueApp.getWallets();
+    if (!wallets[index]) {
+      return;
+    }
+
+    const oldBalance = wallets[index].getBalance();
+    let noErr = true;
+    let didRefresh = false;
+
+    try {
+      if (wallets && wallets[index] && wallets[index].timeToRefreshBalance()) {
+        console.log('snapped to, and now its time to refresh wallet #', index);
+        await wallets[index].fetchBalance();
+        if (oldBalance !== wallets[index].getBalance() || wallets[index].getUnconfirmedBalance() !== 0) {
+          console.log('balance changed, thus txs too');
+          // balance changed, thus txs too
+          await wallets[index].fetchTransactions();
+          EV(EV.enum.WALLETS_COUNT_CHANGED);
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+          didRefresh = true;
+        } else if (wallets[index].timeToRefreshTransaction()) {
+          console.log(wallets[index].getLabel(), 'thinks its time to refresh TXs');
+          await wallets[index].fetchTransactions();
+          if (wallets[index].fetchPendingTransactions) {
+            await wallets[index].fetchPendingTransactions();
+          }
+          if (wallets[index].fetchUserInvoices) {
+            await wallets[index].fetchUserInvoices();
+            await wallets[index].fetchBalance(); // chances are, paid ln invoice was processed during `fetchUserInvoices()` call and altered user's balance, so its worth fetching balance again
+          }
+          EV(EV.enum.WALLETS_COUNT_CHANGED);
+          EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
+          didRefresh = true;
+        } else {
+          console.log('balance not changed');
+        }
+      }
+    } catch (Err) {
+      noErr = false;
+      console.warn(Err);
+    }
+
+    if (noErr && didRefresh) {
+      await BlueApp.saveToDisk(); // caching
+    }
+  }
+
+  _keyExtractor = (_item: Wallet, index: number) => index.toString();
 
   sendCoins = () => {
     const { lastSnappedTo } = this.state;
     const { wallets } = this.props;
-    const activeWallet = isAllWallets(wallets[lastSnappedTo]) ? wallets[1] : wallets[lastSnappedTo];
+    const activeWallet = wallets[lastSnappedTo].label === 'All wallets' ? wallets[1] : wallets[lastSnappedTo];
     this.props.navigation.navigate(Route.SendCoins, {
       fromAddress: activeWallet.getAddress(),
       fromSecret: activeWallet.getSecret(),
@@ -93,7 +160,7 @@ class DashboardScreen extends Component<Props, State> {
   receiveCoins = () => {
     const { lastSnappedTo } = this.state;
     const { wallets } = this.props;
-    const activeWallet = isAllWallets(wallets[lastSnappedTo]) ? wallets[1] : wallets[lastSnappedTo];
+    const activeWallet = wallets[lastSnappedTo].label === 'All wallets' ? wallets[1] : wallets[lastSnappedTo];
     this.props.navigation.navigate(Route.ReceiveCoins, {
       secret: activeWallet.getSecret(),
     });
@@ -109,37 +176,34 @@ class DashboardScreen extends Component<Props, State> {
     });
   };
 
-  setQuery = (query: string) => this.setState({ query });
-
-  scrollToTransactionList = () => {
-    this.screenTemplateRef.current?.scrollRef.current?.scrollTo({
-      x: 0,
-      y: this.state.contentdHeaderHeight + 24,
-      animated: true,
-    });
-  };
-
-  onFilterPress = (filters: any) => {
-    this.setState({ filters: { ...filters, isFilteringOn: true } });
-    this.scrollToTransactionList();
-  };
-
-  resetFilters = () => {
-    this.setState({
-      filters: {
-        isFilteringOn: false,
-      },
-    });
-    this.screenTemplateRef.current?.scrollRef.current?.scrollTo({
-      x: 0,
-      y: 1,
-      animated: true,
-    });
+  renderTransactionList = () => {
+    const { lastSnappedTo } = this.state;
+    const { wallets, transactions } = this.props;
+    const activeWallet = wallets[lastSnappedTo];
+    if (activeWallet.label !== 'All wallets') {
+      // eslint-disable-next-line prettier/prettier
+      return activeWallet.transactions?.length ? (
+        <TransactionList data={activeWallet.transactions} label={activeWallet.label} />
+      ) : (
+        <View style={styles.noTransactionsContainer}>
+          <Image source={images.noTransactions} style={styles.noTransactionsImage} />
+          <Text style={styles.noTransactionsLabel}>{i18n.wallets.dashboard.noTransactions}</Text>
+        </View>
+      );
+    }
+    return transactions.length ? (
+      <TransactionList data={transactions} label={activeWallet.label} />
+    ) : (
+      <View style={styles.noTransactionsContainer}>
+        <Image source={images.noTransactions} style={styles.noTransactionsImage} />
+        <Text style={styles.noTransactionsLabel}>{i18n.wallets.dashboard.noTransactions}</Text>
+      </View>
+    );
   };
 
   render() {
-    const { lastSnappedTo, query, filters } = this.state;
-    const { wallets, isInitialized, transactions, allTransactions } = this.props;
+    const { lastSnappedTo } = this.state;
+    const { wallets, isLoading } = this.props;
     const activeWallet = wallets[lastSnappedTo];
     if (!isInitialized) {
       return (
@@ -150,7 +214,20 @@ class DashboardScreen extends Component<Props, State> {
     }
     if (wallets.length) {
       return (
-        <>
+        <ScreenTemplate
+          contentContainer={styles.contentContainer}
+          refreshControl={
+            <RefreshControl
+              onRefresh={() => this.refreshTransactions()}
+              refreshing={!this.state.isFlatListRefreshControlHidden}
+            />
+          }
+        >
+          <NavigationEvents
+            onWillFocus={() => {
+              // this.redrawScreen();
+            }}
+          />
           <DashboardHeader
             onFilterPress={() => {
               this.props.navigation.navigate(Route.FilterTransactions, {
@@ -233,18 +310,11 @@ class DashboardScreen extends Component<Props, State> {
 
 const mapStateToProps = (state: ApplicationState) => ({
   wallets: state.wallets.wallets,
-  isInitialized: state.wallets.isInitialized,
-  transactions: state.transactions.transactions,
-  allTransactions: Object.values(state.transactions.transactions).reduce((prev, current) => [...prev, ...current], []),
-  transactionNotes: state.transactions.transactionNotes,
+  isLoading: state.wallets.isLoading,
+  transactions: state.transactions.transactionList,
 });
 
-const mapDispatchToProps = {
-  loadWallets,
-  loadTransactions,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(DashboardScreen);
+export default connect(mapStateToProps)(DashboardScreen);
 
 const styles = StyleSheet.create({
   loadingIndicatorContainer: {
