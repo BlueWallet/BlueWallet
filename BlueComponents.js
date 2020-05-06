@@ -1545,7 +1545,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
       subtitleNumberOfLines={subtitleNumberOfLines}
       onPress={onPress}
       onLongPress={onLongPress}
-      chevron
+      chevron={false}
       Component={TouchableOpacity}
       rightTitle={rowTitle()}
       rightTitleStyle={rowTitleStyle()}
