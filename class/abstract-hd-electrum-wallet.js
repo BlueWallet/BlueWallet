@@ -1,7 +1,8 @@
 import bip39 from 'bip39';
 import BigNumber from 'bignumber.js';
 import b58 from 'bs58check';
-import { randomBytes } from '../random';
+import crypto from 'crypto';
+import { promisify } from 'util';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
 const BlueElectrum = require('../BlueElectrum');
@@ -70,7 +71,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
   }
 
   async generate() {
-    const buf = await randomBytes(32);
+    const buf = await promisify(crypto.randomBytes)(32);
     this.secret = bip39.entropyToMnemonic(buf.toString('hex'));
   }
 
