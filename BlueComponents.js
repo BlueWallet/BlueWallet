@@ -1105,7 +1105,7 @@ export class BlueTransactionExpiredIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingExpired}>
-            <Icon {...this.props} name="clock" size={16} type="octicon" color="#9AA0AA" iconStyle={{ left: 0, top: 6 }} />
+            <Icon {...this.props} name="clock" size={16} type="octicon" color="#9AA0AA" iconStyle={{ left: 0, top: 0 }} />
           </View>
         </View>
       </View>
@@ -1125,7 +1125,7 @@ export class BlueTransactionOnchainIcon extends Component {
               size={16}
               type="font-awesome"
               color={BlueApp.settings.incomingForegroundColor}
-              iconStyle={{ left: 0, top: 7, transform: [{ rotate: '-45deg' }] }}
+              iconStyle={{ left: 0, top: 0, transform: [{ rotate: '-45deg' }] }}
             />
           </View>
         </View>
@@ -1140,7 +1140,7 @@ export class BlueTransactionOffchainIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, marginTop: 6 }} />
           </View>
         </View>
       </View>
@@ -1154,7 +1154,7 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} />
+            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} iconStyle={{ left: 0, marginTop: 6 }} />
           </View>
         </View>
       </View>
