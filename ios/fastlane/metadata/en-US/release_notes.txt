@@ -1,3 +1,10 @@
+v5.3.6
+======
+
+* ADD: Electrum seed recovery for Segwit as well (not just legacy)
+* ADD: support for  deeplinks (closes #892)
+* FIX: Electrum seed recovery bug
+
 v5.3.5
 ======
 
@@ -42,15 +49,3 @@ v5.3.0
 * FIX: Error in back button - Marketplace #922
 * FIX: Don't display clipboard modal if content is from a lightning wallet
 * REF: some love to the about section
-
-
-v5.2.0
-======
-
-* ADD: support for Electrum Personal Server (SSL connection)
-* ADD: HodlHodl trading platform integration
-* ADD: Decrypt Storage
-* ADD: UAH Fiat
-* FIX: Allow use of Today extension on iOS 10
-* REF: General Settings
-* REF: electrum reconnect improvements
