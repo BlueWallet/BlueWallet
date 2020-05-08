@@ -67,6 +67,9 @@ module.exports = {
       export_backup: 'Exporter / sauvegarder',
       buy_bitcoin: 'Acheter du Bitcoin',
       show_xpub: 'Afficher XPUB du portefeuille',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'export du portefeuille',

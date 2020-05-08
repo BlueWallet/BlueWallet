@@ -68,6 +68,9 @@ module.exports = {
       export_backup: 'Εξήγαγε / δημιούργησε αντίγραφο ασφαλείας',
       buy_bitcoin: 'Αγόρασε Bitcoin',
       show_xpub: 'Δείξε το XPUB του πορτοφολιού',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'Εξαγωγή πορτοφολιού',

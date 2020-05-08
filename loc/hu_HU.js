@@ -66,6 +66,9 @@ module.exports = {
       export_backup: 'Exportálás / Biztonsági mentés',
       buy_bitcoin: 'Bitcoin vásáslás',
       show_xpub: 'Mutasd a tárca XPUB kulcsát',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'tárca exportálása',

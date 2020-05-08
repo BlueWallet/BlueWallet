@@ -68,6 +68,9 @@ module.exports = {
       export_backup: 'Vie / varmuuskopioi',
       buy_bitcoin: 'Osta Bitcoinia',
       show_xpub: 'Näytä lompakon XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'lompakon vienti',

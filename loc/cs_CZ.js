@@ -65,6 +65,9 @@ module.exports = {
       export_backup: 'Exportovat / zálohovat',
       buy_bitcoin: 'Koupit Bitcoin',
       show_xpub: 'Ukázat XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'exportovat peněženku',
