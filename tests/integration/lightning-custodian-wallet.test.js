@@ -149,7 +149,55 @@ describe('LightningCustodianWallet', () => {
     assert.strictEqual(decodedLocally.cltv_expiry, decodedRemotely.cltv_expiry);
   });
 
-  it('can pay invoice', async () => {
+  it('can pay invoice from opennode', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
+    if (!process.env.BLITZHUB) {
+      console.error('process.env.BLITZHUB not set, skipped');
+      return;
+    }
+    if (!process.env.OPENNODE) {
+      console.error('process.env.OPENNODE not set, skipped');
+      return;
+    }
+    const api = new Frisbee({
+      baseURI: 'https://api.opennode.co',
+    });
+
+    const res = await api.post('/v1/charges', {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: process.env.OPENNODE,
+      },
+      body: '{"amount": "0.01", "currency": "USD"}',
+    });
+    if (!res.body.data || !res.body.data.lightning_invoice || !res.body.data.lightning_invoice.payreq) {
+      throw new Error('Opennode problem');
+    }
+
+    const invoice = res.body.data.lightning_invoice.payreq;
+
+    let l2 = new LightningCustodianWallet();
+    l2.setSecret(process.env.BLITZHUB);
+    await l2.authorize();
+    await l2.fetchTransactions();
+    let txLen = l2.transactions_raw.length;
+
+    let start = +new Date();
+    await l2.payInvoice(invoice);
+    let end = +new Date();
+    if ((end - start) / 1000 > 9) {
+      console.warn('payInvoice took', (end - start) / 1000, 'sec');
+    }
+
+    await l2.fetchTransactions();
+    assert.strictEqual(l2.transactions_raw.length, txLen + 1);
+    let lastTx = l2.transactions_raw[l2.transactions_raw.length - 1];
+    assert.strictEqual(typeof lastTx.payment_preimage, 'string', 'preimage is present and is a string');
+    assert.strictEqual(lastTx.payment_preimage.length, 64, 'preimage is present and is a string of 32 hex-encoded bytes');
+    // transactions became more after paying an invoice
+  });
+
+  it('can pay invoice (acinq)', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
@@ -323,7 +371,7 @@ describe('LightningCustodianWallet', () => {
     assert.strictEqual(invoices[1].amt, 666);
   });
 
-  it('can pay free amount (tip) invoice', async function() {
+  it('can pay invoice with free amount (tippin.me)', async function() {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.BLITZHUB) {
       console.error('process.env.BLITZHUB not set, skipped');
