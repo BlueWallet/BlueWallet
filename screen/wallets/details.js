@@ -212,7 +212,7 @@ export default class WalletDetails extends Component {
                 <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
                 {this.state.wallet.type === LightningCustodianWallet.type && (
                   <React.Fragment>
-                    <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{'connected to'}</Text>
+                    <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>{loc.wallets.details.connected_to.toLowerCase()}</Text>
                     <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
                   </React.Fragment>
                 )}
@@ -220,9 +220,9 @@ export default class WalletDetails extends Component {
                   <BlueSpacing20 />
                   {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
                     <>
-                      <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>{'advanced'}</Text>
+                      <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>{loc.wallets.details.advanced.toLowerCase()}</Text>
                       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <BlueText>{'Use with hardware wallet'}</BlueText>
+                        <BlueText>{loc.wallets.details.use_with_hardware_wallet}</BlueText>
                         <Switch
                           value={this.state.useWithHardwareWallet}
                           onValueChange={value => this.onUseWithHardwareWalletSwitch(value)}

@@ -65,6 +65,9 @@ module.exports = {
       export_backup: 'Izvoz / bekap',
       buy_bitcoin: 'Kupovina Bitcoina',
       show_xpub: 'Prikaži voletov XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'izvoz voleta',

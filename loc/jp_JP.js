@@ -65,6 +65,9 @@ module.exports = {
       export_backup: 'エクスポート / バックアップ',
       buy_bitcoin: 'Bitcoin の購入',
       show_xpub: 'ウォレット XPUB の表示',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'ウォレットのエクスポート',

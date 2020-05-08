@@ -66,6 +66,9 @@ module.exports = {
       export_backup: 'Exporteren / back-up maken',
       buy_bitcoin: 'Koop Bitcoin',
       show_xpub: 'Toon portemonnee XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'portemonnee exporteren',

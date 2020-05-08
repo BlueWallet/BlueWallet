@@ -66,6 +66,9 @@ module.exports = {
       export_backup: 'Ekspor / backup',
       buy_bitcoin: 'Beli Bitcoin',
       show_xpub: 'Tampilkan XPUB dompet',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'ekspor dompet',

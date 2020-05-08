@@ -66,6 +66,9 @@ module.exports = {
       export_backup: 'Eksporter / backup',
       buy_bitcoin: 'Kjøp Bitcoin',
       show_xpub: 'Vis lommebok XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'lommebok eksport',
