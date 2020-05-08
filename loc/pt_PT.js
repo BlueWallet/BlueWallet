@@ -65,7 +65,7 @@ module.exports = {
       delete_this_wallet: 'Apagar esta wallet',
       export_backup: 'Exportar / backup',
       buy_bitcoin: 'Comprar Bitcoin',
-      show_xpub: 'Mostar XPUB da wallet',
+      show_xpub: 'Mostrar XPUB da wallet',
     },
     export: {
       title: 'Exportar Wallet',
