@@ -70,6 +70,7 @@ export default class PayjoinWallet {
    * message string etc. if failed.
    */
   async broadcastTx(txHex) {
+    // TODO: Make sure we correctly handle errors and pass a string back
     return this.broadcast(txHex);
   }
 
@@ -88,6 +89,7 @@ export default class PayjoinWallet {
    * via setTimeout etc. (Do not wait until the broadcast occurs to return)
    */
   async scheduleBroadcastTx(txHex, milliseconds) {
+    // TODO: If this suceeds we should notify the user the payjoin failed
     return delay(milliseconds).then(() => this.broadcastTx(txHex));
   }
 
