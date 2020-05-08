@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { Psbt } from 'bitcoinjs-lib';
 import { PayjoinClient } from 'payjoin-client';
@@ -47,7 +47,7 @@ export default class Confirm extends Component {
       tx: props.navigation.getParam('tx'),
       satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
       fromWallet: props.navigation.getParam('fromWallet'),
-      isPayjoinEnabled: props.navigation.getParam('isPayjoinEnabled'),
+      isPayjoinEnabled: false,
       payjoinUrl: props.navigation.getParam('payjoinUrl'),
       psbt: props.navigation.getParam('psbt')
     };
@@ -186,6 +186,10 @@ export default class Confirm extends Component {
     return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, margin: 16 }} />;
   };
 
+  onPayjoinSwitchValueChanged = value => {
+    this.setState({ isPayjoinEnabled: value });
+  };
+
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
@@ -215,6 +219,18 @@ export default class Confirm extends Component {
                 {currency.satoshiToLocalCurrency(this.state.feeSatoshi)})
               </Text>
               <BlueSpacing40 />
+              {!!this.state.payjoinUrl && (
+                <View
+                  style={{ flexDirection: 'row', marginHorizontal: 20, marginBottom: 10, justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <Text style={{ color: '#81868e', fontSize: 14 }}>Payjoin</Text>
+                  <Switch
+                    value={this.state.isPayjoinEnabled}
+                    onValueChange={this.onPayjoinSwitchValueChanged}
+                    disabled={!this.state.payjoinUrl}
+                  />
+                </View>
+              )}
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (

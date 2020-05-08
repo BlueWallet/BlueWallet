@@ -14,8 +14,7 @@ import {
   Dimensions,
   Platform,
   ScrollView,
-  Text,
-  Switch
+  Text
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -87,7 +86,6 @@ export default class SendDetails extends Component {
         isFeeSelectionModalVisible: false,
         isAdvancedTransactionOptionsVisible: false,
         isTransactionReplaceable: fromWallet.type === HDSegwitBech32Wallet.type,
-        isPayjoinEnabled: false,
         recipientsScrollIndex: 0,
         fromWallet,
         addresses: [],
@@ -458,7 +456,6 @@ export default class SendDetails extends Component {
       tx: tx.toHex(),
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
-      isPayjoinEnabled: this.state.isPayjoinEnabled,
       payjoinUrl: this.state.payjoinUrl,
       psbt
     });
@@ -727,10 +724,6 @@ export default class SendDetails extends Component {
     this.setState({ isTransactionReplaceable: value });
   };
 
-  onPayjoinSwitchValueChanged = value => {
-    this.setState({ isPayjoinEnabled: value });
-  };
-
   renderCreateButton = () => {
     return (
       <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
@@ -827,7 +820,6 @@ export default class SendDetails extends Component {
                   addresses: transactions,
                   memo: memo || this.state.memo,
                   payjoinUrl,
-                  isPayjoinEnabled: false,
                   isLoading: false,
                   bip70TransactionExpiration: null,
                 });
@@ -950,18 +942,6 @@ export default class SendDetails extends Component {
                   <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
                 </View>
               </TouchableOpacity>
-
-              <View
-                style={{ flexDirection: 'row', marginHorizontal: 20, marginTop: 10, justifyContent: 'space-between', alignItems: 'center' }}
-              >
-                <Text style={{ color: '#81868e', fontSize: 14 }}>Payjoin</Text>
-                <Switch
-                  value={this.state.isPayjoinEnabled}
-                  onValueChange={this.onPayjoinSwitchValueChanged}
-                  disabled={!this.state.payjoinUrl}
-                />
-              </View>
-
               {this.renderCreateButton()}
               {this.renderFeeSelectionModal()}
               {this.renderAdvancedTransactionOptionsModal()}
