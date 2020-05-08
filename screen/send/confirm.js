@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
-import { Psbt } from 'bitcoinjs-lib';
 import { PayjoinClient } from 'payjoin-client';
 import PayjoinWallet from '../../class/payjoin-wallet';
 import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
