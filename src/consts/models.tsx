@@ -24,10 +24,10 @@ export enum Route {
   SelectLanguage = 'SelectLanguage',
   ReleaseNotes = 'ReleaseNotes',
   ActionSheet = 'ActionSheet',
-  TransactionSuccess = 'TransactionSuccessScreen',
   SendTransactionDetails = 'SendTransactionDetailsScreen',
   ScanQrCode = 'ScanQrCode',
   ChooseContactList = 'ChooseContactList',
+  MainCardStackNavigator = 'MainCardStackNavigator',
 }
 
 export interface Wallet {

@@ -35,7 +35,7 @@ export const ImportWalletScreen = () => {
       type: MessageType.error,
       buttonProps: {
         title: i18n.message.returnToDashboard,
-        onPress: () => NavigationService.navigateWithReset('MainCardStackNavigator'),
+        onPress: () => NavigationService.navigateWithReset(Route.MainCardStackNavigator),
       },
     });
 
@@ -46,7 +46,7 @@ export const ImportWalletScreen = () => {
       type: MessageType.success,
       buttonProps: {
         title: i18n.message.returnToDashboard,
-        onPress: () => NavigationService.navigateWithReset('MainCardStackNavigator'),
+        onPress: () => NavigationService.navigateWithReset(Route.MainCardStackNavigator),
       },
     });
 

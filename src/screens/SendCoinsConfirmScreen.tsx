@@ -5,6 +5,8 @@ import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text } from 'app/components';
 import { Transaction, Route } from 'app/consts';
+import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
+import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
 import { HDSegwitBech32Wallet } from '../../class';
@@ -87,7 +89,15 @@ export class SendCoinsConfirmScreen extends Component<Props> {
             amount = i18n.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
           }
 
-          this.props.navigation.navigate(Route.TransactionSuccess);
+          CreateMessage({
+            title: i18n.send.success.title,
+            description: i18n.send.success.description,
+            type: MessageType.success,
+            buttonProps: {
+              title: i18n.message.returnToDashboard,
+              onPress: () => NavigationService.navigateWithReset(Route.MainCardStackNavigator),
+            },
+          });
           this.setState({ isLoading: false });
         }
       } catch (error) {

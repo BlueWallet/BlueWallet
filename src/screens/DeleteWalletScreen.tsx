@@ -4,7 +4,7 @@ import { NavigationScreenProps } from 'react-navigation';
 import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Button, Header, ScreenTemplate } from 'app/components';
-import { Wallet } from 'app/consts';
+import { Wallet, Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { BlueApp } from 'app/legacy';
 import { NavigationService } from 'app/services';
@@ -26,7 +26,7 @@ export const DeleteWalletScreen = (props: NavigationScreenProps) => {
       type: MessageType.success,
       buttonProps: {
         title: i18n.message.returnToDashboard,
-        onPress: () => NavigationService.navigateWithReset('MainCardStackNavigator'),
+        onPress: () => NavigationService.navigateWithReset(Route.MainCardStackNavigator),
       },
     });
   };
