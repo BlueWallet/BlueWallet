@@ -14,7 +14,7 @@ import {
   Dimensions,
   Platform,
   ScrollView,
-  Text
+  Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
