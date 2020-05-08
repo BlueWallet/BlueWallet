@@ -186,10 +186,6 @@ export default class Confirm extends Component {
     return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, margin: 16 }} />;
   };
 
-  onPayjoinSwitchValueChanged = value => {
-    this.setState({ isPayjoinEnabled: value });
-  };
-
   render() {
     return (
       <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
@@ -226,7 +222,7 @@ export default class Confirm extends Component {
                   <Text style={{ color: '#81868e', fontSize: 14 }}>Payjoin</Text>
                   <Switch
                     value={this.state.isPayjoinEnabled}
-                    onValueChange={this.onPayjoinSwitchValueChanged}
+                    onValueChange={value => this.setState({ isPayjoinEnabled: value })}
                     disabled={!this.state.payjoinUrl}
                   />
                 </View>
