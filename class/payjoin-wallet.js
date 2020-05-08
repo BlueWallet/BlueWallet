@@ -108,7 +108,19 @@ export default class PayjoinWallet {
    */
   async getSumPaidToUs(psbt) {
     let sumPaidToUs = 0;
-    // TODO: calculate sumPaidToUs
+
+    psbt.data.inputs.forEach(input => {
+      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
+      if(this.wallet.weOwnAddress(address)) {
+        sumPaidToUs -= input.witnessUtxo.value;
+      }
+    });
+
+    psbt.txOutputs.forEach(output => {
+      if(this.wallet.weOwnAddress(output.address)) {
+        sumPaidToUs += output.value;
+      }
+    });
 
     return sumPaidToUs;
   }
