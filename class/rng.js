@@ -10,10 +10,11 @@ import crypto from 'crypto';
  * @param  {number}   size      The number of bytes of randomness
  * @return {Promise.<Buffer>}   The random bytes
  */
-exports.randomBytes = async size =>
-  new Promise((resolve, reject) => {
+export async function randomBytes(size) {
+  return new Promise((resolve, reject) => {
     crypto.randomBytes(size, (err, data) => {
-      if (err) return reject(err);
-      return resolve(data);
+      if (err) reject(err);
+      else resolve(data);
     });
   });
+}
