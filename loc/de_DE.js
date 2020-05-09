@@ -235,7 +235,7 @@ module.exports = {
   pleasebackup: {
     title: 'Ihr Wallet wird erstellt...',
     text:
-      'Nimm Dir Zeit die mnemonischen Wörter zur späteren Wiederherstellung des Wallets aufzuschreiben. Die Wörter sind dien einziges Backup im Fall eines Geräteverlustes.',
+      'Nimm Dir Zeit die mnemonischen Wörter zur späteren Wiederherstellung des Wallets aufzuschreiben. Die Wörter sind dein einziges Backup im Fall eines Geräteverlustes.',
     ok: 'Ja, mein Geld ist sicher!',
   },
   lndViewInvoice: {
