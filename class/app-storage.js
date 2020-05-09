@@ -95,7 +95,7 @@ export class AppStorage {
   }
 
   async setResetOnAppUninstallTo(value) {
-    await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
+    await RNSecureKeyStore.set(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '', { accessible: ACCESSIBLE.WHEN_UNLOCKED });
     try {
       await RNSecureKeyStore.setResetOnAppUninstallTo(value);
     } catch (Error) {
@@ -166,7 +166,7 @@ export class AppStorage {
   async isDeleteWalletAfterUninstallEnabled() {
     let deleteWalletsAfterUninstall;
     try {
-      deleteWalletsAfterUninstall = await this.getItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+      deleteWalletsAfterUninstall = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
     } catch (_e) {
       deleteWalletsAfterUninstall = true;
     }
