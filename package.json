@@ -123,7 +123,7 @@
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.1.10",
-    "react-native-secure-key-store": "git+https://github.com/marcosrdz/react-native-secure-key-store.git#38332f629f577cdd57c69fc8cc971b3cbad193c9",
+    "react-native-secure-key-store": "github:marcosrdz/react-native-secure-key-store#9813b3cb6049691c0f385cd90a5a18387617fd09",
     "react-native-share": "2.0.0",
     "react-native-snap-carousel": "3.9.0",
     "react-native-sortable-list": "0.0.23",
