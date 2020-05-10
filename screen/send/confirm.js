@@ -59,7 +59,6 @@ export default class Confirm extends Component {
   }
 
   send() {
-    // test npm install on travis
     const broadcast = async tx => {
       console.log('Broadcasting');
       console.log(tx);
