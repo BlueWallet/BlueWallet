@@ -109,7 +109,7 @@ describe('HodlHodl API', function() {
     assert.ok(offers[0].asset_code === 'BTC');
     assert.ok(offers[0].country_code);
     assert.ok(offers[0].side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL);
-    assert.ok(offers[0].title || offers[0].description);
+    assert.ok(offers[0].title || offers[0].description || offers[1].title || offers[1].description, JSON.stringify(offers[0], null, 2));
     assert.ok(offers[0].price);
     assert.ok(offers[0].payment_method_instructions);
     assert.ok(offers[0].trader);
