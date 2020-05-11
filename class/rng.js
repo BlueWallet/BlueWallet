@@ -4,6 +4,9 @@
  */
 
 import crypto from 'crypto';
+// uses `crypto` module under nodejs/cli and shim under RN
+// @see blue_modules/crypto.js
+
 
 /**
  * Generate cryptographically secure random bytes using native api.
