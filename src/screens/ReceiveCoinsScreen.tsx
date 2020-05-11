@@ -135,13 +135,13 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
   share = async () => {
     if (this.qrCodeSVG === undefined) {
       Share.open({
-        message: `bitcoin:${this.state.address}`,
+        message: this.state.address,
       }).catch(error => console.log(error));
     } else {
       InteractionManager.runAfterInteractions(async () => {
         this.qrCodeSVG.toDataURL((data: any) => {
           const shareImageBase64 = {
-            message: `bitcoin:${this.state.address}`,
+            message: this.state.address,
             url: `data:image/png;base64,${data}`,
           };
           Share.open(shareImageBase64).catch(error => console.log(error));

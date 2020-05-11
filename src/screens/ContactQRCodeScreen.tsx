@@ -23,7 +23,7 @@ export class ContactQRCodeScreen extends React.PureComponent<Props> {
     const contact = this.props.navigation.getParam('contact');
     this.qrCodeSVG.toDataURL((data: string) => {
       const shareImageBase64 = {
-        message: `bitcoin:${contact.address}`,
+        message: contact.address,
         url: `data:image/png;base64,${data}`,
       };
       Share.open(shareImageBase64).catch(error => console.log(error));
