@@ -142,7 +142,7 @@ export default class EncryptStorage extends Component {
               <BlueListItem
                 title={`Use ${this.state.biometrics.biometricsType}`}
                 Component={TouchableWithoutFeedback}
-                switch={{ value: this.state.biometrics.isBiometricUseEnabled, onValueChange: this.onUseBiometricSwitch }}
+                switch={{ value: this.state.biometrics.isBiometricsEnabled, onValueChange: this.onUseBiometricSwitch }}
               />
               <BlueCard>
                 <BlueText>
