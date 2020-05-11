@@ -1,6 +1,6 @@
 /**
  * @fileOverview wraps a secure native random number generator.
- * This module mimics the node crypto api.
+ * This module mimics the node crypto api and is intended to work in RN environment.
  */
 
 const { NativeModules } = require('react-native');
