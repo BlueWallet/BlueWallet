@@ -161,16 +161,14 @@ export default class EncryptStorage extends Component {
             Component={TouchableWithoutFeedback}
             switch={{ onValueChange: this.onEncryptStorageSwitch, value: this.state.storageIsEncrypted }}
           />
-          {Platform.OS === 'ios' && this.state.storageIsEncrypted && (
+          {Platform.OS === 'ios' && (
             <BlueListItem
               hideChevron
-              disabled={!this.state.storageIsEncrypted}
               title="Delete if BlueWallet is uninstalled"
               Component={TouchableWithoutFeedback}
               switch={{
                 onValueChange: this.onDeleteWalletsAfterUninstallSwitch,
                 value: this.state.deleteWalletsAfterUninstall,
-                disabled: !this.state.storageIsEncrypted,
               }}
             />
           )}
