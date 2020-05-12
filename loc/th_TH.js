@@ -65,6 +65,9 @@ module.exports = {
       export_backup: 'ส่งออก / สำรอง',
       buy_bitcoin: 'ซื้อบิตคอยน์',
       show_xpub: 'แสดง XPUB ของกระเป๋าสตางค์',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'ส่งออกกระเป๋าสตางค์',

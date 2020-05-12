@@ -64,6 +64,9 @@ module.exports = {
       export_backup: '导出备份',
       buy_bitcoin: '购买比特币',
       show_xpub: '展示钱包 XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: '钱包导出',

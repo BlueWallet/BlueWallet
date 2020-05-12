@@ -66,6 +66,9 @@ module.exports = {
       export_backup: 'Exportera / ta backup',
       buy_bitcoin: 'Köp bitcoin',
       show_xpub: 'Visa plånbokens XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'exportera plånbok',
