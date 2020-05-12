@@ -1,4 +1,5 @@
 import * as bitcoin from 'bitcoinjs-lib';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
@@ -96,8 +97,15 @@ export default class PayjoinWallet {
    * via setTimeout etc. (Do not wait until the broadcast occurs to return)
    */
   async scheduleBroadcastTx(txHex, milliseconds) {
-    // TODO: If this suceeds we should notify the user the payjoin failed
-    return delay(milliseconds).then(() => this.broadcastTx(txHex));
+    delay(milliseconds).then(async () => {
+      const result = await this.broadcastTx(txHex);
+      if(result === '') {
+        // TODO: Improve the wording of this error message
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        alert('Something was wrong with the payjoin transaction, ' +
+          'the original transaction sucessfully broadcast.');
+      }
+    });
   }
 
   /**
