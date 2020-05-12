@@ -68,6 +68,9 @@
       export_backup: 'voer uit / kopieer',
       buy_bitcoin: 'Koop Bitcoin',
       show_xpub: 'Wys beursie XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'beursie uitvoer',

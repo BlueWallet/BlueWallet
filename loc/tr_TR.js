@@ -66,6 +66,9 @@ module.exports = {
       export_backup: 'Dışa yükle / yedekle',
       buy_bitcoin: 'Bitcoin satın al',
       show_xpub: 'Cüzdan XPUB göster',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'cüzdan yedekle',

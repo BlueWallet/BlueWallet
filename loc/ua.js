@@ -66,6 +66,9 @@ module.exports = {
       export_backup: 'Експорт / резервна копія',
       buy_bitcoin: 'Buy Bitcoin',
       show_xpub: 'Show wallet XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'Експорт Гаманця',

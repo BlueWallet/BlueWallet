@@ -68,6 +68,9 @@ module.exports = {
       show_xpub: 'Ver XPUB',
       delete: 'Apagar',
       save: 'Salvar',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'Exportar carteira',
