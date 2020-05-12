@@ -59,84 +59,82 @@ export default class Confirm extends Component {
   }
 
   send() {
-    const broadcast = async tx => {
-      console.log('Broadcasting');
-      console.log(tx);
-      return await this.broadcast(tx);
-    };
-
-    if (!this.state.isPayjoinEnabled) {
-      console.log('Broadcast transaction', this.state.tx);
-      broadcsat(this.state.tx);
-    } else {
-      console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
-      console.log(this.state.psbt.toBase64());
-      const wallet = new PayjoinWallet(this.state.psbt, broadcast, this.state.fromWallet);
-      const payjoinClient = new PayjoinClient({
-        wallet,
-        payjoinUrl: this.state.payjoinUrl,
-      });
-      payjoinClient.run();
-    }
-  }
-
-  broadcast(tx) {
-    return this.setState({ isLoading: true }, async () => {
+    this.setState({ isLoading: true }, async () => {
       try {
-        await BlueElectrum.ping();
-        await BlueElectrum.waitTillConnected();
-
-        if (this.isBiometricUseCapableAndEnabled) {
-          if (!(await Biometric.unlockWithBiometrics())) {
-            this.setState({ isLoading: false });
-            return;
-          }
-        }
-
-        let result = await this.state.fromWallet.broadcastTx(tx);
-        if (!result) {
-          throw new Error(`Broadcast failed`);
+        if (!this.state.isPayjoinEnabled) {
+          console.log('Broadcast transaction', this.state.tx);
+          this.broadcast(this.state.tx);
         } else {
-          EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
-          let amount = 0;
-          const recipients = this.state.recipients;
-          if (recipients[0].amount === BitcoinUnit.MAX || !recipients[0].amount) {
-            amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
-          } else {
-            for (const recipient of recipients) {
-              amount += recipient.amount ? +recipient.amount : recipient.value;
-            }
-          }
-
-          // wallets that support new createTransaction() instead of deprecated createTx()
-          if (
-            [
-              HDSegwitBech32Wallet.type,
-              HDSegwitP2SHWallet.type,
-              HDLegacyP2PKHWallet.type,
-              HDLegacyBreadwalletWallet.type,
-              HDLegacyElectrumSeedP2PKHWallet.type,
-              LegacyWallet.type,
-              SegwitP2SHWallet.type,
-              SegwitBech32Wallet.type,
-            ].includes(this.state.fromWallet.type)
-          ) {
-            amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
-          }
-
-          this.props.navigation.navigate('Success', {
-            fee: Number(this.state.fee),
-            amount,
-            dismissModal: () => this.props.navigation.dismiss(),
+          console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
+          console.log(this.state.psbt.toBase64());
+          const wallet = new PayjoinWallet(this.state.psbt, (txHex) => this.broadcast(txHex), this.state.fromWallet);
+          const payjoinClient = new PayjoinClient({
+            wallet,
+            payjoinUrl: this.state.payjoinUrl,
           });
-          this.setState({ isLoading: false });
+          await payjoinClient.run();
         }
+
+        EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
+        let amount = 0;
+        const recipients = this.state.recipients;
+        if (recipients[0].amount === BitcoinUnit.MAX || !recipients[0].amount) {
+          amount = this.state.fromWallet.getBalance() - this.state.feeSatoshi;
+        } else {
+          for (const recipient of recipients) {
+            amount += recipient.amount ? +recipient.amount : recipient.value;
+          }
+        }
+
+        // wallets that support new createTransaction() instead of deprecated createTx()
+        if (
+          [
+            HDSegwitBech32Wallet.type,
+            HDSegwitP2SHWallet.type,
+            HDLegacyP2PKHWallet.type,
+            HDLegacyBreadwalletWallet.type,
+            HDLegacyElectrumSeedP2PKHWallet.type,
+            LegacyWallet.type,
+            SegwitP2SHWallet.type,
+            SegwitBech32Wallet.type,
+          ].includes(this.state.fromWallet.type)
+        ) {
+          amount = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.BTC, false);
+        }
+
+        this.props.navigation.navigate('Success', {
+          fee: Number(this.state.fee),
+          amount,
+          dismissModal: () => this.props.navigation.dismiss(),
+        });
+
+        this.setState({ isLoading: false });
       } catch (error) {
+        // TODO: Make sure we don't display error messages directly from PJ server
+        // here. It's a phishing attack vector!
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         this.setState({ isLoading: false });
         alert(error.message);
       }
     });
+  }
+
+  async broadcast(tx) {
+    await BlueElectrum.ping();
+    await BlueElectrum.waitTillConnected();
+
+    if (this.isBiometricUseCapableAndEnabled) {
+      if (!(await Biometric.unlockWithBiometrics())) {
+        return;
+      }
+    }
+
+    let result = await this.state.fromWallet.broadcastTx(tx);
+    if (!result) {
+      throw new Error(`Broadcast failed`);
+    }
+
+    return result;
   }
 
   _renderItem = ({ index, item }) => {
