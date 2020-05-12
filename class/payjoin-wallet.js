@@ -70,8 +70,15 @@ export default class PayjoinWallet {
    * message string etc. if failed.
    */
   async broadcastTx(txHex) {
-    // TODO: Make sure we correctly handle errors and pass a string back
-    return this.broadcast(txHex);
+    try {
+      const result = await this.broadcast(txHex);
+      if (!result) {
+        throw new Error(`Broadcast failed`);
+      }
+      return '';
+    } catch (e) {
+      return 'Error: ' + e.message;
+    }
   }
 
   /**
