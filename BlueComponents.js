@@ -592,7 +592,7 @@ export class BlueListItem extends Component {
           fontSize: 16,
           fontWeight: '500',
         }}
-        subtitleStyle={{ color: BlueApp.settings.alternativeTextColor, fontWeight: '400', width: 230 }}
+        subtitleStyle={{ flexWrap: 'wrap',  color: BlueApp.settings.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
         subtitleNumberOfLines={1}
         titleNumberOfLines={0}
         Component={TouchableOpacity}
@@ -1445,8 +1445,10 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
 
     return {
       fontWeight: '600',
-      fontSize: 16,
+      fontSize: 14,
       color: color,
+      textAlign: 'right',
+      width: 96,
     };
   };
 
@@ -1555,7 +1557,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
       title={transactionTimeToReadable}
       titleNumberOfLines={subtitleNumberOfLines}
       subtitle={subtitle()}
-      subtitleNumberOfLines={subtitleNumberOfLines}
+      subtitleProps={{ numberOfLines: subtitleNumberOfLines }}
       onPress={onPress}
       onLongPress={onLongPress}
       chevron={false}
@@ -1631,7 +1633,7 @@ export class BlueListTransactionItem extends Component {
 
     return {
       fontWeight: '600',
-      fontSize: 16,
+      fontSize: 14,
       color: color,
     };
   };
