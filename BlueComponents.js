@@ -592,7 +592,7 @@ export class BlueListItem extends Component {
           fontSize: 16,
           fontWeight: '500',
         }}
-        subtitleStyle={{ flexWrap: 'wrap',  color: BlueApp.settings.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
+        subtitleStyle={{ flexWrap: 'wrap', color: BlueApp.settings.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
         subtitleNumberOfLines={1}
         titleNumberOfLines={0}
         Component={TouchableOpacity}
