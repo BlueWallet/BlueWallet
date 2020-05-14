@@ -592,7 +592,7 @@ export class BlueListItem extends Component {
           fontSize: 16,
           fontWeight: '500',
         }}
-        subtitleStyle={{ flexWrap: 'wrap',  color: BlueApp.settings.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
+        subtitleStyle={{ flexWrap: 'wrap', color: BlueApp.settings.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
         subtitleNumberOfLines={1}
         titleNumberOfLines={0}
         Component={TouchableOpacity}
@@ -1139,7 +1139,14 @@ export class BlueTransactionOffchainIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, marginTop: 6 }} />
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.outgoingForegroundColor}
+              iconStyle={{ left: 0, marginTop: 6 }}
+            />
           </View>
         </View>
       </View>
@@ -1153,7 +1160,14 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} iconStyle={{ left: 0, marginTop: 6 }} />
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.incomingForegroundColor}
+              iconStyle={{ left: 0, marginTop: 6 }}
+            />
           </View>
         </View>
       </View>
