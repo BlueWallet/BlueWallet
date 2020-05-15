@@ -20,7 +20,6 @@ export const CardHeader = (props: CardHeaderProps) => {
 
   return (
     <TouchableOpacity
-      activeOpacity={1}
       onPress={onPress}
       style={[styles.headerContainer, { borderBottomColor: isChoosen ? palette.textSecondary : palette.textGrey }]}
     >
@@ -36,10 +35,9 @@ export interface Card {
 
 interface Props {
   cards: Card[];
-  onCardPressAction: (title: string) => void;
 }
 
-export const CardGroup = ({ cards, onCardPressAction }: Props) => {
+export const CardGroup = ({ cards }: Props) => {
   const [choosenCard, setChoosenCard] = useState('');
 
   useEffect(() => {
@@ -49,7 +47,6 @@ export const CardGroup = ({ cards, onCardPressAction }: Props) => {
   }, [cards, choosenCard]);
 
   const onCardPress = (title: string) => {
-    onCardPressAction(title);
     setChoosenCard(title);
   };
 
