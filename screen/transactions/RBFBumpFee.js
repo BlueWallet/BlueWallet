@@ -96,11 +96,13 @@ export default class RBFBumpFee extends CPFP {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingBottom: 16 }}>
-    <ScrollView> 
-    {this.renderStage1('We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.',)}
-     </ScrollView>
-     </SafeBlueArea>
-     );
+        <ScrollView>
+          {this.renderStage1(
+            'We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.',
+          )}
+        </ScrollView>
+      </SafeBlueArea>
+    );
   }
 }
 
