@@ -22,7 +22,6 @@ import {
   Platform,
   FlatList,
   TextInput,
-  ScrollView,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
@@ -2091,90 +2090,86 @@ export class BlueReplaceFeeSuggestions extends Component {
 
   render() {
     return (
-      <ScrollView contentContainerStyle={{ flex: 1 }}>
-        <View>
-          {this.state.networkFees && (
-            <>
-              <BlueText>Suggestions</BlueText>
-              <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}>
-                <BlueListItem
-                  title={'Fast'}
-                  rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
-                  {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
-                    ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
-                    : { hideChevron: true })}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}>
-                <BlueListItem
-                  title={'Medium'}
-                  rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
-                  {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
-                    ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
-                    : { hideChevron: true })}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}>
-                <BlueListItem
-                  title={'Slow'}
-                  rightTitle={`${this.state.networkFees.hourFee} sat/b`}
-                  {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
-                    ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
-                    : { hideChevron: true })}
-                />
-              </TouchableOpacity>
-            </>
-          )}
-          <TouchableOpacity onPress={() => this.customTextInput.focus()}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: 18, marginRight: 18, alignItems: 'center' }}>
-              <Text style={{ color: BlueApp.settings.foregroundColor, fontSize: 16, fontWeight: '500' }}>Custom</Text>
-              <View
+      <View>
+        {this.state.networkFees && (
+          <>
+            <BlueText>Suggestions</BlueText>
+            <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}>
+              <BlueListItem
+                title={'Fast'}
+                rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
+                {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
+                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  : { hideChevron: true })}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}>
+              <BlueListItem
+                title={'Medium'}
+                rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
+                {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
+                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  : { hideChevron: true })}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}>
+              <BlueListItem
+                title={'Slow'}
+                rightTitle={`${this.state.networkFees.hourFee} sat/b`}
+                {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
+                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  : { hideChevron: true })}
+              />
+            </TouchableOpacity>
+          </>
+        )}
+        <TouchableOpacity onPress={() => this.customTextInput.focus()}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: 18, marginRight: 18, alignItems: 'center' }}>
+            <Text style={{ color: BlueApp.settings.foregroundColor, fontSize: 16, fontWeight: '500' }}>Custom</Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                minHeight: 44,
+                height: 44,
+                minWidth: 48,
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                marginVertical: 8,
+              }}
+            >
+              <TextInput
+                onChangeText={this.onCustomFeeTextChange}
+                keyboardType={'numeric'}
+                value={this.state.customFeeValue}
+                ref={ref => (this.customTextInput = ref)}
+                maxLength={9}
                 style={{
-                  flexDirection: 'row',
-                  minHeight: 44,
-                  height: 44,
-                  minWidth: 48,
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                  marginVertical: 8,
+                  borderColor: '#d2d2d2',
+                  borderBottomColor: '#d2d2d2',
+                  borderWidth: 1.0,
+                  borderBottomWidth: 0.5,
+                  borderRadius: 4,
+                  minHeight: 33,
+                  maxWidth: 100,
+                  minWidth: 44,
+                  backgroundColor: '#f5f5f5',
+                  textAlign: 'right',
                 }}
-              >
-                <TextInput
-                  onChangeText={this.onCustomFeeTextChange}
-                  keyboardType={'numeric'}
-                  value={this.state.customFeeValue}
-                  ref={ref => (this.customTextInput = ref)}
-                  maxLength={9}
-                  style={{
-                    borderColor: '#d2d2d2',
-                    borderBottomColor: '#d2d2d2',
-                    borderWidth: 1.0,
-                    borderBottomWidth: 0.5,
-                    borderRadius: 4,
-                    minHeight: 33,
-                    maxWidth: 100,
-                    minWidth: 44,
-                    backgroundColor: '#f5f5f5',
-                    textAlign: 'right',
-                  }}
-                  onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
-                  defaultValue={`${this.props.transactionMinimum}`}
-                  placeholder="Custom sat/b"
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                />
-                <Text style={{ color: BlueApp.settings.alternativeTextColor, marginHorizontal: 8 }}>sat/b</Text>
-                {this.state.selectedFeeType === NetworkTransactionFeeType.CUSTOM && (
-                  <Icon name="check" type="font-awesome" color="#0c2550" />
-                )}
-              </View>
-              <BlueDismissKeyboardInputAccessory />
+                onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
+                defaultValue={`${this.props.transactionMinimum}`}
+                placeholder="Custom sat/b"
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+              />
+              <Text style={{ color: BlueApp.settings.alternativeTextColor, marginHorizontal: 8 }}>sat/b</Text>
+              {this.state.selectedFeeType === NetworkTransactionFeeType.CUSTOM && <Icon name="check" type="font-awesome" color="#0c2550" />}
             </View>
-          </TouchableOpacity>
-          <BlueText>
-            The total fee rate (satoshi per byte) you want to pay should be higher than {this.props.transactionMinimum} sat/byte
-          </BlueText>
-        </View>
-      </ScrollView>
+            <BlueDismissKeyboardInputAccessory />
+          </View>
+        </TouchableOpacity>
+        <BlueText>
+          The total fee rate (satoshi per byte) you want to pay should be higher than {this.props.transactionMinimum} sat/byte
+        </BlueText>
+      </View>
     );
   }
 }
