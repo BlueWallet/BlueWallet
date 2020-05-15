@@ -1,6 +1,6 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, ScrollView } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
@@ -66,7 +66,7 @@ export default class RBFBumpFee extends CPFP {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={{ flex: 1, paddingTop: 16 }}>
           <ActivityIndicator />
         </View>
       );
@@ -82,7 +82,7 @@ export default class RBFBumpFee extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={{ flex: 1, paddingTop: 16 }}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -94,9 +94,13 @@ export default class RBFBumpFee extends CPFP {
       );
     }
 
-    return this.renderStage1(
-      'We will replace this transaction with the one with higher fees, so it should be mined faster. This is called RBF - Replace By Fee.',
-    );
+    return (
+      <SafeBlueArea style={{ flex: 1, paddingBottom: 16 }}>
+    <ScrollView> 
+    {this.renderStage1('We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.',)}
+     </ScrollView>
+     </SafeBlueArea>
+     );
   }
 }
 
