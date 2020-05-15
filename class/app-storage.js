@@ -29,6 +29,8 @@ export class AppStorage {
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';
+  static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
+  static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -520,6 +522,43 @@ export class AppStorage {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
+  }
+
+  async getHodlHodlApiKey() {
+    try {
+      return await this.getItem(AppStorage.HODL_HODL_API_KEY);
+    } catch (_) {}
+    return false;
+  }
+
+  /**
+   * Since we cant fetch list of contracts from hodlhodl api yet, we have to keep track of it ourselves
+   *
+   * @returns {Promise<string[]>} String ids of contracts in an array
+   */
+  async getHodlHodlContracts() {
+    try {
+      let json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
+      return JSON.parse(json);
+    } catch (_) {}
+    return [];
+  }
+
+  async addHodlHodlContract(id) {
+    let json;
+    try {
+      json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
+      json = JSON.parse(json);
+    } catch (_) {
+      json = [];
+    }
+
+    json.push(id);
+    return this.setItem(AppStorage.HODL_HODL_CONTRACTS, JSON.stringify(json));
+  }
+
+  async setHodlHodlApiKey(key) {
+    return this.setItem(AppStorage.HODL_HODL_API_KEY, key);
   }
 
   async isAdancedModeEnabled() {
