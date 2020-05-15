@@ -146,13 +146,14 @@ export default class CPFP extends Component {
 
     return (
       <SafeBlueArea style={{ flex: 1, paddingBottom: 16 }}>
-        <ScrollView> 
-          {this.renderStage1('We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.',)}
+        <ScrollView>
+          {this.renderStage1(
+            'We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.',
+          )}
         </ScrollView>
       </SafeBlueArea>
-     );
-    }
-
+    );
+  }
 
   renderStage2() {
     return (
