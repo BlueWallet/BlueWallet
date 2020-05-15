@@ -2096,35 +2096,44 @@ export class BlueReplaceFeeSuggestions extends Component {
             <BlueText>Suggestions</BlueText>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}>
               <BlueListItem
+                containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+                bottomDivider={false}
                 title={'Fast'}
                 rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
+                rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor  }}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
-                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
                   : { hideChevron: true })}
               />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}>
               <BlueListItem
+                containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+                bottomDivider={false}
                 title={'Medium'}
                 rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
+                rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
-                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
                   : { hideChevron: true })}
               />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}>
               <BlueListItem
+                containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+                bottomDivider={false}
                 title={'Slow'}
                 rightTitle={`${this.state.networkFees.hourFee} sat/b`}
+                rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
                 {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
-                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
                   : { hideChevron: true })}
               />
             </TouchableOpacity>
           </>
         )}
         <TouchableOpacity onPress={() => this.customTextInput.focus()}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginLeft: 18, marginRight: 18, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 0, alignItems: 'center' }}>
             <Text style={{ color: BlueApp.settings.foregroundColor, fontSize: 16, fontWeight: '500' }}>Custom</Text>
             <View
               style={{
@@ -2161,12 +2170,12 @@ export class BlueReplaceFeeSuggestions extends Component {
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <Text style={{ color: BlueApp.settings.alternativeTextColor, marginHorizontal: 8 }}>sat/b</Text>
-              {this.state.selectedFeeType === NetworkTransactionFeeType.CUSTOM && <Icon name="check" type="font-awesome" color="#0c2550" />}
+              {this.state.selectedFeeType === NetworkTransactionFeeType.CUSTOM && <Icon name="check" type="octaicon" color="#0070FF" />}
             </View>
             <BlueDismissKeyboardInputAccessory />
           </View>
         </TouchableOpacity>
-        <BlueText>
+        <BlueText style={{ color: BlueApp.settings.alternativeTextColor }}>
           The total fee rate (satoshi per byte) you want to pay should be higher than {this.props.transactionMinimum} sat/byte
         </BlueText>
       </View>
