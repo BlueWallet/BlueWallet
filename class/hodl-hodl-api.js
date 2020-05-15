@@ -74,18 +74,27 @@ export class HodlHodlApi {
 
   async getMyCountryCode() {
     let _api = new Frisbee({ baseURI: 'https://ifconfig.co/' });
+    let _api2 = new Frisbee({ baseURI: 'https://geolocation-db.com/' });
     let response;
 
     let allowedTries = 6;
     while (allowedTries > 0) {
       // this API fails a lot, so lets retry several times
-      response = await _api.get('/country-iso', {
-        headers: { 'Access-Control-Allow-Origin': '*' },
-      });
+      response = await _api.get('/country-iso', { headers: { 'Access-Control-Allow-Origin': '*' } });
 
       let body = response.body;
       if (typeof body === 'string') body = body.replace('\n', '');
       if (!body || body.length !== 2) {
+        // trying api2
+        let response = await _api2.get('/json/', { headers: { 'Access-Control-Allow-Origin': '*' } });
+        body = response.body;
+        let json;
+        try {
+          json = JSON.parse(body);
+        } catch (_) {}
+        if (json && json.country_code) return (this._myCountryCode = json.country_code);
+        // failed, retry
+
         allowedTries--;
         await (async () => new Promise(resolve => setTimeout(resolve, 3000)))(); // sleep
       } else {
@@ -118,6 +127,17 @@ export class HodlHodlApi {
     return (this._currencies = json.currencies.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
   }
 
+  async getOffer(id) {
+    let response = await this._api.get('/api/v1/offers/' + id, this._getHeadersWithoutAuthorization());
+
+    let json = response.body;
+    if (!json || !json.offer || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.offer;
+  }
+
   async getOffers(pagination = {}, filters = {}, sort = {}) {
     let uri = [];
     for (let key in sort) {
@@ -137,5 +157,107 @@ export class HodlHodlApi {
     }
 
     return (this._offers = json.offers);
+  }
+
+  async getMyself() {
+    let response = await this._api.get('/api/v1/users/me', this._getHeaders());
+
+    let json = response.body;
+    if (!json || !json.user || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return (this._user = json.user);
+  }
+
+  async acceptOffer(id, version, paymentMethodInstructionId, paymentMethodInstructionVersion, volume) {
+    let response = await this._api.post(
+      '/api/v1/contracts',
+      Object.assign({}, this._getHeaders(), {
+        body: {
+          contract: {
+            offer_id: id,
+            offer_version: version,
+            payment_method_instruction_id: paymentMethodInstructionId,
+            payment_method_instruction_version: paymentMethodInstructionVersion,
+            comment: 'I accept your offer',
+            volume,
+          },
+        },
+      }),
+    );
+
+    let json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      if (json && json.validation_errors) throw new Error(JSON.stringify(json.validation_errors));
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  async getContract(id) {
+    let response = await this._api.get('/api/v1/contracts/' + id, this._getHeaders());
+
+    let json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  verifyEscrowAddress(encryptedSeed, encryptPassword, index, address, witnessScript) {
+    // TODO
+    // @see https://gitlab.com/hodlhodl-public/hodl-client-js
+    return true;
+  }
+
+  /**
+   * This method is used to confirm that client-side validation of escrow data was successful.
+   * This method should be called immediately after escrow address appeared in Getting contract response and this escrow address has been verified locally by the client.
+   *
+   * @param id
+   * @returns {Promise<{}>}
+   */
+  async markContractAsConfirmed(id) {
+    let response = await this._api.post('/api/v1/contracts/' + id + '/confirm', this._getHeaders());
+
+    let json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  /**
+   * Buyer (and only buyer) should call this method when fiat payment was made.
+   * This method could be called only if contract’s status is "in_progress".
+   *
+   * @param id
+   * @returns {Promise<{}>}
+   */
+  async markContractAsPaid(id) {
+    let response = await this._api.post('/api/v1/contracts/' + id + '/mark_as_paid', this._getHeaders());
+
+    let json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  async cancelContract(id) {
+    let response = await this._api.post('/api/v1/contracts/' + id + '/cancel', this._getHeaders());
+
+    let json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      if (json && json.validation_errors) throw new Error(JSON.stringify(json.validation_errors));
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
   }
 }

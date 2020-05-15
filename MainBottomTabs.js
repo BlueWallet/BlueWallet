@@ -26,6 +26,9 @@ import WalletExport from './screen/wallets/export';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
+import HodlHodlViewOffer from './screen/wallets/hodlHodlViewOffer';
+import HodlHodlLogin from './screen/wallets/hodlHodlLogin';
+import HodlHodlMyContracts from './screen/wallets/hodlHodlMyContracts';
 import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
@@ -91,6 +94,15 @@ const WalletsStackNavigator = createStackNavigator(
     },
     HodlHodl: {
       screen: HodlHodl,
+    },
+    HodlHodlLogin: {
+      screen: HodlHodlLogin,
+    },
+    HodlHodlViewOffer: {
+      screen: HodlHodlViewOffer,
+    },
+    HodlHodlMyContracts: {
+      screen: HodlHodlMyContracts,
     },
     CPFP: {
       screen: cpfp,
