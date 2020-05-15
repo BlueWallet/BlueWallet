@@ -1139,7 +1139,14 @@ export class BlueTransactionOffchainIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballOutgoingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.outgoingForegroundColor} iconStyle={{ left: 0, marginTop: 6 }} />
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.outgoingForegroundColor}
+              iconStyle={{ left: 0, marginTop: 6 }}
+            />
           </View>
         </View>
       </View>
@@ -1153,7 +1160,14 @@ export class BlueTransactionOffchainIncomingIcon extends Component {
       <View {...this.props}>
         <View style={stylesBlueIcon.boxIncoming}>
           <View style={stylesBlueIcon.ballIncomingWithoutRotate}>
-            <Icon {...this.props} name="bolt" size={16} type="font-awesome" color={BlueApp.settings.incomingForegroundColor} iconStyle={{ left: 0, marginTop: 6 }} />
+            <Icon
+              {...this.props}
+              name="bolt"
+              size={16}
+              type="font-awesome"
+              color={BlueApp.settings.incomingForegroundColor}
+              iconStyle={{ left: 0, marginTop: 6 }}
+            />
           </View>
         </View>
       </View>
@@ -2094,42 +2108,39 @@ export class BlueReplaceFeeSuggestions extends Component {
         {this.state.networkFees && (
           <>
             <BlueText>Suggestions</BlueText>
-            <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}>
-              <BlueListItem
-                containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
-                bottomDivider={false}
-                title={'Fast'}
-                rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
-                rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor  }}
-                {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
-                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
-                  : { hideChevron: true })}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}>
-              <BlueListItem
-                containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
-                bottomDivider={false}
-                title={'Medium'}
-                rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
-                rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
-                {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
-                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
-                  : { hideChevron: true })}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}>
-              <BlueListItem
-                containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
-                bottomDivider={false}
-                title={'Slow'}
-                rightTitle={`${this.state.networkFees.hourFee} sat/b`}
-                rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
-                {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
-                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
-                  : { hideChevron: true })}
-              />
-            </TouchableOpacity>
+            <BlueListItem
+              onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}
+              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+              bottomDivider={false}
+              title={'Fast'}
+              rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
+              rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
+              {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
+                ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
+                : { hideChevron: true })}
+            />
+            <BlueListItem
+              onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}
+              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+              bottomDivider={false}
+              title={'Medium'}
+              rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
+              rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
+              {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
+                ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
+                : { hideChevron: true })}
+            />
+            <BlueListItem
+              onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}
+              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+              bottomDivider={false}
+              title={'Slow'}
+              rightTitle={`${this.state.networkFees.hourFee} sat/b`}
+              rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
+              {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
+                ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
+                : { hideChevron: true })}
+            />
           </>
         )}
         <TouchableOpacity onPress={() => this.customTextInput.focus()}>
