@@ -457,7 +457,7 @@ export default class SendDetails extends Component {
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
       payjoinUrl: this.state.payjoinUrl,
-      psbt
+      psbt,
     });
     this.setState({ isLoading: false });
   }

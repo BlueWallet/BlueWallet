@@ -1,3 +1,4 @@
+/* global alert */
 import * as bitcoin from 'bitcoinjs-lib';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
@@ -18,7 +19,6 @@ export default class PayjoinWallet {
    * the payjoin server.
    */
   async getPsbt() {
-
     // Nasty hack to get this working for now
     const unfinalized = this.psbt.clone();
     unfinalized.data.inputs.forEach((input, index) => {
@@ -54,7 +54,7 @@ export default class PayjoinWallet {
         const wif = this.wallet._getWifForAddress(address);
         const keyPair = bitcoin.ECPair.fromWIF(wif);
         payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
-      } catch(e) {}
+      } catch (e) {}
     });
 
     return payjoinPsbt;
@@ -99,11 +99,10 @@ export default class PayjoinWallet {
   async scheduleBroadcastTx(txHex, milliseconds) {
     delay(milliseconds).then(async () => {
       const result = await this.broadcastTx(txHex);
-      if(result === '') {
+      if (result === '') {
         // TODO: Improve the wording of this error message
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        alert('Something was wrong with the payjoin transaction, ' +
-          'the original transaction sucessfully broadcast.');
+        alert('Something was wrong with the payjoin transaction, ' + 'the original transaction sucessfully broadcast.');
       }
     });
   }
@@ -126,13 +125,13 @@ export default class PayjoinWallet {
 
     psbt.data.inputs.forEach(input => {
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
-      if(this.wallet.weOwnAddress(address)) {
+      if (this.wallet.weOwnAddress(address)) {
         sumPaidToUs -= input.witnessUtxo.value;
       }
     });
 
     psbt.txOutputs.forEach(output => {
-      if(this.wallet.weOwnAddress(output.address)) {
+      if (this.wallet.weOwnAddress(output.address)) {
         sumPaidToUs += output.value;
       }
     });

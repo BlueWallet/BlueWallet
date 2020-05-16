@@ -48,7 +48,7 @@ export default class Confirm extends Component {
       fromWallet: props.navigation.getParam('fromWallet'),
       isPayjoinEnabled: false,
       payjoinUrl: props.navigation.getParam('payjoinUrl'),
-      psbt: props.navigation.getParam('psbt')
+      psbt: props.navigation.getParam('psbt'),
     };
   }
 
@@ -67,7 +67,7 @@ export default class Confirm extends Component {
         } else {
           console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
           console.log(this.state.psbt.toBase64());
-          const wallet = new PayjoinWallet(this.state.psbt, (txHex) => this.broadcast(txHex), this.state.fromWallet);
+          const wallet = new PayjoinWallet(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
           const payjoinClient = new PayjoinClient({
             wallet,
             payjoinUrl: this.state.payjoinUrl,
@@ -214,7 +214,13 @@ export default class Confirm extends Component {
               <BlueSpacing40 />
               {!!this.state.payjoinUrl && (
                 <View
-                  style={{ flexDirection: 'row', marginHorizontal: 20, marginBottom: 10, justifyContent: 'space-between', alignItems: 'center' }}
+                  style={{
+                    flexDirection: 'row',
+                    marginHorizontal: 20,
+                    marginBottom: 10,
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
                 >
                   <Text style={{ color: '#81868e', fontSize: 14 }}>Payjoin</Text>
                   <Switch
@@ -224,11 +230,7 @@ export default class Confirm extends Component {
                   />
                 </View>
               )}
-              {this.state.isLoading ? (
-                <ActivityIndicator />
-              ) : (
-                <BlueButton onPress={() => this.send()} title={loc.send.confirm.sendNow} />
-              )}
+              {this.state.isLoading ? <ActivityIndicator /> : <BlueButton onPress={() => this.send()} title={loc.send.confirm.sendNow} />}
 
               <TouchableOpacity
                 testID={'TransactionDetailsButton'}
