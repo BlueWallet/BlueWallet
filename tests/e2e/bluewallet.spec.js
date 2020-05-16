@@ -318,7 +318,7 @@ describe('BlueWallet UI Tests', () => {
     // lets create real transaction:
     await element(by.id('SendButton')).tap();
     await element(by.id('AddressInput')).typeText('bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl');
-    await element(by.id('BitcoinAmountInput')).typeText('0.0005\n');
+    await element(by.id('BitcoinAmountInput')).typeText('0.0001\n');
     if (process.env.TRAVIS) await sleep(5000);
     try {
       await element(by.id('CreateTransactionButton')).tap();
@@ -326,7 +326,7 @@ describe('BlueWallet UI Tests', () => {
 
     // created. verifying:
     await yo('TransactionValue');
-    expect(element(by.id('TransactionValue'))).toHaveText('0.0005');
+    expect(element(by.id('TransactionValue'))).toHaveText('0.0001');
     await element(by.id('TransactionDetailsButton')).tap();
 
     // now, a hack to extract element text. warning, this might break in future
@@ -360,7 +360,7 @@ describe('BlueWallet UI Tests', () => {
     assert.ok(transaction.ins.length === 1 || transaction.ins.length === 2); // depending on current fees gona use either 1 or 2 inputs
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
-    assert.strictEqual(transaction.outs[0].value, 50000);
+    assert.strictEqual(transaction.outs[0].value, 10000);
   });
 
   it('can import zpub as watch-only and create PSBT', async () => {
