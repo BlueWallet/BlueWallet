@@ -188,10 +188,10 @@ export default class SendDetails extends Component {
         this.setState({ addresses, memo: initialMemo, fee, feeSliderValue, isLoading: false });
       } else {
         try {
-          const { address, amount, memo } = this.decodeBitcoinUri(uri);
+          const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(uri);
           addresses.push(new BitcoinTransaction(address, amount));
           initialMemo = memo;
-          this.setState({ addresses, memo: initialMemo, isLoading: false });
+          this.setState({ addresses, memo: initialMemo, payjoinUrl, isLoading: false });
         } catch (error) {
           console.log(error);
           alert('Error: Unable to decode Bitcoin address');
@@ -232,8 +232,8 @@ export default class SendDetails extends Component {
             this.processBIP70Invoice(this.props.navigation.state.params.uri);
           } else {
             try {
-              const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
-              this.setState({ address, amount, memo, isLoading: false });
+              const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
+              this.setState({ address, amount, memo, payjoinUrl, isLoading: false });
             } catch (error) {
               console.log(error);
               this.setState({ isLoading: false });
