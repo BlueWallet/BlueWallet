@@ -1,0 +1,48 @@
+Una Billetera de Bitcoin que te permite guardar, enviar Bitcoin, recibir Bitcoin y comprar Bitcoin, centrada en la seguridad y la simplicidad.
+
+Con BlueWallet, una billetera Bitcoin donde controlas las claves privadas. Una billetera Bitcoin creada por usuarios de Bitcoin para la comunidad.
+
+Puede realizar transacciones con cualquier persona en el mundo y transformar el sistema financiero directamente desde su bolsillo.
+
+Puede crear una cantidad ilimitada de billeteras Bitcoin de forma gratuita o importar las billeteras que ya tiene en su aplicación BlueWallet. ¡Es fácil y rápido!
+
+---
+
+Lo que encontrarás:
+
+1 - Seguridad primero
+
+Código abierto/Open Source
+Con una licencia MIT, puedes construirla y ejecutarla usted mismo. Hecho en React Native.
+
+Negación Plausible
+Contraseña que descifra billeteras falsas. Para casos especiales en los que se le puede solicitar que revele su contraseña, puede revelar la contraseña falsa. Mantenga su bitcoin seguro.
+
+Cifrado Completo
+Construido sobre el cifrado multicapa de Android, BlueWallet cifra todo con una contraseña adicional.
+
+Billetera SegWit e HD
+Compatible con SegWit (ayuda a reducir las tarifas) y billeteras HD activadas.
+
+2 - Centrado en tu experiencia
+
+Siempre en control
+Las claves privadas nunca dejan su teléfono, usted controla sus claves privadas.
+
+Tarifas flexibles
+A partir de 1 Satoshi. No pague de más por las transacciones.
+
+Reemplazo de tarifas (RBF)
+Acelere sus transacciones aumentando la tarifa (BIP125). También puede cambiar la dirección del destinatario en transacciones no confirmadas.
+
+Billetera Watch-only
+Mira tu almacenamiento en frío de Bitcoin sin tener que tocarlo.
+
+Lightning Network
+Billetera Lightning sin ajustes. Transacciones baratas y ultrarrápidas con la mejor experiencia de Bitcoin.
+
+Comprar Bitcoin
+Ahora puede comprar Bitcoin directamente sin dejar su billetera y con sus claves privadas.
+
+Local Trader
+Plataforma de negociación Bitcoin p2p, que le permite comprar y vender bitcoin directamente a otros usuarios sin terceros.
