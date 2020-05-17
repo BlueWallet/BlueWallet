@@ -107,8 +107,6 @@ export default class Confirm extends Component {
 
         this.setState({ isLoading: false });
       } catch (error) {
-        // TODO: Make sure we don't display error messages directly from PJ server
-        // here. It's a phishing attack vector!
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         this.setState({ isLoading: false });
         alert(error.message);
