@@ -102,7 +102,7 @@ export default class PayjoinWallet {
       if (result === '') {
         // TODO: Improve the wording of this error message
         ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        alert('Something was wrong with the payjoin transaction, ' + 'the original transaction sucessfully broadcast.');
+        alert('Something was wrong with the payjoin transaction, the original transaction sucessfully broadcast.');
       }
     });
   }
