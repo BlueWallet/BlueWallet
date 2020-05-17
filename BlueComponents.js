@@ -1317,25 +1317,9 @@ export class ManageFundsBigButton extends Component {
 }
 
 export class NewWalletPanel extends Component {
-  constructor(props) {
-    super(props);
-    // WalletsCarousel.handleClick = props.handleClick // because cant access `this` from _renderItem
-    // eslint-disable-next-line
-    this.handleClick = props.onPress;
-  }
-
   render() {
     return (
-      <TouchableOpacity
-        testID="CreateAWallet"
-        {...this.props}
-        onPress={() => {
-          if (this.handleClick) {
-            this.handleClick();
-          }
-        }}
-        style={{ marginVertical: 17 }}
-      >
+      <TouchableOpacity testID="CreateAWallet" {...this.props} onPress={this.props.onPress} style={{ marginVertical: 17 }}>
         <LinearGradient
           colors={WalletGradient.createWallet}
           style={{
@@ -1779,7 +1763,7 @@ export class WalletsCarousel extends Component {
         <NewWalletPanel
           onPress={() => {
             this.onPressedOut();
-            this.handleClick(index);
+            this.props.onPress(index);
             this.onPressedOut();
           }}
         />
@@ -1800,7 +1784,7 @@ export class WalletsCarousel extends Component {
             onPress={() => {
               if (item.getIsFailure()) {
                 this.onPressedOut();
-                this.handleClick(index);
+                this.props.onPress(index);
                 this.onPressedOut();
               }
             }}
@@ -1869,11 +1853,9 @@ export class WalletsCarousel extends Component {
             onPressOut={this.onPressedOut}
             onLongPress={this.props.handleLongPress}
             onPress={() => {
-              if (this.props.handleClick) {
-                this.onPressedOut();
-                this.props.handleClick(index);
-                this.onPressedOut();
-              }
+              this.onPressedOut();
+              this.props.onPress(index);
+              this.onPressedOut();
             }}
           >
             <LinearGradient

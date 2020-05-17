@@ -357,7 +357,7 @@ export default class WalletsList extends Component {
       <WalletsCarousel
         removeClippedSubviews={false}
         data={this.state.wallets}
-        handleClick={this.handleClick}
+        onPress={this.handleClick}
         handleLongPress={this.handleLongPress}
         onSnapToItem={this.onSnapToItem}
         ref={this.walletsCarousel}
