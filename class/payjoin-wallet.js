@@ -4,6 +4,8 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const delay = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
+// Implements IPayjoinClientWallet
+// https://github.com/Kukks/payjoin-client-js/blob/715f76da6ef8ffd03b6654c329655fdc3c8aa6c3/ts_src/wallet.ts
 export default class PayjoinWallet {
   constructor(psbt, broadcast, wallet) {
     this.psbt = psbt;
@@ -11,13 +13,6 @@ export default class PayjoinWallet {
     this.wallet = wallet;
   }
 
-  /**
-   * @async
-   * This creates a fully signed, finalized, and valid Psbt.
-   *
-   * @return {Promise<Psbt>} The Original non-payjoin Psbt for submission to
-   * the payjoin server.
-   */
   async getPsbt() {
     // Nasty hack to get this working for now
     const unfinalized = this.psbt.clone();
@@ -34,18 +29,6 @@ export default class PayjoinWallet {
     return unfinalized;
   }
 
-  /**
-   * @async
-   * This takes the payjoin Psbt and signs, and finalizes any un-finalized
-   * inputs. Any checks against the payjoin proposal Psbt should be done here.
-   * However, this library does perform some sanity checks.
-   *
-   * @param {Psbt} payjoinProposal - A Psbt proposal for the payjoin. It is
-   * assumed that all inputs added by the server are signed and finalized. All
-   * of the PayjoinClientWallet's inputs should be unsigned and unfinalized.
-   * @return {Psbt} The signed and finalized payjoin proposal Psbt
-   * for submission to the payjoin server.
-   */
   async signPsbt(payjoinPsbt) {
     // Do this without relying on private methods
     payjoinPsbt.data.inputs.forEach((input, index) => {
@@ -60,16 +43,6 @@ export default class PayjoinWallet {
     return payjoinPsbt;
   }
 
-  /**
-   * @async
-   * This takes the fully signed and constructed payjoin transaction hex and
-   * broadcasts it to the network. It returns true if succeeded and false if
-   * broadcasting returned any errors.
-   *
-   * @param {string} txHex - A fully valid transaction hex string.
-   * @return {string} Empty string ('') if succeeded, RPC error
-   * message string etc. if failed.
-   */
   async broadcastTx(txHex) {
     try {
       const result = await this.broadcast(txHex);
@@ -82,20 +55,6 @@ export default class PayjoinWallet {
     }
   }
 
-  /**
-   * @async
-   * This takes the original transaction (submitted to the payjoin server at
-   * the beginning) and attempts to broadcast it X milliSeconds later.
-   * Notably, this MUST NOT throw an error if the broadcast fails, and if
-   * the broadcast succeeds it MUST be noted that something was wrong with
-   * the payjoin transaction.
-   *
-   * @param {string} txHex - A fully valid transaction hex string.
-   * @param {number} milliSeconds - The number of milliSeconds to wait until
-   * attempting to broadcast
-   * @return {void} This should return once the broadcast is scheduled
-   * via setTimeout etc. (Do not wait until the broadcast occurs to return)
-   */
   async scheduleBroadcastTx(txHex, milliseconds) {
     delay(milliseconds).then(async () => {
       const result = await this.broadcastTx(txHex);
@@ -107,19 +66,6 @@ export default class PayjoinWallet {
     });
   }
 
-  /**
-   * @async
-   * This takes a psbt and calculates the sum paid to us.
-   * Calculated as below. See example in the tests for a BIP32 wallet.
-   * (total value of outputs to me) - (total value of inputs from me)
-   * So if I am sending money to someone, it will be negative, if I am
-   * receiving money from someone it will be positive.
-   *
-   * @param {Psbt} psbt - A psbt provided from getPsbt or the payjoinProposal
-   * from the server.
-   * @return {number} The sum in satoshis that would be paid to your wallet.
-   * Negative if paying out.
-   */
   async getSumPaidToUs(psbt) {
     let sumPaidToUs = 0;
 
