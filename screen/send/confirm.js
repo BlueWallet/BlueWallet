@@ -62,11 +62,8 @@ export default class Confirm extends Component {
     this.setState({ isLoading: true }, async () => {
       try {
         if (!this.state.isPayjoinEnabled) {
-          console.log('Broadcast transaction', this.state.tx);
           this.broadcast(this.state.tx);
         } else {
-          console.log('Attempt payjoin', this.state.payjoinUrl, this.state.psbt);
-          console.log(this.state.psbt.toBase64());
           const wallet = new PayjoinWallet(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
           const payjoinClient = new PayjoinClient({
             wallet,
