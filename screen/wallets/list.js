@@ -144,7 +144,7 @@ export default class WalletsList extends Component {
     return '';
   }
 
-  handleClick = (index) => {
+  handleClick = index => {
     console.log('click', index);
     let wallet = BlueApp.wallets[index];
     if (wallet) {
@@ -185,9 +185,9 @@ export default class WalletsList extends Component {
         this.props.navigation.navigate('AddWallet');
       }
     }
-  }
+  };
 
-  onSnapToItem = (index) => {
+  onSnapToItem = index => {
     console.log('onSnapToItem', index);
     this.lastSnappedTo = index;
     this.setState({ lastSnappedTo: index });
@@ -202,7 +202,7 @@ export default class WalletsList extends Component {
 
     // now, lets try to fetch balance and txs for this wallet in case it has changed
     this.lazyRefreshWallet(index);
-  }
+  };
 
   /**
    * Decides whether wallet with such index shoud be refreshed,
@@ -398,6 +398,41 @@ export default class WalletsList extends Component {
     }
   };
 
+  renderSectionFooter = ({ section }) => {
+    switch (section.key) {
+      case WalletsListSections.TRANSACTIONS:
+        if (this.state.dataSource.length === 0 && !this.state.isLoading) {
+          return (
+            <View style={{ top: 80, height: 160 }}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: '#9aa0aa',
+                  textAlign: 'center',
+                }}
+              >
+                {loc.wallets.list.empty_txs1}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: '#9aa0aa',
+                  textAlign: 'center',
+                  fontWeight: '600',
+                }}
+              >
+                {loc.wallets.list.empty_txs2}
+              </Text>
+            </View>
+          );
+        } else {
+          return null;
+        }
+      default:
+        return null;
+    }
+  };
+
   sectionListKeyExtractor = (item, index) => {
     return `${item}${index}}`;
   };
@@ -439,6 +474,7 @@ export default class WalletsList extends Component {
               renderItem={this.renderSectionItem}
               keyExtractor={this.sectionListKeyExtractor}
               renderSectionHeader={this.renderSectionHeader}
+              renderSectionFooter={this.renderSectionFooter}
               sections={[
                 { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
                 { key: WalletsListSections.LOCALTRADER, data: [WalletsListSections.LOCALTRADER] },
