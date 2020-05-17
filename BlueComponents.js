@@ -1759,16 +1759,7 @@ const sliderHeight = 190;
 export class WalletsCarousel extends Component {
   walletsCarousel = React.createRef();
 
-  constructor(props) {
-    super(props);
-    // eslint-disable-next-line
-    WalletsCarousel.handleClick = props.handleClick; // because cant access `this` from _renderItem
-    WalletsCarousel.handleLongPress = props.handleLongPress;
-    // eslint-disable-next-line
-    this.onSnapToItem = props.onSnapToItem;
-  }
-
-  _renderItem({ item, index }) {
+  _renderItem = ({ item, index }) => {
     let scaleValue = new Animated.Value(1.0);
     let props = { duration: 50 };
     if (Platform.OS === 'android') {
@@ -1787,11 +1778,9 @@ export class WalletsCarousel extends Component {
       return (
         <NewWalletPanel
           onPress={() => {
-            if (WalletsCarousel.handleClick) {
-              this.onPressedOut();
-              WalletsCarousel.handleClick(index);
-              this.onPressedOut();
-            }
+            this.onPressedOut();
+            this.handleClick(index);
+            this.onPressedOut();
           }}
         />
       );
@@ -1809,9 +1798,9 @@ export class WalletsCarousel extends Component {
             onPressIn={item.getIsFailure() ? this.onPressedIn : null}
             onPressOut={item.getIsFailure() ? this.onPressedOut : null}
             onPress={() => {
-              if (item.getIsFailure() && WalletsCarousel.handleClick) {
+              if (item.getIsFailure()) {
                 this.onPressedOut();
-                WalletsCarousel.handleClick(index);
+                this.handleClick(index);
                 this.onPressedOut();
               }
             }}
@@ -1878,11 +1867,11 @@ export class WalletsCarousel extends Component {
             testID={item.getLabel()}
             onPressIn={this.onPressedIn}
             onPressOut={this.onPressedOut}
-            onLongPress={WalletsCarousel.handleLongPress}
+            onLongPress={this.props.handleLongPress}
             onPress={() => {
-              if (WalletsCarousel.handleClick) {
+              if (this.props.handleClick) {
                 this.onPressedOut();
-                WalletsCarousel.handleClick(index);
+                this.props.handleClick(index);
                 this.onPressedOut();
               }
             }}
@@ -1962,7 +1951,7 @@ export class WalletsCarousel extends Component {
         </Animated.View>
       );
     }
-  }
+  };
 
   snapToItem = item => {
     this.walletsCarousel.current.snapToItem(item);
@@ -1980,12 +1969,7 @@ export class WalletsCarousel extends Component {
         inactiveSlideScale={1}
         inactiveSlideOpacity={0.7}
         contentContainerCustomStyle={{ left: -20 }}
-        onSnapToItem={index => {
-          if (this.onSnapToItem) {
-            this.onSnapToItem(index);
-          }
-          console.log('snapped to card #', index);
-        }}
+        onSnapToItem={this.onSnapToItem}
       />
     );
   }
