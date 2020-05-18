@@ -7522,16 +7522,17 @@ react-localization@1.0.13:
     localized-strings "^0.2.00"
     react "^16.0.0"
 
-react-native-animatable@^1.3.1:
+react-native-animatable@^1.3.0, react-native-animatable@^1.3.1:
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/react-native-animatable/-/react-native-animatable-1.3.3.tgz#a13a4af8258e3bb14d0a9d839917e9bb9274ec8a"
   integrity sha512-2ckIxZQAsvWn25Ho+DK3d1mXIgj7tITkrS4pYDvx96WyOttSvzzFeQnM2od0+FUMzILbdHDsDEqZvnz1DYNQ1w==
   dependencies:
     prop-types "^15.7.2"
 
-"react-native-biometrics@git+https://github.com/BlueWallet/react-native-biometrics.git#2.0.0":
-  version "2.0.0"
-  resolved "git+https://github.com/BlueWallet/react-native-biometrics.git#570dedf776413b76bc414996f6a509135313a06f"
+react-native-biometrics@2.1.4:
+  version "2.1.4"
+  resolved "https://registry.yarnpkg.com/react-native-biometrics/-/react-native-biometrics-2.1.4.tgz#e201e9f18baeb560eeaba8d41fbd4f90d04152fe"
+  integrity sha512-Ek7NmzgHB4rot2DdzV9Q3pzxFjnEFipGSFsmWZw5vcM9vkMoebhz8d8UYgsp0efroyeLITDNHwcFGEzq8XW9Kg==
 
 react-native-camera@3.4.0:
   version "3.4.0"
@@ -7708,14 +7709,23 @@ react-native-safe-modules@^1.0.0:
   dependencies:
     debounce "^1.2.0"
 
-"react-native-secure-key-store@git+https://github.com/marcosrdz/react-native-secure-key-store.git#38332f629f577cdd57c69fc8cc971b3cbad193c9":
-  version "2.0.6"
-  resolved "git+https://github.com/marcosrdz/react-native-secure-key-store.git#38332f629f577cdd57c69fc8cc971b3cbad193c9"
+react-native-secure-key-store@^2.0.7:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-secure-key-store/-/react-native-secure-key-store-2.0.7.tgz#70b24afae0f75fd90e46aabd8fc9ce6484727850"
+  integrity sha512-1hIuFcgWPVqS1Q3843ysHfN5cx/YFE0U1ab6p5Adfch0Yikyglcs3FZWHXxo7qsHvFai71Z7Wyv3SuWCuBG6AQ==
 
 react-native-share@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-2.0.0.tgz#4543a746013e0d8fa9f765fb8937007cfbcffcf7"
   integrity sha512-J8Xl3mq0L9KDFtSYtKsQDAnZWw/niZIpAD1PRiNfZFHo44Rc+oS2bEIhskNnoQXKEgBNdPzCl/DenMXYAHXRYg==
+
+react-native-smooth-pincode-input@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/react-native-smooth-pincode-input/-/react-native-smooth-pincode-input-1.0.9.tgz#4c068ae30aa0cd03bb5bd19c8191c0b4e9b0f8d1"
+  integrity sha512-4V4tyUGJaze55FHuJW/gYVOD3fc4Pd7cTIrv7liTRIXR49y09C2O3XqJUdgNR+UwTgLrTt/8L2lvEuEVUk3kig==
+  dependencies:
+    prop-types "^15.5.10"
+    react-native-animatable "^1.3.0"
 
 react-native-snap-carousel@3.8.4:
   version "3.8.4"

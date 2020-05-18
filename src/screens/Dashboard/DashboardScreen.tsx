@@ -5,6 +5,7 @@ import { NavigationEvents, NavigationInjectedProps, NavigationScreenProps } from
 import { images } from 'app/assets';
 import { ListEmptyState, Image, WalletCard, ScreenTemplate, Header } from 'app/components';
 import { Wallet, Route } from 'app/consts';
+import { SecureStorageService } from 'app/services';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../../BlueApp';
@@ -60,6 +61,12 @@ export class DashboardScreen extends Component<Props, State> {
   walletCarouselRef = React.createRef();
 
   componentDidMount() {
+    SecureStorageService.getSecuredValue('pin')
+      .then(pin => {})
+      .catch(error => {
+        this.props.navigation.navigate(Route.CreatePin);
+      });
+
     this.redrawScreen();
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:

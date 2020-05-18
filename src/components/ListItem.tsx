@@ -14,6 +14,7 @@ interface Props {
   onSwitchValueChange?: (value: boolean) => void;
   iconWidth?: number;
   iconHeight?: number;
+  disabled?: boolean;
 }
 
 export const ListItem = ({
@@ -24,6 +25,7 @@ export const ListItem = ({
   iconWidth,
   iconHeight,
   onPress,
+  disabled,
 }: Props) => {
   const [switchValueState, setSwitchValueState] = useState(false);
 
@@ -31,12 +33,12 @@ export const ListItem = ({
 
   const onSwitchPress = () => {
     setSwitchValueState(!switchValueState);
-    onSwitchValueChange(!switchValueState);
+    onSwitchValueChange && onSwitchValueChange(!switchValueState);
   };
 
   useEffect(() => {
     if (isSwitch()) {
-      setSwitchValueState(switchValue);
+      setSwitchValueState(switchValue!);
     }
   }, []);
 
@@ -58,12 +60,12 @@ export const ListItem = ({
           />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.title, disabled && styles.disabled]}>{title}</Text>
         </View>
       </TouchableOpacity>
       {isSwitch() && (
         <View>
-          <StyledSwitch onValueChange={onSwitchPress} value={switchValueState} />
+          <StyledSwitch onValueChange={onSwitchPress} value={switchValueState} disabled={disabled || false} />
         </View>
       )}
     </View>
@@ -95,5 +97,8 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: 21,
     height: 21,
+  },
+  disabled: {
+    color: palette.textGrey,
   },
 });

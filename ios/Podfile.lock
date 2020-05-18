@@ -197,7 +197,7 @@ PODS:
     - React-cxxreact (= 0.61.5)
     - React-jsi (= 0.61.5)
   - React-jsinspector (0.61.5)
-  - react-native-biometrics (2.0.0):
+  - react-native-biometrics (2.1.4):
     - React
   - react-native-blur (0.8.0):
     - React
@@ -295,9 +295,9 @@ PODS:
     - React
   - RNWatch (0.4.1):
     - React
-  - SDWebImage (5.6.1):
-    - SDWebImage/Core (= 5.6.1)
-  - SDWebImage/Core (5.6.1)
+  - SDWebImage (5.8.0):
+    - SDWebImage/Core (= 5.8.0)
+  - SDWebImage/Core (5.8.0)
   - SDWebImageWebPCoder (0.4.1):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.5)
@@ -514,7 +514,7 @@ SPEC CHECKSUMS:
   React-jsi: cb2cd74d7ccf4cffb071a46833613edc79cdf8f7
   React-jsiexecutor: d5525f9ed5f782fdbacb64b9b01a43a9323d2386
   React-jsinspector: fa0ecc501688c3c4c34f28834a76302233e29dc0
-  react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
+  react-native-biometrics: 9d3306e5d29c3bc4e6a3c912d759a94e76a2f683
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: f4f2144140ae1e808cad97cc7caf013767c11f1b
   react-native-haptic-feedback: 22c9dc85fd8059f83bf9edd9212ac4bd4ae6074d
@@ -551,7 +551,7 @@ SPEC CHECKSUMS:
   RNSVG: 0eb087cfb5d7937be93c45b163b26352a647e681
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: a14e378448e187cc12f307f61d41fe8a65400e86
-  SDWebImage: 7edb9c3ea661e77a66661f7f044de8c1b55d1120
+  SDWebImage: 84000f962cbfa70c07f19d2234cbfcf5d779b5dc
   SDWebImageWebPCoder: 36f8f47bd9879a8aea6044765c1351120fd8e3a8
   Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
   TcpSockets: 4ef55305239923b343ed0a378b1fac188b1373b0
@@ -560,4 +560,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 64196e6e083644bbe2c2045aa835ebdc51524c95
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.8.4

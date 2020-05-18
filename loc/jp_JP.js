@@ -5,17 +5,18 @@ module.exports = {
     bad_password: 'パスワードが間違っています。再度お試しください',
     never: '一度もない',
     continue: '続行する',
-    ok: 'OK'
+    ok: 'OK',
   },
   message: {
     somethingWentWrong: '問題が発生しました',
-    somethingWentWrongWhileCreatingWallet: 'ウォレットの作成中に問題が発生しましたダッシュボードに戻って、再度お試しください。',
+    somethingWentWrongWhileCreatingWallet:
+      'ウォレットの作成中に問題が発生しましたダッシュボードに戻って、再度お試しください。',
     success: '成功',
     successfullWalletImport: 'ウォレットは適切にインポートされました。現在ダッシュボードに戻ることができます。',
     successfullWalletDelete: 'ウォレットは適切に削除されました。現在ダッシュボードに戻ることができます。',
     returnToDashboard: 'ダッシュボードに戻る',
     creatingWallet: 'ウォレットの作成',
-    creatingWalletDescription: 'ウォレットを作成している間お待ちください。しばらく時間がかかる場合があります。'
+    creatingWalletDescription: 'ウォレットを作成している間お待ちください。しばらく時間がかかる場合があります。',
   },
   wallets: {
     dashboard: {
@@ -25,17 +26,18 @@ module.exports = {
       noWalletsDesc2: '最初のウォレットに追加する。',
       send: 'コインを送金する',
       receive: 'コインを受け取る',
-      noTransactions: '表示するトランザクションがありません。'
+      noTransactions: '表示するトランザクションがありません。',
     },
     walletModal: { btcv: 'BTCV', wallets: 'ウォレット' },
     importWallet: {
       title: 'ご使用のウォレットをインポートする',
       header: 'ウォレットのインポート',
-      subtitle: 'ここにユーザーのニーモニック、秘密鍵、WIF、または取得したその他のものを入力してください。GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットをインポートします。',
+      subtitle:
+        'ここにユーザーのニーモニック、秘密鍵、WIF、または取得したその他のものを入力してください。GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットをインポートします。',
       placeholder: 'ニーモニック、秘密鍵、WIF',
       import: 'QRコードをインポート',
       scanQrCode: 'またはスキャン',
-      walletInUseValidationError: 'ウォレットはすでに使用されています。有効なウォレットを入力してください。'
+      walletInUseValidationError: 'ウォレットはすでに使用されています。有効なウォレットを入力してください。',
     },
     exportWallet: { title: 'ニーモニックのフレーズ', header: 'ウォレットのエクスポート' },
     exportWalletXpub: { header: 'ウォレットXPUB' },
@@ -45,7 +47,7 @@ module.exports = {
       description1: '削除してもよろしいですか',
       description2: '？それを取り消すことはできません。',
       no: 'いいえ',
-      yes: 'はい'
+      yes: 'はい',
     },
     wallet: { none: 'なし', latest: '最新のトランザクション' },
     add: {
@@ -57,13 +59,14 @@ module.exports = {
       importWalletButton: 'ウォレットのインポート',
       advancedOptions: '高度なオプション',
       multipleAddresses: '複数のアドレス',
-      singleAddress: '単一のアドレス'
+      singleAddress: '単一のアドレス',
     },
     addSuccess: {
       title: '新しいウォレットの追加',
       subtitle: '成功',
-      description: 'ウォレットが作成されました。時間を取って、このニーモニックのフレーズを紙に書いてください。それはバックアップです。それを使用して、他のデバイスでウォレットをリストアすることができます。',
-      okButton: 'OK。これを書きました！'
+      description:
+        'ウォレットが作成されました。時間を取って、このニーモニックのフレーズを紙に書いてください。それはバックアップです。それを使用して、他のデバイスでウォレットをリストアすることができます。',
+      okButton: 'OK。これを書きました！',
     },
     details: {
       latestTransaction: '最新のトランザクション',
@@ -72,17 +75,18 @@ module.exports = {
       exportWallet: 'ウォレットのエクスポート',
       showWalletXPUB: 'ウォレットXPUBを表示する',
       deleteWallet: 'ウォレットの削除',
-      nameEdit: '名前の変更'
+      nameEdit: '名前の変更',
     },
     export: { title: 'ウォレットのエクスポート' },
     import: {
       title: 'インポート',
-      explanation: 'ここにユーザーのニーモニック、秘密鍵、WIF、または取得したその他のものを入力してください。GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットをインポートします',
+      explanation:
+        'ここにユーザーのニーモニック、秘密鍵、WIF、または取得したその他のものを入力してください。GoldWalletでは、最善を尽くして、正しいフォーマットを推測し、ウォレットをインポートします',
       imported: 'インポート済み',
       error: 'インポートできませんでした。提供されたデータが有効であることを確認してください。',
       success: '成功',
       do_import: '代わりにQRコードをインポート',
-      scan_qr: 'またはスキャンしますか？'
+      scan_qr: 'またはスキャンしますか？',
     },
     scanQrWif: {
       go_back: '戻る',
@@ -97,8 +101,8 @@ module.exports = {
       with_address: 'アドレスで',
       imported_segwit: 'インポート済みSegWit',
       imported_legacy: 'インポート済みLegacy',
-      imported_watchonly: 'インポート済みWatch-only'
-    }
+      imported_watchonly: 'インポート済みWatch-only',
+    },
   },
   transactions: {
     list: { conf: '確認' },
@@ -106,7 +110,8 @@ module.exports = {
       title: 'トランザクション',
       detailTitle: 'トランザクション詳細',
       transactionHex: 'トランザクションhex',
-      transactionHexDescription: 'これは、署名済みで、ネットワークにブロードキャストする準備ができているトランザクションhexです',
+      transactionHexDescription:
+        'これは、署名済みで、ネットワークにブロードキャストする準備ができているトランザクションhexです',
       copyAndBoriadcast: '後ほどコピーおよびブロードキャスト',
       verify: 'coinb.inで確認',
       amount: '金額',
@@ -127,8 +132,8 @@ module.exports = {
       note: 'メモ',
       inputs: '入力',
       ouputs: '出力',
-      sendCoins: 'コインを送金する'
-    }
+      sendCoins: 'コインを送金する',
+    },
   },
   send: {
     header: 'コインを送金する',
@@ -136,7 +141,7 @@ module.exports = {
       title: '成功',
       description: '万歳！適切にトランザクションを終了しました。',
       done: '終了',
-      return: 'ダッシュボードに戻る'
+      return: 'ダッシュボードに戻る',
     },
     details: {
       title: 'トランザクションの作成',
@@ -157,19 +162,20 @@ module.exports = {
       fee: '料金：',
       create: 'インボイスの作成',
       remaining_balance: '残高',
-      total_exceeds_balance: '送金する金額が利用可能な残高を上回っています。'
+      total_exceeds_balance: '送金する金額が利用可能な残高を上回っています。',
     },
     confirm: { sendNow: '今すぐ送金する' },
     create: {
       amount: '金額',
       fee: '料金',
       setTransactionFee: 'トランザクション料金の設定',
-      headerText: 'ネットワークに多数の保留中のトランザクションがあるとき（1,500超）、より高い料金を支払うことにより、トランザクションの処理速度が早くなります。通常の金額は1～500 sat/bです'
-    }
+      headerText:
+        'ネットワークに多数の保留中のトランザクションがあるとき（1,500超）、より高い料金を支払うことにより、トランザクションの処理速度が早くなります。通常の金額は1～500 sat/bです',
+    },
   },
   receive: {
     header: 'コインを受け取る',
-    details: { amount: '金額', share: '共有する', receiveWithAmount: '金額とともに受け取る' }
+    details: { amount: '金額', share: '共有する', receiveWithAmount: '金額とともに受け取る' },
   },
   settings: {
     language: '言語',
@@ -181,7 +187,7 @@ module.exports = {
     changePin: 'PINの変更',
     fingerprintLogin: '指紋でのログイン',
     aboutUs: '当社について',
-    header: '設定'
+    header: '設定',
   },
   aboutUs: {
     header: '当社について',
@@ -191,7 +197,7 @@ module.exports = {
     rateGoldWallet: 'GoldWalletを評価する',
     goToOurGithub: '当社のGithubに進む',
     alwaysBackupYourKeys: '常に鍵をバックアップする',
-    title: 'ゴールドウォレットは、Bitcoin Vaultウォレットのための無料のオープンソースです。ライセンス：MIT。'
+    title: 'ゴールドウォレットは、Bitcoin Vaultウォレットのための無料のオープンソースです。ライセンス：MIT。',
   },
   electrumServer: {
     header: 'Electrumサーバー',
@@ -200,7 +206,7 @@ module.exports = {
     host: 'ホスト',
     port: 'ポート',
     successfullSave: '変更は適切に保存されました。変更を有効にするために、再起動が必要な場合があります。',
-    connectionError: '提供されたElectrumサーバーに接続できません'
+    connectionError: '提供されたElectrumサーバーに接続できません',
   },
   selectLanguage: {
     header: '言語',
@@ -208,7 +214,7 @@ module.exports = {
     confirmation: '確認',
     confirm: '確認する',
     alertDescription: '言語を選択して、アプリケーションを再起動しますか？',
-    cancel: 'キャンセル'
+    cancel: 'キャンセル',
   },
   contactList: {
     cancel: 'キャンセル',
@@ -218,7 +224,7 @@ module.exports = {
     noContacts: '連絡先がありません',
     noContactsDesc1: '表示する連絡先がありません。 \nクリックして、',
     noContactsDesc2: '最初の連絡先を追加する。',
-    noResults: '結果がありません'
+    noResults: '結果がありません',
   },
   contactCreate: {
     screenTitle: '新しい連絡先を追加する',
@@ -229,7 +235,7 @@ module.exports = {
     buttonLabel: '新しい連絡先を追加する',
     successTitle: '成功',
     successDescription: '万歳！連絡先を適切に追加しました。',
-    successButton: 'アドレス帳に戻る'
+    successButton: 'アドレス帳に戻る',
   },
   contactDetails: {
     nameLabel: '名前',
@@ -239,7 +245,7 @@ module.exports = {
     sendCoinsButton: 'コインを送金する',
     showQRCodeButton: 'QRコードの表示',
     deleteButton: '連絡先の削除',
-    share: '共有する'
+    share: '共有する',
   },
   contactDelete: {
     title: '連絡先を削除する',
@@ -250,12 +256,12 @@ module.exports = {
     yes: 'はい',
     success: '成功',
     successDescription: '連絡先は適切に削除されました。\nアドレス帳に戻ることができます。',
-    successButton: 'アドレス帳に戻る'
+    successButton: 'アドレス帳に戻る',
   },
   scanQrCode: {
     permissionTitle: 'カメラを使用する許可',
     permissionMessage: 'カメラを使用する許可が必要です',
     ok: 'Ok',
-    cancel: 'キャンセル'
-  }
-}
+    cancel: 'キャンセル',
+  },
+};

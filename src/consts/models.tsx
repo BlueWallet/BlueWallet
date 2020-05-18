@@ -1,3 +1,7 @@
+export const CONST = {
+  pinCodeLength: 4,
+};
+
 export enum Route {
   Dashboard = 'Dashboard',
   WalletDetails = 'WalletDetails',
@@ -28,6 +32,10 @@ export enum Route {
   ScanQrCode = 'ScanQrCode',
   ChooseContactList = 'ChooseContactList',
   MainCardStackNavigator = 'MainCardStackNavigator',
+  CurrentPin = 'CurrentPin',
+  CreatePin = 'CreatePin',
+  ConfirmPin = 'ConfirmPin',
+  UnlockScreen = 'UnlockScreen',
 }
 
 export interface Wallet {
@@ -46,6 +54,10 @@ export interface Wallet {
   secret: string;
   type: string;
   typeReadable: string;
+  getID: () => string;
+  chain: string;
+  weOwnAddress: (clipboard: string) => void;
+  isInvoiceGeneratedByWallet: (clipboard: string) => void;
 }
 
 export interface Contact {
@@ -64,4 +76,8 @@ export interface Transaction {
   inputs: any[];
   outputs: any[];
   note?: string;
+}
+
+export interface AppSettings {
+  isPinSetup: boolean;
 }

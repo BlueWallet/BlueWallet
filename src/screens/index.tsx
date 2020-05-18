@@ -23,3 +23,7 @@ export { SendCoinsConfirmScreen } from './SendCoinsConfirmScreen';
 export { SendTransactionDetailsScreen } from './SendTransactionDetailsScreen';
 export { default as ScanQrCodeScreen } from './ScanQrCodeScreen';
 export { default as ImportWalletQRCodeScreen } from './ImportWalletQRCodeScreen';
+export { CreatePinScreen } from './PinFlow/CreatePinScreen';
+export { ConfirmPinScreen } from './PinFlow/ConfirmPinScreen';
+export { CurrentPinScreen } from './PinFlow/CurrentPinScreen';
+export { default as UnlockScreen } from './UnlockScreen';

@@ -2,11 +2,15 @@ import AsyncStorage from '@react-native-community/async-storage';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { images, icons } from 'app/assets';
 import { Image, ScreenTemplate, Header, ListItem } from 'app/components';
 import { Route } from 'app/consts';
-import { AppStorage, Biometric } from 'app/legacy';
+import { AppStorage } from 'app/legacy';
+import { BiometricService } from 'app/services';
+import { ApplicationState } from 'app/state';
+import { updateBiometricSetting } from 'app/state/appSettings/actions';
 
 import { LabeledSettingsRow } from './LabeledSettingsRow';
 
@@ -16,11 +20,11 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
   const { navigation } = props;
   const [isLoading, setIsLoading] = useState(true);
   const [isAdvancedOptions, setIsAdvancedOptions] = useState(false);
-  const [biometrics, setBiometrics] = useState({
-    isDeviceBiometricCapable: false,
-    isBiometricsEnabled: false,
-    biometricsType: '',
-  });
+  const { isBiometricsEnabled } = useSelector((state: ApplicationState) => ({
+    isBiometricsEnabled: state.appSettings.isBiometricsEnabled,
+  }));
+
+  const dispatch = useDispatch();
 
   const navigateToElectrumServer = () => navigation.navigate(Route.ElectrumServer);
 
@@ -38,24 +42,12 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
   };
 
   const onFingerprintLoginChange = async (value: boolean) => {
-    if (await Biometric.unlockWithBiometrics()) {
-      biometrics.isBiometricsEnabled = value;
-      await Biometric.setBiometricUseEnabled(value);
-      setBiometrics(biometrics);
-    }
+    dispatch(updateBiometricSetting(value));
   };
 
   useEffect(() => {
     (async () => {
       setIsAdvancedOptions(!!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)));
-      const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
-      const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
-      const biometricsType = (await Biometric.biometricType()) || 'biometrics';
-      setBiometrics({
-        isBiometricsEnabled,
-        isDeviceBiometricCapable,
-        biometricsType,
-      });
       setIsLoading(false);
     })();
   });
@@ -75,23 +67,35 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
     </>
   );
 
-  const renderSecuritySettings = () => (
-    <>
-      {/**
-       * Commented as it's not yet implemented.
-       * It will be implemented in next scope.
-       *  <ListItem title={i18n.settings.changePin} source={icons.lockIcon} iconWidth={15} iconHeight={20} />
-       */}
-      <ListItem
-        title={i18n.settings.fingerprintLogin}
-        source={icons.fingerprintIcon}
-        switchValue={biometrics.isBiometricsEnabled}
-        onSwitchValueChange={onFingerprintLoginChange}
-        iconWidth={17}
-        iconHeight={19}
-      />
-    </>
-  );
+  const goToChangePin = () => {
+    navigation.navigate(Route.CurrentPin);
+  };
+
+  const renderSecuritySettings = () => {
+    console.log('BiometricService.biometryType', BiometricService.biometryType);
+    const biometryTypeAvailable = BiometricService.biometryType;
+    const isDisabled = biometryTypeAvailable !== 'TouchID' && biometryTypeAvailable !== 'Biometrics';
+    return (
+      <>
+        <ListItem
+          title={i18n.settings.changePin}
+          source={icons.lockIcon}
+          iconWidth={15}
+          iconHeight={20}
+          onPress={goToChangePin}
+        />
+        <ListItem
+          disabled={isDisabled}
+          title={isDisabled ? i18n.settings.notSupportedFingerPrint : i18n.settings.TouchID}
+          source={icons.fingerprintIcon}
+          switchValue={isBiometricsEnabled}
+          onSwitchValueChange={onFingerprintLoginChange}
+          iconWidth={17}
+          iconHeight={19}
+        />
+      </>
+    );
+  };
 
   const renderAboutSettings = () => (
     <ListItem onPress={navigateToAboutUs} title={i18n.settings.aboutUs} source={icons.infoIcon} />

@@ -5,17 +5,21 @@ module.exports = {
     bad_password: 'Mật khẩu kém, hãy thử lại',
     never: 'không bao giờ',
     continue: 'Tiếp tục',
-    ok: 'OK'
+    ok: 'OK',
   },
   message: {
     somethingWentWrong: 'Đã xảy ra lỗi',
-    somethingWentWrongWhileCreatingWallet: 'Đã xảy ra lỗi khi chúng tôi tạo ví cho quý khách. Vui lòng quay lại Bảng điều khiển và thử lại.',
+    somethingWentWrongWhileCreatingWallet:
+      'Đã xảy ra lỗi khi chúng tôi tạo ví cho quý khách. Vui lòng quay lại Bảng điều khiển và thử lại.',
     success: 'Thành công',
-    successfullWalletImport: 'Ví của quý khách đã được nhập thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
-    successfullWalletDelete: 'Ví của quý khách đã được xóa thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
+    successfullWalletImport:
+      'Ví của quý khách đã được nhập thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
+    successfullWalletDelete:
+      'Ví của quý khách đã được xóa thành công. Bây giờ quý khách có thể quay lại Bảng điều khiển.',
     returnToDashboard: 'Quay lại Bảng điều khiển',
     creatingWallet: 'Tạo ví của quý khách',
-    creatingWalletDescription: 'Vui lòng đợi trong khi chúng tôi tạo ví cho quý khách. Quá trình này có thể mất một thời gian.'
+    creatingWalletDescription:
+      'Vui lòng đợi trong khi chúng tôi tạo ví cho quý khách. Quá trình này có thể mất một thời gian.',
   },
   wallets: {
     dashboard: {
@@ -25,17 +29,18 @@ module.exports = {
       noWalletsDesc2: ' thêm ví đầu tiên của quý khách.',
       send: 'Gửi coin',
       receive: 'Nhận coin',
-      noTransactions: 'Không có giao dịch nào.'
+      noTransactions: 'Không có giao dịch nào.',
     },
     walletModal: { btcv: 'BTCV', wallets: 'Ví' },
     importWallet: {
       title: 'Nhập ví của quý khách',
       header: 'Nhập ví',
-      subtitle: 'Viết ra đây những thông tin cần ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
+      subtitle:
+        'Viết ra đây những thông tin cần ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
       placeholder: 'Thông tin ghi nhớ, khóa riêng tư, WIF',
       import: 'Nhập',
       scanQrCode: 'hoặc quét mã QR',
-      walletInUseValidationError: 'Ví đã được sử dụng. Vui lòng nhập ví hợp lệ.'
+      walletInUseValidationError: 'Ví đã được sử dụng. Vui lòng nhập ví hợp lệ.',
     },
     exportWallet: { title: 'Cụm từ ghi nhớ', header: 'Xuất ví' },
     exportWalletXpub: { header: 'Ví XPUB' },
@@ -45,7 +50,7 @@ module.exports = {
       description1: 'Quý khách có chắc chắn muốn xóa không',
       description2: '? Quý khách không thể hoàn tác hành động này.',
       no: 'Không',
-      yes: 'Có'
+      yes: 'Có',
     },
     wallet: { none: 'Không có', latest: 'Giao dịch mới nhất' },
     add: {
@@ -57,13 +62,14 @@ module.exports = {
       importWalletButton: 'Nhập ví',
       advancedOptions: 'Tùy chọn nâng cao',
       multipleAddresses: 'Nhiều địa chỉ',
-      singleAddress: 'Một địa chỉ'
+      singleAddress: 'Một địa chỉ',
     },
     addSuccess: {
       title: 'Thêm ví mới',
       subtitle: 'Thành công',
-      description: 'Ví của quý khách đã được tạo. Vui lòng dành thời gian để viết cụm từ ghi nhớ này ra một tờ giấy. Đó là tờ sao lưu của quý khách. Quý khách có thể sử dụng nó để khôi phục ví trên các thiết bị khác.',
-      okButton: 'OK, tôi đã viết nó ra!'
+      description:
+        'Ví của quý khách đã được tạo. Vui lòng dành thời gian để viết cụm từ ghi nhớ này ra một tờ giấy. Đó là tờ sao lưu của quý khách. Quý khách có thể sử dụng nó để khôi phục ví trên các thiết bị khác.',
+      okButton: 'OK, tôi đã viết nó ra!',
     },
     details: {
       latestTransaction: 'Giao dịch mới nhất',
@@ -72,17 +78,18 @@ module.exports = {
       exportWallet: 'Xuất ví',
       showWalletXPUB: 'Hiển thị ví XPUB',
       deleteWallet: 'Xóa ví',
-      nameEdit: 'Chỉnh sửa tên'
+      nameEdit: 'Chỉnh sửa tên',
     },
     export: { title: 'xuất ví' },
     import: {
       title: 'nhập',
-      explanation: 'Viết ra đây thông tin ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
+      explanation:
+        'Viết ra đây thông tin ghi nhớ, khóa riêng tư, WIF hoặc bất cứ thông tin gì quý khách có được. GoldWallet tìm mọi cách để đoán đúng định dạng và nhập ví của quý khách.',
       imported: 'Đã nhập',
       error: 'Không nhập được. Vui lòng đảm bảo rằng dữ liệu được cung cấp là hợp lệ.',
       success: 'Thành công',
       do_import: 'Nhập',
-      scan_qr: 'hoặc quét mã QR?'
+      scan_qr: 'hoặc quét mã QR?',
     },
     scanQrWif: {
       go_back: 'Quay lại',
@@ -97,8 +104,8 @@ module.exports = {
       with_address: 'có địa chỉ',
       imported_segwit: 'SegWit đã nhập',
       imported_legacy: 'Legacy đã nhập',
-      imported_watchonly: 'Watch-only đã nhập'
-    }
+      imported_watchonly: 'Watch-only đã nhập',
+    },
   },
   transactions: {
     list: { conf: 'Xác nhận' },
@@ -127,8 +134,8 @@ module.exports = {
       note: 'Ghi chú',
       inputs: 'Đầu vào',
       ouputs: 'Đầu ra',
-      sendCoins: 'Gửi coin'
-    }
+      sendCoins: 'Gửi coin',
+    },
   },
   send: {
     header: 'Gửi coin',
@@ -136,7 +143,7 @@ module.exports = {
       title: 'Thành công',
       description: 'Xin chúc mừng! Quý khách đã hoàn tất giao dịch thành công.',
       done: 'Xong',
-      return: 'Quay lại Bảng điều khiển'
+      return: 'Quay lại Bảng điều khiển',
     },
     details: {
       title: 'tạo giao dịch',
@@ -157,23 +164,24 @@ module.exports = {
       fee: 'Phí:',
       create: 'Tạo hóa đơn',
       remaining_balance: 'Số dư còn lại',
-      total_exceeds_balance: 'Số tiền gửi vượt quá số dư khả dụng.'
+      total_exceeds_balance: 'Số tiền gửi vượt quá số dư khả dụng.',
     },
     confirm: { sendNow: 'Gửi ngay' },
     create: {
       amount: 'Số tiền',
       fee: 'Phí',
       setTransactionFee: 'Đặt phí giao dịch',
-      headerText: 'Khi đang có một lượng lớn giao dịch đang chờ xử lý trên mạng (>1500), việc đặt phí cao hơn sẽ giúp giao dịch của quý khách được xử lý nhanh hơn. Giá trị thông thường là 1-500 sat/b'
-    }
+      headerText:
+        'Khi đang có một lượng lớn giao dịch đang chờ xử lý trên mạng (>1500), việc đặt phí cao hơn sẽ giúp giao dịch của quý khách được xử lý nhanh hơn. Giá trị thông thường là 1-500 sat/b',
+    },
   },
   receive: {
     header: 'Nhận coin',
     details: {
       amount: 'Số tiền',
       share: 'Chia sẻ',
-      receiveWithAmount: 'Nhận với số tiền'
-    }
+      receiveWithAmount: 'Nhận với số tiền',
+    },
   },
   settings: {
     language: 'Ngôn ngữ',
@@ -185,7 +193,7 @@ module.exports = {
     changePin: 'Thay đổi mã PIN',
     fingerprintLogin: 'Đăng nhập bằng dấu vân tay',
     aboutUs: 'Giới thiệu',
-    header: 'Cài đặt'
+    header: 'Cài đặt',
   },
   aboutUs: {
     header: 'Giới thiệu',
@@ -195,7 +203,7 @@ module.exports = {
     rateGoldWallet: 'Đánh giá GoldWallet',
     goToOurGithub: 'Chuyển đến Github của chúng tôi',
     alwaysBackupYourKeys: 'Hãy luôn sao lưu mã khóa của quý khách',
-    title: 'GoldWallet là ví Bitcoin Vault miễn phí và mã nguồn mở. MIT được cấp phép.'
+    title: 'GoldWallet là ví Bitcoin Vault miễn phí và mã nguồn mở. MIT được cấp phép.',
   },
   electrumServer: {
     header: 'Máy chủ Electrum',
@@ -203,8 +211,9 @@ module.exports = {
     useDefault: 'Sử dụng mặc định',
     host: 'host',
     port: 'cổng',
-    successfullSave: 'Những thay đổi của quý khách đã được lưu thành công. Có thể cần khởi động lại để thay đổi có hiệu lực.',
-    connectionError: 'Không thể kết nối với máy chủ Electrum được cung cấp'
+    successfullSave:
+      'Những thay đổi của quý khách đã được lưu thành công. Có thể cần khởi động lại để thay đổi có hiệu lực.',
+    connectionError: 'Không thể kết nối với máy chủ Electrum được cung cấp',
   },
   selectLanguage: {
     header: 'Ngôn ngữ',
@@ -212,7 +221,7 @@ module.exports = {
     confirmation: 'Xác nhận',
     confirm: 'Xác nhận',
     alertDescription: 'Chọn ngôn ngữ và khởi động lại ứng dụng?',
-    cancel: 'Hủy'
+    cancel: 'Hủy',
   },
   contactList: {
     cancel: 'Hủy',
@@ -222,7 +231,7 @@ module.exports = {
     noContacts: 'Không có thông tin liên lạc',
     noContactsDesc1: 'Không có thông tin liên lạc nào. \nNhấp vào',
     noContactsDesc2: 'để thêm thông tin liên lạc đầu tiên của quý khách.',
-    noResults: 'Không có kết quả cho'
+    noResults: 'Không có kết quả cho',
   },
   contactCreate: {
     screenTitle: 'Thêm thông tin liên lạc mới',
@@ -233,7 +242,7 @@ module.exports = {
     buttonLabel: 'Thêm thông tin liên lạc mới',
     successTitle: 'Thành công',
     successDescription: 'Xin chúc mừng! Quý khách đã thêm thông tin\nliên lạc thành công.',
-    successButton: 'Quay lại Sổ địa chỉ'
+    successButton: 'Quay lại Sổ địa chỉ',
   },
   contactDetails: {
     nameLabel: 'Tên',
@@ -243,7 +252,7 @@ module.exports = {
     sendCoinsButton: 'Gửi coin',
     showQRCodeButton: 'Hiển thị mã QR',
     deleteButton: 'Xóa thông tin liên lạc',
-    share: 'Chia sẻ'
+    share: 'Chia sẻ',
   },
   contactDelete: {
     title: 'Xóa thông tin liên lạc của quý khách',
@@ -253,14 +262,14 @@ module.exports = {
     no: 'Không',
     yes: 'Có',
     success: 'Thành công',
-    successDescription: 'Thông tin liên lạc của quý khách đã được xóa thành công.\n' +
-      'Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
-    successButton: 'Quay lại Sổ địa chỉ'
+    successDescription:
+      'Thông tin liên lạc của quý khách đã được xóa thành công.\n' + 'Bây giờ quý khách có thể quay lại Sổ địa chỉ.',
+    successButton: 'Quay lại Sổ địa chỉ',
   },
   scanQrCode: {
     permissionTitle: 'Quyền sử dụng máy ảnh',
     permissionMessage: 'Chúng tôi cần quý khách cho phép để sử dụng máy ảnh của quý khách',
     ok: 'Ok',
-    cancel: 'Hủy'
-  }
-}
+    cancel: 'Hủy',
+  },
+};

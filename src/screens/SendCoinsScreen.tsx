@@ -258,7 +258,7 @@ export class SendCoinsScreen extends Component<Props, State> {
     const firstTransaction = this.state.addresses[0];
     const changeAddress = await wallet.getAddressForTransaction();
     const satoshis = new BigNumber(firstTransaction.amount).multipliedBy(100000000).toNumber();
-    const requestedSatPerByte = +this.state.fee.toString().replace(/\D/g, '');
+    const requestedSatPerByte: string | number = +this.state.fee.toString().replace(/\D/g, '');
     console.log({ satoshis, requestedSatPerByte, utxo: wallet.getUtxo() });
 
     let targets: any[] = [];
@@ -358,7 +358,7 @@ export class SendCoinsScreen extends Component<Props, State> {
   confirmTransaction = async () => {
     this.setState({ isLoading: true });
     let error: boolean | string = false;
-    const requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
+    const requestedSatPerByte: any = this.state.fee.toString().replace(/\D/g, '');
     for (const [index, transaction] of this.state.addresses.entries()) {
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
         error = i18n.send.details.amount_field_is_not_valid;
@@ -485,7 +485,7 @@ export class SendCoinsScreen extends Component<Props, State> {
         await BlueApp.saveToDisk();
       } catch (err) {
         console.log(err);
-        alert(err);
+        Alert.alert(err);
         this.setState({ isLoading: false });
         return;
       }

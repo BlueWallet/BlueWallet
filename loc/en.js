@@ -18,6 +18,26 @@ module.exports = {
     creatingWallet: 'Creating your wallet',
     creatingWalletDescription: 'Please be patient while we create your wallet. It may take a while.',
   },
+  onboarding: {
+    pin: 'PIN',
+    createPin: 'Create PIN',
+    createNewPin: 'New PIN',
+    confirmPin: 'Confirm PIN',
+    confirmNewPin: 'Confirm new PIN',
+    changePin: 'Change PIN',
+    currentPin: 'Current PIN',
+    pinDoesNotMatch: 'PIN does not match. Please enter a valid PIN.',
+    successDescription: 'Hooray! \n You have successfully created your PIN.',
+    successDescriptionChangedPin: 'Hooray! \n You have successfully changed your PIN.',
+    successButton: 'Go to Dashboard',
+    successButtonChangedPin: 'Go back to Settings',
+  },
+  unlock: {
+    title: 'Unlock',
+    touchID: 'Touch ID for "Gold Wallet"',
+    confirmButton: 'Confirm fingerprint to continue.',
+    enter: 'Enter PIN',
+  },
   wallets: {
     dashboard: {
       title: 'Wallets',
@@ -209,6 +229,9 @@ module.exports = {
     fingerprintLogin: 'Fingerprint login',
     aboutUs: 'About us',
     header: 'Settings',
+    notSupportedFingerPrint: 'Your device does not support fingerprint',
+    TouchID: 'Allow fingerprint',
+    FaceID: 'Allow FaceID',
   },
   aboutUs: {
     header: 'About us',

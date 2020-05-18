@@ -120,6 +120,11 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     });
   };
 
+  goToUnlockScreen = () =>
+    this.props.navigation.navigate(Route.UnlockScreen, {
+      onSuccess: this.broadcast,
+    });
+
   render() {
     const { navigation } = this.props;
     const fromWallet = navigation.getParam('fromWallet');
@@ -127,7 +132,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
     const item = recipients[0];
     const fee = navigation.getParam('fee');
     return (
-      <ScreenTemplate footer={ScreenFooter(this.broadcast, this.goToDetails)}>
+      <ScreenTemplate footer={ScreenFooter(this.goToUnlockScreen, this.goToDetails)}>
         <View style={styles.container}>
           <View>
             <View style={styles.chooseWalletButton}>
