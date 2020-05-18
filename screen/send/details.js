@@ -188,10 +188,10 @@ export default class SendDetails extends Component {
         this.setState({ addresses, memo: initialMemo, fee, feeSliderValue, isLoading: false });
       } else {
         try {
-          const { address, amount, memo } = this.decodeBitcoinUri(uri);
+          const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(uri);
           addresses.push(new BitcoinTransaction(address, amount));
           initialMemo = memo;
-          this.setState({ addresses, memo: initialMemo, isLoading: false });
+          this.setState({ addresses, memo: initialMemo, payjoinUrl, isLoading: false });
         } catch (error) {
           console.log(error);
           alert('Error: Unable to decode Bitcoin address');
@@ -232,8 +232,8 @@ export default class SendDetails extends Component {
             this.processBIP70Invoice(this.props.navigation.state.params.uri);
           } else {
             try {
-              const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
-              this.setState({ address, amount, memo, isLoading: false });
+              const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
+              this.setState({ address, amount, memo, payjoinUrl, isLoading: false });
             } catch (error) {
               console.log(error);
               this.setState({ isLoading: false });
@@ -265,6 +265,7 @@ export default class SendDetails extends Component {
     let parsedBitcoinUri = null;
     let address = uri || '';
     let memo = '';
+    let payjoinUrl = '';
     try {
       parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
       address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
@@ -276,9 +277,12 @@ export default class SendDetails extends Component {
         if (parsedBitcoinUri.options.hasOwnProperty('label')) {
           memo = parsedBitcoinUri.options.label || memo;
         }
+        if (parsedBitcoinUri.options.hasOwnProperty('pj')) {
+          payjoinUrl = parsedBitcoinUri.options.pj;
+        }
       }
     } catch (_) {}
-    return { address, amount, memo };
+    return { address, amount, memo, payjoinUrl };
   }
 
   recalculateAvailableBalance(balance, amount, fee) {
@@ -452,6 +456,8 @@ export default class SendDetails extends Component {
       tx: tx.toHex(),
       recipients: targets,
       satoshiPerByte: requestedSatPerByte,
+      payjoinUrl: this.state.payjoinUrl,
+      psbt,
     });
     this.setState({ isLoading: false });
   }
@@ -806,13 +812,14 @@ export default class SendDetails extends Component {
                 transactions[index].amount = recipient.amount;
                 this.setState({ addresses: transactions, memo: memo, fee, feeSliderValue, isLoading: false });
               } catch (_e) {
-                const { address, amount, memo } = this.decodeBitcoinUri(text);
+                const { address, amount, memo, payjoinUrl } = this.decodeBitcoinUri(text);
                 item.address = address || text;
                 item.amount = amount || item.amount;
                 transactions[index] = item;
                 this.setState({
                   addresses: transactions,
                   memo: memo || this.state.memo,
+                  payjoinUrl,
                   isLoading: false,
                   bip70TransactionExpiration: null,
                 });
