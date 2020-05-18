@@ -193,7 +193,7 @@ export class LegacyWallet extends AbstractWallet {
         }
       }
       for (let vout of tx.vout) {
-        if (vout.scriptPubKey.addresses.indexOf(this.getAddress()) !== -1) {
+        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this.getAddress()) !== -1) {
           // this TX is related to our address
           let clonedTx = Object.assign({}, tx);
           clonedTx.inputs = tx.vin.slice(0);
