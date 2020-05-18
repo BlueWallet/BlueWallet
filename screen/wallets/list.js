@@ -261,7 +261,7 @@ export default class WalletsList extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View>
+      <View style={{ backgroundColor: '#FFFFFF' }}>
         <Text
           style={{
             paddingLeft: 16,
