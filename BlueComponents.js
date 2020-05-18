@@ -2056,9 +2056,9 @@ export class BlueReplaceFeeSuggestions extends Component {
       this.props.onFeeSelected(this.state.networkFees.fastestFee);
       this.setState({ selectedFeeType }, () => this.props.onFeeSelected(this.state.networkFees.fastestFee));
     } else if (selectedFeeType === NetworkTransactionFeeType.MEDIUM) {
-      this.setState({ selectedFeeType }, () => this.props.onFeeSelected(this.state.networkFees.halfHourFee));
+      this.setState({ selectedFeeType }, () => this.props.onFeeSelected(this.state.networkFees.mediumFee));
     } else if (selectedFeeType === NetworkTransactionFeeType.SLOW) {
-      this.setState({ selectedFeeType }, () => this.props.onFeeSelected(this.state.networkFees.hourFee));
+      this.setState({ selectedFeeType }, () => this.props.onFeeSelected(this.state.networkFees.slowFee));
     } else if (selectedFeeType === NetworkTransactionFeeType.CUSTOM) {
       this.props.onFeeSelected(this.state.customFeeValue);
     }
@@ -2092,7 +2092,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
               bottomDivider={false}
               title={'Medium'}
-              rightTitle={`${this.state.networkFees.halfHourFee} sat/b`}
+              rightTitle={`${this.state.networkFees.mediumFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
                 ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
@@ -2103,7 +2103,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
               bottomDivider={false}
               title={'Slow'}
-              rightTitle={`${this.state.networkFees.hourFee} sat/b`}
+              rightTitle={`${this.state.networkFees.slowFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
                 ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
