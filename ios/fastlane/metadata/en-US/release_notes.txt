@@ -1,3 +1,13 @@
+v5.3.7
+======
+
+* ADD: Storage delete/not-delete for unencrypted storage.
+* ADD: some missing localizations
+* FIX: Fee suggestion selection
+* FIX: allow view to be scrolled on small devices
+* FIX: Biometrics switch value
+* REF: prevent possible crash on ln view invoice screen
+
 v5.3.6
 ======
 
@@ -32,20 +42,3 @@ v5.3.2
 * FIX: negative confirmation num for electrum personal server
 * FIX: Keyboard avoiding
 * FIX: allow LocalTrader for watch-only HD wallets
-
-v5.3.0
-======
-
-* ADD: Open clipboard modal if address is detected at launch
-* ADD: Copy from clipboard on actionsheet
-* ADD: support for Electrum Personal Server and Electrs (disable protocol batching)
-* ADD: avatars in HodlHodl offers list
-* ADD: Long Press on Send. More optins to come
-* FIX: Remove quick actions if storage is encrypted (improves plausible deniability)
-* FIX: allow copy to clipboard on watch-only wallets
-* FIX: electrum connection status now updates realtime
-* FIX: import single-address bech32 wallet from WIF (closes #911)
-* FIX: duplicate input detected error (closes #912)
-* FIX: Error in back button - Marketplace #922
-* FIX: Don't display clipboard modal if content is from a lightning wallet
-* REF: some love to the about section
