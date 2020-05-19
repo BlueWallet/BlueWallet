@@ -4,7 +4,7 @@
 
 * test the build on a real device. It is imperative that you run selftest and it gives you OK
 * if necessary, up version number in all relevant files (you can use `./edit-version-number.sh`)
-* run `./release-notes.sh` - it prints changelog between latest tag and now, put this output under 
+* run `./scripts/release-notes.sh` - it prints changelog between latest tag and now, put this output under
 new version in file `ios/fastlane/metadata/en-US/release_notes.txt` (on top); if file got too big 
 delete the oldest version from the bottom of the file
 * now is a good time to commit a ver bump and release notes changes
