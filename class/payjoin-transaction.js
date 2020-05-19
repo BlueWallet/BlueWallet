@@ -6,7 +6,7 @@ const delay = milliseconds => new Promise(resolve => setTimeout(resolve, millise
 
 // Implements IPayjoinClientWallet
 // https://github.com/Kukks/payjoin-client-js/blob/715f76da6ef8ffd03b6654c329655fdc3c8aa6c3/ts_src/wallet.ts
-export default class PayjoinWallet {
+export default class PayjoinTransaction {
   constructor(psbt, broadcast, wallet) {
     this.psbt = psbt;
     this.broadcast = broadcast;

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Switch, View } from 'react-native';
 import { Text } from 'react-native-elements';
 import { PayjoinClient } from 'payjoin-client';
-import PayjoinWallet from '../../class/payjoin-wallet';
+import PayjoinTransaction from '../../class/payjoin-transaction';
 import { BlueButton, BlueText, SafeBlueArea, BlueCard, BlueSpacing40, BlueNavigationStyle } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
@@ -64,7 +64,7 @@ export default class Confirm extends Component {
         if (!this.state.isPayjoinEnabled) {
           this.broadcast(this.state.tx);
         } else {
-          const wallet = new PayjoinWallet(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
+          const wallet = new PayjoinTransaction(this.state.psbt, txHex => this.broadcast(txHex), this.state.fromWallet);
           const payjoinClient = new PayjoinClient({
             wallet,
             payjoinUrl: this.state.payjoinUrl,
