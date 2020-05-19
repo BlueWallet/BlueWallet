@@ -312,7 +312,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           }
         }
         for (let vout of tx.vout) {
-          if (vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
+          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getExternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_external_index[c] = this._txs_by_external_index[c] || [];
             let clonedTx = Object.assign({}, tx);
@@ -359,7 +359,7 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
           }
         }
         for (let vout of tx.vout) {
-          if (vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
+          if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this._getInternalAddressByIndex(c)) !== -1) {
             // this TX is related to our address
             this._txs_by_internal_index[c] = this._txs_by_internal_index[c] || [];
             let clonedTx = Object.assign({}, tx);
