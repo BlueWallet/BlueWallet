@@ -8,19 +8,19 @@ const delay = milliseconds => new Promise(resolve => setTimeout(resolve, millise
 // https://github.com/Kukks/payjoin-client-js/blob/715f76da6ef8ffd03b6654c329655fdc3c8aa6c3/ts_src/wallet.ts
 export default class PayjoinTransaction {
   constructor(psbt, broadcast, wallet) {
-    this.psbt = psbt;
-    this.broadcast = broadcast;
-    this.wallet = wallet;
+    this._psbt = psbt;
+    this._broadcast = broadcast;
+    this._wallet = wallet;
   }
 
   async getPsbt() {
     // Nasty hack to get this working for now
-    const unfinalized = this.psbt.clone();
+    const unfinalized = this._psbt.clone();
     unfinalized.data.inputs.forEach((input, index) => {
       delete input.finalScriptWitness;
 
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
-      const wif = this.wallet._getWifForAddress(address);
+      const wif = this._wallet._getWifForAddress(address);
       const keyPair = bitcoin.ECPair.fromWIF(wif);
 
       unfinalized.signInput(index, keyPair);
@@ -34,7 +34,7 @@ export default class PayjoinTransaction {
     payjoinPsbt.data.inputs.forEach((input, index) => {
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
       try {
-        const wif = this.wallet._getWifForAddress(address);
+        const wif = this._wallet._getWifForAddress(address);
         const keyPair = bitcoin.ECPair.fromWIF(wif);
         payjoinPsbt.signInput(index, keyPair).finalizeInput(index);
       } catch (e) {}
@@ -45,7 +45,7 @@ export default class PayjoinTransaction {
 
   async broadcastTx(txHex) {
     try {
-      const result = await this.broadcast(txHex);
+      const result = await this._broadcast(txHex);
       if (!result) {
         throw new Error(`Broadcast failed`);
       }
@@ -71,13 +71,13 @@ export default class PayjoinTransaction {
 
     psbt.data.inputs.forEach(input => {
       const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
-      if (this.wallet.weOwnAddress(address)) {
+      if (this._wallet.weOwnAddress(address)) {
         sumPaidToUs -= input.witnessUtxo.value;
       }
     });
 
     psbt.txOutputs.forEach(output => {
-      if (this.wallet.weOwnAddress(output.address)) {
+      if (this._wallet.weOwnAddress(output.address)) {
         sumPaidToUs += output.value;
       }
     });
