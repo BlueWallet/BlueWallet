@@ -4,7 +4,6 @@ import React from 'react';
 import './shim.js';
 import { AppRegistry } from 'react-native';
 import WalletMigrate from './screen/wallets/walletMigrate';
-import { name as appName } from './app.json';
 import App from './App';
 import LottieView from 'lottie-react-native';
 import UnlockWith from './UnlockWith.js';
@@ -77,4 +76,4 @@ class BlueAppComponent extends React.Component {
   }
 }
 
-AppRegistry.registerComponent(appName, () => BlueAppComponent);
+AppRegistry.registerComponent('BlueWallet', () => BlueAppComponent);

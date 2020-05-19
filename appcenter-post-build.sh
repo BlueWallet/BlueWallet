@@ -14,7 +14,7 @@ if [ -f $FILENAME ]; then
     echo $APTZ
     APPURL=`node -e "let e = JSON.parse('$APTZ'); console.log(e.publicURL);"`
     echo App url: $APPURL
-    PR=`node appcenter-post-build-get-pr-number.js`
+    PR=`node scripts/appcenter-post-build-get-pr-number.js`
     echo PR: $PR
 
     # uploading file

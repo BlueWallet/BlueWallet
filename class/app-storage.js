@@ -408,7 +408,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletBalances(index) {
-    console.log('fetchWalletBalances for wallet#', index);
+    console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
@@ -434,7 +434,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletTransactions(index) {
-    console.log('fetchWalletTransactions for wallet#', index);
+    console.log('fetchWalletTransactions for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
