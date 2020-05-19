@@ -221,7 +221,6 @@ export default class Confirm extends Component {
                   <Switch
                     value={this.state.isPayjoinEnabled}
                     onValueChange={value => this.setState({ isPayjoinEnabled: value })}
-                    disabled={!this.state.payjoinUrl}
                   />
                 </View>
               )}
