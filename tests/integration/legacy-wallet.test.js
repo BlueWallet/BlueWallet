@@ -67,6 +67,21 @@ describe('LegacyWallet', function() {
       assert.ok(tx.confirmations > 1);
     }
   });
+  
+  it('can fetch TXs when addresses for vout are missing', async () => {
+    // Transaction with missing address output https://www.blockchain.com/btc/tx/d45818ae11a584357f7b74da26012d2becf4ef064db015a45bdfcd9cb438929d
+    let w = new LegacyWallet();
+    w._address = '1PVfrmbn1vSMoFZB2Ga7nDuXLFDyJZHrHK';
+    await w.fetchTransactions();
+
+    assert.ok(w.getTransactions().length > 0);
+    for (let tx of w.getTransactions()) {
+      assert.ok(tx.hash);
+      assert.ok(tx.value);
+      assert.ok(tx.received);
+      assert.ok(tx.confirmations > 1);
+    }
+  });
 
   it('can fetch UTXO', async () => {
     let w = new LegacyWallet();
