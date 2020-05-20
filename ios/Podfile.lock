@@ -196,13 +196,13 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.21.0):
+  - react-native-camera (3.23.1):
     - React
-    - react-native-camera/RCT (= 3.21.0)
-    - react-native-camera/RN (= 3.21.0)
-  - react-native-camera/RCT (3.21.0):
+    - react-native-camera/RCT (= 3.23.1)
+    - react-native-camera/RN (= 3.23.1)
+  - react-native-camera/RCT (3.23.1):
     - React
-  - react-native-camera/RN (3.21.0):
+  - react-native-camera/RN (3.23.1):
     - React
   - react-native-document-picker (3.2.0):
     - React
@@ -213,8 +213,6 @@ PODS:
   - react-native-slider (2.0.8):
     - React
   - react-native-tcp (3.3.2):
-    - React
-  - react-native-viewpager (4.0.0):
     - React
   - react-native-webview (6.11.1):
     - React
@@ -325,7 +323,6 @@ DEPENDENCIES:
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp (from `../node_modules/react-native-tcp`)
-  - "react-native-viewpager (from `../node_modules/@react-native-community/viewpager`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -417,8 +414,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/slider"
   react-native-tcp:
     :path: "../node_modules/react-native-tcp"
-  react-native-viewpager:
-    :path: "../node_modules/@react-native-community/viewpager"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
@@ -503,13 +498,12 @@ SPEC CHECKSUMS:
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: a9749fa0c1162cdb2f56b93a5d97a72ebd56694f
+  react-native-camera: 6fe72fd0a85732e2449928f9c59a2e0bf661ad3b
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
   react-native-tcp: be8e119e631970aaeda7f6e3207f6b7be72d5eb8
-  react-native-viewpager: 82826c981b1ad277757388317686fad30210ed77
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
