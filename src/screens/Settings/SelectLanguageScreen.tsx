@@ -40,33 +40,14 @@ export const SelectLanguageScreen = () => {
   const [selectedLanguageValue, setselectedLanguageValue] = useState('en');
   const availableLanguages: Language[] = [
     { label: 'English (EN)', value: 'en' },
-    { label: 'Afrikaans (AFR)', value: 'zar_afr' },
     { label: 'Chinese (ZH)', value: 'zh_cn' },
-    { label: 'Chinese (TW)', value: 'zh_tw' },
-    { label: 'Croatian (HR)', value: 'hr_hr' },
-    { label: 'Česky (CZ)', value: 'cs_cz' },
-    { label: 'Danish (DK)', value: 'da_dk' },
-    { label: 'Deutsch (DE)', value: 'de_de' },
     { label: 'Español (ES)', value: 'es' },
-    { label: 'Ελληνικά (EL)', value: 'el' },
-    { label: 'Italiano (IT)', value: 'it' },
-    { label: 'Suomi (FI)', value: 'fi_fi' },
-    { label: 'Français (FR)', value: 'fr_fr' },
     { label: 'Indonesia (ID)', value: 'id_id' },
     { label: '日本語 (JP)', value: 'jp_jp' },
     { label: '한국어 (KO)', value: 'ko_kr' },
-    { label: 'Magyar (HU)', value: 'hu_hu' },
-    { label: 'Nederlands (NL)', value: 'nl_nl' },
-    { label: 'Norsk (NB)', value: 'nb_no' },
-    { label: 'Português (BR)', value: 'pt_br' },
     { label: 'Português (PT)', value: 'pt_pt' },
-    { label: 'Русский', value: 'ru' },
-    { label: 'Svenska (SE)', value: 'sv_se' },
-    { label: 'Thai (TH)', value: 'th_th' },
     { label: 'Vietnamese (VN)', value: 'vi_vn' },
-    { label: 'Українська', value: 'ua' },
     { label: 'Türkçe (TR)', value: 'tr_tr' },
-    { label: 'Xhosa (XHO)', value: 'zar_xho' },
   ];
 
   useEffect(() => {
