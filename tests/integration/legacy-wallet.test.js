@@ -67,7 +67,7 @@ describe('LegacyWallet', function() {
       assert.ok(tx.confirmations > 1);
     }
   });
-  
+
   it('can fetch TXs when addresses for vout are missing', async () => {
     // Transaction with missing address output https://www.blockchain.com/btc/tx/d45818ae11a584357f7b74da26012d2becf4ef064db015a45bdfcd9cb438929d
     let w = new LegacyWallet();
