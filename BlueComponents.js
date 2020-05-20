@@ -382,7 +382,7 @@ export class BlueButtonLink extends Component {
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
     'Wallet',
-    `Have your saved your wallet's backup phrase? This backup phrase is required to access your funds in case you lose this device. Without the backup phrase, your funds will be permanently lost.`,
+    `Have you saved your wallet's backup phrase? This backup phrase is required to access your funds in case you lose this device. Without the backup phrase, your funds will be permanently lost.`,
     [
       { text: 'Yes, I have', onPress: onSuccess, style: 'cancel' },
       {
