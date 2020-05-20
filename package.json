@@ -93,7 +93,7 @@
     "lottie-react-native": "3.1.1",
     "node-libs-react-native": "1.0.3",
     "path-browserify": "1.0.0",
-    "payjoin-client": "github:Kukks/payjoin-client-js#715f76da6ef8ffd03b6654c329655fdc3c8aa6c3",
+    "payjoin-client": "github:Kukks/payjoin-client-js#f28c042",
     "pbkdf2": "3.0.17",
     "prettier": "1.19.1",
     "process": "0.11.10",
