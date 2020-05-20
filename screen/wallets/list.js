@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
-import { View, StatusBar, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert } from 'react-native';
-import { SafeBlueArea, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
+import { View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert } from 'react-native';
+import { SafeBlueArea, BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
-import ViewPager from '@react-native-community/viewpager';
-import ScanQRCode from '../send/ScanQRCode';
-import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
@@ -21,7 +19,6 @@ const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', 
 
 export default class WalletsList extends Component {
   walletsCarousel = React.createRef();
-  viewPagerRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -32,8 +29,6 @@ export default class WalletsList extends Component {
       lastSnappedTo: 0,
       timeElpased: 0,
       dataSource: [],
-      cameraPreviewIsPaused: true,
-      viewPagerIndex: 1,
     };
     EV(EV.enum.WALLETS_COUNT_CHANGED, () => this.redrawScreen(true));
 
@@ -63,6 +58,7 @@ export default class WalletsList extends Component {
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
+    this.redrawScreen();
   }
 
   componentWillUnmount() {
@@ -285,19 +281,6 @@ export default class WalletsList extends Component {
     }
   };
 
-  onPageSelected = e => {
-    const index = e.nativeEvent.position;
-    StatusBar.setBarStyle(index === 1 ? 'dark-content' : 'light-content');
-    this.setState({ cameraPreviewIsPaused: index === 1 || index === undefined, viewPagerIndex: index });
-  };
-
-  onBarScanned = value => {
-    DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
-      ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
-      this.props.navigation.navigate(completionValue);
-    });
-  };
-
   renderTransactionListsRow = data => {
     return (
       <View style={{ marginHorizontal: 4 }}>
@@ -437,52 +420,61 @@ export default class WalletsList extends Component {
     return `${item}${index}}`;
   };
 
+  onScanButtonPressed = () => {
+    this.props.navigation.navigate('ScanQRCode', {
+      launchedBy: this.props.navigation.state.routeName,
+      onBarScanned: this.onBarCodeRead,
+      showFileImportButton: false,
+    });
+  };
+
+  onBarScanned = value => {
+    DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
+      ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+      this.props.navigation.navigate(completionValue);
+    });
+  };
+
   render() {
     return (
       <SafeBlueArea>
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
-            this.setState({ cameraPreviewIsPaused: this.state.viewPagerIndex === 1 || this.viewPagerRef.current.index === undefined });
           }}
-          onWillBlur={() => this.setState({ cameraPreviewIsPaused: true })}
         />
-        <ViewPager
-          style={styles.wrapper}
-          onPageSelected={this.onPageSelected}
-          initialPage={1}
-          ref={this.viewPagerRef}
-          showPageIndicator={false}
-          testID="WalletsList"
-          accessible
-        >
-          <View style={styles.scanQRWrapper}>
-            <ScanQRCode
-              cameraPreviewIsPaused={this.state.cameraPreviewIsPaused}
-              onBarScanned={this.onBarScanned}
-              showCloseButton={false}
-              initialCameraStatusReady={false}
-              launchedBy={this.props.navigation.state.routeName}
-            />
+        <View style={styles.walletsListWrapper}>
+          {this.renderNavigationHeader()}
+          <SectionList
+            refreshControl={
+              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
+            }
+            renderItem={this.renderSectionItem}
+            keyExtractor={this.sectionListKeyExtractor}
+            renderSectionHeader={this.renderSectionHeader}
+            contentInset={{ top: 0, left: 0, bottom: 60, right: 0 }}
+            renderSectionFooter={this.renderSectionFooter}
+            sections={[
+              { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
+              { key: WalletsListSections.LOCALTRADER, data: [WalletsListSections.LOCALTRADER] },
+              { key: WalletsListSections.TRANSACTIONS, data: this.state.dataSource },
+            ]}
+          />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignSelf: 'center',
+              backgroundColor: 'transparent',
+              position: 'absolute',
+              bottom: 10,
+              borderRadius: 30,
+              minHeight: 48,
+              overflow: 'hidden',
+            }}
+          >
+            <BlueScanButton onPress={this.onScanButtonPressed} />
           </View>
-          <View style={styles.walletsListWrapper}>
-            {this.renderNavigationHeader()}
-            <SectionList
-              refreshControl={
-                <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
-              }
-              renderItem={this.renderSectionItem}
-              keyExtractor={this.sectionListKeyExtractor}
-              renderSectionHeader={this.renderSectionHeader}
-              renderSectionFooter={this.renderSectionFooter}
-              sections={[
-                { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
-                { key: WalletsListSections.LOCALTRADER, data: [WalletsListSections.LOCALTRADER] },
-                { key: WalletsListSections.TRANSACTIONS, data: this.state.dataSource },
-              ]}
-            />
-          </View>
-        </ViewPager>
+        </View>
       </SafeBlueArea>
     );
   }
@@ -496,10 +488,6 @@ const styles = StyleSheet.create({
   walletsListWrapper: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  scanQRWrapper: {
-    flex: 1,
-    backgroundColor: '#000000',
   },
 });
 

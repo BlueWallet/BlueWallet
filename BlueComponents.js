@@ -1234,6 +1234,47 @@ export class BlueReceiveButtonIcon extends Component {
   }
 }
 
+export class BlueScanButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity {...this.props}>
+        <View
+          style={{
+            flex: 1,
+            minWidth: 130,
+            backgroundColor: BlueApp.settings.buttonBackgroundColor,
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <View
+              style={{
+                minWidth: 30,
+                minHeight: 30,
+                backgroundColor: 'transparent',
+                alignItems: 'center',
+                marginBottom: -15,
+              }}
+            >
+              <Image source={require('./img/scan.png')} />
+            </View>
+            <Text
+              style={{
+                color: BlueApp.settings.buttonAlternativeTextColor,
+                fontSize: (isIpad && 10) || 16,
+                fontWeight: '500',
+                left: 5,
+                backgroundColor: 'transparent',
+              }}
+            >
+              {loc.send.details.scan}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
 export class BlueSendButtonIcon extends Component {
   render() {
     return (
