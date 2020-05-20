@@ -83,6 +83,27 @@ describe('LegacyWallet', function() {
     }
   });
 
+  it.each([
+    ['addresses for vout missing', '1PVfrmbn1vSMoFZB2Ga7nDuXLFDyJZHrHK'],
+    ['txdatas were coming back null from BlueElectrum because of high batchsize', '34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo'],
+  ])(
+    'can fetch TXs when %s',
+    async (useCase, address) => {
+      let w = new LegacyWallet();
+      w._address = address;
+      await w.fetchTransactions();
+
+      assert.ok(w.getTransactions().length > 0);
+      for (let tx of w.getTransactions()) {
+        assert.ok(tx.hash);
+        assert.ok(tx.value);
+        assert.ok(tx.received);
+        assert.ok(tx.confirmations > 1);
+      }
+    },
+    240000,
+  );
+
   it('can fetch UTXO', async () => {
     let w = new LegacyWallet();
     w._address = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX';
