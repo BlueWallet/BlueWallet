@@ -344,6 +344,7 @@ export default class WalletsList extends Component {
         handleLongPress={this.handleLongPress}
         onSnapToItem={this.onSnapToItem}
         ref={this.walletsCarousel}
+        testID="WalletsList"
       />
     );
   };
