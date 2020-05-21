@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
-import { Linking, DeviceEventEmitter, AppState, Clipboard, View } from 'react-native';
+import { Linking, DeviceEventEmitter, Clipboard, View } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { createAppContainer, NavigationActions } from 'react-navigation';
 import { Provider } from 'react-redux';
@@ -9,7 +9,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { Wallet } from 'app/consts';
 import { RootNavigator } from 'app/navigators';
 import { UnlockScreen } from 'app/screens';
-import { NavigationService, SecureStorageService } from 'app/services';
+import { NavigationService, SecureStorageService, AppStateManager } from 'app/services';
 import { persistor, store } from 'app/state/store';
 
 import OnAppLaunch from './class/onAppLaunch';
@@ -29,7 +29,6 @@ const BlueApp = require('./BlueApp');
 const AppContainer = createAppContainer(RootNavigator);
 
 interface State {
-  appState: string;
   isClipboardContentModalVisible: boolean;
   clipboardContentModalAddressType: string;
   clipboardContent: string;
@@ -37,11 +36,10 @@ interface State {
   successfullyAuthenticated: boolean;
 }
 
-export default class App extends React.Component<State> {
+export default class App extends React.PureComponent<State> {
   navigator: any = null;
 
   state = {
-    appState: AppState.currentState,
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
@@ -56,7 +54,6 @@ export default class App extends React.Component<State> {
     }
 
     Linking.addEventListener('url', this.handleOpenURL);
-    AppState.addEventListener('change', this._handleAppStateChange);
     QuickActions.popInitialAction().then(this.popInitialAction);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
   }
@@ -127,24 +124,20 @@ export default class App extends React.Component<State> {
 
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
-    AppState.removeEventListener('change', this._handleAppStateChange);
   }
 
-  _handleAppStateChange = async (nextAppState: string) => {
-    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
-      this.setState({
-        successfullyAuthenticated: false,
-      });
-      const clipboard = await Clipboard.getString();
-      const isAddressFromStoredWallet = BlueApp.getWallets().some((wallet: Wallet) =>
-        wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
-      );
-      if (!isAddressFromStoredWallet && this.state.clipboardContent !== clipboard && this.isBitcoinAddress(clipboard)) {
-        this.setState({ isClipboardContentModalVisible: true });
-      }
-      this.setState({ clipboardContent: clipboard });
+  handleAppComesToForeground = async () => {
+    this.setState({
+      successfullyAuthenticated: false,
+    });
+    const clipboard = await Clipboard.getString();
+    const isAddressFromStoredWallet = BlueApp.getWallets().some((wallet: Wallet) =>
+      wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
+    );
+    if (!isAddressFromStoredWallet && this.state.clipboardContent !== clipboard && this.isBitcoinAddress(clipboard)) {
+      this.setState({ isClipboardContentModalVisible: true });
     }
-    this.setState({ appState: nextAppState });
+    this.setState({ clipboardContent: clipboard });
   };
 
   hasSchema(schemaString: string) {
@@ -207,6 +200,7 @@ export default class App extends React.Component<State> {
     const isBiometricEnabledByUser = store.getState().appSettings.isBiometricsEnabled;
     return (
       <Provider store={store}>
+        <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
         <PersistGate loading={null} persistor={persistor}>
           <View style={{ flex: 1 }}>
             {isPinSet && !successfullyAuthenticated ? (
