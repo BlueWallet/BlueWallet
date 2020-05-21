@@ -291,7 +291,7 @@ export default class WalletsList extends Component {
 
   renderNavigationHeader = () => {
     return (
-      <View style={{ height: 44, alignItems: 'flex-end', justifyContent: 'center' }}>
+      <View style={{ marginTop:44, height: 32, alignItems: 'flex-end', justifyContent: 'center' }}>
         <TouchableOpacity
           testID="SettingsButton"
           style={{ marginHorizontal: 16 }}
@@ -416,6 +416,29 @@ export default class WalletsList extends Component {
     }
   };
 
+  renderScanButton = () => {
+    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
+      return (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignSelf: 'center',
+            backgroundColor: 'transparent',
+            position: 'absolute',
+            bottom: 30,
+            borderRadius: 30,
+            minHeight: 48,
+            overflow: 'hidden',
+          }}
+        >
+          <BlueScanButton onPress={this.onScanButtonPressed} />
+        </View>
+      );
+    } else {
+      return null;
+    }
+  };
+
   sectionListKeyExtractor = (item, index) => {
     return `${item}${index}}`;
   };
@@ -437,7 +460,7 @@ export default class WalletsList extends Component {
 
   render() {
     return (
-      <SafeBlueArea>
+       <View style={{ flex: 1 }}>
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
@@ -460,22 +483,9 @@ export default class WalletsList extends Component {
               { key: WalletsListSections.TRANSACTIONS, data: this.state.dataSource },
             ]}
           />
-          <View
-            style={{
-              flexDirection: 'row',
-              alignSelf: 'center',
-              backgroundColor: 'transparent',
-              position: 'absolute',
-              bottom: 10,
-              borderRadius: 30,
-              minHeight: 48,
-              overflow: 'hidden',
-            }}
-          >
-            <BlueScanButton onPress={this.onScanButtonPressed} />
-          </View>
+            {this.renderScanButton()}
         </View>
-      </SafeBlueArea>
+      </View>
     );
   }
 }
