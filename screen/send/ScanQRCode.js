@@ -112,9 +112,9 @@ const ScanQRCode = ({
             borderRadius: 20,
             position: 'absolute',
             right: 16,
-            top: 64,
+            top: 44,
           }}
-          onPress={() => (launchedBy ? navigate(launchedBy) : goBack(null))}
+          onPress={() => (launchedBy ? navigate(launchedBy) : goBack())}
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
@@ -123,7 +123,7 @@ const ScanQRCode = ({
         style={{
           width: 40,
           height: 40,
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'rgba(0,0,0,0.4)',
           justifyContent: 'center',
           borderRadius: 20,
           position: 'absolute',
@@ -156,14 +156,14 @@ const ScanQRCode = ({
           }
         }}
       >
-        <Icon name="image" type="font-awesome" color="#0c2550" />
+        <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
       {showFileImportButton && (
         <TouchableOpacity
           style={{
             width: 40,
             height: 40,
-            backgroundColor: '#FFFFFF',
+            backgroundColor: 'rgba(0,0,0,0.4)',
             justifyContent: 'center',
             borderRadius: 20,
             position: 'absolute',
@@ -172,7 +172,7 @@ const ScanQRCode = ({
           }}
           onPress={showFilePicker}
         >
-          <Icon name="file-import" type="material-community" color="#0c2550" />
+          <Icon name="file-import" type="material-community" color="#ffffff" />
         </TouchableOpacity>
       )}
     </View>
