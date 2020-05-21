@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { Platform, Dimensions, View, Keyboard } from 'react-native';
+import { StatusBar, Platform, Dimensions, View, Keyboard } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -11,6 +11,7 @@ import {
   BlueSpacing20,
   BlueNavigationStyle,
 } from '../../BlueComponents';
+import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
@@ -68,6 +69,11 @@ const WalletsImport = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
+      <NavigationEvents
+          onWillFocus={() => {
+            StatusBar.setBarStyle('dark-content');
+          }}
+        />
       <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput

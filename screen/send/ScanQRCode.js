@@ -1,8 +1,9 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { Image, View, TouchableOpacity, Platform } from 'react-native';
+import { StatusBar, Image, View, TouchableOpacity, Platform } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
+import { NavigationEvents } from 'react-navigation';
 import ImagePicker from 'react-native-image-picker';
 import PropTypes from 'prop-types';
 import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
@@ -21,7 +22,7 @@ const ScanQRCode = ({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   launchedBy = useNavigationParam('launchedBy'),
 }) => {
-  if (!launchedBy || !onBarScanned) console.warn('Necessary params missing');
+  if (!launchedBy);
   const [isLoading, setIsLoading] = useState(false);
   const { navigate, goBack } = useNavigation();
 
@@ -88,6 +89,11 @@ const ScanQRCode = ({
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
+      <NavigationEvents
+          onWillFocus={() => {
+            StatusBar.setBarStyle('light-content');
+          }}
+        />
       {!cameraPreviewIsPaused && !isLoading && (
         <RNCamera
           captureAudio={false}

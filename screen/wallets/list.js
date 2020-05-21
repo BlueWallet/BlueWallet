@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
+import { StatusBar, View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -459,11 +459,16 @@ export default class WalletsList extends Component {
     });
   };
 
+  onWillBlur() {
+    StatusBar.setBarStyle('dark-content');
+  }
+
   render() {
     return (
       <View style={{ flex: 1 }}>
         <NavigationEvents
-          onDidFocus={() => {
+          onWillFocus={() => {
+            StatusBar.setBarStyle('dark-content');
             this.redrawScreen();
           }}
         />
