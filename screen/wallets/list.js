@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert } from 'react-native';
-import { SafeBlueArea, BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
+import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -291,7 +291,7 @@ export default class WalletsList extends Component {
 
   renderNavigationHeader = () => {
     return (
-      <View style={{ marginTop:44, height: 32, alignItems: 'flex-end', justifyContent: 'center' }}>
+      <View style={{ marginTop: 44, height: 32, alignItems: 'flex-end', justifyContent: 'center' }}>
         <TouchableOpacity
           testID="SettingsButton"
           style={{ marginHorizontal: 16 }}
@@ -460,7 +460,7 @@ export default class WalletsList extends Component {
 
   render() {
     return (
-       <View style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
@@ -483,7 +483,7 @@ export default class WalletsList extends Component {
               { key: WalletsListSections.TRANSACTIONS, data: this.state.dataSource },
             ]}
           />
-            {this.renderScanButton()}
+          {this.renderScanButton()}
         </View>
       </View>
     );
