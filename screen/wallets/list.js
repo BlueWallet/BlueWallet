@@ -507,7 +507,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
       },
       android: {
-        height: 32,
+        marginTop: 8,
+        height: 44,
         alignItems: 'flex-end',
         justifyContent: 'center',
       },
