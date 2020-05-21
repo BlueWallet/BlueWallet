@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Image, View, TouchableOpacity, Platform } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
@@ -12,19 +12,14 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
 const ScanQRCode = ({
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  onBarScanned = useNavigationParam('onBarScanned'),
-  cameraPreviewIsPaused = false,
   showCloseButton = true,
   // eslint-disable-next-line react-hooks/rules-of-hooks
   showFileImportButton = useNavigationParam('showFileImportButton') || false,
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  launchedBy = useNavigationParam('launchedBy'),
 }) => {
-  if (!launchedBy || !onBarScanned) console.warn('Necessary params missing');
   const [isLoading, setIsLoading] = useState(false);
-  const { navigate, goBack } = useNavigation();
-
+  const { navigate } = useNavigation();
+  const launchedBy = useNavigationParam('launchedBy');
+  const onBarScanned = useNavigationParam('onBarScanned');
   const scannedCache = {};
 
   const HashIt = function(s) {
@@ -42,7 +37,7 @@ const ScanQRCode = ({
     }
     scannedCache[h] = +new Date();
 
-    if (!isLoading && !cameraPreviewIsPaused) {
+    if (!isLoading) {
       setIsLoading(true);
       try {
         if (showCloseButton && launchedBy) {
@@ -84,11 +79,9 @@ const ScanQRCode = ({
     setIsLoading(false);
   };
 
-  useEffect(() => {}, [cameraPreviewIsPaused]);
-
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
-      {!cameraPreviewIsPaused && !isLoading && (
+      {!!isLoading && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -114,7 +107,7 @@ const ScanQRCode = ({
             right: 16,
             top: 44,
           }}
-          onPress={() => (launchedBy ? navigate(launchedBy) : goBack())}
+          onPress={() => navigate(launchedBy)}
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
@@ -183,9 +176,6 @@ ScanQRCode.navigationOptions = {
   header: null,
 };
 ScanQRCode.propTypes = {
-  launchedBy: PropTypes.string,
-  onBarScanned: PropTypes.func,
-  cameraPreviewIsPaused: PropTypes.bool,
   showFileImportButton: PropTypes.bool,
   showCloseButton: PropTypes.bool,
 };
