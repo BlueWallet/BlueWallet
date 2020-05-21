@@ -386,7 +386,7 @@ export default class WalletsList extends Component {
       case WalletsListSections.TRANSACTIONS:
         if (this.state.dataSource.length === 0 && !this.state.isLoading) {
           return (
-            <View style={{ top: 80, height: 160 }}>
+            <View style={{ top: 80, height: 160, marginBottom: 80 }}>
               <Text
                 style={{
                   fontSize: 18,
