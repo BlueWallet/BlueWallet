@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -291,7 +291,7 @@ export default class WalletsList extends Component {
 
   renderNavigationHeader = () => {
     return (
-      <View style={{ marginTop: 44, height: 32, alignItems: 'flex-end', justifyContent: 'center' }}>
+      <View style={styles.headerStyle}>
         <TouchableOpacity
           testID="SettingsButton"
           style={{ marginHorizontal: 16 }}
@@ -489,7 +489,6 @@ export default class WalletsList extends Component {
     );
   }
 }
-
 const styles = StyleSheet.create({
   wrapper: {
     backgroundColor: '#FFFFFF',
@@ -498,6 +497,21 @@ const styles = StyleSheet.create({
   walletsListWrapper: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  headerStyle: {
+    ...Platform.select({
+      ios: {
+        marginTop: 44,
+        height: 32,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      },
+      android: {
+        height: 32,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      },
+    }),
   },
 });
 
