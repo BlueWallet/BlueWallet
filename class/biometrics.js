@@ -72,7 +72,7 @@ export default class Biometric {
   }
 
   static async requestDevicePasscode() {
-    let isDevicePasscodeSupported = true;
+    let isDevicePasscodeSupported = false;
     try {
       isDevicePasscodeSupported = await PasscodeAuth.isSupported();
       if (isDevicePasscodeSupported) {
@@ -93,9 +93,9 @@ export default class Biometric {
         }
       }
     } catch {
-      isDevicePasscodeSupported = false;
+      isDevicePasscodeSupported = undefined;
     }
-    if (!isDevicePasscodeSupported) {
+    if (isDevicePasscodeSupported === false) {
       alert('Your device does not have a passcode. In order to proceed, please configure a passcode in the Settings app.');
     }
   }
