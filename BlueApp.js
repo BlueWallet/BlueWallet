@@ -66,7 +66,7 @@ async function startAndDecrypt(retry) {
   if (!success && password) {
     // we had password and yet could not load/decrypt
     attempt++;
-    if (attempt < 2 || Platform.OS !== 'ios') {
+    if (attempt < 10 || Platform.OS !== 'ios') {
       return startAndDecrypt(true);
     } else {
       attempt = 0;
