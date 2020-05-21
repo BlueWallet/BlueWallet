@@ -3,6 +3,8 @@
  */
 import { AppStorage } from './class';
 import DeviceQuickActions from './class/quickActions';
+import { Platform } from 'react-native';
+import Biometric from './class/biometrics';
 let prompt = require('./prompt');
 let EV = require('./events');
 let currency = require('./currency');
@@ -11,12 +13,13 @@ let BlueElectrum = require('./BlueElectrum'); // eslint-disable-line
 
 /** @type {AppStorage} */
 const BlueApp = new AppStorage();
+let attempt = 0;
 
 async function startAndDecrypt(retry) {
   console.log('startAndDecrypt');
   if (BlueApp.getWallets().length > 0) {
     console.log('App already has some wallets, so we are in already started state, exiting startAndDecrypt');
-    return;
+    return false;
   }
   let password = false;
   if (await BlueApp.storageIsEncrypted()) {
@@ -27,7 +30,6 @@ async function startAndDecrypt(retry) {
   }
   let success = await BlueApp.loadFromDisk(password);
   if (success) {
-    console.log('loaded from disk');
     EV(EV.enum.WALLETS_COUNT_CHANGED);
     EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
     // now, lets try to fetch balance and txs for first wallet if it is time for it
@@ -58,11 +60,18 @@ async function startAndDecrypt(retry) {
     if (hadToRefresh && noErr) {
       await BlueApp.saveToDisk(); // caching
     } */
+    return true;
   }
 
   if (!success && password) {
     // we had password and yet could not load/decrypt
-    return startAndDecrypt(true);
+    attempt++;
+    if (attempt < 2 || Platform.OS !== 'ios') {
+      return startAndDecrypt(true);
+    } else {
+      attempt = 0;
+      Biometric.showKeychainWipeAlert();
+    }
   }
 }
 

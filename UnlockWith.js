@@ -5,13 +5,14 @@ import Biometric from './class/biometrics';
 import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-navigation';
 /** @type {AppStorage} */
-
+const EV = require('./events');
 const BlueApp = require('./BlueApp');
 
 export default class UnlockWith extends Component {
   state = { biometricType: false, isStorageEncrypted: false, isAuthenticating: false };
 
   async componentDidMount() {
+    EV(EV.enum.KEYCHAIN_CLEARED, this.unlockWithKey);
     let biometricType = false;
     if (await Biometric.isBiometricUseCapableAndEnabled()) {
       biometricType = await Biometric.biometricType();
@@ -34,7 +35,6 @@ export default class UnlockWith extends Component {
     }
     this.setState({ isAuthenticating: true }, async () => {
       if (await Biometric.unlockWithBiometrics()) {
-        this.setState({ isAuthenticating: false });
         await BlueApp.startAndDecrypt();
         return this.props.onSuccessfullyAuthenticated();
       }
@@ -44,8 +44,12 @@ export default class UnlockWith extends Component {
 
   unlockWithKey = () => {
     this.setState({ isAuthenticating: true }, async () => {
-      await BlueApp.startAndDecrypt();
-      this.props.onSuccessfullyAuthenticated();
+      const decrypted = await BlueApp.startAndDecrypt();
+      if (decrypted) {
+        this.props.onSuccessfullyAuthenticated();
+      } else {
+        this.setState({ isAuthenticating: false });
+      }
     });
   };
 

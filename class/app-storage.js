@@ -94,6 +94,14 @@ export class AppStorage {
     }
   }
 
+  removeItem(key) {
+    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+      return RNSecureKeyStore.remove(key);
+    } else {
+      return AsyncStorage.removeItem(key);
+    }
+  }
+
   async setResetOnAppUninstallTo(value) {
     await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
     try {
@@ -325,7 +333,7 @@ export class AppStorage {
       }
     } catch (error) {
       console.warn(error.message);
-      return false;
+      return true;
     }
   }
 
@@ -408,7 +416,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletBalances(index) {
-    console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
+    console.log('fetchWalletBalances for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
@@ -434,7 +442,7 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletTransactions(index) {
-    console.log('fetchWalletTransactions for wallet#', typeof index === 'undefined' ? '(all)' : index);
+    console.log('fetchWalletTransactions for wallet#', index);
     if (index || index === 0) {
       let c = 0;
       for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
