@@ -27,6 +27,8 @@ PODS:
   - lottie-react-native (3.1.1):
     - lottie-ios (~> 3.0.3)
     - React
+  - PasscodeAuth (1.0.0):
+    - React
   - RCTRequired (0.61.5)
   - RCTTypeSafety (0.61.5):
     - FBLazyVector (= 0.61.5)
@@ -305,6 +307,7 @@ DEPENDENCIES:
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - lottie-react-native (from `../node_modules/lottie-react-native`)
+  - PasscodeAuth (from `../node_modules/react-native-passcode-auth`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
   - React (from `../node_modules/react-native/`)
@@ -381,6 +384,8 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   lottie-react-native:
     :path: "../node_modules/lottie-react-native"
+  PasscodeAuth:
+    :path: "../node_modules/react-native-passcode-auth"
   RCTRequired:
     :path: "../node_modules/react-native/Libraries/RCTRequired"
   RCTTypeSafety:
@@ -491,6 +496,7 @@ SPEC CHECKSUMS:
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   lottie-ios: c38c3178ae8c4a8f200661aa5f80b9f1ca7f56b3
   lottie-react-native: d8caf2aa9ab8bb76312e44997c1c91804a23d44d
+  PasscodeAuth: 1cc99b13d8e4de4716d7e2b4069af2f1a9de30b2
   RCTRequired: b153add4da6e7dbc44aebf93f3cf4fcae392ddf1
   RCTTypeSafety: 9aa1b91d7f9310fc6eadc3cf95126ffe818af320
   React: b6a59ef847b2b40bb6e0180a97d0ca716969ac78

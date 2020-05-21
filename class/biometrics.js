@@ -76,7 +76,7 @@ export default class Biometric {
     try {
       isDevicePasscodeSupported = await PasscodeAuth.isSupported();
       if (isDevicePasscodeSupported) {
-        const isAuthenticated = PasscodeAuth.authenticate();
+        const isAuthenticated = await PasscodeAuth.authenticate();
         if (isAuthenticated) {
           Alert.alert(
             'Storage',
