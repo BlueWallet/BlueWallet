@@ -17,12 +17,13 @@ export const HEADER_HEIGHT = Platform.select({
 interface Props extends Partial<NavigationScreenProps> {
   title: string;
   isBackArrow?: boolean;
+  onBackArrow?: () => void;
   isCancelButton?: boolean;
   addFunction?: () => void;
 }
 
-export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunction }: Props) => {
-  const onLeftItemPress = () => navigation!.pop();
+export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunction, onBackArrow }: Props) => {
+  const onLeftItemPress = () => (onBackArrow ? onBackArrow() : navigation!.pop());
   const renderBackArrow = () => <Image style={styles.image} source={images.backArrow} />;
   const renderCancelButton = () => (
     <FlatButton onPress={onLeftItemPress} titleStyle={typography.headline4} title="Cancel" />

@@ -72,9 +72,8 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
   };
 
   const renderSecuritySettings = () => {
-    console.log('BiometricService.biometryType', BiometricService.biometryType);
     const biometryTypeAvailable = BiometricService.biometryType;
-    const isDisabled = biometryTypeAvailable !== 'TouchID' && biometryTypeAvailable !== 'Biometrics';
+    const isDisabled = biometryTypeAvailable === undefined;
     return (
       <>
         <ListItem
@@ -86,7 +85,7 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
         />
         <ListItem
           disabled={isDisabled}
-          title={isDisabled ? i18n.settings.notSupportedFingerPrint : i18n.settings.TouchID}
+          title={isDisabled ? i18n.settings.notSupportedFingerPrint : i18n.settings[biometryTypeAvailable]}
           source={icons.fingerprintIcon}
           switchValue={isBiometricsEnabled}
           onSwitchValueChange={onFingerprintLoginChange}

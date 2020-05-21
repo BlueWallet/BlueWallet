@@ -19,11 +19,18 @@ module.exports = {
     creatingWalletDescription: 'Please be patient while we create your wallet. It may take a while.',
   },
   onboarding: {
+    onboarding: 'Onboarding',
     pin: 'PIN',
     createPin: 'Create PIN',
     createNewPin: 'New PIN',
+    createPassword: 'Create transaction password',
+    createPinDescription:
+      'Your PIN will be used to log in to the application. You can change it later in the Settings section.',
     confirmPin: 'Confirm PIN',
     confirmNewPin: 'Confirm new PIN',
+    confirmPassword: 'Confirm transaction password',
+    createPasswordDescription:
+      'Your Transaction Password will be used to verify all of the transactions. You cannot change it later. Transaction Password must contain at least 8 alphanumerical characters.',
     changePin: 'Change PIN',
     currentPin: 'Current PIN',
     pinDoesNotMatch: 'PIN does not match. Please enter a valid PIN.',
@@ -232,6 +239,7 @@ module.exports = {
     notSupportedFingerPrint: 'Your device does not support fingerprint',
     TouchID: 'Allow fingerprint',
     FaceID: 'Allow FaceID',
+    Biometrics: 'Allow biometrics',
   },
   aboutUs: {
     header: 'About us',

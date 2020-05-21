@@ -1,5 +1,6 @@
 export const CONST = {
   pinCodeLength: 4,
+  transactionPasswordLength: 8,
 };
 
 export enum Route {
@@ -36,6 +37,8 @@ export enum Route {
   CreatePin = 'CreatePin',
   ConfirmPin = 'ConfirmPin',
   UnlockScreen = 'UnlockScreen',
+  CreateTransactionPassword = 'CreateTransactionPassword',
+  ConfirmTransactionPassword = 'ConfirmTransactionPassword',
 }
 
 export interface Wallet {

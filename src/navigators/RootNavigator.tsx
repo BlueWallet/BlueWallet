@@ -7,6 +7,7 @@ import { ActionSheet, ImportWalletQRCodeScreen, UnlockScreen } from 'app/screens
 import { EditTextNavigator } from './EditTextNavigator';
 import { MainCardStackNavigator } from './MainCardStackNavigator';
 import { MessageNavigator } from './MessageNavigator';
+import { PasswordNavigator } from './PasswordNavigator';
 import { PinNavigator } from './PinNavigator';
 
 export const RootNavigator = createStackNavigator(
@@ -16,6 +17,7 @@ export const RootNavigator = createStackNavigator(
     [Route.ActionSheet]: ActionSheet,
     [Route.UnlockScreen]: UnlockScreen,
     PinNavigator,
+    PasswordNavigator,
     EditTextNavigator,
     MessageNavigator,
   },

@@ -52,7 +52,8 @@
     "unit": "./node_modules/.bin/mocha tests/unit/*",
     "typescript:check": "tsc --noEmit",
     "prettier:fix": "prettier --write '**/*.{js,ts,tsx}'",
-    "precommit": "yarn lint-staged"
+    "precommit": "yarn lint-staged",
+    "shake": "adb shell input keyevent 82"
   },
   "jest": {
     "preset": "react-native",

@@ -1,10 +1,10 @@
 import React, { PureComponent } from 'react';
-import { Text, StyleSheet, KeyboardAvoidingView, BackHandler } from 'react-native';
+import { Text, StyleSheet, KeyboardAvoidingView, BackHandler, View } from 'react-native';
 import { NavigationScreenProps, NavigationEvents, NavigationInjectedProps } from 'react-navigation';
 
 import { Header, PinInput } from 'app/components';
 import { Route, CONST } from 'app/consts';
-import { typography } from 'app/styles';
+import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
 
@@ -25,7 +25,11 @@ export class CreatePinScreen extends PureComponent<Props, State> {
     header: (
       <Header
         navigation={props.navigation}
-        title={props.navigation.getParam('flowType') === 'newPin' ? i18n.onboarding.changePin : i18n.onboarding.pin}
+        isBackArrow={props.navigation.getParam('flowType') === 'newPin'}
+        onBackArrow={() => props.navigation.navigate(Route.Settings)}
+        title={
+          props.navigation.getParam('flowType') === 'newPin' ? i18n.onboarding.changePin : i18n.onboarding.onboarding
+        }
       />
     ),
   });
@@ -78,9 +82,12 @@ export class CreatePinScreen extends PureComponent<Props, State> {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="height">
         <NavigationEvents onDidFocus={this.openKeyboard} />
-        <Text style={typography.headline4}>
-          {this.state.flowType === 'newPin' ? i18n.onboarding.createNewPin : i18n.onboarding.createPin}
-        </Text>
+        <View style={styles.infoContainer}>
+          <Text style={typography.headline4}>
+            {this.state.flowType === 'newPin' ? i18n.onboarding.createNewPin : i18n.onboarding.createPin}
+          </Text>
+          <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
+        </View>
         <PinInput value={this.state.pin} onTextChange={this.updatePin} ref={this.pinInputRef} />
       </KeyboardAvoidingView>
     );
@@ -92,5 +99,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-evenly',
     alignItems: 'center',
+  },
+  infoContainer: {
+    alignItems: 'center',
+  },
+  pinDescription: {
+    ...typography.caption,
+    color: palette.textGrey,
+    margin: 20,
+    textAlign: 'center',
   },
 });

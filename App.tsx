@@ -131,11 +131,10 @@ export default class App extends React.Component<State> {
   }
 
   _handleAppStateChange = async (nextAppState: string) => {
-    if (this.state.appState !== 'active' && nextAppState === 'active') {
+    if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
       this.setState({
         successfullyAuthenticated: false,
       });
-      // NavigationService.navigate(Route.CreatePin);
       const clipboard = await Clipboard.getString();
       const isAddressFromStoredWallet = BlueApp.getWallets().some((wallet: Wallet) =>
         wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
