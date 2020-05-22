@@ -1,13 +1,13 @@
 import { AppSettingsAction, AppSettingsActionType } from './actions';
 
 export interface AppSettingsState {
-  isPinSet: boolean;
   isBiometricsEnabled: boolean;
+  isAdvancedOptionsEnabled: boolean;
 }
 
 const initialState: AppSettingsState = {
-  isPinSet: false,
   isBiometricsEnabled: false,
+  isAdvancedOptionsEnabled: false,
 };
 
 export const appSettingsReducer = (state = initialState, action: AppSettingsActionType): AppSettingsState => {
@@ -16,6 +16,11 @@ export const appSettingsReducer = (state = initialState, action: AppSettingsActi
       return {
         ...state,
         isBiometricsEnabled: action.value,
+      };
+    case AppSettingsAction.UpdateAdvancedOptions:
+      return {
+        ...state,
+        isAdvancedOptionsEnabled: action.value,
       };
     default:
       return state;

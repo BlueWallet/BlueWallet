@@ -1,5 +1,4 @@
-import AsyncStorage from '@react-native-community/async-storage';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { images, icons } from 'app/assets';
 import { Image, ScreenTemplate, Header, ListItem } from 'app/components';
 import { Route } from 'app/consts';
-import { AppStorage } from 'app/legacy';
 import { BiometricService } from 'app/services';
 import { ApplicationState } from 'app/state';
 import { updateBiometricSetting } from 'app/state/appSettings/actions';
@@ -18,8 +16,6 @@ const i18n = require('../../../loc');
 
 export const SettingsScreen = (props: NavigationScreenProps) => {
   const { navigation } = props;
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAdvancedOptions, setIsAdvancedOptions] = useState(false);
   const { isBiometricsEnabled } = useSelector((state: ApplicationState) => ({
     isBiometricsEnabled: state.appSettings.isBiometricsEnabled,
   }));
@@ -32,38 +28,17 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
 
   const navigateToSelectLanguage = () => navigation.navigate(Route.SelectLanguage);
 
-  const onAdvancedOptionsChange = async (value: boolean) => {
-    if (value) {
-      await AsyncStorage.setItem(AppStorage.ADVANCED_MODE_ENABLED, '1');
-    } else {
-      await AsyncStorage.removeItem(AppStorage.ADVANCED_MODE_ENABLED);
-    }
-    setIsAdvancedOptions(value);
-  };
+  const onAdvancedOptionsChange = () => navigation.navigate(Route.AdvancedOptions);
 
   const onFingerprintLoginChange = async (value: boolean) => {
     dispatch(updateBiometricSetting(value));
   };
 
-  useEffect(() => {
-    (async () => {
-      setIsAdvancedOptions(!!(await AsyncStorage.getItem(AppStorage.ADVANCED_MODE_ENABLED)));
-      setIsLoading(false);
-    })();
-  });
-
   const renderGeneralSettings = () => (
     <>
       <ListItem onPress={navigateToSelectLanguage} title={i18n.settings.language} source={icons.languageIcon} />
       <ListItem onPress={navigateToElectrumServer} title={i18n.settings.electrumServer} source={icons.dataUsageIcon} />
-      <ListItem
-        title={i18n.settings.advancedOptions}
-        source={icons.buildIcon}
-        switchValue={isAdvancedOptions}
-        onSwitchValueChange={onAdvancedOptionsChange}
-        iconHeight={21}
-        iconWidth={20}
-      />
+      <ListItem title={i18n.settings.advancedOptions} source={icons.buildIcon} onPress={onAdvancedOptionsChange} />
     </>
   );
 
@@ -100,7 +75,7 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
     <ListItem onPress={navigateToAboutUs} title={i18n.settings.aboutUs} source={icons.infoIcon} />
   );
 
-  return isLoading ? null : (
+  return (
     <ScreenTemplate>
       <Image source={images.goldWalletLogoBlack} style={styles.logo} resizeMode="contain" />
       <LabeledSettingsRow label={i18n.settings.general}>{renderGeneralSettings()}</LabeledSettingsRow>

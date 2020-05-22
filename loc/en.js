@@ -260,6 +260,11 @@ module.exports = {
     successfullSave: 'Your changes have been saved successfully. Restart may be required for changes to take effect.',
     connectionError: "Can't connect to provided Electrum server",
   },
+  advancedOptions: {
+    title: 'Configure advanced options',
+    description:
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+  },
   selectLanguage: {
     header: 'Language',
     restartInfo: 'When selecting a new language, restarting GoldWallet may be required for the change to take effect',

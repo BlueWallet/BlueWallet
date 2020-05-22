@@ -1,5 +1,6 @@
 export enum AppSettingsAction {
   UpdateBiometricSetting = 'UpdateBiometricSetting',
+  UpdateAdvancedOptions = 'UpdateAdvancedOptions',
 }
 
 export interface UpdateBiometricSettingAction {
@@ -7,9 +8,19 @@ export interface UpdateBiometricSettingAction {
   value: boolean;
 }
 
-export type AppSettingsActionType = UpdateBiometricSettingAction;
+export interface UpdateAdvancedOptionsAction {
+  type: AppSettingsAction.UpdateAdvancedOptions;
+  value: boolean;
+}
+
+export type AppSettingsActionType = UpdateBiometricSettingAction | UpdateAdvancedOptionsAction;
 
 export const updateBiometricSetting = (value: boolean): UpdateBiometricSettingAction => ({
   type: AppSettingsAction.UpdateBiometricSetting,
+  value,
+});
+
+export const updateAdvancedOptions = (value: boolean): UpdateAdvancedOptionsAction => ({
+  type: AppSettingsAction.UpdateAdvancedOptions,
   value,
 });

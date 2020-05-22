@@ -85,13 +85,7 @@ export const SelectLanguageScreen = () => {
   }
 
   return (
-    <ScreenTemplate
-      footer={
-        <View style={styles.restartInfoContainer}>
-          <Text style={styles.restartInfo}>{i18n.selectLanguage.restartInfo}</Text>
-        </View>
-      }
-    >
+    <ScreenTemplate>
       {availableLanguages.map(language => (
         <LanguageItem
           language={language}

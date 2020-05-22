@@ -6,6 +6,7 @@ export const palette = {
   textRed: 'rgb(230, 93, 93)',
   textWhiteMuted: 'rgba(255, 255, 255, 0.54)',
   textGrey: 'rgb(148, 149, 149)',
+  lightGrey: 'rgb(237,238,239)',
   grey: 'rgb(222, 223, 225)',
   gradientPrimaryFirst: 'rgb(247, 9, 73)',
   gradientPrimarySecond: 'rgb(31, 1, 31)',
