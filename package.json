@@ -142,7 +142,7 @@
     "secure-random": "1.1.2",
     "stream-browserify": "2.0.2",
     "url": "0.11.0",
-    "util": "0.12.1",
+    "util": "0.12.3",
     "wif": "2.0.6"
   },
   "react-native": {
