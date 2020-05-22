@@ -34,6 +34,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
         }
       />
     ),
+    gesturesEnabled: false,
   });
 
   state = {
@@ -57,7 +58,8 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   }
 
   backAction = () => {
-    return this.state.flowType === FlowType.newPin && this.props.navigation.navigate(Route.Settings);
+    this.state.flowType === 'newPin' ? this.props.navigation.navigate(Route.Settings) : BackHandler.exitApp();
+    return true;
   };
 
   updatePin = (pin: string) => {

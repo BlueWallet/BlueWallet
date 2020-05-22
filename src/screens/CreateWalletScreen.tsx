@@ -48,7 +48,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
   async componentDidMount() {
     let walletBaseURI = await AsyncStorage.getItem(AppStorage.LNDHUB);
-    const isAdvancedOptionsEnabled = this.props.appSettings.isAdvancedOptionsEnabled;
+    const { isAdvancedOptionsEnabled } = this.props.appSettings;
     walletBaseURI = walletBaseURI || '';
 
     this.setState({
