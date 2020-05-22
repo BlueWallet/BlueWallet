@@ -6,12 +6,11 @@ import { NavigationEvents } from 'react-navigation';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
-import { PlaceholderWallet } from '../../class';
+import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
 let EV = require('../../events');
 let A = require('../../analytics');
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
 
@@ -38,6 +37,7 @@ export default class WalletsList extends Component {
   }
 
   componentDidMount() {
+    console.log('wallets/list componentDidMount');
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
     InteractionManager.runAfterInteractions(async () => {
@@ -107,6 +107,12 @@ export default class WalletsList extends Component {
 
   redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
+
+    // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet.
+    // placing event subscription here so it gets exclusively re-subscribed more often. otherwise we would
+    // have to unsubscribe on unmount and resubscribe again on mount.
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactions.bind(this), true);
+
     if (BlueApp.getBalance() !== 0) {
       A(A.ENUM.GOT_NONZERO_BALANCE);
     } else {

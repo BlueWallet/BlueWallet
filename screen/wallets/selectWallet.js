@@ -14,10 +14,16 @@ const loc = require('../../loc');
 const SelectWallet = () => {
   const chainType = useNavigationParam('chainType');
   const onWalletSelect = useNavigationParam('onWalletSelect');
+  const availableWallets = useNavigationParam('availableWallets');
   const [isLoading, setIsLoading] = useState(true);
-  const data = chainType
+  let data = chainType
     ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())
     : BlueApp.getWallets().filter(item => item.allowSend()) || [];
+
+  if (availableWallets && availableWallets.length > 0) {
+    // availableWallets if provided, overrides chainType argument and `allowSend()` check
+    data = availableWallets;
+  }
 
   useEffect(() => {
     setIsLoading(false);
