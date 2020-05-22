@@ -418,26 +418,22 @@ export default class WalletsList extends Component {
   };
 
   renderScanButton = () => {
-    if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
-      return (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'center',
-            backgroundColor: 'transparent',
-            position: 'absolute',
-            bottom: 30,
-            borderRadius: 30,
-            minHeight: 48,
-            overflow: 'hidden',
-          }}
-        >
-          <BlueScanButton onPress={this.onScanButtonPressed} />
-        </View>
-      );
-    } else {
-      return null;
-    }
+    return (
+      <View
+        style={{
+          flexDirection: 'row',
+          alignSelf: 'center',
+          backgroundColor: 'transparent',
+          position: 'absolute',
+          bottom: 30,
+          borderRadius: 30,
+          minHeight: 48,
+          overflow: 'hidden',
+        }}
+      >
+        <BlueScanButton onPress={this.onScanButtonPressed} />
+      </View>
+    );
   };
 
   sectionListKeyExtractor = (item, index) => {
