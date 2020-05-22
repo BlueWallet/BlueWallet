@@ -62,7 +62,13 @@ export class DashboardScreen extends Component<Props, State> {
 
   componentDidMount() {
     SecureStorageService.getSecuredValue('pin')
-      .then(pin => {})
+      .then(() => {
+        SecureStorageService.getSecuredValue('transactionPassword')
+          .then(transactionPassword => {})
+          .catch(error => {
+            this.props.navigation.navigate(Route.CreateTransactionPassword);
+          });
+      })
       .catch(error => {
         this.props.navigation.navigate(Route.CreatePin);
       });

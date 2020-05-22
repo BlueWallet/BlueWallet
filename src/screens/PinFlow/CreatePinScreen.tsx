@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Text, StyleSheet, KeyboardAvoidingView, BackHandler, View } from 'react-native';
+import { Text, StyleSheet, BackHandler, View } from 'react-native';
 import { NavigationScreenProps, NavigationEvents, NavigationInjectedProps } from 'react-navigation';
 
-import { Header, PinInput } from 'app/components';
-import { Route, CONST } from 'app/consts';
+import { Header, PinInput, ScreenTemplate } from 'app/components';
+import { Route, CONST, FlowType } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
@@ -25,10 +25,12 @@ export class CreatePinScreen extends PureComponent<Props, State> {
     header: (
       <Header
         navigation={props.navigation}
-        isBackArrow={props.navigation.getParam('flowType') === 'newPin'}
+        isBackArrow={props.navigation.getParam('flowType') === FlowType.newPin}
         onBackArrow={() => props.navigation.navigate(Route.Settings)}
         title={
-          props.navigation.getParam('flowType') === 'newPin' ? i18n.onboarding.changePin : i18n.onboarding.onboarding
+          props.navigation.getParam('flowType') === FlowType.newPin
+            ? i18n.onboarding.changePin
+            : i18n.onboarding.onboarding
         }
       />
     ),
@@ -55,7 +57,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   }
 
   backAction = () => {
-    return this.state.flowType === 'newPin' && this.props.navigation.navigate(Route.Settings);
+    return this.state.flowType === FlowType.newPin && this.props.navigation.navigate(Route.Settings);
   };
 
   updatePin = (pin: string) => {
@@ -79,17 +81,24 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   };
 
   render() {
+    const { flowType, pin } = this.state;
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="height">
+      <ScreenTemplate
+        contentContainer={styles.container}
+        footer={
+          <View style={styles.pinContainer}>
+            <PinInput value={pin} onTextChange={this.updatePin} ref={this.pinInputRef} />
+          </View>
+        }
+      >
         <NavigationEvents onDidFocus={this.openKeyboard} />
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
-            {this.state.flowType === 'newPin' ? i18n.onboarding.createNewPin : i18n.onboarding.createPin}
+            {flowType === FlowType.newPin ? i18n.onboarding.createNewPin : i18n.onboarding.createPin}
           </Text>
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
         </View>
-        <PinInput value={this.state.pin} onTextChange={this.updatePin} ref={this.pinInputRef} />
-      </KeyboardAvoidingView>
+      </ScreenTemplate>
     );
   }
 }
@@ -102,6 +111,10 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     alignItems: 'center',
+  },
+  pinContainer: {
+    alignItems: 'center',
+    marginBottom: 30,
   },
   pinDescription: {
     ...typography.caption,

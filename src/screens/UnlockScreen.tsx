@@ -1,14 +1,14 @@
 import React, { PureComponent } from 'react';
-import { StyleSheet, KeyboardAvoidingView, Alert } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
-import { Header, PinInput, Image, InputItem } from 'app/components';
-import { CONST } from 'app/consts';
+import { Header, PinInput, Image, InputItem, ScreenTemplate, Button } from 'app/components';
+import { CONST, FlowType } from 'app/consts';
 import { BiometricService, SecureStorageService } from 'app/services';
 import { ApplicationState } from 'app/state';
-import { palette } from 'app/styles';
+import { palette, typography } from 'app/styles';
 
 const BlueApp = require('../../BlueApp');
 const i18n = require('../../loc');
@@ -19,12 +19,25 @@ interface Props extends NavigationInjectedProps<{ onSuccess: () => void; flowTyp
   appSettings?: any;
 }
 
-class UnlockScreen extends PureComponent<Props> {
+interface State {
+  pin: string;
+  error: string;
+  showInput: boolean;
+}
+
+class UnlockScreen extends PureComponent<Props, State> {
   static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} title={i18n.unlock.title} />,
+    header: (
+      <Header
+        navigation={props.navigation}
+        title={i18n.unlock.title}
+        isBackArrow={props.navigation && props.navigation.getParam('flowType') === FlowType.password}
+      />
+    ),
   });
   state = {
     pin: '',
+    error: '',
     showInput: true,
   };
 
@@ -32,7 +45,7 @@ class UnlockScreen extends PureComponent<Props> {
 
   async componentDidMount() {
     await BlueApp.startAndDecrypt();
-    if (this.props.navigation && this.props.navigation.getParam('flowType') === 'password') {
+    if (this.props.navigation && this.props.navigation.getParam('flowType') === FlowType.password) {
       return this.openKeyboard();
     }
     if (this.props.isBiometricEnabledByUser || this.props.appSettings.isBiometricsEnabled) {
@@ -60,21 +73,19 @@ class UnlockScreen extends PureComponent<Props> {
     }
   };
 
-  updatePassword = (password: string) => {
+  onSave = async () => {
     const onSuccessFn = this.props.navigation.getParam('onSuccess');
-    this.setState({ pin: password }, async () => {
-      if (this.state.pin.length === CONST.transactionPasswordLength) {
-        if (await SecureStorageService.checkSecuredPassword('transactionPassword', this.state.pin)) {
-          onSuccessFn();
-        } else {
-          Alert.alert('wrong password');
-          this.setState({
-            pin: '',
-          });
-        }
-      }
-    });
+    if (await SecureStorageService.checkSecuredPassword('transactionPassword', this.state.pin)) {
+      onSuccessFn();
+    } else {
+      this.setState({
+        pin: '',
+        error: i18n.onboarding.passwordDoesNotMatch,
+      });
+    }
   };
+
+  updatePassword = (password: string) => this.setState({ pin: password });
 
   updatePin = (pin: string) => {
     this.setState({ pin }, async () => {
@@ -83,8 +94,8 @@ class UnlockScreen extends PureComponent<Props> {
         if (setPin === this.state.pin) {
           this.props.onSuccessfullyAuthenticated && this.props.onSuccessfullyAuthenticated();
         } else {
-          Alert.alert('wrong pin');
           this.setState({
+            error: i18n.onboarding.passwordDoesNotMatch,
             pin: '',
           });
         }
@@ -93,22 +104,41 @@ class UnlockScreen extends PureComponent<Props> {
   };
 
   openKeyboard = () => {
-    if (this.inputRef.current && this.props.navigation && this.props.navigation.getParam('flowType') === 'password') {
+    if (
+      this.inputRef.current &&
+      this.props.navigation &&
+      this.props.navigation.getParam('flowType') === FlowType.password
+    ) {
       this.inputRef.current.inputItemRef.current.focus();
     }
   };
 
   render() {
+    const { error, pin, showInput } = this.state;
     const isPassword = this.props.navigation && !!this.props.navigation.getParam('flowType');
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="height">
+      <ScreenTemplate
+        contentContainer={styles.container}
+        footer={
+          isPassword ? (
+            <Button title="Save" onPress={this.onSave} disabled={pin.length < CONST.transactionMinPasswordLength} />
+          ) : (
+            showInput && (
+              <View style={styles.pinContainer}>
+                <PinInput value={pin} onTextChange={pin => this.updatePin(pin)} />
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )
+          )
+        }
+      >
         <Image source={images.portraitLogo} style={styles.logo} resizeMode="contain" />
-        {isPassword ? (
-          <InputItem label="password" value={this.state.pin} setValue={this.updatePassword} ref={this.inputRef} />
-        ) : (
-          this.state.showInput && <PinInput value={this.state.pin} onTextChange={pin => this.updatePin(pin)} />
+        {isPassword && (
+          <View style={styles.inputItemContainer}>
+            <InputItem label="password" value={pin} setValue={this.updatePassword} ref={this.inputRef} error={error} />
+          </View>
         )}
-      </KeyboardAvoidingView>
+      </ScreenTemplate>
     );
   }
 }
@@ -121,14 +151,23 @@ export default connect(mapStateToProps)(UnlockScreen);
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    height: '100%',
     backgroundColor: palette.white,
-    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputItemContainer: {
+    width: '100%',
+  },
+  pinContainer: {
     alignItems: 'center',
   },
   logo: {
     width: 150,
     height: 235,
+  },
+  errorText: {
+    marginTop: 10,
+    color: palette.textRed,
+    ...typography.headline6,
   },
 });

@@ -2,7 +2,7 @@ import React from 'react';
 import { ScrollView, StatusBar, StyleSheet, KeyboardAvoidingView, Platform, StyleProp, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 
-import { getStatusBarHeight } from 'app/styles';
+import { getStatusBarHeight, palette } from 'app/styles';
 
 enum StatusBarColor {
   Light = 'light-content',
@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: 20,
+    backgroundColor: palette.white,
     marginBottom: 12,
   },
 });

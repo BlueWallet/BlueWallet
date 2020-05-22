@@ -1,7 +1,12 @@
 export const CONST = {
   pinCodeLength: 4,
-  transactionPasswordLength: 8,
+  transactionMinPasswordLength: 8,
 };
+
+export enum FlowType {
+  password = 'password',
+  newPin = 'newPin',
+}
 
 export enum Route {
   Dashboard = 'Dashboard',

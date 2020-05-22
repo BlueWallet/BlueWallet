@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
-import { Header, PinInput } from 'app/components';
-import { Route, CONST } from 'app/consts';
+import { Header, PinInput, ScreenTemplate } from 'app/components';
+import { Route, CONST, FlowType } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { SecureStorageService } from 'app/services';
 import { palette, typography } from 'app/styles';
@@ -25,7 +25,9 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
         navigation={props.navigation}
         isBackArrow
         title={
-          props.navigation.getParam('flowType') === 'newPin' ? i18n.onboarding.changePin : i18n.onboarding.onboarding
+          props.navigation.getParam('flowType') === FlowType.newPin
+            ? i18n.onboarding.changePin
+            : i18n.onboarding.onboarding
         }
       />
     ),
@@ -49,7 +51,7 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
         const setPin = this.props.navigation.getParam('pin');
         if (setPin === this.state.pin) {
           await SecureStorageService.setSecuredValue('pin', this.state.pin);
-          if (this.state.flowType === 'newPin') {
+          if (this.state.flowType === FlowType.newPin) {
             CreateMessage({
               title: i18n.contactCreate.successTitle,
               description: i18n.onboarding.successDescriptionChangedPin,
@@ -77,19 +79,23 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
   render() {
     const { error } = this.state;
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="height">
+      <ScreenTemplate
+        contentContainer={styles.container}
+        footer={
+          <View style={styles.pinContainer}>
+            <PinInput value={this.state.pin} onTextChange={this.updatePin} />
+
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        }
+      >
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
-            {this.state.flowType === 'newPin' ? i18n.onboarding.createNewPin : i18n.onboarding.confirmPin}
+            {this.state.flowType === FlowType.newPin ? i18n.onboarding.confirmNewPin : i18n.onboarding.confirmPin}
           </Text>
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
         </View>
-        <View style={styles.input}>
-          <PinInput value={this.state.pin} onTextChange={pin => this.updatePin(pin)} />
-
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      </KeyboardAvoidingView>
+      </ScreenTemplate>
     );
   }
 }
@@ -100,11 +106,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
   },
-  input: {
+  pinContainer: {
     alignItems: 'center',
+    marginBottom: 20,
   },
   errorText: {
-    marginVertical: 30,
+    marginVertical: 10,
     color: palette.textRed,
     ...typography.headline6,
   },

@@ -4,7 +4,7 @@ import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation
 
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, Button, StyledText, Image, Text } from 'app/components';
-import { Transaction, Route } from 'app/consts';
+import { Transaction, Route, FlowType } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
@@ -122,7 +122,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
 
   goToUnlockScreen = () => {
     this.props.navigation.navigate(Route.UnlockScreen, {
-      flowType: 'password',
+      flowType: FlowType.password,
       onSuccess: this.broadcast,
     });
   };

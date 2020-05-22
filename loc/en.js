@@ -29,6 +29,7 @@ module.exports = {
     confirmPin: 'Confirm PIN',
     confirmNewPin: 'Confirm new PIN',
     confirmPassword: 'Confirm transaction password',
+    passwordDoesNotMatch: 'Password does not match. Please enter a valid password.',
     createPasswordDescription:
       'Your Transaction Password will be used to verify all of the transactions. You cannot change it later. Transaction Password must contain at least 8 alphanumerical characters.',
     changePin: 'Change PIN',
