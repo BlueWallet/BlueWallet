@@ -583,9 +583,9 @@ export default class WalletTransactions extends Component {
           />
         )}
         <NavigationEvents
-          onWillFocus={() => {
+          onWillFocus={( navigation ) => {
             StatusBar.setBarStyle('light-content');
-            StatusBar.setBackgroundColor("WalletGradient.headerColorFor(navigation.state.params.wallet.type)01");
+            StatusBar.setBackgroundColor(WalletGradient.headerColorFor(navigation.state.params.wallet.type) + '01');
             this.redrawScreen();
           }}
           onWillBlur={() => this.onWillBlur()}
