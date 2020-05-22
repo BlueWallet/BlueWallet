@@ -574,7 +574,7 @@ export default class WalletTransactions extends Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, paddingTop: 24 }}>
         {this.state.wallet.chain === Chain.ONCHAIN && this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
@@ -583,8 +583,10 @@ export default class WalletTransactions extends Component {
           />
         )}
         <NavigationEvents
-          onWillFocus={( navigation ) => {
+          onWillFocus={() => {
             StatusBar.setBarStyle('light-content');
+            StatusBar.setBackgroundColor("rgba(0,0,0,0)")
+            StatusBar.setTranslucent(true)
             this.redrawScreen();
           }}
           onWillBlur={() => this.onWillBlur()}
