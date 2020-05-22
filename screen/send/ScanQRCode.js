@@ -81,7 +81,7 @@ const ScanQRCode = ({
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
-      {!!isLoading && (
+      {!isLoading && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
