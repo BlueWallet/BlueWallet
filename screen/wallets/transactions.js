@@ -66,7 +66,11 @@ export default class WalletTransactions extends Component {
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
-        paddingTop: 24,
+        ...Platform.select({
+        android: {
+         paddingTop: 32,
+        },
+      }),
       },
       headerTintColor: '#FFFFFF',
     };
