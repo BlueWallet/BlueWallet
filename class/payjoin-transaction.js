@@ -66,22 +66,9 @@ export default class PayjoinTransaction {
     });
   }
 
-  async getSumPaidToUs(psbt) {
-    let sumPaidToUs = 0;
+  async isOwnOutputScript(outputScript) {
+    const address = bitcoin.address.fromOutputScript(outputScript);
 
-    psbt.data.inputs.forEach(input => {
-      const address = bitcoin.address.fromOutputScript(input.witnessUtxo.script);
-      if (this._wallet.weOwnAddress(address)) {
-        sumPaidToUs -= input.witnessUtxo.value;
-      }
-    });
-
-    psbt.txOutputs.forEach(output => {
-      if (this._wallet.weOwnAddress(output.address)) {
-        sumPaidToUs += output.value;
-      }
-    });
-
-    return sumPaidToUs;
+    return this._wallet.weOwnAddress(address);
   }
 }
