@@ -21,7 +21,7 @@ const ScanQRCode = ({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   launchedBy = useNavigationParam('launchedBy'),
 }) => {
-  if (!launchedBy || !onBarScanned) console.warn('Necessary params missing');
+  if (!launchedBy || !onBarScanned);
   const [isLoading, setIsLoading] = useState(false);
   const { navigate, goBack } = useNavigation();
 
@@ -88,7 +88,7 @@ const ScanQRCode = ({
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
-      {!cameraPreviewIsPaused && !isLoading && (
+      {!isLoading && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
