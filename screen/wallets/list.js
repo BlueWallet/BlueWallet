@@ -465,7 +465,7 @@ export default class WalletsList extends Component {
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
-            StatusBar.setBackgroundColor("rgba(0,0,0,0)")
+            StatusBar.setBackgroundColor("#ffffff");
             StatusBar.setBarStyle("dark-content")
           }}
         />
