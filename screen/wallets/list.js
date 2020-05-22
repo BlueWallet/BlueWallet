@@ -447,7 +447,7 @@ export default class WalletsList extends Component {
   onScanButtonPressed = () => {
     this.props.navigation.navigate('ScanQRCode', {
       launchedBy: this.props.navigation.state.routeName,
-      onBarScanned: this.onBarCodeRead,
+      onBarScanned: this.onBarScanned,
       showFileImportButton: false,
     });
   };
