@@ -66,6 +66,7 @@ export default class WalletTransactions extends Component {
         borderBottomWidth: 0,
         elevation: 0,
         shadowRadius: 0,
+        paddingTop: 24,
       },
       headerTintColor: '#FFFFFF',
     };
@@ -574,7 +575,7 @@ export default class WalletTransactions extends Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={{ flex: 1, paddingTop: 24 }}>
+      <View style={{ flex: 1 }}>
         {this.state.wallet.chain === Chain.ONCHAIN && this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
