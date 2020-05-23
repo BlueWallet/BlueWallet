@@ -67,7 +67,7 @@
     "@react-native-community/blur": "3.6.0",
     "@react-native-community/slider": "2.0.8",
     "@remobile/react-native-qrcode-local-image": "git+https://github.com/BlueWallet/react-native-qrcode-local-image.git",
-    "@sentry/react-native": "1.3.5",
+    "@sentry/react-native": "1.3.7",
     "amplitude-js": "5.9.0",
     "bech32": "1.1.3",
     "bignumber.js": "9.0.0",
