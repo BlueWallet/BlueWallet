@@ -521,52 +521,57 @@ export default class WalletTransactions extends Component {
     this.onBarCodeRead({ data: await Clipboard.getString() });
   };
 
-  sendButtonLongPress = () => {
+  sendButtonLongPress = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      ActionSheet.showActionSheetWithOptions(
-        { options: [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code', 'Copy from Clipboard'], cancelButtonIndex: 0 },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            this.choosePhoto();
-          } else if (buttonIndex === 2) {
+      let options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      if (!isClipboardEmpty) {
+        options.push('Copy from Clipboard');
+      }
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.props.navigation.navigate('ScanQRCode', {
+            launchedBy: this.props.navigation.state.routeName,
+            onBarScanned: this.onBarCodeRead,
+            showFileImportButton: false,
+          });
+        } else if (buttonIndex === 3) {
+          this.copyFromClipbard();
+        }
+      });
+    } else if (Platform.OS === 'android') {
+      let buttons = [
+        {
+          text: loc.send.details.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Choose Photo',
+          onPress: this.choosePhoto,
+        },
+        {
+          text: 'Scan QR Code',
+          onPress: () =>
             this.props.navigation.navigate('ScanQRCode', {
               launchedBy: this.props.navigation.state.routeName,
               onBarScanned: this.onBarCodeRead,
               showFileImportButton: false,
-            });
-          } else if (buttonIndex === 3) {
-            this.copyFromClipbard();
-          }
+            }),
         },
-      );
-    } else if (Platform.OS === 'android') {
+      ];
+      if (!isClipboardEmpty) {
+        buttons.push({
+          text: 'Copy From Clipboard',
+          onPress: this.copyFromClipbard,
+        });
+      }
       ActionSheet.showActionSheetWithOptions({
         title: '',
         message: '',
-        buttons: [
-          {
-            text: loc.send.details.cancel,
-            onPress: () => {},
-            style: 'cancel',
-          },
-          {
-            text: 'Choose Photo',
-            onPress: this.choosePhoto,
-          },
-          {
-            text: 'Scan QR Code',
-            onPress: () =>
-              this.props.navigation.navigate('ScanQRCode', {
-                launchedBy: this.props.navigation.state.routeName,
-                onBarScanned: this.onBarCodeRead,
-                showFileImportButton: false,
-              }),
-          },
-          {
-            text: 'Copy From Clipboard',
-            onPress: this.copyFromClipbard,
-          },
-        ],
+        buttons,
       });
     }
   };
