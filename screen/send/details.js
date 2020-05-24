@@ -49,6 +49,174 @@ let loc = require('../../loc');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  root: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  scrollViewContent: {
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 200,
+    height: 200,
+  },
+  advancedTransactionOptionsModalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 130,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  feeSliderInput: {
+    backgroundColor: '#d2f8d6',
+    minWidth: 127,
+    height: 60,
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+  },
+  feeSliderText: {
+    fontWeight: '600',
+    color: '#37c0a1',
+    marginBottom: 0,
+    marginRight: 4,
+    textAlign: 'right',
+    fontSize: 36,
+  },
+  feeSliderUnit: {
+    fontWeight: '600',
+    color: '#37c0a1',
+    paddingRight: 4,
+    textAlign: 'left',
+    fontSize: 16,
+    alignSelf: 'flex-end',
+    marginBottom: 14,
+  },
+  sliderContainer: {
+    flex: 1,
+    marginTop: 32,
+    minWidth: 240,
+    width: 240,
+  },
+  slider: {
+    flex: 1,
+  },
+  sliderLabels: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 14,
+  },
+  sliderLabel: {
+    fontWeight: '500',
+    fontSize: 13,
+    color: '#37c0a1',
+  },
+  createButton: {
+    marginHorizontal: 56,
+    marginVertical: 16,
+    alignContent: 'center',
+    backgroundColor: '#FFFFFF',
+    minHeight: 44,
+  },
+  select: {
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  selectTouch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectText: {
+    color: '#9aa0aa',
+    fontSize: 14,
+    marginRight: 8,
+  },
+  selectWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+  selectLabel: {
+    color: '#0c2550',
+    fontSize: 14,
+  },
+  of: {
+    alignSelf: 'flex-end',
+    marginRight: 18,
+    marginVertical: 8,
+  },
+  memo: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+  },
+  memoText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 33,
+  },
+  fee: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  feeLabel: {
+    color: '#81868e',
+    fontSize: 14,
+  },
+  feeRow: {
+    backgroundColor: '#d2f8d6',
+    minWidth: 40,
+    height: 25,
+    borderRadius: 4,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  feeValue: {
+    color: '#37c0a1',
+    marginBottom: 0,
+    marginRight: 4,
+    textAlign: 'right',
+  },
+  feeUnit: {
+    color: '#37c0a1',
+    paddingRight: 4,
+    textAlign: 'left',
+  },
+});
+
 export default class SendDetails extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueCreateTxNavigationStyle(
@@ -527,7 +695,7 @@ export default class SendDetails extends Component {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.satoshisTextInput} onPress={() => this.textInput.focus()}>
+            <TouchableOpacity style={styles.feeSliderInput} onPress={() => this.textInput.focus()}>
               <TextInput
                 keyboardType="numeric"
                 ref={ref => {
@@ -547,25 +715,13 @@ export default class SendDetails extends Component {
                 editable={!this.state.isLoading}
                 placeholderTextColor="#37c0a1"
                 placeholder={this.state.networkTransactionFees.mediumFee.toString()}
-                style={{ fontWeight: '600', color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right', fontSize: 36 }}
+                style={styles.feeSliderText}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
-              <Text
-                style={{
-                  fontWeight: '600',
-                  color: '#37c0a1',
-                  paddingRight: 4,
-                  textAlign: 'left',
-                  fontSize: 16,
-                  alignSelf: 'flex-end',
-                  marginBottom: 14,
-                }}
-              >
-                sat/b
-              </Text>
+              <Text style={styles.feeSliderUnit}>sat/b</Text>
             </TouchableOpacity>
             {this.state.networkTransactionFees.fastestFee > 1 && (
-              <View style={{ flex: 1, marginTop: 32, minWidth: 240, width: 240 }}>
+              <View style={styles.sliderContainer}>
                 <Slider
                   onValueChange={value => this.setState({ feeSliderValue: value.toFixed(0), fee: value.toFixed(0) })}
                   minimumValue={1}
@@ -573,11 +729,11 @@ export default class SendDetails extends Component {
                   value={Number(this.state.feeSliderValue)}
                   maximumTrackTintColor="#d8d8d8"
                   minimumTrackTintColor="#37c0a1"
-                  style={{ flex: 1 }}
+                  style={styles.slider}
                 />
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 }}>
-                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>slow</Text>
-                  <Text style={{ fontWeight: '500', fontSize: 13, color: '#37c0a1' }}>fast</Text>
+                <View style={styles.sliderLabels}>
+                  <Text style={styles.sliderLabel}>slow</Text>
+                  <Text style={styles.sliderLabel}>fast</Text>
                 </View>
               </View>
             )}
@@ -720,7 +876,7 @@ export default class SendDetails extends Component {
 
   renderCreateButton = () => {
     return (
-      <View style={{ marginHorizontal: 56, marginVertical: 16, alignContent: 'center', backgroundColor: '#FFFFFF', minHeight: 44 }}>
+      <View style={styles.createButton}>
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
@@ -733,26 +889,26 @@ export default class SendDetails extends Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 24, alignItems: 'center' }}>
+      <View style={styles.select}>
         {!this.state.isLoading && (
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
+            style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            <Text style={styles.selectText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+        <View style={styles.selectWrap}>
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
+            style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.ONCHAIN })
             }
           >
-            <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
+            <Text style={styles.selectLabel}>{this.state.fromWallet.getLabel()}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -784,7 +940,13 @@ export default class SendDetails extends Component {
     let rows = [];
     for (let [index, item] of this.state.addresses.entries()) {
       rows.push(
-        <View style={{ minWidth: width, maxWidth: width, width: width }}>
+        <View
+          style={{
+            minWidth: width,
+            maxWidth: width,
+            width: width,
+          }}
+        >
           <BlueBitcoinAmount
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
@@ -825,7 +987,7 @@ export default class SendDetails extends Component {
             launchedBy={this.props.navigation.state.routeName}
           />
           {this.state.addresses.length > 1 && (
-            <BlueText style={{ alignSelf: 'flex-end', marginRight: 18, marginVertical: 8 }}>
+            <BlueText style={styles.of}>
               {index + 1} of {this.state.addresses.length}
             </BlueText>
           )}
@@ -862,20 +1024,20 @@ export default class SendDetails extends Component {
   render() {
     if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.loading}>
           <BlueLoading />
         </View>
       );
     }
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        <View style={styles.root}>
           <View>
             <KeyboardAvoidingView behavior="position">
               <ScrollView
                 pagingEnabled
                 horizontal
-                contentContainerStyle={{ flexWrap: 'wrap', flexDirection: 'row' }}
+                contentContainerStyle={styles.scrollViewContent}
                 ref={ref => (this.scrollView = ref)}
                 onContentSizeChange={() => this.scrollView.scrollToEnd()}
                 onLayout={() => this.scrollView.scrollToEnd()}
@@ -885,29 +1047,13 @@ export default class SendDetails extends Component {
               >
                 {this.renderBitcoinTransactionInfoFields()}
               </ScrollView>
-              <View
-                hide={!this.state.showMemoRow}
-                style={{
-                  flexDirection: 'row',
-                  borderColor: '#d2d2d2',
-                  borderBottomColor: '#d2d2d2',
-                  borderWidth: 1.0,
-                  borderBottomWidth: 0.5,
-                  backgroundColor: '#f5f5f5',
-                  minHeight: 44,
-                  height: 44,
-                  marginHorizontal: 20,
-                  alignItems: 'center',
-                  marginVertical: 8,
-                  borderRadius: 4,
-                }}
-              >
+              <View hide={!this.state.showMemoRow} style={styles.memo}>
                 <TextInput
                   onChangeText={text => this.setState({ memo: text })}
                   placeholder={loc.send.details.note_placeholder}
                   value={this.state.memo}
                   numberOfLines={1}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                  style={styles.memoText}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
@@ -916,23 +1062,12 @@ export default class SendDetails extends Component {
               <TouchableOpacity
                 onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
                 disabled={this.state.isLoading}
-                style={{ flexDirection: 'row', marginHorizontal: 20, justifyContent: 'space-between', alignItems: 'center' }}
+                style={styles.fee}
               >
-                <Text style={{ color: '#81868e', fontSize: 14 }}>Fee</Text>
-                <View
-                  style={{
-                    backgroundColor: '#d2f8d6',
-                    minWidth: 40,
-                    height: 25,
-                    borderRadius: 4,
-                    justifyContent: 'space-between',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingHorizontal: 10,
-                  }}
-                >
-                  <Text style={{ color: '#37c0a1', marginBottom: 0, marginRight: 4, textAlign: 'right' }}>{this.state.fee}</Text>
-                  <Text style={{ color: '#37c0a1', paddingRight: 4, textAlign: 'left' }}>sat/b</Text>
+                <Text style={styles.feeLabel}>Fee</Text>
+                <View style={styles.feeRow}>
+                  <Text style={styles.feeValue}>{this.state.fee}</Text>
+                  <Text style={styles.feeUnit}>sat/b</Text>
                 </View>
               </TouchableOpacity>
               {this.renderCreateButton()}
@@ -954,41 +1089,6 @@ export default class SendDetails extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  advancedTransactionOptionsModalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 130,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  satoshisTextInput: {
-    backgroundColor: '#d2f8d6',
-    minWidth: 127,
-    height: 60,
-    borderRadius: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-});
 
 SendDetails.propTypes = {
   navigation: PropTypes.shape({

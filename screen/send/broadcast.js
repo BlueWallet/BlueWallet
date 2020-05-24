@@ -60,19 +60,7 @@ export default function Broadcast() {
                 {BROADCAST_RESULT.pending === broadcastResult && <ActivityIndicator size="small" />}
               </View>
               <TextInput
-                style={{
-                  flex: 1,
-                  borderColor: '#ebebeb',
-                  backgroundColor: '#d2f8d6',
-                  borderRadius: 4,
-                  marginTop: 20,
-                  color: '#37c0a1',
-                  fontWeight: '500',
-                  fontSize: 14,
-                  paddingHorizontal: 16,
-                  paddingBottom: 16,
-                  paddingTop: 16,
-                }}
+                style={styles.text}
                 maxHeight={100}
                 minHeight={100}
                 maxWidth={'100%'}
@@ -133,6 +121,19 @@ const styles = StyleSheet.create({
     paddingRight: 100,
     height: 30,
     maxHeight: 30,
+  },
+  text: {
+    flex: 1,
+    borderColor: '#ebebeb',
+    backgroundColor: '#d2f8d6',
+    borderRadius: 4,
+    marginTop: 20,
+    color: '#37c0a1',
+    fontWeight: '500',
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 16,
   },
 });
 

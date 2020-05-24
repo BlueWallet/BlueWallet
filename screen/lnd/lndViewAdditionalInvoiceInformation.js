@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, Share } from 'react-native';
+import { View, Share, StyleSheet } from 'react-native';
 import {
   BlueLoading,
   BlueCopyTextToClipboard,
@@ -15,6 +15,31 @@ import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  root: {
+    flex: 1,
+  },
+  wrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  qrcode: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  share: {
+    marginBottom: 25,
+  },
+});
 
 export default class LNDViewAdditionalInvoiceInformation extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -38,16 +63,16 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
   render() {
     if (typeof this.state.walletInfo === 'undefined') {
       return (
-        <SafeBlueArea style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <SafeBlueArea style={styles.loading}>
           <BlueLoading />
         </SafeBlueArea>
       );
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+      <SafeBlueArea style={styles.root}>
+        <View style={styles.wrapper}>
+          <View style={styles.qrcode}>
             <QRCode
               value={this.state.walletInfo.uris[0]}
               logo={require('../../img/qr-code.png')}
@@ -60,7 +85,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
             <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
             <BlueCopyTextToClipboard text={this.state.walletInfo.uris[0]} />
           </View>
-          <View style={{ marginBottom: 25 }}>
+          <View style={styles.share}>
             <BlueButton
               icon={{
                 name: 'share-alternative',

@@ -257,18 +257,8 @@ export default class WalletsList extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ backgroundColor: '#FFFFFF' }}>
-        <Text
-          style={{
-            paddingLeft: 16,
-            fontWeight: 'bold',
-            fontSize: 24,
-            marginVertical: 8,
-            color: BlueApp.settings.foregroundColor,
-          }}
-        >
-          {loc.transactions.list.title}
-        </Text>
+      <View style={styles.listHeader}>
+        <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
       </View>
     );
   };
@@ -283,7 +273,7 @@ export default class WalletsList extends Component {
 
   renderTransactionListsRow = data => {
     return (
-      <View style={{ marginHorizontal: 4 }}>
+      <View style={styles.transaction}>
         <BlueTransactionListItem item={data.item} itemPriceUnit={data.item.walletPreferredBalanceUnit} />
       </View>
     );
@@ -292,11 +282,7 @@ export default class WalletsList extends Component {
   renderNavigationHeader = () => {
     return (
       <View style={styles.headerStyle}>
-        <TouchableOpacity
-          testID="SettingsButton"
-          style={{ marginHorizontal: 16 }}
-          onPress={() => this.props.navigation.navigate('Settings')}
-        >
+        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => this.props.navigation.navigate('Settings')}>
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       </View>
@@ -310,23 +296,14 @@ export default class WalletsList extends Component {
           onPress={() => {
             this.props.navigation.navigate('HodlHodl', { fromWallet: this.state.wallet });
           }}
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginHorizontal: 16,
-            marginVertical: 16,
-            backgroundColor: '#eef0f4',
-            padding: 16,
-            borderRadius: 6,
-          }}
+          style={styles.ltRoot}
         >
-          <View style={{ flexDirection: 'column' }}>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#0C2550' }}>Local Trader</Text>
-            <Text style={{ fontSize: 13, fontWeight: '500', color: '#9AA0AA' }}>A p2p exchange</Text>
+          <View style={styles.ltTextWrap}>
+            <Text style={styles.ltTextBig}>Local Trader</Text>
+            <Text style={styles.ltTextSmall}>A p2p exchange</Text>
           </View>
-          <View style={{ flexDirection: 'column', backgroundColor: '#007AFF', borderRadius: 16 }}>
-            <Text style={{ paddingHorizontal: 16, paddingVertical: 8, fontSize: 13, color: '#fff', fontWeight: '600' }}>New</Text>
+          <View style={styles.ltButtonWrap}>
+            <Text style={styles.ltButton}>New</Text>
           </View>
         </TouchableOpacity>
       );
@@ -387,26 +364,9 @@ export default class WalletsList extends Component {
       case WalletsListSections.TRANSACTIONS:
         if (this.state.dataSource.length === 0 && !this.state.isLoading) {
           return (
-            <View style={{ top: 80, height: 160, marginBottom: 80 }}>
-              <Text
-                style={{
-                  fontSize: 18,
-                  color: '#9aa0aa',
-                  textAlign: 'center',
-                }}
-              >
-                {loc.wallets.list.empty_txs1}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 18,
-                  color: '#9aa0aa',
-                  textAlign: 'center',
-                  fontWeight: '600',
-                }}
-              >
-                {loc.wallets.list.empty_txs2}
-              </Text>
+            <View style={styles.footerRoot}>
+              <Text style={styles.footerEmpty}>{loc.wallets.list.empty_txs1}</Text>
+              <Text style={styles.footerStart}>{loc.wallets.list.empty_txs2}</Text>
             </View>
           );
         } else {
@@ -420,18 +380,7 @@ export default class WalletsList extends Component {
   renderScanButton = () => {
     if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'center',
-            backgroundColor: 'transparent',
-            position: 'absolute',
-            bottom: 30,
-            borderRadius: 30,
-            minHeight: 48,
-            overflow: 'hidden',
-          }}
-        >
+        <View style={styles.scanButton}>
           <BlueScanButton onPress={this.onScanButtonPressed} />
         </View>
       );
@@ -461,7 +410,7 @@ export default class WalletsList extends Component {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.root}>
         <NavigationEvents
           onDidFocus={() => {
             this.redrawScreen();
@@ -476,7 +425,7 @@ export default class WalletsList extends Component {
             renderItem={this.renderSectionItem}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
-            contentInset={{ top: 0, left: 0, bottom: 60, right: 0 }}
+            contentInset={styles.scrollContent}
             renderSectionFooter={this.renderSectionFooter}
             sections={[
               { key: WalletsListSections.CAROUSEL, data: [WalletsListSections.CAROUSEL] },
@@ -491,6 +440,15 @@ export default class WalletsList extends Component {
   }
 }
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scrollContent: {
+    top: 0,
+    left: 0,
+    bottom: 60,
+    right: 0,
+  },
   wrapper: {
     backgroundColor: '#FFFFFF',
     flex: 1,
@@ -514,6 +472,83 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
       },
     }),
+  },
+  headerTouch: {
+    marginHorizontal: 16,
+  },
+  listHeaderText: {
+    paddingLeft: 16,
+    fontWeight: 'bold',
+    fontSize: 24,
+    marginVertical: 8,
+    color: BlueApp.settings.foregroundColor,
+  },
+  ltRoot: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginVertical: 16,
+    backgroundColor: '#eef0f4',
+    padding: 16,
+    borderRadius: 6,
+  },
+  ltTextWrap: {
+    flexDirection: 'column',
+  },
+  ltTextBig: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0C2550',
+  },
+  ltTextSmall: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#9AA0AA',
+  },
+  ltButtonWrap: {
+    flexDirection: 'column',
+    backgroundColor: '#007AFF',
+    borderRadius: 16,
+  },
+  ltButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  footerRoot: {
+    top: 80,
+    height: 160,
+    marginBottom: 80,
+  },
+  footerEmpty: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+  },
+  footerStart: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  scanButton: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    bottom: 30,
+    borderRadius: 30,
+    minHeight: 48,
+    overflow: 'hidden',
+  },
+  listHeader: {
+    backgroundColor: '#FFFFFF',
+  },
+  transaction: {
+    marginHorizontal: 4,
   },
 });
 

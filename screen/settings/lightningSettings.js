@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TextInput, Linking } from 'react-native';
+import { View, TextInput, Linking, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
@@ -10,6 +10,30 @@ import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  uri: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+  uriText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 36,
+    height: 36,
+  },
+});
 
 export default class LightningSettings extends Component {
   static navigationOptions = () => ({
@@ -53,7 +77,7 @@ export default class LightningSettings extends Component {
 
   render() {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <BlueCard>
           <BlueText>{loc.settings.lightning_settings_explain}</BlueText>
         </BlueCard>
@@ -77,26 +101,13 @@ export default class LightningSettings extends Component {
         />
 
         <BlueCard>
-          <View
-            style={{
-              flexDirection: 'row',
-              borderColor: '#d2d2d2',
-              borderBottomColor: '#d2d2d2',
-              borderWidth: 1.0,
-              borderBottomWidth: 0.5,
-              backgroundColor: '#f5f5f5',
-              minHeight: 44,
-              height: 44,
-              alignItems: 'center',
-              borderRadius: 4,
-            }}
-          >
+          <View style={styles.uri}>
             <TextInput
               placeholder={LightningCustodianWallet.defaultBaseUri}
               value={this.state.URI}
               onChangeText={text => this.setState({ URI: text })}
               numberOfLines={1}
-              style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
+              style={styles.uriText}
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
             />
