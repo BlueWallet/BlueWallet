@@ -4,23 +4,21 @@ import { Image, View, TouchableOpacity, Platform } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
-import PropTypes from 'prop-types';
-import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
+import { useNavigationParam, useNavigation, useIsFocused } from 'react-navigation-hooks';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
-const ScanQRCode = ({
-  showCloseButton = true,
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  showFileImportButton = useNavigationParam('showFileImportButton') || false,
-}) => {
+const ScanQRCode = () => {
+  const showCloseButton = useNavigationParam('showCloseButton') || true;
+  const showFileImportButton = useNavigationParam('showFileImportButton') || false;
   const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useNavigation();
   const launchedBy = useNavigationParam('launchedBy');
   const onBarScanned = useNavigationParam('onBarScanned');
   const scannedCache = {};
+  const isFocused = useIsFocused();
 
   const HashIt = function(s) {
     return createHash('sha256')
@@ -79,9 +77,13 @@ const ScanQRCode = ({
     setIsLoading(false);
   };
 
+  const dismiss = () => {
+    navigate(launchedBy);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
-      {!isLoading && (
+      {!isLoading && isFocused && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -90,7 +92,7 @@ const ScanQRCode = ({
             buttonPositive: 'OK',
             buttonNegative: 'Cancel',
           }}
-          style={{ flex: 1, justifyContent: 'space-between', backgroundColor: '#000000' }}
+          style={{ flex: 1 }}
           onBarCodeRead={onBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
@@ -107,7 +109,7 @@ const ScanQRCode = ({
             right: 16,
             top: 44,
           }}
-          onPress={() => navigate(launchedBy)}
+          onPress={dismiss}
         >
           <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
@@ -175,8 +177,5 @@ const ScanQRCode = ({
 ScanQRCode.navigationOptions = {
   header: null,
 };
-ScanQRCode.propTypes = {
-  showFileImportButton: PropTypes.bool,
-  showCloseButton: PropTypes.bool,
-};
+
 export default ScanQRCode;

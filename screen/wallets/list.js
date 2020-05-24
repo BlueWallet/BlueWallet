@@ -1,5 +1,16 @@
 import React, { Component } from 'react';
-import { StatusBar, View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
+import {
+  StatusBar,
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  InteractionManager,
+  RefreshControl,
+  SectionList,
+  Alert,
+  Platform,
+} from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -69,7 +80,7 @@ export default class WalletsList extends Component {
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
    * Triggered manually by user on pull-to-refresh.
    */
-  refreshTransactions() {
+  refreshTransactions = () => {
     if (!(this.lastSnappedTo < BlueApp.getWallets().length) && this.lastSnappedTo !== undefined) {
       // last card, nop
       console.log('last card, nop');
@@ -103,7 +114,7 @@ export default class WalletsList extends Component {
         });
       },
     );
-  }
+  };
 
   redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
@@ -459,21 +470,19 @@ export default class WalletsList extends Component {
     });
   };
 
+  onNavigationEventDidFocus = () => {
+    StatusBar.setBarStyle('dark-content');
+    this.redrawScreen();
+  };
+
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <NavigationEvents
-          onDidFocus={() => {
-            StatusBar.setBarStyle('dark-content');
-            this.redrawScreen();
-          }}
-        />
+        <NavigationEvents onDidFocus={this.onNavigationEventDidFocus} />
         <View style={styles.walletsListWrapper}>
           {this.renderNavigationHeader()}
           <SectionList
-            refreshControl={
-              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
-            }
+            refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={!this.state.isFlatListRefreshControlHidden} />}
             renderItem={this.renderSectionItem}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
