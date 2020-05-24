@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Button } from 'react-native-elements';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');

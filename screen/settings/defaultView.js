@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
-import OnAppLaunch from '../../class/onAppLaunch';
+import OnAppLaunch from '../../class/on-app-launch';
 import { useNavigation } from 'react-navigation-hooks';
 const BlueApp = require('../../BlueApp');
 

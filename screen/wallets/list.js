@@ -6,7 +6,7 @@ import { NavigationEvents } from 'react-navigation';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
-import WalletImport from '../../class/walletImport';
+import WalletImport from '../../class/wallet-import';
 import ViewPager from '@react-native-community/viewpager';
 import ScanQRCode from '../send/ScanQRCode';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';

@@ -1,14 +1,14 @@
-import { LegacyWallet } from './legacy-wallet';
-import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from './lightning-custodian-wallet';
-import { HDLegacyBreadwalletWallet } from './hd-legacy-breadwallet-wallet';
-import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
-import { WatchOnlyWallet } from './watch-only-wallet';
-import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
-import { PlaceholderWallet } from './placeholder-wallet';
-import { SegwitBech32Wallet } from './segwit-bech32-wallet';
-import { HDLegacyElectrumSeedP2PKHWallet } from './hd-legacy-electrum-seed-p2pkh-wallet';
-import { HDSegwitElectrumSeedP2WPKHWallet } from './hd-segwit-electrum-seed-p2wpkh-wallet';
+import { LegacyWallet } from './wallets/legacy-wallet';
+import { HDSegwitP2SHWallet } from './wallets/hd-segwit-p2sh-wallet';
+import { LightningCustodianWallet } from './wallets/lightning-custodian-wallet';
+import { HDLegacyBreadwalletWallet } from './wallets/hd-legacy-breadwallet-wallet';
+import { HDLegacyP2PKHWallet } from './wallets/hd-legacy-p2pkh-wallet';
+import { WatchOnlyWallet } from './wallets/watch-only-wallet';
+import { HDSegwitBech32Wallet } from './wallets/hd-segwit-bech32-wallet';
+import { PlaceholderWallet } from './wallets/placeholder-wallet';
+import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
+import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
+import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];

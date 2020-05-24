@@ -9,7 +9,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
-import OnAppLaunch from './class/onAppLaunch';
+import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import BitcoinBIP70TransactionDecode from './bip70/bip70';
 const A = require('./analytics');

@@ -26,9 +26,13 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { 
+  HDSegwitBech32Wallet,
+  SegwitP2SHWallet,
+  HDSegwitP2SHWallet,
+  LightningCustodianWallet
+} from '../../class';
+import { AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 let EV = require('../../events');
