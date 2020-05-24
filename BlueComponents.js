@@ -730,7 +730,7 @@ export class BlueHeaderDefaultSub extends Component {
 export class BlueHeaderDefaultMain extends Component {
   render() {
     return (
-      <SafeAreaView style={{ backgroundColor: BlueApp.settings.brandingColor }}>
+      <SafeAreaView style={{ paddingVertical: 8, paddingHorizontal: 4, backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
           {...this.props}
           statusBarProps={{ barStyle: 'default' }}
@@ -745,21 +745,21 @@ export class BlueHeaderDefaultMain extends Component {
           }}
           leftContainerStyle={{
             minWidth: '70%',
-            height: 70,
+            height: 80,
           }}
           bottomDivider={false}
           containerStyle={{
-            height: 64,
+            height: 44,
             flexDirection: 'row',
             borderBottomColor: BlueApp.settings.brandingColor,
-            backgroundColor: '#ffffff',
+            backgroundColor: BlueApp.settings.brandingColor,
           }}
           rightComponent={
             this.props.onNewWalletPress && (
               <TouchableOpacity
                 onPress={this.props.onNewWalletPress}
                 style={{
-                  height: 90,
+                  height: 100,
                 }}
               >
                 <BluePlusIcon />
@@ -1226,6 +1226,48 @@ export class BlueReceiveButtonIcon extends Component {
               }}
             >
               {loc.receive.header}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
+export class BlueScanButton extends Component {
+  render() {
+    return (
+      <TouchableOpacity {...this.props}>
+        <View
+          style={{
+            flex: 1,
+            minWidth: 130,
+            backgroundColor: BlueApp.settings.buttonBackgroundColor,
+          }}
+        >
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <View
+              style={{
+                minWidth: 24,
+                minHeight: 30,
+                backgroundColor: 'transparent',
+                alignItems: 'center',
+                marginBottom: -15,
+                marginLeft: -8,
+              }}
+            >
+              <Image source={require('./img/scan.png')} />
+            </View>
+            <Text
+              style={{
+                color: BlueApp.settings.buttonAlternativeTextColor,
+                fontSize: (isIpad && 10) || 16,
+                fontWeight: '600',
+                left: 5,
+                backgroundColor: 'transparent',
+              }}
+            >
+              {loc.send.details.scan}
             </Text>
           </View>
         </View>
