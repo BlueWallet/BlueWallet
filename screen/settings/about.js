@@ -96,6 +96,7 @@ const About = () => {
           }}
           onPress={handleOnTwitterPress}
           title="Follow us on Twitter"
+          chevron
         />
         <BlueListItem
           leftIcon={{
@@ -105,6 +106,7 @@ const About = () => {
           }}
           onPress={handleOnTelegramPress}
           title="Telegram chat"
+          chevron
         />
         <BlueListItem
           leftIcon={{
@@ -114,6 +116,7 @@ const About = () => {
           }}
           onPress={handleOnGithubPress}
           title="GitHub"
+          chevron
         />
         <BlueCard>
           <View style={{ backgroundColor: '#f9f9f9', padding: 16, paddingTop: 0, borderRadius: 8 }}>
