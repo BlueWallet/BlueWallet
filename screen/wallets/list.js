@@ -1,5 +1,16 @@
 import React, { Component } from 'react';
-import { StatusBar, View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
+import {
+  StatusBar,
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  InteractionManager,
+  RefreshControl,
+  SectionList,
+  Alert,
+  Platform,
+} from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
