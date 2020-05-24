@@ -1,17 +1,5 @@
-/* global alert */
 import React, { Component } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Clipboard,
-  Text,
-  StyleSheet,
-  InteractionManager,
-  RefreshControl,
-  SectionList,
-  Alert,
-  Platform,
-} from 'react-native';
+import { StatusBar, View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -20,14 +8,11 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
-import ActionSheet from '../ActionSheet';
-import ImagePicker from 'react-native-image-picker';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
-const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let BlueElectrum = require('../../BlueElectrum');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
@@ -447,7 +432,7 @@ export default class WalletsList extends Component {
             overflow: 'hidden',
           }}
         >
-          <BlueScanButton onPress={this.onScanButtonPressed} onLongPress={this.sendButtonLongPress} />
+          <BlueScanButton onPress={this.onScanButtonPressed} />
         </View>
       );
     } else {
@@ -474,92 +459,12 @@ export default class WalletsList extends Component {
     });
   };
 
-  choosePhoto = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        title: null,
-        mediaType: 'photo',
-        takePhotoButtonTitle: null,
-      },
-      response => {
-        if (response.uri) {
-          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-          LocalQRCode.decode(uri, (error, result) => {
-            if (!error) {
-              this.onBarScanned({ data: result });
-            } else {
-              alert('The selected image does not contain a QR Code.');
-            }
-          });
-        }
-      },
-    );
-  };
-
-  copyFromClipbard = async () => {
-    this.onBarScanned(await Clipboard.getString());
-  };
-
-  sendButtonLongPress = async () => {
-    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
-    if (Platform.OS === 'ios') {
-      let options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
-      if (!isClipboardEmpty) {
-        options.push('Copy from Clipboard');
-      }
-      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
-        if (buttonIndex === 1) {
-          this.choosePhoto();
-        } else if (buttonIndex === 2) {
-          this.props.navigation.navigate('ScanQRCode', {
-            launchedBy: this.props.navigation.state.routeName,
-            onBarScanned: this.onBarCodeRead,
-            showFileImportButton: false,
-          });
-        } else if (buttonIndex === 3) {
-          this.copyFromClipbard();
-        }
-      });
-    } else if (Platform.OS === 'android') {
-      let buttons = [
-        {
-          text: loc.send.details.cancel,
-          onPress: () => {},
-          style: 'cancel',
-        },
-        {
-          text: 'Choose Photo',
-          onPress: this.choosePhoto,
-        },
-        {
-          text: 'Scan QR Code',
-          onPress: () =>
-            this.props.navigation.navigate('ScanQRCode', {
-              launchedBy: this.props.navigation.state.routeName,
-              onBarScanned: this.onBarCodeRead,
-              showFileImportButton: false,
-            }),
-        },
-      ];
-      if (!isClipboardEmpty) {
-        buttons.push({
-          text: 'Copy From Clipboard',
-          onPress: this.copyFromClipbard,
-        });
-      }
-      ActionSheet.showActionSheetWithOptions({
-        title: '',
-        message: '',
-        buttons,
-      });
-    }
-  };
-
   render() {
     return (
       <View style={{ flex: 1 }}>
         <NavigationEvents
           onDidFocus={() => {
+            StatusBar.setBarStyle('dark-content');
             this.redrawScreen();
           }}
         />
