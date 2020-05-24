@@ -42,7 +42,7 @@ const Currency = () => {
                 disabled={isSavingNewPreferredCurrency}
                 title={`${item.endPointKey} (${item.symbol})`}
                 {...(selectedCurrency.endPointKey === item.endPointKey
-                  ? { rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" /> }
+                  ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
                   : { hideChevron: true })}
                 Component={TouchableOpacity}
                 onPress={async () => {
