@@ -143,6 +143,7 @@ module.exports = {
     },
     success: {
       done: 'U redu',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Detalji',
@@ -170,7 +171,6 @@ module.exports = {
       create: 'Stvori',
       setAmount: 'Odredi iznos za primiti',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Kupovina Bitcoina',

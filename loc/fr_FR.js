@@ -145,6 +145,7 @@ module.exports = {
     },
     success: {
       done: 'Terminé',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Details',
@@ -172,7 +173,6 @@ module.exports = {
       create: 'Create',
       setAmount: 'Revevoir avec montant',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Acheter du Bitcoin',

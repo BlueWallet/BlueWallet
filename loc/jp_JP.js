@@ -143,6 +143,7 @@ module.exports = {
     },
     success: {
       done: '完了',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: '詳細',
@@ -170,7 +171,6 @@ module.exports = {
       create: '作成',
       setAmount: '入金額',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin の購入',

@@ -141,6 +141,7 @@ module.exports = {
     },
     success: {
       done: '完成',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: '詳情',

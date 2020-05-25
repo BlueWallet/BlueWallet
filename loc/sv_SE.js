@@ -144,6 +144,7 @@ module.exports = {
     },
     success: {
       done: 'Klart!',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Detaljer',
@@ -171,7 +172,6 @@ module.exports = {
       create: 'Skapa',
       setAmount: 'Ta emot med belopp',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Köp bitcoin',

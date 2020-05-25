@@ -6,6 +6,9 @@ import MainBottomTabs from './MainBottomTabs';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import url from 'url';
+import { getParams as getLNURLParams } from 'js-lnurl';
+import { AppStorage, LightningCustodianWallet } from './class';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
@@ -174,6 +177,157 @@ export default class App extends React.Component {
 
   handleOpenURL = event => {
     DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.dispatch(NavigationActions.navigate(value)));
+
+    if (event.url === null) {
+      return;
+    }
+    if (typeof event.url !== 'string') {
+      return;
+    }
+    let isBothBitcoinAndLightning;
+    try {
+      isBothBitcoinAndLightning = this.isBothBitcoinAndLightning(event.url);
+    } catch (e) {
+      console.log(e);
+    }
+    if (isBothBitcoinAndLightning) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'HandleOffchainAndOnChain',
+            params: {
+              onWalletSelect: this.isBothBitcoinAndLightningWalletSelect,
+            },
+          }),
+        );
+    } else if (this.isBitcoinAddress(event.url)) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'SendDetails',
+            params: {
+              uri: event.url,
+            },
+          }),
+        );
+    } else if (this.isLightningInvoice(event.url)) {
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'ScanLndInvoice',
+            params: {
+              uri: event.url,
+            },
+          }),
+        );
+    } else if (this.isLnUrl(event.url)) {
+      console.log('START WITH LNURL', event.lnurl)
+      getLNURLParams(event.url)
+        .then(params => {
+          console.log('PARAMS', params)
+          var routeName;
+          if (params.tag === 'withdrawRequest') {
+            routeName = 'LNDCreateInvoice';
+          } else if (params.tag === 'payRequest') {
+            routeName = 'ScanLndInvoice';
+          } else {
+            return
+          }
+
+          this.navigator &&
+            this.navigator.dispatch(
+              NavigationActions.navigate({
+                routeName,
+                params: {
+                  uri: event.url,
+                  lnurlData: params
+                },
+              }),
+            )
+        }).catch(error => console.log('LNURL FETCH ERROR', error));
+    } else if (this.isSafelloRedirect(event)) {
+      let urlObject = url.parse(event.url, true) // eslint-disable-line
+
+      const safelloStateToken = urlObject.query['safello-state-token'];
+
+      this.navigator &&
+        this.navigator.dispatch(
+          NavigationActions.navigate({
+            routeName: 'BuyBitcoin',
+            params: {
+              uri: event.url,
+              safelloStateToken,
+            },
+          }),
+        );
+    } else {
+      let urlObject = url.parse(event.url, true); // eslint-disable-line
+      console.log('parsed', urlObject);
+      (async () => {
+        if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
+          switch (urlObject.host) {
+            case 'openlappbrowser':
+              console.log('opening LAPP', urlObject.query.url);
+              // searching for LN wallet:
+              let haveLnWallet = false;
+              for (let w of BlueApp.getWallets()) {
+                if (w.type === LightningCustodianWallet.type) {
+                  haveLnWallet = true;
+                }
+              }
+
+              if (!haveLnWallet) {
+                // need to create one
+                let w = new LightningCustodianWallet();
+                w.setLabel(this.state.label || w.typeReadable);
+
+                try {
+                  let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                  if (lndhub) {
+                    w.setBaseURI(lndhub);
+                    w.init();
+                  }
+                  await w.createAccount();
+                  await w.authorize();
+                } catch (Err) {
+                  // giving up, not doing anything
+                  return;
+                }
+                BlueApp.wallets.push(w);
+                await BlueApp.saveToDisk();
+              }
+
+              // now, opening lapp browser and navigating it to URL.
+              // looking for a LN wallet:
+              let lnWallet;
+              for (let w of BlueApp.getWallets()) {
+                if (w.type === LightningCustodianWallet.type) {
+                  lnWallet = w;
+                  break;
+                }
+              }
+
+              if (!lnWallet) {
+                // something went wrong
+                return;
+              }
+
+              this.navigator &&
+                this.navigator.dispatch(
+                  NavigationActions.navigate({
+                    routeName: 'LappBrowser',
+                    params: {
+                      fromSecret: lnWallet.getSecret(),
+                      fromWallet: lnWallet,
+                      url: urlObject.query.url,
+                    },
+                  }),
+                );
+              break;
+          }
+        }
+      })();
+    }
   };
 
   renderClipboardContentModal = () => {

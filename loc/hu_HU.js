@@ -144,6 +144,7 @@ module.exports = {
     },
     success: {
       done: 'Kész!',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Részletek',
@@ -171,7 +172,6 @@ module.exports = {
       create: 'Létrehoz',
       setAmount: 'Fogadandó összeg',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin vásárlása',

@@ -146,6 +146,7 @@ module.exports = {
     },
     success: {
       done: 'Ολοκληρώθηκε',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Λεπτομέρειες',
@@ -173,7 +174,6 @@ module.exports = {
       create: 'Δημιούργησε',
       setAmount: 'Λάβε με ποσό',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Αγόρασε Bitcoin',

@@ -536,41 +536,42 @@ export class LightningCustodianWallet extends LegacyWallet {
   decodeInvoice(invoice) {
     let { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
 
-    let decoded = {
+    var decoded = {
       destination: payeeNodeKey,
-      num_satoshis: satoshis ? satoshis.toString() : '0',
-      num_millisatoshis: millisatoshis ? millisatoshis.toString() : '0',
+      num_satoshis: satoshis
+        ? satoshis.toString()
+        : millisatoshis.toString(),
       timestamp: timestamp.toString(),
       fallback_addr: '',
-      route_hints: [],
+      route_hints: []
     };
 
     for (let i = 0; i < tags.length; i++) {
-      let { tagName, data } = tags[i];
+      let {tagName, data} = tags[i];
       switch (tagName) {
         case 'payment_hash':
-          decoded.payment_hash = data;
-          break;
+          decoded.payment_hash = data
+          break
         case 'purpose_commit_hash':
-          decoded.description_hash = data;
-          break;
+          decoded.description_hash = data
+          break
         case 'min_final_cltv_expiry':
-          decoded.cltv_expiry = data.toString();
-          break;
+          decoded.cltv_expiry = data.toString()
+          break
         case 'expire_time':
-          decoded.expiry = data.toString();
-          break;
+          decoded.expiry = data.toString()
+          break
         case 'description':
-          decoded.description = data;
-          break;
+          decoded.description = data
+          break
       }
+
     }
 
     if (!decoded.expiry) decoded.expiry = '3600'; // default
 
     if (parseInt(decoded.num_satoshis) === 0 && decoded.num_millisatoshis > 0) {
       decoded.num_satoshis = (decoded.num_millisatoshis / 1000).toString();
-    }
 
     return (this.decoded_invoice_raw = decoded);
   }
