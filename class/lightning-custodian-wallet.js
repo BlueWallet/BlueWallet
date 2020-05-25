@@ -536,14 +536,13 @@ export class LightningCustodianWallet extends LegacyWallet {
   decodeInvoice(invoice) {
     let { payeeNodeKey, tags, satoshis, millisatoshis, timestamp } = bolt11.decode(invoice);
 
-    var decoded = {
+    let decoded = {
       destination: payeeNodeKey,
-      num_satoshis: satoshis
-        ? satoshis.toString()
-        : millisatoshis.toString(),
+      num_satoshis: satoshis ? satoshis.toString() : '0',
+      num_millisatoshis: millisatoshis ? millisatoshis.toString() : '0',
       timestamp: timestamp.toString(),
       fallback_addr: '',
-      route_hints: []
+      route_hints: [],
     };
 
     for (let i = 0; i < tags.length; i++) {
@@ -572,9 +571,11 @@ export class LightningCustodianWallet extends LegacyWallet {
 
     if (parseInt(decoded.num_satoshis) === 0 && decoded.num_millisatoshis > 0) {
       decoded.num_satoshis = (decoded.num_millisatoshis / 1000).toString();
+    }
 
     return (this.decoded_invoice_raw = decoded);
   }
+
 
   async fetchInfo() {
     let response = await this._api.get('/getinfo', {

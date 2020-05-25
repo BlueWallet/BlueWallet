@@ -49,7 +49,7 @@ export default class LNDViewInvoice extends Component {
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
-  componentDidMount() {
+   async componentDidMount() {
     if (this.state.invoice && this.state.invoice.payment_hash) {
       // fetch lnurl-pay stuff if exists
       let paymentHash = Buffer.from(this.state.invoice.payment_hash).toString('hex');
@@ -75,6 +75,7 @@ export default class LNDViewInvoice extends Component {
         }});
       }
     }
+
     this.fetchInvoiceInterval = setInterval(async () => {
       if (this.state.isFetchingInvoices) {
         try {
@@ -264,10 +265,11 @@ export default class LNDViewInvoice extends Component {
                   <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
                 </TouchableOpacity>
               
-              )}
-            </View>
-            
-            )}
+             
+            </View> 
+
+           )}
+          </View>
           </SafeBlueArea>
         );
       }

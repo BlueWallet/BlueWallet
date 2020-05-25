@@ -1,6 +1,6 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, KeyboardAvoidingView, View, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
+import { Text, Image, Dimensions, ActivityIndicator, BackHandler, InteractionManager, KeyboardAvoidingView, View, TouchableOpacity, Keyboard, ScrollView } from 'react-native';
 import PropTypes from 'prop-types';
 import AsyncStorage from '@react-native-community/async-storage';
 import createHash from 'create-hash'
@@ -80,8 +80,8 @@ export default class ScanLndInvoice extends React.Component {
       };
     }
   }
-
-  async componentDidMount() {
+   
+   async componentDidMount() {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     if (this.props.navigation.state.params.lnurlData) {
@@ -126,7 +126,7 @@ export default class ScanLndInvoice extends React.Component {
       /**
        * @type {LightningCustodianWallet}
        */
-      let w = state.fromWallet;
+      let w = this.state.fromWallet;
       let decoded;
       try {
         decoded = w.decodeInvoice(data);
@@ -138,41 +138,21 @@ export default class ScanLndInvoice extends React.Component {
           expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
         }
         Keyboard.dismiss();
-        props.navigation.setParams({ uri: undefined });
-        return {
+        this.setState({
           invoice: data,
           decoded,
           expiresIn,
           destination: data,
           isAmountInitiallyEmpty: decoded.num_satoshis === '0',
           isLoading: false,
-        };
+        });
       } catch (Err) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
         Keyboard.dismiss();
-        props.navigation.setParams({ uri: undefined });
-        setTimeout(() => alert(Err.message), 10);
-        return { ...state, isLoading: false };
+        this.setState({ isLoading: false });
+        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+        alert(Err.message);
       }
-    }
-    return state;
-  }
-
-  componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
-  }
-
-  _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true });
-  };
-
-  _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false });
-  };
-
-  processInvoice = data => {
-    this.props.navigation.setParams({ uri: data });
+    });
   };
 
   processLnurlPay = async (uri, data) => {
@@ -653,77 +633,8 @@ export default class ScanLndInvoice extends React.Component {
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ flex: 1, justifyContent: 'space-between' }}>
-            <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
-              <View style={{ marginTop: 60 }}>
-                <BlueBitcoinAmount
-                  pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
-                  isLoading={this.state.isLoading}
-                  amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
-                  onChangeText={text => {
-                    if (typeof this.state.decoded === 'object') {
-                      text = parseInt(text || 0);
-                      let decoded = this.state.decoded;
-                      decoded.num_satoshis = text;
-                      this.setState({ decoded: decoded });
-                    }
-                  }}
-                  disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
-                  unit={BitcoinUnit.SATS}
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                />
-              </View>
+           
 
-              <BlueCard>
-                <BlueAddressInput
-                  onChangeText={text => {
-                    text = text.trim();
-                    this.processTextForInvoice(text);
-                  }}
-                  onBarScanned={this.processInvoice}
-                  address={this.state.destination}
-                  isLoading={this.state.isLoading}
-                  placeholder={loc.lnd.placeholder}
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  launchedBy={this.props.navigation.state.routeName}
-                />
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginHorizontal: 20,
-                    alignItems: 'center',
-                    marginVertical: 0,
-                    borderRadius: 4,
-                  }}
-                >
-                  <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
-                    {this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.description : ''}
-                  </Text>
-                </View>
-                {this.state.expiresIn !== undefined && (
-                  <Text style={{ color: '#81868e', fontSize: 12, left: 20, top: 10 }}>Expires in: {this.state.expiresIn}</Text>
-                )}
-
-                <BlueCard>
-                  {this.state.isLoading ? (
-                    <View>
-                      <ActivityIndicator />
-                    </View>
-                  ) : (
-                    <BlueButton
-                      title={'Pay'}
-                      onPress={() => {
-                        this.pay();
-                      }}
-                      disabled={this.shouldDisablePayButton()}
-                    />
-                  )}
-                </BlueCard>
-              </BlueCard>
-            </KeyboardAvoidingView>
-
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-          <View style={{ flex: 1, justifyContent: 'space-between' }}>
             {this.state.lnurlParams
               ? this.renderLnurlPayPrompt()
               : this.renderInvoicePayPrompt()}
