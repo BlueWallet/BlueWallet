@@ -290,7 +290,7 @@ export default class WalletsList extends Component {
       <View style={styles.headerStyle}>
         <TouchableOpacity
           testID="SettingsButton"
-          style={{ height: 48, paddingRight: 16, paddingLeft: 32, paddingVertical: 10, }}
+          style={{ height: 48, paddingRight: 16, paddingLeft: 32, paddingVertical: 10 }}
           onPress={() => this.props.navigation.navigate('Settings')}
         >
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
