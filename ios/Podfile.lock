@@ -210,6 +210,8 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
+  - react-native-safe-area-context (2.0.0):
+    - React
   - react-native-slider (2.0.8):
     - React
   - react-native-tcp (3.3.2):
@@ -257,6 +259,8 @@ PODS:
     - React
   - RNCAsyncStorage (1.8.1):
     - React
+  - RNCMaskedView (0.1.10):
+    - React
   - RNDefaultPreference (1.4.1):
     - React
   - RNDeviceInfo (4.0.1):
@@ -272,6 +276,8 @@ PODS:
   - RNRate (1.1.10):
     - React
   - RNReactNativeHapticFeedback (1.9.0):
+    - React
+  - RNScreens (2.8.0):
     - React
   - RNSecureKeyStore (1.0.0):
     - React
@@ -321,6 +327,7 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
+  - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp (from `../node_modules/react-native-tcp`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -338,6 +345,7 @@ DEPENDENCIES:
   - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
@@ -346,6 +354,7 @@ DEPENDENCIES:
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
+  - RNScreens (from `../node_modules/react-native-screens`)
   - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
@@ -410,6 +419,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
+  react-native-safe-area-context:
+    :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
   react-native-tcp:
@@ -442,6 +453,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
+  RNCMaskedView:
+    :path: "../node_modules/@react-native-community/masked-view"
   RNDefaultPreference:
     :path: "../node_modules/react-native-default-preference"
   RNDeviceInfo:
@@ -458,6 +471,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-rate"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
   RNSecureKeyStore:
     :path: "../node_modules/react-native-secure-key-store/ios"
   RNSentry:
@@ -502,6 +517,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
+  react-native-safe-area-context: 0b0460e3298465bdb4b859ea43c2d7b9128cf988
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
   react-native-tcp: be8e119e631970aaeda7f6e3207f6b7be72d5eb8
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
@@ -518,6 +534,7 @@ SPEC CHECKSUMS:
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 00bdf63f7f1e0f11d3323533dba4f222e58bf092
+  RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
@@ -526,6 +543,7 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: d44a8bca6ee08f5d890ecccddaec2810955ffbb3
   RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
+  RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 8a47c89b65502d8d5b464dfb3aa5a13038e5bb08
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
@@ -539,4 +557,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 932f5bffd3ddea34b78c9ed0921a6f8cccf442b5
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1
