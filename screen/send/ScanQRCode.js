@@ -11,7 +11,6 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
 const ScanQRCode = () => {
-  const showCloseButton = useNavigationParam('showCloseButton') || true;
   const showFileImportButton = useNavigationParam('showFileImportButton') || false;
   const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useNavigation();
@@ -38,7 +37,7 @@ const ScanQRCode = () => {
     if (!isLoading) {
       setIsLoading(true);
       try {
-        if (showCloseButton && launchedBy) {
+        if (launchedBy) {
           navigate(launchedBy);
         }
         if (ret.additionalProperties) {
@@ -77,6 +76,32 @@ const ScanQRCode = () => {
     setIsLoading(false);
   };
 
+  const showImagePicker = () => {
+    if (!isLoading) {
+      setIsLoading(true);
+      ImagePicker.launchImageLibrary(
+        {
+          title: null,
+          mediaType: 'photo',
+          takePhotoButtonTitle: null,
+        },
+        response => {
+          if (response.uri) {
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            LocalQRCode.decode(uri, (error, result) => {
+              if (!error) {
+                onBarCodeRead({ data: result });
+              } else {
+                alert('The selected image does not contain a QR Code.');
+              }
+            });
+          }
+          setIsLoading(false);
+        },
+      );
+    }
+  };
+
   const dismiss = () => {
     navigate(launchedBy);
   };
@@ -97,23 +122,21 @@ const ScanQRCode = () => {
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
       )}
-      {showCloseButton && (
-        <TouchableOpacity
-          style={{
-            width: 40,
-            height: 40,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            justifyContent: 'center',
-            borderRadius: 20,
-            position: 'absolute',
-            right: 16,
-            top: 44,
-          }}
-          onPress={dismiss}
-        >
-          <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
-        </TouchableOpacity>
-      )}
+      <TouchableOpacity
+        style={{
+          width: 40,
+          height: 40,
+          backgroundColor: 'rgba(0,0,0,0.4)',
+          justifyContent: 'center',
+          borderRadius: 20,
+          position: 'absolute',
+          right: 16,
+          top: 44,
+        }}
+        onPress={dismiss}
+      >
+        <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
+      </TouchableOpacity>
       <TouchableOpacity
         style={{
           width: 40,
@@ -125,31 +148,7 @@ const ScanQRCode = () => {
           left: 24,
           bottom: 48,
         }}
-        onPress={() => {
-          if (!isLoading) {
-            setIsLoading(true);
-            ImagePicker.launchImageLibrary(
-              {
-                title: null,
-                mediaType: 'photo',
-                takePhotoButtonTitle: null,
-              },
-              response => {
-                if (response.uri) {
-                  const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-                  LocalQRCode.decode(uri, (error, result) => {
-                    if (!error) {
-                      onBarCodeRead({ data: result });
-                    } else {
-                      alert('The selected image does not contain a QR Code.');
-                    }
-                  });
-                }
-                setIsLoading(false);
-              },
-            );
-          }
-        }}
+        onPress={showImagePicker}
       >
         <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
