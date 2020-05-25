@@ -26,7 +26,6 @@ class AdvancedOptionsScreen extends PureComponent<Props> {
   };
 
   render() {
-    console.log('props', this.props);
     return (
       <View>
         <Text style={styles.title}>{i18n.advancedOptions.title}</Text>

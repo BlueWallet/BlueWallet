@@ -20,8 +20,7 @@ export class AppStateManager extends PureComponent<Props, State> {
 
   handleAppStateChange = (nextAppState: string) => {
     const { appState } = this.state;
-    console.log({ appState, nextAppState });
-    if (appState !== 'active' && nextAppState === 'active') {
+    if (appState === 'background' && nextAppState === 'active') {
       this.props.handleAppComesToForeground();
     }
 
