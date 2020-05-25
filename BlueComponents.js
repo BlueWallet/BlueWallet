@@ -1978,7 +1978,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
 };
 
 const sliderWidth = width * 1;
-const itemWidth = width * 0.82;
+const itemWidth = width > 375 ? 375 : width * 0.82;
 const sliderHeight = 190;
 
 export class WalletsCarousel extends Component {
