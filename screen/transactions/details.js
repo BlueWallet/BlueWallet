@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Linking, StyleSheet } from 'react-native';
 import {
   SafeBlueArea,
   BlueCard,
@@ -17,6 +17,42 @@ import PropTypes from 'prop-types';
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const dayjs = require('dayjs');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scroll: {
+    flex: 1,
+  },
+  rowHeader: {
+    flex: 1,
+    flexDirection: 'row',
+    marginBottom: 4,
+    justifyContent: 'space-between',
+  },
+  rowCaption: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  rowValue: {
+    marginBottom: 26,
+    color: 'grey',
+  },
+  txId: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  txHash: {
+    marginBottom: 8,
+    color: 'grey',
+  },
+  txLink: {
+    marginBottom: 26,
+    color: '#2f5fb3',
+  },
+});
 
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
@@ -90,7 +126,7 @@ export default class TransactionsDetails extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         {this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Transaction ${this.state.tx.hash}`}
@@ -99,7 +135,7 @@ export default class TransactionsDetails extends Component {
           />
         )}
         <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
-        <ScrollView style={{ flex: 1 }}>
+        <ScrollView style={styles.scroll}>
           <BlueCard>
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
@@ -116,40 +152,38 @@ export default class TransactionsDetails extends Component {
 
             {this.state.hasOwnProperty('from') && (
               <React.Fragment>
-                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-                  <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.from}</BlueText>
+                <View style={styles.rowHeader}>
+                  <BlueText style={styles.rowCaption}>{loc.transactions.details.from}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
                 </View>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
               </React.Fragment>
             )}
 
             {this.state.hasOwnProperty('to') && (
               <React.Fragment>
-                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-                  <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.transactions.details.to}</BlueText>
+                <View style={styles.rowHeader}>
+                  <BlueText style={styles.rowCaption}>{loc.transactions.details.to}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
                 </View>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>
-                  {arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}
-                </BlueText>
+                <BlueText style={styles.rowValue}>{arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}</BlueText>
               </React.Fragment>
             )}
 
             {this.state.tx.hasOwnProperty('fee') && (
               <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>{loc.send.create.fee}</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.fee + ' sats'}</BlueText>
+                <BlueText style={styles.rowCaption}>{loc.send.create.fee}</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.fee + ' sats'}</BlueText>
               </React.Fragment>
             )}
 
             {this.state.tx.hasOwnProperty('hash') && (
               <React.Fragment>
-                <View style={{ flex: 1, flexDirection: 'row', marginBottom: 4, justifyContent: 'space-between' }}>
-                  <BlueText style={{ fontSize: 16, fontWeight: '500' }}>Txid</BlueText>
+                <View style={styles.rowHeader}>
+                  <BlueText style={styles.txId}>Txid</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
                 </View>
-                <BlueText style={{ marginBottom: 8, color: 'grey' }}>{this.state.tx.hash}</BlueText>
+                <BlueText style={styles.txHash}>{this.state.tx.hash}</BlueText>
                 <TouchableOpacity
                   onPress={() => {
                     const url = `https://blockstream.info/tx/${this.state.tx.hash}`;
@@ -160,36 +194,36 @@ export default class TransactionsDetails extends Component {
                     });
                   }}
                 >
-                  <BlueText style={{ marginBottom: 26, color: '#2f5fb3' }}>{loc.transactions.details.show_in_block_explorer}</BlueText>
+                  <BlueText style={styles.txLink}>{loc.transactions.details.show_in_block_explorer}</BlueText>
                 </TouchableOpacity>
               </React.Fragment>
             )}
 
             {this.state.tx.hasOwnProperty('received') && (
               <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Received</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
+                <BlueText style={styles.rowCaption}>Received</BlueText>
+                <BlueText style={styles.rowValue}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
               </React.Fragment>
             )}
 
             {this.state.tx.hasOwnProperty('block_height') && this.state.tx.block_height > 0 && (
               <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Block Height</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.block_height}</BlueText>
+                <BlueText style={styles.rowCaption}>Block Height</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.block_height}</BlueText>
               </React.Fragment>
             )}
 
             {this.state.tx.hasOwnProperty('inputs') && (
               <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Inputs</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.inputs.length}</BlueText>
+                <BlueText style={styles.rowCaption}>Inputs</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.inputs.length}</BlueText>
               </React.Fragment>
             )}
 
             {this.state.tx.hasOwnProperty('outputs') && this.state.tx.outputs.length > 0 && (
               <React.Fragment>
-                <BlueText style={{ fontSize: 16, fontWeight: '500', marginBottom: 4 }}>Outputs</BlueText>
-                <BlueText style={{ marginBottom: 26, color: 'grey' }}>{this.state.tx.outputs.length}</BlueText>
+                <BlueText style={styles.rowCaption}>Outputs</BlueText>
+                <BlueText style={styles.rowValue}>{this.state.tx.outputs.length}</BlueText>
               </React.Fragment>
             )}
           </BlueCard>

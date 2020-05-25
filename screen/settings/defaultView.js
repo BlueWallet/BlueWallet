@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
+import { TouchableOpacity, View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
 import OnAppLaunch from '../../class/onAppLaunch';
 import { useNavigation } from 'react-navigation-hooks';
 const BlueApp = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});
 
 const DefaultView = () => {
   const [defaultWalletLabel, setDefaultWalletLabel] = useState('');
@@ -48,7 +54,7 @@ const DefaultView = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <View>
         <BlueListItem
           title="View All Wallets"

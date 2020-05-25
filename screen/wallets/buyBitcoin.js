@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { StyleSheet } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
@@ -6,6 +7,12 @@ import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../cla
 const currency = require('../../currency');
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -90,7 +97,7 @@ export default class BuyBitcoin extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <SafeBlueArea style={styles.root}>
         <WebView
           source={{
             uri,

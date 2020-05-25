@@ -32,7 +32,7 @@ export default class SendCreate extends Component {
     ...BlueNavigationStyle,
     title: loc.send.create.details,
     headerRight: navigation.state.params.exportTXN ? (
-      <TouchableOpacity style={{ marginRight: 16 }} onPress={navigation.state.params.exportTXN}>
+      <TouchableOpacity style={styles.export} onPress={navigation.state.params.exportTXN}>
         <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
       </TouchableOpacity>
     ) : null,
@@ -110,7 +110,7 @@ export default class SendCreate extends Component {
             {BitcoinUnit.BTC}
           </Text>
           {this.state.recipients.length > 1 && (
-            <BlueText style={{ alignSelf: 'flex-end' }}>
+            <BlueText style={styles.itemOf}>
               {index + 1} of {this.state.recipients.length}
             </BlueText>
           )}
@@ -120,41 +120,23 @@ export default class SendCreate extends Component {
   };
 
   renderSeparator = () => {
-    return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, marginVertical: 16 }} />;
+    return <View style={styles.separator} />;
   };
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+      <SafeBlueArea style={styles.root}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
-            <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-              <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
-              <TextInput
-                testID={'TxhexInput'}
-                style={{
-                  borderColor: '#ebebeb',
-                  backgroundColor: '#d2f8d6',
-                  borderRadius: 4,
-                  marginTop: 20,
-                  color: '#37c0a1',
-                  fontWeight: '500',
-                  fontSize: 14,
-                  paddingHorizontal: 16,
-                  paddingBottom: 16,
-                  paddingTop: 16,
-                }}
-                height={72}
-                multiline
-                editable
-                value={this.state.tx}
-              />
+            <BlueCard style={styles.card}>
+              <BlueText style={styles.cardText}>{loc.send.create.this_is_hex}</BlueText>
+              <TextInput testID={'TxhexInput'} style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
-              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
-                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+              <TouchableOpacity style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
+                <Text style={styles.actionText}>Copy and broadcast later</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
-                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Verify on coinb.in</Text>
+              <TouchableOpacity style={styles.actionTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
+                <Text style={styles.actionText}>Verify on coinb.in</Text>
               </TouchableOpacity>
             </BlueCard>
             <BlueCard>
@@ -202,6 +184,50 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
+  },
+  export: {
+    marginRight: 16,
+  },
+  itemOf: {
+    alignSelf: 'flex-end',
+  },
+  separator: {
+    backgroundColor: BlueApp.settings.inputBorderColor,
+    height: 0.5,
+    marginVertical: 16,
+  },
+  root: {
+    flex: 1,
+    paddingTop: 19,
+  },
+  card: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  cardText: {
+    color: '#0c2550',
+    fontWeight: '500',
+  },
+  cardTx: {
+    borderColor: '#ebebeb',
+    backgroundColor: '#d2f8d6',
+    borderRadius: 4,
+    marginTop: 20,
+    color: '#37c0a1',
+    fontWeight: '500',
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 16,
+  },
+  actionTouch: {
+    marginVertical: 24,
+  },
+  actionText: {
+    color: '#9aa0aa',
+    fontSize: 15,
+    fontWeight: '500',
+    alignSelf: 'center',
   },
 });
 
