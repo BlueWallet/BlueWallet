@@ -1984,6 +1984,8 @@ const sliderHeight = 190;
 export class WalletsCarousel extends Component {
   walletsCarousel = React.createRef();
 
+  state = { isLoading: true };
+
   _renderItem = ({ item, index }) => {
     return <WalletCarouselItem item={item} index={index} handleLongPress={this.props.handleLongPress} onPress={this.props.onPress} />;
   };
@@ -1992,20 +1994,34 @@ export class WalletsCarousel extends Component {
     this.walletsCarousel.current.snapToItem(item);
   };
 
+  onLayout = () => {
+    this.setState({ isLoading: false });
+  };
+
   render() {
     return (
-      <Carousel
-        {...this.props}
-        ref={this.walletsCarousel}
-        renderItem={this._renderItem}
-        sliderWidth={sliderWidth}
-        sliderHeight={sliderHeight}
-        itemWidth={itemWidth}
-        inactiveSlideScale={1}
-        inactiveSlideOpacity={0.7}
-        contentContainerCustomStyle={{ left: -20 }}
-        initialNumToRender={4}
-      />
+      <>
+        {this.state.isLoading && (
+          <View
+            style={{ paddingVertical: sliderHeight / 2, paddingHorizontal: sliderWidth / 2, position: 'absolute', alignItems: 'center' }}
+          >
+            <ActivityIndicator />
+          </View>
+        )}
+        <Carousel
+          {...this.props}
+          ref={this.walletsCarousel}
+          renderItem={this._renderItem}
+          sliderWidth={sliderWidth}
+          sliderHeight={sliderHeight}
+          itemWidth={itemWidth}
+          inactiveSlideScale={1}
+          inactiveSlideOpacity={0.7}
+          contentContainerCustomStyle={{ left: -20 }}
+          initialNumToRender={4}
+          onLayout={this.onLayout}
+        />
+      </>
     );
   }
 }
