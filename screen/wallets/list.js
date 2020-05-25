@@ -37,7 +37,6 @@ export default class WalletsList extends Component {
       isLoading: true,
       isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
-      lastSnappedTo: 0,
       timeElpased: 0,
       dataSource: [],
     };
@@ -51,6 +50,8 @@ export default class WalletsList extends Component {
   componentDidMount() {
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
+    this.redrawScreen();
+
     InteractionManager.runAfterInteractions(async () => {
       try {
         await BlueElectrum.waitTillConnected();
@@ -66,14 +67,6 @@ export default class WalletsList extends Component {
         console.log(error);
       }
     });
-    this.interval = setInterval(() => {
-      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
-    }, 60000);
-    this.redrawScreen();
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.interval);
   }
 
   /**
@@ -81,11 +74,6 @@ export default class WalletsList extends Component {
    * Triggered manually by user on pull-to-refresh.
    */
   refreshTransactions() {
-    if (!(this.lastSnappedTo < BlueApp.getWallets().length) && this.lastSnappedTo !== undefined) {
-      // last card, nop
-      console.log('last card, nop');
-      return;
-    }
     this.setState(
       {
         isFlatListRefreshControlHidden: false,
@@ -97,11 +85,11 @@ export default class WalletsList extends Component {
             await BlueElectrum.ping();
             await BlueElectrum.waitTillConnected();
             let balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances(this.walletsCarousel.current.currentIndex || 0);
             let balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(this.lastSnappedTo || 0);
+            await BlueApp.fetchWalletTransactions(this.walletsCarousel.current.currentIndex || 0);
             let end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -196,9 +184,6 @@ export default class WalletsList extends Component {
 
   onSnapToItem = index => {
     console.log('onSnapToItem', index);
-    this.lastSnappedTo = index;
-    this.setState({ lastSnappedTo: index });
-
     if (index < BlueApp.getWallets().length) {
       // not the last
     }
