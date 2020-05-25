@@ -1778,6 +1778,204 @@ export class BlueListTransactionItem extends Component {
   }
 }
 
+const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
+  let scaleValue = new Animated.Value(1.0);
+
+  const onPressedIn = () => {
+    let props = { duration: 50 };
+    if (Platform.OS === 'android') {
+      props['useNativeDriver'] = true;
+    }
+
+    props.toValue = 0.9;
+    Animated.spring(scaleValue, props).start();
+  };
+  const onPressedOut = () => {
+    let props = { duration: 50 };
+    if (Platform.OS === 'android') {
+      props['useNativeDriver'] = true;
+    }
+
+    props.toValue = 1.0;
+    Animated.spring(scaleValue, props).start();
+  };
+  if (!item) {
+    return (
+      <NewWalletPanel
+        onPress={() => {
+          onPressedOut();
+          onPress(index);
+          onPressedOut();
+        }}
+      />
+    );
+  }
+
+  if (item.type === PlaceholderWallet.type) {
+    return (
+      <Animated.View
+        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
+        shadowOpacity={40 / 100}
+        shadowOffset={{ width: 0, height: 0 }}
+        shadowRadius={5}
+      >
+        <TouchableWithoutFeedback
+          onPressIn={item.getIsFailure() ? this.onPressedIn : null}
+          onPressOut={item.getIsFailure() ? this.onPressedOut : null}
+          onPress={() => {
+            if (item.getIsFailure()) {
+              onPressedOut();
+              onPress(index);
+              onPressedOut();
+            }
+          }}
+        >
+          <LinearGradient
+            shadowColor={BlueApp.settings.shadowColor}
+            colors={WalletGradient.gradientsFor(item.type)}
+            style={{
+              padding: 15,
+              borderRadius: 10,
+              minHeight: 164,
+              elevation: 5,
+            }}
+          >
+            <Image
+              source={require('./img/btc-shape.png')}
+              style={{
+                width: 99,
+                height: 94,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+              }}
+            />
+            <Text style={{ backgroundColor: 'transparent' }} />
+            <Text
+              numberOfLines={1}
+              style={{
+                backgroundColor: 'transparent',
+                fontSize: 19,
+                color: BlueApp.settings.inverseForegroundColor,
+              }}
+            >
+              {item.getLabel()}
+            </Text>
+            {item.getIsFailure() ? (
+              <Text
+                numberOfLines={0}
+                style={{
+                  backgroundColor: 'transparent',
+                  fontSize: 19,
+                  marginTop: 40,
+                  color: BlueApp.settings.inverseForegroundColor,
+                }}
+              >
+                An error was encountered when attempting to import this wallet.
+              </Text>
+            ) : (
+              <ActivityIndicator style={{ marginTop: 40 }} />
+            )}
+          </LinearGradient>
+        </TouchableWithoutFeedback>
+      </Animated.View>
+    );
+  } else {
+    return (
+      <Animated.View
+        style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
+        shadowOpacity={40 / 100}
+        shadowOffset={{ width: 0, height: 0 }}
+        shadowRadius={5}
+      >
+        <TouchableWithoutFeedback
+          testID={item.getLabel()}
+          onPressIn={onPressedIn}
+          onPressOut={onPressedOut}
+          onLongPress={handleLongPress}
+          onPress={() => {
+            onPressedOut();
+            onPress(index);
+            onPressedOut();
+          }}
+        >
+          <LinearGradient
+            shadowColor={BlueApp.settings.shadowColor}
+            colors={WalletGradient.gradientsFor(item.type)}
+            style={{
+              padding: 15,
+              borderRadius: 10,
+              minHeight: 164,
+              elevation: 5,
+            }}
+          >
+            <Image
+              source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
+              style={{
+                width: 99,
+                height: 94,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+              }}
+            />
+
+            <Text style={{ backgroundColor: 'transparent' }} />
+            <Text
+              numberOfLines={1}
+              style={{
+                backgroundColor: 'transparent',
+                fontSize: 19,
+                color: BlueApp.settings.inverseForegroundColor,
+              }}
+            >
+              {item.getLabel()}
+            </Text>
+            {item.hideBalance ? (
+              <BluePrivateBalance />
+            ) : (
+              <Text
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                style={{
+                  backgroundColor: 'transparent',
+                  fontWeight: 'bold',
+                  fontSize: 36,
+                  color: BlueApp.settings.inverseForegroundColor,
+                }}
+              >
+                {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
+              </Text>
+            )}
+            <Text style={{ backgroundColor: 'transparent' }} />
+            <Text
+              numberOfLines={1}
+              style={{
+                backgroundColor: 'transparent',
+                fontSize: 13,
+                color: BlueApp.settings.inverseForegroundColor,
+              }}
+            >
+              {loc.wallets.list.latest_transaction}
+            </Text>
+            <Text
+              numberOfLines={1}
+              style={{
+                backgroundColor: 'transparent',
+                fontWeight: 'bold',
+                fontSize: 16,
+                color: BlueApp.settings.inverseForegroundColor,
+              }}
+            >
+              {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
+            </Text>
+          </LinearGradient>
+        </TouchableWithoutFeedback>
+      </Animated.View>
+    );
+  }
+};
+
 const sliderWidth = width * 1;
 const itemWidth = width * 0.82;
 const sliderHeight = 190;
@@ -1786,195 +1984,7 @@ export class WalletsCarousel extends Component {
   walletsCarousel = React.createRef();
 
   _renderItem = ({ item, index }) => {
-    let scaleValue = new Animated.Value(1.0);
-    let props = { duration: 50 };
-    if (Platform.OS === 'android') {
-      props['useNativeDriver'] = true;
-    }
-    this.onPressedIn = () => {
-      props.toValue = 0.9;
-      Animated.spring(scaleValue, props).start();
-    };
-    this.onPressedOut = () => {
-      props.toValue = 1.0;
-      Animated.spring(scaleValue, props).start();
-    };
-
-    if (!item) {
-      return (
-        <NewWalletPanel
-          onPress={() => {
-            this.onPressedOut();
-            this.props.onPress(index);
-            this.onPressedOut();
-          }}
-        />
-      );
-    }
-
-    if (item.type === PlaceholderWallet.type) {
-      return (
-        <Animated.View
-          style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
-          shadowOpacity={40 / 100}
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowRadius={5}
-        >
-          <TouchableWithoutFeedback
-            onPressIn={item.getIsFailure() ? this.onPressedIn : null}
-            onPressOut={item.getIsFailure() ? this.onPressedOut : null}
-            onPress={() => {
-              if (item.getIsFailure()) {
-                this.onPressedOut();
-                this.props.onPress(index);
-                this.onPressedOut();
-              }
-            }}
-          >
-            <LinearGradient
-              shadowColor={BlueApp.settings.shadowColor}
-              colors={WalletGradient.gradientsFor(item.type)}
-              style={{
-                padding: 15,
-                borderRadius: 10,
-                minHeight: 164,
-                elevation: 5,
-              }}
-            >
-              <Image
-                source={require('./img/btc-shape.png')}
-                style={{
-                  width: 99,
-                  height: 94,
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                }}
-              />
-              <Text style={{ backgroundColor: 'transparent' }} />
-              <Text
-                numberOfLines={1}
-                style={{
-                  backgroundColor: 'transparent',
-                  fontSize: 19,
-                  color: BlueApp.settings.inverseForegroundColor,
-                }}
-              >
-                {item.getLabel()}
-              </Text>
-              {item.getIsFailure() ? (
-                <Text
-                  numberOfLines={0}
-                  style={{
-                    backgroundColor: 'transparent',
-                    fontSize: 19,
-                    marginTop: 40,
-                    color: BlueApp.settings.inverseForegroundColor,
-                  }}
-                >
-                  An error was encountered when attempting to import this wallet.
-                </Text>
-              ) : (
-                <ActivityIndicator style={{ marginTop: 40 }} />
-              )}
-            </LinearGradient>
-          </TouchableWithoutFeedback>
-        </Animated.View>
-      );
-    } else {
-      return (
-        <Animated.View
-          style={{ paddingRight: 10, marginVertical: 17, transform: [{ scale: scaleValue }] }}
-          shadowOpacity={40 / 100}
-          shadowOffset={{ width: 0, height: 0 }}
-          shadowRadius={5}
-        >
-          <TouchableWithoutFeedback
-            testID={item.getLabel()}
-            onPressIn={this.onPressedIn}
-            onPressOut={this.onPressedOut}
-            onLongPress={this.props.handleLongPress}
-            onPress={() => {
-              this.onPressedOut();
-              this.props.onPress(index);
-              this.onPressedOut();
-            }}
-          >
-            <LinearGradient
-              shadowColor={BlueApp.settings.shadowColor}
-              colors={WalletGradient.gradientsFor(item.type)}
-              style={{
-                padding: 15,
-                borderRadius: 10,
-                minHeight: 164,
-                elevation: 5,
-              }}
-            >
-              <Image
-                source={(LightningCustodianWallet.type === item.type && require('./img/lnd-shape.png')) || require('./img/btc-shape.png')}
-                style={{
-                  width: 99,
-                  height: 94,
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                }}
-              />
-
-              <Text style={{ backgroundColor: 'transparent' }} />
-              <Text
-                numberOfLines={1}
-                style={{
-                  backgroundColor: 'transparent',
-                  fontSize: 19,
-                  color: BlueApp.settings.inverseForegroundColor,
-                }}
-              >
-                {item.getLabel()}
-              </Text>
-              {item.hideBalance ? (
-                <BluePrivateBalance />
-              ) : (
-                <Text
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  style={{
-                    backgroundColor: 'transparent',
-                    fontWeight: 'bold',
-                    fontSize: 36,
-                    color: BlueApp.settings.inverseForegroundColor,
-                  }}
-                >
-                  {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
-                </Text>
-              )}
-              <Text style={{ backgroundColor: 'transparent' }} />
-              <Text
-                numberOfLines={1}
-                style={{
-                  backgroundColor: 'transparent',
-                  fontSize: 13,
-                  color: BlueApp.settings.inverseForegroundColor,
-                }}
-              >
-                {loc.wallets.list.latest_transaction}
-              </Text>
-              <Text
-                numberOfLines={1}
-                style={{
-                  backgroundColor: 'transparent',
-                  fontWeight: 'bold',
-                  fontSize: 16,
-                  color: BlueApp.settings.inverseForegroundColor,
-                }}
-              >
-                {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
-              </Text>
-            </LinearGradient>
-          </TouchableWithoutFeedback>
-        </Animated.View>
-      );
-    }
+    return <WalletCarouselItem item={item} index={index} handleLongPress={this.props.handleLongPress} onPress={this.props.onPress} />;
   };
 
   snapToItem = item => {
@@ -1993,7 +2003,7 @@ export class WalletsCarousel extends Component {
         inactiveSlideScale={1}
         inactiveSlideOpacity={0.7}
         contentContainerCustomStyle={{ left: -20 }}
-        onSnapToItem={this.onSnapToItem}
+        initialNumToRender={4}
       />
     );
   }
