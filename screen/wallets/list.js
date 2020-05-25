@@ -477,7 +477,7 @@ export default class WalletsList extends Component {
           const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
           LocalQRCode.decode(uri, (error, result) => {
             if (!error) {
-              this.onBarScanned({ data: result });
+              this.onBarScanned(result);
             } else {
               alert('The selected image does not contain a QR Code.');
             }
