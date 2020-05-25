@@ -127,11 +127,19 @@ function satoshiToBTC(satoshi) {
   return b.toString(10);
 }
 
+function fiatToBTC(fiatFloat) {
+  let b = new BigNumber(fiatFloat);
+  b = b.dividedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]).toFixed(8);
+  return b;
+}
+
 module.exports.updateExchangeRate = updateExchangeRate;
 module.exports.startUpdater = startUpdater;
 module.exports.STRUCT = STRUCT;
 module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
+module.exports.fiatToBTC = fiatToBTC;
 module.exports.satoshiToBTC = satoshiToBTC;
 module.exports.BTCToLocalCurrency = BTCToLocalCurrency;
 module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
+module.exports.preferredFiatCurrency = preferredFiatCurrency;

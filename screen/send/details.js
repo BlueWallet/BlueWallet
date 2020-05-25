@@ -93,6 +93,7 @@ export default class SendDetails extends Component {
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         fee: 1,
         feeSliderValue: 1,
+        amountUnit: fromWallet.preferredBalanceUnit,
         bip70TransactionExpiration: null,
         renderWalletSelectionButtonHidden: false,
       };
@@ -333,6 +334,7 @@ export default class SendDetails extends Component {
     let error = false;
     let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
     for (const [index, transaction] of this.state.addresses.entries()) {
+      console.warn(transaction);
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
         error = loc.send.details.amount_field_is_not_valid;
         console.log('validation error');
@@ -789,11 +791,12 @@ export default class SendDetails extends Component {
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
             onChangeText={text => {
-              item.amount = text;
+              item.amount = text.amount;
               const transactions = this.state.addresses;
               transactions[index] = item;
               this.setState({ addresses: transactions });
             }}
+            unit={this.state.amountUnit}
             inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
           />
           <BlueAddressInput
@@ -875,6 +878,7 @@ export default class SendDetails extends Component {
               <ScrollView
                 pagingEnabled
                 horizontal
+                keyboardShouldPersistTaps={'always'}
                 contentContainerStyle={{ flexWrap: 'wrap', flexDirection: 'row' }}
                 ref={ref => (this.scrollView = ref)}
                 onContentSizeChange={() => this.scrollView.scrollToEnd()}
@@ -942,9 +946,11 @@ export default class SendDetails extends Component {
           </View>
           <BlueDismissKeyboardInputAccessory />
           {Platform.select({
-            ios: <BlueUseAllFundsButton onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />,
+            ios: (
+              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+            ),
             android: this.state.isAmountToolbarVisibleForAndroid && (
-              <BlueUseAllFundsButton onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
             ),
           })}
 
