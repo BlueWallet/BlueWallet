@@ -1362,8 +1362,7 @@ export class NewWalletPanel extends Component {
   render() {
     return (
       <TouchableOpacity testID="CreateAWallet" {...this.props} onPress={this.props.onPress} style={{ marginVertical: 17 }}>
-        <LinearGradient
-          colors={WalletGradient.createWallet}
+        <View
           style={{
             paddingHorizontal: 24,
             paddingVertical: 16,
@@ -1371,6 +1370,7 @@ export class NewWalletPanel extends Component {
             minHeight: Platform.OS === 'ios' ? 164 : 181,
             justifyContent: 'center',
             alignItems: 'flex-start',
+            backgroundColor: WalletGradient.createWallet,
           }}
         >
           <Text
@@ -1403,7 +1403,7 @@ export class NewWalletPanel extends Component {
           <View style={{ marginTop: 12, backgroundColor: '#007AFF', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}>
             <Text style={{ color: BlueApp.settings.brandingColor, fontWeight: '500' }}>{loc.wallets.list.create_a_button}</Text>
           </View>
-        </LinearGradient>
+        </View>
       </TouchableOpacity>
     );
   }
@@ -1799,6 +1799,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
     props.toValue = 1.0;
     Animated.spring(scaleValue, props).start();
   };
+
   if (!item) {
     return (
       <NewWalletPanel
@@ -1820,8 +1821,8 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
         shadowRadius={5}
       >
         <TouchableWithoutFeedback
-          onPressIn={item.getIsFailure() ? this.onPressedIn : null}
-          onPressOut={item.getIsFailure() ? this.onPressedOut : null}
+          onPressIn={item.getIsFailure() ? onPressedIn : null}
+          onPressOut={item.getIsFailure() ? onPressedOut : null}
           onPress={() => {
             if (item.getIsFailure()) {
               onPressedOut();
