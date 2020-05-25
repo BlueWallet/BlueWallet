@@ -2,20 +2,21 @@ import { Easing, Animated } from 'react-native';
 import { createStackNavigator, NavigationSceneRendererProps } from 'react-navigation';
 
 import { Route } from 'app/consts';
-import { ActionSheet, ImportWalletQRCodeScreen, UnlockScreen } from 'app/screens';
+import { ActionSheet, ImportWalletQRCodeScreen } from 'app/screens';
 
 import { EditTextNavigator } from './EditTextNavigator';
 import { MainCardStackNavigator } from './MainCardStackNavigator';
 import { MessageNavigator } from './MessageNavigator';
 import { PasswordNavigator } from './PasswordNavigator';
 import { PinNavigator } from './PinNavigator';
+import { UnlockTransactionNavaigator } from './UnlockTransactionNavaigator';
 
 export const RootNavigator = createStackNavigator(
   {
     MainCardStackNavigator,
     [Route.ImportWalletQRCode]: ImportWalletQRCodeScreen,
     [Route.ActionSheet]: ActionSheet,
-    [Route.UnlockScreen]: UnlockScreen,
+    UnlockTransactionNavaigator,
     PinNavigator,
     PasswordNavigator,
     EditTextNavigator,

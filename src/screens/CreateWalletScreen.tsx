@@ -115,22 +115,22 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
         <>
           <Text style={styles.advancedOptionsLabel}>{i18n.wallets.add.advancedOptions}</Text>
           <RadioGroup color={palette.secondary} onSelect={this.onSelect} selectedIndex={this.state.selectedIndex}>
-            <RadioButton style={styles.radioButton} value={HDSegwitP2SHWallet.type}>
-              <View style={styles.radioButtonContent}>
-                <Text style={styles.radioButtonTitle}>{HDSegwitP2SHWallet.typeReadable}</Text>
-                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.multipleAddresses}</Text>
-              </View>
-            </RadioButton>
             <RadioButton style={styles.radioButton} value={SegwitP2SHWallet.type}>
               <View style={styles.radioButtonContent}>
                 <Text style={styles.radioButtonTitle}>{SegwitP2SHWallet.typeReadable}</Text>
                 <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.singleAddress}</Text>
               </View>
             </RadioButton>
+            <RadioButton style={styles.radioButton} value={HDSegwitP2SHWallet.type}>
+              <View style={styles.radioButtonContent}>
+                <Text style={styles.radioButtonTitle}>{HDSegwitP2SHWallet.typeReadable}</Text>
+                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.multipleAddresses}</Text>
+              </View>
+            </RadioButton>
             <RadioButton style={styles.radioButton} value={HDSegwitBech32Wallet.type}>
               <View style={styles.radioButtonContent}>
                 <Text style={styles.radioButtonTitle}>{HDSegwitBech32Wallet.typeReadable}</Text>
-                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.multipleAddresses}</Text>
+                <Text style={styles.radioButtonSubtitle}>{i18n.wallets.add.segwidAddress}</Text>
               </View>
             </RadioButton>
           </RadioGroup>

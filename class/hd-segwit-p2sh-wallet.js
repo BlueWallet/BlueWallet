@@ -48,7 +48,7 @@ function nodeToP2shSegwitAddress(hdNode) {
  */
 export class HDSegwitP2SHWallet extends AbstractHDWallet {
   static type = 'HDsegwitP2SH';
-  static typeReadable = 'HD SegWit (BIP49 P2SH)';
+  static typeReadable = 'HD P2SH';
 
   allowSend() {
     return true;

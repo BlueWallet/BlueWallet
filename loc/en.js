@@ -46,6 +46,11 @@ module.exports = {
     confirmButton: 'Confirm fingerprint to continue.',
     enter: 'Enter PIN',
   },
+  unlockTransaction: {
+    headerText: 'Confirm transaction',
+    title: 'Confirm Transaction Password',
+    description: 'Confirm Transaction Password in order to proceed the transaction.',
+  },
   wallets: {
     dashboard: {
       title: 'Wallets',
@@ -98,8 +103,9 @@ module.exports = {
       addWalletButton: 'Add new wallet',
       importWalletButton: 'Import wallet',
       advancedOptions: 'Advanced options',
-      multipleAddresses: 'Multiple addresses',
-      singleAddress: 'Single address',
+      multipleAddresses: 'It contains a tree of P2SH addresses generated from a single 24-word seed',
+      singleAddress: 'It contains a single P2SH address',
+      segwidAddress: 'It contains a tree of native segwit addresses, generated from a single 24-word seed',
     },
     addSuccess: {
       title: 'Add new wallet',
@@ -254,6 +260,9 @@ module.exports = {
   },
   electrumServer: {
     header: 'Electrum server',
+    title: 'Change electrum server',
+    description:
+      'You can change the address of the server your application will connect to. Default address is recommended.',
     save: 'Save',
     useDefault: 'Use default',
     host: 'host',
@@ -264,7 +273,7 @@ module.exports = {
   advancedOptions: {
     title: 'Configure advanced options',
     description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      'Enabling Advanced options will allow you to choose from wallet types listed below: \nP2SH, HD P2SH, HD segwit.',
   },
   selectLanguage: {
     header: 'Language',

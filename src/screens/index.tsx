@@ -29,4 +29,5 @@ export { ConfirmPinScreen } from './PinFlow/ConfirmPinScreen';
 export { CurrentPinScreen } from './PinFlow/CurrentPinScreen';
 export { CreateTransactionPassword } from './PinFlow/CreateTransactionPassword';
 export { ConfirmTransactionPassword } from './PinFlow/ConfirmTransactionPassword';
-export { default as UnlockScreen } from './UnlockScreen';
+export { UnlockTransaction } from './UnlockTransaction';
+export { UnlockScreen } from './UnlockScreen';

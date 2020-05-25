@@ -121,8 +121,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
   };
 
   goToUnlockScreen = () => {
-    this.props.navigation.navigate(Route.UnlockScreen, {
-      flowType: FlowType.password,
+    this.props.navigation.navigate(Route.UnlockTransaction, {
       onSuccess: this.broadcast,
     });
   };

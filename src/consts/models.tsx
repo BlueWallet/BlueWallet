@@ -45,6 +45,7 @@ export enum Route {
   CreateTransactionPassword = 'CreateTransactionPassword',
   ConfirmTransactionPassword = 'ConfirmTransactionPassword',
   AdvancedOptions = 'AdvancedOptions',
+  UnlockTransaction = 'UnlockTransaction',
 }
 
 export interface Wallet {

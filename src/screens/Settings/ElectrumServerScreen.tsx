@@ -1,10 +1,11 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Alert, Text } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 
 import { ScreenTemplate, Button, FlatButton, InputItem, Header } from 'app/components';
 import { AppStorage, defaultPeer } from 'app/legacy';
+import { typography, palette } from 'app/styles';
 
 const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');
@@ -32,14 +33,14 @@ export const ElectrumServerScreen = () => {
     (async () => {
       try {
         if (!(await BlueElectrum.testConnection(host, port))) {
-          alert(i18n.electrumServer.connectionError);
+          Alert.alert(i18n.electrumServer.connectionError);
         } else {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
-          alert(i18n.electrumServer.successfullSave);
+          Alert.alert(i18n.electrumServer.successfullSave);
         }
       } catch (error) {
-        alert(i18n.electrumServer.connectionError);
+        Alert.alert(i18n.electrumServer.connectionError);
       }
 
       setIsLoading(false);
@@ -59,6 +60,8 @@ export const ElectrumServerScreen = () => {
         </>
       }
     >
+      <Text style={styles.title}>{i18n.electrumServer.title}</Text>
+      <Text style={styles.description}>{i18n.electrumServer.description}</Text>
       <InputItem
         setValue={setHost}
         label={i18n.electrumServer.host}
@@ -83,4 +86,18 @@ ElectrumServerScreen.navigationOptions = (props: NavigationScreenProps) => ({
 
 const styles = StyleSheet.create({
   saveButton: { paddingBottom: 10 },
+  title: {
+    ...typography.headline4,
+    alignSelf: 'center',
+    marginTop: 10,
+  },
+  description: {
+    ...typography.caption,
+    color: palette.textGrey,
+    alignSelf: 'center',
+    marginTop: 20,
+    marginBottom: 40,
+    marginHorizontal: 15,
+    textAlign: 'center',
+  },
 });
