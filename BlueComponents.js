@@ -1978,7 +1978,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
 };
 
 const sliderWidth = width * 1;
-const itemWidth = width > 375 ? 375 : width * 0.82;
+const itemWidth = width * 0.82 > 375 ? 375 : width * 0.82;
 const sliderHeight = 190;
 
 export class WalletsCarousel extends Component {
@@ -2019,6 +2019,7 @@ export class WalletsCarousel extends Component {
           inactiveSlideOpacity={0.7}
           initialNumToRender={4}
           onLayout={this.onLayout}
+          contentContainerCustomStyle={{ left: -20 }}
         />
       </>
     );
