@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import {
   StatusBar,
@@ -6,6 +7,7 @@ import {
   Text,
   StyleSheet,
   InteractionManager,
+  Clipboard,
   RefreshControl,
   SectionList,
   Alert,
@@ -19,12 +21,15 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/walletImport';
-let EV = require('../../events');
-let A = require('../../analytics');
+import ActionSheet from '../ActionSheet';
+import ImagePicker from 'react-native-image-picker';
+const EV = require('../../events');
+const A = require('../../analytics');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
-let BlueElectrum = require('../../BlueElectrum');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
+const BlueElectrum = require('../../BlueElectrum');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -305,7 +310,7 @@ export default class WalletsList extends Component {
       <View style={styles.headerStyle}>
         <TouchableOpacity
           testID="SettingsButton"
-          style={{ height: 48, paddingRight: 16, paddingLeft: 32, paddingVertical: 10, }}
+          style={{ height: 48, paddingRight: 16, paddingLeft: 32, paddingVertical: 10 }}
           onPress={() => this.props.navigation.navigate('Settings')}
         >
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
@@ -443,7 +448,7 @@ export default class WalletsList extends Component {
             overflow: 'hidden',
           }}
         >
-          <BlueScanButton onPress={this.onScanButtonPressed} />
+          <BlueScanButton onPress={this.onScanButtonPressed} onLongPress={this.sendButtonLongPress} />
         </View>
       );
     } else {
@@ -473,6 +478,87 @@ export default class WalletsList extends Component {
   onNavigationEventDidFocus = () => {
     StatusBar.setBarStyle('dark-content');
     this.redrawScreen();
+  };
+
+  choosePhoto = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.onBarScanned({ data: result });
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
+  copyFromClipbard = async () => {
+    this.onBarScanned(await Clipboard.getString());
+  };
+
+  sendButtonLongPress = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    if (Platform.OS === 'ios') {
+      let options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      if (!isClipboardEmpty) {
+        options.push('Copy from Clipboard');
+      }
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.props.navigation.navigate('ScanQRCode', {
+            launchedBy: this.props.navigation.state.routeName,
+            onBarScanned: this.onBarCodeRead,
+            showFileImportButton: false,
+          });
+        } else if (buttonIndex === 3) {
+          this.copyFromClipbard();
+        }
+      });
+    } else if (Platform.OS === 'android') {
+      let buttons = [
+        {
+          text: loc.send.details.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Choose Photo',
+          onPress: this.choosePhoto,
+        },
+        {
+          text: 'Scan QR Code',
+          onPress: () =>
+            this.props.navigation.navigate('ScanQRCode', {
+              launchedBy: this.props.navigation.state.routeName,
+              onBarScanned: this.onBarCodeRead,
+              showFileImportButton: false,
+            }),
+        },
+      ];
+      if (!isClipboardEmpty) {
+        buttons.push({
+          text: 'Copy From Clipboard',
+          onPress: this.copyFromClipbard,
+        });
+      }
+      ActionSheet.showActionSheetWithOptions({
+        title: '',
+        message: '',
+        buttons,
+      });
+    }
   };
 
   render() {
