@@ -275,7 +275,7 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.3.5):
+  - RNSentry (1.3.7):
     - React
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
@@ -527,7 +527,7 @@ SPEC CHECKSUMS:
   RNRate: d44a8bca6ee08f5d890ecccddaec2810955ffbb3
   RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 8a47c89b65502d8d5b464dfb3aa5a13038e5bb08
+  RNSentry: 370623102247ebea20191b5fb549ecc7a275b324
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
