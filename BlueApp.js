@@ -2,7 +2,7 @@
  * @exports {AppStorage}
  */
 import { AppStorage } from './class';
-import DeviceQuickActions from './class/quickActions';
+import DeviceQuickActions from './class/quick-actions';
 let prompt = require('./prompt');
 let EV = require('./events');
 let currency = require('./currency');

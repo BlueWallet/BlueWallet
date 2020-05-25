@@ -18,7 +18,7 @@ import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
-import WalletImport from '../../class/walletImport';
+import WalletImport from '../../class/wallet-import';
 let EV = require('../../events');
 let A = require('../../analytics');
 /** @type {AppStorage} */

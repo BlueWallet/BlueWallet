@@ -14,7 +14,7 @@ import {
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
-import WalletImport from '../../class/walletImport';
+import WalletImport from '../../class/wallet-import';
 let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
