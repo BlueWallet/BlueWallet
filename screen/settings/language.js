@@ -65,7 +65,7 @@ export default class Language extends Component {
         title={item.label}
         {...(this.state.language === item.value
           ? {
-              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+              rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
             }
           : { hideChevron: true })}
       />
