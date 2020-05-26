@@ -20,7 +20,7 @@ export default class WalletGradient {
   static hdLegacyBreadWallet = ['#fe6381', '#f99c42'];
   static defaultGradients = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
-  static createWallet = ['#eef0f4', '#eef0f4'];
+  static createWallet = '#eef0f4';
 
   static gradientsFor(type) {
     let gradient;
@@ -53,9 +53,6 @@ export default class WalletGradient {
         break;
       case SegwitBech32Wallet.type:
         gradient = WalletGradient.segwitBech32Wallet;
-        break;
-      case 'CreateWallet':
-        gradient = WalletGradient.createWallet;
         break;
       default:
         gradient = WalletGradient.defaultGradients;
@@ -92,9 +89,6 @@ export default class WalletGradient {
         break;
       case LightningCustodianWallet.type:
         gradient = WalletGradient.lightningCustodianWallet;
-        break;
-      case 'CreateWallet':
-        gradient = WalletGradient.createWallet;
         break;
       default:
         gradient = WalletGradient.defaultGradients;

@@ -1,5 +1,18 @@
+/* global alert */
 import React, { Component } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
+import {
+  StatusBar,
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  InteractionManager,
+  Clipboard,
+  RefreshControl,
+  SectionList,
+  Alert,
+  Platform,
+} from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import { NavigationEvents } from 'react-navigation';
@@ -8,12 +21,15 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
-let EV = require('../../events');
-let A = require('../../analytics');
+import ActionSheet from '../ActionSheet';
+import ImagePicker from 'react-native-image-picker';
+const EV = require('../../events');
+const A = require('../../analytics');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
-let BlueElectrum = require('../../BlueElectrum');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
+const BlueElectrum = require('../../BlueElectrum');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
@@ -26,7 +42,6 @@ export default class WalletsList extends Component {
       isLoading: true,
       isFlatListRefreshControlHidden: true,
       wallets: BlueApp.getWallets().concat(false),
-      lastSnappedTo: 0,
       timeElpased: 0,
       dataSource: [],
     };
@@ -40,6 +55,8 @@ export default class WalletsList extends Component {
   componentDidMount() {
     // the idea is that upon wallet launch we will refresh
     // all balances and all transactions here:
+    this.redrawScreen();
+
     InteractionManager.runAfterInteractions(async () => {
       try {
         await BlueElectrum.waitTillConnected();
@@ -55,26 +72,13 @@ export default class WalletsList extends Component {
         console.log(error);
       }
     });
-    this.interval = setInterval(() => {
-      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
-    }, 60000);
-    this.redrawScreen();
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.interval);
   }
 
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
    * Triggered manually by user on pull-to-refresh.
    */
-  refreshTransactions() {
-    if (!(this.lastSnappedTo < BlueApp.getWallets().length) && this.lastSnappedTo !== undefined) {
-      // last card, nop
-      console.log('last card, nop');
-      return;
-    }
+  refreshTransactions = () => {
     this.setState(
       {
         isFlatListRefreshControlHidden: false,
@@ -86,11 +90,11 @@ export default class WalletsList extends Component {
             await BlueElectrum.ping();
             await BlueElectrum.waitTillConnected();
             let balanceStart = +new Date();
-            await BlueApp.fetchWalletBalances(this.lastSnappedTo || 0);
+            await BlueApp.fetchWalletBalances(this.walletsCarousel.current.currentIndex || 0);
             let balanceEnd = +new Date();
             console.log('fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
             let start = +new Date();
-            await BlueApp.fetchWalletTransactions(this.lastSnappedTo || 0);
+            await BlueApp.fetchWalletTransactions(this.walletsCarousel.current.currentIndex || 0);
             let end = +new Date();
             console.log('fetch tx took', (end - start) / 1000, 'sec');
           } catch (err) {
@@ -103,7 +107,7 @@ export default class WalletsList extends Component {
         });
       },
     );
-  }
+  };
 
   redrawScreen = (scrollToEnd = false) => {
     console.log('wallets/list redrawScreen()');
@@ -185,9 +189,6 @@ export default class WalletsList extends Component {
 
   onSnapToItem = index => {
     console.log('onSnapToItem', index);
-    this.lastSnappedTo = index;
-    this.setState({ lastSnappedTo: index });
-
     if (index < BlueApp.getWallets().length) {
       // not the last
     }
@@ -294,7 +295,7 @@ export default class WalletsList extends Component {
       <View style={styles.headerStyle}>
         <TouchableOpacity
           testID="SettingsButton"
-          style={{ marginHorizontal: 16 }}
+          style={{ height: 48, paddingRight: 16, paddingLeft: 32, paddingVertical: 10 }}
           onPress={() => this.props.navigation.navigate('Settings')}
         >
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
@@ -432,7 +433,7 @@ export default class WalletsList extends Component {
             overflow: 'hidden',
           }}
         >
-          <BlueScanButton onPress={this.onScanButtonPressed} />
+          <BlueScanButton onPress={this.onScanButtonPressed} onLongPress={this.sendButtonLongPress} />
         </View>
       );
     } else {
@@ -459,20 +460,100 @@ export default class WalletsList extends Component {
     });
   };
 
+  onNavigationEventDidFocus = () => {
+    StatusBar.setBarStyle('dark-content');
+    this.redrawScreen();
+  };
+
+  choosePhoto = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.onBarScanned(result);
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
+  copyFromClipbard = async () => {
+    this.onBarScanned(await Clipboard.getString());
+  };
+
+  sendButtonLongPress = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    if (Platform.OS === 'ios') {
+      let options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      if (!isClipboardEmpty) {
+        options.push('Copy from Clipboard');
+      }
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.props.navigation.navigate('ScanQRCode', {
+            launchedBy: this.props.navigation.state.routeName,
+            onBarScanned: this.onBarCodeRead,
+            showFileImportButton: false,
+          });
+        } else if (buttonIndex === 3) {
+          this.copyFromClipbard();
+        }
+      });
+    } else if (Platform.OS === 'android') {
+      let buttons = [
+        {
+          text: loc.send.details.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Choose Photo',
+          onPress: this.choosePhoto,
+        },
+        {
+          text: 'Scan QR Code',
+          onPress: () =>
+            this.props.navigation.navigate('ScanQRCode', {
+              launchedBy: this.props.navigation.state.routeName,
+              onBarScanned: this.onBarCodeRead,
+              showFileImportButton: false,
+            }),
+        },
+      ];
+      if (!isClipboardEmpty) {
+        buttons.push({
+          text: 'Copy From Clipboard',
+          onPress: this.copyFromClipbard,
+        });
+      }
+      ActionSheet.showActionSheetWithOptions({
+        title: '',
+        message: '',
+        buttons,
+      });
+    }
+  };
+
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <NavigationEvents
-          onDidFocus={() => {
-            this.redrawScreen();
-          }}
-        />
+        <NavigationEvents onDidFocus={this.onNavigationEventDidFocus} />
         <View style={styles.walletsListWrapper}>
           {this.renderNavigationHeader()}
           <SectionList
-            refreshControl={
-              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={!this.state.isFlatListRefreshControlHidden} />
-            }
+            refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={!this.state.isFlatListRefreshControlHidden} />}
             renderItem={this.renderSectionItem}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
