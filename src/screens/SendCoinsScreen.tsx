@@ -440,7 +440,6 @@ export class SendCoinsScreen extends Component<Props, State> {
           console.log('try #', tries, 'fee=', fee);
           if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), firstTransaction.amount, fee) < 0) {
             // we could not add any fee. user is trying to send all he's got. that wont work
-            Alert.alert('wtf');
             // throw new Error(loc.send.details.total_exceeds_balance);
           }
 
