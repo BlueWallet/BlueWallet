@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React, { Component } from 'react';
-import { View, Text, SectionList } from 'react-native';
+import { SectionList, SectionListData, Text, View } from 'react-native';
 import { connect } from 'react-redux';
 
 import { TransactionItem } from 'app/components';
@@ -9,14 +9,24 @@ import { NavigationService } from 'app/services';
 import { ApplicationState } from 'app/state';
 import { palette, typography } from 'app/styles';
 
+interface TransactionWithDay extends Transaction {
+  day: moment.Moment;
+  walletLabel: string;
+  note: string;
+}
+
 interface Props {
   data: any;
   label: string;
   transactions: Transaction[];
 }
 
-class TransactionList extends Component<Props> {
-  state = {
+interface State {
+  transactions: ReadonlyArray<SectionListData<TransactionWithDay>>;
+}
+
+class TransactionList extends Component<Props, State> {
+  state: State = {
     transactions: [],
   };
 
@@ -30,14 +40,12 @@ class TransactionList extends Component<Props> {
           }
           return '';
         })[0];
-        const transactionWithDay = {
+        return {
           ...transaction,
-          day: moment.unix(transaction.time).format('ll'),
+          day: moment(transaction.received).format('ll'),
           walletLabel: transaction.walletLabel || props.label,
           note,
         };
-
-        return transactionWithDay;
       })
       .sort((a: any, b: any) => b.time - a.time);
 
@@ -65,7 +73,6 @@ class TransactionList extends Component<Props> {
   };
 
   onTransactionItemPress = (item: Transaction) => {
-    // @ts-ignore
     NavigationService.navigate(Route.TransactionDetails, { transaction: item });
   };
 
@@ -74,7 +81,7 @@ class TransactionList extends Component<Props> {
       <View style={{ padding: 20 }}>
         <SectionList
           sections={this.state.transactions}
-          keyExtractor={(item, index) => item + index}
+          keyExtractor={(item, index) => `${item.txid}-${index}`}
           renderItem={item => <TransactionItem item={item.item} onPress={this.onTransactionItemPress} />}
           renderSectionHeader={this.renderSectionTitle}
         />

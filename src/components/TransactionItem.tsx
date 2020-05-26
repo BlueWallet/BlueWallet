@@ -2,20 +2,12 @@ import moment from 'moment';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
+import { Transaction } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
 
-export interface TransactionItemProps {
-  confirmations: number;
-  walletLabel: string;
-  time: number;
-  walletPreferredBalanceUnit: string;
-  value: number;
-  note: string;
-}
-
-export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps; onPress: (item: any) => void }) => {
+export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress: (item: any) => void }) => {
   const confirmations = () => {
     return i18n.transactions.list.conf + ': ' + (item.confirmations < 7 ? item.confirmations : '6') + '/6 ';
   };
@@ -27,7 +19,7 @@ export const TransactionItem = ({ item, onPress }: { item: TransactionItemProps;
         </Text>
         {!!item.note && <Text style={typography.caption}>{item.note}</Text>}
         <Text style={styles.label}>{confirmations()}</Text>
-        <Text style={styles.label}>{moment.unix(item.time).format('LT')}</Text>
+        <Text style={styles.label}>{moment(item.received).format('LT')}</Text>
       </View>
       <View style={styles.rightColumn}>
         <Text style={[typography.headline5, { color: item.value < 0 ? palette.textRed : palette.textBlack }]}>
