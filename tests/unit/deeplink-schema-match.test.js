@@ -135,6 +135,21 @@ describe('unit - DeepLinkSchemaMatch', function() {
           },
         },
       },
+      {
+        argument: {
+          url: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261',
+        },
+        expected: {
+          routeName: 'AztecoRedeem',
+          params: {
+            uri: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261',
+            c1: '3062',
+            c2: '2586',
+            c3: '5053',
+            c4: '5261',
+          },
+        },
+      },
     ];
 
     const asyncNavigationRouteFor = async function(event) {

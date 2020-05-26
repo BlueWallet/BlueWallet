@@ -4,6 +4,7 @@ import BitcoinBIP70TransactionDecode from '../bip70/bip70';
 import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
+import Azteco from './azteco';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 const BlueApp: AppStorage = require('../BlueApp');
@@ -27,7 +28,7 @@ class DeeplinkSchemaMatch {
    * navigation dictionary required by react-navigation
    *
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
-   * @param completionHandler {function} Returns {routeName: string, params: object}
+   * @param completionHandler {function} Callback that returns {routeName: string, params: object}
    */
   static navigationRouteFor(event, completionHandler) {
     if (event.url === null) {
@@ -103,9 +104,14 @@ class DeeplinkSchemaMatch {
           safelloStateToken,
         },
       });
+    } else if (Azteco.isRedeemUrl(event.url)) {
+      completionHandler({
+        routeName: 'AztecoRedeem',
+        params: Azteco.getParamsFromUrl(event.url),
+      });
     } else {
       let urlObject = url.parse(event.url, true); // eslint-disable-line
-      console.log('parsed', urlObject);
+      console.log('parsed', event.url, 'into', urlObject);
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {

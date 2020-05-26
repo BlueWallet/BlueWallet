@@ -52,9 +52,17 @@ import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 
+import AztecoRedeem from './screen/receive/aztecoRedeem';
+
 const ReorderWalletsStackNavigator = createStackNavigator({
   ReorderWallets: {
     screen: ReorderWallets,
+  },
+});
+
+const ScanQRCodeStackNavigator = createStackNavigator({
+  ScanQRCode: {
+    screen: ScanQRCode,
   },
 });
 
@@ -283,7 +291,10 @@ const HandleOffchainAndOnChainStackNavigator = createStackNavigator(
       },
     },
     ScanQRCode: {
-      screen: ScanQRCode,
+      screen: ScanQRCodeStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     SendDetails: {
       screen: CreateTransactionStackNavigator,
@@ -294,6 +305,18 @@ const HandleOffchainAndOnChainStackNavigator = createStackNavigator(
   },
   { headerBackTitleVisible: false },
 );
+
+const AztecoRedeemStackNavigator = createStackNavigator({
+  AztecoRedeem: {
+    screen: AztecoRedeem,
+  },
+  SelectWallet: {
+    screen: SelectWallet,
+    navigationOptions: {
+      headerLeft: null,
+    },
+  },
+});
 
 const MainBottomTabs = createStackNavigator(
   {
@@ -343,6 +366,13 @@ const MainBottomTabs = createStackNavigator(
 
     //
 
+    AztecoRedeem: {
+      screen: AztecoRedeemStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
+
     // LND:
 
     ScanLndInvoice: {
@@ -352,7 +382,10 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     ScanQRCode: {
-      screen: ScanQRCode,
+      screen: ScanQRCodeStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     LappBrowser: {
       screen: LappBrowser,
