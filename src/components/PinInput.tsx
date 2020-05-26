@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { StyleSheet, View } from 'react-native';
+// @ts-ignore
 import ReactNativeSmoothPincodeInput from 'react-native-smooth-pincode-input';
 
 import { CONST } from 'app/consts';
@@ -21,7 +22,7 @@ export class PinInput extends PureComponent<Props> {
         cellSpacing={10}
         cellSize={40}
         codeLength={CONST.pinCodeLength}
-        autoFocus={true}
+        autoFocus
         cellStyle={styles.cell}
         cellStyleFocused={styles.cellFocused}
         cellStyleFilled={styles.cell}

@@ -79,21 +79,16 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
   render() {
     const { error } = this.state;
     return (
-      <ScreenTemplate
-        contentContainer={styles.container}
-        footer={
-          <View style={styles.pinContainer}>
-            <PinInput value={this.state.pin} onTextChange={this.updatePin} />
-
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        }
-      >
+      <ScreenTemplate noScroll contentContainer={styles.container}>
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
             {this.state.flowType === FlowType.newPin ? i18n.onboarding.confirmNewPin : i18n.onboarding.confirmPin}
           </Text>
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
+        </View>
+        <View style={styles.pinContainer}>
+          <PinInput value={this.state.pin} onTextChange={this.updatePin} />
+          <Text style={styles.errorText}>{error}</Text>
         </View>
       </ScreenTemplate>
     );
@@ -103,17 +98,11 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
   pinContainer: {
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  errorText: {
-    marginVertical: 10,
-    color: palette.textRed,
-    ...typography.headline6,
+    marginTop: 24,
   },
   infoContainer: {
     alignItems: 'center',
@@ -123,5 +112,10 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
     margin: 20,
     textAlign: 'center',
+  },
+  errorText: {
+    marginVertical: 10,
+    color: palette.textRed,
+    ...typography.headline6,
   },
 });

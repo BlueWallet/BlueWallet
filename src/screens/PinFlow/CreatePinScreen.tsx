@@ -85,20 +85,16 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   render() {
     const { flowType, pin } = this.state;
     return (
-      <ScreenTemplate
-        contentContainer={styles.container}
-        footer={
-          <View style={styles.pinContainer}>
-            <PinInput value={pin} onTextChange={this.updatePin} ref={this.pinInputRef} />
-          </View>
-        }
-      >
-        <NavigationEvents onDidFocus={this.openKeyboard} />
+      <ScreenTemplate noScroll contentContainer={styles.container}>
+        <NavigationEvents onWillFocus={this.openKeyboard} />
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
             {flowType === FlowType.newPin ? i18n.onboarding.createNewPin : i18n.onboarding.createPin}
           </Text>
           <Text style={styles.pinDescription}>{i18n.onboarding.createPinDescription}</Text>
+        </View>
+        <View style={styles.pinContainer}>
+          <PinInput value={pin} onTextChange={this.updatePin} ref={this.pinInputRef} />
         </View>
       </ScreenTemplate>
     );
@@ -108,15 +104,14 @@ export class CreatePinScreen extends PureComponent<Props, State> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-  },
-  infoContainer: {
     alignItems: 'center',
   },
   pinContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginTop: 24,
+  },
+  infoContainer: {
+    alignItems: 'center',
   },
   pinDescription: {
     ...typography.caption,
