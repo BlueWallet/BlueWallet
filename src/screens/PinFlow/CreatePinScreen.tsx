@@ -58,7 +58,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   }
 
   backAction = () => {
-    this.state.flowType === 'newPin' ? this.props.navigation.navigate(Route.Settings) : BackHandler.exitApp();
+    this.state.flowType === FlowType.newPin ? this.props.navigation.navigate(Route.Settings) : BackHandler.exitApp();
     return true;
   };
 
@@ -77,16 +77,14 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   };
 
   openKeyboard = () => {
-    if (this.pinInputRef.pinCodeRef) {
-      this.pinInputRef.pinCodeRef.current.inputRef.current.focus();
-    }
+    this.pinInputRef.current?.pinCodeRef.current?.inputRef.current?.focus();
   };
 
   render() {
     const { flowType, pin } = this.state;
     return (
-      <ScreenTemplate noScroll contentContainer={styles.container}>
-        <NavigationEvents onWillFocus={this.openKeyboard} />
+      <ScreenTemplate noScroll>
+        <NavigationEvents onDidFocus={this.openKeyboard} />
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
             {flowType === FlowType.newPin ? i18n.onboarding.createNewPin : i18n.onboarding.createPin}
@@ -102,10 +100,6 @@ export class CreatePinScreen extends PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
   pinContainer: {
     alignItems: 'center',
     marginTop: 24,
