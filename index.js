@@ -1,3 +1,5 @@
+import 'react-native-gesture-handler';
+
 import 'intl';
 import 'intl/locale-data/jsonp/en';
 import './shim.js';
