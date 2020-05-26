@@ -483,8 +483,7 @@ export class SendCoinsScreen extends Component<Props, State> {
         };
         await BlueApp.saveToDisk();
       } catch (err) {
-        console.log(err);
-        Alert.alert(err);
+        Alert.alert(err.toString());
         this.setState({ isLoading: false });
         return;
       }
