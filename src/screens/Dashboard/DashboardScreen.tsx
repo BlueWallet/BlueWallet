@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet, InteractionManager, RefreshControl } from 'react-native';
-import { NavigationEvents, NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
+import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
@@ -49,6 +49,20 @@ export class DashboardScreen extends Component<Props, State> {
   };
 
   walletCarouselRef = React.createRef();
+
+  componentDidMount() {
+    SecureStorageService.getSecuredValue('pin')
+      .then(() => {
+        SecureStorageService.getSecuredValue('transactionPassword')
+          .then(transactionPassword => {})
+          .catch(error => {
+            this.props.navigation.navigate(Route.CreateTransactionPassword);
+          });
+      })
+      .catch(error => {
+        this.props.navigation.navigate(Route.CreatePin);
+      });
+  }
 
   refreshTransactions() {
     if (!(this.state.lastSnappedTo < BlueApp.getWallets().length) && this.state.lastSnappedTo !== undefined) {
@@ -223,58 +237,24 @@ export class DashboardScreen extends Component<Props, State> {
             />
           }
         >
-          <NavigationEvents
-            onWillFocus={() => {
-              // this.redrawScreen();
-            }}
-          />
           <DashboardHeader
-            onFilterPress={() => {
-              this.props.navigation.navigate(Route.FilterTransactions, {
-                onFilterPress: this.onFilterPress,
-              });
-            }}
-            onAddPress={() => {
-              this.props.navigation.navigate(Route.CreateWallet);
-            }}
-          >
-            <SearchBar query={query} setQuery={this.setQuery} onFocus={this.scrollToTransactionList} />
-          </DashboardHeader>
-          <ScreenTemplate
-            ref={this.screenTemplateRef}
-            contentContainer={styles.contentContainer}
-            refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={this.state.isFetching} />}
-          >
-            <View
-              onLayout={event => {
-                const { height } = event.nativeEvent.layout;
-                this.setState({
-                  contentdHeaderHeight: height,
-                });
-              }}
-            >
-              <DashboarContentdHeader
-                onSelectPress={this.showModal}
-                balance={activeWallet.balance}
-                label={activeWallet.label === CONST.allWallets ? i18n.wallets.dashboard.allWallets : activeWallet.label}
-                unit={activeWallet.preferredBalanceUnit}
-                onReceivePress={this.receiveCoins}
-                onSendPress={this.sendCoins}
-              />
-              {isAllWallets(activeWallet) ? (
-                <WalletsCarousel
-                  ref={this.walletCarouselRef}
-                  data={wallets.filter(wallet => wallet.label !== CONST.allWallets)}
-                  keyExtractor={this._keyExtractor as any}
-                  onSnapToItem={() => {
-                    this.props.loadWallets();
-                  }}
-                />
-              ) : (
-                <View style={{ alignItems: 'center' }}>
-                  <WalletCard wallet={activeWallet} showEditButton />
-                </View>
-              )}
+            onSelectPress={this.showModal}
+            balance={activeWallet.balance}
+            label={activeWallet.label}
+            unit={activeWallet.preferredBalanceUnit}
+            onReceivePress={this.receiveCoins}
+            onSendPress={this.sendCoins}
+          />
+          {activeWallet.label === 'All wallets' ? (
+            <WalletsCarousel
+              ref={this.walletCarouselRef as any}
+              data={wallets.filter(wallet => wallet.label !== 'All wallets')}
+              keyExtractor={this._keyExtractor as any}
+              onSnapToItem={this.onSnapToItem}
+            />
+          ) : (
+            <View style={{ alignItems: 'center' }}>
+              <WalletCard wallet={activeWallet} showEditButton />
             </View>
             <TransactionList
               search={query}
