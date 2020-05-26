@@ -791,7 +791,7 @@ export default class SendDetails extends Component {
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
             onChangeText={text => {
-              item.amount = text.amount;
+              item.amount = text;
               const transactions = this.state.addresses;
               transactions[index] = item;
               this.setState({ addresses: transactions });
