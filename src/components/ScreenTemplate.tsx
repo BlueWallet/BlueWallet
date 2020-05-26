@@ -25,6 +25,7 @@ interface Props {
   contentContainer?: StyleProp<ViewStyle>;
   refreshControl?: React.ReactElement;
   noScroll?: boolean;
+  keyboardShouldPersistTaps?: 'always' | 'never' | 'handled';
 }
 
 export class ScreenTemplate extends React.PureComponent<Props> {
@@ -35,7 +36,15 @@ export class ScreenTemplate extends React.PureComponent<Props> {
   };
 
   render() {
-    const { children, footer, statusBarStyle, contentContainer, refreshControl, noScroll } = this.props;
+    const {
+      children,
+      footer,
+      statusBarStyle,
+      contentContainer,
+      refreshControl,
+      noScroll,
+      keyboardShouldPersistTaps,
+    } = this.props;
     const Container = noScroll ? View : ScrollView;
     return (
       <SafeAreaView style={styles.container}>
@@ -44,6 +53,7 @@ export class ScreenTemplate extends React.PureComponent<Props> {
           style={[noScroll && styles.contentContainer, noScroll && contentContainer]}
           contentContainerStyle={[styles.contentContainer, contentContainer]}
           refreshControl={refreshControl}
+          keyboardShouldPersistTaps={keyboardShouldPersistTaps}
         >
           {children}
         </Container>

@@ -57,6 +57,7 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
     const { isVisible, password } = this.state;
     return (
       <ScreenTemplate
+        keyboardShouldPersistTaps="always"
         footer={
           <Button title="Save" onPress={this.onSave} disabled={password.length < CONST.transactionMinPasswordLength} />
         }

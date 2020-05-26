@@ -21,7 +21,7 @@ interface State {
 }
 
 export class InputItem extends PureComponent<Props, State> {
-  inputItemRef = React.createRef();
+  inputItemRef = React.createRef<BaseTextInput>();
 
   constructor(props: Props) {
     super(props);
