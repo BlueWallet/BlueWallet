@@ -77,7 +77,7 @@ export default class WalletTransactions extends Component {
     super(props);
 
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this), true);
     const wallet = props.navigation.getParam('wallet');
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
