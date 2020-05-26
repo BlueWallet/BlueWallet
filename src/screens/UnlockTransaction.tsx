@@ -55,7 +55,7 @@ export class UnlockTransaction extends PureComponent<Props, State> {
     const { error, password, isVisible } = this.state;
     return (
       <ScreenTemplate
-        contentContainer={styles.container}
+        keyboardShouldPersistTaps="always"
         footer={
           <Button
             title="Confirm"
@@ -85,11 +85,6 @@ export class UnlockTransaction extends PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: palette.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   title: {
     ...typography.headline4,
     alignSelf: 'center',
@@ -105,7 +100,7 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
     alignSelf: 'center',
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 44,
     marginHorizontal: 15,
     textAlign: 'center',
   },
