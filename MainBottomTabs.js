@@ -60,6 +60,12 @@ const ReorderWalletsStackNavigator = createStackNavigator({
   },
 });
 
+const ScanQRCodeStackNavigator = createStackNavigator({
+  ScanQRCode: {
+    screen: ScanQRCode,
+  },
+});
+
 const WalletsStackNavigator = createStackNavigator(
   {
     Wallets: {
@@ -285,7 +291,10 @@ const HandleOffchainAndOnChainStackNavigator = createStackNavigator(
       },
     },
     ScanQRCode: {
-      screen: ScanQRCode,
+      screen: ScanQRCodeStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     SendDetails: {
       screen: CreateTransactionStackNavigator,
@@ -373,7 +382,10 @@ const MainBottomTabs = createStackNavigator(
       },
     },
     ScanQRCode: {
-      screen: ScanQRCode,
+      screen: ScanQRCodeStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
     },
     LappBrowser: {
       screen: LappBrowser,

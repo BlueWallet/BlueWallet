@@ -179,35 +179,41 @@ export default class WalletsAdd extends Component {
                       <BlueSpacing20 />
                       <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
                       <BlueListItem
+                        containerStyle={{ paddingHorizontal: 0 }}
+                        bottomDivider={false}
                         onPress={() => {
                           this.onSelect(0, HDSegwitBech32Wallet.type);
                         }}
                         title={HDSegwitBech32Wallet.typeReadable}
                         {...(this.state.selectedIndex === 0
                           ? {
-                              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+                              rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
                             }
                           : { hideChevron: true })}
                       />
                       <BlueListItem
+                        containerStyle={{ paddingHorizontal: 0 }}
+                        bottomDivider={false}
                         onPress={() => {
                           this.onSelect(1, SegwitP2SHWallet.type);
                         }}
                         title={SegwitP2SHWallet.typeReadable}
                         {...(this.state.selectedIndex === 1
                           ? {
-                              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+                              rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
                             }
                           : { hideChevron: true })}
                       />
                       <BlueListItem
+                        containerStyle={{ paddingHorizontal: 0 }}
+                        bottomDivider={false}
                         onPress={() => {
                           this.onSelect(2, HDSegwitP2SHWallet.typeReadable.type);
                         }}
                         title={HDSegwitP2SHWallet.typeReadable}
                         {...(this.state.selectedIndex === 2
                           ? {
-                              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+                              rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
                             }
                           : { hideChevron: true })}
                       />
