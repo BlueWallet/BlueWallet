@@ -17,7 +17,7 @@ import {
   BlueDismissKeyboardInputAccessory,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';

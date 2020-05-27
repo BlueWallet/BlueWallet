@@ -15,7 +15,7 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
 } from './';
 import WatchConnectivity from '../WatchConnectivity';
-import DeviceQuickActions from './quickActions';
+import DeviceQuickActions from './quick-actions';
 const encryption = require('../encryption');
 
 export class AppStorage {
