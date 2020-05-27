@@ -53,7 +53,7 @@ export class LegacyWallet extends AbstractWallet {
           // eslint-disable-line
           if (err) throw err;
           that.secret = bitcoin.ECPair.makeRandom({
-            rng: function(length) {
+            rng(length) {
               return buf;
             },
           }).toWIF();
@@ -65,7 +65,7 @@ export class LegacyWallet extends AbstractWallet {
       RNRandomBytes.randomBytes(32, (err, bytes) => {
         if (err) throw new Error(err);
         that.secret = bitcoin.ECPair.makeRandom({
-          rng: function(length) {
+          rng(length) {
             const b = Buffer.from(bytes, 'base64');
             return b;
           },

@@ -154,7 +154,7 @@ export default class WatchConnectivity {
             balance: loc.formatBalance(Number(wallet.getBalance()), wallet.getPreferredBalanceUnit(), true),
             type: wallet.type,
             preferredBalanceUnit: wallet.getPreferredBalanceUnit(),
-            receiveAddress: receiveAddress,
+            receiveAddress,
             transactions: watchTransactions,
           });
         }

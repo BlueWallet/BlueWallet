@@ -175,9 +175,9 @@ export class HDSegwitBech32Transaction {
         const address = SegwitBech32Wallet.witnessToAddress(inp.witness[inp.witness.length - 1]);
         utxos.push({
           vout: inp.index,
-          value: value,
+          value,
           txId: reversedHash,
-          address: address,
+          address,
         });
       }
     }
@@ -203,7 +203,7 @@ export class HDSegwitBech32Transaction {
         changeAmount += value;
       } else {
         // this is target
-        targets.push({ value: value, address: address });
+        targets.push({ value, address });
       }
     }
 
@@ -215,9 +215,9 @@ export class HDSegwitBech32Transaction {
       if (this._wallet.weOwnAddress(address)) {
         unconfirmedUtxos.push({
           vout: outp.n,
-          value: value,
+          value,
           txId: this._txid || this._txDecoded.getId(),
-          address: address,
+          address,
         });
       }
     }

@@ -21,9 +21,9 @@ export const GenericInputItem = (props: Props) => {
   };
   const onFocus = () =>
     NavigationService.navigate('EditText', {
-      title: title,
-      label: label,
-      value: value,
+      title,
+      label,
+      value,
       onSave: handleValueSave,
     });
 

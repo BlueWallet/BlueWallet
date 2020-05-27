@@ -279,7 +279,7 @@ exports.generateNewSegwitAddress = function() {
   }).address;
 
   return {
-    address: address,
+    address,
     WIF: keyPair.toWIF(),
   };
 };

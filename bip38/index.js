@@ -133,8 +133,8 @@ async function decryptRaw(buffer, passphrase, progressCallback, scryptParams) {
   assert.deepEqual(salt, checksum);
 
   return {
-    privateKey: privateKey,
-    compressed: compressed,
+    privateKey,
+    compressed,
   };
 }
 
@@ -212,7 +212,7 @@ async function decryptECMult(buffer, passphrase, progressCallback, scryptParams)
 
   return {
     privateKey: d.toBuffer(32),
-    compressed: compressed,
+    compressed,
   };
 }
 
@@ -241,10 +241,10 @@ function verify(string) {
 }
 
 module.exports = {
-  decrypt: decrypt,
-  decryptECMult: decryptECMult,
-  decryptRaw: decryptRaw,
-  encrypt: encrypt,
-  encryptRaw: encryptRaw,
-  verify: verify,
+  decrypt,
+  decryptECMult,
+  decryptRaw,
+  encrypt,
+  encryptRaw,
+  verify,
 };

@@ -11,7 +11,7 @@ jest.mock('react-native-qrcode-svg', () => 'Video');
 jest.useFakeTimers();
 
 jest.mock('amplitude-js', () => ({
-  getInstance: function() {
+  getInstance() {
     return {
       init: jest.fn(),
       logEvent: jest.fn(),

@@ -231,7 +231,7 @@ export class DashboardScreen extends Component<Props, State> {
   showModal = () => {
     const { wallets, lastSnappedTo } = this.state;
     this.props.navigation.navigate('ActionSheet', {
-      wallets: wallets,
+      wallets,
       selectedIndex: lastSnappedTo,
       onPress: this.chooseItemFromModal,
     });
