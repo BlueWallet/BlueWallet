@@ -102,7 +102,13 @@ export class SendCoinsConfirmScreen extends Component<Props> {
         }
       } catch (error) {
         this.setState({ isLoading: false });
-        Alert.alert(error.message);
+        console.log('erorororor', error);
+        Alert.alert('ERROR', error.message, [
+          {
+            text: 'OK',
+            onPress: () => this.props.navigation.goBack(),
+          },
+        ]);
       }
     });
   };
