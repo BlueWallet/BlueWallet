@@ -25,7 +25,8 @@ export class ListEmptyState extends PureComponent<Props> {
     <>
       <Text style={styles.description}>{i18n.wallets.dashboard.noWalletsDesc1}</Text>
       <Text style={styles.description}>
-        <StyledText onPress={this.props.onPress} title="Click" /> {i18n.wallets.dashboard.noWalletsDesc2}
+        <StyledText onPress={this.props.onPress} title={`${i18n._.click} `} />
+        {i18n.wallets.dashboard.noWalletsDesc2}
       </Text>
     </>
   );
@@ -34,7 +35,7 @@ export class ListEmptyState extends PureComponent<Props> {
     <>
       <Text style={styles.description}>
         {i18n.contactList.noContactsDesc1}
-        <StyledText onPress={this.props.onPress} title="here" />
+        <StyledText onPress={this.props.onPress} title={` ${i18n._.here} `} />
         {i18n.contactList.noContactsDesc2}
       </Text>
     </>

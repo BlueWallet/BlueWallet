@@ -17,7 +17,7 @@ export const MainTabNavigator = createBottomTabNavigator(
     [Route.Dashboard]: {
       screen: DashboardNavigator,
       navigationOptions: {
-        title: 'Dashboard',
+        title: i18n.tabNavigator.dashboard,
         tabBarIcon: ({ focused }: { focused: boolean }) => (
           <BottomTabBarIcon source={focused ? images.dashboard : images.dashboardInactive} />
         ),
@@ -35,7 +35,7 @@ export const MainTabNavigator = createBottomTabNavigator(
     [Route.Settings]: {
       screen: SettingsNavigator,
       navigationOptions: {
-        title: 'Settings',
+        title: i18n.tabNavigator.settings,
         tabBarIcon: ({ focused }: { focused: boolean }) => (
           <BottomTabBarIcon source={focused ? images.settings : images.settingsInactive} />
         ),

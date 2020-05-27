@@ -6,6 +6,12 @@ module.exports = {
     never: 'never',
     continue: 'Continue',
     ok: 'OK',
+    click: 'Click',
+    here: 'here',
+  },
+  tabNavigator: {
+    dashboard: 'Dashboard',
+    settings: 'Settings',
   },
   message: {
     somethingWentWrong: 'Something went wrong',
@@ -55,8 +61,8 @@ module.exports = {
     dashboard: {
       title: 'Wallets',
       noWallets: 'No wallets',
-      noWalletsDesc1: 'No wallets to show. ',
-      noWalletsDesc2: ' to add your first wallet.',
+      noWalletsDesc1: 'No wallets to show.',
+      noWalletsDesc2: 'to add your first wallet.',
       send: 'Send coins',
       receive: 'Receive coins',
       noTransactions: 'No transactions to show.',
@@ -115,6 +121,7 @@ module.exports = {
       okButton: 'OK, I wrote this down!',
     },
     details: {
+      edit: 'Edit',
       latestTransaction: 'Latest transaction',
       typeLabel: 'Type',
       nameLabel: 'Name',
@@ -289,8 +296,8 @@ module.exports = {
     bottomNavigationLabel: 'Address book',
     screenTitle: 'Address book',
     noContacts: 'No contacts',
-    noContactsDesc1: 'No contacts to show. \n Click ',
-    noContactsDesc2: ' to add your first contact.',
+    noContactsDesc1: 'No contacts to show. \n Click',
+    noContactsDesc2: 'to add your first contact.',
     noResults: 'No results for',
   },
   contactCreate: {

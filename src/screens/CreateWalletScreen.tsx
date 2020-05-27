@@ -147,6 +147,9 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
       <ScreenTemplate
         footer={
           <>
+            {this.state.isLoading && (
+              <Text style={styles.isLoadingDescription}>{i18n.message.creatingWalletDescription}</Text>
+            )}
             <Button
               disabled={!this.canCreateWallet}
               loading={this.state.isLoading}
@@ -188,6 +191,14 @@ const styles = StyleSheet.create({
     color: palette.textGrey,
     ...typography.caption,
     textAlign: 'center',
+  },
+  isLoadingDescription: {
+    ...typography.caption,
+    color: palette.textGrey,
+    textAlign: 'center',
+    lineHeight: 19,
+    flexGrow: 1,
+    marginVertical: 10,
   },
   advancedOptionsLabel: {
     color: palette.textGrey,
