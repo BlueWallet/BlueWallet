@@ -102,9 +102,6 @@ export default class BuyBitcoin extends Component {
 }
 
 BuyBitcoin.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-  }),
   route: PropTypes.shape({
     name: PropTypes.string,
     params: PropTypes.shape({

@@ -909,9 +909,6 @@ export default class HodlHodl extends Component {
 }
 
 HodlHodl.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-  }),
   route: PropTypes.shape({
     params: PropTypes.shape({
       wallet: PropTypes.object,

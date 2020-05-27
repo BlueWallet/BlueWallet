@@ -200,10 +200,6 @@ export default class TransactionsDetails extends Component {
 }
 
 TransactionsDetails.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    navigate: PropTypes.func,
-  }),
   route: PropTypes.shape({
     name: PropTypes.string,
     params: PropTypes.shape({
