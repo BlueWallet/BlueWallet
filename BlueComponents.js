@@ -399,28 +399,32 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
     backgroundColor: BlueApp.settings.brandingColor,
     borderBottomWidth: 0,
     elevation: 0,
+    shadowOffset: { height: 0, width: 0 },
   },
   headerTitleStyle: {
     fontWeight: '600',
     color: BlueApp.settings.foregroundColor,
   },
   headerTintColor: BlueApp.settings.foregroundColor,
-  headerRight: withNavigationCloseButton ? (
-    <TouchableOpacity
-      style={{ width: 40, height: 40, padding: 14 }}
-      onPress={
-        customCloseButtonFunction === undefined
-          ? () => {
-              Keyboard.dismiss();
-              navigation.goBack(null);
-            }
-          : customCloseButtonFunction
-      }
-    >
-      <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
-    </TouchableOpacity>
-  ) : null,
-  headerBackTitle: null,
+  headerRight: withNavigationCloseButton
+    ? () => (
+      <TouchableOpacity
+          style={{ width: 40, height: 40, padding: 14 }}
+          onPress={
+            customCloseButtonFunction === undefined
+              ? () => {
+                  Keyboard.dismiss();
+                  navigation.goBack(null);
+                }
+              : customCloseButtonFunction
+          }
+        >
+          <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
+        </TouchableOpacity>
+      )
+    : null,
+  // headerBackTitle: null,
+  headerBackTitleVisible: false,
 });
 
 export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuButton = false, advancedOptionsMenuButtonAction) => ({
@@ -434,7 +438,7 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
     color: BlueApp.settings.foregroundColor,
   },
   headerTintColor: BlueApp.settings.foregroundColor,
-  headerLeft: (
+  headerLeft: () => (
     <TouchableOpacity
       style={{ minWwidth: 40, height: 40, padding: 14 }}
       onPress={() => {
@@ -445,11 +449,13 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
       <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
     </TouchableOpacity>
   ),
-  headerRight: withAdvancedOptionsMenuButton ? (
-    <TouchableOpacity style={{ minWidth: 40, height: 40, padding: 14 }} onPress={advancedOptionsMenuButtonAction}>
-      <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
-    </TouchableOpacity>
-  ) : null,
+  headerRight: withAdvancedOptionsMenuButton
+    ? () => (
+      <TouchableOpacity style={{ minWidth: 40, height: 40, padding: 14 }} onPress={advancedOptionsMenuButtonAction}>
+          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+        </TouchableOpacity>
+      )
+    : null,
   headerBackTitle: null,
 });
 

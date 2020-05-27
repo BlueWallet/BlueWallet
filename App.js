@@ -1,8 +1,10 @@
+import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
 import { Linking, DeviceEventEmitter, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Modal from 'react-native-modal';
-import { NavigationActions } from 'react-navigation';
-import MainBottomTabs from './MainBottomTabs';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Navigation from './Navigation';
 import NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -49,9 +51,9 @@ export default class App extends React.Component {
       this.navigator.dismiss;
       const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
       this.navigator.dispatch(
-        NavigationActions.navigate({
+        CommonActions.navigate({
           key: `WalletTransactions-${wallet.getID()}`,
-          routeName: 'WalletTransactions',
+          name: 'WalletTransactions',
           params: {
             wallet,
           },
@@ -72,8 +74,8 @@ export default class App extends React.Component {
           const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
             this.navigator.dispatch(
-              NavigationActions.navigate({
-                routeName: 'WalletTransactions',
+              CommonActions.navigate({
+                name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
                 params: {
                   wallet,
@@ -91,8 +93,8 @@ export default class App extends React.Component {
     // eslint-disable-next-line no-unused-expressions
     this.navigator.dismiss;
     this.navigator.dispatch(
-      NavigationActions.navigate({
-        routeName: 'WalletTransactions',
+      CommonActions.navigate({
+        name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
         params: {
           wallet,
@@ -150,8 +152,8 @@ export default class App extends React.Component {
     if (wallet.chain === Chain.ONCHAIN) {
       this.navigator &&
         this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'SendDetails',
+          CommonActions.navigate({
+            name: 'SendDetails',
             params: {
               uri: clipboardContent.bitcoin,
               fromWallet: wallet,
@@ -161,8 +163,8 @@ export default class App extends React.Component {
     } else if (wallet.chain === Chain.OFFCHAIN) {
       this.navigator &&
         this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'ScanLndInvoice',
+          CommonActions.navigate({
+            name: 'ScanLndInvoice',
             params: {
               uri: clipboardContent.lndInvoice,
               fromSecret: wallet.getSecret(),
@@ -173,7 +175,8 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.dispatch(NavigationActions.navigate(value)));
+    // DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.dispatch(CommonActions.navigate(value)));
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.navigate(...value));
   };
 
   renderClipboardContentModal = () => {
@@ -217,15 +220,20 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <MainBottomTabs
-          ref={nav => {
-            this.navigator = nav;
-            NavigationService.setTopLevelNavigator(nav);
-          }}
-        />
-        {this.renderClipboardContentModal()}
-      </View>
+      <SafeAreaProvider>
+        <View style={{ flex: 1 }}>
+          <NavigationContainer
+            ref={nav => {
+              this.navigator = nav;
+              NavigationService.setTopLevelNavigator(nav);
+            }}
+          >
+            <Navigation />
+          </NavigationContainer>
+
+          {this.renderClipboardContentModal()}
+        </View>
+      </SafeAreaProvider>
     );
   }
 }

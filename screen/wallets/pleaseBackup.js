@@ -1,19 +1,20 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
-import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
 const loc = require('../../loc');
 
 const PleaseBackup = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const words = useNavigationParam('secret').split(' ');
-  const { dismiss } = useNavigation();
+  const route = useRoute();
+  const words = route.params.secret.split(' ');
+  const navigation = useNavigation();
 
   const handleBackButton = useCallback(() => {
-    dismiss();
+    navigation.dangerouslyGetParent().pop();
     return true;
-  }, [dismiss]);
+  }, [navigation]);
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -77,7 +78,7 @@ const PleaseBackup = () => {
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
             <View style={{ flex: 1 }}>
               <BlueSpacing20 />
-              <BlueButton testID="PleasebackupOk" onPress={dismiss} title={loc.pleasebackup.ok} />
+              <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
             </View>
           </View>
         </View>

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, InteractionManager, RefreshControl, SectionList, Alert, Platform } from 'react-native';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
-import { NavigationEvents } from 'react-navigation';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
@@ -59,10 +58,13 @@ export default class WalletsList extends Component {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
     this.redrawScreen();
+
+    this._unsubscribe = this.props.navigation.addListener('focus', this.redrawScreen);
   }
 
   componentWillUnmount() {
     clearInterval(this.interval);
+    this._unsubscribe();
   }
 
   /**
@@ -178,7 +180,7 @@ export default class WalletsList extends Component {
     } else {
       // if its out of index - this must be last card with incentive to create wallet
       if (!BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
-        this.props.navigation.navigate('AddWallet');
+        this.props.navigation.navigate('AddWalletRoot');
       }
     }
   };
@@ -370,7 +372,7 @@ export default class WalletsList extends Component {
             leftText={loc.wallets.list.title}
             onNewWalletPress={
               !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
-                ? () => this.props.navigation.navigate('AddWallet')
+                ? () => this.props.navigation.navigate('AddWalletRoot')
                 : null
             }
           />
@@ -446,7 +448,7 @@ export default class WalletsList extends Component {
 
   onScanButtonPressed = () => {
     this.props.navigation.navigate('ScanQRCode', {
-      launchedBy: this.props.navigation.state.routeName,
+      launchedBy: this.props.route.name,
       onBarScanned: this.onBarScanned,
       showFileImportButton: false,
     });
@@ -462,11 +464,6 @@ export default class WalletsList extends Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        <NavigationEvents
-          onDidFocus={() => {
-            this.redrawScreen();
-          }}
-        />
         <View style={styles.walletsListWrapper}>
           {this.renderNavigationHeader()}
           <SectionList
@@ -519,9 +516,11 @@ const styles = StyleSheet.create({
 
 WalletsList.propTypes = {
   navigation: PropTypes.shape({
-    state: PropTypes.shape({
-      routeName: PropTypes.string,
-    }),
     navigate: PropTypes.func,
+    addListener: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.object,
   }),
 };

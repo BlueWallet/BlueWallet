@@ -5,21 +5,18 @@ import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
 import PropTypes from 'prop-types';
-import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
-const ScanQRCode = ({
-  showCloseButton = true,
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  showFileImportButton = useNavigationParam('showFileImportButton') || false,
-}) => {
+const ScanQRCode = ({ showCloseButton = true, showFileImportButton: showFileImportButtonProps }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useNavigation();
-  const launchedBy = useNavigationParam('launchedBy');
-  const onBarScanned = useNavigationParam('onBarScanned');
+  const route = useRoute();
+  const showFileImportButton = showFileImportButtonProps || route.params.showFileImportButton || false;
+  const { launchedBy, onBarScanned } = route.params;
   const scannedCache = {};
 
   const HashIt = function(s) {
@@ -173,7 +170,7 @@ const ScanQRCode = ({
 };
 
 ScanQRCode.navigationOptions = {
-  header: null,
+  headerShown: false,
 };
 ScanQRCode.propTypes = {
   showFileImportButton: PropTypes.bool,

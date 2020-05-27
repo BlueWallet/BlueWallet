@@ -3,7 +3,7 @@ import { View, Image, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import PropTypes from 'prop-types';
-import { SafeAreaView } from 'react-navigation';
+import { SafeAreaView } from 'react-native-safe-area-context';
 /** @type {AppStorage} */
 
 const BlueApp = require('./BlueApp');

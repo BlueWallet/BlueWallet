@@ -31,16 +31,16 @@ const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
 export default class WalletDetails extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({ navigation, route }) => ({
     ...BlueNavigationStyle(),
     title: loc.wallets.details.title,
-    headerRight: (
+    headerRight: () => (
       <TouchableOpacity
-        disabled={navigation.getParam('isLoading') === true}
+        disabled={route.params.isLoading === true}
         style={{ marginHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}
         onPress={() => {
-          if (navigation.state.params.saveAction) {
-            navigation.getParam('saveAction')();
+          if (route.params.saveAction) {
+            route.params.saveAction();
           }
         }}
       >
@@ -52,7 +52,7 @@ export default class WalletDetails extends Component {
   constructor(props) {
     super(props);
 
-    const wallet = props.navigation.getParam('wallet');
+    const wallet = props.route.params.wallet;
     const isLoading = true;
     this.state = {
       isLoading,
@@ -333,7 +333,6 @@ export default class WalletDetails extends Component {
 
 WalletDetails.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         secret: PropTypes.string,
@@ -342,5 +341,8 @@ WalletDetails.propTypes = {
     navigate: PropTypes.func,
     goBack: PropTypes.func,
     setParams: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

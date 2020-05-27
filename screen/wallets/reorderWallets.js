@@ -13,13 +13,13 @@ let BlueApp = require('../../BlueApp');
 let loc = require('../../loc/');
 
 export default class ReorderWallets extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({ navigation, route }) => ({
     ...BlueNavigationStyle(
       navigation,
       true,
-      navigation.getParam('customCloseButtonFunction') ? navigation.state.params.customCloseButtonFunction : undefined,
+      route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
     ),
-    title: loc.wallets.reorder.title,
+    headerTitle: loc.wallets.reorder.title,
   });
 
   constructor(props) {
@@ -44,9 +44,9 @@ export default class ReorderWallets extends Component {
           setTimeout(function() {
             EV(EV.enum.WALLETS_COUNT_CHANGED);
           }, 500); // adds some animaton
-          this.props.navigation.dismiss();
+          this.props.navigation.goBack();
         } else {
-          this.props.navigation.dismiss();
+          this.props.navigation.goBack();
         }
       },
     });
@@ -180,6 +180,6 @@ ReorderWallets.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     setParams: PropTypes.func,
-    dismiss: PropTypes.func,
+    goBack: PropTypes.func,
   }),
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View, TouchableWithoutFeedback } from 'react-native';
 import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
 import OnAppLaunch from '../../class/onAppLaunch';
-import { useNavigation } from 'react-navigation-hooks';
+import { useNavigation } from '@react-navigation/native';
 const BlueApp = require('../../BlueApp');
 
 const DefaultView = () => {

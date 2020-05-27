@@ -33,8 +33,8 @@ export default class CPFP extends Component {
     super(props);
     let txid;
     let wallet;
-    if (props.navigation.state.params) txid = props.navigation.state.params.txid;
-    if (props.navigation.state.params) wallet = props.navigation.state.params.wallet;
+    if (props.route.params) txid = props.route.params.txid;
+    if (props.route.params) wallet = props.route.params.wallet;
 
     this.state = {
       isLoading: true,
@@ -230,11 +230,11 @@ CPFP.propTypes = {
   navigation: PropTypes.shape({
     popToTop: PropTypes.func,
     navigate: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        txid: PropTypes.string,
-        wallet: PropTypes.object,
-      }),
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.shape({
+      txid: PropTypes.string,
+      wallet: PropTypes.object,
     }),
   }),
 };

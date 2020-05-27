@@ -36,14 +36,14 @@ export default class Confirm extends Component {
 
     this.state = {
       isLoading: false,
-      fee: props.navigation.getParam('fee'),
-      feeSatoshi: new Bignumber(props.navigation.getParam('fee')).multipliedBy(100000000).toNumber(),
-      memo: props.navigation.getParam('memo'),
-      recipients: props.navigation.getParam('recipients'),
-      size: Math.round(props.navigation.getParam('tx').length / 2),
-      tx: props.navigation.getParam('tx'),
-      satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
-      fromWallet: props.navigation.getParam('fromWallet'),
+      fee: props.route.params.fee,
+      feeSatoshi: new Bignumber(props.route.params.fee).multipliedBy(100000000).toNumber(),
+      memo: props.route.params.memo,
+      recipients: props.route.params.recipients,
+      size: Math.round(props.route.params.tx.length / 2),
+      tx: props.route.params.tx,
+      satoshiPerByte: props.route.params.satoshiPerByte,
+      fromWallet: props.route.params.fromWallet,
     };
   }
 
@@ -100,7 +100,7 @@ export default class Confirm extends Component {
           this.props.navigation.navigate('Success', {
             fee: Number(this.state.fee),
             amount,
-            dismissModal: () => this.props.navigation.dismiss(),
+            dismissModal: () => this.props.navigation.dangerouslyGetParent().pop(),
           });
           this.setState({ isLoading: false });
         }
@@ -244,20 +244,10 @@ const styles = StyleSheet.create({
 Confirm.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
-    dismiss: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        amount: PropTypes.string,
-        fee: PropTypes.number,
-        address: PropTypes.string,
-        memo: PropTypes.string,
-        fromWallet: PropTypes.shape({
-          fromAddress: PropTypes.string,
-          fromSecret: PropTypes.string,
-        }),
-      }),
-    }),
+    dangerouslyGetParent: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };
