@@ -61,3 +61,7 @@ release-notes.json
 release-notes.txt
 
 ios/Pods/
+
+#Firebase
+/ios/GoogleService-Info.plist
+android/app/google-services.json

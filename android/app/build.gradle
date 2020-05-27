@@ -1,5 +1,9 @@
 apply plugin: "com.android.application"
-
+apply plugin: 'io.fabric'
+apply plugin: 'com.google.gms.google-services'
+crashlytics {
+  enableNdk true
+}
 import com.android.build.OutputFile
 
 /**
@@ -114,7 +118,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.stxnext.goldwallet"
+        applicationId "io.goldwallet.wallet"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4
@@ -154,6 +158,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
+    implementation project(path: ":@react-native-firebase_analytics")
     // JSC from node_modules
     if (useIntlJsc) {
         implementation 'org.webkit:android-jsc-intl:+'
