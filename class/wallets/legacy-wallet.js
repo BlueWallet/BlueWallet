@@ -1,8 +1,8 @@
-import { randomBytes } from './rng';
+import { randomBytes } from '../rng';
 import { AbstractWallet } from './abstract-wallet';
-import { HDSegwitBech32Wallet } from './';
+import { HDSegwitBech32Wallet } from '..';
 const bitcoin = require('bitcoinjs-lib');
-const BlueElectrum = require('../BlueElectrum');
+const BlueElectrum = require('../../BlueElectrum');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');
 
