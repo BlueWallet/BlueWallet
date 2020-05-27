@@ -103,7 +103,7 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
 
   saveWallet = async (w: any) => {
     if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === w.secret)) {
-      Alert.alert('walletInUseValidationError');
+      Alert.alert(i18n.wallets.importWallet.walletInUseValidationError);
     } else {
       w.setLabel(i18n.wallets.import.imported + ' ' + w.typeReadable);
       BlueApp.wallets.push(w);
