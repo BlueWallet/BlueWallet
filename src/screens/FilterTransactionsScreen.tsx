@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { DateObject } from 'react-native-calendars';
 import { NavigationScreenProps } from 'react-navigation';
 
-import { Header, ScreenTemplate, InputItem } from 'app/components';
+import { images } from 'app/assets';
+import { Header, ScreenTemplate, InputItem, Image } from 'app/components';
 import { Button } from 'app/components/Button';
 import { Calendar } from 'app/components/Calendar';
 import { CardGroup } from 'app/components/CardGroup';
@@ -49,18 +50,12 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
       <View style={styles.spacing10}>
         <RowTemplate
           items={[
-            <InputItem
-              key={Index.From}
-              onFocus={() => showCalendar(Index.From)}
-              label={i18n.filterTransactions.fromDate}
-              value={fromDate}
-            />,
-            <InputItem
-              key={Index.To}
-              onFocus={() => showCalendar(Index.To)}
-              label={i18n.filterTransactions.toDate}
-              value={toDate}
-            />,
+            <TouchableOpacity key={Index.From} onPress={() => showCalendar(Index.From)}>
+              <InputItem key={Index.From} editable={false} label={i18n.filterTransactions.fromDate} value={fromDate} />
+            </TouchableOpacity>,
+            <TouchableOpacity key={Index.To} onPress={() => showCalendar(Index.To)}>
+              <InputItem label={i18n.filterTransactions.toDate} value={toDate} editable={false} />
+            </TouchableOpacity>,
           ]}
         />
       </View>
@@ -94,47 +89,23 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
     setAddress(addressData.address);
   };
 
-  const renderReceiveCardContent = () => {
-    return (
-      <View>
-        <View style={styles.spacing20}>
-          <InputItem
-            onFocus={() =>
-              props.navigation.navigate(Route.ChooseContactList, {
-                onContactPress,
-                title: i18n.filterTransactions.from,
-              })
-            }
-            label={i18n.filterTransactions.from}
-            value={address}
-            onChangeText={setAddress}
-          />
-        </View>
-        {renderCommonCardContent()}
-      </View>
-    );
-  };
+  const navigateToChooseContactList = (title: string) =>
+    props.navigation.navigate(Route.ChooseContactList, {
+      onContactPress,
+      title,
+    });
 
-  const renderSendCardContent = () => {
-    return (
-      <View>
-        <View style={styles.spacing20}>
-          <InputItem
-            onFocus={() =>
-              props.navigation.navigate(Route.ChooseContactList, {
-                onContactPress,
-                title: i18n.filterTransactions.to,
-              })
-            }
-            label={i18n.filterTransactions.to}
-            value={address}
-            onChangeText={setAddress}
-          />
-        </View>
-        {renderCommonCardContent()}
+  const renderCardContent = (label: string) => (
+    <View>
+      <View style={styles.spacing20}>
+        <TouchableOpacity onPress={() => navigateToChooseContactList(label)}>
+          <InputItem label={label} value={address} editable={false} onChangeText={setAddress} />
+          <Image style={styles.image} source={images.nextBlackArrow} />
+        </TouchableOpacity>
       </View>
-    );
-  };
+      {renderCommonCardContent()}
+    </View>
+  );
 
   return (
     <ScreenTemplate
@@ -147,8 +118,8 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
       <Calendar isVisible={isCalendarVisible} onDateSelect={onDateSelect} />
       <CardGroup
         cards={[
-          { title: i18n.filterTransactions.receive, content: renderReceiveCardContent() },
-          { title: i18n.filterTransactions.send, content: renderSendCardContent() },
+          { title: i18n.filterTransactions.receive, content: renderCardContent(i18n.filterTransactions.from) },
+          { title: i18n.filterTransactions.send, content: renderCardContent(i18n.filterTransactions.to) },
         ]}
       />
     </ScreenTemplate>
@@ -165,5 +136,12 @@ const styles = StyleSheet.create({
   },
   spacing20: {
     marginBottom: 20,
+  },
+  image: {
+    width: 8,
+    height: 13,
+    top: 28,
+    left: '96%',
+    position: 'absolute',
   },
 });
