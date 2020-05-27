@@ -12,7 +12,7 @@ import {
   SegwitBech32Wallet,
   HDLegacyElectrumSeedP2PKHWallet,
   HDSegwitElectrumSeedP2WPKHWallet,
-} from '../class';
+} from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const EV = require('../events');
 const A = require('../analytics');
