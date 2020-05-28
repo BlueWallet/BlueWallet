@@ -162,34 +162,42 @@ export default class HodlHodl extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(),
     title: '',
+    headerRight: navigation.state.params.displayLoginButton ? (
+      <BlueButtonLink title="Login" onPress={navigation.state.params.handleLoginPress} style={{ marginHorizontal: 20 }} />
+    ) : (
+      <BlueButtonLink title="My contracts" onPress={navigation.state.params.handleMyContractsPress} style={{ marginHorizontal: 20 }} />
+    ),
   });
 
-  handleLoginPress() {
+  handleLoginPress = () => {
     const handleLoginCallback = hodlApiKey => {
       BlueApp.setHodlHodlApiKey(hodlApiKey);
       const displayLoginButton = !hodlApiKey;
       const HodlApi = new HodlHodlApi(hodlApiKey);
-      this.setState({ HodlApi, displayLoginButton, hodlApiKey });
+      this.setState({ HodlApi, hodlApiKey });
+      this.props.navigation.setParams({ displayLoginButton });
     };
     NavigationService.navigate('HodlHodlLogin', {
       cb: handleLoginCallback,
     });
-  }
+  };
 
-  handleMyContractsPress() {
+  handleMyContractsPress = () => {
     NavigationService.navigate('HodlHodlMyContracts');
-  }
+  };
 
   constructor(props) {
     super(props);
-    this.handleLoginPress = this.handleLoginPress.bind(this);
     /**  @type {AbstractWallet}   */
     let wallet = props.navigation.state.params.wallet;
-
+    props.navigation.setParams({
+      handleLoginPress: this.handleLoginPress,
+      displayLoginButton: false,
+      handleMyContractsPress: this.handleMyContractsPress,
+    });
     this.state = {
       HodlApi: false,
       isLoading: true,
-      displayLoginButton: false,
       isRenderOfferVisible: false,
       isChooseSideModalVisible: false,
       isChooseCountryModalVisible: false,
@@ -291,7 +299,8 @@ export default class HodlHodl extends Component {
     const displayLoginButton = !hodlApiKey;
 
     const HodlApi = new HodlHodlApi(hodlApiKey);
-    this.setState({ HodlApi, displayLoginButton, hodlApiKey });
+    this.setState({ HodlApi, hodlApiKey });
+    this.props.navigation.setParams({ displayLoginButton });
 
     try {
       await this.fetchMyCountry();
@@ -824,11 +833,6 @@ export default class HodlHodl extends Component {
   render() {
     return (
       <SafeBlueArea>
-        {(this.state.displayLoginButton && (
-          <BlueButtonLink title="Login" onPress={this.handleLoginPress} style={{ position: 'absolute', top: 0, right: 10 }} />
-        )) || (
-          <BlueButtonLink title="My contracts" onPress={this.handleMyContractsPress} style={{ position: 'absolute', top: 0, right: 10 }} />
-        )}
         <BlueCard style={{ alignItems: 'center', flex: 1 }}>
           <View style={{ flexDirection: 'row' }}>
             <Text style={styles.BottomLine}>Powered by HodlHodl®</Text>
@@ -956,6 +960,7 @@ HodlHodl.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+    setParams: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         wallet: PropTypes.object,
