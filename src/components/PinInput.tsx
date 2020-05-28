@@ -11,7 +11,7 @@ interface Props {
   onTextChange: (pin: string) => void;
 }
 export class PinInput extends PureComponent<Props> {
-  pinCodeRef = React.createRef();
+  pinCodeRef: any = React.createRef();
 
   render() {
     return (

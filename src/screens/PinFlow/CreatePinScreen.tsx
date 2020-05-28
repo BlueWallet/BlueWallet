@@ -43,7 +43,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
     flowType: '',
   };
 
-  pinInputRef: any = React.createRef();
+  pinInputRef = React.createRef<PinInput>();
   backHandler: any;
 
   componentDidMount() {

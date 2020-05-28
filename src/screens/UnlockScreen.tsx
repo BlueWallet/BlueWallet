@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
+import { KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { NavigationScreenProps } from 'react-navigation';
 
 import { images } from 'app/assets';
-import { Header, PinInput, Image, ScreenTemplate } from 'app/components';
+import { Header, PinInput, Image } from 'app/components';
 import { CONST } from 'app/consts';
 import { BiometricService, SecureStorageService } from 'app/services';
-import { palette, typography } from 'app/styles';
+import { getStatusBarHeight, ifIphoneX, palette, typography } from 'app/styles';
 
 const BlueApp = require('../../BlueApp');
 const i18n = require('../../loc');
@@ -27,13 +27,11 @@ export class UnlockScreen extends PureComponent<Props, State> {
     header: <Header navigation={props.navigation} title={i18n.unlock.title} />,
   });
 
-  state = {
+  state: State = {
     pin: '',
     error: '',
     showInput: true,
   };
-
-  inputRef: any = React.createRef();
 
   async componentDidMount() {
     await BlueApp.startAndDecrypt();
@@ -78,26 +76,25 @@ export class UnlockScreen extends PureComponent<Props, State> {
     });
   };
 
-  openKeyboard = () => {
-    if (this.inputRef.current) {
-      this.inputRef.current.inputItemRef.current.focus();
-    }
-  };
-
   render() {
     const { error, pin } = this.state;
     return (
-      <ScreenTemplate
-        contentContainer={styles.container}
-        footer={
-          <View style={styles.pinContainer}>
-            <PinInput value={pin} onTextChange={pin => this.updatePin(pin)} />
-            <Text style={styles.errorText}>{error}</Text>
+      <View style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <ScrollView contentContainerStyle={styles.contentContainer}>
+          <View style={styles.imageContainer}>
+            <Image source={images.portraitLogo} style={styles.logo} resizeMode="contain" />
           </View>
-        }
-      >
-        <Image source={images.portraitLogo} style={styles.logo} resizeMode="contain" />
-      </ScreenTemplate>
+          <KeyboardAvoidingView
+            keyboardVerticalOffset={getStatusBarHeight() + 52}
+            behavior={Platform.OS == 'ios' ? 'padding' : undefined}
+            style={styles.pinContainer}
+          >
+            <PinInput value={pin} onTextChange={this.updatePin} />
+            <Text style={styles.errorText}>{error}</Text>
+          </KeyboardAvoidingView>
+        </ScrollView>
+      </View>
     );
   }
 }
@@ -106,9 +103,21 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: palette.white,
     alignItems: 'center',
+    ...StyleSheet.absoluteFillObject,
+    paddingTop: getStatusBarHeight(),
+    paddingBottom: ifIphoneX(50, 16),
+    zIndex: 1000,
+  },
+  contentContainer: {
+    flexGrow: 1,
+  },
+  imageContainer: {
     justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
   },
   pinContainer: {
+    paddingTop: 32,
     alignItems: 'center',
   },
   logo: {

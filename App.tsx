@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
-import { Linking, DeviceEventEmitter, Clipboard, View } from 'react-native';
+import { Linking, DeviceEventEmitter, Clipboard, View, StyleSheet } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { createAppContainer, NavigationActions } from 'react-navigation';
 import { Provider } from 'react-redux';
@@ -152,7 +152,7 @@ export default class App extends React.PureComponent<State> {
   }
 
   isBitcoinAddress(address: any) {
-    let isValidBitcoinAddress = false;
+    let isValidBitcoinAddress: boolean;
     try {
       bitcoin.address.toOutputScript(address);
       isValidBitcoinAddress = true;
@@ -202,18 +202,17 @@ export default class App extends React.PureComponent<State> {
       <Provider store={store}>
         <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
         <PersistGate loading={null} persistor={persistor}>
-          <View style={{ flex: 1 }}>
-            {isPinSet && !successfullyAuthenticated ? (
+          <View style={styles.wrapper}>
+            <AppContainer
+              ref={nav => {
+                this.navigator = nav as any;
+                NavigationService.setTopLevelNavigator(nav!);
+              }}
+            />
+            {isPinSet && !successfullyAuthenticated && (
               <UnlockScreen
                 onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
                 isBiometricEnabledByUser={isBiometricEnabledByUser}
-              />
-            ) : (
-              <AppContainer
-                ref={nav => {
-                  this.navigator = nav as any;
-                  NavigationService.setTopLevelNavigator(nav!);
-                }}
               />
             )}
           </View>
@@ -222,3 +221,9 @@ export default class App extends React.PureComponent<State> {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1,
+  },
+});
