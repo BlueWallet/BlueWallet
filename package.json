@@ -28,7 +28,7 @@
     "npm": ">=6.9.0"
   },
   "scripts": {
-    "prepare": "./patches/fix_mangle.sh; git apply patches/minifier.js.patch; git apply patches/minify.js.patch",
+    "prepare": "npm run snyk-protect && ./patches/fix_mangle.sh; git apply patches/minifier.js.patch; git apply patches/minify.js.patch",
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i; npm start -- --reset-cache",
     "releasenotes2json": "./scripts/release-notes.sh > release-notes.txt; node -e 'console.log(JSON.stringify(require(\"fs\").readFileSync(\"release-notes.txt\", \"utf8\")));' > release-notes.json",
     "podinstall": "./scripts/podinstall.sh",
@@ -45,7 +45,8 @@
     "lint": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/",
     "lint:fix": "./node_modules/.bin/eslint *.js screen/**/*.js screen/ class/ models/ loc/ tests/integration/ tests/e2e/ tests/unit/ --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs ./node_modules/.bin/eslint --fix; exit 0",
-    "unit": "node node_modules/jest/bin/jest.js tests/unit/*"
+    "unit": "node node_modules/jest/bin/jest.js tests/unit/*",
+    "snyk-protect": "snyk protect"
   },
   "jest": {
     "preset": "react-native",
@@ -143,7 +144,8 @@
     "stream-browserify": "2.0.2",
     "url": "0.11.0",
     "util": "0.12.3",
-    "wif": "2.0.6"
+    "wif": "2.0.6",
+    "snyk": "^1.330.3"
   },
   "react-native": {
     "crypto": "bluewallet/blue_modules/crypto",
@@ -195,5 +197,6 @@
     "_stream_duplex": "readable-stream/duplex",
     "_stream_passthrough": "readable-stream/passthrough",
     "stream": "stream-browserify"
-  }
+  },
+  "snyk": true
 }
