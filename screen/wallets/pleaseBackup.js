@@ -43,7 +43,7 @@ const PleaseBackup = () => {
           key={`${secret}${index}`}
         >
           <Text style={{ color: '#81868E', fontWeight: 'bold' }}>
-            {`${index + 1}`}. {secret}
+            {`${index}`}. {secret}
           </Text>
         </View>,
       );
