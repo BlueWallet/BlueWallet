@@ -189,7 +189,12 @@ export default class HodlHodlMyContracts extends Component {
      * Each party sends “Confirming contract’s escrow validity” request to the server
      */
     for (const id of contractIds) {
-      const contract = await hodlApi.getContract(id);
+      let contract;
+      try {
+        contract = await hodlApi.getContract(id);
+      } catch (_) {
+        continue;
+      }
       if (contract.status === 'canceled') continue;
       if (contract.escrow && contract.escrow.address && hodlApi.verifyEscrowAddress()) {
         await hodlApi.markContractAsConfirmed(id);
