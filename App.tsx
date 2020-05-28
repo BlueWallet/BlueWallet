@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { Linking, DeviceEventEmitter, Clipboard, View, StyleSheet } from 'react-native';
+import { Linking, DeviceEventEmitter, Clipboard, View, StyleSheet, YellowBox } from 'react-native';
 import QuickActions from 'react-native-quick-actions';
 import { createAppContainer, NavigationActions } from 'react-navigation';
 import { Provider } from 'react-redux';
@@ -16,6 +16,8 @@ import { persistor, store } from 'app/state/store';
 
 import OnAppLaunch from './class/onAppLaunch';
 import { Chain } from './models/bitcoinUnits';
+
+YellowBox.ignoreWarnings(['VirtualizedLists should never be nested inside', `\`-[RCTRootView cancelTouches]\``]);
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
