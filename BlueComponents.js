@@ -450,6 +450,7 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
       backgroundColor: BlueApp.settings.brandingColor,
       borderBottomWidth: 0,
       elevation: 0,
+      shadowOffset: { height: 0, width: 0 },
     },
     headerTitleStyle: {
       fontWeight: '600',

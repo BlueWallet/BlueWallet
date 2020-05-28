@@ -865,7 +865,7 @@ export default class SendDetails extends Component {
     }
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        <View style={{ flex: 1, justifyContent: 'space-between', backgroundColor: '#FFFFFF' }}>
           <View>
             <KeyboardAvoidingView behavior="position">
               <ScrollView

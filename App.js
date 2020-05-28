@@ -28,7 +28,7 @@ const loc = require('./loc');
 const BlueApp = require('./BlueApp');
 
 export default class App extends React.Component {
-  navigator = null;
+  navigation = null;
 
   state = {
     appState: AppState.currentState,
@@ -47,13 +47,11 @@ export default class App extends React.Component {
 
   popInitialAction = async data => {
     if (data) {
-      // eslint-disable-next-line no-unused-expressions
-      this.navigator.dismiss;
       const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-      this.navigator.dispatch(
+      this.navigation.dispatch(
         CommonActions.navigate({
-          key: `WalletTransactions-${wallet.getID()}`,
           name: 'WalletTransactions',
+          key: `WalletTransactions-${wallet.getID()}`,
           params: {
             wallet,
           },
@@ -68,12 +66,10 @@ export default class App extends React.Component {
       } else {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
         if (!isViewAllWalletsEnabled) {
-          // eslint-disable-next-line no-unused-expressions
-          this.navigator.dismiss;
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
           const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
-            this.navigator.dispatch(
+            this.navigation.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
@@ -90,9 +86,7 @@ export default class App extends React.Component {
 
   walletQuickActions = data => {
     const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-    // eslint-disable-next-line no-unused-expressions
-    this.navigator.dismiss;
-    this.navigator.dispatch(
+    this.navigation.dispatch(
       CommonActions.navigate({
         name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
@@ -150,8 +144,8 @@ export default class App extends React.Component {
   isBothBitcoinAndLightningWalletSelect = wallet => {
     const clipboardContent = this.state.clipboardContent;
     if (wallet.chain === Chain.ONCHAIN) {
-      this.navigator &&
-        this.navigator.dispatch(
+      this.navigation &&
+        this.navigation.dispatch(
           CommonActions.navigate({
             name: 'SendDetails',
             params: {
@@ -161,8 +155,8 @@ export default class App extends React.Component {
           }),
         );
     } else if (wallet.chain === Chain.OFFCHAIN) {
-      this.navigator &&
-        this.navigator.dispatch(
+      this.navigation &&
+        this.navigation.dispatch(
           CommonActions.navigate({
             name: 'ScanLndInvoice',
             params: {
@@ -175,8 +169,7 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    // DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.dispatch(CommonActions.navigate(value)));
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigator && this.navigator.navigate(...value));
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigation && this.navigation.navigate(...value));
   };
 
   renderClipboardContentModal = () => {
@@ -224,7 +217,7 @@ export default class App extends React.Component {
         <View style={{ flex: 1 }}>
           <NavigationContainer
             ref={nav => {
-              this.navigator = nav;
+              this.navigation = nav;
               NavigationService.setTopLevelNavigator(nav);
             }}
           >

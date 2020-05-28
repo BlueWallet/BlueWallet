@@ -257,7 +257,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.8.1):
+  - RNCAsyncStorage (1.10.0):
     - React
   - RNCMaskedView (0.1.10):
     - React
@@ -533,7 +533,7 @@ SPEC CHECKSUMS:
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 00bdf63f7f1e0f11d3323533dba4f222e58bf092
+  RNCAsyncStorage: b34d2399d3e25db01d5b881949b503bd3c224d57
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
