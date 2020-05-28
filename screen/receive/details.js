@@ -196,7 +196,7 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
+      <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }} keyboardShouldPersistTaps="always">
         <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
           {isCustom && (
             <>

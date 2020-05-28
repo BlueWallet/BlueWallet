@@ -2257,7 +2257,7 @@ export class BlueBitcoinAmount extends Component {
    */
   onAmountUnitChange(previousUnit, newUnit) {
     const amount = this.props.amount || 0;
-    console.warn('was:', amount, previousUnit, '; converting to', newUnit);
+    console.log('was:', amount, previousUnit, '; converting to', newUnit);
     let sats = 0;
     switch (previousUnit) {
       case BitcoinUnit.BTC:
@@ -2270,7 +2270,7 @@ export class BlueBitcoinAmount extends Component {
         sats = new BigNumber(currency.fiatToBTC(amount)).multipliedBy(100000000).toString();
         break;
     }
-    console.warn('so, in sats its', sats);
+    console.log('so, in sats its', sats);
 
     let newInputValue = loc.formatBalanceWithoutSuffix(sats, newUnit, false);
     newInputValue = newInputValue.replace(/[^\d.-]/g, ''); // filtering, leaving only numbers & dots
@@ -2294,6 +2294,17 @@ export class BlueBitcoinAmount extends Component {
       previousUnit = BitcoinUnit.SATS;
     }
     this.setState({ unit: newUnit, previousUnit }, () => this.onAmountUnitChange(previousUnit, newUnit));
+  };
+
+  maxLength = () => {
+    switch (this.state.unit) {
+      case BitcoinUnit.BTC:
+        return 10;
+      case BitcoinUnit.SATS:
+        return 9;
+      default:
+        return 15;
+    }
   };
 
   render() {
@@ -2338,9 +2349,9 @@ export class BlueBitcoinAmount extends Component {
               <TextInput
                 {...this.props}
                 keyboardType="numeric"
+                adjustsFontSizeToFit
                 onChangeText={text => {
                   text = text.trim();
-
                   if (this.state.unit !== BitcoinUnit.LOCAL_CURRENCY) {
                     text = text.replace(',', '.');
                     const split = text.split('.');
@@ -2360,6 +2371,8 @@ export class BlueBitcoinAmount extends Component {
                       text = text.replace(/[^0-9.]/g, '');
                     }
                     this.props.onChangeText(text);
+                  } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
+                    this.props.onChangeText(text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
                   } else {
                     this.props.onChangeText(text);
                   }
@@ -2371,17 +2384,17 @@ export class BlueBitcoinAmount extends Component {
                   if (this.props.onFocus) this.props.onFocus();
                 }}
                 placeholder="0"
-                maxLength={10}
+                maxLength={this.maxLength()}
                 ref={textInput => (this.textInput = textInput)}
                 editable={!this.props.isLoading && !this.props.disabled}
-                value={amount}
+                value={parseFloat(amount) > 0 ? amount : undefined}
                 placeholderTextColor={
                   this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2
                 }
                 style={{
                   color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
-                  fontSize: 36,
                   fontWeight: '600',
+                  fontSize: amount.length > 10 ? 20 : 36,
                 }}
               />
               {this.state.unit !== BitcoinUnit.LOCAL_CURRENCY && (
