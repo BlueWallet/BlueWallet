@@ -32,7 +32,7 @@ const METHOD_ANY = '_any';
 
 const styles = StyleSheet.create({
   grayDropdownText: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: '600',
     color: '#9AA0AA',
   },
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   },
   Title: {
     fontWeight: 'bold',
-    fontSize: 34,
+    fontSize: 30,
     color: '#0c2550',
   },
   BottomLine: {
@@ -78,13 +78,11 @@ const styles = StyleSheet.create({
   grayDropdownTextContainer: {
     backgroundColor: '#EEF0F4',
     borderRadius: 20,
-    width: 100,
     height: 35,
     top: 3,
-    paddingLeft: 2,
-    paddingBottom: 6,
-    paddingTop: 6,
-    paddingRight: 0,
+    paddingLeft: 8,
+    paddingRight: 2,
+    paddingVertical: 6,
     justifyContent: 'center',
     alignItems: 'center',
     flex: 0.65,
@@ -107,7 +105,7 @@ const styles = StyleSheet.create({
   },
   blueText: {
     color: '#2f5fb3',
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '600',
   },
   allOffersText: {
