@@ -1,6 +1,6 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import i18n from 'i18next';
-import { reactI18nextModule } from 'react-i18next';
-import * as RNLocalize from 'react-native-localize';
+import { initReactI18next } from 'react-i18next';
 
 import en from './en';
 import es from './es';
@@ -13,16 +13,19 @@ import vi from './vi_VN';
 import zh from './zh_cn';
 
 const languageDetector = {
-  type: 'languageDetector',
-  async: false,
-  detect: () => RNLocalize.getLocales()[0].languageCode,
+  type: 'languageDetector' as any,
+  async: true,
+  detect: async (callback: (language: string) => void) => {
+    const language = (await AsyncStorage.getItem('lang')) as string;
+    callback(language);
+  },
   init: () => null,
   cacheUserLanguage: () => null,
 };
 
 i18n
   .use(languageDetector)
-  .use(reactI18nextModule)
+  .use(initReactI18next)
   .init({
     fallbackLng: 'en',
     resources: {

@@ -201,8 +201,8 @@ export default class App extends React.PureComponent<State> {
     const { successfullyAuthenticated, isPinSet } = this.state;
     const isBiometricEnabledByUser = store.getState().appSettings.isBiometricsEnabled;
     return (
-      <Provider store={store}>
-        <I18nextProvider i18n={i18n}>
+      <I18nextProvider i18n={i18n}>
+        <Provider store={store}>
           <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
           <PersistGate loading={null} persistor={persistor}>
             <View style={styles.wrapper}>
@@ -220,8 +220,8 @@ export default class App extends React.PureComponent<State> {
               )}
             </View>
           </PersistGate>
-        </I18nextProvider>
-      </Provider>
+        </Provider>
+      </I18nextProvider>
     );
   }
 }

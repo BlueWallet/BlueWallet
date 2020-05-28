@@ -9,6 +9,8 @@ import { FlatButton } from './FlatButton';
 import { GradientView } from './GradientView';
 import { Image } from './Image';
 
+const i18n = require('../../loc');
+
 export const HEADER_HEIGHT = Platform.select({
   ios: 44,
   android: 38,
@@ -26,7 +28,7 @@ export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunc
   const onLeftItemPress = () => (onBackArrow ? onBackArrow() : navigation!.pop());
   const renderBackArrow = () => <Image style={styles.image} source={images.backArrow} />;
   const renderCancelButton = () => (
-    <FlatButton onPress={onLeftItemPress} titleStyle={typography.headline4} title="Cancel" />
+    <FlatButton onPress={onLeftItemPress} titleStyle={typography.headline4} title={i18n.send.details.cancel} />
   );
   const renderLeftItem = () => {
     const leftItem = isBackArrow ? renderBackArrow() : isCancelButton ? renderCancelButton() : undefined;
