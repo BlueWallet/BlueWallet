@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -76,18 +76,21 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
   );
 
   return (
-    <ScreenTemplate>
-      <Image source={images.goldWalletLogoBlack} style={styles.logo} resizeMode="contain" />
-      <LabeledSettingsRow label={i18n.settings.general}>{renderGeneralSettings()}</LabeledSettingsRow>
-      <LabeledSettingsRow label={i18n.settings.security}>{renderSecuritySettings()}</LabeledSettingsRow>
-      <LabeledSettingsRow label={i18n.settings.about}>{renderAboutSettings()}</LabeledSettingsRow>
-    </ScreenTemplate>
+    <>
+      <Header navigation={props.navigation} title={i18n.settings.header} />
+      <ScreenTemplate>
+        <Image source={images.goldWalletLogoBlack} style={styles.logo} resizeMode="contain" />
+        <LabeledSettingsRow label={i18n.settings.general}>{renderGeneralSettings()}</LabeledSettingsRow>
+        <LabeledSettingsRow label={i18n.settings.security}>{renderSecuritySettings()}</LabeledSettingsRow>
+        <LabeledSettingsRow label={i18n.settings.about}>{renderAboutSettings()}</LabeledSettingsRow>
+      </ScreenTemplate>
+    </>
   );
 };
 
-SettingsScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: <Header navigation={props.navigation} title={i18n.settings.header} />,
-});
+SettingsScreen.navigationOptions = {
+  tabBarLabel: i18n.tabNavigator.settings,
+};
 
 const styles = StyleSheet.create({
   logo: {

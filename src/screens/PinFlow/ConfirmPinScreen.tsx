@@ -79,7 +79,7 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
   render() {
     const { error } = this.state;
     return (
-      <ScreenTemplate noScroll contentContainer={styles.container}>
+      <ScreenTemplate noScroll>
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
             {this.state.flowType === FlowType.newPin ? i18n.onboarding.confirmNewPin : i18n.onboarding.confirmPin}
@@ -96,10 +96,6 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
   pinContainer: {
     alignItems: 'center',
     marginTop: 24,

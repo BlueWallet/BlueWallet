@@ -8,8 +8,6 @@ import { BitcoinUnit } from '../models/bitcoinUnits';
 const BigNumber = require('bignumber.js');
 const dayjs = require('dayjs');
 
-const currency = require('../currency');
-
 let strings;
 dayjs.extend(relativeTime);
 
@@ -17,10 +15,10 @@ dayjs.extend(relativeTime);
 (async () => {
   // finding out whether lang preference was saved
   // For some reason using the AppStorage.LANG constant is not working. Hard coding string for now.
-  const lang = await AsyncStorage.getItem('lang');
+  let lang = await AsyncStorage.getItem('lang');
   if (lang) {
     strings.setLanguage(lang);
-    const localeForDayJSAvailable = true;
+    let localeForDayJSAvailable = true;
     switch (lang) {
       case 'zh_cn':
         lang = 'zh-cn';

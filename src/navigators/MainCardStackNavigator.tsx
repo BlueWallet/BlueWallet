@@ -20,6 +20,14 @@ import {
   SendTransactionDetailsScreen,
   ScanQrCodeScreen,
   ContactListScreen,
+  SettingsScreen,
+  SelectLanguageScreen,
+  AboutUsScreen,
+  AdvancedOptionsScreen,
+  ElectrumServerScreen,
+  CreatePinScreen,
+  CurrentPinScreen,
+  ConfirmPinScreen,
 } from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
@@ -47,6 +55,14 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.SendTransactionDetails]: SendTransactionDetailsScreen,
     [Route.ScanQrCode]: ScanQrCodeScreen,
     [Route.ChooseContactList]: ContactListScreen,
+    [Route.Settings]: SettingsScreen,
+    [Route.SelectLanguage]: SelectLanguageScreen,
+    [Route.AboutUs]: AboutUsScreen,
+    [Route.AdvancedOptions]: AdvancedOptionsScreen,
+    [Route.ElectrumServer]: ElectrumServerScreen,
+    [Route.CreatePin]: CreatePinScreen,
+    [Route.CurrentPin]: CurrentPinScreen,
+    [Route.ConfirmPin]: ConfirmPinScreen,
   },
   {
     mode: 'card',

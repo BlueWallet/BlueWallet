@@ -51,30 +51,26 @@ export class CurrentPinScreen extends PureComponent<Props, State> {
   render() {
     const { error } = this.state;
     return (
-      <ScreenTemplate
-        contentContainer={styles.container}
-        footer={
-          <View style={styles.pinContainer}>
-            <PinInput value={this.state.pin} onTextChange={this.updatePin} />
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        }
-      >
-        <Text style={typography.headline4}>{i18n.onboarding.currentPin}</Text>
+      <ScreenTemplate noScroll>
+        <View style={styles.infoContainer}>
+          <Text style={typography.headline4}>{i18n.onboarding.currentPin}</Text>
+        </View>
+        <View style={styles.pinContainer}>
+          <PinInput value={this.state.pin} onTextChange={this.updatePin} />
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
       </ScreenTemplate>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-  },
   pinContainer: {
     alignItems: 'center',
-    marginBottom: 20,
+  },
+  infoContainer: {
+    alignItems: 'center',
+    marginBottom: 72,
   },
   errorText: {
     marginVertical: 10,

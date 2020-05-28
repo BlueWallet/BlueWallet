@@ -3,7 +3,7 @@ import { StatusBar } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
-import { ListEmptyState, SearchBar, Header } from 'app/components';
+import { ListEmptyState, SearchBar } from 'app/components';
 import { Route, Contact } from 'app/consts';
 import { ApplicationState } from 'app/state';
 
@@ -24,8 +24,10 @@ export class ContactListScreen extends PureComponent<Props, State> {
   static navigationOptions = () => {
     return {
       header: null,
+      tabBarLabel: i18n.contactList.bottomNavigationLabel,
     };
   };
+
   state: State = {
     query: '',
   };

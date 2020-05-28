@@ -5,16 +5,13 @@ import { images } from 'app/assets';
 import { BottomTabBarIcon, BottomTabBarComponent } from 'app/components';
 import { Route } from 'app/consts';
 import { i18n } from 'app/locale';
-import { ContactListScreen } from 'app/screens';
+import { ContactListScreen, DashboardScreen, SettingsScreen } from 'app/screens';
 import { palette } from 'app/styles';
-
-import { DashboardNavigator } from './DashboardNavigator';
-import { SettingsNavigator } from './SettingsNavigator';
 
 export const MainTabNavigator = createBottomTabNavigator(
   {
     [Route.Dashboard]: {
-      screen: DashboardNavigator,
+      screen: DashboardScreen,
       navigationOptions: {
         title: i18n.t('tabNavigator:dashboard'),
         tabBarIcon: ({ focused }: { focused: boolean }) => (
@@ -32,7 +29,7 @@ export const MainTabNavigator = createBottomTabNavigator(
       },
     },
     [Route.Settings]: {
-      screen: SettingsNavigator,
+      screen: SettingsScreen,
       navigationOptions: {
         title: i18n.t('tabNavigator:settings'),
         tabBarIcon: ({ focused }: { focused: boolean }) => (

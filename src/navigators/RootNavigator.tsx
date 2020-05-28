@@ -8,7 +8,6 @@ import { EditTextNavigator } from './EditTextNavigator';
 import { MainCardStackNavigator } from './MainCardStackNavigator';
 import { MessageNavigator } from './MessageNavigator';
 import { PasswordNavigator } from './PasswordNavigator';
-import { PinNavigator } from './PinNavigator';
 import { UnlockTransactionNavaigator } from './UnlockTransactionNavaigator';
 
 export const RootNavigator = createStackNavigator(
@@ -17,7 +16,6 @@ export const RootNavigator = createStackNavigator(
     [Route.ImportWalletQRCode]: ImportWalletQRCodeScreen,
     [Route.ActionSheet]: ActionSheet,
     UnlockTransactionNavaigator,
-    PinNavigator,
     PasswordNavigator,
     EditTextNavigator,
     MessageNavigator,
