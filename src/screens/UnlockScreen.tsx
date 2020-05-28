@@ -81,7 +81,7 @@ export class UnlockScreen extends PureComponent<Props, State> {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" />
-        <ScrollView contentContainerStyle={styles.contentContainer}>
+        <ScrollView keyboardShouldPersistTaps="always" contentContainerStyle={styles.contentContainer}>
           <View style={styles.imageContainer}>
             <Image source={images.portraitLogo} style={styles.logo} resizeMode="contain" />
           </View>
