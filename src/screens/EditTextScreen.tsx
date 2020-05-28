@@ -5,6 +5,8 @@ import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Header, InputItem, Button, ScreenTemplate } from 'app/components';
 
+const i18n = require('../../loc');
+
 export interface EditTextProps {
   title: string;
   onSave: (value: string) => void;
@@ -26,7 +28,7 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
   };
 
   return (
-    <ScreenTemplate footer={<Button title="Save" onPress={handlePressOnSaveButton} disabled={!value} />}>
+    <ScreenTemplate footer={<Button title={i18n._.save} onPress={handlePressOnSaveButton} disabled={!value} />}>
       {header}
       <View style={styles.inputItemContainer}>
         <InputItem

@@ -4,7 +4,7 @@ import { NavigationEvents, NavigationInjectedProps, NavigationScreenProps } from
 
 import { images } from 'app/assets';
 import { ListEmptyState, Image, WalletCard, ScreenTemplate, Header } from 'app/components';
-import { Wallet, Route } from 'app/consts';
+import { Wallet, Route, CONST } from 'app/consts';
 import { SecureStorageService } from 'app/services';
 import { typography, palette } from 'app/styles';
 
@@ -41,7 +41,7 @@ export class DashboardScreen extends Component<Props, State> {
     const AllWallets = BlueApp.getWallets();
     const wallets =
       AllWallets.length > 1
-        ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets]
+        ? [{ label: CONST.allWallets, balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets]
         : AllWallets;
 
     this.state = {
@@ -139,7 +139,7 @@ export class DashboardScreen extends Component<Props, State> {
     const AllWallets = BlueApp.getWallets();
     const wallets =
       AllWallets.length > 1
-        ? [{ label: 'All wallets', balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets]
+        ? [{ label: CONST.allWallets, balance: allWalletsBalance, preferredBalanceUnit: 'BTCV' }, ...AllWallets]
         : AllWallets;
 
     this.setState({
@@ -212,7 +212,7 @@ export class DashboardScreen extends Component<Props, State> {
 
   sendCoins = () => {
     const { wallets, lastSnappedTo } = this.state;
-    const activeWallet = wallets[lastSnappedTo].label === 'All wallets' ? wallets[1] : wallets[lastSnappedTo];
+    const activeWallet = wallets[lastSnappedTo].label === CONST.allWallets ? wallets[1] : wallets[lastSnappedTo];
     this.props.navigation.navigate(Route.SendCoins, {
       fromAddress: activeWallet.getAddress(),
       fromSecret: activeWallet.getSecret(),
@@ -222,7 +222,7 @@ export class DashboardScreen extends Component<Props, State> {
 
   receiveCoins = () => {
     const { wallets, lastSnappedTo } = this.state;
-    const activeWallet = wallets[lastSnappedTo].label === 'All wallets' ? wallets[1] : wallets[lastSnappedTo];
+    const activeWallet = wallets[lastSnappedTo].label === CONST.allWallets ? wallets[1] : wallets[lastSnappedTo];
     this.props.navigation.navigate(Route.ReceiveCoins, {
       secret: activeWallet.getSecret(),
     });
@@ -240,7 +240,7 @@ export class DashboardScreen extends Component<Props, State> {
   renderTransactionList = () => {
     const { wallets, lastSnappedTo, dataSource } = this.state;
     const activeWallet = wallets[lastSnappedTo];
-    if (activeWallet.label !== 'All wallets') {
+    if (activeWallet.label !== CONST.allWallets) {
       // eslint-disable-next-line prettier/prettier
       return activeWallet.transactions?.length ? (
         <TransactionList data={activeWallet.transactions} label={activeWallet.label} />
@@ -287,15 +287,15 @@ export class DashboardScreen extends Component<Props, State> {
           <DashboardHeader
             onSelectPress={this.showModal}
             balance={activeWallet.balance}
-            label={activeWallet.label}
+            label={activeWallet.label === CONST.allWallets ? i18n.wallets.dashboard.allWallets : activeWallet.label}
             unit={activeWallet.preferredBalanceUnit}
             onReceivePress={this.receiveCoins}
             onSendPress={this.sendCoins}
           />
-          {activeWallet.label === 'All wallets' ? (
+          {activeWallet.label === CONST.allWallets ? (
             <WalletsCarousel
               ref={this.walletCarouselRef as any}
-              data={wallets.filter(wallet => wallet.label !== 'All wallets')}
+              data={wallets.filter(wallet => wallet.label !== CONST.allWallets)}
               keyExtractor={this._keyExtractor as any}
               onSnapToItem={(index: number) => {
                 this.onSnapToItem(index);

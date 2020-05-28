@@ -8,6 +8,10 @@ module.exports = {
     ok: 'OK',
     click: 'Click',
     here: 'here',
+    save: 'Save',
+    confirm: 'Confirm',
+    copy: 'Copy',
+    copied: 'Copied!',
   },
   tabNavigator: {
     dashboard: 'Dashboard',
@@ -60,6 +64,7 @@ module.exports = {
   wallets: {
     dashboard: {
       title: 'Wallets',
+      allWallets: 'All wallets',
       noWallets: 'No wallets',
       noWalletsDesc1: 'No wallets to show.',
       noWalletsDesc2: 'to add your first wallet.',
@@ -213,6 +218,7 @@ module.exports = {
       scan: 'Scan',
       send: 'Send',
       next: 'Next',
+      note: 'Note (optional)',
       to: 'to',
       feeUnit: 'Sat/B',
       fee: 'Fee: ',

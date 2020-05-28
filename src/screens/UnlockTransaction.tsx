@@ -58,7 +58,7 @@ export class UnlockTransaction extends PureComponent<Props, State> {
         keyboardShouldPersistTaps="always"
         footer={
           <Button
-            title="Confirm"
+            title={i18n._.confirm}
             onPress={this.onConfirm}
             disabled={password.length < CONST.transactionMinPasswordLength}
           />

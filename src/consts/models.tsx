@@ -1,7 +1,8 @@
-export const CONST = {
-  pinCodeLength: 4,
-  transactionMinPasswordLength: 8,
-};
+export enum CONST {
+  pinCodeLength = 4,
+  transactionMinPasswordLength = 8,
+  allWallets = 'All wallets',
+}
 
 export enum FlowType {
   password = 'password',

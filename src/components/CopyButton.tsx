@@ -6,6 +6,8 @@ import { typography } from 'app/styles';
 
 import { FlatButton } from './FlatButton';
 
+const i18n = require('../../loc');
+
 interface Props {
   textToCopy: string;
   containerStyle?: StyleProp<ViewStyle>;
@@ -21,7 +23,7 @@ export const CopyButton: React.FunctionComponent<Props> = ({ textToCopy, contain
     <FlatButton
       containerStyle={containerStyle}
       titleStyle={styles.titleStyle}
-      title={isCopied ? 'Copied!' : 'Copy'}
+      title={isCopied ? i18n._.copied : i18n._.copy}
       onPress={copyToClipboard}
     />
   );

@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 import { images } from 'app/assets';
 import { Image, Header, StyledText, Chip, ScreenTemplate } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Transaction } from 'app/consts';
+import { Transaction, Route } from 'app/consts';
 import { ApplicationState } from 'app/state';
 import { createTransaction, createTransactionAction, updateTransaction } from 'app/state/transactions/actions';
 import { typography, palette } from 'app/styles';
@@ -110,10 +110,11 @@ export class TransactionDetailsScreen extends Component<Props, State> {
   sendCoins = () => {
     const { wallet } = this.state;
 
-    this.props.navigation.navigate('SendDetails', {
+    this.props.navigation.navigate(Route.SendCoins, {
       fromAddress: wallet.getAddress(),
       fromSecret: wallet.getSecret(),
       fromWallet: wallet,
+      toAddress: this.state.from.filter(onlyUnique).join(', '),
     });
   };
 
@@ -160,9 +161,9 @@ export class TransactionDetailsScreen extends Component<Props, State> {
 
   editNote = () => {
     const transaction: Transaction = this.props.navigation.getParam('transaction');
-    this.props.navigation.navigate('EditText', {
+    this.props.navigation.navigate(Route.EditText, {
       title: moment.unix(transaction.time).format('lll'),
-      label: 'Note',
+      label: i18n.transactions.details.note,
       onSave: this.updateNote,
       value: this.state.note,
       header: this.renderHeader(),

@@ -486,7 +486,7 @@ export class SendCoinsScreen extends Component<Props, State> {
     for (const [index, item] of this.state.addresses.entries()) {
       rows.push(
         <InputItem
-          label="Amount"
+          label={i18n.transactions.details.amount}
           suffix="BTCV"
           keyboardType="numeric"
           value={item.amount ? item.amount.toString().replace(',', '.') : null}
@@ -508,7 +508,7 @@ export class SendCoinsScreen extends Component<Props, State> {
       rows.push(
         <InputItem
           multiline
-          label="Address"
+          label={i18n.contactDetails.addressLabel}
           style={styles.addressInput}
           value={this.state.addresses[index].address}
           setValue={text => this.setAddress(item, index, text)}
@@ -599,7 +599,7 @@ export class SendCoinsScreen extends Component<Props, State> {
             </TouchableOpacity>
           </View>
 
-          <InputItem label="Note (optional)" setValue={memo => this.setState({ memo })} />
+          <InputItem label={i18n.send.details.note} setValue={memo => this.setState({ memo })} />
         </View>
       </ScreenTemplate>
     );
