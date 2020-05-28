@@ -312,6 +312,7 @@ export default class WalletDetails extends Component {
                                 });
                               }
                             },
+                            style: 'destructive',
                           },
                           { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
                         ],
