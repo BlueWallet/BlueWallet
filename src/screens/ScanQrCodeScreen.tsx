@@ -1,8 +1,7 @@
-import PropTypes from 'prop-types';
 import React from 'react';
 import { Image, View, TouchableOpacity, StatusBar, StyleSheet, Dimensions } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { NavigationScreenProps } from 'react-navigation';
+import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { images } from 'app/assets';
 import { getStatusBarHeight } from 'app/styles';
@@ -10,7 +9,7 @@ import { getStatusBarHeight } from 'app/styles';
 const { width } = Dimensions.get('window');
 const i18n = require('../../loc');
 
-export interface ScanQrCodeProps {
+export interface ScanQrCodeProps extends NavigationInjectedProps {
   onBarCodeScan: (code: string) => void;
 }
 
@@ -29,16 +28,6 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props> {
       onBarCodeScan(scannedQr.data);
       navigation.goBack();
     }
-  };
-
-  static propTypes: {
-    navigation: PropTypes.Requireable<
-      PropTypes.InferProps<{
-        goBack: PropTypes.Requireable<(...args: any[]) => any>;
-        popToTop: PropTypes.Requireable<(...args: any[]) => any>;
-        navigate: PropTypes.Requireable<(...args: any[]) => any>;
-      }>
-    >;
   };
 
   render() {
@@ -69,14 +58,6 @@ export default class ScanQrCodeScreen extends React.PureComponent<Props> {
     );
   }
 }
-
-ScanQrCodeScreen.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    popToTop: PropTypes.func,
-    navigate: PropTypes.func,
-  }),
-};
 
 const styles = StyleSheet.create({
   crosshairContainer: {

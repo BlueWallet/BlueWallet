@@ -1,4 +1,3 @@
-import bip21 from 'bip21';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -16,6 +15,7 @@ import { NavigationInjectedProps } from 'react-navigation';
 import { images } from 'app/assets';
 import { Wallet, Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
+import { sleep } from 'app/helpers/helpers';
 import { NavigationService } from 'app/services';
 import { getStatusBarHeight } from 'app/styles';
 
@@ -28,20 +28,11 @@ import {
   HDSegwitP2SHWallet,
 } from '../../class';
 
-const wif = require('wif');
-
 const BlueApp = require('../../BlueApp');
-const bip38 = require('../../bip38');
 const EV = require('../../events');
-const loc = require('../../loc');
 const i18n = require('../../loc');
-const prompt = require('../../prompt');
 
 const { width } = Dimensions.get('window');
-
-const SCAN_CODE_AFTER_MS = 2 * 1000; // in miliseconds
-
-const now = (): number => new Date().getTime();
 
 interface BarCodeScanEvent {
   data: string;
@@ -62,14 +53,14 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
   };
 
   cameraRef = React.createRef<RNCamera>();
-  lastTimeIveBeenHere = now();
 
   state = {
     isLoading: false,
     message: '',
   };
 
-  showErrorMessageScreen = () =>
+  showErrorMessageScreen = () => {
+    this.setState({ isLoading: false });
     CreateMessage({
       title: i18n.message.somethingWentWrong,
       description: i18n.message.somethingWentWrongWhileCreatingWallet,
@@ -79,6 +70,7 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
         onPress: () => NavigationService.navigateWithReset(Route.MainCardStackNavigator),
       },
     });
+  };
 
   showSuccessImportMessageScreen = () =>
     CreateMessage({
@@ -98,7 +90,6 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
       type: MessageType.processingState,
       asyncTask: () => this.importMnemonic(event.data),
     });
-    this.props.navigation.goBack();
   };
 
   saveWallet = async (w: any) => {
@@ -114,120 +105,128 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
       this.showSuccessImportMessageScreen();
       // this.props.navigation.dismiss();
     }
+    this.setState({ isLoading: true });
   };
 
   importMnemonic = async (text: string) => {
-    try {
-      // trying other wallet types
-      const segwitWallet = new SegwitP2SHWallet();
-      segwitWallet.setSecret(text);
-      if (segwitWallet.getAddress()) {
-        // ok its a valid WIF
+    if (this.state.isLoading) {
+      return;
+    }
+    this.setState({ isLoading: true }, async () => {
+      // make sure it re-renders
+      await sleep(100);
+      try {
+        // trying other wallet types
+        const segwitWallet = new SegwitP2SHWallet();
+        segwitWallet.setSecret(text);
+        if (segwitWallet.getAddress()) {
+          // ok its a valid WIF
+
+          const legacyWallet = new LegacyWallet();
+          legacyWallet.setSecret(text);
+
+          await legacyWallet.fetchBalance();
+          if (legacyWallet.getBalance() > 0) {
+            // yep, its legacy we're importing
+            await legacyWallet.fetchTransactions();
+            return this.saveWallet(legacyWallet);
+          } else {
+            // by default, we import wif as Segwit P2SH
+            await segwitWallet.fetchBalance();
+            await segwitWallet.fetchTransactions();
+            return this.saveWallet(segwitWallet);
+          }
+        }
+
+        // case - WIF is valid, just has uncompressed pubkey
 
         const legacyWallet = new LegacyWallet();
         legacyWallet.setSecret(text);
-
-        await legacyWallet.fetchBalance();
-        if (legacyWallet.getBalance() > 0) {
-          // yep, its legacy we're importing
+        if (legacyWallet.getAddress()) {
+          await legacyWallet.fetchBalance();
           await legacyWallet.fetchTransactions();
           return this.saveWallet(legacyWallet);
-        } else {
-          // by default, we import wif as Segwit P2SH
-          await segwitWallet.fetchBalance();
-          await segwitWallet.fetchTransactions();
-          return this.saveWallet(segwitWallet);
         }
-      }
 
-      // case - WIF is valid, just has uncompressed pubkey
+        // if we're here - nope, its not a valid WIF
 
-      const legacyWallet = new LegacyWallet();
-      legacyWallet.setSecret(text);
-      if (legacyWallet.getAddress()) {
-        await legacyWallet.fetchBalance();
-        await legacyWallet.fetchTransactions();
-        return this.saveWallet(legacyWallet);
-      }
+        const hd2 = new HDSegwitP2SHWallet();
+        hd2.setSecret(text);
+        if (hd2.validateMnemonic()) {
+          hd2.generateAddresses();
+          await hd2.fetchBalance();
+          if (hd2.getBalance() > 0) {
+            await hd2.fetchTransactions();
+            return this.saveWallet(hd2);
+          }
+        }
 
-      // if we're here - nope, its not a valid WIF
+        const hd4 = new HDSegwitBech32Wallet();
+        hd4.setSecret(text);
+        if (hd4.validateMnemonic()) {
+          hd4.generateAddresses();
+          await hd4.fetchBalance();
+          if (hd4.getBalance() > 0) {
+            await hd4.fetchTransactions();
+            return this.saveWallet(hd4);
+          }
+        }
 
-      const hd2 = new HDSegwitP2SHWallet();
-      hd2.setSecret(text);
-      if (hd2.validateMnemonic()) {
-        hd2.generateAddresses();
-        await hd2.fetchBalance();
-        if (hd2.getBalance() > 0) {
+        const hd3 = new HDLegacyP2PKHWallet();
+        hd3.setSecret(text);
+        if (hd3.validateMnemonic()) {
+          hd3.generateAddresses();
+          await hd3.fetchBalance();
+          if (hd3.getBalance() > 0) {
+            await hd3.fetchTransactions();
+            return this.saveWallet(hd3);
+          }
+        }
+
+        // no balances? how about transactions count?
+
+        if (hd2.validateMnemonic()) {
           await hd2.fetchTransactions();
-          return this.saveWallet(hd2);
+          if (hd2.getTransactions().length !== 0) {
+            return this.saveWallet(hd2);
+          }
         }
-      }
-
-      const hd4 = new HDSegwitBech32Wallet();
-      hd4.setSecret(text);
-      if (hd4.validateMnemonic()) {
-        hd4.generateAddresses();
-        await hd4.fetchBalance();
-        if (hd4.getBalance() > 0) {
-          await hd4.fetchTransactions();
-          return this.saveWallet(hd4);
-        }
-      }
-
-      const hd3 = new HDLegacyP2PKHWallet();
-      hd3.setSecret(text);
-      if (hd3.validateMnemonic()) {
-        hd3.generateAddresses();
-        await hd3.fetchBalance();
-        if (hd3.getBalance() > 0) {
+        if (hd3.validateMnemonic()) {
           await hd3.fetchTransactions();
-          return this.saveWallet(hd3);
+          if (hd3.getTransactions().length !== 0) {
+            return this.saveWallet(hd3);
+          }
         }
-      }
+        if (hd4.validateMnemonic()) {
+          await hd4.fetchTransactions();
+          if (hd4.getTransactions().length !== 0) {
+            return this.saveWallet(hd4);
+          }
+        }
 
-      // no balances? how about transactions count?
-
-      if (hd2.validateMnemonic()) {
-        await hd2.fetchTransactions();
-        if (hd2.getTransactions().length !== 0) {
-          return this.saveWallet(hd2);
-        }
-      }
-      if (hd3.validateMnemonic()) {
-        await hd3.fetchTransactions();
-        if (hd3.getTransactions().length !== 0) {
-          return this.saveWallet(hd3);
-        }
-      }
-      if (hd4.validateMnemonic()) {
-        await hd4.fetchTransactions();
-        if (hd4.getTransactions().length !== 0) {
+        // is it even valid? if yes we will import as:
+        if (hd4.validateMnemonic()) {
           return this.saveWallet(hd4);
         }
+
+        // not valid? maybe its a watch-only address?
+
+        const watchOnly = new WatchOnlyWallet();
+        watchOnly.setSecret(text);
+        if (watchOnly.valid()) {
+          await watchOnly.fetchTransactions();
+          await watchOnly.fetchBalance();
+          return this.saveWallet(watchOnly);
+        }
+
+        // nope?
+
+        // TODO: try a raw private key
+      } catch (err) {
+        return this.showErrorMessageScreen();
       }
-
-      // is it even valid? if yes we will import as:
-      if (hd4.validateMnemonic()) {
-        return this.saveWallet(hd4);
-      }
-
-      // not valid? maybe its a watch-only address?
-
-      const watchOnly = new WatchOnlyWallet();
-      watchOnly.setSecret(text);
-      if (watchOnly.valid()) {
-        await watchOnly.fetchTransactions();
-        await watchOnly.fetchBalance();
-        return this.saveWallet(watchOnly);
-      }
-
-      // nope?
-
-      // TODO: try a raw private key
-    } catch (Err) {
-      this.showErrorMessageScreen();
-    }
-    this.showErrorMessageScreen();
+      return this.showErrorMessageScreen();
+    });
     // ReactNativeHapticFeedback.trigger('notificationError', {
     //   ignoreAndroidSystemSettings: false,
     // });

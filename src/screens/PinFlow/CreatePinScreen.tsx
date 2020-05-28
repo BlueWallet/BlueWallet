@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Text, StyleSheet, BackHandler, View } from 'react-native';
+import { Text, StyleSheet, BackHandler, View, NativeEventSubscription } from 'react-native';
 import { NavigationScreenProps, NavigationEvents, NavigationInjectedProps } from 'react-navigation';
 
 import { Header, PinInput, ScreenTemplate } from 'app/components';
@@ -44,7 +44,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   };
 
   pinInputRef = React.createRef<PinInput>();
-  backHandler: any;
+  backHandler?: NativeEventSubscription;
 
   componentDidMount() {
     this.setState({
@@ -54,7 +54,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    this.backHandler.remove();
+    this.backHandler && this.backHandler.remove();
   }
 
   backAction = () => {
