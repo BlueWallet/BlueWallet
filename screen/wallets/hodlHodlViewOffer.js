@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     padding: 22,
   },
   Title: {
-    fontWeight: 'normal',
+    fontWeight: '600',
     fontSize: 24,
     color: '#0c2550',
   },
@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     fontWeight: '500',
     minHeight: 150,
+    lineHeight: 23,
   },
   nicknameText: {
     color: '#0c2550',
@@ -193,7 +194,7 @@ export default class HodlHodlViewOffer extends Component {
   _renderHorizontalScrollItem(item) {
     return (
       <View style={{ flexDirection: 'column', paddingTop: 20, paddingBottom: 20, paddingRight: 40 }}>
-        <Text style={{ fontSize: 12, color: 'gray' }}>{item.item.header || item.item.id}</Text>
+        <Text style={{ fontSize: 12, color: '#9AA0AA' }}>{item.item.header || item.item.id}</Text>
         <Text style={{ fontSize: 14, fontWeight: 'bold', color: '#0c2550' }}>{item.item.body}</Text>
       </View>
     );
@@ -263,7 +264,7 @@ export default class HodlHodlViewOffer extends Component {
                     </View>
                   )}
                 </View>
-                <View style={{ alignItems: 'center' }}>
+                <View style={{ alignItems: 'center', marginTop: 8 }}>
                   <View style={{ flexDirection: 'row' }}>
                     {this.state.offerToDisplay.trader.verified && (
                       <Icon
@@ -271,7 +272,7 @@ export default class HodlHodlViewOffer extends Component {
                         type="material"
                         size={14}
                         color="#0071fc"
-                        containerStyle={{ paddingTop: 5, paddingRight: 5 }}
+                        containerStyle={{ marginTop: 3, marginRight: 5 }}
                       />
                     )}
                     <Text style={styles.nicknameText}>{this.state.offerToDisplay.trader.login}</Text>
