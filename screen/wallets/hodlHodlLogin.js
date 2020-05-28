@@ -3,7 +3,7 @@ import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 
-const url = 'https://accounts.hodlhodl.com/accounts/request_access?attributes=api_key';
+const url = 'https://accounts.hodlhodl.com/accounts/request_access?attributes=api_key,api_signature_key';
 
 const INJECTED_JAVASCRIPT = `(function() {
 
