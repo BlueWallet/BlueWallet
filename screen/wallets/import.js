@@ -20,8 +20,9 @@ const { width } = Dimensions.get('window');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
-  const { label } = useRoute().params;
-  const [importText, setImportText] = useState(label || '');
+  const route = useRoute();
+  const label = (route.params && route.params.label) || '';
+  const [importText, setImportText] = useState(label);
   const navigation = useNavigation();
 
   useEffect(() => {

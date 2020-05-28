@@ -46,9 +46,6 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 export default class WalletTransactions extends Component {
   static navigationOptions = ({ navigation, route }) => {
-    // route.params.isLoading
-    console.log('route.params.isLoading123321', route.params.isLoading);
-    // return {}
     return {
       headerRight: () => (
         <TouchableOpacity

@@ -87,8 +87,8 @@ export default class PsbtWithHardwareWallet extends Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    const deepLinkPSBT = nextProps.props.route.params.deepLinkPSBT;
-    const txhex = nextProps.props.route.params.txhex;
+    const deepLinkPSBT = nextProps.route.params.deepLinkPSBT;
+    const txhex = nextProps.route.params.txhex;
     if (deepLinkPSBT) {
       try {
         let Tx = prevState.fromWallet.combinePsbt(
