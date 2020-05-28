@@ -5,7 +5,17 @@ module.exports = {
     bad_password: '密码错误，请重试',
     never: '取消',
     continue: '继续',
-    ok: '确认'
+    ok: '确认',
+    click: '点击',
+    here: '这里',
+    save: '保存',
+    confirm: '确认',
+    copy: '负责',
+    copied: '已复制！',
+  },
+  tabNavigator: {
+    dashboard: '仪表盘',
+    settings: '设置',
   },
   message: {
     somethingWentWrong: '出问题了',
@@ -15,7 +25,7 @@ module.exports = {
     successfullWalletDelete: '您的钱包已成功删除。您现在可以返回控制面板。',
     returnToDashboard: '返回控制面板',
     creatingWallet: '创建钱包',
-    creatingWalletDescription: '创建钱包时请耐心等待。可能需要一些时间。'
+    creatingWalletDescription: '创建钱包时请耐心等待。可能需要一些时间。',
   },
   onboarding: {
     onboarding: '初始设置',
@@ -28,31 +38,33 @@ module.exports = {
     confirmNewPin: '确认新的PIN',
     confirmPassword: '确认交易密码',
     passwordDoesNotMatch: '密码不匹配，请输入有效的密码。',
-    createPasswordDescription: '您的交易密码将用于验证所有交易。您之后将无法更改。交易密码必须包含至少8位字母数字字符。',
+    createPasswordDescription:
+      '您的交易密码将用于验证所有交易。您之后将无法更改。交易密码必须包含至少8位字母数字字符。',
     changePin: '更改PIN',
     currentPin: '现用PIN',
     pinDoesNotMatch: 'PIN不匹配。请输入有效的PIN。',
     successDescription: '好极了！\n您已经成功创建了您的PIN。',
     successDescriptionChangedPin: '好极了！\n您已经成功修改了您的PIN。',
     successButton: '前往仪表盘',
-    successButtonChangedPin: '返回设置'
+    successButtonChangedPin: '返回设置',
   },
   unlock: {
     title: '解锁',
     touchID: 'Touch ID用于“Gold Wallet”',
     confirmButton: '确认指纹以继续。',
-    enter: '输入PIN'
+    enter: '输入PIN',
   },
   unlockTransaction: { headerText: '确认交易', title: '确认交易密码', description: '确认交易密码以便进行交易。' },
   wallets: {
     dashboard: {
       title: '钱包',
+      allWallets: '所有钱包',
       noWallets: '无钱包',
       noWalletsDesc1: '无钱包可展示。',
       noWalletsDesc2: '添加首个钱包。',
       send: '汇出比特币',
       receive: '接收比特币',
-      noTransactions: '无交易可展示。'
+      noTransactions: '无交易可展示。',
     },
     walletModal: { btcv: '比特币Vault', wallets: '钱包' },
     importWallet: {
@@ -62,7 +74,7 @@ module.exports = {
       placeholder: '助记词、私钥、WIF',
       import: '导入',
       scanQrCode: '或扫描二维码',
-      walletInUseValidationError: '钱包已使用。请输入有效的钱包。'
+      walletInUseValidationError: '钱包已使用。请输入有效的钱包。',
     },
     exportWallet: { title: '助记词', header: '退出钱包' },
     exportWalletXpub: { header: '钱包扩展公钥 (XPUB)' },
@@ -72,7 +84,7 @@ module.exports = {
       description1: '是否确认删除',
       description2: '？删除后无法撤销。',
       no: '否',
-      yes: '是'
+      yes: '是',
     },
     wallet: { none: '取消', latest: '最新交易' },
     add: {
@@ -85,13 +97,14 @@ module.exports = {
       advancedOptions: '高级选项',
       multipleAddresses: '多个地址',
       singleAddress: '单个地址',
-      segwidAddress: '它包含一系列的由单一的24词种子生成的本地segwit地址'
+      segwidAddress: '它包含一系列的由单一的24词种子生成的本地segwit地址',
     },
     addSuccess: {
       title: '添加新的钱包',
       subtitle: '操作成功',
-      description: '您的钱包已创建。请花费一点时间在纸上写下这个助记词。这是您的备份。您可以在其它设备上使用备份来恢复钱包。',
-      okButton: '好的，我写完了！'
+      description:
+        '您的钱包已创建。请花费一点时间在纸上写下这个助记词。这是您的备份。您可以在其它设备上使用备份来恢复钱包。',
+      okButton: '好的，我写完了！',
     },
     details: {
       latestTransaction: '最新交易',
@@ -100,7 +113,7 @@ module.exports = {
       exportWallet: '导出钱包',
       showWalletXPUB: '显示钱包扩展公钥 (XPUB)',
       deleteWallet: '删除钱包',
-      nameEdit: '编辑名称'
+      nameEdit: '编辑名称',
     },
     export: { title: '钱包导出' },
     import: {
@@ -110,7 +123,7 @@ module.exports = {
       error: '导入失败。请确认提供的数据有效。',
       success: '操作成功',
       do_import: '导入',
-      scan_qr: '或扫描二维码？'
+      scan_qr: '或扫描二维码？',
     },
     scanQrWif: {
       go_back: '返回',
@@ -125,8 +138,8 @@ module.exports = {
       with_address: '和地址',
       imported_segwit: '已导入隔离见证',
       imported_legacy: '已导入Legacy',
-      imported_watchonly: '已导入 Watch-only 监视钱包'
-    }
+      imported_watchonly: '已导入 Watch-only 监视钱包',
+    },
   },
   transactions: {
     list: { conf: '确认' },
@@ -155,8 +168,8 @@ module.exports = {
       note: '备注',
       inputs: '输入',
       ouputs: '输出',
-      sendCoins: '汇出币'
-    }
+      sendCoins: '汇出币',
+    },
   },
   send: {
     header: '汇出币',
@@ -164,7 +177,7 @@ module.exports = {
       title: '操作成功',
       description: '太好了！您已成功完成交易。',
       done: '完成',
-      return: '返回控制面板'
+      return: '返回控制面板',
     },
     details: {
       title: '创建交易',
@@ -180,24 +193,25 @@ module.exports = {
       scan: '扫描',
       send: '汇款',
       next: '下一个',
+      note: '备注（可选）',
       to: '到',
       feeUnit: 'Sat/B',
       fee: '手续费：',
       create: '创建发票',
       remaining_balance: '余额',
-      total_exceeds_balance: '汇出额超出可用余额。'
+      total_exceeds_balance: '汇出额超出可用余额。',
     },
     confirm: { sendNow: '立即汇出' },
     create: {
       amount: '金额',
       fee: '手续费',
       setTransactionFee: '设定交易手续费',
-      headerText: '当网络上存在大量未处理交易时 (>1500)，较高的手续费可加快您的交易处理速度。典型值为 1-500 sat/b'
-    }
+      headerText: '当网络上存在大量未处理交易时 (>1500)，较高的手续费可加快您的交易处理速度。典型值为 1-500 sat/b',
+    },
   },
   receive: {
     header: '接收币',
-    details: { amount: '金额', share: '分享', receiveWithAmount: '接收金额' }
+    details: { amount: '金额', share: '分享', receiveWithAmount: '接收金额' },
   },
   settings: {
     language: '语言',
@@ -213,7 +227,7 @@ module.exports = {
     notSupportedFingerPrint: '您的设备不支持指纹',
     TouchID: '允许指纹',
     FaceID: '允许FaceID',
-    Biometrics: '允许生物特征'
+    Biometrics: '允许生物特征',
   },
   aboutUs: {
     header: '关于我们',
@@ -223,7 +237,7 @@ module.exports = {
     rateGoldWallet: '为 GoldWallet 评分',
     goToOurGithub: '请访问我们的 Github',
     alwaysBackupYourKeys: '时刻备份您的秘钥',
-    title: 'Gold wallet 是免费的开源比特币Vault钱包软件。由麻省理工授权。'
+    title: 'Gold wallet 是免费的开源比特币Vault钱包软件。由麻省理工授权。',
   },
   electrumServer: {
     header: 'Electrum 服务器',
@@ -234,11 +248,11 @@ module.exports = {
     host: '主机',
     port: '端口',
     successfullSave: '已成功保存更改。重启后，更改方可生效。',
-    connectionError: '无法连接提供的 Electrum 浏览器'
+    connectionError: '无法连接提供的 Electrum 浏览器',
   },
   advancedOptions: {
     title: '设置高级选项',
-    description: '启用高级选项将允许您选择以下钱包类型：\nP2SH，HD P2SH，HD segwit。'
+    description: '启用高级选项将允许您选择以下钱包类型：\nP2SH，HD P2SH，HD segwit。',
   },
   selectLanguage: {
     header: '语言',
@@ -246,7 +260,7 @@ module.exports = {
     confirmation: '确认',
     confirm: '确认',
     alertDescription: '选择语言并重启应用程序？',
-    cancel: '取消'
+    cancel: '取消',
   },
   contactList: {
     cancel: '取消',
@@ -256,7 +270,7 @@ module.exports = {
     noContacts: '无联系人',
     noContactsDesc1: '无联系人可展示。 \n点击',
     noContactsDesc2: '以添加首位联系人。',
-    noResults: '无结果'
+    noResults: '无结果',
   },
   contactCreate: {
     screenTitle: '添加新的联系人',
@@ -267,7 +281,7 @@ module.exports = {
     buttonLabel: '添加新的联系人',
     successTitle: '操作成功',
     successDescription: '太好了！您已成功添加新联系人。',
-    successButton: '返回地址簿'
+    successButton: '返回地址簿',
   },
   contactDetails: {
     nameLabel: '姓名',
@@ -277,7 +291,7 @@ module.exports = {
     sendCoinsButton: '汇出币',
     showQRCodeButton: '出示二维码',
     deleteButton: '删除联系人',
-    share: '分享'
+    share: '分享',
   },
   contactDelete: {
     title: '删除您的联系人',
@@ -288,12 +302,12 @@ module.exports = {
     yes: '是',
     success: '操作成功',
     successDescription: '您的联系人已成功删除。\n您现在可以返回地址簿。',
-    successButton: '返回地址簿'
+    successButton: '返回地址簿',
   },
   scanQrCode: {
     permissionTitle: '允许使用相机',
     permissionMessage: '我们需要获取相机使用权限',
     ok: '确认',
-    cancel: '取消'
-  }
-}
+    cancel: '取消',
+  },
+};
