@@ -115,6 +115,7 @@ module.exports = {
       okButton: 'De acuerdo, ¡ya lo he escrito!',
     },
     details: {
+      edit: 'Editar',
       latestTransaction: 'Última transacción',
       typeLabel: 'Tipo',
       nameLabel: 'Nombre',

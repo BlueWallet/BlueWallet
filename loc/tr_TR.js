@@ -114,6 +114,7 @@ module.exports = {
       okButton: 'Tamam, bunu yazdım!',
     },
     details: {
+      edit: 'Düzenle',
       latestTransaction: 'Son işlem',
       typeLabel: 'Tür',
       nameLabel: 'Ad',

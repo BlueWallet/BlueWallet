@@ -1,3 +1,13 @@
+const translations = {
+  tabNavigator: {
+    dashboard: '仪表盘',
+    settings: '设置',
+    addressBook: '地址簿',
+  },
+};
+
+export default translations;
+
 module.exports = {
   _: {
     storage_is_encrypted: '储存空间已加密。需要输入密码进行解密',
@@ -107,7 +117,6 @@ module.exports = {
       okButton: '好的，我写完了！',
     },
     details: {
-      edit: '编辑',
       latestTransaction: '最新交易',
       typeLabel: '类型',
       nameLabel: '名称',

@@ -114,6 +114,7 @@ module.exports = {
       okButton: '예, 적어두었습니다!',
     },
     details: {
+      edit: '수정',
       latestTransaction: '최신 트랜잭션',
       typeLabel: '유형',
       nameLabel: '이름',

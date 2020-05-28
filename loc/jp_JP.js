@@ -113,6 +113,7 @@ module.exports = {
       okButton: 'OK。これを書きました！',
     },
     details: {
+      edit: '編集',
       latestTransaction: '最新のトランザクション',
       typeLabel: '種類',
       nameLabel: '名前',

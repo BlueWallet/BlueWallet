@@ -4,20 +4,19 @@ import { createBottomTabNavigator } from 'react-navigation';
 import { images } from 'app/assets';
 import { BottomTabBarIcon, BottomTabBarComponent } from 'app/components';
 import { Route } from 'app/consts';
+import { i18n } from 'app/locale';
 import { ContactListScreen } from 'app/screens';
 import { palette } from 'app/styles';
 
 import { DashboardNavigator } from './DashboardNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
 
-const i18n = require('../../loc');
-
 export const MainTabNavigator = createBottomTabNavigator(
   {
     [Route.Dashboard]: {
       screen: DashboardNavigator,
       navigationOptions: {
-        title: i18n.tabNavigator.dashboard,
+        title: i18n.t('tabNavigator:dashboard'),
         tabBarIcon: ({ focused }: { focused: boolean }) => (
           <BottomTabBarIcon source={focused ? images.dashboard : images.dashboardInactive} />
         ),
@@ -26,7 +25,7 @@ export const MainTabNavigator = createBottomTabNavigator(
     [Route.ContactList]: {
       screen: ContactListScreen,
       navigationOptions: {
-        title: i18n.contactList.bottomNavigationLabel,
+        title: i18n.t('tabNavigator:addressBook'),
         tabBarIcon: ({ focused }: { focused: boolean }) => (
           <BottomTabBarIcon source={focused ? images.addressBook : images.addressBookInactive} />
         ),
@@ -35,7 +34,7 @@ export const MainTabNavigator = createBottomTabNavigator(
     [Route.Settings]: {
       screen: SettingsNavigator,
       navigationOptions: {
-        title: i18n.tabNavigator.settings,
+        title: i18n.t('tabNavigator:settings'),
         tabBarIcon: ({ focused }: { focused: boolean }) => (
           <BottomTabBarIcon source={focused ? images.settings : images.settingsInactive} />
         ),

@@ -117,6 +117,7 @@ module.exports = {
       okButton: 'OK, tôi đã viết nó ra!',
     },
     details: {
+      edit: 'Chỉnh sửa',
       latestTransaction: 'Giao dịch mới nhất',
       typeLabel: 'Loại',
       nameLabel: 'Tên',

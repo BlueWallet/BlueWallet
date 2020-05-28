@@ -116,6 +116,7 @@ module.exports = {
       okButton: 'Oke, saya sudah menuliskannya!',
     },
     details: {
+      edit: 'Ubah',
       latestTransaction: 'Transaksi terakhir',
       typeLabel: 'Tipe',
       nameLabel: 'Nama',
