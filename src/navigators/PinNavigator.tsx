@@ -5,8 +5,8 @@ import { CreatePinScreen, ConfirmPinScreen, CurrentPinScreen } from 'app/screens
 
 export const PinNavigator = createStackNavigator(
   {
-    [Route.CurrentPin]: CurrentPinScreen,
     [Route.CreatePin]: CreatePinScreen,
+    [Route.CurrentPin]: CurrentPinScreen,
     [Route.ConfirmPin]: ConfirmPinScreen,
   },
   {

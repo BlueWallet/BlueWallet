@@ -7647,7 +7647,7 @@ react-localization@1.0.13:
     localized-strings "^0.2.00"
     react "^16.0.0"
 
-react-native-animatable@^1.3.0, react-native-animatable@^1.3.1:
+react-native-animatable@^1.3.1:
   version "1.3.3"
   resolved "https://registry.yarnpkg.com/react-native-animatable/-/react-native-animatable-1.3.3.tgz#a13a4af8258e3bb14d0a9d839917e9bb9274ec8a"
   integrity sha512-2ckIxZQAsvWn25Ho+DK3d1mXIgj7tITkrS4pYDvx96WyOttSvzzFeQnM2od0+FUMzILbdHDsDEqZvnz1DYNQ1w==
@@ -7665,6 +7665,11 @@ react-native-camera@3.4.0:
   integrity sha512-EFaixLtQsd3Kjs2AnxPx4Qb1mNSlZRZBVoxXDUdWcSdCEE3CSvdeonTb3vWAT3ZlGMi1RTOggtBpI4StMtFNjw==
   dependencies:
     prop-types "^15.6.2"
+
+react-native-confirmation-code-field@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/react-native-confirmation-code-field/-/react-native-confirmation-code-field-5.1.0.tgz#7f501c733bfaffb71abfa93657ec8fe75efb5956"
+  integrity sha512-8zUTsA25sslFJfb4U1/pJrYRa3bRDAX5L1ZJPY32CXBEX+EGIZoPgp1Kb8wrScTW4CXO/NUZcZeQXYEvcOrInA==
 
 react-native-crypto@^2.0.1:
   version "2.2.0"
@@ -7850,14 +7855,6 @@ react-native-share@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/react-native-share/-/react-native-share-2.0.0.tgz#4543a746013e0d8fa9f765fb8937007cfbcffcf7"
   integrity sha512-J8Xl3mq0L9KDFtSYtKsQDAnZWw/niZIpAD1PRiNfZFHo44Rc+oS2bEIhskNnoQXKEgBNdPzCl/DenMXYAHXRYg==
-
-react-native-smooth-pincode-input@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/react-native-smooth-pincode-input/-/react-native-smooth-pincode-input-1.0.9.tgz#4c068ae30aa0cd03bb5bd19c8191c0b4e9b0f8d1"
-  integrity sha512-4V4tyUGJaze55FHuJW/gYVOD3fc4Pd7cTIrv7liTRIXR49y09C2O3XqJUdgNR+UwTgLrTt/8L2lvEuEVUk3kig==
-  dependencies:
-    prop-types "^15.5.10"
-    react-native-animatable "^1.3.0"
 
 react-native-snap-carousel@3.8.4:
   version "3.8.4"

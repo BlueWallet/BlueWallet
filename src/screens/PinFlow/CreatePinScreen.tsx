@@ -77,7 +77,7 @@ export class CreatePinScreen extends PureComponent<Props, State> {
   };
 
   openKeyboard = () => {
-    this.pinInputRef.current?.pinCodeRef.current?.inputRef.current?.focus();
+    this.pinInputRef.current?.focus();
   };
 
   render() {

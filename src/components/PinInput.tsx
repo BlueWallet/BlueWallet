@@ -1,55 +1,63 @@
 import React, { PureComponent } from 'react';
 import { StyleSheet, View } from 'react-native';
-// @ts-ignore
-import ReactNativeSmoothPincodeInput from 'react-native-smooth-pincode-input';
+import { CodeField } from 'react-native-confirmation-code-field';
 
 import { CONST } from 'app/consts';
-import { palette, typography } from 'app/styles';
+import { palette } from 'app/styles';
 
 interface Props {
   value: string;
   onTextChange: (pin: string) => void;
 }
+
 export class PinInput extends PureComponent<Props> {
-  pinCodeRef: any = React.createRef();
+  codeFieldRef = React.createRef<any>();
+
+  componentDidMount() {
+    // workaround for autoFocus prop issues
+    setTimeout(() => {
+      this.focus();
+    }, 500);
+  }
+
+  focus = () => {
+    this.codeFieldRef.current?.focus();
+  };
 
   render() {
     return (
-      <ReactNativeSmoothPincodeInput
-        ref={this.pinCodeRef}
-        password
-        restrictToNumbers
-        cellSpacing={10}
-        cellSize={40}
-        codeLength={CONST.pinCodeLength}
+      <CodeField
+        ref={this.codeFieldRef}
         autoFocus
-        cellStyle={styles.cell}
-        cellStyleFocused={styles.cellFocused}
-        cellStyleFilled={styles.cell}
-        textStyle={styles.text}
-        animationFocused={''}
-        textStyleFocused={styles.textFocused}
-        mask={<View style={styles.cellMask} />}
-        {...this.props}
+        value={this.props.value}
+        cellCount={CONST.pinCodeLength as number}
+        onChangeText={text => this.props.onTextChange(text.replace(/\D/g, ''))}
+        rootStyle={styles.container}
+        keyboardType="number-pad"
+        renderCell={({ index, symbol, isFocused }) => (
+          <View key={index.toString()} style={[styles.cell, isFocused && styles.cellFocused]}>
+            {!!symbol && <View style={styles.cellMask} />}
+          </View>
+        )}
       />
     );
   }
 }
 const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
   cell: {
     borderBottomWidth: 1,
     borderColor: palette.textGrey,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 6,
   },
   cellFocused: {
     borderColor: palette.secondary,
-  },
-  text: {
-    ...typography.headline4,
-    color: palette.textBlack,
-    lineHeight: 30,
-  },
-  textFocused: {
-    color: palette.textBlack,
   },
   cellMask: {
     width: 13,

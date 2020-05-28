@@ -77,6 +77,10 @@ export class InputItem extends PureComponent<Props, State> {
     }
   };
 
+  focus = () => {
+    this.inputItemRef.current?.focus();
+  };
+
   render() {
     const { isAnimatedFocused, isActive } = this.state;
     const { label, suffix, error } = this.props;

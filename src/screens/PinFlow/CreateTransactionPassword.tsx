@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, BackHandler, NativeEventSubscription } from 'react-native';
 import { NavigationScreenProps, NavigationInjectedProps, NavigationEvents } from 'react-navigation';
 
 import { icons } from 'app/assets';
@@ -29,10 +29,24 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
     password: '',
     isVisible: false,
   };
+  backHandler?: NativeEventSubscription;
+  inputRef = React.createRef<InputItem>();
 
-  inputRef: any = React.createRef();
   updatePassword = (password: string) => {
     this.setState({ password });
+  };
+
+  componentDidMount() {
+    this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.backAction);
+  }
+
+  componentWillUnmount() {
+    this.backHandler && this.backHandler.remove();
+  }
+
+  backAction = () => {
+    BackHandler.exitApp();
+    return true;
   };
 
   onSave = () => {
@@ -43,10 +57,9 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
   };
 
   openKeyboard = () => {
-    if (this.inputRef.current) {
-      this.inputRef.current.inputItemRef.current.focus();
-    }
+    this.inputRef.current?.focus();
   };
+
   changeVisability = () => {
     this.setState({
       isVisible: !this.state.isVisible,
@@ -79,7 +92,7 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
             value={password}
             ref={this.inputRef}
             setValue={this.updatePassword}
-            autoFocus={true}
+            autoFocus
             secureTextEntry={!isVisible}
           />
         </View>
@@ -107,5 +120,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     padding: 8,
+    zIndex: 100,
   },
 });
