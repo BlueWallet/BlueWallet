@@ -1,3 +1,19 @@
+v5.3.9
+======
+
+* ADD: camera on main screen
+* ADD: Shortcuts on Scan button long press
+* ADD: redeem Azte.co vouchers (#1118)
+* FIX: potential HD wallet crash when vout was not parsed correctly
+* FIX: for legacy-wallet fetch Transactions to not crash when vout for transaction is missing addresses
+* FIX: Bigger touch area on settings button
+* FIX: Change Delete wallet color button
+* FIX: Update de_DE locale
+* FIX: Change status bar color
+* FIX: Add chevrons on Settings and add wallets screens
+* FIX: Wallet Animation for press out
+* FIX: typo
+
 v5.3.7
 ======
 
@@ -31,14 +47,3 @@ v5.3.5
 * REF: Move the sell fiat button to the list header
 * REF: Move onchain marketplace to wallet details
 * REF: Cleaner wallet panel at blank state
-
-
-v5.3.2
-======
-
-* ADD: Handoff Receive Address
-* FIX: BIP38 import support (password-protected private key from paper wallet)
-* FIX: iOS widget not working
-* FIX: negative confirmation num for electrum personal server
-* FIX: Keyboard avoiding
-* FIX: allow LocalTrader for watch-only HD wallets
