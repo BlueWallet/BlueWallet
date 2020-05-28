@@ -80,12 +80,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     height: 35,
     top: 3,
-    paddingLeft: 8,
-    paddingRight: 2,
+    paddingLeft: 16,
+    paddingRight: 8,
     paddingVertical: 6,
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 0.65,
     flexDirection: 'row',
   },
 
@@ -537,13 +536,13 @@ export default class HodlHodl extends Component {
                         <Text style={{ fontSize: 20, color: '#0c2550' }}>{item.native_name}</Text>
                         <View style={{ color: '#9AA0AA', right: 0, position: 'absolute' }}>
                           {item.code === 'currency' && (
-                            <Text style={{ fontSize: 18, color: '#9AA0AA' }}>
+                            <Text style={{ fontSize: 16, color: '#9AA0AA' }}>
                               {' '}
                               {this.state.currency ? this.state.currency + '   ❯' : 'Detail   ❯'}{' '}
                             </Text>
                           )}
                           {item.code === 'method' && (
-                            <Text style={{ fontSize: 20, color: '#9AA0AA' }}>
+                            <Text style={{ fontSize: 16, color: '#9AA0AA' }}>
                               {' '}
                               {this.state.method ? this.getMethodName(this.state.method) + '   ❯' : 'Detail   ❯'}
                             </Text>

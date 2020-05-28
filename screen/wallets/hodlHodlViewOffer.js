@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     top: 0,
-    color: 'gray',
+    color: '#818893',
     fontSize: 14,
     paddingTop: 20,
     paddingBottom: 20,
@@ -88,6 +88,9 @@ const styles = StyleSheet.create({
   traderRatingText: {
     color: '#9AA0AA',
     fontSize: 12,
+  },
+  locationText: {
+    color: '#9BA0A9',
   },
 });
 
@@ -210,7 +213,7 @@ export default class HodlHodlViewOffer extends Component {
               <View style={{ flexDirection: 'row' }}>
                 <View style={styles.grayTextContainerContainer}>
                   <View style={styles.grayTextContainer}>
-                    <Icon name="place" type="material" size={16} color="gray" containerStyle={{ paddingLeft: 10 }} />
+                    <Icon name="place" type="material" size={16} color="#9BA0A9" containerStyle={{ paddingLeft: 16 }} />
                     <Text style={styles.locationText}>{this.state.offerToDisplay.country}</Text>
                   </View>
                 </View>
@@ -244,7 +247,7 @@ export default class HodlHodlViewOffer extends Component {
               />
 
               {/* avatar and rating */}
-              <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'column', alignItems: 'center', paddingTop: 20 }}>
+              <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'column', alignItems: 'center', marginTop: 32, }}>
                 <View>
                   <Image
                     style={{ width: 60, height: 60, borderRadius: 60 }}
@@ -287,8 +290,8 @@ export default class HodlHodlViewOffer extends Component {
               {/* end */}
 
               {this.state.hodlApiKey && this.state.offerToDisplay.side === 'sell' && (
-                <View style={{ alignItems: 'center' }}>
-                  <View style={{ width: '70%' }}>
+                <View style={{ marginTop: 24, alignItems: 'center' }}>
+                  <View style={{ width: '70%', alignItems: 'center' }}>
                     <BlueSpacing10 />
                     <BlueButton
                       title="Accept offer"
