@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -38,6 +38,7 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
+  const isFocused = useIsFocused();
 
   const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
@@ -210,7 +211,7 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          {bip21encoded === undefined ? (
+          {bip21encoded === undefined && isFocused ? (
             <View style={{ alignItems: 'center', width: 300, height: 300 }}>
               <BlueLoading />
             </View>

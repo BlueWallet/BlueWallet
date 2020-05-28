@@ -7,6 +7,8 @@ const branch = require('child_process')
   .toString()
   .trim();
 
+if (branch === 'master') process.exit();
+
 const req = https.request(
   {
     hostname: 'api.github.com',

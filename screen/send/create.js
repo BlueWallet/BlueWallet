@@ -28,17 +28,24 @@ const loc = require('../../loc');
 const currency = require('../../currency');
 
 export default class SendCreate extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueNavigationStyle,
-    title: loc.send.create.details,
-    headerRight: route.params.exportTXN
-      ? () => (
+  static navigationOptions = ({ navigation, route }) => {
+    let headerRight;
+    if (route.params.exportTXN) {
+      headerRight = () => (
         <TouchableOpacity style={{ marginRight: 16 }} onPress={route.params.exportTXN}>
-            <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
-          </TouchableOpacity>
-        )
-      : null,
-  });
+          <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
+        </TouchableOpacity>
+      );
+    } else {
+      headerRight = null;
+    }
+
+    return {
+      ...BlueNavigationStyle,
+      title: loc.send.create.details,
+      headerRight,
+    };
+  };
 
   constructor(props) {
     super(props);

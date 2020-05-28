@@ -39,6 +39,7 @@ import RBFBumpFee from './screen/transactions/RBFBumpFee';
 import RBFCancel from './screen/transactions/RBFCancel';
 
 import ReceiveDetails from './screen/receive/details';
+import AztecoRedeem from './screen/receive/aztecoRedeem';
 
 import SendDetails from './screen/send/details';
 import ScanQRCode from './screen/send/ScanQRCode';
@@ -205,6 +206,14 @@ const HandleOffchainAndOnChain = () => (
   </HandleOffchainAndOnChainStack.Navigator>
 );
 
+const AztecoRedeemStack = createStackNavigator();
+const AztecoRedeemRoot = () => (
+  <AztecoRedeemStack.Navigator>
+    <AztecoRedeemStack.Screen name="AztecoRedeem" component={AztecoRedeem} options={AztecoRedeem.navigationOptions} />
+    <AztecoRedeemStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
+  </AztecoRedeemStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal">
@@ -214,7 +223,8 @@ const Navigation = () => (
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
-    <RootStack.Screen name="HandleOffchainAndOnChain" component={HandleOffchainAndOnChain} />
+    <RootStack.Screen name="HandleOffchainAndOnChain" component={HandleOffchainAndOnChain} options={{ headerShown: false }} />
+    <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />

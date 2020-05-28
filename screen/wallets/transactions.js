@@ -82,7 +82,7 @@ export default class WalletTransactions extends Component {
     super(props);
 
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this), true);
     const wallet = props.route.params.wallet;
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
@@ -108,6 +108,7 @@ export default class WalletTransactions extends Component {
 
     this._unsubscribeFocus = this.props.navigation.addListener('focus', () => {
       StatusBar.setBarStyle('light-content');
+      if (Platform.OS === 'android') StatusBar.setBackgroundColor(WalletGradient.headerColorFor(this.props.route.params.wallet.type));
       this.redrawScreen();
       this.props.navigation.setParams({ isLoading: false });
     });
@@ -471,6 +472,7 @@ export default class WalletTransactions extends Component {
 
   onWillBlur() {
     StatusBar.setBarStyle('dark-content');
+    if (Platform.OS === 'android') StatusBar.setBackgroundColor('#ffffff');
   }
 
   componentWillUnmount() {
@@ -546,52 +548,57 @@ export default class WalletTransactions extends Component {
     this.onBarCodeRead({ data: await Clipboard.getString() });
   };
 
-  sendButtonLongPress = () => {
+  sendButtonLongPress = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      ActionSheet.showActionSheetWithOptions(
-        { options: [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code', 'Copy from Clipboard'], cancelButtonIndex: 0 },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            this.choosePhoto();
-          } else if (buttonIndex === 2) {
+      let options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      if (!isClipboardEmpty) {
+        options.push('Copy from Clipboard');
+      }
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.props.navigation.navigate('ScanQRCode', {
+            launchedBy: this.props.route.name,
+            onBarScanned: this.onBarCodeRead,
+            showFileImportButton: false,
+          });
+        } else if (buttonIndex === 3) {
+          this.copyFromClipbard();
+        }
+      });
+    } else if (Platform.OS === 'android') {
+      let buttons = [
+        {
+          text: loc.send.details.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Choose Photo',
+          onPress: this.choosePhoto,
+        },
+        {
+          text: 'Scan QR Code',
+          onPress: () =>
             this.props.navigation.navigate('ScanQRCode', {
               launchedBy: this.props.route.name,
               onBarScanned: this.onBarCodeRead,
               showFileImportButton: false,
-            });
-          } else if (buttonIndex === 3) {
-            this.copyFromClipbard();
-          }
+            }),
         },
-      );
-    } else if (Platform.OS === 'android') {
+      ];
+      if (!isClipboardEmpty) {
+        buttons.push({
+          text: 'Copy From Clipboard',
+          onPress: this.copyFromClipbard,
+        });
+      }
       ActionSheet.showActionSheetWithOptions({
         title: '',
         message: '',
-        buttons: [
-          {
-            text: loc.send.details.cancel,
-            onPress: () => {},
-            style: 'cancel',
-          },
-          {
-            text: 'Choose Photo',
-            onPress: this.choosePhoto,
-          },
-          {
-            text: 'Scan QR Code',
-            onPress: () =>
-              this.props.navigation.navigate('ScanQRCode', {
-                launchedBy: this.props.route.name,
-                onBarScanned: this.onBarCodeRead,
-                showFileImportButton: false,
-              }),
-          },
-          {
-            text: 'Copy From Clipboard',
-            onPress: this.copyFromClipbard,
-          },
-        ],
+        buttons,
       });
     }
   };

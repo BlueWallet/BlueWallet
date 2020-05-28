@@ -210,6 +210,7 @@ describe('LightningCustodianWallet', () => {
 
     const api = new Frisbee({
       baseURI: 'https://api.strike.acinq.co',
+      headers: {},
     });
 
     api.auth(process.env.STRIKE + ':');
