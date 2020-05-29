@@ -70,7 +70,7 @@ export default class PlausibleDeniability extends Component {
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                 ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                 alert(loc.plausibledeniability.success);
-                this.props.navigation.navigate('Wallets');
+                this.props.navigation.popToTop();
               }}
             />
           </ScrollView>
