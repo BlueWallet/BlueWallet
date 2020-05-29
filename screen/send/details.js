@@ -780,7 +780,7 @@ export default class SendDetails extends Component {
     let rows = [];
     for (let [index, item] of this.state.addresses.entries()) {
       rows.push(
-        <View style={{ minWidth: width, maxWidth: width, width: width }}>
+        <View key={index} style={{ minWidth: width, maxWidth: width, width: width }}>
           <BlueBitcoinAmount
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}

@@ -2265,7 +2265,7 @@ export class BlueBitcoinAmount extends Component {
   };
 
   render() {
-    const amount = this.props.amount || 0;
+    const amount = this.props.amount || '0';
     let localCurrency = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
     if (this.props.unit === BitcoinUnit.BTC) {
       let sat = new BigNumber(amount);
