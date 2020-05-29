@@ -3,7 +3,7 @@ import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity } from
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, SafeBlueArea, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
-import { useNavigation } from 'react-navigation-hooks';
+import { useNavigation } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');

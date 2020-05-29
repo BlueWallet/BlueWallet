@@ -6,15 +6,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
-import { useNavigationParam } from 'react-navigation-hooks';
+import { useRoute } from '@react-navigation/native';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
 const SelectWallet = () => {
-  const chainType = useNavigationParam('chainType');
-  const onWalletSelect = useNavigationParam('onWalletSelect');
-  const availableWallets = useNavigationParam('availableWallets');
+  const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   let data = chainType
     ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())

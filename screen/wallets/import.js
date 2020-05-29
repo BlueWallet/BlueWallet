@@ -13,15 +13,17 @@ import {
 } from '../../BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
-import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
 let loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
-  const [importText, setImportText] = useState(useNavigationParam('label') || '');
-  const { navigate, dismiss } = useNavigation();
+  const route = useRoute();
+  const label = (route.params && route.params.label) || '';
+  const [importText, setImportText] = useState(label);
+  const navigation = useNavigation();
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -49,7 +51,7 @@ const WalletsImport = () => {
   const importMnemonic = (importText, additionalProperties) => {
     try {
       WalletImport.processImportText(importText, additionalProperties);
-      dismiss();
+      navigation.dangerouslyGetParent().pop();
     } catch (error) {
       alert(loc.wallets.import.error);
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -93,7 +95,7 @@ const WalletsImport = () => {
         <BlueButtonLink
           title={loc.wallets.import.scan_qr}
           onPress={() => {
-            navigate('ScanQRCode', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
+            navigation.navigate('ScanQRCode', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
           }}
         />
       </View>

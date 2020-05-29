@@ -28,15 +28,24 @@ const loc = require('../../loc');
 const currency = require('../../currency');
 
 export default class SendCreate extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle,
-    title: loc.send.create.details,
-    headerRight: navigation.state.params.exportTXN ? (
-      <TouchableOpacity style={{ marginRight: 16 }} onPress={navigation.state.params.exportTXN}>
-        <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
-      </TouchableOpacity>
-    ) : null,
-  });
+  static navigationOptions = ({ navigation, route }) => {
+    let headerRight;
+    if (route.params.exportTXN) {
+      headerRight = () => (
+        <TouchableOpacity style={{ marginRight: 16 }} onPress={route.params.exportTXN}>
+          <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
+        </TouchableOpacity>
+      );
+    } else {
+      headerRight = null;
+    }
+
+    return {
+      ...BlueNavigationStyle,
+      title: loc.send.create.details,
+      headerRight,
+    };
+  };
 
   constructor(props) {
     super(props);
@@ -44,14 +53,14 @@ export default class SendCreate extends Component {
     props.navigation.setParams({ exportTXN: this.exportTXN });
     this.state = {
       isLoading: false,
-      fee: props.navigation.getParam('fee'),
-      recipients: props.navigation.getParam('recipients'),
-      memo: props.navigation.getParam('memo') || '',
-      size: Math.round(props.navigation.getParam('tx').length / 2),
-      tx: props.navigation.getParam('tx'),
-      satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
-      wallet: props.navigation.getParam('wallet'),
-      feeSatoshi: props.navigation.getParam('feeSatoshi'),
+      fee: props.route.params.fee,
+      recipients: props.route.params.recipients,
+      memo: props.route.params.memo || '',
+      size: Math.round(props.route.params.tx.length / 2),
+      tx: props.route.params.tx,
+      satoshiPerByte: props.route.params.satoshiPerByte,
+      wallet: props.route.params.wallet,
+      feeSatoshi: props.route.params.feeSatoshi,
     };
   }
 
@@ -209,16 +218,10 @@ SendCreate.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     setParams: PropTypes.func,
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
     dismiss: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        amount: PropTypes.string,
-        fee: PropTypes.number,
-        address: PropTypes.string,
-        memo: PropTypes.string,
-      }),
-    }),
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

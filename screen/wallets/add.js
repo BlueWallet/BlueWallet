@@ -345,7 +345,7 @@ export default class WalletsAdd extends Component {
                               secret: w.getSecret(),
                             });
                           } else {
-                            this.props.navigation.dismiss();
+                            this.props.navigation.goBack();
                           }
                         }
                       });
@@ -375,6 +375,5 @@ WalletsAdd.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
-    dismiss: PropTypes.func,
   }),
 };

@@ -30,9 +30,9 @@ var webln = {
     window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
     return new Promise(function(resolve, reject) {
       /* nop. intentionally, forever hang promise.
-				 lapp page usually asynchroniously checks payment itself, via ajax,
-				 so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
-				 might change in future */
+         lapp page usually asynchroniously checks payment itself, via ajax,
+         so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+         might change in future */
     });
   },
   makeInvoice: function(RequestInvoiceArgs) {
@@ -90,51 +90,51 @@ bluewalletResponses = {};
 
 
 webln = {
-	enable : function () {
-		window.ReactNativeWebView.postMessage(JSON.stringify({'enable': true}));
-		return new Promise(function(resolve, reject){
-			resolve(true);
-		})
-	},
-	getInfo : function () {
-		window.ReactNativeWebView.postMessage('getInfo');
-		return new Promise(function(resolve, reject){
-			reject('not implemented');
-		})
-	},
-	sendPayment: function(paymentRequest) {
-		window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
-		return new Promise(function(resolve, reject) {
-			/* nop. intentionally, forever hang promise.
-				 lapp page usually asynchroniously checks payment itself, via ajax,
-				 so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
-				 might change in future */
-		});
-	},
-	makeInvoice: function (RequestInvoiceArgs) {
-		var id = Math.random();
-		window.ReactNativeWebView.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
-		return new Promise(function(resolve, reject) {
-			var interval = setInterval(function () {
-				if (bluewalletResponses[id]) {
-					clearInterval(interval);
-					resolve(bluewalletResponses[id]);
-				}
-			}, 1000);
-		});
-	},
-	signMessage: function () {
-		window.ReactNativeWebView.postMessage('signMessage');
-		return new Promise(function(resolve, reject){
-			reject('not implemented');
-		})
-	},
-	verifyMessage: function () {
-		window.ReactNativeWebView.postMessage('verifyMessage');
-		return new Promise(function(resolve, reject){
-			reject('not implemented');
-		})
-	},
+  enable : function () {
+    window.ReactNativeWebView.postMessage(JSON.stringify({'enable': true}));
+    return new Promise(function(resolve, reject){
+      resolve(true);
+    })
+  },
+  getInfo : function () {
+    window.ReactNativeWebView.postMessage('getInfo');
+    return new Promise(function(resolve, reject){
+      reject('not implemented');
+    })
+  },
+  sendPayment: function(paymentRequest) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
+    return new Promise(function(resolve, reject) {
+      /* nop. intentionally, forever hang promise.
+         lapp page usually asynchroniously checks payment itself, via ajax,
+         so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
+         might change in future */
+    });
+  },
+  makeInvoice: function (RequestInvoiceArgs) {
+    var id = Math.random();
+    window.ReactNativeWebView.postMessage(JSON.stringify({makeInvoice: RequestInvoiceArgs, id: id}));
+    return new Promise(function(resolve, reject) {
+      var interval = setInterval(function () {
+        if (bluewalletResponses[id]) {
+          clearInterval(interval);
+          resolve(bluewalletResponses[id]);
+        }
+      }, 1000);
+    });
+  },
+  signMessage: function () {
+    window.ReactNativeWebView.postMessage('signMessage');
+    return new Promise(function(resolve, reject){
+      reject('not implemented');
+    })
+  },
+  verifyMessage: function () {
+    window.ReactNativeWebView.postMessage('verifyMessage');
+    return new Promise(function(resolve, reject){
+      reject('not implemented');
+    })
+  },
 };
 
 
@@ -142,17 +142,17 @@ webln = {
 
 /* listening to events that might come from RN: */
 document.addEventListener("message", function(event) {
-	window.ReactNativeWebView.postMessage("inside webview, received post message: " + event.detail);
-	var json;
-	try {
-		json = JSON.parse(event.detail);
-	} catch (_) {}
+  window.ReactNativeWebView.postMessage("inside webview, received post message: " + event.detail);
+  var json;
+  try {
+    json = JSON.parse(event.detail);
+  } catch (_) {}
 
-	if (json && json.bluewalletResponse) {
-		/* this is an answer to one of our inside-webview calls.
-			 we store it in answers hashmap for someone who cares about it */
-		bluewalletResponses[json.id] = json.bluewalletResponse
-	}
+  if (json && json.bluewalletResponse) {
+    /* this is an answer to one of our inside-webview calls.
+       we store it in answers hashmap for someone who cares about it */
+    bluewalletResponses[json.id] = json.bluewalletResponse
+  }
 
 }, false);
 
@@ -160,50 +160,50 @@ document.addEventListener("message", function(event) {
 
 
 function tryToPay(invoice) {
-	window.ReactNativeWebView.postMessage(JSON.stringify({sendPayment:invoice}));
+  window.ReactNativeWebView.postMessage(JSON.stringify({sendPayment:invoice}));
 }
 
 /* for non-webln compatible pages we do it oldschool,
-	 searching for all bolt11 manually */
+   searching for all bolt11 manually */
 
 setInterval(function() {
 window.ReactNativeWebView.postMessage('interval');
 
-	var searchText = "lnbc";
+  var searchText = "lnbc";
 
-	var aTags = document.getElementsByTagName("span");
-	var i;
-	for (i = 0; i < aTags.length; i++) {
-		if (aTags[i].textContent.indexOf(searchText) === 0) {
-			tryToPay(aTags[i].textContent);
-		}
-	}
+  var aTags = document.getElementsByTagName("span");
+  var i;
+  for (i = 0; i < aTags.length; i++) {
+    if (aTags[i].textContent.indexOf(searchText) === 0) {
+      tryToPay(aTags[i].textContent);
+    }
+  }
 
-	/* ------------------------- */
+  /* ------------------------- */
 
-	aTags = document.getElementsByTagName("input");
-	for (i = 0; i < aTags.length; i++) {
-		if (aTags[i].value.indexOf(searchText) === 0) {
-			tryToPay(aTags[i].value);
-		}
-	}
+  aTags = document.getElementsByTagName("input");
+  for (i = 0; i < aTags.length; i++) {
+    if (aTags[i].value.indexOf(searchText) === 0) {
+      tryToPay(aTags[i].value);
+    }
+  }
 
-	/* ------------------------- */
+  /* ------------------------- */
 
-	aTags = document.getElementsByTagName("a");
-	searchText = "lightning:lnbc";
+  aTags = document.getElementsByTagName("a");
+  searchText = "lightning:lnbc";
 
 
-	for (i = 0; i < aTags.length; i++) {
-		var href = aTags[i].getAttribute('href') + '';
-		if (href.indexOf(searchText) === 0) {
-			tryToPay(href.replace('lightning:', ''));
-		}
-	}
+  for (i = 0; i < aTags.length; i++) {
+    var href = aTags[i].getAttribute('href') + '';
+    if (href.indexOf(searchText) === 0) {
+      tryToPay(href.replace('lightning:', ''));
+    }
+  }
 
 }, 1000);
 
-	         `;
+           `;
 
 export default class Browser extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -214,15 +214,15 @@ export default class Browser extends Component {
 
   constructor(props) {
     super(props);
-    if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
-    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
+    if (!props.route.params.fromSecret) throw new Error('Invalid param');
+    if (!props.route.params.fromWallet) throw new Error('Invalid param');
     let url;
-    if (props.navigation.getParam('url')) url = props.navigation.getParam('url');
+    if (props.route.params.url) url = props.route.params.url;
 
     this.state = {
       url: url || 'https://bluewallet.io/marketplace/',
-      fromSecret: props.navigation.getParam('fromSecret'),
-      fromWallet: props.navigation.getParam('fromWallet'),
+      fromSecret: props.route.params.fromSecret,
+      fromWallet: props.route.params.fromWallet,
       canGoBack: false,
       pageIsLoading: false,
       stateURL: url || 'https://bluewallet.io/marketplace/',
@@ -280,12 +280,9 @@ export default class Browser extends Component {
                   text: 'Pay',
                   onPress: () => {
                     console.log('OK Pressed');
-                    this.props.navigation.navigate({
-                      routeName: 'ScanLndInvoice',
-                      params: {
-                        uri: json.sendPayment,
-                        fromSecret: this.state.fromSecret,
-                      },
+                    this.props.navigation.navigate('ScanLndInvoice', {
+                      uri: json.sendPayment,
+                      fromSecret: this.state.fromSecret,
                     });
                   },
                 },
@@ -459,8 +456,10 @@ export default class Browser extends Component {
 
 Browser.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

@@ -35,7 +35,7 @@ export default class TransactionsStatus extends Component {
 
   constructor(props) {
     super(props);
-    let hash = props.navigation.state.params.hash;
+    let hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
@@ -357,5 +357,8 @@ TransactionsStatus.propTypes = {
         hash: PropTypes.string,
       }),
     }),
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

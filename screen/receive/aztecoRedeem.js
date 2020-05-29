@@ -34,10 +34,10 @@ export default class AztecoRedeem extends Component {
         toWallet = wallets[0];
       }
       this.state = {
-        c1: props.navigation.state.params.c1,
-        c2: props.navigation.state.params.c2,
-        c3: props.navigation.state.params.c3,
-        c4: props.navigation.state.params.c4,
+        c1: props.route.params.c1,
+        c2: props.route.params.c2,
+        c3: props.route.params.c3,
+        c4: props.route.params.c4,
         isLoading: false,
         toWallet,
         renderWalletSelectionButtonHidden: false,
@@ -136,13 +136,13 @@ AztecoRedeem.propTypes = {
     pop: PropTypes.func,
     goBack: PropTypes.func,
     navigate: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        c1: PropTypes.string,
-        c2: PropTypes.string,
-        c3: PropTypes.string,
-        c4: PropTypes.string,
-      }),
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.shape({
+      c1: PropTypes.string,
+      c2: PropTypes.string,
+      c3: PropTypes.string,
+      c4: PropTypes.string,
     }),
   }),
 };

@@ -20,7 +20,7 @@ export default class WalletXpub extends Component {
   constructor(props) {
     super(props);
 
-    let secret = props.navigation.state.params.secret;
+    let secret = props.route.params.secret;
     let wallet;
 
     for (let w of BlueApp.getWallets()) {
@@ -100,12 +100,13 @@ export default class WalletXpub extends Component {
 
 WalletXpub.propTypes = {
   navigation: PropTypes.shape({
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        secret: PropTypes.string,
-      }),
-    }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      secret: PropTypes.string,
+    }),
   }),
 };

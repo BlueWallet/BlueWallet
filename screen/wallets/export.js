@@ -20,7 +20,7 @@ export default class WalletExport extends Component {
 
   constructor(props) {
     super(props);
-    let wallet = props.navigation.state.params.wallet;
+    let wallet = props.route.params.wallet;
     this.state = {
       isLoading: true,
       qrCodeHeight: height > width ? width - 40 : width / 2,
@@ -111,12 +111,13 @@ export default class WalletExport extends Component {
 
 WalletExport.propTypes = {
   navigation: PropTypes.shape({
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        wallet: PropTypes.object.isRequired,
-      }),
-    }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      wallet: PropTypes.object.isRequired,
+    }),
   }),
 };

@@ -25,7 +25,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
   state = { walletInfo: undefined };
 
   async componentDidMount() {
-    const fromWallet = this.props.navigation.getParam('fromWallet');
+    const fromWallet = this.props.route.params.fromWallet;
     try {
       await fromWallet.fetchInfo();
     } catch (_) {
@@ -82,9 +82,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
 }
 
 LNDViewAdditionalInvoiceInformation.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    getParam: PropTypes.func,
-    dismiss: PropTypes.func,
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

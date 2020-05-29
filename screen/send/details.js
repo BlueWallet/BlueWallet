@@ -50,12 +50,8 @@ let loc = require('../../loc');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 export default class SendDetails extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueCreateTxNavigationStyle(
-      navigation,
-      navigation.state.params.withAdvancedOptionsMenuButton,
-      navigation.state.params.advancedOptionsMenuButtonAction,
-    ),
+  static navigationOptions = ({ navigation, route }) => ({
+    ...BlueCreateTxNavigationStyle(navigation, route.params.withAdvancedOptionsMenuButton, route.params.advancedOptionsMenuButtonAction),
     title: loc.send.header,
   });
 
@@ -69,7 +65,7 @@ export default class SendDetails extends Component {
 
     /** @type {LegacyWallet} */
     let fromWallet = null;
-    if (props.navigation.state.params) fromWallet = props.navigation.state.params.fromWallet;
+    if (props.route.params) fromWallet = props.route.params.fromWallet;
 
     const wallets = BlueApp.getWallets().filter(wallet => wallet.type !== LightningCustodianWallet.type);
 
@@ -179,8 +175,8 @@ export default class SendDetails extends Component {
     StatusBar.setBarStyle('dark-content');
     let addresses = [];
     let initialMemo = '';
-    if (this.props.navigation.state.params.uri) {
-      const uri = this.props.navigation.state.params.uri;
+    if (this.props.route.params.uri) {
+      const uri = this.props.route.params.uri;
       if (BitcoinBIP70TransactionDecode.matchesPaymentURL(uri)) {
         const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(uri);
         addresses.push(recipient);
@@ -197,9 +193,9 @@ export default class SendDetails extends Component {
           alert('Error: Unable to decode Bitcoin address');
         }
       }
-    } else if (this.props.navigation.state.params.address) {
-      addresses.push(new BitcoinTransaction(this.props.navigation.state.params.address));
-      if (this.props.navigation.state.params.memo) initialMemo = this.props.navigation.state.params.memo;
+    } else if (this.props.route.params.address) {
+      addresses.push(new BitcoinTransaction(this.props.route.params.address));
+      if (this.props.route.params.memo) initialMemo = this.props.route.params.memo;
       this.setState({ addresses, memo: initialMemo, isLoading: false });
     } else {
       this.setState({ addresses: [new BitcoinTransaction()], isLoading: false });
@@ -227,12 +223,12 @@ export default class SendDetails extends Component {
           feeSliderValue: recommendedFees.fastestFee,
         });
 
-        if (this.props.navigation.state.params.uri) {
-          if (BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.navigation.state.params.uri)) {
-            this.processBIP70Invoice(this.props.navigation.state.params.uri);
+        if (this.props.route.params.uri) {
+          if (BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.route.params.uri)) {
+            this.processBIP70Invoice(this.props.route.params.uri);
           } else {
             try {
-              const { address, amount, memo } = this.decodeBitcoinUri(this.props.navigation.getParam('uri'));
+              const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
               this.setState({ address, amount, memo, isLoading: false });
             } catch (error) {
               console.log(error);
@@ -784,7 +780,7 @@ export default class SendDetails extends Component {
     let rows = [];
     for (let [index, item] of this.state.addresses.entries()) {
       rows.push(
-        <View style={{ minWidth: width, maxWidth: width, width: width }}>
+        <View key={index} style={{ minWidth: width, maxWidth: width, width: width }}>
           <BlueBitcoinAmount
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
@@ -822,7 +818,7 @@ export default class SendDetails extends Component {
             address={item.address}
             isLoading={this.state.isLoading}
             inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-            launchedBy={this.props.navigation.state.routeName}
+            launchedBy={this.props.route.name}
           />
           {this.state.addresses.length > 1 && (
             <BlueText style={{ alignSelf: 'flex-end', marginRight: 18, marginVertical: 8 }}>
@@ -869,7 +865,7 @@ export default class SendDetails extends Component {
     }
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        <View style={{ flex: 1, justifyContent: 'space-between', backgroundColor: '#FFFFFF' }}>
           <View>
             <KeyboardAvoidingView behavior="position">
               <ScrollView
@@ -995,18 +991,17 @@ SendDetails.propTypes = {
     pop: PropTypes.func,
     goBack: PropTypes.func,
     navigate: PropTypes.func,
-    getParam: PropTypes.func,
     setParams: PropTypes.func,
-    state: PropTypes.shape({
-      routeName: PropTypes.string,
-      params: PropTypes.shape({
-        amount: PropTypes.number,
-        address: PropTypes.string,
-        satoshiPerByte: PropTypes.string,
-        fromWallet: PropTypes.fromWallet,
-        memo: PropTypes.string,
-        uri: PropTypes.string,
-      }),
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      amount: PropTypes.number,
+      address: PropTypes.string,
+      satoshiPerByte: PropTypes.string,
+      fromWallet: PropTypes.fromWallet,
+      memo: PropTypes.string,
+      uri: PropTypes.string,
     }),
   }),
 };
