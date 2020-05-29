@@ -101,7 +101,7 @@ export default class WalletTransactions extends Component {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
     const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
-    this.setState({ isHandOffUseEnabled });
+    this.setState({ isHandOffUseEnabled, isLoading: false });
 
     this._unsubscribeFocus = this.props.navigation.addListener('focus', () => {
       StatusBar.setBarStyle('light-content');
