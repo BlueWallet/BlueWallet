@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from './class';
 import { FiatUnit } from './models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
-import DeviceQuickActions from './class/quickActions';
+import DeviceQuickActions from './class/quick-actions';
 let BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
 let exchangeRates = {};

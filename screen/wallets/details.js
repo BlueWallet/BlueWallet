@@ -16,10 +16,10 @@ import {
 } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { HDLegacyBreadwalletWallet } from '../../class/hd-legacy-breadwallet-wallet';
-import { HDLegacyP2PKHWallet } from '../../class/hd-legacy-p2pkh-wallet';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
+import { HDLegacyP2PKHWallet } from '../../class/wallets/hd-legacy-p2pkh-wallet';
+import { HDSegwitP2SHWallet } from '../../class/wallets/hd-segwit-p2sh-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet } from '../../class';
@@ -312,6 +312,7 @@ export default class WalletDetails extends Component {
                                 });
                               }
                             },
+                            style: 'destructive',
                           },
                           { text: loc.wallets.details.no_cancel, onPress: () => {}, style: 'cancel' },
                         ],

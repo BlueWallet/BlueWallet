@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.3.8",
+  "version": "5.3.9",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -10,7 +10,6 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.1",
     "babel-preset-flow": "^6.23.0",
-    "detox": "16.6.0",
     "eslint": "^6.5.1",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.0",
@@ -22,8 +21,7 @@
     "jetifier": "^1.6.3",
     "metro-react-native-babel-preset": "^0.59.0",
     "prettier-eslint-cli": "^5.0.0",
-    "react-test-renderer": "16.9.0",
-    "rn-nodeify": "github:tradle/rn-nodeify"
+    "react-test-renderer": "16.9.0"
   },
   "engines": {
     "node": ">=10.16.0",
@@ -84,6 +82,7 @@
     "coinselect": "3.1.11",
     "crypto-js": "3.1.9-1",
     "dayjs": "1.8.25",
+    "detox": "16.7.1",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#2a5bb11dd9a8d89f328049d9ed59bce49d88a15d",
     "electrum-mnemonic": "2.0.0",
@@ -123,7 +122,7 @@
     "react-native-obscure": "1.2.1",
     "react-native-popup-menu-android": "1.0.3",
     "react-native-privacy-snapshot": "git+https://github.com/BlueWallet/react-native-privacy-snapshot.git",
-    "react-native-prompt-android": "git+https://github.com/marcosrdz/react-native-prompt-android.git",
+    "react-native-prompt-android": "git+https://github.com/BlueWallet/react-native-prompt-android.git#2073b07f64bf5dc95807f64d79f37bdb111e6951",
     "react-native-qrcode-svg": "6.0.6",
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.5.3",
@@ -142,6 +141,7 @@
     "react-native-webview": "6.11.1",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
+    "rn-nodeify": "10.2.0",
     "secure-random": "1.1.2",
     "stream-browserify": "2.0.2",
     "url": "0.11.0",

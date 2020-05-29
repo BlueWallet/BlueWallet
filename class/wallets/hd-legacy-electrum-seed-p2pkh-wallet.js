@@ -1,10 +1,10 @@
-import { HDSegwitBech32Wallet } from './';
+import { HDLegacyP2PKHWallet } from '..';
 
 const bitcoin = require('bitcoinjs-lib');
 const mn = require('electrum-mnemonic');
 const HDNode = require('bip32');
 
-const PREFIX = mn.PREFIXES.segwit;
+const PREFIX = mn.PREFIXES.standard;
 const MNEMONIC_TO_SEED_OPTS = {
   prefix: PREFIX,
 };
@@ -15,9 +15,9 @@ const MNEMONIC_TO_SEED_OPTS = {
  *
  * @see https://electrum.readthedocs.io/en/latest/seedphrase.html
  */
-export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
-  static type = 'HDSegwitElectrumSeedP2WPKHWallet';
-  static typeReadable = 'HD Electrum (BIP32 P2WPKH)';
+export class HDLegacyElectrumSeedP2PKHWallet extends HDLegacyP2PKHWallet {
+  static type = 'HDlegacyElectrumSeedP2PKH';
+  static typeReadable = 'HD Legacy Electrum (BIP32 P2PKH)';
 
   validateMnemonic() {
     return mn.validateMnemonic(this.secret, PREFIX);
@@ -32,10 +32,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
       return this._xpub; // cache hit
     }
     const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
-    this._xpub = root
-      .derivePath("m/0'")
-      .neutered()
-      .toBase58();
+    this._xpub = root.neutered().toBase58();
     return this._xpub;
   }
 
@@ -44,7 +41,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
 
     const node = bitcoin.bip32.fromBase58(this.getXpub());
-    const address = bitcoin.payments.p2wpkh({
+    const address = bitcoin.payments.p2pkh({
       pubkey: node.derive(1).derive(index).publicKey,
     }).address;
 
@@ -56,7 +53,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
     if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
 
     const node = bitcoin.bip32.fromBase58(this.getXpub());
-    const address = bitcoin.payments.p2wpkh({
+    const address = bitcoin.payments.p2pkh({
       pubkey: node.derive(0).derive(index).publicKey,
     }).address;
 
@@ -65,7 +62,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
 
   _getWIFByIndex(internal, index) {
     const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
-    const path = `m/0'/${internal ? 1 : 0}/${index}`;
+    const path = `m/${internal ? 1 : 0}/${index}`;
     const child = root.derivePath(path);
 
     return child.toWIF();

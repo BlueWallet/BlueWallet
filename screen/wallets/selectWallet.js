@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import WalletGradient from '../../class/walletGradient';
+import WalletGradient from '../../class/wallet-gradient';
 import { useRoute } from '@react-navigation/native';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
