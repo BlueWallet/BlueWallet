@@ -99,7 +99,7 @@ export default class WalletDetails extends Component {
         await BlueApp.saveToDisk();
         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         EV(EV.enum.WALLETS_COUNT_CHANGED);
-        this.props.navigation.navigate('Wallets');
+        this.props.navigation.popToTop();
       });
     } else {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -308,7 +308,7 @@ export default class WalletDetails extends Component {
                                   await BlueApp.saveToDisk();
                                   EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                                   EV(EV.enum.WALLETS_COUNT_CHANGED);
-                                  this.props.navigation.navigate('Wallets');
+                                  this.props.navigation.popToTop();
                                 });
                               }
                             },
@@ -341,6 +341,7 @@ WalletDetails.propTypes = {
     }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+    popToTop: PropTypes.func,
     setParams: PropTypes.func,
   }),
   route: PropTypes.shape({

@@ -83,6 +83,6 @@ export default class PlausibleDeniability extends Component {
 PlausibleDeniability.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
+    popToTop: PropTypes.func,
   }),
 };
