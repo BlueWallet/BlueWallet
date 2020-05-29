@@ -24,3 +24,5 @@ export { ListItem } from './ListItem';
 export { SearchBar } from './SearchBar';
 export { ContactAvatar } from './ContactAvatar';
 export { PinInput } from './PinInput';
+export { PinInputView } from './PinInputView';
+export { PinView } from './PinView';

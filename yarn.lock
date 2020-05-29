@@ -7773,6 +7773,13 @@ react-native-obscure@1.2.1:
   resolved "https://registry.yarnpkg.com/react-native-obscure/-/react-native-obscure-1.2.1.tgz#bbe2a8f35930488bdd07e2582c0f767c1575aa22"
   integrity sha512-zepY31U2HAWrxPP+uGhDFFa1yGdbIa06iviCYRQJcEN2K4gtcEYBCtsk+PdClaiwIREZOQ7YKscxCIlZyR1m6w==
 
+react-native-pin-view@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-pin-view/-/react-native-pin-view-3.0.0.tgz#a8d3326f97267838f4973114fca668a91f5ba442"
+  integrity sha512-6REScMNTIjhdRs7JUe1wbpz19OM4BcpLRI3w/WIvNCWyLppZlUOE4qne5jsQziUefN5vFlvxyiT4NwrNgQy1Ig==
+  dependencies:
+    prop-types "^15.7.2"
+
 react-native-popup-menu-android@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/react-native-popup-menu-android/-/react-native-popup-menu-android-1.0.3.tgz#09b4ea44ec6971606e258d7ffd5a89788afb7495"

@@ -67,6 +67,10 @@ export const typography = StyleSheet.create({
     fontSize: 12,
     lineHeight: 20,
   },
+  subtitle5: {
+    fontFamily: fonts.ubuntu.medium,
+    fontSize: 21,
+  },
   body: {
     fontFamily: fonts.ubuntu.light,
     fontSize: 14,

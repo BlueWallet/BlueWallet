@@ -44,4 +44,5 @@ export const icons = {
   success: require('./images/success.png'),
   visibilityOn: require('./images/visibilityOn.png'),
   visibilityOff: require('./images/visibilityOff.png'),
+  delete: require('./images/icon_delete.png'),
 };
