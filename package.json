@@ -19,7 +19,6 @@
     "flow-bin": "^0.125.1",
     "jest": "^24.9.0",
     "jetifier": "^1.6.3",
-    "metro-react-native-babel-preset": "^0.59.0",
     "prettier-eslint-cli": "^5.0.0",
     "react-test-renderer": "16.9.0"
   },
@@ -95,6 +94,7 @@
     "frisbee": "3.1.2",
     "intl": "1.2.5",
     "lottie-react-native": "3.1.1",
+    "metro-react-native-babel-preset": "0.59.0",
     "node-libs-react-native": "1.2.0",
     "path-browserify": "1.0.0",
     "pbkdf2": "3.0.17",
