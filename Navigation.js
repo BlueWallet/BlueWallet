@@ -132,7 +132,7 @@ const AddWalletRoot = () => (
       component={PleaseBackupLNDHub}
       swipeEnabled={false}
       gesturesEnabled={false}
-      options={{ headerShown: null }}
+      options={{ headerShown: false }}
     />
   </AddWalletStack.Navigator>
 );
