@@ -109,7 +109,8 @@ export default class App extends React.Component {
         const clipboard = await Clipboard.getString();
         const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
           if (wallet.chain === Chain.ONCHAIN) {
-            return wallet.weOwnAddress(clipboard);
+            // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
+            return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
           } else {
             return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
           }
