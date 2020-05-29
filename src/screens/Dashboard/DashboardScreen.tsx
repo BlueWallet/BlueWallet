@@ -28,9 +28,10 @@ interface State {
 type Props = NavigationInjectedProps;
 
 export class DashboardScreen extends Component<Props, State> {
-  static navigationOptions = {
+  static navigationOptions = () => ({
+    // must be dynamic, as function as language switch stops to work
     tabBarLabel: i18n.tabNavigator.dashboard,
-  };
+  });
 
   constructor(props: Props) {
     super(props);
@@ -328,6 +329,8 @@ export class DashboardScreen extends Component<Props, State> {
     );
   }
 }
+
+export default DashboardScreen;
 
 const styles = StyleSheet.create({
   contentContainer: {

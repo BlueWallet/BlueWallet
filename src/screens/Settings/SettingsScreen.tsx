@@ -88,9 +88,10 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
   );
 };
 
-SettingsScreen.navigationOptions = {
+SettingsScreen.navigationOptions = () => ({
+  // must be dynamic, as function as language switch stops to work
   tabBarLabel: i18n.tabNavigator.settings,
-};
+});
 
 const styles = StyleSheet.create({
   logo: {
