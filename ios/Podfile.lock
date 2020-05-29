@@ -255,7 +255,7 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.8.1):
+  - RNCAsyncStorage (1.10.0):
     - React
   - RNDefaultPreference (1.4.1):
     - React
@@ -356,7 +356,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  trunk:
     - boost-for-react-native
     - EFQRCode
     - lottie-ios
@@ -517,7 +517,7 @@ SPEC CHECKSUMS:
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 00bdf63f7f1e0f11d3323533dba4f222e58bf092
+  RNCAsyncStorage: b34d2399d3e25db01d5b881949b503bd3c224d57
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
@@ -539,4 +539,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 932f5bffd3ddea34b78c9ed0921a6f8cccf442b5
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4

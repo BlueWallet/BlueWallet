@@ -125,7 +125,7 @@ export default class HodlHodlViewOffer extends Component {
         body: offerToDisplay.first_trade_limit.replace('.00', '') + ' ' + offerToDisplay.currency_code,
       });
 
-    for (let paymentInstruction of (offerToDisplay.payment_method_instructions || [])) {
+    for (let paymentInstruction of offerToDisplay.payment_method_instructions || []) {
       horizontalScrollData.push({
         id: paymentInstruction.id + paymentInstruction.version,
         header: paymentInstruction.payment_method_type,
@@ -248,7 +248,7 @@ export default class HodlHodlViewOffer extends Component {
               />
 
               {/* avatar and rating */}
-              <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'column', alignItems: 'center', marginTop: 32, }}>
+              <View style={{ backgroundColor: 'white', flex: 1, flexDirection: 'column', alignItems: 'center', marginTop: 32 }}>
                 <View>
                   <Image
                     style={{ width: 60, height: 60, borderRadius: 60 }}

@@ -69,6 +69,10 @@ const ScanQRCodeStackNavigator = createStackNavigator({
   },
 });
 
+const HodlHodlLoginStackNavigator = createStackNavigator({
+  HodlHodlLogin: HodlHodlLogin,
+});
+
 const WalletsStackNavigator = createStackNavigator(
   {
     Wallets: {
@@ -94,9 +98,6 @@ const WalletsStackNavigator = createStackNavigator(
     },
     HodlHodl: {
       screen: HodlHodl,
-    },
-    HodlHodlLogin: {
-      screen: HodlHodlLogin,
     },
     HodlHodlViewOffer: {
       screen: HodlHodlViewOffer,
@@ -358,6 +359,12 @@ const MainBottomTabs = createStackNavigator(
       screen: Marketplace,
     },
     //
+    HodlHodlLogin: {
+      screen: HodlHodlLoginStackNavigator,
+      navigationOptions: {
+        header: null,
+      },
+    },
     SendDetails: {
       routeName: 'SendDetails',
       screen: CreateTransactionStackNavigator,
