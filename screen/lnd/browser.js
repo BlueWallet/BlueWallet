@@ -283,15 +283,15 @@ export default class Browser extends Component {
 
   constructor(props) {
     super(props);
-    if (!props.navigation.getParam('fromSecret')) throw new Error('Invalid param');
-    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
+    if (!props.route.params.fromSecret) throw new Error('Invalid param');
+    if (!props.route.params.fromWallet) throw new Error('Invalid param');
     let url;
-    if (props.navigation.getParam('url')) url = props.navigation.getParam('url');
+    if (props.route.params.url) url = props.route.params.url;
 
     this.state = {
       url: url || 'https://bluewallet.io/marketplace/',
-      fromSecret: props.navigation.getParam('fromSecret'),
-      fromWallet: props.navigation.getParam('fromWallet'),
+      fromSecret: props.route.params.fromSecret,
+      fromWallet: props.route.params.fromWallet,
       canGoBack: false,
       pageIsLoading: false,
       stateURL: url || 'https://bluewallet.io/marketplace/',
@@ -349,12 +349,9 @@ export default class Browser extends Component {
                   text: 'Pay',
                   onPress: () => {
                     console.log('OK Pressed');
-                    this.props.navigation.navigate({
-                      routeName: 'ScanLndInvoice',
-                      params: {
-                        uri: json.sendPayment,
-                        fromSecret: this.state.fromSecret,
-                      },
+                    this.props.navigation.navigate('ScanLndInvoice', {
+                      uri: json.sendPayment,
+                      fromSecret: this.state.fromSecret,
                     });
                   },
                 },
@@ -499,8 +496,10 @@ export default class Browser extends Component {
 
 Browser.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

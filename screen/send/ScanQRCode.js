@@ -4,8 +4,7 @@ import { Image, View, TouchableOpacity, Platform, StyleSheet } from 'react-nativ
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
-import PropTypes from 'prop-types';
-import { useNavigationParam, useNavigation } from 'react-navigation-hooks';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
@@ -18,8 +17,6 @@ const styles = StyleSheet.create({
   },
   rnCamera: {
     flex: 1,
-    justifyContent: 'space-between',
-    backgroundColor: '#000000',
   },
   closeTouch: {
     width: 40,
@@ -56,16 +53,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const ScanQRCode = ({
-  showCloseButton = true,
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  showFileImportButton = useNavigationParam('showFileImportButton') || false,
-}) => {
+const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { navigate } = useNavigation();
-  const launchedBy = useNavigationParam('launchedBy');
-  const onBarScanned = useNavigationParam('onBarScanned');
+  const route = useRoute();
+  const showFileImportButton = route.params.showFileImportButton || false;
+  const { launchedBy, onBarScanned } = route.params;
   const scannedCache = {};
+  const isFocused = useIsFocused();
 
   const HashIt = function(s) {
     return createHash('sha256')
@@ -85,7 +80,7 @@ const ScanQRCode = ({
     if (!isLoading) {
       setIsLoading(true);
       try {
-        if (showCloseButton && launchedBy) {
+        if (launchedBy) {
           navigate(launchedBy);
         }
         if (ret.additionalProperties) {
@@ -124,9 +119,39 @@ const ScanQRCode = ({
     setIsLoading(false);
   };
 
+  const showImagePicker = () => {
+    if (!isLoading) {
+      setIsLoading(true);
+      ImagePicker.launchImageLibrary(
+        {
+          title: null,
+          mediaType: 'photo',
+          takePhotoButtonTitle: null,
+        },
+        response => {
+          if (response.uri) {
+            const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+            LocalQRCode.decode(uri, (error, result) => {
+              if (!error) {
+                onBarCodeRead({ data: result });
+              } else {
+                alert('The selected image does not contain a QR Code.');
+              }
+            });
+          }
+          setIsLoading(false);
+        },
+      );
+    }
+  };
+
+  const dismiss = () => {
+    navigate(launchedBy);
+  };
+
   return (
     <View style={styles.root}>
-      {!isLoading && (
+      {!isLoading && isFocused && (
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -140,39 +165,10 @@ const ScanQRCode = ({
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
       )}
-      {showCloseButton && (
-        <TouchableOpacity style={styles.closeTouch} onPress={() => navigate(launchedBy)}>
-          <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
-        </TouchableOpacity>
-      )}
-      <TouchableOpacity
-        style={styles.imagePickerTouch}
-        onPress={() => {
-          if (!isLoading) {
-            setIsLoading(true);
-            ImagePicker.launchImageLibrary(
-              {
-                title: null,
-                mediaType: 'photo',
-                takePhotoButtonTitle: null,
-              },
-              response => {
-                if (response.uri) {
-                  const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
-                  LocalQRCode.decode(uri, (error, result) => {
-                    if (!error) {
-                      onBarCodeRead({ data: result });
-                    } else {
-                      alert('The selected image does not contain a QR Code.');
-                    }
-                  });
-                }
-                setIsLoading(false);
-              },
-            );
-          }
-        }}
-      >
+      <TouchableOpacity style={styles.closeTouch} onPress={dismiss}>
+        <Image style={styles.closeImage} source={require('../../img/close-white.png')} />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.imagePickerTouch} onPress={showImagePicker}>
         <Icon name="image" type="font-awesome" color="#ffffff" />
       </TouchableOpacity>
       {showFileImportButton && (
@@ -185,10 +181,7 @@ const ScanQRCode = ({
 };
 
 ScanQRCode.navigationOptions = {
-  header: null,
+  headerShown: false,
 };
-ScanQRCode.propTypes = {
-  showFileImportButton: PropTypes.bool,
-  showCloseButton: PropTypes.bool,
-};
+
 export default ScanQRCode;

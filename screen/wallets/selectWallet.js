@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import WalletGradient from '../../class/walletGradient';
-import { useNavigationParam } from 'react-navigation-hooks';
+import WalletGradient from '../../class/wallet-gradient';
+import { useRoute } from '@react-navigation/native';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -76,12 +76,16 @@ const styles = StyleSheet.create({
 });
 
 const SelectWallet = () => {
-  const chainType = useNavigationParam('chainType');
-  const onWalletSelect = useNavigationParam('onWalletSelect');
+  const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
-  const data = chainType
+  let data = chainType
     ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())
     : BlueApp.getWallets().filter(item => item.allowSend()) || [];
+
+  if (availableWallets && availableWallets.length > 0) {
+    // availableWallets if provided, overrides chainType argument and `allowSend()` check
+    data = availableWallets;
+  }
 
   useEffect(() => {
     setIsLoading(false);

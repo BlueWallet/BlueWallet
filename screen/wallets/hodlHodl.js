@@ -312,7 +312,7 @@ export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
     /**  @type {AbstractWallet}   */
-    let wallet = props.navigation.state.params.wallet;
+    let wallet = props.route.params.wallet;
 
     this.state = {
       isLoading: true,
@@ -1036,12 +1036,9 @@ export default class HodlHodl extends Component {
 }
 
 HodlHodl.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        wallet: PropTypes.object,
-      }),
+  route: PropTypes.shape({
+    params: PropTypes.shape({
+      wallet: PropTypes.object,
     }),
   }),
 };

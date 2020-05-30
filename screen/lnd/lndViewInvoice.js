@@ -113,10 +113,10 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDViewInvoice extends Component {
-  static navigationOptions = ({ navigation }) =>
-    navigation.getParam('isModal') === true
+  static navigationOptions = ({ navigation, route }) =>
+    route.params.isModal === true
       ? {
-          ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
+          ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
           title: 'Lightning Invoice',
           headerLeft: null,
         }
@@ -124,8 +124,8 @@ export default class LNDViewInvoice extends Component {
 
   constructor(props) {
     super(props);
-    const invoice = props.navigation.getParam('invoice');
-    const fromWallet = props.navigation.getParam('fromWallet');
+    const invoice = props.route.params.invoice;
+    const fromWallet = props.route.params.fromWallet;
     this.state = {
       invoice,
       fromWallet,
@@ -362,7 +362,9 @@ LNDViewInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
     navigate: PropTypes.func,
-    getParam: PropTypes.func,
     popToTop: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

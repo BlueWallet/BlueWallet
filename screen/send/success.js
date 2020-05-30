@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
 
 export default class Success extends Component {
   static navigationOptions = {
-    header: null,
+    headerShown: false,
     gesturesEnabled: false,
   };
 
@@ -66,10 +66,10 @@ export default class Success extends Component {
     console.log('send/success constructor');
 
     this.state = {
-      amount: props.navigation.getParam('amount'),
-      fee: props.navigation.getParam('fee') || 0,
-      amountUnit: props.navigation.getParam('amountUnit') || BitcoinUnit.BTC,
-      invoiceDescription: props.navigation.getParam('invoiceDescription') || '',
+      amount: props.route.params.amount,
+      fee: props.route.params.fee || 0,
+      amountUnit: props.route.params.amountUnit || BitcoinUnit.BTC,
+      invoiceDescription: props.route.params.invoiceDescription || '',
     };
   }
 
@@ -103,7 +103,7 @@ export default class Success extends Component {
         <BlueCard>
           <BlueButton
             onPress={() => {
-              this.props.navigation.dismiss();
+              this.props.navigation.dangerouslyGetParent().pop();
             }}
             title={loc.send.success.done}
           />
@@ -116,14 +116,16 @@ export default class Success extends Component {
 Success.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
-    dismiss: PropTypes.func,
+    dangerouslyGetParent: PropTypes.func,
     state: PropTypes.shape({
       params: PropTypes.shape({
         amount: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
         fee: PropTypes.number,
       }),
     }),
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

@@ -1,11 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
-import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
   word: {
     width: 'auto',
     marginRight: 8,
@@ -20,13 +27,6 @@ const styles = StyleSheet.create({
   wortText: {
     color: '#81868E',
     fontWeight: 'bold',
-  },
-  loading: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  flex: {
-    flex: 1,
   },
   scrollViewContent: {
     justifyContent: 'space-between',
@@ -63,13 +63,14 @@ const styles = StyleSheet.create({
 
 const PleaseBackup = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const words = useNavigationParam('secret').split(' ');
-  const { dismiss } = useNavigation();
+  const route = useRoute();
+  const words = route.params.secret.split(' ');
+  const navigation = useNavigation();
 
   const handleBackButton = useCallback(() => {
-    dismiss();
+    navigation.dangerouslyGetParent().pop();
     return true;
-  }, [dismiss]);
+  }, [navigation]);
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -86,7 +87,7 @@ const PleaseBackup = () => {
       component.push(
         <View style={styles.word} key={`${secret}${index}`}>
           <Text style={styles.wortText}>
-            {`${index}`}. {secret}
+            {`${index + 1}`}. {secret}
           </Text>
         </View>,
       );
@@ -110,7 +111,7 @@ const PleaseBackup = () => {
           <View style={styles.ok}>
             <View style={styles.flex}>
               <BlueSpacing20 />
-              <BlueButton testID="PleasebackupOk" onPress={dismiss} title={loc.pleasebackup.ok} />
+              <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
             </View>
           </View>
         </View>

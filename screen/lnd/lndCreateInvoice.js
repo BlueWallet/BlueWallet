@@ -18,7 +18,7 @@ import {
   BlueDismissKeyboardInputAccessory,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -137,7 +137,7 @@ export default class LNDCreateInvoice extends Component {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     let fromWallet;
-    if (props.navigation.state.params.fromWallet) fromWallet = props.navigation.getParam('fromWallet');
+    if (props.route.params.fromWallet) fromWallet = props.route.params.fromWallet;
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
@@ -162,8 +162,8 @@ export default class LNDCreateInvoice extends Component {
   renderReceiveDetails = async () => {
     this.state.fromWallet.setUserHasSavedExport(true);
     await BlueApp.saveToDisk();
-    if (this.props.navigation.state.params.uri) {
-      this.processLnurl(this.props.navigation.getParam('uri'));
+    if (this.props.route.params.uri) {
+      this.processLnurl(this.props.route.params.uri);
     }
     this.setState({ isLoading: false });
   };
@@ -175,7 +175,7 @@ export default class LNDCreateInvoice extends Component {
       BlueAlertWalletExportReminder({
         onSuccess: this.renderReceiveDetails,
         onFailure: () => {
-          this.props.navigation.dismiss();
+          this.props.navigation.dangerouslyGetParent().pop();
           this.props.navigation.navigate('WalletExport', {
             wallet: this.state.fromWallet,
           });
@@ -309,7 +309,7 @@ export default class LNDCreateInvoice extends Component {
         onPress={() => {
           NavigationService.navigate('ScanQRCode', {
             onBarScanned: this.processLnurl,
-            launchedBy: this.props.navigation.state.routeName,
+            launchedBy: this.props.route.name,
           });
           Keyboard.dismiss();
         }}
@@ -420,16 +420,15 @@ export default class LNDCreateInvoice extends Component {
 LNDCreateInvoice.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    dismiss: PropTypes.func,
+    dangerouslyGetParent: PropTypes.func,
     navigate: PropTypes.func,
-    getParam: PropTypes.func,
     pop: PropTypes.func,
-    state: PropTypes.shape({
-      routeName: PropTypes.string,
-      params: PropTypes.shape({
-        uri: PropTypes.string,
-        fromWallet: PropTypes.shape({}),
-      }),
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      uri: PropTypes.string,
+      fromWallet: PropTypes.shape({}),
     }),
   }),
 };

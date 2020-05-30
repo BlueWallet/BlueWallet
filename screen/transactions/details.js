@@ -75,7 +75,7 @@ export default class TransactionsDetails extends Component {
 
   constructor(props) {
     super(props);
-    let hash = props.navigation.state.params.hash;
+    let hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
@@ -234,13 +234,10 @@ export default class TransactionsDetails extends Component {
 }
 
 TransactionsDetails.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    navigate: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        hash: PropTypes.string,
-      }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      hash: PropTypes.string,
     }),
   }),
 };

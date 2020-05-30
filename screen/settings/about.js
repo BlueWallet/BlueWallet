@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Linking, Dimensions, Image, View, Text, StyleSheet } from 'react-native';
-import { useNavigation } from 'react-navigation-hooks';
+import { useNavigation } from '@react-navigation/native';
 import {
   BlueTextCentered,
   BlueLoading,
@@ -112,7 +112,7 @@ const About = () => {
             <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
             <Text style={styles.textFree}>BlueWallet is a free and open source project. Crafted by Bitcoin users.</Text>
             <Text style={styles.textBackup}>Always backup your keys!</Text>
-            <BlueButton onPress={handleOnRatePress} title="help with a review ⭐🙏" />
+            <BlueButton onPress={handleOnRatePress} title="Leave us a review ⭐🙏" />
           </View>
         </BlueCard>
         <BlueListItem

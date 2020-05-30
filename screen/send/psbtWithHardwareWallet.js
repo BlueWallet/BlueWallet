@@ -150,20 +150,20 @@ export default class PsbtWithHardwareWallet extends Component {
       isLoading: false,
       renderScanner: false,
       qrCodeHeight: height > width ? width - 40 : width / 3,
-      memo: props.navigation.getParam('memo'),
-      psbt: props.navigation.getParam('psbt'),
-      fromWallet: props.navigation.getParam('fromWallet'),
-      isFirstPSBTAlreadyBase64: props.navigation.getParam('isFirstPSBTAlreadyBase64'),
+      memo: props.route.params.memo,
+      psbt: props.route.params.psbt,
+      fromWallet: props.route.params.fromWallet,
+      isFirstPSBTAlreadyBase64: props.route.params.isFirstPSBTAlreadyBase64,
       isSecondPSBTAlreadyBase64: false,
       deepLinkPSBT: undefined,
-      txhex: props.navigation.getParam('txhex') || undefined,
+      txhex: props.route.params.txhex || undefined,
     };
     this.fileName = `${Date.now()}.psbt`;
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    const deepLinkPSBT = nextProps.navigation.state.params.deepLinkPSBT;
-    const txhex = nextProps.navigation.state.params.txhex;
+    const deepLinkPSBT = nextProps.route.params.deepLinkPSBT;
+    const txhex = nextProps.route.params.txhex;
     if (deepLinkPSBT) {
       try {
         let Tx = prevState.fromWallet.combinePsbt(
@@ -245,7 +245,7 @@ export default class PsbtWithHardwareWallet extends Component {
       <SafeBlueArea style={styles.root}>
         <BlueBigCheckmark style={styles.blueBigCheckmark} />
         <BlueCard>
-          <BlueButton onPress={this.props.navigation.dismiss} title={loc.send.success.done} />
+          <BlueButton onPress={this.props.navigation.dangerouslyGetParent().pop} title={loc.send.success.done} />
         </BlueCard>
       </SafeBlueArea>
     );
@@ -398,17 +398,10 @@ export default class PsbtWithHardwareWallet extends Component {
 PsbtWithHardwareWallet.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
-    dismiss: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        memo: PropTypes.string,
-        fromWallet: PropTypes.shape({
-          fromAddress: PropTypes.string,
-          fromSecret: PropTypes.string,
-        }),
-      }),
-    }),
+    dangerouslyGetParent: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

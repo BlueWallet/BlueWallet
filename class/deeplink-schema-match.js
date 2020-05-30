@@ -4,6 +4,7 @@ import BitcoinBIP70TransactionDecode from '../bip70/bip70';
 import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
+import Azteco from './azteco';
 const bitcoin = require('bitcoinjs-lib');
 const bip21 = require('bip21');
 const BlueApp: AppStorage = require('../BlueApp');
@@ -27,7 +28,7 @@ class DeeplinkSchemaMatch {
    * navigation dictionary required by react-navigation
    *
    * @param event {{url: string}} URL deeplink as passed to app, e.g. `bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo`
-   * @param completionHandler {function} Returns {routeName: string, params: object}
+   * @param completionHandler {function} Callback that returns [string, params: object]
    */
   static navigationRouteFor(event, completionHandler) {
     if (event.url === null) {
@@ -45,12 +46,15 @@ class DeeplinkSchemaMatch {
       RNFS.readFile(event.url)
         .then(file => {
           if (file) {
-            completionHandler({
-              routeName: 'PsbtWithHardwareWallet',
-              params: {
-                deepLinkPSBT: file,
+            completionHandler([
+              'SendDetailsRoot',
+              {
+                screen: 'PsbtWithHardwareWallet',
+                params: {
+                  deepLinkPSBT: file,
+                },
               },
-            });
+            ]);
           }
         })
         .catch(e => console.warn(e));
@@ -63,49 +67,69 @@ class DeeplinkSchemaMatch {
       console.log(e);
     }
     if (isBothBitcoinAndLightning) {
-      completionHandler({
-        routeName: 'HandleOffchainAndOnChain',
-        params: {
-          onWalletSelect: wallet =>
-            completionHandler(DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning)),
+      completionHandler([
+        'HandleOffchainAndOnChain',
+        {
+          screen: 'SelectWallet',
+          params: {
+            onWalletSelect: wallet =>
+              completionHandler(DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning)),
+          },
         },
-      });
+      ]);
     } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url) || BitcoinBIP70TransactionDecode.matchesPaymentURL(event.url)) {
-      completionHandler({
-        routeName: 'SendDetails',
-        params: {
-          uri: event.url,
+      completionHandler([
+        'SendDetailsRoot',
+        {
+          screen: 'SendDetails',
+          params: {
+            uri: event.url,
+          },
         },
-      });
+      ]);
     } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
-      completionHandler({
-        routeName: 'ScanLndInvoice',
-        params: {
-          uri: event.url,
+      completionHandler([
+        'ScanLndInvoiceRoot',
+        {
+          screen: 'ScanLndInvoice',
+          params: {
+            uri: event.url,
+          },
         },
-      });
+      ]);
     } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
-      completionHandler({
-        routeName: 'LNDCreateInvoice',
-        params: {
-          uri: event.url,
+      completionHandler([
+        'LNDCreateInvoiceRoot',
+        {
+          screen: 'LNDCreateInvoice',
+          params: {
+            uri: event.url,
+          },
         },
-      });
+      ]);
     } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
       let urlObject = url.parse(event.url, true) // eslint-disable-line
 
       const safelloStateToken = urlObject.query['safello-state-token'];
 
-      completionHandler({
-        routeName: 'BuyBitcoin',
-        params: {
+      completionHandler([
+        'BuyBitcoin',
+        {
           uri: event.url,
           safelloStateToken,
         },
-      });
+      ]);
+    } else if (Azteco.isRedeemUrl(event.url)) {
+      completionHandler([
+        'AztecoRedeemRoot',
+        {
+          screen: 'AztecoRedeem',
+          params: Azteco.getParamsFromUrl(event.url),
+        },
+      ]);
     } else {
       let urlObject = url.parse(event.url, true); // eslint-disable-line
-      console.log('parsed', urlObject);
+      console.log('parsed', event.url, 'into', urlObject);
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
@@ -155,14 +179,14 @@ class DeeplinkSchemaMatch {
                 return;
               }
 
-              completionHandler({
-                routeName: 'LappBrowser',
-                params: {
+              completionHandler([
+                'LappBrowser',
+                {
                   fromSecret: lnWallet.getSecret(),
                   fromWallet: lnWallet,
                   url: urlObject.query.url,
                 },
-              });
+              ]);
               break;
           }
         }
@@ -180,21 +204,21 @@ class DeeplinkSchemaMatch {
 
   static isBothBitcoinAndLightningOnWalletSelect(wallet, uri) {
     if (wallet.chain === Chain.ONCHAIN) {
-      return {
-        routeName: 'SendDetails',
-        params: {
+      return [
+        'SendDetails',
+        {
           uri: uri.bitcoin,
           fromWallet: wallet,
         },
-      };
+      ];
     } else if (wallet.chain === Chain.OFFCHAIN) {
-      return {
-        routeName: 'ScanLndInvoice',
-        params: {
+      return [
+        'ScanLndInvoice',
+        {
           uri: uri.lndInvoice,
           fromSecret: wallet.getSecret(),
         },
-      };
+      ];
     }
   }
 

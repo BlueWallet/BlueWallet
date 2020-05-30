@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea, BlueListItem } from '../../BlueComponents';
-import { useNavigation } from 'react-navigation-hooks';
+import { useNavigation } from '@react-navigation/native';
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
@@ -23,9 +23,14 @@ const NetworkSettings = () => {
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
-        <BlueListItem title={'Electrum server'} component={TouchableOpacity} onPress={() => navigate('ElectrumSettings')} />
-        <BlueListItem title={loc.settings.lightning_settings} component={TouchableOpacity} onPress={() => navigate('LightningSettings')} />
-        <BlueListItem title="Broadcast transaction" component={TouchableOpacity} onPress={() => navigate('Broadcast')} />
+        <BlueListItem title={'Electrum server'} component={TouchableOpacity} onPress={() => navigate('ElectrumSettings')} chevron />
+        <BlueListItem
+          title={loc.settings.lightning_settings}
+          component={TouchableOpacity}
+          onPress={() => navigate('LightningSettings')}
+          chevron
+        />
+        <BlueListItem title="Broadcast transaction" component={TouchableOpacity} onPress={() => navigate('Broadcast')} chevron />
       </ScrollView>
     </SafeBlueArea>
   );

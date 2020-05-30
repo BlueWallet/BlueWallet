@@ -1,4 +1,4 @@
-import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 const createHash = require('create-hash');
 
 export class AbstractWallet {

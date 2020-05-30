@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -27,7 +27,7 @@ const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
 const ReceiveDetails = () => {
-  const secret = useNavigationParam('secret');
+  const { secret } = useRoute().params;
   const [wallet, setWallet] = useState();
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
@@ -38,6 +38,7 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
+  const isFocused = useIsFocused();
 
   const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
@@ -192,7 +193,7 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          {bip21encoded === undefined ? (
+          {bip21encoded === undefined && isFocused ? (
             <View style={styles.loading}>
               <BlueLoading />
             </View>

@@ -20,7 +20,6 @@ import {
   Clipboard,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import { NavigationEvents } from 'react-navigation';
 import ImagePicker from 'react-native-image-picker';
 import {
   BlueSendButtonIcon,
@@ -30,7 +29,7 @@ import {
   BlueWalletNavigationHeader,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
-import WalletGradient from '../../class/walletGradient';
+import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import Modal from 'react-native-modal';
@@ -177,28 +176,31 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletTransactions extends Component {
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = ({ navigation, route }) => {
     return {
-      headerRight: (
+      headerRight: () => (
         <TouchableOpacity
-          disabled={navigation.getParam('isLoading') === true}
+          disabled={route.params.isLoading === true}
           style={styles.walletDetails}
           onPress={() =>
             navigation.navigate('WalletDetails', {
-              wallet: navigation.state.params.wallet,
+              wallet: route.params.wallet,
             })
           }
         >
           <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       ),
+      headerTitle: () => null,
       headerStyle: {
-        backgroundColor: WalletGradient.headerColorFor(navigation.state.params.wallet.type),
+        backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
         borderBottomWidth: 0,
         elevation: 0,
-        shadowRadius: 0,
+        // shadowRadius: 0,
+        shadowOffset: { height: 0, width: 0 },
       },
       headerTintColor: '#FFFFFF',
+      headerBackTitleVisible: false,
     };
   };
 
@@ -208,8 +210,8 @@ export default class WalletTransactions extends Component {
     super(props);
 
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
-    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this));
-    const wallet = props.navigation.getParam('wallet');
+    EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this), true);
+    const wallet = props.route.params.wallet;
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
       isHandOffUseEnabled: false,
@@ -230,7 +232,15 @@ export default class WalletTransactions extends Component {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
     const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
-    this.setState({ isHandOffUseEnabled });
+    this.setState({ isHandOffUseEnabled, isLoading: false });
+
+    this._unsubscribeFocus = this.props.navigation.addListener('focus', () => {
+      StatusBar.setBarStyle('light-content');
+      if (Platform.OS === 'android') StatusBar.setBackgroundColor(WalletGradient.headerColorFor(this.props.route.params.wallet.type));
+      this.redrawScreen();
+      this.props.navigation.setParams({ isLoading: false });
+    });
+    this._unsubscribeBlur = this.props.navigation.addListener('blur', this.onWillBlur);
   }
 
   /**
@@ -251,7 +261,7 @@ export default class WalletTransactions extends Component {
    * @returns {Array}
    */
   getTransactions(limit = Infinity) {
-    let wallet = this.props.navigation.getParam('wallet');
+    let wallet = this.props.route.params.wallet;
 
     let txs = wallet.getTransactions();
     for (let tx of txs) {
@@ -520,26 +530,35 @@ export default class WalletTransactions extends Component {
           return alert(Err.message);
         }
       }
-      this.props.navigation.navigate('SendDetails', {
-        memo: loc.lnd.refill_lnd_balance,
-        address: toAddress,
-        fromWallet: wallet,
+      this.props.navigation.navigate('SendDetailsRoot', {
+        screen: 'SendDetails',
+        params: {
+          memo: loc.lnd.refill_lnd_balance,
+          address: toAddress,
+          fromWallet: wallet,
+        },
       });
     }
   };
 
   onWillBlur() {
     StatusBar.setBarStyle('dark-content');
+    if (Platform.OS === 'android') StatusBar.setBackgroundColor('#ffffff');
   }
 
   componentWillUnmount() {
     this.onWillBlur();
     clearInterval(this.interval);
+    this._unsubscribeFocus();
+    this._unsubscribeBlur();
   }
 
   navigateToSendScreen = () => {
-    this.props.navigation.navigate('SendDetails', {
-      fromWallet: this.state.wallet,
+    this.props.navigation.navigate('SendDetailsRoot', {
+      screen: 'SendDetails',
+      params: {
+        fromWallet: this.state.wallet,
+      },
     });
   };
 
@@ -559,12 +578,17 @@ export default class WalletTransactions extends Component {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true }, () => {
         this.setState({ isLoading: false });
-        this.props.navigation.navigate(this.state.wallet.chain === Chain.ONCHAIN ? 'SendDetails' : 'ScanLndInvoice', {
+        const params = {
           fromSecret: this.state.wallet.getSecret(),
           // ScanLndInvoice actrually uses `fromSecret` so keeping it for now
           uri: ret.data ? ret.data : ret,
           fromWallet: this.state.wallet,
-        });
+        };
+        if (this.state.wallet.chain === Chain.ONCHAIN) {
+          this.props.navigation.navigate('SendDetailsRoot', { screen: 'SendDetails', params });
+        } else {
+          this.props.navigation.navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params });
+        }
       });
     }
   };
@@ -595,52 +619,57 @@ export default class WalletTransactions extends Component {
     this.onBarCodeRead({ data: await Clipboard.getString() });
   };
 
-  sendButtonLongPress = () => {
+  sendButtonLongPress = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      ActionSheet.showActionSheetWithOptions(
-        { options: [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code', 'Copy from Clipboard'], cancelButtonIndex: 0 },
-        buttonIndex => {
-          if (buttonIndex === 1) {
-            this.choosePhoto();
-          } else if (buttonIndex === 2) {
+      let options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      if (!isClipboardEmpty) {
+        options.push('Copy from Clipboard');
+      }
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.choosePhoto();
+        } else if (buttonIndex === 2) {
+          this.props.navigation.navigate('ScanQRCode', {
+            launchedBy: this.props.route.name,
+            onBarScanned: this.onBarCodeRead,
+            showFileImportButton: false,
+          });
+        } else if (buttonIndex === 3) {
+          this.copyFromClipbard();
+        }
+      });
+    } else if (Platform.OS === 'android') {
+      let buttons = [
+        {
+          text: loc.send.details.cancel,
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Choose Photo',
+          onPress: this.choosePhoto,
+        },
+        {
+          text: 'Scan QR Code',
+          onPress: () =>
             this.props.navigation.navigate('ScanQRCode', {
-              launchedBy: this.props.navigation.state.routeName,
+              launchedBy: this.props.route.name,
               onBarScanned: this.onBarCodeRead,
               showFileImportButton: false,
-            });
-          } else if (buttonIndex === 3) {
-            this.copyFromClipbard();
-          }
+            }),
         },
-      );
-    } else if (Platform.OS === 'android') {
+      ];
+      if (!isClipboardEmpty) {
+        buttons.push({
+          text: 'Copy From Clipboard',
+          onPress: this.copyFromClipbard,
+        });
+      }
       ActionSheet.showActionSheetWithOptions({
         title: '',
         message: '',
-        buttons: [
-          {
-            text: loc.send.details.cancel,
-            onPress: () => {},
-            style: 'cancel',
-          },
-          {
-            text: 'Choose Photo',
-            onPress: this.choosePhoto,
-          },
-          {
-            text: 'Scan QR Code',
-            onPress: () =>
-              this.props.navigation.navigate('ScanQRCode', {
-                launchedBy: this.props.navigation.state.routeName,
-                onBarScanned: this.onBarCodeRead,
-                showFileImportButton: false,
-              }),
-          },
-          {
-            text: 'Copy From Clipboard',
-            onPress: this.copyFromClipbard,
-          },
-        ],
+        buttons,
       });
     }
   };
@@ -656,14 +685,6 @@ export default class WalletTransactions extends Component {
             url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
           />
         )}
-        <NavigationEvents
-          onWillFocus={() => {
-            StatusBar.setBarStyle('light-content');
-            this.redrawScreen();
-          }}
-          onWillBlur={() => this.onWillBlur()}
-          onDidFocus={() => this.props.navigation.setParams({ isLoading: false })}
-        />
         <BlueWalletNavigationHeader
           wallet={this.state.wallet}
           onWalletUnitChange={wallet =>
@@ -748,7 +769,7 @@ export default class WalletTransactions extends Component {
                 <BlueReceiveButtonIcon
                   onPress={() => {
                     if (this.state.wallet.chain === Chain.OFFCHAIN) {
-                      navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
+                      navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: this.state.wallet } });
                     } else {
                       navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
                     }
@@ -770,7 +791,7 @@ export default class WalletTransactions extends Component {
                   onLongPress={this.sendButtonLongPress}
                   onPress={() => {
                     if (this.state.wallet.chain === Chain.OFFCHAIN) {
-                      navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
+                      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { fromSecret: this.state.wallet.getSecret() } });
                     } else {
                       if (
                         this.state.wallet.type === WatchOnlyWallet.type &&
@@ -821,10 +842,11 @@ WalletTransactions.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     setParams: PropTypes.func,
-    state: PropTypes.shape({
-      routeName: PropTypes.string,
-    }),
+    addListener: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.object,
   }),
 };

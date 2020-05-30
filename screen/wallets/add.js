@@ -27,9 +27,8 @@ import {
   BlueSpacing20,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { HDSegwitP2SHWallet } from '../../class/hd-segwit-p2sh-wallet';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
-import { AppStorage, HDSegwitBech32Wallet, SegwitP2SHWallet } from '../../class';
+import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
+
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 let EV = require('../../events');
@@ -227,35 +226,41 @@ export default class WalletsAdd extends Component {
                       <BlueSpacing20 />
                       <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
                       <BlueListItem
+                        containerStyle={{ paddingHorizontal: 0 }}
+                        bottomDivider={false}
                         onPress={() => {
                           this.onSelect(0, HDSegwitBech32Wallet.type);
                         }}
                         title={HDSegwitBech32Wallet.typeReadable}
                         {...(this.state.selectedIndex === 0
                           ? {
-                              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+                              rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
                             }
                           : { hideChevron: true })}
                       />
                       <BlueListItem
+                        containerStyle={{ paddingHorizontal: 0 }}
+                        bottomDivider={false}
                         onPress={() => {
                           this.onSelect(1, SegwitP2SHWallet.type);
                         }}
                         title={SegwitP2SHWallet.typeReadable}
                         {...(this.state.selectedIndex === 1
                           ? {
-                              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+                              rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
                             }
                           : { hideChevron: true })}
                       />
                       <BlueListItem
+                        containerStyle={{ paddingHorizontal: 0 }}
+                        bottomDivider={false}
                         onPress={() => {
                           this.onSelect(2, HDSegwitP2SHWallet.typeReadable.type);
                         }}
                         title={HDSegwitP2SHWallet.typeReadable}
                         {...(this.state.selectedIndex === 2
                           ? {
-                              rightIcon: <Icon name="check" type="font-awesome" color="#0c2550" />,
+                              rightIcon: <Icon name="check" type="octaicon" color="#0070FF" />,
                             }
                           : { hideChevron: true })}
                       />
@@ -368,7 +373,7 @@ export default class WalletsAdd extends Component {
                               secret: w.getSecret(),
                             });
                           } else {
-                            this.props.navigation.dismiss();
+                            this.props.navigation.goBack();
                           }
                         }
                       });
@@ -398,6 +403,5 @@ WalletsAdd.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
-    dismiss: PropTypes.func,
   }),
 };

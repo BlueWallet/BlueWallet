@@ -196,19 +196,21 @@ PODS:
     - React
   - react-native-blur (0.8.0):
     - React
-  - react-native-camera (3.23.1):
+  - react-native-camera (3.26.0):
     - React
-    - react-native-camera/RCT (= 3.23.1)
-    - react-native-camera/RN (= 3.23.1)
-  - react-native-camera/RCT (3.23.1):
+    - react-native-camera/RCT (= 3.26.0)
+    - react-native-camera/RN (= 3.26.0)
+  - react-native-camera/RCT (3.26.0):
     - React
-  - react-native-camera/RN (3.23.1):
+  - react-native-camera/RN (3.26.0):
     - React
   - react-native-document-picker (3.2.0):
     - React
   - react-native-image-picker (1.1.0):
     - React
   - react-native-randombytes (3.5.3):
+    - React
+  - react-native-safe-area-context (2.0.0):
     - React
   - react-native-slider (2.0.8):
     - React
@@ -255,7 +257,9 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.8.1):
+  - RNCAsyncStorage (1.10.0):
+    - React
+  - RNCMaskedView (0.1.10):
     - React
   - RNDefaultPreference (1.4.1):
     - React
@@ -273,9 +277,11 @@ PODS:
     - React
   - RNReactNativeHapticFeedback (1.9.0):
     - React
+  - RNScreens (2.8.0):
+    - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.3.5):
+  - RNSentry (1.3.7):
     - React
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
@@ -321,6 +327,7 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
+  - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-tcp (from `../node_modules/react-native-tcp`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -338,6 +345,7 @@ DEPENDENCIES:
   - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFS (from `../node_modules/react-native-fs`)
@@ -346,6 +354,7 @@ DEPENDENCIES:
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
+  - RNScreens (from `../node_modules/react-native-screens`)
   - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
@@ -410,6 +419,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-image-picker"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
+  react-native-safe-area-context:
+    :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
   react-native-tcp:
@@ -442,6 +453,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
+  RNCMaskedView:
+    :path: "../node_modules/@react-native-community/masked-view"
   RNDefaultPreference:
     :path: "../node_modules/react-native-default-preference"
   RNDeviceInfo:
@@ -458,6 +471,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-rate"
   RNReactNativeHapticFeedback:
     :path: "../node_modules/react-native-haptic-feedback"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
   RNSecureKeyStore:
     :path: "../node_modules/react-native-secure-key-store/ios"
   RNSentry:
@@ -498,10 +513,11 @@ SPEC CHECKSUMS:
   react-native-biometrics: c892904948a32295b128f633bcc11eda020645c5
   react-native-blue-crypto: 23f1558ad3d38d7a2edb7e2f6ed1bc520ed93e56
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-camera: 6fe72fd0a85732e2449928f9c59a2e0bf661ad3b
+  react-native-camera: 9e3d60336e221d62e5b72adf551ca31ff74a94b5
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
+  react-native-safe-area-context: 0b0460e3298465bdb4b859ea43c2d7b9128cf988
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
   react-native-tcp: be8e119e631970aaeda7f6e3207f6b7be72d5eb8
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
@@ -517,7 +533,8 @@ SPEC CHECKSUMS:
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: 00bdf63f7f1e0f11d3323533dba4f222e58bf092
+  RNCAsyncStorage: b34d2399d3e25db01d5b881949b503bd3c224d57
+  RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
@@ -526,8 +543,9 @@ SPEC CHECKSUMS:
   RNQuickAction: 6d404a869dc872cde841ad3147416a670d13fa93
   RNRate: d44a8bca6ee08f5d890ecccddaec2810955ffbb3
   RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
+  RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 8a47c89b65502d8d5b464dfb3aa5a13038e5bb08
+  RNSentry: 370623102247ebea20191b5fb549ecc7a275b324
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
@@ -539,4 +557,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 932f5bffd3ddea34b78c9ed0921a6f8cccf442b5
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1

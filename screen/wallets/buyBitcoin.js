@@ -23,7 +23,7 @@ export default class BuyBitcoin extends Component {
 
   constructor(props) {
     super(props);
-    let wallet = props.navigation.state.params.wallet;
+    let wallet = props.route.params.wallet;
     if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
@@ -84,7 +84,7 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    const { safelloStateToken } = this.props.navigation.state.params;
+    const { safelloStateToken } = this.props.route.params;
 
     let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
 
@@ -109,13 +109,11 @@ export default class BuyBitcoin extends Component {
 }
 
 BuyBitcoin.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        wallet: PropTypes.object.isRequired,
-        safelloStateToken: PropTypes.string,
-      }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      wallet: PropTypes.object.isRequired,
+      safelloStateToken: PropTypes.string,
     }),
   }),
 };

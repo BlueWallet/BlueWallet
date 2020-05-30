@@ -12,7 +12,7 @@ import {
   BlueBitcoinAmount,
   BlueLoading,
 } from '../../BlueComponents';
-import { LightningCustodianWallet } from '../../class/lightning-custodian-wallet';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -114,10 +114,10 @@ export default class ScanLndInvoice extends React.Component {
     if (!BlueApp.getWallets().some(item => item.type === LightningCustodianWallet.type)) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
-      props.navigation.dismiss();
+      props.navigation.dangerouslyGetParent().pop();
     } else {
       let fromSecret;
-      if (props.navigation.state.params.fromSecret) fromSecret = props.navigation.state.params.fromSecret;
+      if (props.route.params.fromSecret) fromSecret = props.route.params.fromSecret;
       let fromWallet = {};
 
       if (!fromSecret) {
@@ -144,8 +144,8 @@ export default class ScanLndInvoice extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.navigation.state.params.uri) {
-      let data = props.navigation.state.params.uri;
+    if (props.route.params.uri) {
+      let data = props.route.params.uri;
       // handling BIP21 w/BOLT11 support
       let ind = data.indexOf('lightning=');
       if (ind !== -1) {
@@ -360,7 +360,7 @@ export default class ScanLndInvoice extends React.Component {
                   isLoading={this.state.isLoading}
                   placeholder={loc.lnd.placeholder}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  launchedBy={this.props.navigation.state.routeName}
+                  launchedBy={this.props.route.name}
                 />
                 <View style={styles.description}>
                   <Text numberOfLines={0} style={styles.descriptionText}>
@@ -400,15 +400,14 @@ ScanLndInvoice.propTypes = {
     goBack: PropTypes.func,
     navigate: PropTypes.func,
     pop: PropTypes.func,
-    getParam: PropTypes.func,
     setParams: PropTypes.func,
-    dismiss: PropTypes.func,
-    state: PropTypes.shape({
-      routeName: PropTypes.string,
-      params: PropTypes.shape({
-        uri: PropTypes.string,
-        fromSecret: PropTypes.string,
-      }),
+    dangerouslyGetParent: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      uri: PropTypes.string,
+      fromSecret: PropTypes.string,
     }),
   }),
 };
