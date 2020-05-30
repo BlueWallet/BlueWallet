@@ -36,7 +36,7 @@
     "android:clean": "cd android;  ./gradlew clean ; cd .. ; npm run android",
     "ios": "react-native run-ios",
     "postinstall": "./node_modules/.bin/rn-nodeify --install buffer,events,process,stream,util,inherits,fs,path --hack; npm run releasenotes2json; npm run podinstall; npx jetify",
-    "test": "npm run unit && npm run jest && npm run lint",
+    "test": "npm run lint && npm run unit && npm run jest",
     "jest": "node node_modules/jest/bin/jest.js -b -w 1 tests/integration/*",
     "e2e:release": "detox build -c android.emu.release; npm run e2e:release-no-build",
     "e2e:release-no-build": "detox test -c android.emu.release --record-videos all --take-screenshots all --headless",
