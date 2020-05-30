@@ -1,6 +1,6 @@
 // import { createAppContainer } from '@react-navigation/native';
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -54,7 +54,14 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
+import { Platform } from 'react-native';
 
+const defaultScreenOptions = ({ route, navigation }) => ({
+  gestureEnabled: true,
+  cardOverlayEnabled: true,
+  headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
+  ...(Platform.OS === 'ios' ? TransitionPresets.ModalPresentationIOS : TransitionPresets.ModalTransition),
+});
 const WalletsStack = createStackNavigator();
 const WalletsRoot = () => (
   <WalletsStack.Navigator screenOptions={{ headerTitle: null, headerBackTitleVisible: false }}>
@@ -123,16 +130,27 @@ const WalletsRoot = () => (
 
 const AddWalletStack = createStackNavigator();
 const AddWalletRoot = () => (
-  <AddWalletStack.Navigator screenOptions={{}}>
+  <AddWalletStack.Navigator>
     <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions} />
     <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions} />
-    <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions} />
+    <AddWalletStack.Screen
+      name="PleaseBackup"
+      component={PleaseBackup}
+      options={PleaseBackup.navigationOptions}
+      screenOptions={{
+        headerShown: false,
+        swipeEnabled: false,
+        gestureEnabled: false,
+      }}
+    />
     <AddWalletStack.Screen
       name="PleaseBackupLNDHub"
       component={PleaseBackupLNDHub}
-      swipeEnabled={false}
-      gesturesEnabled={false}
-      options={{ headerShown: false }}
+      screenOptions={{
+        headerShown: false,
+        swipeEnabled: false,
+        gestureEnabled: false,
+      }}
     />
   </AddWalletStack.Navigator>
 );
@@ -140,7 +158,7 @@ const AddWalletRoot = () => (
 // CreateTransactionStackNavigator === SendDetailsStack
 const SendDetailsStack = createStackNavigator();
 const SendDetailsRoot = () => (
-  <SendDetailsStack.Navigator>
+  <SendDetailsStack.Navigator screenOptions={defaultScreenOptions}>
     <SendDetailsStack.Screen name="SendDetails" component={SendDetails} options={SendDetails.navigationOptions} />
     <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions} />
     <SendDetailsStack.Screen
@@ -199,7 +217,7 @@ const HandleOffchainAndOnChain = () => (
   <HandleOffchainAndOnChainStack.Navigator screenOptions={{ headerBackTitleVisible: false }}>
     {/* screens */}
     <HandleOffchainAndOnChainStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
-    <HandleOffchainAndOnChainStack.Screen name="ScanQRCode" component={ScanQRCode} options={ScanQRCode.navigationOptions} />
+    <HandleOffchainAndOnChainStack.Screen name="ScanQRCode" component={ScanQRCodeRoot} />
     {/* stacks */}
     <HandleOffchainAndOnChainStack.Screen name="ScanLndInvoice" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
     <HandleOffchainAndOnChainStack.Screen name="SendDetails" component={SendDetailsRoot} options={{ headerShown: false }} />
@@ -214,9 +232,16 @@ const AztecoRedeemRoot = () => (
   </AztecoRedeemStack.Navigator>
 );
 
+const ScanQRCodeStack = createStackNavigator();
+const ScanQRCodeRoot = () => (
+  <ScanQRCodeStack.Navigator mode="modal" screenOptions={{ headerShown: false }}>
+    <RootStack.Screen name="ScanQRCode" component={ScanQRCode} />
+  </ScanQRCodeStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
-  <RootStack.Navigator mode="modal">
+  <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions}>
     {/* stacks */}
     <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false }} />
@@ -225,6 +250,11 @@ const Navigation = () => (
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="HandleOffchainAndOnChain" component={HandleOffchainAndOnChain} options={{ headerShown: false }} />
     <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
+    <RootStack.Screen
+      name="ScanQRCodeRoot"
+      component={ScanQRCodeRoot}
+      options={{ ...TransitionPresets.ModalTransition, headerShown: false }}
+    />
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
@@ -232,7 +262,6 @@ const Navigation = () => (
     <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions} />
     <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
     <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
-    <RootStack.Screen name="ScanQRCode" component={ScanQRCode} options={{ headerShown: false }} />
     <RootStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
   </RootStack.Navigator>
 );
