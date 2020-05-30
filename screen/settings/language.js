@@ -51,6 +51,7 @@ export default class Language extends Component {
         { label: 'Українська', value: 'ua' },
         { label: 'Türkçe (TR)', value: 'tr_tr' },
         { label: 'Xhosa (XHO)', value: 'zar_xho' },
+        { label: 'Català (CA)', value: 'ca' },
       ],
     };
   }
