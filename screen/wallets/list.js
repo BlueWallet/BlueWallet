@@ -326,7 +326,7 @@ export default class WalletsList extends Component {
       return (
         <TouchableOpacity
           onPress={() => {
-            this.props.navigation.navigate('HodlHodl', { fromWallet: this.state.wallet });
+            this.props.navigation.navigate('HodlHodlRoot', { params: { wallet: this.state.wallet }, screen: 'HodlHodl' });
           }}
           style={{
             flexDirection: 'row',

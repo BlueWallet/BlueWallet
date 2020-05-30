@@ -1,6 +1,12 @@
+import { Platform } from 'react-native';
 import prompt from 'react-native-prompt-android';
 
 module.exports = (title, text, isCancelable = true, type = 'secure-text') => {
+  if (Platform.OS === 'ios' && type === 'numeric') {
+    // `react-native-prompt-android` on ios does not support numeric input
+    type = 'plain-text';
+  }
+
   return new Promise((resolve, reject) => {
     const buttons = isCancelable
       ? [

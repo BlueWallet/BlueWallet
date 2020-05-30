@@ -28,6 +28,10 @@ import WalletExport from './screen/wallets/export';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
+import HodlHodlViewOffer from './screen/wallets/hodlHodlViewOffer';
+import HodlHodlLogin from './screen/wallets/hodlHodlLogin';
+import HodlHodlWebview from './screen/wallets/hodlHodlWebview';
+import HodlHodlMyContracts from './screen/wallets/hodlHodlMyContracts';
 import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
@@ -63,7 +67,6 @@ const WalletsRoot = () => (
     <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions} />
     <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions} />
     <WalletsStack.Screen name="TransactionStatus" component={TransactionStatus} options={TransactionStatus.navigationOptions} />
-    <WalletsStack.Screen name="HodlHodl" component={HodlHodl} options={HodlHodl.navigationOptions} />
     <WalletsStack.Screen name="CPFP" component={CPFP} options={CPFP.navigationOptions} />
     <WalletsStack.Screen name="RBFBumpFee" component={RBFBumpFee} options={RBFBumpFee.navigationOptions} />
     <WalletsStack.Screen name="RBFCancel" component={RBFCancel} options={RBFCancel.navigationOptions} />
@@ -214,6 +217,17 @@ const AztecoRedeemRoot = () => (
   </AztecoRedeemStack.Navigator>
 );
 
+const HodlHodlStack = createStackNavigator();
+const HodlHodlRoot = () => (
+  <HodlHodlStack.Navigator>
+    <HodlHodlStack.Screen name="HodlHodl" component={HodlHodl} options={HodlHodl.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
+  </HodlHodlStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal">
@@ -225,6 +239,7 @@ const Navigation = () => (
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="HandleOffchainAndOnChain" component={HandleOffchainAndOnChain} options={{ headerShown: false }} />
     <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="HodlHodlRoot" component={HodlHodlRoot} options={{ headerShown: false }} />
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />
     <RootStack.Screen name="WalletXpub" component={WalletXpub} options={WalletXpub.navigationOptions} />
