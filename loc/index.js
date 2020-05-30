@@ -89,6 +89,9 @@ dayjs.extend(relativeTime);
       case 'vi_vn':
         require('dayjs/locale/vi');
         break;
+      case 'ca':
+        require('dayjs/locale/ca');
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
@@ -108,6 +111,7 @@ strings = new Localization({
   it: require('./it.js'),
   el: require('./el.js'),
   ua: require('./ua.js'),
+  ca: require('./ca.js'),
   jp_jp: require('./jp_JP.js'),
   de_de: require('./de_DE.js'),
   da_dk: require('./da_DK.js'),
