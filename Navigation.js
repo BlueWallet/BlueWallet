@@ -62,6 +62,11 @@ const defaultScreenOptions = ({ route, navigation }) => ({
   headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
   ...(Platform.OS === 'ios' ? TransitionPresets.ModalPresentationIOS : TransitionPresets.ModalTransition),
 });
+const defaultStackScreenOptions = {
+  gestureEnabled: true,
+  cardOverlayEnabled: true,
+  headerStatusBarHeight: 10,
+};
 const WalletsStack = createStackNavigator();
 const WalletsRoot = () => (
   <WalletsStack.Navigator screenOptions={{ headerTitle: null, headerBackTitleVisible: false }}>
@@ -130,7 +135,7 @@ const WalletsRoot = () => (
 
 const AddWalletStack = createStackNavigator();
 const AddWalletRoot = () => (
-  <AddWalletStack.Navigator>
+  <AddWalletStack.Navigator screenOptions={defaultStackScreenOptions}>
     <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions} />
     <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions} />
     <AddWalletStack.Screen
@@ -158,7 +163,7 @@ const AddWalletRoot = () => (
 // CreateTransactionStackNavigator === SendDetailsStack
 const SendDetailsStack = createStackNavigator();
 const SendDetailsRoot = () => (
-  <SendDetailsStack.Navigator screenOptions={defaultScreenOptions}>
+  <SendDetailsStack.Navigator screenOptions={defaultStackScreenOptions}>
     <SendDetailsStack.Screen name="SendDetails" component={SendDetails} options={SendDetails.navigationOptions} />
     <SendDetailsStack.Screen name="Confirm" component={Confirm} options={Confirm.navigationOptions} />
     <SendDetailsStack.Screen
@@ -184,9 +189,9 @@ const SendDetailsRoot = () => (
 
 const LNDCreateInvoiceStack = createStackNavigator();
 const LNDCreateInvoiceRoot = () => (
-  <LNDCreateInvoiceStack.Navigator>
+  <LNDCreateInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <LNDCreateInvoiceStack.Screen name="LNDCreateInvoice" component={LNDCreateInvoice} options={LNDCreateInvoice.navigationOptions} />
-    <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
+    <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} />
     <LNDCreateInvoiceStack.Screen
       name="LNDViewInvoice"
       component={LNDViewInvoice}
@@ -205,16 +210,16 @@ const LNDCreateInvoiceRoot = () => (
 // LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
 const ScanLndInvoiceStack = createStackNavigator();
 const ScanLndInvoiceRoot = () => (
-  <ScanLndInvoiceStack.Navigator>
+  <ScanLndInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions} />
-    <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
+    <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} />
     <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
   </ScanLndInvoiceStack.Navigator>
 );
 
 const HandleOffchainAndOnChainStack = createStackNavigator();
 const HandleOffchainAndOnChain = () => (
-  <HandleOffchainAndOnChainStack.Navigator screenOptions={{ headerBackTitleVisible: false }}>
+  <HandleOffchainAndOnChainStack.Navigator screenOptions={{ headerBackTitleVisible: false, ...defaultStackScreenOptions }}>
     {/* screens */}
     <HandleOffchainAndOnChainStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <HandleOffchainAndOnChainStack.Screen name="ScanQRCode" component={ScanQRCodeRoot} />
@@ -226,7 +231,7 @@ const HandleOffchainAndOnChain = () => (
 
 const AztecoRedeemStack = createStackNavigator();
 const AztecoRedeemRoot = () => (
-  <AztecoRedeemStack.Navigator>
+  <AztecoRedeemStack.Navigator screenOptions={defaultStackScreenOptions}>
     <AztecoRedeemStack.Screen name="AztecoRedeem" component={AztecoRedeem} options={AztecoRedeem.navigationOptions} />
     <AztecoRedeemStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
   </AztecoRedeemStack.Navigator>
