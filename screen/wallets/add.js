@@ -110,6 +110,9 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     marginTop: 24,
   },
+  noPadding: {
+    paddingHorizontal: 0,
+  },
 });
 
 export default class WalletsAdd extends Component {
@@ -226,7 +229,7 @@ export default class WalletsAdd extends Component {
                       <BlueSpacing20 />
                       <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
                       <BlueListItem
-                        containerStyle={{ paddingHorizontal: 0 }}
+                        containerStyle={styles.noPadding}
                         bottomDivider={false}
                         onPress={() => {
                           this.onSelect(0, HDSegwitBech32Wallet.type);
@@ -239,7 +242,7 @@ export default class WalletsAdd extends Component {
                           : { hideChevron: true })}
                       />
                       <BlueListItem
-                        containerStyle={{ paddingHorizontal: 0 }}
+                        containerStyle={styles.noPadding}
                         bottomDivider={false}
                         onPress={() => {
                           this.onSelect(1, SegwitP2SHWallet.type);
@@ -252,7 +255,7 @@ export default class WalletsAdd extends Component {
                           : { hideChevron: true })}
                       />
                       <BlueListItem
-                        containerStyle={{ paddingHorizontal: 0 }}
+                        containerStyle={styles.noPadding}
                         bottomDivider={false}
                         onPress={() => {
                           this.onSelect(2, HDSegwitP2SHWallet.typeReadable.type);
@@ -405,3 +408,4 @@ WalletsAdd.propTypes = {
     goBack: PropTypes.func,
   }),
 };
+
