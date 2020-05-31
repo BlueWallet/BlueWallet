@@ -96,20 +96,15 @@ export default class WalletTransactions extends Component {
   }
 
   async componentDidMount() {
+    this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
+    this._unsubscribeBlur = this.props.navigation.addListener('blur', this.onBlur);
+
     this.props.navigation.setParams({ isLoading: false });
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
     const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
     this.setState({ isHandOffUseEnabled, isLoading: false });
-
-    this._unsubscribeFocus = this.props.navigation.addListener('focus', () => {
-      StatusBar.setBarStyle('light-content');
-      if (Platform.OS === 'android') StatusBar.setBackgroundColor(WalletGradient.headerColorFor(this.props.route.params.wallet.type));
-      this.redrawScreen();
-      this.props.navigation.setParams({ isLoading: false });
-    });
-    this._unsubscribeBlur = this.props.navigation.addListener('blur', this.onWillBlur);
   }
 
   /**
@@ -467,13 +462,22 @@ export default class WalletTransactions extends Component {
     }
   };
 
-  onWillBlur() {
+  onFocus = () => {
+    StatusBar.setBarStyle('light-content');
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(WalletGradient.headerColorFor(this.props.route.params.wallet.type));
+    }
+    this.redrawScreen();
+    this.props.navigation.setParams({ isLoading: false });
+  };
+
+  onBlur = () => {
     StatusBar.setBarStyle('dark-content');
     if (Platform.OS === 'android') StatusBar.setBackgroundColor('#ffffff');
-  }
+  };
 
   componentWillUnmount() {
-    this.onWillBlur();
+    this.onBlur();
     clearInterval(this.interval);
     this._unsubscribeFocus();
     this._unsubscribeBlur();
