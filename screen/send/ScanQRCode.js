@@ -1,6 +1,5 @@
 /* global alert */
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
@@ -194,13 +193,6 @@ const ScanQRCode = () => {
 
 ScanQRCode.navigationOptions = {
   headerShown: false,
-};
-
-ScanQRCode.propTypes = {
-  navigation: PropTypes.shape({
-    addListener: PropTypes.func,
-    navigate: PropTypes.func,
-  }),
 };
 
 export default ScanQRCode;
