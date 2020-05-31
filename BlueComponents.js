@@ -2096,7 +2096,13 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
-            NavigationService.navigate('ScanQRCode', { onBarScanned: this.props.onBarScanned, launchedBy: this.props.launchedBy });
+            NavigationService.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: this.props.launchedBy,
+                onBarScanned: this.props.onBarScanned,
+              },
+            });
             Keyboard.dismiss();
           }}
           style={{
