@@ -1,12 +1,19 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  common: {
+    flex: 1,
+    paddingTop: 20,
+  },
+});
 
 export default class RBFCancel extends CPFP {
   static navigationOptions = () => ({
@@ -77,7 +84,7 @@ export default class RBFCancel extends CPFP {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.root}>
           <ActivityIndicator />
         </View>
       );
@@ -93,7 +100,7 @@ export default class RBFCancel extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />

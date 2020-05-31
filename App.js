@@ -194,7 +194,7 @@ export default class App extends React.Component {
                 title={loc.send.details.cancel}
                 onPress={() => this.setState({ isClipboardContentModalVisible: false })}
               />
-              <View style={{ marginHorizontal: 8 }} />
+              <View style={styles.space} />
               <BlueButton
                 noMinWidth
                 title="OK"
@@ -215,7 +215,7 @@ export default class App extends React.Component {
   render() {
     return (
       <SafeAreaProvider>
-        <View style={{ flex: 1 }}>
+        <View style={styles.root}>
           <NavigationContainer
             ref={nav => {
               this.navigation = nav;
@@ -233,6 +233,12 @@ export default class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  space: {
+    marginHorizontal: 8,
+  },
   modalContent: {
     backgroundColor: '#FFFFFF',
     padding: 22,
