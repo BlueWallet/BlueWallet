@@ -116,12 +116,6 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletsAdd extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.wallets.add.title,
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
     this.state = {
@@ -402,10 +396,15 @@ export default class WalletsAdd extends Component {
   }
 }
 
+WalletsAdd.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.wallets.add.title,
+  headerLeft: null,
+});
+
 WalletsAdd.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
   }),
 };
-
