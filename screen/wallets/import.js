@@ -79,6 +79,17 @@ const WalletsImport = () => {
     importMnemonic(value, additionalProperties);
   };
 
+  const importScan = () => {
+    navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        launchedBy: route.name,
+        onBarScanned: onBarScanned,
+        showFileImportButton: false,
+      },
+    });
+  };
+
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
@@ -103,12 +114,7 @@ const WalletsImport = () => {
           onPress={importButtonPressed}
         />
         <BlueSpacing20 />
-        <BlueButtonLink
-          title={loc.wallets.import.scan_qr}
-          onPress={() => {
-            navigation.navigate('ScanQRCode', { launchedBy: 'ImportWallet', onBarScanned, showFileImportButton: true });
-          }}
-        />
+        <BlueButtonLink title={loc.wallets.import.scan_qr} onPress={importScan} />
       </View>
       {Platform.select({
         ios: (
