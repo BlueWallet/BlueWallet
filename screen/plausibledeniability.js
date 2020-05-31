@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -9,6 +9,12 @@ let BlueApp: AppStorage = require('../BlueApp');
 let prompt = require('../prompt');
 let EV = require('../events');
 let loc = require('../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class PlausibleDeniability extends Component {
   static navigationOptions = {
@@ -35,7 +41,7 @@ export default class PlausibleDeniability extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <BlueCard>
           <ScrollView maxHeight={450}>
             <BlueText>{loc.plausibledeniability.help}</BlueText>

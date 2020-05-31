@@ -13,6 +13,7 @@ import {
   Switch,
   Platform,
   Linking,
+  StyleSheet,
 } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -30,6 +31,74 @@ const prompt = require('../../prompt');
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+  save: {
+    marginHorizontal: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveText: {
+    color: '#0c2550',
+  },
+  address: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  textLabel1: {
+    color: '#0c2550',
+    fontWeight: '500',
+    fontSize: 14,
+    marginVertical: 12,
+  },
+  textLabel2: {
+    color: '#0c2550',
+    fontWeight: '500',
+    fontSize: 14,
+    marginVertical: 16,
+  },
+  textValue: {
+    color: '#81868e',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  input: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+  inputText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 33,
+  },
+  hardware: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  center: {
+    alignItems: 'center',
+  },
+  delete: {
+    color: '#d0021b',
+    fontSize: 15,
+    fontWeight: '500',
+  },
+});
+
 export default class WalletDetails extends Component {
   static navigationOptions = ({ navigation, route }) => ({
     ...BlueNavigationStyle(),
@@ -37,14 +106,14 @@ export default class WalletDetails extends Component {
     headerRight: () => (
       <TouchableOpacity
         disabled={route.params.isLoading === true}
-        style={{ marginHorizontal: 16, justifyContent: 'center', alignItems: 'center' }}
+        style={styles.save}
         onPress={() => {
           if (route.params.saveAction) {
             route.params.saveAction();
           }
         }}
       >
-        <Text style={{ color: '#0c2550' }}>{loc.wallets.details.save}</Text>
+        <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
       </TouchableOpacity>
     ),
   });
@@ -143,17 +212,17 @@ export default class WalletDetails extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1 }}>
+        <View style={styles.root}>
           <ActivityIndicator />
         </View>
       );
     }
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <SafeBlueArea style={styles.root}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView behavior="position">
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-              <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+              <BlueCard style={styles.address}>
                 {(() => {
                   if (
                     [LegacyWallet.type, SegwitBech32Wallet.type, SegwitP2SHWallet.type].includes(this.state.wallet.type) ||
@@ -161,32 +230,15 @@ export default class WalletDetails extends Component {
                   ) {
                     return (
                       <React.Fragment>
-                        <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
-                          {loc.wallets.details.address.toLowerCase()}
-                        </Text>
-                        <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.getAddress()}</Text>
+                        <Text style={styles.textLabel1}>{loc.wallets.details.address.toLowerCase()}</Text>
+                        <Text style={styles.textValue}>{this.state.wallet.getAddress()}</Text>
                       </React.Fragment>
                     );
                   }
                 })()}
-                <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>
-                  {loc.wallets.add.wallet_name.toLowerCase()}
-                </Text>
+                <Text style={styles.textLabel2}>{loc.wallets.add.wallet_name.toLowerCase()}</Text>
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    borderColor: '#d2d2d2',
-                    borderBottomColor: '#d2d2d2',
-                    borderWidth: 1.0,
-                    borderBottomWidth: 0.5,
-                    backgroundColor: '#f5f5f5',
-                    minHeight: 44,
-                    height: 44,
-                    alignItems: 'center',
-                    borderRadius: 4,
-                  }}
-                >
+                <View style={styles.input}>
                   <TextInput
                     placeholder={loc.send.details.note_placeholder}
                     value={this.state.walletName}
@@ -200,21 +252,17 @@ export default class WalletDetails extends Component {
                       }
                     }}
                     numberOfLines={1}
-                    style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                    style={styles.inputText}
                     editable={!this.state.isLoading}
                     underlineColorAndroid="transparent"
                   />
                 </View>
                 <BlueSpacing20 />
-                <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
-                  {loc.wallets.details.type.toLowerCase()}
-                </Text>
-                <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>{this.state.wallet.typeReadable}</Text>
+                <Text style={styles.textLabel1}>{loc.wallets.details.type.toLowerCase()}</Text>
+                <Text style={styles.textValue}>{this.state.wallet.typeReadable}</Text>
                 {this.state.wallet.type === LightningCustodianWallet.type && (
                   <React.Fragment>
-                    <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
-                      {loc.wallets.details.connected_to.toLowerCase()}
-                    </Text>
+                    <Text style={styles.textLabel1}>{loc.wallets.details.connected_to.toLowerCase()}</Text>
                     <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
                   </React.Fragment>
                 )}
@@ -222,10 +270,8 @@ export default class WalletDetails extends Component {
                   <BlueSpacing20 />
                   {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
                     <>
-                      <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 16 }}>
-                        {loc.wallets.details.advanced.toLowerCase()}
-                      </Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Text style={styles.textLabel2}>{loc.wallets.details.advanced.toLowerCase()}</Text>
+                      <View style={styles.hardware}>
                         <BlueText>{loc.wallets.details.use_with_hardware_wallet}</BlueText>
                         <Switch
                           value={this.state.useWithHardwareWallet}
@@ -233,12 +279,8 @@ export default class WalletDetails extends Component {
                         />
                       </View>
                       <React.Fragment>
-                        <Text style={{ color: '#0c2550', fontWeight: '500', fontSize: 14, marginVertical: 12 }}>
-                          {loc.wallets.details.master_fingerprint.toLowerCase()}
-                        </Text>
-                        <Text style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
-                          {this.state.wallet.getMasterFingerprintHex()}
-                        </Text>
+                        <Text style={styles.textLabel1}>{loc.wallets.details.master_fingerprint.toLowerCase()}</Text>
+                        <Text style={styles.textValue}>{this.state.wallet.getMasterFingerprintHex()}</Text>
                       </React.Fragment>
                       <BlueSpacing20 />
                     </>
@@ -281,7 +323,7 @@ export default class WalletDetails extends Component {
                   )}
                   <BlueSpacing20 />
                   <TouchableOpacity
-                    style={{ alignItems: 'center' }}
+                    style={styles.center}
                     onPress={() => {
                       ReactNativeHapticFeedback.trigger('notificationWarning', { ignoreAndroidSystemSettings: false });
                       Alert.alert(
@@ -320,7 +362,7 @@ export default class WalletDetails extends Component {
                       );
                     }}
                   >
-                    <Text style={{ color: '#d0021b', fontSize: 15, fontWeight: '500' }}>{loc.wallets.details.delete}</Text>
+                    <Text style={styles.delete}>{loc.wallets.details.delete}</Text>
                   </TouchableOpacity>
                 </View>
               </BlueCard>

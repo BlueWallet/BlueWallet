@@ -1,9 +1,65 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, View, BackHandler, Text, ScrollView } from 'react-native';
+import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
 const loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  word: {
+    width: 'auto',
+    marginRight: 8,
+    marginBottom: 8,
+    backgroundColor: '#f5f5f5',
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 8,
+    paddingRight: 8,
+    borderRadius: 4,
+  },
+  wortText: {
+    color: '#81868E',
+    fontWeight: 'bold',
+  },
+  scrollViewContent: {
+    justifyContent: 'space-between',
+  },
+  please: {
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  successText: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#0C2550',
+  },
+  pleaseText: {
+    paddingBottom: 10,
+    paddingRight: 0,
+    paddingLeft: 0,
+    color: '#0C2550',
+  },
+  secret: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 14,
+  },
+  ok: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+});
 
 const PleaseBackup = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -29,21 +85,8 @@ const PleaseBackup = () => {
     let component = [];
     for (const [index, secret] of words.entries()) {
       component.push(
-        <View
-          style={{
-            width: 'auto',
-            marginRight: 8,
-            marginBottom: 8,
-            backgroundColor: '#f5f5f5',
-            paddingTop: 6,
-            paddingBottom: 6,
-            paddingLeft: 8,
-            paddingRight: 8,
-            borderRadius: 4,
-          }}
-          key={`${secret}${index}`}
-        >
-          <Text style={{ color: '#81868E', fontWeight: 'bold' }}>
+        <View style={styles.word} key={`${secret}${index}`}>
+          <Text style={styles.wortText}>
             {`${index + 1}`}. {secret}
           </Text>
         </View>,
@@ -53,30 +96,20 @@ const PleaseBackup = () => {
   };
 
   return isLoading ? (
-    <View style={{ flex: 1, paddingTop: 20 }}>
+    <View style={styles.loading}>
       <ActivityIndicator />
     </View>
   ) : (
-    <SafeBlueArea style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }} testID="PleaseBackupScrollView">
-        <View style={{ alignItems: 'center', paddingHorizontal: 16 }}>
-          <BlueText style={{ textAlign: 'center', fontWeight: 'bold', color: '#0C2550' }}>{loc.pleasebackup.success}</BlueText>
-          <BlueText style={{ paddingBottom: 10, paddingRight: 0, paddingLeft: 0, color: '#0C2550' }}>{loc.pleasebackup.text}</BlueText>
+    <SafeBlueArea style={styles.flex}>
+      <ScrollView contentContainerStyle={styles.scrollViewContent} testID="PleaseBackupScrollView">
+        <View style={styles.please}>
+          <BlueText style={styles.successText}>{loc.pleasebackup.success}</BlueText>
+          <BlueText style={styles.pleaseText}>{loc.pleasebackup.text}</BlueText>
 
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              marginTop: 14,
-            }}
-          >
-            {renderSecret()}
-          </View>
+          <View style={styles.secret}>{renderSecret()}</View>
 
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-            <View style={{ flex: 1 }}>
+          <View style={styles.ok}>
+            <View style={styles.flex}>
               <BlueSpacing20 />
               <BlueButton testID="PleasebackupOk" onPress={handleBackButton} title={loc.pleasebackup.ok} />
             </View>

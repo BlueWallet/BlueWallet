@@ -1,12 +1,19 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View, ScrollView } from 'react-native';
+import { ActivityIndicator, View, ScrollView, StyleSheet } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingTop: 16,
+  },
+});
 
 export default class RBFBumpFee extends CPFP {
   static navigationOptions = () => ({
@@ -66,7 +73,7 @@ export default class RBFBumpFee extends CPFP {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 16 }}>
+        <View style={styles.root}>
           <ActivityIndicator />
         </View>
       );
@@ -82,7 +89,7 @@ export default class RBFBumpFee extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 16 }}>
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -95,7 +102,7 @@ export default class RBFBumpFee extends CPFP {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingBottom: 16 }}>
+      <SafeBlueArea style={styles.root}>
         <ScrollView>
           {this.renderStage1(
             'We will replace this transaction with the one with a higher fee, so it should be mined faster. This is called RBF - Replace By Fee.',
