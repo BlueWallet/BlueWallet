@@ -56,21 +56,27 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import { Platform } from 'react-native';
 
-const defaultScreenOptions = ({ route, navigation }) => ({
-  gestureEnabled: true,
-  cardOverlayEnabled: true,
-  headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
-  ...(Platform.OS === 'ios' ? TransitionPresets.ModalPresentationIOS : TransitionPresets.ModalTransition),
-});
-const defaultStackScreenOptions = {
-  gestureEnabled: true,
-  cardOverlayEnabled: true,
-  headerStatusBarHeight: 10,
-};
+const defaultScreenOptions =
+  Platform.OS === 'ios'
+    ? ({ route, navigation }) => ({
+        gestureEnabled: true,
+        cardOverlayEnabled: true,
+        headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
+        ...TransitionPresets.ModalPresentationIOS,
+      })
+    : undefined;
+const defaultStackScreenOptions =
+  Platform.OS === 'ios'
+    ? {
+        gestureEnabled: true,
+        cardOverlayEnabled: true,
+        headerStatusBarHeight: 10,
+      }
+    : undefined;
 const WalletsStack = createStackNavigator();
 const WalletsRoot = () => (
-  <WalletsStack.Navigator screenOptions={{ headerTitle: null, headerBackTitleVisible: false }}>
-    <WalletsStack.Screen name="WalletsList" component={WalletsList} options={{ headerShown: false }} />
+  <WalletsStack.Navigator>
+    <WalletsStack.Screen name="WalletsList" component={WalletsList} options={WalletsList.navigationOptions} />
     <WalletsStack.Screen name="WalletTransactions" component={WalletTransactions} options={WalletTransactions.navigationOptions} />
     <WalletsStack.Screen name="WalletDetails" component={WalletDetails} options={WalletDetails.navigationOptions} />
     <WalletsStack.Screen name="TransactionDetails" component={TransactionDetails} options={TransactionDetails.navigationOptions} />
@@ -87,7 +93,10 @@ const WalletsRoot = () => (
           backgroundColor: '#FFFFFF',
           borderBottomWidth: 0,
           elevation: 0,
+          shadowColor: 'transparent',
         },
+        title: '',
+        headerBackTitleVisible: false,
         headerTintColor: '#0c2550',
       }}
     />

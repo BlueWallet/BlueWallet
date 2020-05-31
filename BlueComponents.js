@@ -427,8 +427,8 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
       fontWeight: '600',
       color: BlueApp.settings.foregroundColor,
     },
-    headerTintColor: BlueApp.settings.foregroundColor,
     headerRight,
+    headerTintColor: BlueApp.settings.foregroundColor,
     // headerBackTitle: null,
     headerBackTitleVisible: false,
   };
@@ -2270,6 +2270,12 @@ export class BlueBitcoinAmount extends Component {
     unit: BitcoinUnit.BTC,
   };
 
+  textInput = React.createRef();
+
+  handleTextInputOnPress = () => {
+    this.textInput.current.focus();
+  };
+
   render() {
     const amount = this.props.amount || '0';
     let localCurrency = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
@@ -2282,7 +2288,7 @@ export class BlueBitcoinAmount extends Component {
     }
     if (amount === BitcoinUnit.MAX) localCurrency = ''; // we dont want to display NaN
     return (
-      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
+      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={this.handleTextInputOnPress}>
         <View>
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
             <TextInput
@@ -2318,7 +2324,7 @@ export class BlueBitcoinAmount extends Component {
               }}
               placeholder="0"
               maxLength={10}
-              ref={textInput => (this.textInput = textInput)}
+              ref={this.textInput}
               editable={!this.props.isLoading && !this.props.disabled}
               value={amount}
               placeholderTextColor={this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2}

@@ -408,4 +408,3 @@ WalletsAdd.propTypes = {
     goBack: PropTypes.func,
   }),
 };
-
