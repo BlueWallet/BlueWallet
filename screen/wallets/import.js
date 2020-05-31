@@ -85,7 +85,7 @@ const WalletsImport = () => {
       params: {
         launchedBy: route.name,
         onBarScanned: onBarScanned,
-        showFileImportButton: false,
+        showFileImportButton: true,
       },
     });
   };
