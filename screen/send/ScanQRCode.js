@@ -1,6 +1,6 @@
 /* global alert */
-import React, { useState } from 'react';
-import { Image, View, TouchableOpacity, Platform, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
 import ImagePicker from 'react-native-image-picker';
@@ -55,12 +55,23 @@ const styles = StyleSheet.create({
 
 const ScanQRCode = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { navigate } = useNavigation();
+  const navigation = useNavigation();
   const route = useRoute();
   const showFileImportButton = route.params.showFileImportButton || false;
   const { launchedBy, onBarScanned } = route.params;
   const scannedCache = {};
   const isFocused = useIsFocused();
+
+  useEffect(() => {
+    navigation.addListener('focus', () => {
+      StatusBar.setBarStyle('light-content');
+      if (Platform.OS === 'android') StatusBar.setBackgroundColor('#000000');
+    });
+    navigation.addListener('blur', () => {
+      StatusBar.setBarStyle('dark-content');
+      if (Platform.OS === 'android') StatusBar.setBackgroundColor('#ffffff');
+    });
+  }, [navigation]);
 
   const HashIt = function(s) {
     return createHash('sha256')
@@ -81,7 +92,7 @@ const ScanQRCode = () => {
       setIsLoading(true);
       try {
         if (launchedBy) {
-          navigate(launchedBy);
+          navigation.navigate(launchedBy);
         }
         if (ret.additionalProperties) {
           onBarScanned(ret.data, ret.additionalProperties);
@@ -146,7 +157,7 @@ const ScanQRCode = () => {
   };
 
   const dismiss = () => {
-    navigate(launchedBy);
+    navigation.navigate(launchedBy);
   };
 
   return (
