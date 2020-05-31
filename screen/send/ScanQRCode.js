@@ -199,6 +199,7 @@ ScanQRCode.navigationOptions = {
 ScanQRCode.propTypes = {
   navigation: PropTypes.shape({
     addListener: PropTypes.func,
+    navigate: PropTypes.func,
   }),
 };
 
