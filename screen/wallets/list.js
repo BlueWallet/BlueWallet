@@ -22,6 +22,7 @@ import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
+import NavigationService from '../../NavigationService';
 const EV = require('../../events');
 const A = require('../../analytics');
 let BlueApp: AppStorage = require('../../BlueApp');
@@ -148,6 +149,22 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletsList extends Component {
+  static navigationOptions = ({ navigation, route }) => {
+    return {
+      title: '',
+      headerRight: () => (
+        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
+          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+        </TouchableOpacity>
+      ),
+      headerStyle: {
+        shadowColor: 'transparent',
+        elevation: 0,
+        shadowOpacity: 0,
+      },
+    };
+  };
+
   walletsCarousel = React.createRef();
 
   constructor(props) {
@@ -413,16 +430,6 @@ export default class WalletsList extends Component {
     );
   };
 
-  renderNavigationHeader = () => {
-    return (
-      <View style={styles.headerStyle}>
-        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => this.props.navigation.navigate('Settings')}>
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
   renderLocalTrader = () => {
     if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
@@ -528,10 +535,13 @@ export default class WalletsList extends Component {
   };
 
   onScanButtonPressed = () => {
-    this.props.navigation.navigate('ScanQRCode', {
-      launchedBy: this.props.route.name,
-      onBarScanned: this.onBarScanned,
-      showFileImportButton: false,
+    this.props.navigation.navigate('ScanQRCodeRoot', {
+      screen: 'ScanQRCode',
+      params: {
+        launchedBy: this.props.route.name,
+        onBarScanned: this.onBarScanned,
+        showFileImportButton: false,
+      },
     });
   };
 
@@ -584,10 +594,13 @@ export default class WalletsList extends Component {
         if (buttonIndex === 1) {
           this.choosePhoto();
         } else if (buttonIndex === 2) {
-          this.props.navigation.navigate('ScanQRCode', {
-            launchedBy: this.props.route.name,
-            onBarScanned: this.onBarCodeRead,
-            showFileImportButton: false,
+          this.props.navigation.navigate('ScanQRCodeRoot', {
+            screen: 'ScanQRCode',
+            params: {
+              launchedBy: this.props.route.name,
+              onBarScanned: this.onBarScanned,
+              showFileImportButton: false,
+            },
           });
         } else if (buttonIndex === 3) {
           this.copyFromClipbard();
@@ -607,10 +620,13 @@ export default class WalletsList extends Component {
         {
           text: 'Scan QR Code',
           onPress: () =>
-            this.props.navigation.navigate('ScanQRCode', {
-              launchedBy: this.props.route.name,
-              onBarScanned: this.onBarCodeRead,
-              showFileImportButton: false,
+            this.props.navigation.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: this.props.route.name,
+                onBarScanned: this.onBarScanned,
+                showFileImportButton: false,
+              },
             }),
         },
       ];
@@ -632,7 +648,6 @@ export default class WalletsList extends Component {
     return (
       <View style={styles.root}>
         <View style={styles.walletsListWrapper}>
-          {this.renderNavigationHeader()}
           <SectionList
             refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={!this.state.isFlatListRefreshControlHidden} />}
             renderItem={this.renderSectionItem}
