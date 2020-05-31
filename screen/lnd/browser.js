@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert, Platform } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert, Platform, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -205,6 +205,75 @@ window.ReactNativeWebView.postMessage('interval');
 
            `;
 
+const styles = StyleSheet.create({
+  safeRoot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 44,
+  },
+  safeBack: {
+    marginHorizontal: 8,
+  },
+  safeURL: {
+    flex: 1,
+    marginHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  safeURLTextWrap: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1.0,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+  },
+  safeURLText: {
+    flex: 1,
+    marginLeft: 4,
+    minHeight: 33,
+  },
+  safeURLHome: {
+    alignContent: 'flex-end',
+    height: 44,
+    flexDirection: 'row',
+    marginHorizontal: 8,
+  },
+  sync: {
+    color: 'red',
+    backgroundColor: 'transparent',
+    paddingLeft: 15,
+  },
+  activity: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingLeft: 20,
+    alignContent: 'center',
+  },
+  goBack: {
+    backgroundColor: 'transparent',
+    paddingLeft: 10,
+  },
+  colorRed: {
+    color: 'red',
+  },
+  colorGray: {
+    color: 'gray',
+  },
+  transparent: {
+    backgroundColor: 'transparent',
+  },
+  colorGreen: {
+    color: 'green',
+  },
+});
+
 export default class Browser extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
@@ -350,46 +419,28 @@ export default class Browser extends Component {
   render() {
     return (
       <SafeBlueArea>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 44 }}>
+        <View style={styles.safeRoot}>
           <TouchableOpacity
             disabled={!this.state.canGoBack}
             onPress={() => {
               this.webview.goBack();
             }}
-            style={{ marginHorizontal: 8 }}
+            style={styles.safeBack}
           >
             <Ionicons
-              name={'ios-arrow-round-back'}
+              name="ios-arrow-round-back"
               size={36}
-              style={{
-                color: this.state.canGoBack ? 'red' : 'gray',
-                backgroundColor: 'transparent',
-                paddingLeft: 10,
-              }}
+              style={[styles.goBack, this.state.canGoBack ? styles.colorRed : styles.colorGray]}
             />
           </TouchableOpacity>
 
-          <View style={{ flex: 1, marginHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                alignItems: 'center',
-                marginVertical: 8,
-                borderRadius: 4,
-              }}
-            >
+          <View style={styles.safeURL}>
+            <View style={styles.safeURLTextWrap}>
               <TextInput
                 onChangeText={text => this.setState({ stateURL: text })}
                 value={this.state.stateURL}
                 numberOfLines={1}
-                style={{ flex: 1, marginLeft: 4, minHeight: 33 }}
+                style={styles.safeURLText}
                 editable
                 onSubmitEditing={() => {
                   Keyboard.dismiss();
@@ -402,7 +453,7 @@ export default class Browser extends Component {
               />
             </View>
           </View>
-          <View style={{ alignContent: 'flex-end', height: 44, flexDirection: 'row', marginHorizontal: 8 }}>
+          <View style={styles.safeURLHome}>
             {Platform.OS !== 'ios' && ( // on iOS lappbrowser opens blank page, thus, no HOME button
               <TouchableOpacity
                 onPress={() => {
@@ -411,12 +462,9 @@ export default class Browser extends Component {
                 }}
               >
                 <Ionicons
-                  name={'ios-home'}
+                  name="ios-home"
                   size={36}
-                  style={{
-                    color: this.state.weblnEnabled ? 'green' : 'red',
-                    backgroundColor: 'transparent',
-                  }}
+                  style={[styles.transparent, this.state.weblnEnabled ? styles.colorGreen : styles.colorRed]}
                 />
               </TouchableOpacity>
             )}
@@ -431,17 +479,9 @@ export default class Browser extends Component {
               }}
             >
               {!this.state.pageIsLoading ? (
-                <Ionicons
-                  name={'ios-sync'}
-                  size={36}
-                  style={{
-                    color: 'red',
-                    backgroundColor: 'transparent',
-                    paddingLeft: 15,
-                  }}
-                />
+                <Ionicons name="ios-sync" size={36} style={styles.sync} />
               ) : (
-                <View style={{ flex: 1, justifyContent: 'center', paddingLeft: 20, alignContent: 'center' }}>
+                <View style={styles.activity}>
                   <ActivityIndicator />
                 </View>
               )}

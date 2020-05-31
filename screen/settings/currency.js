@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, TouchableOpacity, ActivityIndicator, View } from 'react-native';
+import { FlatList, TouchableOpacity, ActivityIndicator, View, StyleSheet } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle, BlueListItem, BlueText, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
@@ -8,6 +8,17 @@ let loc = require('../../loc');
 let currency = require('../../currency');
 
 const data = Object.values(FiatUnit);
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  activity: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 const Currency = () => {
   const [isSavingNewPreferredCurrency, setIsSavingNewPreferredCurrency] = useState(false);
@@ -30,9 +41,9 @@ const Currency = () => {
 
   if (selectedCurrency !== null && selectedCurrency !== undefined) {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
         <FlatList
-          style={{ flex: 1 }}
+          style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
           data={data}
           extraData={data}
@@ -63,7 +74,7 @@ const Currency = () => {
     );
   }
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <View style={styles.activity}>
       <ActivityIndicator />
     </View>
   );

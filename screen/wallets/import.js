@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { Platform, Dimensions, View, Keyboard } from 'react-native';
+import { Platform, Dimensions, View, Keyboard, StyleSheet } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -17,6 +17,17 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
 let loc = require('../../loc');
 const { width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingTop: 40,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+  },
+});
 
 const WalletsImport = () => {
   const [isToolbarVisibleForAndroid, setIsToolbarVisibleForAndroid] = useState(false);
@@ -69,7 +80,7 @@ const WalletsImport = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1, paddingTop: 40 }}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput
@@ -81,7 +92,7 @@ const WalletsImport = () => {
       />
 
       <BlueSpacing20 />
-      <View style={{ flex: 1, alignItems: 'center' }}>
+      <View style={styles.center}>
         <BlueButton
           testID="DoImport"
           disabled={importText.trim().length === 0}

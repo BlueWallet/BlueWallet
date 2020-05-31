@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   Text,
+  StyleSheet,
 } from 'react-native';
 import {
   BlueNavigationStyle,
@@ -27,6 +28,103 @@ import { Icon } from 'react-native-elements';
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  createButton: {
+    marginHorizontal: 56,
+    marginVertical: 16,
+    minHeight: 45,
+    alignContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  scanRoot: {
+    height: 36,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#9AA0AA',
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    marginHorizontal: 4,
+  },
+  scanClick: {
+    marginLeft: 4,
+    color: BlueApp.settings.inverseForegroundColor,
+  },
+  walletRoot: {
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  walletChooseWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  walletChooseText: {
+    color: '#9aa0aa',
+    fontSize: 14,
+    marginRight: 8,
+  },
+  walletNameWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+  walletNameTouch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  walletNameText: {
+    color: '#0c2550',
+    fontSize: 14,
+  },
+  walletNameBalance: {
+    color: '#0c2550',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+    marginRight: 4,
+  },
+  walletNameSats: {
+    color: '#0c2550',
+    fontSize: 11,
+    fontWeight: '600',
+    textAlignVertical: 'bottom',
+    marginTop: 2,
+  },
+  error: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  root: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  amount: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  fiat: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1.0,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+  },
+  fiat2: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 33,
+  },
+});
 
 export default class LNDCreateInvoice extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -194,7 +292,7 @@ export default class LNDCreateInvoice extends Component {
 
   renderCreateButton = () => {
     return (
-      <View style={{ marginHorizontal: 56, marginVertical: 16, minHeight: 45, alignContent: 'center', backgroundColor: '#FFFFFF' }}>
+      <View style={styles.createButton}>
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
@@ -218,20 +316,10 @@ export default class LNDCreateInvoice extends Component {
           });
           Keyboard.dismiss();
         }}
-        style={{
-          height: 36,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          backgroundColor: '#9AA0AA',
-          borderRadius: 4,
-          paddingVertical: 4,
-          paddingHorizontal: 8,
-          marginHorizontal: 4,
-        }}
+        style={styles.scanRoot}
       >
         <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
-        <Text style={{ marginLeft: 4, color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
+        <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
     );
   };
@@ -239,32 +327,30 @@ export default class LNDCreateInvoice extends Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 16, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={styles.walletRoot}>
         {!this.state.isLoading && (
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
+            style={styles.walletChooseWrap}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+        <View style={styles.walletNameWrap}>
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
+            style={styles.walletNameTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', { onWalletSelect: this.onWalletSelect, chainType: Chain.OFFCHAIN })
             }
           >
-            <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.fromWallet.getLabel()}</Text>
-            <Text style={{ color: '#0c2550', fontSize: 14, fontWeight: '600', marginLeft: 8, marginRight: 4 }}>
+            <Text style={styles.walletNameText}>{this.state.fromWallet.getLabel()}</Text>
+            <Text style={styles.walletNameBalance}>
               {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
-            <Text style={{ color: '#0c2550', fontSize: 11, fontWeight: '600', textAlignVertical: 'bottom', marginTop: 2 }}>
-              {BitcoinUnit.SATS}
-            </Text>
+            <Text style={styles.walletNameSats}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -278,7 +364,7 @@ export default class LNDCreateInvoice extends Component {
   render() {
     if (!this.state.fromWallet) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.error}>
           <Text>System error: Source wallet not found (this should never happen)</Text>
         </View>
       );
@@ -286,8 +372,8 @@ export default class LNDCreateInvoice extends Component {
 
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
-          <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={styles.root}>
+          <View style={styles.amount}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
@@ -310,28 +396,13 @@ export default class LNDCreateInvoice extends Component {
                 unit={BitcoinUnit.SATS}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
-              <View
-                style={{
-                  flexDirection: 'row',
-                  borderColor: '#d2d2d2',
-                  borderBottomColor: '#d2d2d2',
-                  borderWidth: 1.0,
-                  borderBottomWidth: 0.5,
-                  backgroundColor: '#f5f5f5',
-                  minHeight: 44,
-                  height: 44,
-                  marginHorizontal: 20,
-                  alignItems: 'center',
-                  marginVertical: 8,
-                  borderRadius: 4,
-                }}
-              >
+              <View style={styles.fiat}>
                 <TextInput
                   onChangeText={text => this.setState({ description: text })}
                   placeholder={loc.receive.details.label}
                   value={this.state.description}
                   numberOfLines={1}
-                  style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                  style={styles.fiat2}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}

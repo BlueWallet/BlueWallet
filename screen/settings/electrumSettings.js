@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, TextInput } from 'react-native';
+import { View, TextInput, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -8,6 +8,72 @@ import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNav
 import PropTypes from 'prop-types';
 let loc = require('../../loc');
 let BlueElectrum = require('../../BlueElectrum');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  status: {
+    textAlign: 'center',
+    color: '#9AA0AA',
+    marginBottom: 4,
+  },
+  connectWrap: {
+    width: 'auto',
+    height: 34,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  container: {
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 16,
+    paddingRight: 16,
+    borderRadius: 20,
+  },
+  connectText: {
+    fontWeight: '600',
+  },
+  containerConnected: {
+    backgroundColor: '#D2F8D6',
+  },
+  containerDisconnected: {
+    backgroundColor: '#F8D2D2',
+  },
+  textConnected: {
+    color: '#37C0A1',
+  },
+  textDisconnected: {
+    color: '#D0021B',
+  },
+  hostname: {
+    textAlign: 'center',
+    color: '#0C2550',
+  },
+  explain: {
+    color: '#9AA0AA',
+    marginBottom: -24,
+  },
+  inputWrap: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    borderRadius: 4,
+  },
+  inputText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 36,
+    height: 36,
+  },
+});
 
 export default class ElectrumSettings extends Component {
   static navigationOptions = () => ({
@@ -86,106 +152,58 @@ export default class ElectrumSettings extends Component {
 
   render() {
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <ScrollView>
           <BlueCard>
-            <BlueText style={{ textAlign: 'center', color: '#9AA0AA', marginBottom: 4 }}>Status</BlueText>
-            <View style={{ width: 'auto', height: 34, flexWrap: 'wrap', justifyContent: 'center', flexDirection: 'row' }}>
-              <View
-                style={{
-                  backgroundColor: this.state.config.status === 1 ? '#D2F8D6' : '#F8D2D2',
-                  paddingTop: 6,
-                  paddingBottom: 6,
-                  paddingLeft: 16,
-                  paddingRight: 16,
-                  borderRadius: 20,
-                }}
-              >
-                <BlueText style={{ fontWeight: '600', color: this.state.config.status === 1 ? '#37C0A1' : '#D0021B' }}>
+            <BlueText style={styles.status}>Status</BlueText>
+            <View style={styles.connectWrap}>
+              <View style={[styles.container, this.state.config.status === 1 ? styles.containerConnected : styles.containerDisconnected]}>
+                <BlueText style={[styles.connectText, this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected]}>
                   {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
                 </BlueText>
               </View>
             </View>
             <BlueSpacing20 />
-            <BlueText style={{ textAlign: 'center', color: '#0C2550' }} onPress={this.checkServer}>
+            <BlueText style={styles.hostname} onPress={this.checkServer}>
               {this.state.config.host}:{this.state.config.port}
             </BlueText>
             <BlueSpacing20 />
           </BlueCard>
           <BlueCard>
-            <BlueText style={{ color: '#9AA0AA', marginBottom: -24 }}>{loc.settings.electrum_settings_explain}</BlueText>
+            <BlueText style={styles.explain}>{loc.settings.electrum_settings_explain}</BlueText>
           </BlueCard>
           <BlueCard>
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                alignItems: 'center',
-                borderRadius: 4,
-              }}
-            >
+            <View style={styles.inputWrap}>
               <TextInput
                 placeholder={'host, for example 111.222.333.444'}
                 value={this.state.host}
                 onChangeText={text => this.setState({ host: text })}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
+                style={styles.inputText}
                 editable={!this.state.isLoading}
                 underlineColorAndroid="transparent"
               />
             </View>
             <BlueSpacing20 />
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                alignItems: 'center',
-                borderRadius: 4,
-              }}
-            >
+            <View style={styles.inputWrap}>
               <TextInput
                 placeholder={'TCP port, usually 50001'}
                 value={this.state.port}
                 onChangeText={text => this.setState({ port: text })}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
+                style={styles.inputText}
                 editable={!this.state.isLoading}
                 underlineColorAndroid="transparent"
               />
             </View>
             <BlueSpacing20 />
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                alignItems: 'center',
-                borderRadius: 4,
-              }}
-            >
+            <View style={styles.inputWrap}>
               <TextInput
                 placeholder={'SSL port, usually 50002'}
                 value={this.state.sslPort}
                 onChangeText={text => this.setState({ sslPort: text })}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 36, height: 36 }}
+                style={styles.inputText}
                 editable={!this.state.isLoading}
                 underlineColorAndroid="transparent"
               />

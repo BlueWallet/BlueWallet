@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, Clipboard, ScrollView } from 'react-native';
+import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, Clipboard, ScrollView, StyleSheet } from 'react-native';
 import {
   BlueSpacing20,
   BlueReplaceFeeSuggestions,
@@ -22,6 +22,60 @@ let BlueElectrum = require('../../BlueElectrum');
 let loc = require('../../loc');
 /** @type {AppStorage} */
 let BlueApp = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  explain: {
+    flex: 1,
+    paddingBottom: 16,
+  },
+  center: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  hex: {
+    color: '#0c2550',
+    fontWeight: '500',
+  },
+  hexInput: {
+    borderColor: '#ebebeb',
+    backgroundColor: '#d2f8d6',
+    borderRadius: 4,
+    marginTop: 20,
+    color: '#37c0a1',
+    fontWeight: '500',
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 16,
+  },
+  action: {
+    marginVertical: 24,
+  },
+  actionText: {
+    color: '#9aa0aa',
+    fontSize: 15,
+    fontWeight: '500',
+    alignSelf: 'center',
+  },
+  doneWrap: {
+    flex: 1,
+    paddingTop: 19,
+  },
+  doneCard: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingTop: 76,
+    paddingBottom: 16,
+  },
+  blueBigCheckmark: {
+    marginTop: 43,
+    marginBottom: 53,
+  },
+});
 
 export default class CPFP extends Component {
   static navigationOptions = () => ({
@@ -116,7 +170,7 @@ export default class CPFP extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.root}>
           <ActivityIndicator />
         </View>
       );
@@ -132,7 +186,7 @@ export default class CPFP extends Component {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />
@@ -145,7 +199,7 @@ export default class CPFP extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingBottom: 16 }}>
+      <SafeBlueArea style={styles.explain}>
         <ScrollView>
           {this.renderStage1(
             'We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.',
@@ -157,33 +211,16 @@ export default class CPFP extends Component {
 
   renderStage2() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
-          <TextInput
-            style={{
-              borderColor: '#ebebeb',
-              backgroundColor: '#d2f8d6',
-              borderRadius: 4,
-              marginTop: 20,
-              color: '#37c0a1',
-              fontWeight: '500',
-              fontSize: 14,
-              paddingHorizontal: 16,
-              paddingBottom: 16,
-              paddingTop: 16,
-            }}
-            height={112}
-            multiline
-            editable
-            value={this.state.txhex}
-          />
+      <View style={styles.root}>
+        <BlueCard style={styles.center}>
+          <BlueText style={styles.hex}>{loc.send.create.this_is_hex}</BlueText>
+          <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
-          <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.txhex)}>
-            <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+          <TouchableOpacity style={styles.action} onPress={() => Clipboard.setString(this.state.txhex)}>
+            <Text style={styles.actionText}>Copy and broadcast later</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
-            <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Verify on coinb.in</Text>
+          <TouchableOpacity style={styles.action} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
+            <Text style={styles.actionText}>Verify on coinb.in</Text>
           </TouchableOpacity>
           <BlueButton onPress={() => this.broadcast()} title={loc.send.confirm.sendNow} />
         </BlueCard>
@@ -193,11 +230,11 @@ export default class CPFP extends Component {
 
   renderStage3() {
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 76, paddingBottom: 16 }} />
+      <SafeBlueArea style={styles.doneWrap}>
+        <BlueCard style={styles.center}>
+          <View style={styles.doneCard} />
         </BlueCard>
-        <BlueBigCheckmark style={{ marginTop: 43, marginBottom: 53 }} />
+        <BlueBigCheckmark style={styles.blueBigCheckmark} />
         <BlueCard>
           <BlueButton
             onPress={() => {
@@ -212,9 +249,9 @@ export default class CPFP extends Component {
 
   renderStage1(text) {
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+      <SafeBlueArea style={styles.root}>
         <BlueSpacing />
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
+        <BlueCard style={styles.center}>
           <BlueText>{text}</BlueText>
           <BlueSpacing20 />
           <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />

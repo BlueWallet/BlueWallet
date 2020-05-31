@@ -10,6 +10,7 @@ import {
   Platform,
   View,
   TextInput,
+  StyleSheet,
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
@@ -34,6 +35,86 @@ let EV = require('../../events');
 let A = require('../../analytics');
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  label: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 16,
+    borderRadius: 4,
+  },
+  textInputCommon: {
+    flex: 1,
+    marginHorizontal: 8,
+    color: '#81868e',
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 10,
+    marginHorizontal: 20,
+    borderWidth: 0,
+    minHeight: 100,
+  },
+  button: {
+    width: '45%',
+    height: 88,
+  },
+  or: {
+    borderWidth: 0,
+    justifyContent: 'center',
+    marginHorizontal: 8,
+    alignSelf: 'center',
+  },
+  orCenter: {
+    color: '#0c2550',
+  },
+  advanced: {
+    marginHorizontal: 20,
+  },
+  advancedText: {
+    color: '#0c2550',
+    fontWeight: '500',
+  },
+  lndUri: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    alignItems: 'center',
+    marginVertical: 16,
+    borderRadius: 4,
+  },
+  createButton: {
+    alignItems: 'center',
+    flex: 1,
+    marginTop: 32,
+  },
+  import: {
+    marginBottom: 0,
+    marginTop: 24,
+  },
+  noPadding: {
+    paddingHorizontal: 0,
+  },
+});
+
 export default class WalletsAdd extends Component {
   constructor(props) {
     super(props);
@@ -78,7 +159,7 @@ export default class WalletsAdd extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.loading}>
           <ActivityIndicator />
         </View>
       );
@@ -89,22 +170,7 @@ export default class WalletsAdd extends Component {
         <ScrollView>
           <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
             <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 16,
-                borderRadius: 4,
-              }}
-            >
+            <View style={styles.label}>
               <TextInput
                 testID="WalletNameInput"
                 value={this.state.label}
@@ -113,23 +179,14 @@ export default class WalletsAdd extends Component {
                 onChangeText={text => {
                   this.setLabel(text);
                 }}
-                style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
+                style={styles.textInputCommon}
                 editable={!this.state.isLoading}
                 underlineColorAndroid="transparent"
               />
             </View>
             <BlueFormLabel>{loc.wallets.add.wallet_type}</BlueFormLabel>
 
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingTop: 10,
-                marginHorizontal: 20,
-                borderWidth: 0,
-                minHeight: 100,
-              }}
-            >
+            <View style={styles.buttons}>
               <BitcoinButton
                 testID="ActivateBitcoinButton"
                 active={this.state.activeBitcoin}
@@ -140,13 +197,10 @@ export default class WalletsAdd extends Component {
                     activeLightning: false,
                   });
                 }}
-                style={{
-                  width: '45%',
-                  height: 88,
-                }}
+                style={styles.button}
               />
-              <View style={{ borderWidth: 0, justifyContent: 'center', marginHorizontal: 8, alignSelf: 'center' }}>
-                <BlueTextCentered style={{ color: '#0c2550' }}>{loc.wallets.add.or}</BlueTextCentered>
+              <View style={styles.or}>
+                <BlueTextCentered style={styles.orCenter}>{loc.wallets.add.or}</BlueTextCentered>
               </View>
               <LightningButton
                 active={this.state.activeLightning}
@@ -157,22 +211,19 @@ export default class WalletsAdd extends Component {
                     activeLightning: true,
                   });
                 }}
-                style={{
-                  width: '45%',
-                  height: 88,
-                }}
+                style={styles.button}
               />
             </View>
 
-            <View style={{ marginHorizontal: 20 }}>
+            <View style={styles.advanced}>
               {(() => {
                 if (this.state.activeBitcoin && this.state.isAdvancedOptionsEnabled) {
                   return (
                     <View>
                       <BlueSpacing20 />
-                      <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
+                      <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
                       <BlueListItem
-                        containerStyle={{ paddingHorizontal: 0 }}
+                        containerStyle={styles.noPadding}
                         bottomDivider={false}
                         onPress={() => {
                           this.onSelect(0, HDSegwitBech32Wallet.type);
@@ -185,7 +236,7 @@ export default class WalletsAdd extends Component {
                           : { hideChevron: true })}
                       />
                       <BlueListItem
-                        containerStyle={{ paddingHorizontal: 0 }}
+                        containerStyle={styles.noPadding}
                         bottomDivider={false}
                         onPress={() => {
                           this.onSelect(1, SegwitP2SHWallet.type);
@@ -198,7 +249,7 @@ export default class WalletsAdd extends Component {
                           : { hideChevron: true })}
                       />
                       <BlueListItem
-                        containerStyle={{ paddingHorizontal: 0 }}
+                        containerStyle={styles.noPadding}
                         bottomDivider={false}
                         onPress={() => {
                           this.onSelect(2, HDSegwitP2SHWallet.typeReadable.type);
@@ -216,24 +267,10 @@ export default class WalletsAdd extends Component {
                   return (
                     <React.Fragment>
                       <BlueSpacing20 />
-                      <Text style={{ color: '#0c2550', fontWeight: '500' }}>{loc.settings.advanced_options}</Text>
+                      <Text style={styles.advancedText}>{loc.settings.advanced_options}</Text>
                       <BlueSpacing20 />
                       <BlueText>Connect to your LNDHub</BlueText>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          borderColor: '#d2d2d2',
-                          borderBottomColor: '#d2d2d2',
-                          borderWidth: 1.0,
-                          borderBottomWidth: 0.5,
-                          backgroundColor: '#f5f5f5',
-                          minHeight: 44,
-                          height: 44,
-                          alignItems: 'center',
-                          marginVertical: 16,
-                          borderRadius: 4,
-                        }}
-                      >
+                      <View style={styles.lndUri}>
                         <TextInput
                           value={this.state.walletBaseURI}
                           onChangeText={text => {
@@ -244,7 +281,7 @@ export default class WalletsAdd extends Component {
                           clearButtonMode="while-editing"
                           autoCapitalize="none"
                           placeholderTextColor="#81868e"
-                          style={{ flex: 1, marginHorizontal: 8, color: '#81868e' }}
+                          style={styles.textInputCommon}
                           editable={!this.state.isLoading}
                           underlineColorAndroid="transparent"
                         />
@@ -255,13 +292,7 @@ export default class WalletsAdd extends Component {
                   return <View />;
                 }
               })()}
-              <View
-                style={{
-                  alignItems: 'center',
-                  flex: 1,
-                  marginTop: 32,
-                }}
-              >
+              <View style={styles.createButton}>
                 {!this.state.isLoading ? (
                   <BlueButton
                     testID="Create"
@@ -351,7 +382,7 @@ export default class WalletsAdd extends Component {
               </View>
               <BlueButtonLink
                 testID="ImportWallet"
-                style={{ marginBottom: 0, marginTop: 24 }}
+                style={styles.import}
                 title={loc.wallets.add.import_wallet}
                 onPress={() => {
                   this.props.navigation.navigate('ImportWallet');
@@ -377,3 +408,4 @@ WalletsAdd.propTypes = {
     goBack: PropTypes.func,
   }),
 };
+
