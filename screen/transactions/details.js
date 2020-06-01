@@ -149,8 +149,8 @@ export default class TransactionsDetails extends Component {
                 }
               }
             })()}
-            'from' in{' '}
-            {this.state && (
+
+            {'from' in this.state && (
               <>
                 <View style={styles.rowHeader}>
                   <BlueText style={styles.rowCaption}>{loc.transactions.details.from}</BlueText>
@@ -159,8 +159,8 @@ export default class TransactionsDetails extends Component {
                 <BlueText style={styles.rowValue}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
               </>
             )}
-            'to' in{' '}
-            {this.state && (
+
+            {'to' in this.state && (
               <>
                 <View style={styles.rowHeader}>
                   <BlueText style={styles.rowCaption}>{loc.transactions.details.to}</BlueText>
@@ -169,12 +169,14 @@ export default class TransactionsDetails extends Component {
                 <BlueText style={styles.rowValue}>{arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}</BlueText>
               </>
             )}
+
             {'fee' in this.state.tx && (
               <>
                 <BlueText style={styles.rowCaption}>{loc.send.create.fee}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.fee + ' sats'}</BlueText>
               </>
             )}
+
             {'hash' in this.state.tx && (
               <>
                 <View style={styles.rowHeader}>
@@ -196,24 +198,28 @@ export default class TransactionsDetails extends Component {
                 </TouchableOpacity>
               </>
             )}
+
             {'received' in this.state.tx && (
               <>
                 <BlueText style={styles.rowCaption}>Received</BlueText>
                 <BlueText style={styles.rowValue}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
               </>
             )}
+
             {'block_height' in this.state.tx && this.state.tx.block_height > 0 && (
               <>
                 <BlueText style={styles.rowCaption}>Block Height</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.block_height}</BlueText>
               </>
             )}
+
             {'inputs' in this.state.tx && (
               <>
                 <BlueText style={styles.rowCaption}>Inputs</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.inputs.length}</BlueText>
               </>
             )}
+
             {'outputs' in this.state.tx && this.state.tx.outputs.length > 0 && (
               <>
                 <BlueText style={styles.rowCaption}>Outputs</BlueText>
