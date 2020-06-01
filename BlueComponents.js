@@ -34,7 +34,6 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
-import { BitcoinTransaction } from './models/bitcoinTransactionInfo';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -2265,10 +2264,19 @@ export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
     amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    /**
+     * callback that returns currently typed amount, in current denomination, e.g. 0.001 or 10000 or $9.34
+     * (btc, sat, fiat)
+     */
     onChangeText: PropTypes.func,
+    /**
+     * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
+     */
     onAmountUnitChange: PropTypes.func,
     disabled: PropTypes.bool,
   };
+
+  static conversionCache = {};
 
   constructor(props) {
     super(props);
@@ -2297,11 +2305,22 @@ export class BlueBitcoinAmount extends Component {
         sats = new BigNumber(currency.fiatToBTC(amount)).multipliedBy(100000000).toString();
         break;
     }
+    if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && BlueBitcoinAmount.conversionCache[amount + previousUnit]) {
+      // cache hit! we reuse old value that supposedly doesnt have rounding errors
+      sats = BlueBitcoinAmount.conversionCache[amount + previousUnit];
+    }
     console.log('so, in sats its', sats);
 
     let newInputValue = loc.formatBalanceWithoutSuffix(sats, newUnit, false);
     newInputValue = newInputValue.replace(/[^\d.-]/g, ''); // filtering, leaving only numbers & dots
-    this.props.onChangeText(new BitcoinTransaction(undefined, newInputValue, sats));
+    console.log('and in', newUnit, 'its', newInputValue);
+
+    if (newUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
+      BlueBitcoinAmount.conversionCache[newInputValue + newUnit] = amount;
+    }
+    this.props.onChangeText(newInputValue);
+    if (this.props.onAmountUnitChange) this.props.onAmountUnitChange(newUnit);
   }
 
   /**
@@ -2381,6 +2400,7 @@ export class BlueBitcoinAmount extends Component {
               )}
               <TextInput
                 {...this.props}
+                testID={'BitcoinAmountInput'}
                 keyboardType="numeric"
                 adjustsFontSizeToFit
                 onChangeText={text => {
@@ -2403,11 +2423,11 @@ export class BlueBitcoinAmount extends Component {
                     if (this.state.unit !== BitcoinUnit.BTC) {
                       text = text.replace(/[^0-9.]/g, '');
                     }
-                    this.props.onChangeText(new BitcoinTransaction(undefined, text, 200));
+                    this.props.onChangeText(text);
                   } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
-                    this.props.onChangeText(new BitcoinTransaction(undefined, text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), 200));
+                    this.props.onChangeText(text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
                   } else {
-                    this.props.onChangeText(new BitcoinTransaction(undefined, text, 200));
+                    this.props.onChangeText(text);
                   }
                 }}
                 onBlur={() => {
@@ -2454,9 +2474,11 @@ export class BlueBitcoinAmount extends Component {
               </Text>
             </View>
           </View>
-          <TouchableOpacity style={{ alignSelf: 'center', marginRight: 20 }} onPress={this.changeAmountUnit}>
-            <Image source={require('./img/round-compare-arrows-24-px.png')} />
-          </TouchableOpacity>
+          {!this.props.disabled && (
+            <TouchableOpacity style={{ alignSelf: 'center', marginRight: 20 }} onPress={this.changeAmountUnit}>
+              <Image source={require('./img/round-compare-arrows-24-px.png')} />
+            </TouchableOpacity>
+          )}
         </View>
       </TouchableWithoutFeedback>
     );

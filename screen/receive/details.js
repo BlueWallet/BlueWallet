@@ -25,6 +25,7 @@ import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
+const currency = require('../../currency');
 
 const ReceiveDetails = () => {
   const { secret } = useRoute().params;
@@ -33,6 +34,7 @@ const ReceiveDetails = () => {
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState(0);
+  const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState();
   const [qrCodeSVG, setQrCodeSVG] = useState();
   const [isCustom, setIsCustom] = useState(false);
@@ -117,28 +119,40 @@ const ReceiveDetails = () => {
   const createCustomAmountAddress = () => {
     setIsCustom(true);
     setIsCustomModalVisible(false);
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount: customAmount, label: customLabel }));
+    let amount = customAmount;
+    switch (customUnit) {
+      case BitcoinUnit.BTC:
+        // nop
+        break;
+      case BitcoinUnit.SATS:
+        amount = currency.satoshiToBTC(customAmount);
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        amount = currency.fiatToBTC(customAmount);
+        break;
+    }
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
   };
 
   const clearCustomAmount = () => {
     setIsCustom(false);
     setIsCustomModalVisible(false);
-    setCustomAmount(undefined);
+    setCustomAmount('');
     setCustomLabel('');
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
   };
-
-  const setCustomountSats = transactionInfo => {
-    console.warn(transactionInfo)
-    setCustomAmount(transactionInfo.amount);
-  }
 
   const renderCustomAmountModal = () => {
     return (
       <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <BlueBitcoinAmount amount={customAmount || ''} onChangeText={setCustomountSats} />
+            <BlueBitcoinAmount
+              unit={customUnit}
+              amount={customAmount || ''}
+              onChangeText={setCustomAmount}
+              onAmountUnitChange={setCustomUnit}
+            />
             <View style={styles.customAmount}>
               <TextInput
                 onChangeText={setCustomLabel}
@@ -177,6 +191,21 @@ const ReceiveDetails = () => {
     }
   };
 
+  /**
+   * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
+   */
+  const getDisplayAmount = () => {
+    switch (customUnit) {
+      case BitcoinUnit.BTC:
+        return customAmount + ' BTC';
+      case BitcoinUnit.SATS:
+        return currency.satoshiToBTC(customAmount) + ' BTC';
+      case BitcoinUnit.LOCAL_CURRENCY:
+        return currency.fiatToBTC(customAmount) + ' BTC';
+    }
+    return customAmount + ' ' + customUnit;
+  };
+
   return (
     <SafeBlueArea style={styles.root}>
       {isHandOffUseEnabled && address !== undefined && (
@@ -191,7 +220,7 @@ const ReceiveDetails = () => {
           {isCustom && (
             <>
               <BlueText style={styles.amount} numberOfLines={1}>
-                {customAmount} {BitcoinUnit.BTC}
+                {getDisplayAmount()}
               </BlueText>
               <BlueText style={styles.label} numberOfLines={1}>
                 {customLabel}

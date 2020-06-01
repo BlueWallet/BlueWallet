@@ -42,6 +42,7 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const bitcoin = require('bitcoinjs-lib');
+const currency = require('../../currency');
 let BigNumber = require('bignumber.js');
 const { width } = Dimensions.get('window');
 let BlueApp: AppStorage = require('../../BlueApp');
@@ -254,11 +255,12 @@ export default class SendDetails extends Component {
         recipientsScrollIndex: 0,
         fromWallet,
         addresses: [],
+        units: [],
         memo: '',
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         fee: 1,
         feeSliderValue: 1,
-        amountUnit: fromWallet.preferredBalanceUnit,
+        amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         bip70TransactionExpiration: null,
         renderWalletSelectionButtonHidden: false,
       };
@@ -343,6 +345,7 @@ export default class SendDetails extends Component {
     this.renderNavigationHeader();
     console.log('send/details - componentDidMount');
     StatusBar.setBarStyle('dark-content');
+    /** @type {BitcoinTransaction[]} */
     let addresses = [];
     let initialMemo = '';
     if (this.props.route.params.uri) {
@@ -447,33 +450,13 @@ export default class SendDetails extends Component {
     return { address, amount, memo };
   }
 
-  recalculateAvailableBalance(balance, amount, fee) {
-    if (!amount) amount = 0;
-    if (!fee) fee = 0;
-    let availableBalance;
-    try {
-      availableBalance = new BigNumber(balance);
-      availableBalance = availableBalance.div(100000000); // sat2btc
-      availableBalance = availableBalance.minus(amount);
-      availableBalance = availableBalance.minus(fee);
-      availableBalance = availableBalance.toString(10);
-    } catch (err) {
-      return balance;
-    }
-
-    return (availableBalance === 'NaN' && balance) || availableBalance;
-  }
-
   async processBIP70Invoice(text) {
     try {
       if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
         Keyboard.dismiss();
         return BitcoinBIP70TransactionDecode.decode(text)
           .then(response => {
-            const recipient = new BitcoinTransaction(
-              response.address,
-              loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
-            );
+            const recipient = new BitcoinTransaction(response.address, currency.satoshiToBTC(response.amount), response.amount);
             return {
               recipient,
               memo: response.memo,
@@ -499,7 +482,6 @@ export default class SendDetails extends Component {
     let error = false;
     let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
     for (const [index, transaction] of this.state.addresses.entries()) {
-      console.warn(transaction);
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
         error = loc.send.details.amount_field_is_not_valid;
         console.log('validation error');
@@ -509,7 +491,7 @@ export default class SendDetails extends Component {
       } else if (!transaction.address) {
         error = loc.send.details.address_field_is_not_valid;
         console.log('validation error');
-      } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), transaction.amount, 0) < 0) {
+      } else if (this.state.fromWallet.getBalance() - transaction.amountSats < 0) {
         // first sanity check is that sending amount is not bigger than available balance
         error = loc.send.details.total_exceeds_balance;
         console.log('validation error');
@@ -579,7 +561,7 @@ export default class SendDetails extends Component {
         targets = [{ address: transaction.address }];
         break;
       }
-      const value = new BigNumber(transaction.amount).multipliedBy(100000000).toNumber();
+      const value = transaction.amountSats;
       if (value > 0) {
         targets.push({ address: transaction.address, value });
       }
@@ -943,14 +925,30 @@ export default class SendDetails extends Component {
           <BlueBitcoinAmount
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
-            onChangeText={text => {
-              item.amount = text.amount;
-              item.amountSats = text.amountSats;
-              const transactions = this.state.addresses;
-              transactions[index] = item;
-              this.setState({ addresses: transactions });
+            onAmountUnitChange={unit => {
+              const units = this.state.units;
+              units[index] = unit;
+              this.setState({ units });
             }}
-            unit={this.state.amountUnit}
+            onChangeText={text => {
+              item.amount = text;
+              switch (this.state.units[index] || this.state.amountUnit) {
+                case BitcoinUnit.BTC:
+                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  break;
+                case BitcoinUnit.LOCAL_CURRENCY:
+                  item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  break;
+                default:
+                case BitcoinUnit.SATS:
+                  item.amountSats = parseInt(text);
+                  break;
+              }
+              const addresses = this.state.addresses;
+              addresses[index] = item;
+              this.setState({ addresses });
+            }}
+            unit={this.state.units[index] || this.state.amountUnit}
             inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
           />
           <BlueAddressInput
@@ -961,13 +959,11 @@ export default class SendDetails extends Component {
                 const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(text);
                 transactions[index].address = recipient.address;
                 transactions[index].amount = recipient.amount;
-                transactions[index].amountSats = recipient.amount;
                 this.setState({ addresses: transactions, memo: memo, fee, feeSliderValue, isLoading: false });
               } catch (_e) {
                 const { address, amount, memo } = this.decodeBitcoinUri(text);
                 item.address = address || text;
                 item.amount = amount || item.amount;
-                item.amountSats = item.amount;
                 transactions[index] = item;
                 this.setState({
                   addresses: transactions,
