@@ -155,7 +155,7 @@ export class SendCoinsConfirmScreen extends Component<Props> {
           <Text style={[styles.buttonDescription, { alignSelf: 'center' }]}>{i18n.send.details.to}</Text>
           <Text style={styles.address}>{item.address}</Text>
           <View style={styles.feeBoxContainer}>
-            <Text style={typography.caption}>{i18n.send.details.fee}</Text>
+            <Text style={typography.caption}>{`${i18n.send.details.fee}  `}</Text>
             <View style={styles.feeBox}>
               <Text style={styles.fee}>
                 {fee} {i18n.send.details.feeUnit}

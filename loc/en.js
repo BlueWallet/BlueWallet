@@ -221,7 +221,7 @@ module.exports = {
       note: 'Note (optional)',
       to: 'to',
       feeUnit: 'Sat/B',
-      fee: 'Fee: ',
+      fee: 'Fee:',
       create: 'Create Invoice',
       remaining_balance: 'Remaining balance',
       total_exceeds_balance: 'The sending amount exceeds the available balance.',
