@@ -397,7 +397,7 @@ describe('BlueWallet UI Tests', () => {
       }
     }
 
-    let transaction = bitcoin.Transaction.fromHex(txhex);
+    const transaction = bitcoin.Transaction.fromHex(txhex);
     assert.ok(transaction.ins.length === 1 || transaction.ins.length === 2); // depending on current fees gona use either 1 or 2 inputs
     assert.strictEqual(transaction.outs.length, 2);
     assert.strictEqual(bitcoin.address.fromOutputScript(transaction.outs[0].script), 'bc1q063ctu6jhe5k4v8ka99qac8rcm2tzjjnuktyrl'); // to address
@@ -488,8 +488,5 @@ async function helperImportWallet(importText, expectedWalletLabel, expectedBalan
 }
 
 function hashIt(s) {
-  return createHash('sha256')
-    .update(s)
-    .digest()
-    .toString('hex');
+  return createHash('sha256').update(s).digest().toString('hex');
 }

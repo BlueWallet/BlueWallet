@@ -113,7 +113,7 @@ export default class WalletImport {
           password = await prompt('This looks like password-protected private key (BIP38)', 'Enter password to decrypt', false);
         } while (!password);
 
-        let decryptedKey = await bip38.decrypt(importText, password, status => {
+        const decryptedKey = await bip38.decrypt(importText, password, status => {
           console.warn(status.percent + '%');
         });
 
@@ -124,7 +124,7 @@ export default class WalletImport {
 
       // is it lightning custodian?
       if (importText.indexOf('blitzhub://') !== -1 || importText.indexOf('lndhub://') !== -1) {
-        let lnd = new LightningCustodianWallet();
+        const lnd = new LightningCustodianWallet();
         if (importText.includes('@')) {
           const split = importText.split('@');
           lnd.setBaseURI(split[1]);
@@ -144,7 +144,7 @@ export default class WalletImport {
 
       // trying other wallet types
 
-      let hd4 = new HDSegwitBech32Wallet();
+      const hd4 = new HDSegwitBech32Wallet();
       hd4.setSecret(importText);
       if (hd4.validateMnemonic()) {
         await hd4.fetchBalance();
@@ -154,15 +154,15 @@ export default class WalletImport {
         }
       }
 
-      let segwitWallet = new SegwitP2SHWallet();
+      const segwitWallet = new SegwitP2SHWallet();
       segwitWallet.setSecret(importText);
       if (segwitWallet.getAddress()) {
         // ok its a valid WIF
 
-        let legacyWallet = new LegacyWallet();
+        const legacyWallet = new LegacyWallet();
         legacyWallet.setSecret(importText);
 
-        let segwitBech32Wallet = new SegwitBech32Wallet();
+        const segwitBech32Wallet = new SegwitBech32Wallet();
         segwitBech32Wallet.setSecret(importText);
 
         await legacyWallet.fetchBalance();
@@ -185,7 +185,7 @@ export default class WalletImport {
 
       // case - WIF is valid, just has uncompressed pubkey
 
-      let legacyWallet = new LegacyWallet();
+      const legacyWallet = new LegacyWallet();
       legacyWallet.setSecret(importText);
       if (legacyWallet.getAddress()) {
         await legacyWallet.fetchBalance();
@@ -195,7 +195,7 @@ export default class WalletImport {
 
       // if we're here - nope, its not a valid WIF
 
-      let hd1 = new HDLegacyBreadwalletWallet();
+      const hd1 = new HDLegacyBreadwalletWallet();
       hd1.setSecret(importText);
       if (hd1.validateMnemonic()) {
         await hd1.fetchBalance();
@@ -206,7 +206,7 @@ export default class WalletImport {
       }
 
       try {
-        let hdElectrumSeedLegacy = new HDSegwitElectrumSeedP2WPKHWallet();
+        const hdElectrumSeedLegacy = new HDSegwitElectrumSeedP2WPKHWallet();
         hdElectrumSeedLegacy.setSecret(importText);
         if (await hdElectrumSeedLegacy.wasEverUsed()) {
           // not fetching txs or balances, fuck it, yolo, life is too short
@@ -215,7 +215,7 @@ export default class WalletImport {
       } catch (_) {}
 
       try {
-        let hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();
+        const hdElectrumSeedLegacy = new HDLegacyElectrumSeedP2PKHWallet();
         hdElectrumSeedLegacy.setSecret(importText);
         if (await hdElectrumSeedLegacy.wasEverUsed()) {
           // not fetching txs or balances, fuck it, yolo, life is too short
@@ -223,7 +223,7 @@ export default class WalletImport {
         }
       } catch (_) {}
 
-      let hd2 = new HDSegwitP2SHWallet();
+      const hd2 = new HDSegwitP2SHWallet();
       hd2.setSecret(importText);
       if (hd2.validateMnemonic()) {
         await hd2.fetchBalance();
@@ -233,7 +233,7 @@ export default class WalletImport {
         }
       }
 
-      let hd3 = new HDLegacyP2PKHWallet();
+      const hd3 = new HDLegacyP2PKHWallet();
       hd3.setSecret(importText);
       if (hd3.validateMnemonic()) {
         await hd3.fetchBalance();
@@ -277,7 +277,7 @@ export default class WalletImport {
 
       // not valid? maybe its a watch-only address?
 
-      let watchOnly = new WatchOnlyWallet();
+      const watchOnly = new WatchOnlyWallet();
       watchOnly.setSecret(importText);
       if (watchOnly.valid()) {
         // await watchOnly.fetchTransactions(); // experiment: dont fetch tx now. it will import faster. user can refresh his wallet later

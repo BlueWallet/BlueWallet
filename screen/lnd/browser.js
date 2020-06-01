@@ -11,35 +11,35 @@ let lastTimeTriedToPay = 0;
 /// ///////////////////////////////////////////////////////////////////////
 // this code has no use in RN, it gets copypasted in webview injected code
 //
-let bluewalletResponses = {};
+const bluewalletResponses = {};
 // eslint-disable-next-line
 var webln = {
-  enable: function() {
+  enable: function () {
     window.ReactNativeWebView.postMessage(JSON.stringify({ enable: true }));
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       resolve(true);
     });
   },
-  getInfo: function() {
+  getInfo: function () {
     window.ReactNativeWebView.postMessage('getInfo');
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       reject(new Error('not implemented'));
     });
   },
-  sendPayment: function(paymentRequest) {
+  sendPayment: function (paymentRequest) {
     window.ReactNativeWebView.postMessage(JSON.stringify({ sendPayment: paymentRequest }));
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       /* nop. intentionally, forever hang promise.
          lapp page usually asynchroniously checks payment itself, via ajax,
          so atm there's no need to pass payment preimage from RN to webview and fullfill promise.
          might change in future */
     });
   },
-  makeInvoice: function(RequestInvoiceArgs) {
+  makeInvoice: function (RequestInvoiceArgs) {
     var id = Math.random();
     window.ReactNativeWebView.postMessage(JSON.stringify({ makeInvoice: RequestInvoiceArgs, id: id }));
-    return new Promise(function(resolve, reject) {
-      var interval = setInterval(function() {
+    return new Promise(function (resolve, reject) {
+      var interval = setInterval(function () {
         if (bluewalletResponses[id]) {
           clearInterval(interval);
           resolve(bluewalletResponses[id]);
@@ -47,15 +47,15 @@ var webln = {
       }, 1000);
     });
   },
-  signMessage: function() {
+  signMessage: function () {
     window.ReactNativeWebView.postMessage('signMessage');
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       reject(new Error('not implemented'));
     });
   },
-  verifyMessage: function() {
+  verifyMessage: function () {
     window.ReactNativeWebView.postMessage('verifyMessage');
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       reject(new Error('not implemented'));
     });
   },
@@ -361,7 +361,7 @@ export default class Browser extends Component {
           }
 
           if (json && json.makeInvoice) {
-            let amount = Math.max(
+            const amount = Math.max(
               json.makeInvoice.minimumAmount || 0,
               json.makeInvoice.maximumAmount || 0,
               json.makeInvoice.defaultAmount || 0,
@@ -381,7 +381,7 @@ export default class Browser extends Component {
                     // this.webview.postMessage(JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id }));
                     // Since webview.postMessage is removed from webview, we inject javascript that will manually triger document
                     // event; note how data is passed in 'detail', not 'data'
-                    let jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
+                    const jsonstr = JSON.stringify({ bluewalletResponse: { paymentRequest: payreq }, id: json.id });
                     this.webview.injectJavaScript("document.dispatchEvent( new CustomEvent('message', { detail: '" + jsonstr + "' }) );");
                   },
                 },
@@ -471,7 +471,7 @@ export default class Browser extends Component {
 
             <TouchableOpacity
               onPress={() => {
-                let reloadUrl = this.state.url;
+                const reloadUrl = this.state.url;
                 this.setState({ url: 'about:blank' });
                 processedInvoices = {};
                 setTimeout(() => this.setState({ url: reloadUrl }), 500);

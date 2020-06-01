@@ -4,8 +4,8 @@ import { SafeBlueArea, BlueNavigationStyle, BlueListItem, BlueText, BlueCard } f
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
-let loc = require('../../loc');
-let currency = require('../../currency');
+const loc = require('../../loc');
+const currency = require('../../currency');
 
 const data = Object.values(FiatUnit);
 

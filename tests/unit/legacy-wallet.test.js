@@ -5,12 +5,12 @@ const assert = require('assert');
 
 describe('Legacy wallet', () => {
   it('can create transaction', async () => {
-    let l = new LegacyWallet();
+    const l = new LegacyWallet();
     l.setSecret('L4ccWrPMmFDZw4kzAKFqJNxgHANjdy6b7YKNXMwB4xac4FLF3Tov');
     assert.strictEqual(l.getAddress(), '14YZ6iymQtBVQJk6gKnLCk49UScJK7SH4M');
     assert.strictEqual(await l.getChangeAddressAsync(), l.getAddress());
 
-    let utxos = [
+    const utxos = [
       {
         txid: 'cc44e933a094296d9fe424ad7306f16916253a3d154d52e4f1a757c18242cec4',
         vout: 0,

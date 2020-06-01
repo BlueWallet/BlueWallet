@@ -1,9 +1,9 @@
 /* global it, describe, jasmine, afterAll, beforeAll */
 import { HDSegwitBech32Wallet } from '../../class';
-let assert = require('assert');
+const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 300 * 1000;
 
@@ -19,7 +19,7 @@ beforeAll(async () => {
 });
 
 describe('Bech32 Segwit HD (BIP84)', () => {
-  it('can fetch balance, transactions & utxo', async function() {
+  it('can fetch balance, transactions & utxo', async function () {
     if (!process.env.HD_MNEMONIC) {
       console.error('process.env.HD_MNEMONIC not set, skipped');
       return;
@@ -58,7 +58,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(hd.timeToRefreshBalance(), false);
     assert.strictEqual(hd.getTransactions().length, 4);
 
-    for (let tx of hd.getTransactions()) {
+    for (const tx of hd.getTransactions()) {
       assert.ok(tx.hash);
       assert.strictEqual(tx.value, 50000);
       assert.ok(tx.received);
@@ -67,7 +67,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
 
     // now fetch UTXO
     await hd.fetchUtxo();
-    let utxo = hd.getUtxo();
+    const utxo = hd.getUtxo();
     assert.strictEqual(utxo.length, 4);
     assert.ok(utxo[0].txId);
     assert.ok(utxo[0].vout === 0 || utxo[0].vout === 1);
@@ -90,15 +90,15 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-    let hd = new HDSegwitBech32Wallet();
+    const hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
 
     await hd.fetchBalance();
-    let oldBalance = hd.getBalance();
+    const oldBalance = hd.getBalance();
 
     await hd.fetchTransactions();
-    let oldTransactions = hd.getTransactions();
+    const oldTransactions = hd.getTransactions();
 
     // now, mess with internal state, make it 'obsolete'
 
@@ -125,7 +125,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       console.error('process.env.FAULTY_ZPUB not set, skipped');
       return;
     }
-    let hd = new HDSegwitBech32Wallet();
+    const hd = new HDSegwitBech32Wallet();
     hd._xpub = process.env.FAULTY_ZPUB;
 
     await hd.fetchBalance();
@@ -139,7 +139,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
-    let hd = new HDSegwitBech32Wallet();
+    const hd = new HDSegwitBech32Wallet();
     hd.setSecret(process.env.HD_MNEMONIC_BIP84);
     assert.ok(hd.validateMnemonic());
     assert.strictEqual(
@@ -173,7 +173,7 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     end - start > 2000 && console.warn('warm fetchTransactions took', (end - start) / 1000, 'sec');
 
     let txFound = 0;
-    for (let tx of hd.getTransactions()) {
+    for (const tx of hd.getTransactions()) {
       if (tx.hash === 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b') {
         assert.strictEqual(tx.value, -129545);
         assert.strictEqual(tx.inputs[0].addresses[0], 'bc1qffcl35r05wyf06meu3dalfevawx559n0ufrxcw');
@@ -201,17 +201,17 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     await hd.fetchUtxo();
     assert.strictEqual(hd.getUtxo().length, 2);
     assert.strictEqual(hd.getDerivedUtxoFromOurTransaction().length, 2);
-    let u1 = hd.getUtxo()[0];
-    let u2 = hd.getDerivedUtxoFromOurTransaction()[0];
+    const u1 = hd.getUtxo()[0];
+    const u2 = hd.getDerivedUtxoFromOurTransaction()[0];
     delete u1.confirmations;
     delete u2.confirmations;
     delete u1.height;
     delete u2.height;
     assert.deepStrictEqual(u1, u2);
-    let changeAddress = await hd.getChangeAddressAsync();
+    const changeAddress = await hd.getChangeAddressAsync();
     assert.ok(changeAddress && changeAddress.startsWith('bc1'));
 
-    let { tx, inputs, outputs, fee } = hd.createTransaction(
+    const { tx, inputs, outputs, fee } = hd.createTransaction(
       hd.getUtxo(),
       [{ address: 'bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu', value: 51000 }],
       13,
@@ -221,13 +221,13 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     assert.strictEqual(Math.round(fee / tx.byteLength()), 13);
 
     let totalInput = 0;
-    for (let inp of inputs) {
+    for (const inp of inputs) {
       totalInput += inp.value;
     }
 
     assert.strictEqual(outputs.length, 2);
     let totalOutput = 0;
-    for (let outp of outputs) {
+    for (const outp of outputs) {
       totalOutput += outp.value;
     }
 

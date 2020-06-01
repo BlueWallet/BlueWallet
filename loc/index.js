@@ -6,7 +6,6 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 const dayjs = require('dayjs');
 const currency = require('../currency');
 const BigNumber = require('bignumber.js');
-let strings;
 dayjs.extend(relativeTime);
 
 // first-time loading sequence
@@ -99,7 +98,7 @@ dayjs.extend(relativeTime);
   }
 })();
 
-strings = new Localization({
+const strings = new Localization({
   en: require('./en.js'),
   ru: require('./ru.js'),
   pt_br: require('./pt_BR.js'),

@@ -6,8 +6,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-let loc = require('../../loc');
-let BlueElectrum = require('../../BlueElectrum');
+const loc = require('../../loc');
+const BlueElectrum = require('../../BlueElectrum');
 
 const styles = StyleSheet.create({
   root: {
@@ -94,9 +94,9 @@ export default class ElectrumSettings extends Component {
   }
 
   async componentDidMount() {
-    let host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
-    let port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
-    let sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+    const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
+    const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
+    const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
 
     this.setState({
       isLoading: false,
@@ -175,7 +175,7 @@ export default class ElectrumSettings extends Component {
           <BlueCard>
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder={'host, for example 111.222.333.444'}
+                placeholder="host, for example 111.222.333.444"
                 value={this.state.host}
                 onChangeText={text => this.setState({ host: text })}
                 numberOfLines={1}
@@ -187,7 +187,7 @@ export default class ElectrumSettings extends Component {
             <BlueSpacing20 />
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder={'TCP port, usually 50001'}
+                placeholder="TCP port, usually 50001"
                 value={this.state.port}
                 onChangeText={text => this.setState({ port: text })}
                 numberOfLines={1}
@@ -199,7 +199,7 @@ export default class ElectrumSettings extends Component {
             <BlueSpacing20 />
             <View style={styles.inputWrap}>
               <TextInput
-                placeholder={'SSL port, usually 50002'}
+                placeholder="SSL port, usually 50002"
                 value={this.state.sslPort}
                 onChangeText={text => this.setState({ sslPort: text })}
                 numberOfLines={1}

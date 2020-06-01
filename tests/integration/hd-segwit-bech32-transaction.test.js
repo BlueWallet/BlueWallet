@@ -1,10 +1,10 @@
 /* global it, describe, jasmine, afterAll, beforeAll */
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitBech32Transaction, SegwitBech32Wallet } from '../../class';
 const bitcoin = require('bitcoinjs-lib');
-let assert = require('assert');
+const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('../../BlueElectrum');
+const BlueElectrum = require('../../BlueElectrum');
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 150 * 1000;
 
 afterAll(async () => {
@@ -29,7 +29,7 @@ async function _getHdWallet() {
 }
 
 describe('HDSegwitBech32Transaction', () => {
-  it('can decode & check sequence', async function() {
+  it('can decode & check sequence', async function () {
     let T = new HDSegwitBech32Transaction(null, 'e9ef58baf4cff3ad55913a360c2fa1fd124309c59dcd720cdb172ce46582097b');
     assert.strictEqual(await T.getMaxUsedSequence(), 0xffffffff);
     assert.strictEqual(await T.isSequenceReplaceable(), false);
@@ -44,13 +44,13 @@ describe('HDSegwitBech32Transaction', () => {
     assert.ok((await T.getRemoteConfirmationsNum()) >= 292);
   });
 
-  it('can tell if its our transaction', async function() {
+  it('can tell if its our transaction', async function () {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = await _getHdWallet();
+    const hd = await _getHdWallet();
 
     let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
@@ -61,17 +61,17 @@ describe('HDSegwitBech32Transaction', () => {
     assert.ok(!(await tt.isOurTransaction()));
   });
 
-  it('can tell tx info', async function() {
+  it('can tell tx info', async function () {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = await _getHdWallet();
+    const hd = await _getHdWallet();
 
-    let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
+    const tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
-    let { fee, feeRate, targets, changeAmount, utxos } = await tt.getInfo();
+    const { fee, feeRate, targets, changeAmount, utxos } = await tt.getInfo();
     assert.strictEqual(fee, 4464);
     assert.strictEqual(changeAmount, 103686);
     assert.strictEqual(feeRate, 12);
@@ -97,74 +97,74 @@ describe('HDSegwitBech32Transaction', () => {
     );
   });
 
-  it('can do RBF - cancel tx', async function() {
+  it('can do RBF - cancel tx', async function () {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = await _getHdWallet();
+    const hd = await _getHdWallet();
 
-    let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
+    const tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
     assert.strictEqual(await tt.canCancelTx(), true);
 
-    let { tx } = await tt.createRBFcancelTx(15);
+    const { tx } = await tt.createRBFcancelTx(15);
 
-    let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
+    const createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
     assert.strictEqual(createdTx.outs.length, 1);
-    let addr = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
+    const addr = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[0].script);
     assert.ok(hd.weOwnAddress(addr));
 
-    let actualFeerate = (108150 + 200000 - createdTx.outs[0].value) / (tx.toHex().length / 2);
+    const actualFeerate = (108150 + 200000 - createdTx.outs[0].value) / (tx.toHex().length / 2);
     assert.strictEqual(Math.round(actualFeerate), 15);
 
-    let tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
+    const tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
     assert.strictEqual(await tt2.canCancelTx(), false); // newly created cancel tx is not cancellable anymore
   });
 
-  it('can do RBF - bumpfees tx', async function() {
+  it('can do RBF - bumpfees tx', async function () {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = await _getHdWallet();
+    const hd = await _getHdWallet();
 
-    let tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
+    const tt = new HDSegwitBech32Transaction(null, '881c54edd95cbdd1583d6b9148eb35128a47b64a2e67a5368a649d6be960f08e', hd);
 
     assert.strictEqual(await tt.canCancelTx(), true);
 
-    let { tx } = await tt.createRBFbumpFee(17);
+    const { tx } = await tt.createRBFbumpFee(17);
 
-    let createdTx = bitcoin.Transaction.fromHex(tx.toHex());
+    const createdTx = bitcoin.Transaction.fromHex(tx.toHex());
     assert.strictEqual(createdTx.ins.length, 2);
     assert.strictEqual(createdTx.outs.length, 2);
-    let addr0 = SegwitP2SHWallet.scriptPubKeyToAddress(createdTx.outs[0].script);
+    const addr0 = SegwitP2SHWallet.scriptPubKeyToAddress(createdTx.outs[0].script);
     assert.ok(!hd.weOwnAddress(addr0));
     assert.strictEqual(addr0, '3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC'); // dest address
-    let addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[1].script);
+    const addr1 = SegwitBech32Wallet.scriptPubKeyToAddress(createdTx.outs[1].script);
     assert.ok(hd.weOwnAddress(addr1));
 
-    let actualFeerate = (108150 + 200000 - (createdTx.outs[0].value + createdTx.outs[1].value)) / (tx.toHex().length / 2);
+    const actualFeerate = (108150 + 200000 - (createdTx.outs[0].value + createdTx.outs[1].value)) / (tx.toHex().length / 2);
     assert.strictEqual(Math.round(actualFeerate), 17);
 
-    let tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
+    const tt2 = new HDSegwitBech32Transaction(tx.toHex(), null, hd);
     assert.strictEqual(await tt2.canCancelTx(), true); // new tx is still cancellable since we only bumped fees
   });
 
-  it('can do CPFP - bump fees', async function() {
+  it('can do CPFP - bump fees', async function () {
     if (!process.env.HD_MNEMONIC_BIP84) {
       console.error('process.env.HD_MNEMONIC_BIP84 not set, skipped');
       return;
     }
 
-    let hd = await _getHdWallet();
+    const hd = await _getHdWallet();
 
-    let tt = new HDSegwitBech32Transaction(null, '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f', hd);
+    const tt = new HDSegwitBech32Transaction(null, '2ec8a1d0686dcccffc102ba5453a28d99c8a1e5061c27b41f5c0a23b0b27e75f', hd);
     assert.ok(await tt.isToUsTransaction());
-    let { unconfirmedUtxos, fee: oldFee } = await tt.getInfo();
+    const { unconfirmedUtxos, fee: oldFee } = await tt.getInfo();
 
     assert.strictEqual(
       JSON.stringify(unconfirmedUtxos),
@@ -178,8 +178,8 @@ describe('HDSegwitBech32Transaction', () => {
       ]),
     );
 
-    let { tx, fee } = await tt.createCPFPbumpFee(20);
-    let avgFeeRate = (oldFee + fee) / (tt._txhex.length / 2 + tx.toHex().length / 2);
+    const { tx, fee } = await tt.createCPFPbumpFee(20);
+    const avgFeeRate = (oldFee + fee) / (tt._txhex.length / 2 + tx.toHex().length / 2);
     assert.ok(Math.round(avgFeeRate) >= 20);
   });
 });

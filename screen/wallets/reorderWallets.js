@@ -7,10 +7,10 @@ import PropTypes from 'prop-types';
 import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
-let EV = require('../../events');
+const EV = require('../../events');
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc/');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc/');
 
 const styles = StyleSheet.create({
   loading: {
@@ -88,13 +88,13 @@ export default class ReorderWallets extends Component {
     this.props.navigation.setParams({
       customCloseButtonFunction: async () => {
         if (this.sortableList.state.data.length === this.state.data.length && this.state.hasMovedARow) {
-          let newWalletsOrderArray = [];
+          const newWalletsOrderArray = [];
           this.sortableList.state.order.forEach(element => {
             newWalletsOrderArray.push(this.state.data[element]);
           });
           BlueApp.wallets = newWalletsOrderArray;
           await BlueApp.saveToDisk();
-          setTimeout(function() {
+          setTimeout(function () {
             EV(EV.enum.WALLETS_COUNT_CHANGED);
           }, 500); // adds some animaton
           this.props.navigation.goBack();

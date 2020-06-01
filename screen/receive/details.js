@@ -162,7 +162,7 @@ const ReceiveDetails = () => {
     } else {
       InteractionManager.runAfterInteractions(async () => {
         qrCodeSVG.toDataURL(data => {
-          let shareImageBase64 = {
+          const shareImageBase64 = {
             message: bip21encoded,
             url: `data:image/png;base64,${data}`,
           };
@@ -205,7 +205,7 @@ const ReceiveDetails = () => {
               logoSize={90}
               color={BlueApp.settings.foregroundColor}
               logoBackgroundColor={BlueApp.settings.brandingColor}
-              ecl={'H'}
+              ecl="H"
               getRef={setQrCodeSVG}
             />
           )}

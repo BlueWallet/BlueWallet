@@ -65,7 +65,7 @@ export class WatchOnlyWallet extends LegacyWallet {
     hdWalletInstance._xpub = this.secret;
     if (this._hdWalletInstance) {
       // now, porting all properties from old object to new one
-      for (let k of Object.keys(this._hdWalletInstance)) {
+      for (const k of Object.keys(this._hdWalletInstance)) {
         hdWalletInstance[k] = this._hdWalletInstance[k];
       }
 
