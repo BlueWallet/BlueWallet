@@ -1,13 +1,13 @@
-let CryptoJS = require('crypto-js');
+const CryptoJS = require('crypto-js');
 
-module.exports.encrypt = function(data, password) {
+module.exports.encrypt = function (data, password) {
   if (data.length < 10) throw new Error('data length cant be < 10');
-  let ciphertext = CryptoJS.AES.encrypt(data, password);
+  const ciphertext = CryptoJS.AES.encrypt(data, password);
   return ciphertext.toString();
 };
 
-module.exports.decrypt = function(data, password) {
-  let bytes = CryptoJS.AES.decrypt(data, password);
+module.exports.decrypt = function (data, password) {
+  const bytes = CryptoJS.AES.decrypt(data, password);
   let str = false;
   try {
     str = bytes.toString(CryptoJS.enc.Utf8);

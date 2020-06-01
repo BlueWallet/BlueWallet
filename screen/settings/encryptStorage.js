@@ -15,9 +15,9 @@ import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
-let BlueApp: AppStorage = require('../../BlueApp');
-let prompt = require('../../prompt');
-let loc = require('../../loc');
+const BlueApp: AppStorage = require('../../BlueApp');
+const prompt = require('../../prompt');
+const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -90,7 +90,7 @@ export default class EncryptStorage extends Component {
           this.setState({ isLoading: false });
           return;
         }
-        let p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+        const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
           this.setState({ isLoading: false });
         });
         if (p1 === p2) {
@@ -126,7 +126,7 @@ export default class EncryptStorage extends Component {
   };
 
   onUseBiometricSwitch = async value => {
-    let isBiometricsEnabled = this.state.biometrics;
+    const isBiometricsEnabled = this.state.biometrics;
     if (await Biometric.unlockWithBiometrics()) {
       isBiometricsEnabled.isBiometricsEnabled = value;
       await Biometric.setBiometricUseEnabled(value);

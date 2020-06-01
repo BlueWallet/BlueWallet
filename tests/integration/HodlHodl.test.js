@@ -32,10 +32,10 @@ it('can create escrow address', () => {
 
   assert.strictEqual(address, '391ygT71qeF7vbYjxsUZPzH6oDc7Rv4vTs');
 
-  let signedByServerReleaseTransaction =
+  const signedByServerReleaseTransaction =
     '01000000000101356493a6b93bf17e66d7ec12f1a54e279da17f669f41bf11405a6f2617e1022501000000232200208ec72df31adaa132e40a5f5033589c0e18b67a64cdc65e9c75027fe1efd10f4cffffffff02227e010000000000160014b1c61a73a529c315a1f2b87df12c7948d86ba10c26020000000000001976a914d0b77eb1502c81c4093da9aa6eccfdf560cdd6b288ac040047304402205a447563db8e74177a1fbcdcfe7b7b22556c39d68c17ffe0a4a02609d78c83130220772fbf3261b6031a915eca7e441092df3fe6e4c7d4f389c4921c1f18661c20f401460000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000069522103141024b18929bfec5b567c12b1693d4ae02783873e2e3aa444f0d6950cb97dee210208137b6cb23cef02c0529948a2ed12fbeed0813cce555de073319f56e215ee1b21035ed5825258d4f1685df804f21296b9957cd319cf5949ace92fa5767eb7a946f253ae00000000';
 
-  let txDecoded = bitcoin.Transaction.fromHex(signedByServerReleaseTransaction);
+  const txDecoded = bitcoin.Transaction.fromHex(signedByServerReleaseTransaction);
   // console.warn(txDecoded.ins[0].witness);
 
   // we always expect only one input:
@@ -50,9 +50,9 @@ it('can create escrow address', () => {
     witnessScript: p2shP2wshP2ms.redeem.redeem.output,
   });
 
-  for (let out of txDecoded.outs) {
-    let scripthex = out.script.toString('hex');
-    let address =
+  for (const out of txDecoded.outs) {
+    const scripthex = out.script.toString('hex');
+    const address =
       LegacyWallet.scriptPubKeyToAddress(scripthex) ||
       SegwitP2SHWallet.scriptPubKeyToAddress(scripthex) ||
       SegwitBech32Wallet.scriptPubKeyToAddress(scripthex);
@@ -71,10 +71,10 @@ it('can create escrow address', () => {
   // console.log(tx.toHex());
 });
 
-describe('HodlHodl API', function() {
+describe('HodlHodl API', function () {
   it('can fetch countries & and own country code', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const countries = await Hodl.getCountries();
     assert.ok(countries[0]);
     assert.ok(countries[0].code);
@@ -83,12 +83,12 @@ describe('HodlHodl API', function() {
     assert.ok(countries[0].currency_code);
     assert.ok(countries[0].currency_name);
 
-    let countryCode = await Hodl.getMyCountryCode();
+    const countryCode = await Hodl.getMyCountryCode();
     assert.strictEqual(countryCode.length, 2);
   });
 
   it('can get offers', async () => {
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const offers = await Hodl.getOffers(
       {
         [HodlHodlApi.PAGINATION_LIMIT]: 10,
@@ -116,7 +116,7 @@ describe('HodlHodl API', function() {
   });
 
   it('can get payment methods', async () => {
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const methods = await Hodl.getPaymentMethods(HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL);
     assert.ok(methods[0]);
     assert.ok(methods[0].id);
@@ -125,7 +125,7 @@ describe('HodlHodl API', function() {
   });
 
   it('cat get currencies', async () => {
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const currencies = await Hodl.getCurrencies();
     assert.ok(currencies[0]);
     assert.ok(currencies[0].code);

@@ -1,4 +1,4 @@
-/* eslint react/prop-types: 0 */
+/* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
 import React, { Component, useEffect, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -34,9 +34,9 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
-let loc = require('./loc/');
+const loc = require('./loc/');
 /** @type {AppStorage} */
-let BlueApp = require('./BlueApp');
+const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
@@ -51,12 +51,12 @@ export class BlueButton extends Component {
   render() {
     let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueApp.settings.buttonBackgroundColor;
     let fontColor = BlueApp.settings.buttonTextColor;
-    if (this.props.hasOwnProperty('disabled') && this.props.disabled === true) {
+    if (this.props.disabled === true) {
       backgroundColor = BlueApp.settings.buttonDisabledBackgroundColor;
       fontColor = BlueApp.settings.buttonDisabledTextColor;
     }
     let buttonWidth = this.props.width ? this.props.width : width / 1.5;
-    if (this.props.hasOwnProperty('noMinWidth')) {
+    if ('noMinWidth' in this.props) {
       buttonWidth = 0;
     }
     return (
@@ -91,20 +91,16 @@ export class BitcoinButton extends Component {
       <TouchableOpacity
         testID={this.props.testID}
         onPress={() => {
-          // eslint-disable-next-line
           if (this.props.onPress) this.props.onPress();
         }}
       >
         <View
           style={{
-            // eslint-disable-next-line
             borderColor: BlueApp.settings.hdborderColor,
             borderWidth: 1,
             borderRadius: 5,
             backgroundColor: (this.props.active && BlueApp.settings.hdbackgroundColor) || BlueApp.settings.brandingColor,
-            // eslint-disable-next-line
             minWidth: this.props.style.width,
-            // eslint-disable-next-line
             minHeight: this.props.style.height,
             height: this.props.style.height,
             flex: 1,
@@ -128,20 +124,16 @@ export class LightningButton extends Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          // eslint-disable-next-line
           if (this.props.onPress) this.props.onPress();
         }}
       >
         <View
           style={{
-            // eslint-disable-next-line
             borderColor: BlueApp.settings.lnborderColor,
             borderWidth: 1,
             borderRadius: 5,
             backgroundColor: (this.props.active && BlueApp.settings.lnbackgroundColor) || BlueApp.settings.brandingColor,
-            // eslint-disable-next-line
             minWidth: this.props.style.width,
-            // eslint-disable-next-line
             minHeight: this.props.style.height,
             height: this.props.style.height,
             flex: 1,
@@ -314,7 +306,7 @@ export class BlueWalletNavigationHeader extends Component {
             <BluePrivateBalance />
           ) : (
             <Text
-              testID={'WalletBalance'}
+              testID="WalletBalance"
               numberOfLines={1}
               adjustsFontSizeToFit
               style={{
@@ -580,8 +572,6 @@ export class BlueText extends Component {
       <Text
         style={{
           color: BlueApp.settings.foregroundColor,
-
-          // eslint-disable-next-line
           ...this.props.style,
         }}
         {...this.props}
@@ -589,6 +579,7 @@ export class BlueText extends Component {
     );
   }
 }
+
 export class BlueTextCentered extends Component {
   render() {
     return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center' }} />;
@@ -720,16 +711,12 @@ export class BlueHeaderDefaultSub extends Component {
                 color: BlueApp.settings.foregroundColor,
               }}
             >
-              {
-                // eslint-disable-next-line
-                this.props.leftText
-              }
+              {this.props.leftText}
             </Text>
           }
           rightComponent={
             <TouchableOpacity
               onPress={() => {
-                // eslint-disable-next-line
                 if (this.props.onClose) this.props.onClose();
               }}
             >
@@ -755,7 +742,6 @@ export class BlueHeaderDefaultMain extends Component {
           {...this.props}
           statusBarProps={{ barStyle: 'default' }}
           leftComponent={{
-            // eslint-disable-next-line
             text: this.props.leftText,
             style: {
               fontWeight: 'bold',
@@ -1067,7 +1053,7 @@ export class BluePlusIcon extends Component {
           <View style={stylesBlueIcon.ball}>
             <Ionicons
               {...this.props}
-              name={'ios-add'}
+              name="ios-add"
               size={26}
               style={{
                 color: BlueApp.settings.foregroundColor,
@@ -1301,7 +1287,7 @@ export class BlueScanButton extends Component {
 export class BlueSendButtonIcon extends Component {
   render() {
     return (
-      <TouchableOpacity {...this.props} testID={'SendButton'}>
+      <TouchableOpacity {...this.props} testID="SendButton">
         <View
           style={{
             flex: 1,
@@ -1441,8 +1427,8 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
   }, [item, itemPriceUnit, shouldRefresh]);
 
   const txMemo = () => {
-    if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash]['memo']) {
-      return BlueApp.tx_metadata[item.hash]['memo'];
+    if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
+      return BlueApp.tx_metadata[item.hash].memo;
     }
     return '';
   };
@@ -1578,7 +1564,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
     } else if (item.type === 'user_invoice' || item.type === 'payment_request' || item.type === 'paid_invoice') {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
-          if (wallet.hasOwnProperty('secret')) {
+          if ('secret' in wallet) {
             return wallet.getSecret() === item.fromWallet;
           }
         }
@@ -1627,8 +1613,8 @@ export class BlueListTransactionItem extends Component {
   };
 
   txMemo = () => {
-    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash]['memo']) {
-      return BlueApp.tx_metadata[this.props.item.hash]['memo'];
+    if (BlueApp.tx_metadata[this.props.item.hash] && BlueApp.tx_metadata[this.props.item.hash].memo) {
+      return BlueApp.tx_metadata[this.props.item.hash].memo;
     }
     return '';
   };
@@ -1772,7 +1758,7 @@ export class BlueListTransactionItem extends Component {
     ) {
       const lightningWallet = BlueApp.getWallets().filter(wallet => {
         if (typeof wallet === 'object') {
-          if (wallet.hasOwnProperty('secret')) {
+          if ('secret' in wallet) {
             return wallet.getSecret() === this.props.item.fromWallet;
           }
         }
@@ -1801,21 +1787,21 @@ export class BlueListTransactionItem extends Component {
 }
 
 const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
-  let scaleValue = new Animated.Value(1.0);
+  const scaleValue = new Animated.Value(1.0);
 
   const onPressedIn = () => {
-    let props = { duration: 50 };
+    const props = { duration: 50 };
     if (Platform.OS === 'android') {
-      props['useNativeDriver'] = true;
+      props.useNativeDriver = true;
     }
 
     props.toValue = 0.9;
     Animated.spring(scaleValue, props).start();
   };
   const onPressedOut = () => {
-    let props = { duration: 50 };
+    const props = { duration: 50 };
     if (Platform.OS === 'android') {
-      props['useNativeDriver'] = true;
+      props.useNativeDriver = true;
     }
 
     props.toValue = 1.0;
@@ -2083,7 +2069,7 @@ export class BlueAddressInput extends Component {
         }}
       >
         <TextInput
-          testID={'AddressInput'}
+          testID="AddressInput"
           onChangeText={text => {
             this.props.onChangeText(text);
           }}
@@ -2177,7 +2163,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}
               containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
               bottomDivider={false}
-              title={'Fast'}
+              title="Fast"
               rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
@@ -2188,7 +2174,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}
               containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
               bottomDivider={false}
-              title={'Medium'}
+              title="Medium"
               rightTitle={`${this.state.networkFees.mediumFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
@@ -2199,7 +2185,7 @@ export class BlueReplaceFeeSuggestions extends Component {
               onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}
               containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
               bottomDivider={false}
-              title={'Slow'}
+              title="Slow"
               rightTitle={`${this.state.networkFees.slowFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueApp.settings.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
@@ -2224,7 +2210,7 @@ export class BlueReplaceFeeSuggestions extends Component {
             >
               <TextInput
                 onChangeText={this.onCustomFeeTextChange}
-                keyboardType={'numeric'}
+                keyboardType="numeric"
                 value={this.state.customFeeValue}
                 ref={ref => (this.customTextInput = ref)}
                 maxLength={9}
@@ -2295,7 +2281,7 @@ export class BlueBitcoinAmount extends Component {
           <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
             <TextInput
               {...this.props}
-              testID={'BitcoinAmountInput'}
+              testID="BitcoinAmountInput"
               keyboardType="numeric"
               onChangeText={text => {
                 text = text.trim();

@@ -32,9 +32,9 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
-let loc = require('../../loc');
-let EV = require('../../events');
-let BlueElectrum = require('../../BlueElectrum');
+const loc = require('../../loc');
+const EV = require('../../events');
+const BlueElectrum = require('../../BlueElectrum');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
@@ -133,7 +133,7 @@ export default class PsbtWithHardwareWallet extends Component {
 
     this.setState({ renderScanner: false }, () => {
       try {
-        let Tx = this.state.fromWallet.combinePsbt(
+        const Tx = this.state.fromWallet.combinePsbt(
           this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
           ret.data,
         );
@@ -166,7 +166,7 @@ export default class PsbtWithHardwareWallet extends Component {
     const txhex = nextProps.route.params.txhex;
     if (deepLinkPSBT) {
       try {
-        let Tx = prevState.fromWallet.combinePsbt(
+        const Tx = prevState.fromWallet.combinePsbt(
           prevState.isFirstPSBTAlreadyBase64 ? prevState.psbt : prevState.psbt.toBase64(),
           deepLinkPSBT,
         );
@@ -195,12 +195,12 @@ export default class PsbtWithHardwareWallet extends Component {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
-        let result = await this.state.fromWallet.broadcastTx(this.state.txhex);
+        const result = await this.state.fromWallet.broadcastTx(this.state.txhex);
         if (result) {
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ success: true, isLoading: false });
           if (this.state.memo) {
-            let txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
+            const txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
             const txid = txDecoded.getId();
             BlueApp.tx_metadata[txid] = { memo: this.state.memo };
           }
@@ -339,7 +339,7 @@ export default class PsbtWithHardwareWallet extends Component {
         <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
           <View style={styles.container}>
             <BlueCard>
-              <BlueText testID={'TextHelperForPSBT'}>
+              <BlueText testID="TextHelperForPSBT">
                 This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.
               </BlueText>
               <BlueSpacing20 />
@@ -348,7 +348,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 size={this.state.qrCodeHeight}
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
-                ecl={'L'}
+                ecl="L"
               />
               <BlueSpacing20 />
               <BlueButton
@@ -358,7 +358,7 @@ export default class PsbtWithHardwareWallet extends Component {
                   color: BlueApp.settings.buttonTextColor,
                 }}
                 onPress={() => this.setState({ renderScanner: true })}
-                title={'Scan Signed Transaction'}
+                title="Scan Signed Transaction"
               />
               <BlueSpacing20 />
               <BlueButton
@@ -368,7 +368,7 @@ export default class PsbtWithHardwareWallet extends Component {
                   color: BlueApp.settings.buttonTextColor,
                 }}
                 onPress={this.openSignedTransaction}
-                title={'Open Signed Transaction'}
+                title="Open Signed Transaction"
               />
               <BlueSpacing20 />
               <BlueButton
@@ -378,13 +378,13 @@ export default class PsbtWithHardwareWallet extends Component {
                   color: BlueApp.settings.buttonTextColor,
                 }}
                 onPress={this.exportPSBT}
-                title={'Export to file'}
+                title="Export to file"
               />
               <BlueSpacing20 />
               <View style={styles.copyToClipboard}>
                 <BlueCopyToClipboardButton
                   stringToCopy={this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}
-                  displayText={'Copy to Clipboard'}
+                  displayText="Copy to Clipboard"
                 />
               </View>
             </BlueCard>
