@@ -62,9 +62,9 @@ export class HodlHodlApi {
   }
 
   async getCountries() {
-    let response = await this._api.get('/api/v1/countries', this._getHeaders());
+    const response = await this._api.get('/api/v1/countries', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.countries || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -73,7 +73,7 @@ export class HodlHodlApi {
   }
 
   async getMyCountryCode() {
-    let _api = new Frisbee({ baseURI: 'https://ifconfig.co/' });
+    const _api = new Frisbee({ baseURI: 'https://ifconfig.co/' });
     let response;
 
     let allowedTries = 6;
@@ -97,9 +97,9 @@ export class HodlHodlApi {
   }
 
   async getPaymentMethods(country) {
-    let response = await this._api.get('/api/v1/payment_methods?filters[country]=' + country, this._getHeaders());
+    const response = await this._api.get('/api/v1/payment_methods?filters[country]=' + country, this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.payment_methods || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -108,9 +108,9 @@ export class HodlHodlApi {
   }
 
   async getCurrencies() {
-    let response = await this._api.get('/api/v1/currencies', this._getHeaders());
+    const response = await this._api.get('/api/v1/currencies', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.currencies || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -119,19 +119,19 @@ export class HodlHodlApi {
   }
 
   async getOffers(pagination = {}, filters = {}, sort = {}) {
-    let uri = [];
-    for (let key in sort) {
+    const uri = [];
+    for (const key in sort) {
       uri.push('sort[' + key + ']=' + sort[key]);
     }
-    for (let key in filters) {
+    for (const key in filters) {
       uri.push('filters[' + key + ']=' + filters[key]);
     }
-    for (let key in pagination) {
+    for (const key in pagination) {
       uri.push('pagination[' + key + ']=' + pagination[key]);
     }
-    let response = await this._api.get('/api/v1/offers?' + uri.join('&'), this._getHeadersWithoutAuthorization());
+    const response = await this._api.get('/api/v1/offers?' + uri.join('&'), this._getHeadersWithoutAuthorization());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.offers || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }

@@ -1,9 +1,9 @@
 /* global it, describe, jasmine, afterAll, beforeAll  */
 import { WatchOnlyWallet } from '../../class';
-let assert = require('assert');
+const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
 afterAll(async () => {
   // after all tests we close socket so the test suite can actually terminate
@@ -20,7 +20,7 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 500 * 1000;
 
 describe('Watch only wallet', () => {
   it('can fetch balance', async () => {
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
     await w.fetchBalance();
     assert.ok(w.getBalance() > 16);
@@ -44,8 +44,8 @@ describe('Watch only wallet', () => {
   });
 
   it('can fetch TXs with values', async () => {
-    let w = new WatchOnlyWallet();
-    for (let sec of [
+    const w = new WatchOnlyWallet();
+    for (const sec of [
       'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv',
       'BC1QUHNVE8Q4TK3UNHMJTS7YMXV8CD6W9XV8WY29UV',
       'bitcoin:bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv',
@@ -59,7 +59,7 @@ describe('Watch only wallet', () => {
       assert.ok(w.weOwnAddress('bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv'));
       await w.fetchTransactions();
 
-      for (let tx of w.getTransactions()) {
+      for (const tx of w.getTransactions()) {
         assert.ok(tx.hash);
         assert.ok(tx.value);
         assert.ok(tx.received);
@@ -72,16 +72,16 @@ describe('Watch only wallet', () => {
   });
 
   it('can fetch complex TXs', async () => {
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('3NLnALo49CFEF4tCRhCvz45ySSfz3UktZC');
     await w.fetchTransactions();
-    for (let tx of w.getTransactions()) {
+    for (const tx of w.getTransactions()) {
       assert.ok(tx.value, 'incorrect tx.value');
     }
   });
 
   it('can fetch balance & transactions from zpub HD', async () => {
-    let w = new WatchOnlyWallet();
+    const w = new WatchOnlyWallet();
     w.setSecret('zpub6r7jhKKm7BAVx3b3nSnuadY1WnshZYkhK8gKFoRLwK9rF3Mzv28BrGcCGA3ugGtawi1WLb2vyjQAX9ZTDGU5gNk2bLdTc3iEXr6tzR1ipNP');
     await w.fetchBalance();
     assert.strictEqual(w.getBalance(), 200000);

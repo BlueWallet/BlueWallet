@@ -4,12 +4,12 @@ import TestRenderer from 'react-test-renderer';
 import Settings from '../../screen/settings/settings';
 import Selftest from '../../screen/selftest';
 import { BlueHeader } from '../../BlueComponents';
-let assert = require('assert');
+const assert = require('assert');
 jest.mock('react-native-qrcode-svg', () => 'Video');
 jest.useFakeTimers();
 
 jest.mock('amplitude-js', () => ({
-  getInstance: function() {
+  getInstance: function () {
     return {
       init: jest.fn(),
       logEvent: jest.fn(),
@@ -35,7 +35,7 @@ it('Selftest work', () => {
   // console.log((root.findAllByType('Text')[0].props));
 
   let okFound = false;
-  let allTests = [];
+  const allTests = [];
   for (var v of root.findAllByType('Text')) {
     let text = v.props.children;
     if (text.join) {

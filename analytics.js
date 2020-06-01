@@ -8,7 +8,7 @@ amplitude.getInstance().init('8b7cf19e8eea3cdcf16340f5fbf16330', null, {
 });
 amplitude.getInstance().setVersionName(getVersion());
 
-let A = async event => {
+const A = async event => {
   console.log('posting analytics...', event);
   try {
     amplitude.getInstance().logEvent(event);

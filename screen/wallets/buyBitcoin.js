@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 const currency = require('../../currency');
-let BlueApp: AppStorage = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp: AppStorage = require('../../BlueApp');
+const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -23,7 +23,7 @@ export default class BuyBitcoin extends Component {
 
   constructor(props) {
     super(props);
-    let wallet = props.route.params.wallet;
+    const wallet = props.route.params.wallet;
     if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
@@ -40,7 +40,7 @@ export default class BuyBitcoin extends Component {
     preferredCurrency = preferredCurrency.endPointKey;
 
     /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */
-    let wallet = this.state.wallet;
+    const wallet = this.state.wallet;
 
     let address = '';
 
