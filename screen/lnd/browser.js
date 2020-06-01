@@ -349,9 +349,12 @@ export default class Browser extends Component {
                   text: 'Pay',
                   onPress: () => {
                     console.log('OK Pressed');
-                    this.props.navigation.navigate('ScanLndInvoice', {
-                      uri: json.sendPayment,
-                      fromSecret: this.state.fromSecret,
+                    this.props.navigation.navigate('ScanLndInvoiceRoot', {
+                      screen: 'ScanLndInvoice',
+                      params: {
+                        uri: json.sendPayment,
+                        fromSecret: this.state.fromSecret,
+                      },
                     });
                   },
                 },
