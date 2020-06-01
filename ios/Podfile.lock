@@ -261,7 +261,7 @@ PODS:
     - React
   - RNCMaskedView (0.1.10):
     - React
-  - RNDefaultPreference (1.4.1):
+  - RNDefaultPreference (1.4.3):
     - React
   - RNDeviceInfo (4.0.1):
     - React
@@ -535,7 +535,7 @@ SPEC CHECKSUMS:
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: b34d2399d3e25db01d5b881949b503bd3c224d57
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
-  RNDefaultPreference: 12d246dd2222e66dadcd76cc1250560663befc3a
+  RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
@@ -557,4 +557,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 932f5bffd3ddea34b78c9ed0921a6f8cccf442b5
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.8.4
