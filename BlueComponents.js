@@ -34,6 +34,7 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+import { BitcoinTransaction } from './models/bitcoinTransactionInfo';
 let loc = require('./loc/');
 /** @type {AppStorage} */
 let BlueApp = require('./BlueApp');
@@ -2300,7 +2301,7 @@ export class BlueBitcoinAmount extends Component {
 
     let newInputValue = loc.formatBalanceWithoutSuffix(sats, newUnit, false);
     newInputValue = newInputValue.replace(/[^\d.-]/g, ''); // filtering, leaving only numbers & dots
-    this.props.onChangeText(newInputValue);
+    this.props.onChangeText(new BitcoinTransaction(undefined, newInputValue, sats));
   }
 
   /**
@@ -2402,11 +2403,11 @@ export class BlueBitcoinAmount extends Component {
                     if (this.state.unit !== BitcoinUnit.BTC) {
                       text = text.replace(/[^0-9.]/g, '');
                     }
-                    this.props.onChangeText(text);
+                    this.props.onChangeText(new BitcoinTransaction(undefined, text, 200));
                   } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
-                    this.props.onChangeText(text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+                    this.props.onChangeText(new BitcoinTransaction(undefined, text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), 200));
                   } else {
-                    this.props.onChangeText(text);
+                    this.props.onChangeText(new BitcoinTransaction(undefined, text, 200));
                   }
                 }}
                 onBlur={() => {

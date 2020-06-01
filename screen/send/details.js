@@ -944,7 +944,8 @@ export default class SendDetails extends Component {
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
             onChangeText={text => {
-              item.amount = text;
+              item.amount = text.amount;
+              item.amountSats = text.amountSats;
               const transactions = this.state.addresses;
               transactions[index] = item;
               this.setState({ addresses: transactions });
@@ -960,11 +961,13 @@ export default class SendDetails extends Component {
                 const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(text);
                 transactions[index].address = recipient.address;
                 transactions[index].amount = recipient.amount;
+                transactions[index].amountSats = recipient.amount;
                 this.setState({ addresses: transactions, memo: memo, fee, feeSliderValue, isLoading: false });
               } catch (_e) {
                 const { address, amount, memo } = this.decodeBitcoinUri(text);
                 item.address = address || text;
                 item.amount = amount || item.amount;
+                item.amountSats = item.amount;
                 transactions[index] = item;
                 this.setState({
                   addresses: transactions,

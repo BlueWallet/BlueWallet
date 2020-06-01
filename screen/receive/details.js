@@ -123,17 +123,22 @@ const ReceiveDetails = () => {
   const clearCustomAmount = () => {
     setIsCustom(false);
     setIsCustomModalVisible(false);
-    setCustomAmount('');
+    setCustomAmount(undefined);
     setCustomLabel('');
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
   };
+
+  const setCustomountSats = transactionInfo => {
+    console.warn(transactionInfo)
+    setCustomAmount(transactionInfo.amount);
+  }
 
   const renderCustomAmountModal = () => {
     return (
       <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <BlueBitcoinAmount amount={customAmount || ''} onChangeText={setCustomAmount} />
+            <BlueBitcoinAmount amount={customAmount || ''} onChangeText={setCustomountSats} />
             <View style={styles.customAmount}>
               <TextInput
                 onChangeText={setCustomLabel}
