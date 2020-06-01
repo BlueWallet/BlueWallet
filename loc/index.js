@@ -112,6 +112,7 @@ strings = new Localization({
   de_de: require('./de_DE.js'),
   da_dk: require('./da_DK.js'),
   cs_cz: require('./cs_CZ.js'),
+  sk_sk: require('./sk_SK.js'),
   th_th: require('./th_TH.js'),
   nl_nl: require('./nl_NL.js'),
   fi_fi: require('./fi_FI.js'),
