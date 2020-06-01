@@ -20,7 +20,6 @@ import {
   Clipboard,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import { NavigationEvents } from 'react-navigation';
 import ImagePicker from 'react-native-image-picker';
 import {
   BlueSendButtonIcon,
@@ -45,29 +44,163 @@ let EV = require('../../events');
 let BlueElectrum = require('../../BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 40,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 200,
+    height: 200,
+  },
+  advancedTransactionOptionsModalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 130,
+  },
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  walletDetails: {
+    marginHorizontal: 16,
+    minWidth: 150,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  activityIndicator: {
+    marginVertical: 20,
+  },
+  listHeader: {
+    flexDirection: 'row',
+    margin: 16,
+    justifyContent: 'space-evenly',
+  },
+  listHeaderText: {
+    flex: 1,
+    marginLeft: 16,
+    marginTop: 8,
+    marginBottom: 8,
+    fontWeight: 'bold',
+    fontSize: 24,
+    color: BlueApp.settings.foregroundColor,
+  },
+  marketplaceButton1: {
+    backgroundColor: '#f2f2f2',
+    borderRadius: 9,
+    minHeight: 49,
+    flex: 1,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  marketplaceButton2: {
+    marginLeft: 5,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 9,
+    minHeight: 49,
+    flex: 1,
+    paddingHorizontal: 8,
+    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  marketpalceText1: {
+    color: '#062453',
+    fontSize: 18,
+  },
+  marketpalceText2: {
+    color: '#062453',
+    fontSize: 18,
+    marginHorizontal: 8,
+  },
+  item: {
+    marginHorizontal: 4,
+  },
+  list: {
+    backgroundColor: '#FFFFFF',
+    flex: 1,
+  },
+  emptyTxs: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  emptyTxsLightning: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  buyBitcoin: {
+    backgroundColor: '#007AFF',
+    minWidth: 260,
+    borderRadius: 8,
+    alignSelf: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+  },
+  buyBitcoinText: {
+    fontSize: 15,
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  floatButtons: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    bottom: 30,
+    borderRadius: 30,
+    minHeight: 48,
+    overflow: 'hidden',
+  },
+});
+
 export default class WalletTransactions extends Component {
-  static navigationOptions = ({ navigation }) => {
+  static navigationOptions = ({ navigation, route }) => {
     return {
-      headerRight: (
+      headerRight: () => (
         <TouchableOpacity
-          disabled={navigation.getParam('isLoading') === true}
-          style={{ marginHorizontal: 16, minWidth: 150, justifyContent: 'center', alignItems: 'flex-end' }}
+          disabled={route.params.isLoading === true}
+          style={styles.walletDetails}
           onPress={() =>
             navigation.navigate('WalletDetails', {
-              wallet: navigation.state.params.wallet,
+              wallet: route.params.wallet,
             })
           }
         >
           <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       ),
+      headerTitle: () => null,
       headerStyle: {
-        backgroundColor: WalletGradient.headerColorFor(navigation.state.params.wallet.type),
+        backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
         borderBottomWidth: 0,
         elevation: 0,
-        shadowRadius: 0,
+        // shadowRadius: 0,
+        shadowOffset: { height: 0, width: 0 },
       },
       headerTintColor: '#FFFFFF',
+      headerBackTitleVisible: false,
     };
   };
 
@@ -78,7 +211,7 @@ export default class WalletTransactions extends Component {
 
     // here, when we receive REMOTE_TRANSACTIONS_COUNT_CHANGED we fetch TXs and balance for current wallet
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this), true);
-    const wallet = props.navigation.getParam('wallet');
+    const wallet = props.route.params.wallet;
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
     this.state = {
       isHandOffUseEnabled: false,
@@ -94,12 +227,15 @@ export default class WalletTransactions extends Component {
   }
 
   async componentDidMount() {
+    this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
+    this._unsubscribeBlur = this.props.navigation.addListener('blur', this.onBlur);
+
     this.props.navigation.setParams({ isLoading: false });
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
     const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
-    this.setState({ isHandOffUseEnabled });
+    this.setState({ isHandOffUseEnabled, isLoading: false });
   }
 
   /**
@@ -120,7 +256,7 @@ export default class WalletTransactions extends Component {
    * @returns {Array}
    */
   getTransactions(limit = Infinity) {
-    let wallet = this.props.navigation.getParam('wallet');
+    let wallet = this.props.route.params.wallet;
 
     let txs = wallet.getTransactions();
     for (let tx of txs) {
@@ -211,13 +347,13 @@ export default class WalletTransactions extends Component {
 
   renderListFooterComponent = () => {
     // if not all txs rendered - display indicator
-    return (this.getTransactions(Infinity).length > this.state.limit && <ActivityIndicator style={{ marginVertical: 20 }} />) || <View />;
+    return (this.getTransactions(Infinity).length > this.state.limit && <ActivityIndicator style={styles.activityIndicator} />) || <View />;
   };
 
   renderListHeaderComponent = () => {
     return (
-      <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', margin: 16, justifyContent: 'space-evenly' }}>
+      <View style={styles.flex}>
+        <View style={styles.listHeader}>
           {/*
             Current logic - Onchain:
             - Shows buy button on middle when empty
@@ -230,7 +366,7 @@ export default class WalletTransactions extends Component {
             - Shows Marketplace button to open in browser (iOS)
 
             The idea is to avoid showing on iOS an appstore/market style app that goes against the TOS.
-  
+
            */}
           {this.state.wallet.getTransactions().length > 0 &&
             this.state.wallet.type !== LightningCustodianWallet.type &&
@@ -238,19 +374,7 @@ export default class WalletTransactions extends Component {
           {this.state.wallet.type === LightningCustodianWallet.type && this.renderMarketplaceButton()}
           {this.state.wallet.type === LightningCustodianWallet.type && Platform.OS === 'ios' && this.renderLappBrowserButton()}
         </View>
-        <Text
-          style={{
-            flex: 1,
-            marginLeft: 16,
-            marginTop: 8,
-            marginBottom: 8,
-            fontWeight: 'bold',
-            fontSize: 24,
-            color: BlueApp.settings.foregroundColor,
-          }}
-        >
-          {loc.transactions.list.title}
-        </Text>
+        <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
       </View>
     );
   };
@@ -333,18 +457,9 @@ export default class WalletTransactions extends Component {
               this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
             }
           }}
-          style={{
-            backgroundColor: '#f2f2f2',
-            borderRadius: 9,
-            minHeight: 49,
-            flex: 1,
-            paddingHorizontal: 8,
-            justifyContent: 'center',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
+          style={styles.marketplaceButton1}
         >
-          <Text style={{ color: '#062453', fontSize: 18 }}>marketplace</Text>
+          <Text style={styles.marketpalceText1}>marketplace</Text>
         </TouchableOpacity>
       ),
       ios:
@@ -353,19 +468,10 @@ export default class WalletTransactions extends Component {
             onPress={async () => {
               Linking.openURL('https://bluewallet.io/marketplace/');
             }}
-            style={{
-              backgroundColor: '#f2f2f2',
-              borderRadius: 9,
-              minHeight: 49,
-              flex: 1,
-              paddingHorizontal: 8,
-              justifyContent: 'center',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
+            style={styles.marketplaceButton1}
           >
             <Icon name="external-link" size={18} type="font-awesome" color="#9aa0aa" />
-            <Text style={{ color: '#062453', fontSize: 18, marginHorizontal: 8 }}>marketplace</Text>
+            <Text style={styles.marketpalceText2}>marketplace</Text>
           </TouchableOpacity>
         ) : null,
     });
@@ -381,19 +487,9 @@ export default class WalletTransactions extends Component {
             url: 'https://duckduckgo.com',
           });
         }}
-        style={{
-          marginLeft: 5,
-          backgroundColor: '#f2f2f2',
-          borderRadius: 9,
-          minHeight: 49,
-          flex: 1,
-          paddingHorizontal: 8,
-          justifyContent: 'center',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
+        style={styles.marketplaceButton2}
       >
-        <Text style={{ color: '#062453', fontSize: 18 }}>LApp Browser</Text>
+        <Text style={styles.marketpalceText1}>LApp Browser</Text>
       </TouchableOpacity>
     );
   };
@@ -405,26 +501,9 @@ export default class WalletTransactions extends Component {
             wallet: this.state.wallet,
           })
         }
-        style={{
-          marginLeft: 5,
-          backgroundColor: '#f2f2f2',
-          borderRadius: 9,
-          minHeight: 49,
-          flex: 1,
-          paddingHorizontal: 8,
-          justifyContent: 'center',
-          flexDirection: 'row',
-          alignItems: 'center',
-        }}
+        style={styles.marketplaceButton2}
       >
-        <Text
-          style={{
-            color: '#062453',
-            fontSize: 18,
-          }}
-        >
-          {loc.wallets.list.tap_here_to_buy}
-        </Text>
+        <Text style={styles.marketpalceText1}>{loc.wallets.list.tap_here_to_buy}</Text>
       </TouchableOpacity>
     );
   };
@@ -446,33 +525,50 @@ export default class WalletTransactions extends Component {
           return alert(Err.message);
         }
       }
-      this.props.navigation.navigate('SendDetails', {
-        memo: loc.lnd.refill_lnd_balance,
-        address: toAddress,
-        fromWallet: wallet,
+      this.props.navigation.navigate('SendDetailsRoot', {
+        screen: 'SendDetails',
+        params: {
+          memo: loc.lnd.refill_lnd_balance,
+          address: toAddress,
+          fromWallet: wallet,
+        },
       });
     }
   };
 
-  onWillBlur() {
+  onFocus = () => {
+    StatusBar.setBarStyle('light-content');
+    if (Platform.OS === 'android') {
+      StatusBar.setBackgroundColor(WalletGradient.headerColorFor(this.props.route.params.wallet.type));
+    }
+    this.redrawScreen();
+    this.props.navigation.setParams({ isLoading: false });
+  };
+
+  onBlur = () => {
     StatusBar.setBarStyle('dark-content');
     if (Platform.OS === 'android') StatusBar.setBackgroundColor('#ffffff');
-  }
+  };
 
   componentWillUnmount() {
-    this.onWillBlur();
+    this.onBlur();
     clearInterval(this.interval);
+    this._unsubscribeFocus();
+    this._unsubscribeBlur();
   }
 
   navigateToSendScreen = () => {
-    this.props.navigation.navigate('SendDetails', {
-      fromWallet: this.state.wallet,
+    this.props.navigation.navigate('SendDetailsRoot', {
+      screen: 'SendDetails',
+      params: {
+        fromWallet: this.state.wallet,
+      },
     });
   };
 
   renderItem = item => {
     return (
-      <View style={{ marginHorizontal: 4 }}>
+      <View style={styles.item}>
         <BlueTransactionListItem
           item={item.item}
           itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
@@ -486,12 +582,17 @@ export default class WalletTransactions extends Component {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true }, () => {
         this.setState({ isLoading: false });
-        this.props.navigation.navigate(this.state.wallet.chain === Chain.ONCHAIN ? 'SendDetails' : 'ScanLndInvoice', {
+        const params = {
           fromSecret: this.state.wallet.getSecret(),
           // ScanLndInvoice actrually uses `fromSecret` so keeping it for now
           uri: ret.data ? ret.data : ret,
           fromWallet: this.state.wallet,
-        });
+        };
+        if (this.state.wallet.chain === Chain.ONCHAIN) {
+          this.props.navigation.navigate('SendDetailsRoot', { screen: 'SendDetails', params });
+        } else {
+          this.props.navigation.navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params });
+        }
       });
     }
   };
@@ -534,7 +635,7 @@ export default class WalletTransactions extends Component {
           this.choosePhoto();
         } else if (buttonIndex === 2) {
           this.props.navigation.navigate('ScanQRCode', {
-            launchedBy: this.props.navigation.state.routeName,
+            launchedBy: this.props.route.name,
             onBarScanned: this.onBarCodeRead,
             showFileImportButton: false,
           });
@@ -557,7 +658,7 @@ export default class WalletTransactions extends Component {
           text: 'Scan QR Code',
           onPress: () =>
             this.props.navigation.navigate('ScanQRCode', {
-              launchedBy: this.props.navigation.state.routeName,
+              launchedBy: this.props.route.name,
               onBarScanned: this.onBarCodeRead,
               showFileImportButton: false,
             }),
@@ -580,7 +681,7 @@ export default class WalletTransactions extends Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.flex}>
         {this.state.wallet.chain === Chain.ONCHAIN && this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}
@@ -588,15 +689,6 @@ export default class WalletTransactions extends Component {
             url={`https://blockpath.com/search/addr?q=${this.state.wallet.getXpub()}`}
           />
         )}
-        <NavigationEvents
-          onWillFocus={navigation => {
-            StatusBar.setBarStyle('light-content');
-            if (Platform.OS === 'android') StatusBar.setBackgroundColor(WalletGradient.headerColorFor(navigation.state.params.wallet.type));
-            this.redrawScreen();
-          }}
-          onWillBlur={() => this.onWillBlur()}
-          onDidFocus={() => this.props.navigation.setParams({ isLoading: false })}
-        />
         <BlueWalletNavigationHeader
           wallet={this.state.wallet}
           onWalletUnitChange={wallet =>
@@ -622,7 +714,7 @@ export default class WalletTransactions extends Component {
             }
           }}
         />
-        <View style={{ backgroundColor: '#FFFFFF', flex: 1 }}>
+        <View style={styles.list}>
           <FlatList
             ListHeaderComponent={this.renderListHeaderComponent}
             onEndReachedThreshold={0.3}
@@ -643,33 +735,11 @@ export default class WalletTransactions extends Component {
             }}
             ListFooterComponent={this.renderListFooterComponent}
             ListEmptyComponent={
-              <ScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={{ flex: 1, justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 40 }}
-              >
-                <Text
-                  numberOfLines={0}
-                  style={{
-                    fontSize: 18,
-                    color: '#9aa0aa',
-                    textAlign: 'center',
-                    marginVertical: 16,
-                  }}
-                >
+              <ScrollView style={styles.flex} contentContainerStyle={styles.scrollViewContent}>
+                <Text numberOfLines={0} style={styles.emptyTxs}>
                   {(this.isLightning() && loc.wallets.list.empty_txs1_lightning) || loc.wallets.list.empty_txs1}
                 </Text>
-                {this.isLightning() && (
-                  <Text
-                    style={{
-                      fontSize: 18,
-                      color: '#9aa0aa',
-                      textAlign: 'center',
-                      fontWeight: '600',
-                    }}
-                  >
-                    {loc.wallets.list.empty_txs2_lightning}
-                  </Text>
-                )}
+                {this.isLightning() && <Text style={styles.emptyTxsLightning}>{loc.wallets.list.empty_txs2_lightning}</Text>}
 
                 {!this.isLightning() && (
                   <TouchableOpacity
@@ -678,25 +748,9 @@ export default class WalletTransactions extends Component {
                         wallet: this.state.wallet,
                       })
                     }
-                    style={{
-                      backgroundColor: '#007AFF',
-                      minWidth: 260,
-                      borderRadius: 8,
-                      alignSelf: 'center',
-                      paddingVertical: 14,
-                      paddingHorizontal: 32,
-                    }}
+                    style={styles.buyBitcoin}
                   >
-                    <Text
-                      style={{
-                        fontSize: 15,
-                        color: '#fff',
-                        textAlign: 'center',
-                        fontWeight: '600',
-                      }}
-                    >
-                      {loc.wallets.list.tap_here_to_buy}
-                    </Text>
+                    <Text style={styles.buyBitcoinText}>{loc.wallets.list.tap_here_to_buy}</Text>
                   </TouchableOpacity>
                 )}
               </ScrollView>
@@ -712,25 +766,14 @@ export default class WalletTransactions extends Component {
           />
           {this.renderManageFundsModal()}
         </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignSelf: 'center',
-            backgroundColor: 'transparent',
-            position: 'absolute',
-            bottom: 30,
-            borderRadius: 30,
-            minHeight: 48,
-            overflow: 'hidden',
-          }}
-        >
+        <View style={styles.floatButtons}>
           {(() => {
             if (this.state.wallet.allowReceive()) {
               return (
                 <BlueReceiveButtonIcon
                   onPress={() => {
                     if (this.state.wallet.chain === Chain.OFFCHAIN) {
-                      navigate('LNDCreateInvoice', { fromWallet: this.state.wallet });
+                      navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: this.state.wallet } });
                     } else {
                       navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
                     }
@@ -752,7 +795,7 @@ export default class WalletTransactions extends Component {
                   onLongPress={this.sendButtonLongPress}
                   onPress={() => {
                     if (this.state.wallet.chain === Chain.OFFCHAIN) {
-                      navigate('ScanLndInvoice', { fromSecret: this.state.wallet.getSecret() });
+                      navigate('ScanLndInvoiceRoot', { screen: 'ScanLndInvoice', params: { fromSecret: this.state.wallet.getSecret() } });
                     } else {
                       if (
                         this.state.wallet.type === WatchOnlyWallet.type &&
@@ -799,40 +842,15 @@ export default class WalletTransactions extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 200,
-    height: 200,
-  },
-  advancedTransactionOptionsModalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 130,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-});
-
 WalletTransactions.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     setParams: PropTypes.func,
-    state: PropTypes.shape({
-      routeName: PropTypes.string,
-    }),
+    addListener: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.object,
   }),
 };

@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueSpacing20 } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -9,6 +9,12 @@ let BlueApp: AppStorage = require('../BlueApp');
 let prompt = require('../prompt');
 let EV = require('../events');
 let loc = require('../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class PlausibleDeniability extends Component {
   static navigationOptions = {
@@ -35,7 +41,7 @@ export default class PlausibleDeniability extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <BlueCard>
           <ScrollView maxHeight={450}>
             <BlueText>{loc.plausibledeniability.help}</BlueText>
@@ -70,7 +76,7 @@ export default class PlausibleDeniability extends Component {
                 EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
                 ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
                 alert(loc.plausibledeniability.success);
-                this.props.navigation.navigate('Wallets');
+                this.props.navigation.popToTop();
               }}
             />
           </ScrollView>
@@ -83,6 +89,6 @@ export default class PlausibleDeniability extends Component {
 PlausibleDeniability.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
+    popToTop: PropTypes.func,
   }),
 };

@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
-import { useNavigation, useNavigationParam } from 'react-navigation-hooks';
-import { View, Dimensions } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { View, Dimensions, StyleSheet } from 'react-native';
 import { SafeBlueArea, BlueSpacing20, BlueCopyTextToClipboard, BlueButton, BlueCard, BlueTextCentered } from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
 import { ScrollView } from 'react-native-gesture-handler';
 const { height, width } = Dimensions.get('window');
 const BlueApp = require('../../BlueApp');
 
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+});
+
 const PleaseBackupLNDHub = () => {
-  const wallet = useNavigationParam('wallet');
+  const { wallet } = useRoute().params;
   const navigation = useNavigation();
   const [qrCodeHeight, setQrCodeHeight] = useState(height > width ? width - 40 : width / 2);
 
@@ -18,8 +27,8 @@ const PleaseBackupLNDHub = () => {
   };
 
   return (
-    <SafeBlueArea style={{ flex: 1 }}>
-      <ScrollView centerContent contentContainerStyle={{ flexGrow: 1 }} onLayout={onLayout}>
+    <SafeBlueArea style={styles.root}>
+      <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} onLayout={onLayout}>
         <BlueCard>
           <View>
             <BlueTextCentered>
@@ -41,7 +50,7 @@ const PleaseBackupLNDHub = () => {
           <BlueSpacing20 />
           <BlueCopyTextToClipboard text={wallet.secret} />
           <BlueSpacing20 />
-          <BlueButton onPress={navigation.dismiss} title="OK, I have saved it." />
+          <BlueButton onPress={() => navigation.dangerouslyGetParent().pop()} title="OK, I have saved it." />
         </BlueCard>
       </ScrollView>
     </SafeBlueArea>

@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { ScrollView, Alert, Platform, TouchableOpacity, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import {
   BlueLoading,
   BlueHeaderDefaultSub,
@@ -18,6 +18,12 @@ import Biometric from '../../class/biometrics';
 let BlueApp: AppStorage = require('../../BlueApp');
 let prompt = require('../../prompt');
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class EncryptStorage extends Component {
   static navigationOptions = () => ({
@@ -134,7 +140,7 @@ export default class EncryptStorage extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
         <ScrollView>
           {this.state.biometrics.isDeviceBiometricCapable && (
             <>

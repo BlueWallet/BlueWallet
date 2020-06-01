@@ -395,64 +395,84 @@ export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure 
   );
 };
 
-export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => ({
-  headerStyle: {
-    backgroundColor: BlueApp.settings.brandingColor,
-    borderBottomWidth: 0,
-    elevation: 0,
-  },
-  headerTitleStyle: {
-    fontWeight: '600',
-    color: BlueApp.settings.foregroundColor,
-  },
-  headerTintColor: BlueApp.settings.foregroundColor,
-  headerRight: withNavigationCloseButton ? (
-    <TouchableOpacity
-      style={{ width: 40, height: 40, padding: 14 }}
-      onPress={
-        customCloseButtonFunction === undefined
-          ? () => {
-              Keyboard.dismiss();
-              navigation.goBack(null);
-            }
-          : customCloseButtonFunction
-      }
-    >
-      <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
-    </TouchableOpacity>
-  ) : null,
-  headerBackTitle: null,
-});
+export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => {
+  let headerRight;
+  if (withNavigationCloseButton) {
+    headerRight = () => (
+      <TouchableOpacity
+        style={{ width: 40, height: 40, padding: 14 }}
+        onPress={
+          customCloseButtonFunction === undefined
+            ? () => {
+                Keyboard.dismiss();
+                navigation.goBack(null);
+              }
+            : customCloseButtonFunction
+        }
+      >
+        <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
 
-export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuButton = false, advancedOptionsMenuButtonAction) => ({
-  headerStyle: {
-    backgroundColor: BlueApp.settings.brandingColor,
-    borderBottomWidth: 0,
-    elevation: 0,
-  },
-  headerTitleStyle: {
-    fontWeight: '600',
-    color: BlueApp.settings.foregroundColor,
-  },
-  headerTintColor: BlueApp.settings.foregroundColor,
-  headerLeft: (
-    <TouchableOpacity
-      style={{ minWwidth: 40, height: 40, padding: 14 }}
-      onPress={() => {
-        Keyboard.dismiss();
-        navigation.goBack(null);
-      }}
-    >
-      <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
-    </TouchableOpacity>
-  ),
-  headerRight: withAdvancedOptionsMenuButton ? (
-    <TouchableOpacity style={{ minWidth: 40, height: 40, padding: 14 }} onPress={advancedOptionsMenuButtonAction}>
-      <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
-    </TouchableOpacity>
-  ) : null,
-  headerBackTitle: null,
-});
+  return {
+    headerStyle: {
+      backgroundColor: BlueApp.settings.brandingColor,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerTitleStyle: {
+      fontWeight: '600',
+      color: BlueApp.settings.foregroundColor,
+    },
+    headerRight,
+    headerTintColor: BlueApp.settings.foregroundColor,
+    // headerBackTitle: null,
+    headerBackTitleVisible: false,
+  };
+};
+
+export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuButton = false, advancedOptionsMenuButtonAction) => {
+  let headerRight;
+  if (withAdvancedOptionsMenuButton) {
+    headerRight = () => (
+      <TouchableOpacity style={{ minWidth: 40, height: 40, padding: 14 }} onPress={advancedOptionsMenuButtonAction}>
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+  return {
+    headerStyle: {
+      backgroundColor: BlueApp.settings.brandingColor,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerTitleStyle: {
+      fontWeight: '600',
+      color: BlueApp.settings.foregroundColor,
+    },
+    headerTintColor: BlueApp.settings.foregroundColor,
+    headerLeft: () => (
+      <TouchableOpacity
+        style={{ minWwidth: 40, height: 40, padding: 14 }}
+        onPress={() => {
+          Keyboard.dismiss();
+          navigation.goBack(null);
+        }}
+      >
+        <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
+      </TouchableOpacity>
+    ),
+    headerRight,
+    headerBackTitle: null,
+  };
+};
 
 export const BluePrivateBalance = () => {
   return Platform.select({
@@ -2079,7 +2099,13 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
-            NavigationService.navigate('ScanQRCode', { onBarScanned: this.props.onBarScanned, launchedBy: this.props.launchedBy });
+            NavigationService.navigate('ScanQRCodeRoot', {
+              screen: 'ScanQRCode',
+              params: {
+                launchedBy: this.props.launchedBy,
+                onBarScanned: this.props.onBarScanned,
+              },
+            });
             Keyboard.dismiss();
           }}
           style={{
@@ -2305,6 +2331,12 @@ export class BlueBitcoinAmount extends Component {
       default:
         return 15;
     }
+  };
+
+  textInput = React.createRef();
+
+  handleTextInputOnPress = () => {
+    this.textInput.current.focus();
   };
 
   render() {

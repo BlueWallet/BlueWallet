@@ -15,8 +15,8 @@ export default class Marketplace extends Component {
 
   constructor(props) {
     super(props);
-    if (!props.navigation.getParam('fromWallet')) throw new Error('Invalid param');
-    let fromWallet = props.navigation.getParam('fromWallet');
+    if (!props.route.params.fromWallet) throw new Error('Invalid param');
+    let fromWallet = props.route.params.fromWallet;
 
     this.state = {
       url: '',
@@ -73,8 +73,10 @@ export default class Marketplace extends Component {
 
 Marketplace.propTypes = {
   navigation: PropTypes.shape({
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

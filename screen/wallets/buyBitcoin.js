@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { StyleSheet } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
@@ -6,6 +7,12 @@ import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../cla
 const currency = require('../../currency');
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -16,7 +23,7 @@ export default class BuyBitcoin extends Component {
 
   constructor(props) {
     super(props);
-    let wallet = props.navigation.state.params.wallet;
+    let wallet = props.route.params.wallet;
     if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
@@ -77,7 +84,7 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    const { safelloStateToken } = this.props.navigation.state.params;
+    const { safelloStateToken } = this.props.route.params;
 
     let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
 
@@ -90,7 +97,7 @@ export default class BuyBitcoin extends Component {
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <SafeBlueArea style={styles.root}>
         <WebView
           source={{
             uri,
@@ -102,13 +109,11 @@ export default class BuyBitcoin extends Component {
 }
 
 BuyBitcoin.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        wallet: PropTypes.object.isRequired,
-        safelloStateToken: PropTypes.string,
-      }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      wallet: PropTypes.object.isRequired,
+      safelloStateToken: PropTypes.string,
     }),
   }),
 };

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View } from 'react-native';
+import { Dimensions, ActivityIndicator, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -9,6 +9,18 @@ import Biometric from '../../class/biometrics';
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  container: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+  },
+});
 
 export default class WalletXpub extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -20,7 +32,7 @@ export default class WalletXpub extends Component {
   constructor(props) {
     super(props);
 
-    let secret = props.navigation.state.params.secret;
+    let secret = props.route.params.secret;
     let wallet;
 
     for (let w of BlueApp.getWallets()) {
@@ -66,15 +78,15 @@ export default class WalletXpub extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.root}>
           <ActivityIndicator />
         </View>
       );
     }
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
-        <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center' }} onLayout={this.onLayout}>
+      <SafeBlueArea style={styles.root}>
+        <View style={styles.container} onLayout={this.onLayout}>
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>
           </View>
@@ -100,12 +112,13 @@ export default class WalletXpub extends Component {
 
 WalletXpub.propTypes = {
   navigation: PropTypes.shape({
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        secret: PropTypes.string,
-      }),
-    }),
     navigate: PropTypes.func,
     goBack: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      secret: PropTypes.string,
+    }),
   }),
 };

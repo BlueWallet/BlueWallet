@@ -75,80 +75,81 @@ describe('unit - DeepLinkSchemaMatch', function() {
     const events = [
       {
         argument: { url: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' },
-        expected: {
-          routeName: 'SendDetails',
-          params: {
-            uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
-          },
-        },
+        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
       },
       {
         argument: { url: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' },
-        expected: {
-          routeName: 'SendDetails',
-          params: {
-            uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG',
-          },
-        },
+        expected: ['SendDetailsRoot', { screen: 'SendDetails', params: { uri: 'bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG' } }],
       },
       {
         argument: { url: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' },
-        expected: {
-          routeName: 'SendDetails',
-          params: {
-            uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo',
-          },
-        },
+        expected: [
+          'SendDetailsRoot',
+          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
+        ],
       },
       {
         argument: { url: 'bluewallet:BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' },
-        expected: {
-          routeName: 'SendDetails',
-          params: {
-            uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo',
-          },
-        },
+        expected: [
+          'SendDetailsRoot',
+          { screen: 'SendDetails', params: { uri: 'BITCOIN:BC1Q3RL0MKYK0ZRTXFMQN9WPCD3GNAZ00YV9YP0HXE?amount=666&label=Yo' } },
+        ],
       },
       {
         argument: {
           url:
             'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
         },
-        expected: {
-          routeName: 'ScanLndInvoice',
-          params: {
-            uri:
-              'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+        expected: [
+          'ScanLndInvoiceRoot',
+          {
+            screen: 'ScanLndInvoice',
+            params: {
+              uri:
+                'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+            },
           },
-        },
+        ],
       },
       {
         argument: {
           url:
             'bluewallet:lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
         },
-        expected: {
-          routeName: 'ScanLndInvoice',
-          params: {
-            uri:
-              'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+        expected: [
+          'ScanLndInvoiceRoot',
+          {
+            screen: 'ScanLndInvoice',
+            params: {
+              uri:
+                'lightning:lnbc10u1pwjqwkkpp5vlc3tttdzhpk9fwzkkue0sf2pumtza7qyw9vucxyyeh0yaqq66yqdq5f38z6mmwd3ujqar9wd6qcqzpgxq97zvuqrzjqvgptfurj3528snx6e3dtwepafxw5fpzdymw9pj20jj09sunnqmwqz9hx5qqtmgqqqqqqqlgqqqqqqgqjq5duu3fs9xq9vn89qk3ezwpygecu4p3n69wm3tnl28rpgn2gmk5hjaznemw0gy32wrslpn3g24khcgnpua9q04fttm2y8pnhmhhc2gncplz0zde',
+            },
           },
-        },
+        ],
       },
       {
         argument: {
           url: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261',
         },
-        expected: {
-          routeName: 'AztecoRedeem',
-          params: {
-            uri: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261',
-            c1: '3062',
-            c2: '2586',
-            c3: '5053',
-            c4: '5261',
+        expected: [
+          'AztecoRedeemRoot',
+          {
+            screen: 'AztecoRedeem',
+            params: { c1: '3062', c2: '2586', c3: '5053', c4: '5261', uri: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261' },
           },
+        ],
+      },
+      {
+        argument: {
+          url: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261',
         },
+        expected: [
+          'AztecoRedeemRoot',
+          {
+            screen: 'AztecoRedeem',
+            params: { c1: '3062', c2: '2586', c3: '5053', c4: '5261', uri: 'https://azte.co/?c1=3062&c2=2586&c3=5053&c4=5261' },
+          },
+        ],
       },
     ];
 

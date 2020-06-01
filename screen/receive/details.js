@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useNavigationParam, useIsFocused } from 'react-navigation-hooks';
+import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -27,7 +27,7 @@ const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
 const ReceiveDetails = () => {
-  const secret = useNavigationParam('secret');
+  const { secret } = useRoute().params;
   const [wallet, setWallet] = useState();
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
@@ -134,28 +134,13 @@ const ReceiveDetails = () => {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
             <BlueBitcoinAmount amount={customAmount || ''} onChangeText={setCustomAmount} />
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 8,
-                borderRadius: 4,
-              }}
-            >
+            <View style={styles.customAmount}>
               <TextInput
                 onChangeText={setCustomLabel}
                 placeholder={loc.receive.details.label}
                 value={customLabel || ''}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                style={styles.customAmountText}
               />
             </View>
             <BlueSpacing20 />
@@ -188,7 +173,7 @@ const ReceiveDetails = () => {
   };
 
   return (
-    <SafeBlueArea style={{ flex: 1 }}>
+    <SafeBlueArea style={styles.root}>
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
@@ -196,23 +181,20 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }} keyboardShouldPersistTaps="always">
-        <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+        <View style={styles.scrollBody}>
           {isCustom && (
             <>
-              <BlueText
-                style={{ color: '#0c2550', fontWeight: '600', fontSize: 36, textAlign: 'center', paddingBottom: 24 }}
-                numberOfLines={1}
-              >
+              <BlueText style={styles.amount} numberOfLines={1}>
                 {customAmount} {BitcoinUnit.BTC}
               </BlueText>
-              <BlueText style={{ color: '#0c2550', fontWeight: '600', textAlign: 'center', paddingBottom: 24 }} numberOfLines={1}>
+              <BlueText style={styles.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
           {bip21encoded === undefined && isFocused ? (
-            <View style={{ alignItems: 'center', width: 300, height: 300 }}>
+            <View style={styles.loading}>
               <BlueLoading />
             </View>
           ) : (
@@ -229,7 +211,7 @@ const ReceiveDetails = () => {
           )}
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
-        <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
+        <View style={styles.share}>
           <BlueButtonLink title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
           <View>
             <BlueButton
@@ -272,5 +254,58 @@ const styles = StyleSheet.create({
   bottomModal: {
     justifyContent: 'flex-end',
     margin: 0,
+  },
+  customAmount: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1.0,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+  },
+  customAmountText: {
+    flex: 1,
+    marginHorizontal: 8,
+    minHeight: 33,
+  },
+  root: {
+    flex: 1,
+  },
+  scroll: {
+    justifyContent: 'space-between',
+  },
+  scrollBody: {
+    marginTop: 32,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  amount: {
+    color: '#0c2550',
+    fontWeight: '600',
+    fontSize: 36,
+    textAlign: 'center',
+    paddingBottom: 24,
+  },
+  label: {
+    color: '#0c2550',
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingBottom: 24,
+  },
+  loading: {
+    alignItems: 'center',
+    width: 300,
+    height: 300,
+  },
+  share: {
+    alignItems: 'center',
+    alignContent: 'flex-end',
+    marginBottom: 24,
   },
 });

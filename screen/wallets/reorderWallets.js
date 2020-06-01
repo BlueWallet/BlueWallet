@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, Image, Text } from 'react-native';
+import { View, ActivityIndicator, Image, Text, StyleSheet } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -12,14 +12,67 @@ let EV = require('../../events');
 let BlueApp = require('../../BlueApp');
 let loc = require('../../loc/');
 
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  root: {
+    flex: 1,
+  },
+  itemRoot: {
+    backgroundColor: 'transparent',
+    padding: 10,
+    marginVertical: 17,
+  },
+  gradient: {
+    padding: 15,
+    borderRadius: 10,
+    minHeight: 164,
+    elevation: 5,
+  },
+  image: {
+    width: 99,
+    height: 94,
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+  },
+  transparentText: {
+    backgroundColor: 'transparent',
+  },
+  label: {
+    backgroundColor: 'transparent',
+    fontSize: 19,
+    color: '#fff',
+  },
+  balance: {
+    backgroundColor: 'transparent',
+    fontWeight: 'bold',
+    fontSize: 36,
+    color: '#fff',
+  },
+  latestTxLabel: {
+    backgroundColor: 'transparent',
+    fontSize: 13,
+    color: '#fff',
+  },
+  latestTxValue: {
+    backgroundColor: 'transparent',
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#fff',
+  },
+});
+
 export default class ReorderWallets extends Component {
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = ({ navigation, route }) => ({
     ...BlueNavigationStyle(
       navigation,
       true,
-      navigation.getParam('customCloseButtonFunction') ? navigation.state.params.customCloseButtonFunction : undefined,
+      route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
     ),
-    title: loc.wallets.reorder.title,
+    headerTitle: loc.wallets.reorder.title,
   });
 
   constructor(props) {
@@ -44,9 +97,9 @@ export default class ReorderWallets extends Component {
           setTimeout(function() {
             EV(EV.enum.WALLETS_COUNT_CHANGED);
           }, 500); // adds some animaton
-          this.props.navigation.dismiss();
+          this.props.navigation.goBack();
         } else {
-          this.props.navigation.dismiss();
+          this.props.navigation.goBack();
         }
       },
     });
@@ -65,78 +118,27 @@ export default class ReorderWallets extends Component {
     item = item.data;
 
     return (
-      <View
-        shadowOpacity={40 / 100}
-        shadowOffset={{ width: 0, height: 0 }}
-        shadowRadius={5}
-        style={{ backgroundColor: 'transparent', padding: 10, marginVertical: 17 }}
-      >
-        <LinearGradient
-          shadowColor="#000000"
-          colors={WalletGradient.gradientsFor(item.type)}
-          style={{
-            padding: 15,
-            borderRadius: 10,
-            minHeight: 164,
-            elevation: 5,
-          }}
-        >
+      <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
+        <LinearGradient shadowColor="#000000" colors={WalletGradient.gradientsFor(item.type)} style={styles.gradient}>
           <Image
             source={
               (LightningCustodianWallet.type === item.type && require('../../img/lnd-shape.png')) || require('../../img/btc-shape.png')
             }
-            style={{
-              width: 99,
-              height: 94,
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-            }}
+            style={styles.image}
           />
 
-          <Text style={{ backgroundColor: 'transparent' }} />
-          <Text
-            numberOfLines={1}
-            style={{
-              backgroundColor: 'transparent',
-              fontSize: 19,
-              color: '#fff',
-            }}
-          >
+          <Text style={styles.transparentText} />
+          <Text numberOfLines={1} style={styles.label}>
             {item.getLabel()}
           </Text>
-          <Text
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            style={{
-              backgroundColor: 'transparent',
-              fontWeight: 'bold',
-              fontSize: 36,
-              color: '#fff',
-            }}
-          >
+          <Text numberOfLines={1} adjustsFontSizeToFit style={styles.balance}>
             {loc.formatBalance(Number(item.getBalance()), item.getPreferredBalanceUnit(), true)}
           </Text>
-          <Text style={{ backgroundColor: 'transparent' }} />
-          <Text
-            numberOfLines={1}
-            style={{
-              backgroundColor: 'transparent',
-              fontSize: 13,
-              color: '#fff',
-            }}
-          >
+          <Text style={styles.transparentText} />
+          <Text numberOfLines={1} style={styles.latestTxLabel}>
             {loc.wallets.list.latest_transaction}
           </Text>
-          <Text
-            numberOfLines={1}
-            style={{
-              backgroundColor: 'transparent',
-              fontWeight: 'bold',
-              fontSize: 16,
-              color: '#fff',
-            }}
-          >
+          <Text numberOfLines={1} style={styles.latestTxValue}>
             {loc.transactionTimeToReadable(item.getLatestTransactionTime())}
           </Text>
         </LinearGradient>
@@ -147,7 +149,7 @@ export default class ReorderWallets extends Component {
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.loading}>
           <ActivityIndicator />
         </View>
       );
@@ -157,7 +159,7 @@ export default class ReorderWallets extends Component {
       <SafeBlueArea>
         <SortableList
           ref={ref => (this.sortableList = ref)}
-          style={{ flex: 1 }}
+          style={styles.root}
           data={this.state.data}
           renderRow={this._renderItem}
           onChangeOrder={() => {
@@ -180,6 +182,6 @@ ReorderWallets.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     setParams: PropTypes.func,
-    dismiss: PropTypes.func,
+    goBack: PropTypes.func,
   }),
 };

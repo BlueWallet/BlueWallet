@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
+import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
 import { BlueLoading, BlueText, BlueSpacing20, BlueListItem, SafeBlueArea, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
-import { useNavigation } from 'react-navigation-hooks';
+import { useNavigation } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 const GeneralSettings = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +40,7 @@ const GeneralSettings = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
         {BlueApp.getWallets().length > 1 && (
           <>
