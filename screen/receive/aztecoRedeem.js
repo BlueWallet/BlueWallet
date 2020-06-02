@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Keyboard, Text, TouchableOpacity, TouchableWithoutFeedback, View, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { BlueButton, BlueCreateTxNavigationStyle, BlueLoading, BlueSpacing, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -9,6 +9,46 @@ import Azteco from '../../class/azteco';
 
 const EV = require('../../events');
 let BlueApp: AppStorage = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  loading: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  root: {
+    alignItems: 'center',
+    alignContent: 'flex-end',
+    marginTop: 66,
+  },
+  code: {
+    color: '#0c2550',
+    fontSize: 20,
+    marginTop: 20,
+    marginBottom: 90,
+  },
+  selectWallet1: {
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  selectTouch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectText: {
+    color: '#9aa0aa',
+    fontSize: 14,
+    marginRight: 8,
+  },
+  selectWallet2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 4,
+  },
+  selectWalletLabel: {
+    color: '#0c2550',
+    fontSize: 14,
+  },
+});
 
 export default class AztecoRedeem extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -73,10 +113,10 @@ export default class AztecoRedeem extends Component {
   renderWalletSelectionButton = () => {
     if (this.state.renderWalletSelectionButtonHidden) return;
     return (
-      <View style={{ marginBottom: 24, alignItems: 'center' }}>
+      <View style={styles.selectWallet1}>
         {!this.state.isLoading && (
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
+            style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {
                 onWalletSelect: this.onWalletSelect,
@@ -84,13 +124,13 @@ export default class AztecoRedeem extends Component {
               })
             }
           >
-            <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>Redeem to wallet</Text>
+            <Text style={styles.selectText}>Redeem to wallet</Text>
             <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 4 }}>
+        <View style={styles.selectWallet2}>
           <TouchableOpacity
-            style={{ flexDirection: 'row', alignItems: 'center' }}
+            style={styles.selectTouch}
             onPress={() =>
               this.props.navigation.navigate('SelectWallet', {
                 onWalletSelect: this.onWalletSelect,
@@ -98,7 +138,7 @@ export default class AztecoRedeem extends Component {
               })
             }
           >
-            <Text style={{ color: '#0c2550', fontSize: 14 }}>{this.state.toWallet.getLabel()}</Text>
+            <Text style={styles.selectWalletLabel}>{this.state.toWallet.getLabel()}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -108,7 +148,7 @@ export default class AztecoRedeem extends Component {
   render() {
     if (this.state.isLoading || typeof this.state.toWallet === 'undefined') {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.loading}>
           <BlueLoading />
         </View>
       );
@@ -116,9 +156,9 @@ export default class AztecoRedeem extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View>
-          <View style={{ alignItems: 'center', alignContent: 'flex-end', marginTop: 66 }}>
+          <View style={styles.root}>
             <Text>Your voucher code is</Text>
-            <BlueText style={{ color: '#0c2550', fontSize: 20, marginTop: 20, marginBottom: 90 }}>
+            <BlueText style={styles.code}>
               {this.state.c1}-{this.state.c2}-{this.state.c3}-{this.state.c4}
             </BlueText>
             {this.renderWalletSelectionButton()}

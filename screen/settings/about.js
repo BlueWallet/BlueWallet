@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, Linking, Dimensions, Image, View, Text } from 'react-native';
+import { ScrollView, Linking, Dimensions, Image, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {
   BlueTextCentered,
@@ -16,6 +16,43 @@ import Rate, { AndroidMarket } from 'react-native-rate';
 /** @type {AppStorage} */
 const { width, height } = Dimensions.get('window');
 const loc = require('../../loc/');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 54,
+  },
+  logo: {
+    width: 102,
+    height: 124,
+  },
+  textFree: {
+    maxWidth: 260,
+    marginVertical: 24,
+    color: '#9AA0AA',
+    fontSize: 15,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  textBackup: {
+    maxWidth: 260,
+    marginBottom: 40,
+    color: '#0C2550',
+    fontSize: 15,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  buildWith: {
+    backgroundColor: '#f9f9f9',
+    padding: 16,
+    paddingTop: 0,
+    borderRadius: 8,
+  },
+});
 
 const About = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -68,23 +105,13 @@ const About = () => {
   return isLoading ? (
     <BlueLoading />
   ) : (
-    <SafeBlueArea style={{ flex: 1 }}>
+    <SafeBlueArea style={styles.root}>
       <ScrollView testID="AboutScrollView">
         <BlueCard>
-          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 54 }}>
-            <Image
-              source={require('../../img/bluebeast.png')}
-              style={{
-                width: 102,
-                height: 124,
-              }}
-            />
-            <Text style={{ maxWidth: 260, marginVertical: 24, color: '#9AA0AA', fontSize: 15, textAlign: 'center', fontWeight: '500' }}>
-              BlueWallet is a free and open source project. Crafted by Bitcoin users.
-            </Text>
-            <Text style={{ maxWidth: 260, marginBottom: 40, color: '#0C2550', fontSize: 15, textAlign: 'center', fontWeight: '500' }}>
-              Always backup your keys!
-            </Text>
+          <View style={styles.center}>
+            <Image style={styles.logo} source={require('../../img/bluebeast.png')} />
+            <Text style={styles.textFree}>BlueWallet is a free and open source project. Crafted by Bitcoin users.</Text>
+            <Text style={styles.textBackup}>Always backup your keys!</Text>
             <BlueButton onPress={handleOnRatePress} title="Leave us a review ⭐🙏" />
           </View>
         </BlueCard>
@@ -116,7 +143,7 @@ const About = () => {
           title="GitHub"
         />
         <BlueCard>
-          <View style={{ backgroundColor: '#f9f9f9', padding: 16, paddingTop: 0, borderRadius: 8 }}>
+          <View style={styles.buildWith}>
             <BlueSpacing20 />
 
             <BlueTextCentered>Built with the awesome 👍</BlueTextCentered>

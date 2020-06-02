@@ -1,9 +1,15 @@
 import React, { Component } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { BlueLoading, BlueText, SafeBlueArea, BlueListItem, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 let loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});
 
 export default class Language extends Component {
   static navigationOptions = () => ({
@@ -38,12 +44,14 @@ export default class Language extends Component {
         { label: 'Português (BR)', value: 'pt_br' },
         { label: 'Português (PT)', value: 'pt_pt' },
         { label: 'Русский', value: 'ru' },
+        { label: 'Slovensky (SK)', value: 'sk_sk' },
         { label: 'Svenska (SE)', value: 'sv_se' },
         { label: 'Thai (TH)', value: 'th_th' },
         { label: 'Vietnamese (VN)', value: 'vi_vn' },
         { label: 'Українська', value: 'ua' },
         { label: 'Türkçe (TR)', value: 'tr_tr' },
         { label: 'Xhosa (XHO)', value: 'zar_xho' },
+        { label: 'Català (CA)', value: 'ca' },
       ],
     };
   }
@@ -78,9 +86,9 @@ export default class Language extends Component {
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
         <FlatList
-          style={{ flex: 1 }}
+          style={styles.flex}
           keyExtractor={(_item, index) => `${index}`}
           data={this.state.availableLanguages}
           extraData={this.state.availableLanguages}
