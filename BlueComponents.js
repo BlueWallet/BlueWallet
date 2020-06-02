@@ -2359,7 +2359,7 @@ export class BlueBitcoinAmount extends Component {
       case BitcoinUnit.BTC:
         return 10;
       case BitcoinUnit.SATS:
-        return 9;
+        return 15;
       default:
         return 15;
     }

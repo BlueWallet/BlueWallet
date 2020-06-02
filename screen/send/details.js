@@ -292,6 +292,7 @@ export default class SendDetails extends Component {
           feeSliderValue: bip70.feeSliderValue,
           fee: bip70.fee,
           isLoading: false,
+          amountUnit: BitcoinUnit.BTC,
           bip70TransactionExpiration: bip70.bip70TransactionExpiration,
         });
       } else {
@@ -300,10 +301,14 @@ export default class SendDetails extends Component {
         const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
         if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
           recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
+          const units = this.state.units;
+          units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
           this.setState({
             address: recipients,
             bip70TransactionExpiration: null,
             isLoading: false,
+            amountUnit: BitcoinUnit.BTC,
+            units,
           });
         } else {
           let address = '';
@@ -325,6 +330,8 @@ export default class SendDetails extends Component {
           }
           console.log(options);
           if (btcAddressRx.test(address) || address.indexOf('bc1') === 0 || address.indexOf('BC1') === 0) {
+            const units = this.state.units;
+            units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
             recipients[[this.state.recipientsScrollIndex]].address = address;
             recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
             this.setState({
@@ -332,6 +339,8 @@ export default class SendDetails extends Component {
               memo: options.label || options.message,
               bip70TransactionExpiration: null,
               isLoading: false,
+              amountUnit: BitcoinUnit.BTC,
+              units,
             });
           } else {
             this.setState({ isLoading: false });
@@ -354,13 +363,13 @@ export default class SendDetails extends Component {
         const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(uri);
         addresses.push(recipient);
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, fee, feeSliderValue, isLoading: false });
+        this.setState({ addresses, memo: initialMemo, fee, feeSliderValue, isLoading: false, amountUnit: BitcoinUnit.BTC });
       } else {
         try {
           const { address, amount, memo } = this.decodeBitcoinUri(uri);
-          addresses.push(new BitcoinTransaction(address, amount));
+          addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
           initialMemo = memo;
-          this.setState({ addresses, memo: initialMemo, isLoading: false });
+          this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
         } catch (error) {
           console.log(error);
           alert('Error: Unable to decode Bitcoin address');
@@ -369,7 +378,7 @@ export default class SendDetails extends Component {
     } else if (this.props.route.params.address) {
       addresses.push(new BitcoinTransaction(this.props.route.params.address));
       if (this.props.route.params.memo) initialMemo = this.props.route.params.memo;
-      this.setState({ addresses, memo: initialMemo, isLoading: false });
+      this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
     } else {
       this.setState({ addresses: [new BitcoinTransaction()], isLoading: false });
     }
@@ -819,6 +828,8 @@ export default class SendDetails extends Component {
                       () => {
                         this.scrollView.scrollToEnd();
                         if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+                        // after adding recipient it automatically scrolls to the last one
+                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
                       },
                     );
                   }}
@@ -838,7 +849,8 @@ export default class SendDetails extends Component {
                       },
                       () => {
                         if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        this.setState({ recipientsScrollIndex: this.scrollViewCurrentIndex });
+                        // after deletion it automatically scrolls to the last one
+                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
                       },
                     );
                   }}
