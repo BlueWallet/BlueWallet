@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { NavigationScreenProps } from 'react-navigation';
 
@@ -25,10 +25,20 @@ interface Props extends Partial<NavigationScreenProps> {
 }
 
 export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunction, onBackArrow }: Props) => {
+  const [cancelButtonWith, setCancelButtonWith] = useState(0);
+
   const onLeftItemPress = () => (onBackArrow ? onBackArrow() : navigation!.pop());
   const renderBackArrow = () => <Image style={styles.image} source={images.backArrow} />;
   const renderCancelButton = () => (
-    <FlatButton onPress={onLeftItemPress} titleStyle={typography.headline4} title={i18n.send.details.cancel} />
+    <FlatButton
+      onLayout={event => {
+        const { width } = event.nativeEvent.layout;
+        setCancelButtonWith(width);
+      }}
+      onPress={onLeftItemPress}
+      titleStyle={typography.headline4}
+      title={i18n.send.details.cancel}
+    />
   );
   const renderLeftItem = () => {
     const leftItem = isBackArrow ? renderBackArrow() : isCancelButton ? renderCancelButton() : undefined;
@@ -49,7 +59,7 @@ export const Header = ({ title, isBackArrow, isCancelButton, navigation, addFunc
     <GradientView variant={GradientView.Variant.Primary} style={styles.container}>
       <>
         {renderLeftItem()}
-        <Text numberOfLines={1} style={styles.title}>
+        <Text numberOfLines={1} style={[styles.title, { marginLeft: (cancelButtonWith && cancelButtonWith / 2) || 0 }]}>
           {title}
         </Text>
         {!!addFunction && (
