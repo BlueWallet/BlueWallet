@@ -138,6 +138,7 @@ export default class LNDCreateInvoice extends Component {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+    /** @type LightningCustodianWallet */
     let fromWallet;
     if (props.route.params.fromWallet) fromWallet = props.route.params.fromWallet;
 
@@ -153,7 +154,7 @@ export default class LNDCreateInvoice extends Component {
     this.state = {
       fromWallet,
       amount: '',
-      unit: BitcoinUnit.SATS,
+      unit: fromWallet.preferredBalanceUnit,
       description: '',
       lnurl: '',
       lnurlParams: null,
@@ -214,7 +215,8 @@ export default class LNDCreateInvoice extends Component {
             amount = currency.btcToSatoshi(amount);
             break;
           case BitcoinUnit.LOCAL_CURRENCY:
-            amount = currency.btcToSatoshi(currency.fiatToBTC(amount));
+            // trying to fetch cached sat equivalent for this fiat amount
+            amount = BlueBitcoinAmount.getCachedSatoshis(amount) || currency.btcToSatoshi(currency.fiatToBTC(amount));
             break;
         }
 

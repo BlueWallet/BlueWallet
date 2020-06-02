@@ -2263,6 +2263,9 @@ export class BlueReplaceFeeSuggestions extends Component {
 export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
+    /**
+     * amount is a sting thats always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
+     */
     amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     /**
      * callback that returns currently typed amount, in current denomination, e.g. 0.001 or 10000 or $9.34
@@ -2276,7 +2279,16 @@ export class BlueBitcoinAmount extends Component {
     disabled: PropTypes.bool,
   };
 
+  /**
+   * cache of conversions  fiat amount => satoshi
+   * @type {{}}
+   */
   static conversionCache = {};
+
+  static getCachedSatoshis(amount) {
+    console.warn('BlueBitcoinAmount.conversionCache = ', BlueBitcoinAmount.conversionCache, amount + BitcoinUnit.LOCAL_CURRENCY);
+    return BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] || false;
+  }
 
   constructor(props) {
     super(props);
@@ -2315,7 +2327,7 @@ export class BlueBitcoinAmount extends Component {
     newInputValue = newInputValue.replace(/[^\d.-]/g, ''); // filtering, leaving only numbers & dots
     console.log('and in', newUnit, 'its', newInputValue);
 
-    if (newUnit === BitcoinUnit.LOCAL_CURRENCY) {
+    if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
       // we cache conversion, so when we will need reverse conversion there wont be a rounding error
       BlueBitcoinAmount.conversionCache[newInputValue + newUnit] = amount;
     }
@@ -2375,6 +2387,12 @@ export class BlueBitcoinAmount extends Component {
         break;
       case BitcoinUnit.LOCAL_CURRENCY:
         secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(amount));
+        if (BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+          // cache hit! we reuse old value that supposedly doesnt have rounding errors
+          const sats = BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY];
+          secondaryDisplayCurrency = currency.satoshiToBTC(sats);
+        }
+
         break;
     }
 
