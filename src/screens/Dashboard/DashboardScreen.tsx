@@ -11,7 +11,6 @@ import { ApplicationState } from 'app/state';
 import { loadTransactions, TransactionsActionType } from 'app/state/transactions/actions';
 import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 
-import BlueApp from '../../../BlueApp';
 import { DashboardHeader } from './DashboardHeader';
 import { TransactionList } from './TransactionList';
 import { WalletsCarousel } from './WalletsCarousel';
@@ -91,6 +90,7 @@ export class DashboardScreen extends Component<Props, State> {
 
   refreshWallet = (index: number) => {
     // TODO do not get all data eagerly
+    console.log('fetch data for wallet:', index);
     this.props.loadWallets();
   };
 
@@ -179,7 +179,7 @@ export class DashboardScreen extends Component<Props, State> {
               </View>
             )}
             <TransactionList
-              transactions={isAllWallets(activeWallet) ? allTransactions : transactions[activeWallet.secret]}
+              transactions={isAllWallets(activeWallet) ? allTransactions : transactions[activeWallet.secret] || []}
               transactionNotes={this.props.transactionNotes}
               label={activeWallet.label}
             />
