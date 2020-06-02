@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { NavigationInjectedProps } from 'react-navigation';
+import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate } from 'app/components';
@@ -28,7 +28,7 @@ interface Props extends NavigationInjectedProps {
   loadWallets: () => Promise<WalletsActionType>;
 }
 
-export const ImportWalletScreen: React.FunctionComponent<Props> = (props: Props) => {
+export const ImportWalletScreen: React.FunctionComponent<Props> = ({ loadWallets }: Props) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [text, setText] = useState('');
   const [validationError, setValidationError] = useState('');
@@ -76,18 +76,18 @@ export const ImportWalletScreen: React.FunctionComponent<Props> = (props: Props)
     NavigationService.navigate(Route.ImportWalletQRCode);
   };
 
-  const saveWallet = async (newWallet: any) => {
-    if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === newWallet.secret)) {
+  const saveWallet = async (wallet: any) => {
+    if (BlueApp.getWallets().some(wallet => wallet.getSecret() === wallet.secret)) {
       NavigationService.navigate(Route.ImportWallet);
       setValidationError(i18n.wallets.importWallet.walletInUseValidationError);
     } else {
       ReactNativeHapticFeedback.trigger('notificationSuccess', {
         ignoreAndroidSystemSettings: false,
       });
-      newWallet.setLabel(i18n.wallets.import.imported + ' ' + newWallet.typeReadable);
-      BlueApp.wallets.push(newWallet);
+      wallet.setLabel(i18n.wallets.import.imported + ' ' + wallet.typeReadable);
+      BlueApp.wallets.push(wallet);
       await BlueApp.saveToDisk();
-      props.loadWallets();
+      loadWallets();
       showSuccessImportMessageScreen();
       // this.props.navigation.dismiss();
     }

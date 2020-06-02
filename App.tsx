@@ -5,10 +5,11 @@ import { createAppContainer } from 'react-navigation';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
+import { BlueApp } from 'app/legacy';
+import { i18n } from 'app/locale';
 import { RootNavigator } from 'app/navigators';
 import { UnlockScreen } from 'app/screens';
 import { NavigationService, SecureStorageService, AppStateManager } from 'app/services';
-import EventDispatcher from 'app/state/EventDispatcher';
 import { persistor, store } from 'app/state/store';
 
 if (process.env.NODE_ENV !== 'development') {
@@ -52,6 +53,7 @@ export default class App extends React.PureComponent<State> {
   get showUnlockScreen(): boolean {
     if (__DEV__) {
       // do not check PIN during development
+      BlueApp.startAndDecrypt();
       return false;
     }
     const { successfullyAuthenticated, isPinSet } = this.state;
@@ -66,14 +68,13 @@ export default class App extends React.PureComponent<State> {
           <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
           <PersistGate loading={null} persistor={persistor}>
             <View style={styles.wrapper}>
+              <AppContainer ref={NavigationService.setTopLevelNavigator} />
               {this.showUnlockScreen && (
                 <UnlockScreen
                   onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
                   isBiometricEnabledByUser={isBiometricEnabledByUser}
                 />
               )}
-              <AppContainer ref={NavigationService.setTopLevelNavigator} />
-              <EventDispatcher />
             </View>
           </PersistGate>
         </Provider>

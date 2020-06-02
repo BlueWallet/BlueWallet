@@ -4,8 +4,7 @@ import { SectionList, SectionListData, StyleSheet, Text, View } from 'react-nati
 
 import { images } from 'app/assets';
 import { Image, TransactionItem } from 'app/components';
-import { Route, Transaction, Filters } from 'app/consts';
-import { filterTransaction, filterBySearch } from 'app/helpers/filters';
+import { Route, Transaction } from 'app/consts';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
@@ -23,7 +22,6 @@ interface Props {
   filters: Filters;
   transactions: Transaction[];
   transactionNotes: Record<string, string>;
-  headerHeight: number;
 }
 
 interface State {
@@ -38,13 +36,14 @@ export class TransactionList extends Component<Props, State> {
   static getDerivedStateFromProps(props: Props) {
     moment.locale(i18n._.languageCode);
     const groupedTransactions = [] as any;
-    const fileteredTransactions = props.filters.isFilteringOn
-      ? filterTransaction(props.transactions, props.filters)
-      : props.transactions;
-
-    const dataToGroup = fileteredTransactions
+    const dataToGroup = props.transactions
       .map((transaction: Transaction) => {
-        const note = props.transactionNotes[transaction.txid];
+        const note = props.transactions.map(transactionWithNote => {
+          if (transactionWithNote.hash == transaction.hash) {
+            return transactionWithNote.note;
+          }
+          return '';
+        })[0];
         return {
           ...transaction,
           day: moment(transaction.received).format('ll'),

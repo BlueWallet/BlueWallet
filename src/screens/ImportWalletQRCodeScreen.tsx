@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { NavigationInjectedProps } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Wallet, Route } from 'app/consts';
@@ -47,14 +48,16 @@ interface BarCodeScanEvent {
   type: string;
 }
 
-type Props = NavigationInjectedProps;
+interface Props extends NavigationInjectedProps {
+  loadWallets: () => Promise<WalletsActionType>;
+}
 
 interface State {
   isLoading: boolean;
   message: string;
 }
 
-export default class ImportWalletQRCodeScreen extends React.Component<Props, State> {
+class ImportWalletQRCodeScreen extends React.Component<Props, State> {
   static navigationOptions = {
     header: null,
   };
@@ -108,18 +111,15 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
       }
     }
 
-    // is it just address..?
-    const watchOnly = new WatchOnlyWallet();
-    let watchAddr = event.data;
-
-    // Is it BIP21 format?
-    if (event.data.indexOf('bitcoin:') === 0 || event.data.indexOf('BITCOIN:') === 0) {
-      try {
-        watchAddr = bip21.decode(event.data).address;
-      } catch (err) {
-        console.log(err);
-      }
-    }
+  saveWallet = async (w: any) => {
+    if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === w.secret)) {
+      Alert.alert(i18n.wallets.importWallet.walletInUseValidationError);
+    } else {
+      w.setLabel(i18n.wallets.import.imported + ' ' + w.typeReadable);
+      BlueApp.wallets.push(w);
+      await BlueApp.saveToDisk();
+      this.props.loadWallets();
+      this.props.navigation.popToTop();
 
     // Or is it a bare address?
     // TODO: remove these hardcodes

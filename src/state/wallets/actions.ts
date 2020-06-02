@@ -1,7 +1,7 @@
 import { AnyAction } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
 
-import { Wallet, Transaction } from 'app/consts';
+import { Wallet } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
 import { BlueApp } from 'app/legacy';
 
@@ -66,16 +66,12 @@ export const loadWallets = (walletIndex?: number) => async (
       if (!isAllWallets(wallet)) {
         const walletBalanceUnit = wallet.getPreferredBalanceUnit();
         const walletLabel = wallet.getLabel();
-
         // mutating objects on purpose
-        const enhanceTransactions = (t: Transaction) => {
+        wallet.transactions.forEach(t => {
           t.walletPreferredBalanceUnit = walletBalanceUnit;
           t.walletLabel = walletLabel;
-        };
-        wallet.transactions.forEach(enhanceTransactions);
-        wallet.unconfirmed_transactions.forEach(enhanceTransactions);
-
-        dispatch(loadTransactionsSuccess(wallet.secret, [...wallet.transactions, ...wallet.unconfirmed_transactions]));
+        });
+        dispatch(loadTransactionsSuccess(wallet.secret, wallet.transactions));
       }
     });
     return dispatch(loadWalletsSuccess(wallets));

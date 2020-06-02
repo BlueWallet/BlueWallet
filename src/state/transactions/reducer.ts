@@ -3,9 +3,8 @@ import { Transaction } from 'app/consts';
 import { TransactionsAction, TransactionsActionType } from './actions';
 
 export interface TransactionsState {
-  transactions: Record<string, Transaction>;
-  // TODO rename old transactions to transactionNotes
-  transactionList: Transaction[];
+  transactions: Record<string, Transaction[]>;
+  transactionNotes: Record<string, string>;
 }
 
 const initialState: TransactionsState = {
