@@ -138,7 +138,6 @@ const WalletsRoot = () => (
         headerTintColor: '#0c2550',
       }}
     />
-    <WalletsStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
   </WalletsStack.Navigator>
 );
 
@@ -277,6 +276,7 @@ const Navigation = () => (
     <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ headerLeft: null }} />
     <RootStack.Screen name="ReceiveDetails" component={ReceiveDetails} options={ReceiveDetails.navigationOptions} />
     <RootStack.Screen name="LappBrowser" component={LappBrowser} options={LappBrowser.navigationOptions} />
+    <RootStack.Screen name="ReorderWallets" component={ReorderWallets} options={ReorderWallets.navigationOptions} />
   </RootStack.Navigator>
 );
 

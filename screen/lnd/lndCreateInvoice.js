@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
   },
   amount: {
     flex: 1,
