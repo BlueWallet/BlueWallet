@@ -12,12 +12,14 @@ export default class WalletMigrate {
 
   // 0: Let's start!
   async start() {
-    const firstLaunch = await AsyncStorage.getItem('RnSksIsAppInstalled');
-    if (firstLaunch === undefined || firstLaunch === null || firstLaunch === false || firstLaunch === '') {
+    const isNotFirstLaunch = await AsyncStorage.getItem('RnSksIsAppInstalled');
+    if (!isNotFirstLaunch) {
       try {
+        console.warn('It is the first launch...')
         await RNSecureKeyStore.setResetOnAppUninstallTo(false);
         const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
         await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
+        await AsyncStorage.setItem('RnSksIsAppInstalled', '1');
       } catch (_e) {}
       await AsyncStorage.setItem('RnSksIsAppInstalled', '1');
     }
