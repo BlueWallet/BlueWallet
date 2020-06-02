@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import LottieView from 'lottie-react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { View, StyleSheet } from 'react-native';
-import { Text, Icon } from 'react-native-elements';
+import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
