@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import LottieView from 'lottie-react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { View, StyleSheet } from 'react-native';
 import { Text, Icon } from 'react-native-elements';
@@ -44,12 +45,12 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   ready: {
-    backgroundColor: '#ccddf9',
     width: 120,
     height: 120,
     borderRadius: 60,
     alignSelf: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 43,
     marginBottom: 53,
   },
@@ -98,7 +99,7 @@ export default class Success extends Component {
           )}
         </BlueCard>
         <View style={styles.ready}>
-          <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
+          <LottieView style={{ width: 400, height: 400 }} source={require('../../img/bluenice.json')} autoPlay loop={false} />
         </View>
         <BlueCard>
           <BlueButton
