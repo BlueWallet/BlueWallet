@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -29,7 +29,7 @@ const currency = require('../../currency');
 
 const ReceiveDetails = () => {
   const { secret } = useRoute().params;
-  const [wallet, setWallet] = useState();
+  const wallet = BlueApp.getWallets().find(w => w.getSecret() === secret);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
@@ -40,7 +40,6 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
-  const isFocused = useIsFocused();
 
   const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
@@ -84,10 +83,6 @@ const ReceiveDetails = () => {
   }, [wallet]);
 
   useEffect(() => {
-    Privacy.enableBlur();
-
-    setWallet(BlueApp.getWallets().find(w => w.getSecret() === secret));
-
     if (wallet) {
       if (!wallet.getUserHasSavedExport()) {
         BlueAlertWalletExportReminder({
@@ -104,6 +99,7 @@ const ReceiveDetails = () => {
       }
     }
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    Privacy.enableBlur();
     return () => Privacy.disableBlur();
   }, [goBack, navigate, renderReceiveDetails, secret, wallet]);
 
@@ -227,7 +223,7 @@ const ReceiveDetails = () => {
               </BlueText>
             </>
           )}
-          {bip21encoded === undefined && isFocused ? (
+          {bip21encoded === undefined ? (
             <View style={styles.loading}>
               <BlueLoading />
             </View>

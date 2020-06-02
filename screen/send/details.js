@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     paddingTop: 20,
+    backgroundColor: '#FFFFFF',
   },
   root: {
     flex: 1,

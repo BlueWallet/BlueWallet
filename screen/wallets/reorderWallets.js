@@ -85,12 +85,14 @@ export default class ReorderWallets extends Component {
     };
   }
 
+  sortableList = React.createRef();
+
   componentDidMount() {
     this.props.navigation.setParams({
       customCloseButtonFunction: async () => {
-        if (this.sortableList.state.data.length === this.state.data.length && this.state.hasMovedARow) {
+        if (this.sortableList.current.state.data.length === this.state.data.length && this.state.hasMovedARow) {
           let newWalletsOrderArray = [];
-          this.sortableList.state.order.forEach(element => {
+          this.sortableList.current.state.order.forEach(element => {
             newWalletsOrderArray.push(this.state.data[element]);
           });
           BlueApp.wallets = newWalletsOrderArray;
@@ -159,7 +161,7 @@ export default class ReorderWallets extends Component {
     return (
       <SafeBlueArea>
         <SortableList
-          ref={ref => (this.sortableList = ref)}
+          ref={this.sortableList}
           style={styles.root}
           data={this.state.data}
           renderRow={this._renderItem}
