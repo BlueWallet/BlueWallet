@@ -52,7 +52,6 @@ export default class App extends React.PureComponent<State> {
   get showUnlockScreen(): boolean {
     if (__DEV__) {
       // do not check PIN during development
-      BlueApp.startAndDecrypt();
       return false;
     }
     const { successfullyAuthenticated, isPinSet } = this.state;
@@ -62,22 +61,23 @@ export default class App extends React.PureComponent<State> {
   render() {
     const isBiometricEnabledByUser = store.getState().appSettings.isBiometricsEnabled;
     return (
-      <Provider store={store}>
-        <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
-        <PersistGate loading={null} persistor={persistor}>
-          <View style={{ flex: 1 }}>
-            {isPinSet && !successfullyAuthenticated ? (
-              <UnlockScreen
-                onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
-                isBiometricEnabledByUser={isBiometricEnabledByUser}
-              />
-            ) : (
+      <I18nextProvider i18n={i18n}>
+        <Provider store={store}>
+          <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
+          <PersistGate loading={null} persistor={persistor}>
+            <View style={styles.wrapper}>
+              {this.showUnlockScreen && (
+                <UnlockScreen
+                  onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
+                  isBiometricEnabledByUser={isBiometricEnabledByUser}
+                />
+              )}
               <AppContainer ref={NavigationService.setTopLevelNavigator} />
-            )}
-            <EventDispatcher />
-          </View>
-        </PersistGate>
-      </Provider>
+              <EventDispatcher />
+            </View>
+          </PersistGate>
+        </Provider>
+      </I18nextProvider>
     );
   }
 }
