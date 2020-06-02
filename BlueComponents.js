@@ -2441,12 +2441,12 @@ export class BlueBitcoinAmount extends Component {
                     if (this.state.unit !== BitcoinUnit.BTC) {
                       text = text.replace(/[^0-9.]/g, '');
                     }
-                    this.props.onChangeText(text);
                   } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
-                    this.props.onChangeText(text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
-                  } else {
-                    this.props.onChangeText(text);
+                    // text = text.replace(/,/gi, '');
+                    // text = text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
                   }
+
+                  this.props.onChangeText(text);
                 }}
                 onBlur={() => {
                   if (this.props.onBlur) this.props.onBlur();
