@@ -56,10 +56,10 @@ export class TransactionDetailsScreen extends Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const { hash } = props.navigation.getParam('transaction');
+    const { txid, hash } = props.navigation.getParam('transaction');
     let note = '';
     props.transactions.filter(transaction => {
-      if (transaction.hash == hash) {
+      if (transaction.txid === txid) {
         note = transaction.note;
       }
     });
@@ -84,7 +84,6 @@ export class TransactionDetailsScreen extends Component<Props, State> {
     for (const w of BlueApp.getWallets()) {
       for (const t of w.getTransactions()) {
         if (t.hash === hash) {
-          console.log('tx', hash, 'belongs to', w.getLabel());
           wallet = w;
         }
       }
@@ -101,7 +100,6 @@ export class TransactionDetailsScreen extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    console.log('transactions/details - componentDidMount');
     this.setState({
       isLoading: false,
     });
@@ -119,14 +117,15 @@ export class TransactionDetailsScreen extends Component<Props, State> {
   };
 
   updateNote = (note: string) => {
+    const { txid } = this.props.navigation.getParam('transaction');
     if (!this.state.note) {
       this.props.createTransaction({
-        hash: this.state.hash,
+        txid,
         note,
       });
     } else {
       this.props.updateTransaction({
-        hash: this.state.hash,
+        txid,
         note,
       });
     }

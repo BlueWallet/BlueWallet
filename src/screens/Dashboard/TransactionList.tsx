@@ -35,11 +35,11 @@ class TransactionList extends Component<Props, State> {
     const dataToGroup = props.data
       .map((transaction: any) => {
         const note = props.transactions.map(transactionWithNote => {
-          if (transactionWithNote.hash == transaction.hash) {
+          if (transactionWithNote.txid == transaction.txid) {
             return transactionWithNote.note;
           }
           return '';
-        })[0];
+        });
         return {
           ...transaction,
           day: moment(transaction.received).format('ll'),

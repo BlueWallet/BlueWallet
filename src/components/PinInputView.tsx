@@ -14,7 +14,7 @@ export class PinInputView extends Component<Props> {
   renderNumbersButtons(numbers: string[]) {
     return numbers.map((number: string, index: number) =>
       !number ? (
-        <View style={styles.dummyFill} />
+        <View style={styles.dummyFill} key={index.toString()} />
       ) : (
         <TouchableOpacity
           activeOpacity={0.7}
