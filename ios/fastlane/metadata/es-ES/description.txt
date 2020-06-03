@@ -19,7 +19,7 @@ Negación Plausible
 Contraseña que descifra carteras falsas. Para casos especiales en los que se le puede solicitar que revele su contraseña, puede revelar la contraseña falsa. Mantenga su bitcoin seguro.
 
 Cifrado Completo
-Construido sobre el cifrado multicapa de Android, BlueWallet cifra todo con una contraseña adicional.
+Construido sobre el cifrado multicapa de iOS, BlueWallet cifra todo con una contraseña adicional.
 
 Cartera SegWit e HD
 Compatible con SegWit (ayuda a reducir las tarifas) y carteras HD activadas.

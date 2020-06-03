@@ -1249,6 +1249,8 @@ export class BlueScanButton extends Component {
             flex: 1,
             minWidth: 130,
             backgroundColor: BlueApp.settings.buttonBackgroundColor,
+            paddingRight: 20,
+            paddingLeft: 20,
           }}
         >
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
