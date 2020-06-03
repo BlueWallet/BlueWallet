@@ -21,7 +21,7 @@ import Biometric from '../../class/biometrics';
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 const loc = require('../../loc');
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
   walletSelectRoot: {

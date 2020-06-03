@@ -4,7 +4,7 @@ import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueCompon
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 let BlueApp: AppStorage = require('../../BlueApp');
 let loc = require('../../loc');
 

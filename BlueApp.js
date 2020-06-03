@@ -5,7 +5,7 @@ import { AppStorage } from './class';
 import DeviceQuickActions from './class/quick-actions';
 let prompt = require('./prompt');
 let EV = require('./events');
-let currency = require('./currency');
+let currency = require('./blue_modules/currency');
 let loc = require('./loc');
 let BlueElectrum = require('./BlueElectrum'); // eslint-disable-line
 

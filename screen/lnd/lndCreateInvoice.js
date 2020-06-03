@@ -25,7 +25,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 let BlueApp = require('../../BlueApp');
 let EV = require('../../events');
 let loc = require('../../loc');

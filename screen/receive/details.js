@@ -25,7 +25,7 @@ import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
   const { secret } = useRoute().params;

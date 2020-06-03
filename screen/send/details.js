@@ -42,7 +42,7 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const bitcoin = require('bitcoinjs-lib');
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 let BigNumber = require('bignumber.js');
 const { width } = Dimensions.get('window');
 let BlueApp: AppStorage = require('../../BlueApp');

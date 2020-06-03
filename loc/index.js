@@ -4,7 +4,7 @@ import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import relativeTime from 'dayjs/plugin/relativeTime';
 const dayjs = require('dayjs');
-const currency = require('../currency');
+const currency = require('../blue_modules/currency');
 const BigNumber = require('bignumber.js');
 let strings;
 dayjs.extend(relativeTime);

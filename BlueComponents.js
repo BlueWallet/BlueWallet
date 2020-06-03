@@ -40,7 +40,7 @@ let BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
-const currency = require('./currency');
+const currency = require('./blue_modules/currency');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;

@@ -19,7 +19,7 @@ import {
 } from '../../class';
 let loc = require('../../loc');
 let EV = require('../../events');
-let currency = require('../../currency');
+let currency = require('../../blue_modules/currency');
 let BlueElectrum = require('../../BlueElectrum');
 let Bignumber = require('bignumber.js');
 /** @type {AppStorage} */
