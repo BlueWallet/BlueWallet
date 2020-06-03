@@ -86,20 +86,21 @@ function satoshiToLocalCurrency(satoshi) {
     return '...';
   }
 
-  let b = new BigNumber(satoshi);
-  b = b
-    .dividedBy(100000000)
-    .multipliedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey])
-    .toString(10);
-  b = parseFloat(b).toFixed(2);
+  let b = new BigNumber(satoshi).dividedBy(100000000).multipliedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]);
+
+  if (b.isGreaterThanOrEqualTo(1) || b.isLessThanOrEqualTo(-1)) {
+    b = b.toFixed(2);
+  } else {
+    b = b.toPrecision(2);
+  }
 
   let formatter;
-
   try {
     formatter = new Intl.NumberFormat(preferredFiatCurrency.locale, {
       style: 'currency',
       currency: preferredFiatCurrency.endPointKey,
       minimumFractionDigits: 2,
+      maximumFractionDigits: 8,
     });
   } catch (error) {
     console.warn(error);
@@ -108,6 +109,7 @@ function satoshiToLocalCurrency(satoshi) {
       style: 'currency',
       currency: preferredFiatCurrency.endPointKey,
       minimumFractionDigits: 2,
+      maximumFractionDigits: 8,
     });
   }
 
@@ -135,3 +137,4 @@ module.exports.satoshiToBTC = satoshiToBTC;
 module.exports.BTCToLocalCurrency = BTCToLocalCurrency;
 module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
+module.exports.exchangeRates = exchangeRates; // export it to mock data in tests
