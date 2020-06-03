@@ -138,3 +138,4 @@ module.exports.BTCToLocalCurrency = BTCToLocalCurrency;
 module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
 module.exports.exchangeRates = exchangeRates; // export it to mock data in tests
+module.exports.preferredFiatCurrency = preferredFiatCurrency; // export it to mock data in tests
