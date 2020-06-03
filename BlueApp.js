@@ -7,7 +7,7 @@ const prompt = require('./prompt');
 const EV = require('./events');
 const currency = require('./currency');
 const loc = require('./loc');
-require('./BlueElectrum');
+const BlueElectrum = require('./BlueElectrum'); // eslint-disable-line no-unused-vars
 
 /** @type {AppStorage} */
 const BlueApp = new AppStorage();
