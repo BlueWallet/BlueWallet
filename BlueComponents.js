@@ -1824,9 +1824,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
     return (
       <NewWalletPanel
         onPress={() => {
-          onPressedOut();
           onPress(index);
-          onPressedOut();
         }}
       />
     );
@@ -1845,9 +1843,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
           onPressOut={item.getIsFailure() ? onPressedOut : null}
           onPress={() => {
             if (item.getIsFailure()) {
-              onPressedOut();
               onPress(index);
-              onPressedOut();
             }
           }}
         >
@@ -1915,9 +1911,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
           onPressOut={onPressedOut}
           onLongPress={handleLongPress}
           onPress={() => {
-            onPressedOut();
             onPress(index);
-            onPressedOut();
           }}
         >
           <LinearGradient
