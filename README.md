@@ -74,6 +74,11 @@ cd ..
 npm start ios
 ```
 
+In another terminal window within the BlueWallet folder
+```
+react-native run-ios
+```
+
 
 ## TESTS
 
