@@ -226,7 +226,7 @@ export default class WalletTransactions extends Component {
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     this._unsubscribeBlur = this.props.navigation.addListener('blur', this.onBlur);
 
@@ -234,8 +234,8 @@ export default class WalletTransactions extends Component {
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
     }, 60000);
-    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
-    this.setState({ isHandOffUseEnabled, isLoading: false });
+    HandoffSettings.isHandoffUseEnabled().then(enabled => this.setState({ isHandOffUseEnabled: enabled }));
+    this.setState({ isLoading: false });
   }
 
   /**
