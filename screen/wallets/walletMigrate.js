@@ -15,7 +15,7 @@ export default class WalletMigrate {
     const isNotFirstLaunch = await AsyncStorage.getItem('RnSksIsAppInstalled');
     if (!isNotFirstLaunch) {
       try {
-        console.warn('It is the first launch...')
+        console.warn('It is the first launch...');
         await RNSecureKeyStore.setResetOnAppUninstallTo(false);
         const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
         await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');

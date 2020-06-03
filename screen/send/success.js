@@ -54,6 +54,10 @@ const styles = StyleSheet.create({
     marginTop: 43,
     marginBottom: 53,
   },
+  lottie: {
+    width: 400,
+    height: 400,
+  },
 });
 
 export default class Success extends Component {
@@ -99,7 +103,7 @@ export default class Success extends Component {
           )}
         </BlueCard>
         <View style={styles.ready}>
-          <LottieView style={{ width: 400, height: 400 }} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+          <LottieView style={styles.lottie} source={require('../../img/bluenice.json')} autoPlay loop={false} />
         </View>
         <BlueCard>
           <BlueButton
