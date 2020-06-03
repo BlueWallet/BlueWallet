@@ -44,12 +44,14 @@ export default class Language extends Component {
         { label: 'Português (BR)', value: 'pt_br' },
         { label: 'Português (PT)', value: 'pt_pt' },
         { label: 'Русский', value: 'ru' },
+        { label: 'Slovensky (SK)', value: 'sk_sk' },
         { label: 'Svenska (SE)', value: 'sv_se' },
         { label: 'Thai (TH)', value: 'th_th' },
         { label: 'Vietnamese (VN)', value: 'vi_vn' },
         { label: 'Українська', value: 'ua' },
         { label: 'Türkçe (TR)', value: 'tr_tr' },
         { label: 'Xhosa (XHO)', value: 'zar_xho' },
+        { label: 'Català (CA)', value: 'ca' },
       ],
     };
   }

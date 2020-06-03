@@ -548,7 +548,7 @@ export default class WalletsList extends Component {
   onBarScanned = value => {
     DeeplinkSchemaMatch.navigationRouteFor({ url: value }, completionValue => {
       ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
-      this.props.navigation.navigate(completionValue);
+      this.props.navigation.navigate(...completionValue);
     });
   };
 
