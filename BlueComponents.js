@@ -693,7 +693,6 @@ export class BlueHeader extends Component {
           borderBottomColor: 'transparent',
           borderBottomWidth: 0,
         }}
-        statusBarProps={{ barStyle: 'default' }}
       />
     );
   }
@@ -710,7 +709,6 @@ export class BlueHeaderDefaultSub extends Component {
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
           }}
-          statusBarProps={{ barStyle: 'default' }}
           leftComponent={
             <Text
               adjustsFontSizeToFit
@@ -753,7 +751,6 @@ export class BlueHeaderDefaultMain extends Component {
       <SafeAreaView style={{ paddingVertical: 8, paddingHorizontal: 4, backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
           {...this.props}
-          statusBarProps={{ barStyle: 'default' }}
           leftComponent={{
             // eslint-disable-next-line
             text: this.props.leftText,

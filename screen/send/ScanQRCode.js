@@ -162,6 +162,7 @@ const ScanQRCode = () => {
 
   return (
     <View style={styles.root}>
+      <StatusBar hidden />
       {!isLoading && isFocused && (
         <RNCamera
           captureAudio={false}
