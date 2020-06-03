@@ -2288,7 +2288,6 @@ export class BlueBitcoinAmount extends Component {
   static conversionCache = {};
 
   static getCachedSatoshis(amount) {
-    console.warn('BlueBitcoinAmount.conversionCache = ', BlueBitcoinAmount.conversionCache, amount + BitcoinUnit.LOCAL_CURRENCY);
     return BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] || false;
   }
 

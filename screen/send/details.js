@@ -297,7 +297,6 @@ export default class SendDetails extends Component {
           bip70TransactionExpiration: bip70.bip70TransactionExpiration,
         });
       } else {
-        console.warn('2');
         let recipients = this.state.addresses;
         const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
         if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
@@ -571,7 +570,7 @@ export default class SendDetails extends Component {
         targets = [{ address: transaction.address }];
         break;
       }
-      const value = transaction.amountSats;
+      const value = parseInt(transaction.amountSats);
       if (value > 0) {
         targets.push({ address: transaction.address, value });
       }
@@ -941,7 +940,26 @@ export default class SendDetails extends Component {
             onAmountUnitChange={unit => {
               const units = this.state.units;
               units[index] = unit;
-              this.setState({ units });
+
+              const addresses = this.state.addresses;
+              let item = addresses[index];
+
+              switch (unit) {
+                case BitcoinUnit.SATS:
+                  item.amountSats = parseInt(item.amount);
+                  break;
+                case BitcoinUnit.BTC:
+                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  break;
+                case BitcoinUnit.LOCAL_CURRENCY:
+                  // also accounting for cached fiat->sat conversion to avoid rounding error
+                  item.amountSats =
+                    BlueBitcoinAmount.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  break;
+              }
+
+              addresses[index] = item;
+              this.setState({ units, addresses });
             }}
             onChangeText={text => {
               item.amount = text;
