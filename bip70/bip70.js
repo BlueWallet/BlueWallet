@@ -32,7 +32,7 @@ export default class BitcoinBIP70TransactionDecode {
             Accept: 'application/payment-request',
           },
         });
-        let response = await api.get();
+        const response = await api.get();
         if (response && response.body) {
           const parsedJSON = JSON.parse(response.body);
 
@@ -55,7 +55,9 @@ export default class BitcoinBIP70TransactionDecode {
           resolve(decodedTransaction);
         } else {
           console.log('Could not fetch transaction details: ' + response.err);
-          throw new BitcoinBIP70TransactionError('Unable to fetch transaction details. Please, make sure the provided link is valid.');
+          throw new BitcoinBIP70TransactionError(
+            'Unable to fetch transaction details. Please, make sure the provided link is valid.',
+          );
         }
       } catch (err) {
         console.warn(err);
@@ -74,6 +76,11 @@ export default class BitcoinBIP70TransactionDecode {
   }
 
   static matchesPaymentURL(data) {
-    return data !== null && (data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null || data.startsWith('https://bitpay.com/i/') || data.startsWith('https://www.bitpay.com/i/'));
+    return (
+      data !== null &&
+      (data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null ||
+        data.startsWith('https://bitpay.com/i/') ||
+        data.startsWith('https://www.bitpay.com/i/'))
+    );
   }
 }

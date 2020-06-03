@@ -1,15 +1,15 @@
+import 'react-native-gesture-handler';
+
 import 'intl';
 import 'intl/locale-data/jsonp/en';
-import React from 'react';
 import './shim.js';
-import { AppRegistry } from 'react-native';
-import WalletMigrate from './screen/wallets/walletMigrate';
-import { name as appName } from './app.json';
-import App from './App';
-import LottieView from 'lottie-react-native';
-import UnlockWith from './UnlockWith.js';
 
-const A = require('./analytics');
+import React from 'react';
+import { AppRegistry, StatusBar } from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
+
+import App from './App';
+import WalletMigrate from './walletMigrate';
 
 if (!Error.captureStackTrace) {
   // captureStackTrace is only available when debugging
@@ -17,64 +17,41 @@ if (!Error.captureStackTrace) {
 }
 
 class BlueAppComponent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { isMigratingData: true, onAnimationFinished: false, successfullyAuthenticated: false };
-  }
+  state = {
+    isMigratingData: true,
+  };
 
   componentDidMount() {
     const walletMigrate = new WalletMigrate(this.setIsMigratingData);
+
     walletMigrate.start();
   }
 
   setIsMigratingData = async () => {
-    A(A.ENUM.INIT);
-    this.setState({ isMigratingData: false });
-  };
-
-  onAnimationFinish = () => {
-    if (this.state.isMigratingData) {
-      this.loadingSplash.play(0);
-    } else {
-      this.setState({ onAnimationFinished: true });
-    }
+    SplashScreen.hide();
+    this.setState({
+      isMigratingData: false,
+    });
   };
 
   onSuccessfullyAuthenticated = () => {
-    this.setState({ successfullyAuthenticated: true });
+    this.setState({
+      successfullyAuthenticated: true,
+    });
   };
 
   render() {
     if (this.state.isMigratingData) {
-      return (
-        <LottieView
-          ref={ref => (this.loadingSplash = ref)}
-          onAnimationFinish={this.onAnimationFinish}
-          source={require('./img/bluewalletsplash.json')}
-          autoPlay
-          loop={false}
-        />
-      );
+      return null;
     } else {
-      if (this.state.onAnimationFinished) {
-        return this.state.successfullyAuthenticated ? (
+      return (
+        <>
+          <StatusBar backgroundColor="rgba(0,0,0,0)" translucent />
           <App />
-        ) : (
-          <UnlockWith onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated} />
-        );
-      } else {
-        return (
-          <LottieView
-            ref={ref => (this.loadingSplash = ref)}
-            onAnimationFinish={this.onAnimationFinish}
-            source={require('./img/bluewalletsplash.json')}
-            autoPlay
-            loop={false}
-          />
-        );
-      }
+        </>
+      );
     }
   }
 }
 
-AppRegistry.registerComponent(appName, () => BlueAppComponent);
+AppRegistry.registerComponent('GoldWallet', () => BlueAppComponent);

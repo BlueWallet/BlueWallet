@@ -1,14 +1,17 @@
 /* global it, jest */
-import { SegwitP2SHWallet, AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
+
+import { SegwitP2SHWallet, AppStorage } from '../../class';
+
 global.crypto = require('crypto'); // shall be used by tests under nodejs CLI, but not in RN environment
-let assert = require('assert');
+const assert = require('assert');
+
 jest.useFakeTimers();
 
 it('Appstorage - loadFromDisk works', async () => {
   /** @type {AppStorage} */
-  let Storage = new AppStorage();
-  let w = new SegwitP2SHWallet();
+  const Storage = new AppStorage();
+  const w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
   Storage.wallets.push(w);
@@ -16,7 +19,7 @@ it('Appstorage - loadFromDisk works', async () => {
 
   // saved, now trying to load
 
-  let Storage2 = new AppStorage();
+  const Storage2 = new AppStorage();
   await Storage2.loadFromDisk();
   assert.strictEqual(Storage2.wallets.length, 1);
   assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
@@ -27,14 +30,14 @@ it('Appstorage - loadFromDisk works', async () => {
 
   await AsyncStorage.setItem('data', false);
   await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
-  let Storage3 = new AppStorage();
+  const Storage3 = new AppStorage();
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
 });
 
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   /** @type {AppStorage} */
-  let Storage = new AppStorage();
+  const Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
@@ -94,7 +97,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
-  let createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
+  const createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
   assert.ok(createFakeStorageResult);
   assert.strictEqual(Storage2.wallets.length, 0);
   assert.strictEqual(Storage2.cachedPassword, 'fakePassword');

@@ -1,13 +1,15 @@
 import { BitcoinUnit, Chain } from '../models/bitcoinUnits';
+
 const createHash = require('create-hash');
+
 export class AbstractWallet {
   static type = 'abstract';
   static typeReadable = 'abstract';
 
   static fromJson(obj) {
-    let obj2 = JSON.parse(obj);
-    let temp = new this();
-    for (let key2 of Object.keys(obj2)) {
+    const obj2 = JSON.parse(obj);
+    const temp = new this();
+    for (const key2 of Object.keys(obj2)) {
       temp[key2] = obj2[key2];
     }
 
@@ -64,7 +66,7 @@ export class AbstractWallet {
   }
 
   getPreferredBalanceUnit() {
-    for (let value of Object.values(BitcoinUnit)) {
+    for (const value of Object.values(BitcoinUnit)) {
       if (value === this.preferredBalanceUnit) {
         return this.preferredBalanceUnit;
       }
@@ -80,7 +82,7 @@ export class AbstractWallet {
     return true;
   }
 
-  allowSendMax(): boolean {
+  allowSendMax() {
     return false;
   }
 

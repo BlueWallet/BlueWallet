@@ -1,4 +1,5 @@
 import Biometrics from 'react-native-biometrics';
+
 const BlueApp = require('../BlueApp');
 
 export default class Biometric {
@@ -50,7 +51,9 @@ export default class Biometric {
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     if (isDeviceBiometricCapable) {
       try {
-        const isConfirmed = await Biometrics.simplePrompt({ promptMessage: 'Please confirm your identity.' });
+        const isConfirmed = await Biometrics.simplePrompt({
+          promptMessage: 'Please confirm your identity.',
+        });
         return isConfirmed.success;
       } catch (_e) {
         return false;

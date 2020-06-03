@@ -1,4 +1,4 @@
-# BlueWallet - A Bitcoin Vault mobile wallet
+# GoldWallet - A Bitcoin Vault mobile wallet
 
 The first ever Bitcoin Vault wallet.
 
@@ -10,8 +10,8 @@ The first ever Bitcoin Vault wallet.
 * In your console:
 
 ```
-git clone https://github.com/BlueWallet/BlueWallet.git
-cd BlueWallet
+git clone https://github.com/bitcoinvault/GoldWallet.git
+cd GoldWallet
 npm install
 ``` 
 

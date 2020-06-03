@@ -1,8 +1,10 @@
 import { HDSegwitBech32Wallet, SegwitBech32Wallet } from './';
-const bitcoin = require('bitcoinjs-lib');
-const BlueElectrum = require('../BlueElectrum');
-const reverse = require('buffer-reverse');
+
 const BigNumber = require('bignumber.js');
+const bitcoin = require('bitcoinjs-lib');
+const reverse = require('buffer-reverse');
+
+const BlueElectrum = require('../BlueElectrum');
 
 /**
  * Represents transaction of a BIP84 wallet.
@@ -39,7 +41,7 @@ export class HDSegwitBech32Transaction {
    * @private
    */
   async _fetchTxhexAndDecode() {
-    let hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], 10, false);
+    const hexes = await BlueElectrum.multiGetTransactionByTxid([this._txid], 10, false);
     this._txhex = hexes[this._txid];
     if (!this._txhex) throw new Error("Transaction can't be found in mempool");
     this._txDecoded = bitcoin.Transaction.fromHex(this._txhex);
@@ -55,7 +57,7 @@ export class HDSegwitBech32Transaction {
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
     let max = 0;
-    for (let inp of this._txDecoded.ins) {
+    for (const inp of this._txDecoded.ins) {
       max = Math.max(inp.sequence, max);
     }
 
@@ -80,7 +82,7 @@ export class HDSegwitBech32Transaction {
    * @private
    */
   async _fetchRemoteTx() {
-    let result = await BlueElectrum.multiGetTransactionByTxid([this._txid || this._txDecoded.getId()]);
+    const result = await BlueElectrum.multiGetTransactionByTxid([this._txid || this._txDecoded.getId()]);
     this._remoteTx = Object.values(result)[0];
   }
 
@@ -104,7 +106,7 @@ export class HDSegwitBech32Transaction {
   async isOurTransaction() {
     if (!this._wallet) throw new Error('Wallet required for this method');
     let found = false;
-    for (let tx of this._wallet.getTransactions()) {
+    for (const tx of this._wallet.getTransactions()) {
       if (tx.txid === (this._txid || this._txDecoded.getId())) {
         // its our transaction, and its spending transaction, which means we initiated it
         if (tx.value < 0) found = true;
@@ -123,7 +125,7 @@ export class HDSegwitBech32Transaction {
   async isToUsTransaction() {
     if (!this._wallet) throw new Error('Wallet required for this method');
     let found = false;
-    for (let tx of this._wallet.getTransactions()) {
+    for (const tx of this._wallet.getTransactions()) {
       if (tx.txid === (this._txid || this._txDecoded.getId())) {
         if (tx.value > 0) found = true;
       }
@@ -147,66 +149,75 @@ export class HDSegwitBech32Transaction {
     if (!this._remoteTx) await this._fetchRemoteTx();
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
-    let prevInputs = [];
-    for (let inp of this._txDecoded.ins) {
+    const prevInputs = [];
+    for (const inp of this._txDecoded.ins) {
       let reversedHash = Buffer.from(reverse(inp.hash));
       reversedHash = reversedHash.toString('hex');
       prevInputs.push(reversedHash);
     }
 
-    let prevTransactions = await BlueElectrum.multiGetTransactionByTxid(prevInputs);
+    const prevTransactions = await BlueElectrum.multiGetTransactionByTxid(prevInputs);
 
     // fetched, now lets count how much satoshis went in
     let wentIn = 0;
-    let utxos = [];
-    for (let inp of this._txDecoded.ins) {
+    const utxos = [];
+    for (const inp of this._txDecoded.ins) {
       let reversedHash = Buffer.from(reverse(inp.hash));
       reversedHash = reversedHash.toString('hex');
-      if (prevTransactions[reversedHash] && prevTransactions[reversedHash].vout && prevTransactions[reversedHash].vout[inp.index]) {
+      if (
+        prevTransactions[reversedHash] &&
+        prevTransactions[reversedHash].vout &&
+        prevTransactions[reversedHash].vout[inp.index]
+      ) {
         let value = prevTransactions[reversedHash].vout[inp.index].value;
         value = new BigNumber(value).multipliedBy(100000000).toNumber();
         wentIn += value;
-        let address = SegwitBech32Wallet.witnessToAddress(inp.witness[inp.witness.length - 1]);
-        utxos.push({ vout: inp.index, value: value, txId: reversedHash, address: address });
+        const address = SegwitBech32Wallet.witnessToAddress(inp.witness[inp.witness.length - 1]);
+        utxos.push({
+          vout: inp.index,
+          value,
+          txId: reversedHash,
+          address,
+        });
       }
     }
 
     // counting how much went into actual outputs
 
     let wasSpent = 0;
-    for (let outp of this._txDecoded.outs) {
+    for (const outp of this._txDecoded.outs) {
       wasSpent += +outp.value;
     }
 
-    let fee = wentIn - wasSpent;
+    const fee = wentIn - wasSpent;
     let feeRate = Math.floor(fee / (this._txhex.length / 2));
     if (feeRate === 0) feeRate = 1;
 
     // lets take a look at change
     let changeAmount = 0;
-    let targets = [];
-    for (let outp of this._remoteTx.vout) {
-      let address = outp.scriptPubKey.addresses[0];
-      let value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
+    const targets = [];
+    for (const outp of this._remoteTx.vout) {
+      const address = outp.scriptPubKey.addresses[0];
+      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
       if (this._wallet.weOwnAddress(address)) {
         changeAmount += value;
       } else {
         // this is target
-        targets.push({ value: value, address: address });
+        targets.push({ value, address });
       }
     }
 
     // lets find outputs we own that current transaction creates. can be used in CPFP
-    let unconfirmedUtxos = [];
-    for (let outp of this._remoteTx.vout) {
-      let address = outp.scriptPubKey.addresses[0];
-      let value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
+    const unconfirmedUtxos = [];
+    for (const outp of this._remoteTx.vout) {
+      const address = outp.scriptPubKey.addresses[0];
+      const value = new BigNumber(outp.value).multipliedBy(100000000).toNumber();
       if (this._wallet.weOwnAddress(address)) {
         unconfirmedUtxos.push({
           vout: outp.n,
-          value: value,
+          value,
           txId: this._txid || this._txDecoded.getId(),
-          address: address,
+          address,
         });
       }
     }
@@ -225,7 +236,7 @@ export class HDSegwitBech32Transaction {
     if (!this._txDecoded) await this._fetchTxhexAndDecode();
 
     // if theres at least one output we dont own - we can cancel this transaction!
-    for (let outp of this._txDecoded.outs) {
+    for (const outp of this._txDecoded.outs) {
       if (!this._wallet.weOwnAddress(SegwitBech32Wallet.scriptPubKeyToAddress(outp.script))) return true;
     }
 
@@ -244,10 +255,10 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    let { feeRate, utxos } = await this.getInfo();
+    const { feeRate, utxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
-    let myAddress = await this._wallet.getAddressForTransaction();
+    const myAddress = await this._wallet.getAddressForTransaction();
 
     return this._wallet.createTransaction(
       utxos,
@@ -269,10 +280,10 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    let { feeRate, targets, changeAmount, utxos } = await this.getInfo();
+    const { feeRate, targets, changeAmount, utxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
-    let myAddress = await this._wallet.getAddressForTransaction();
+    const myAddress = await this._wallet.getAddressForTransaction();
 
     if (changeAmount === 0) delete targets[0].value;
     // looks like this was sendMAX transaction (because there was no change), so we cant reuse amount in this
@@ -299,10 +310,10 @@ export class HDSegwitBech32Transaction {
     if (!this._wallet) throw new Error('Wallet required for this method');
     if (!this._remoteTx) await this._fetchRemoteTx();
 
-    let { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
+    const { feeRate, fee: oldFee, unconfirmedUtxos } = await this.getInfo();
 
     if (newFeerate <= feeRate) throw new Error('New feerate should be bigger than the old one');
-    let myAddress = await this._wallet.getAddressForTransaction();
+    const myAddress = await this._wallet.getAddressForTransaction();
 
     // calculating feerate for CPFP tx so that average between current and CPFP tx will equal newFeerate.
     // this works well if both txs are +/- equal size in bytes
@@ -317,7 +328,7 @@ export class HDSegwitBech32Transaction {
         myAddress,
         HDSegwitBech32Wallet.defaultRBFSequence,
       );
-      let combinedFeeRate = (oldFee + fee) / (this._txhex.length / 2 + tx.toHex().length / 2); // avg
+      const combinedFeeRate = (oldFee + fee) / (this._txhex.length / 2 + tx.toHex().length / 2); // avg
       if (Math.round(combinedFeeRate) < newFeerate) {
         add *= 2;
         if (!add) add = 2;

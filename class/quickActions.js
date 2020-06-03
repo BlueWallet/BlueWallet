@@ -1,5 +1,5 @@
-import QuickActions from 'react-native-quick-actions';
 import { Platform } from 'react-native';
+import QuickActions from 'react-native-quick-actions';
 
 export default class DeviceQuickActions {
   static shared = new DeviceQuickActions();
@@ -19,7 +19,7 @@ export default class DeviceQuickActions {
     }
     QuickActions.isSupported((error, supported) => {
       if (supported && error === null) {
-        let shortcutItems = [];
+        const shortcutItems = [];
         const loc = require('../loc/');
         for (const wallet of DeviceQuickActions.shared.wallets) {
           shortcutItems.push({

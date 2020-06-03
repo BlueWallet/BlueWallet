@@ -1,7 +1,9 @@
 import { LegacyWallet } from './legacy-wallet';
-const bitcoin = require('bitcoinjs-lib');
-const signer = require('../models/signer');
+
 const BigNumber = require('bignumber.js');
+const bitcoin = require('bitcoinjs-lib');
+
+const signer = require('../models/signer');
 
 /**
  * Creates Segwit P2SH Bitcoin address
@@ -20,7 +22,7 @@ function pubkeyToP2shSegwitAddress(pubkey, network) {
 
 export class SegwitP2SHWallet extends LegacyWallet {
   static type = 'segwitP2SH';
-  static typeReadable = 'SegWit (P2SH)';
+  static typeReadable = 'P2SH';
 
   allowRBF() {
     return true;
@@ -55,8 +57,8 @@ export class SegwitP2SHWallet extends LegacyWallet {
     if (this._address) return this._address;
     let address;
     try {
-      let keyPair = bitcoin.ECPair.fromWIF(this.secret);
-      let pubKey = keyPair.publicKey;
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const pubKey = keyPair.publicKey;
       if (!keyPair.compressed) {
         console.warn('only compressed public keys are good for segwit');
         return false;
@@ -88,13 +90,21 @@ export class SegwitP2SHWallet extends LegacyWallet {
       sequence = 0;
     }
     // transforming UTXOs fields to how module expects it
-    for (let u of utxos) {
-      u.amount = u.amount.dividedBy(100000000);
-      u.amount = u.amount.toString(10);
+    for (const u of utxos) {
+      u.value = u.value / 100000000;
+      u.value = u.value.toString(10);
     }
     // console.log('creating tx ', amount, ' with fee ', fee, 'secret=', this.getSecret(), 'from address', this.getAddress());
-    let amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
+    const amountPlusFee = parseFloat(new BigNumber(amount).plus(fee).toString(10));
     // to compensate that module substracts fee from amount
-    return signer.createSegwitTransaction(utxos, address, amountPlusFee, fee, this.getSecret(), this.getAddress(), sequence);
+    return signer.createSegwitTransaction(
+      utxos,
+      address,
+      amountPlusFee,
+      fee,
+      this.getSecret(),
+      this.getAddress(),
+      sequence,
+    );
   }
 }

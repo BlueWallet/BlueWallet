@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+
 const BlueApp = require('../BlueApp');
 
 export default class OnAppLaunch {

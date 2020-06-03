@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+
+import WatchConnectivity from '../WatchConnectivity';
 import {
   HDSegwitP2SHWallet,
   HDLegacyP2PKHWallet,
@@ -9,8 +11,8 @@ import {
   SegwitBech32Wallet,
   HDSegwitBech32Wallet,
 } from './';
-import WatchConnectivity from '../WatchConnectivity';
 import DeviceQuickActions from './quickActions';
+
 const encryption = require('../encryption');
 
 export class AppStorage {
@@ -66,7 +68,9 @@ export class AppStorage {
    */
   setItem(key, value) {
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+      return RNSecureKeyStore.set(key, value, {
+        accessible: ACCESSIBLE.WHEN_UNLOCKED,
+      });
     } else {
       return AsyncStorage.setItem(key, value);
     }
@@ -108,7 +112,7 @@ export class AppStorage {
   decryptData(data, password) {
     data = JSON.parse(data);
     let decrypted;
-    for (let value of data) {
+    for (const value of data) {
       try {
         decrypted = encryption.decrypt(value, password);
       } catch (e) {
@@ -129,7 +133,7 @@ export class AppStorage {
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
-    let encrypted = encryption.encrypt(data, password);
+    const encrypted = encryption.encrypt(data, password);
     data = [];
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
@@ -150,7 +154,7 @@ export class AppStorage {
     this.wallets = [];
     this.tx_metadata = {};
 
-    let data = {
+    const data = {
       wallets: [],
       tx_metadata: {},
     };
@@ -184,10 +188,10 @@ export class AppStorage {
       if (data !== null) {
         data = JSON.parse(data);
         if (!data.wallets) return false;
-        let wallets = data.wallets;
-        for (let key of wallets) {
+        const wallets = data.wallets;
+        for (const key of wallets) {
           // deciding which type is wallet and instatiating correct object
-          let tempObj = JSON.parse(key);
+          const tempObj = JSON.parse(key);
           let unserializedWallet;
           switch (tempObj.type) {
             case SegwitBech32Wallet.type:
@@ -246,10 +250,10 @@ export class AppStorage {
    * @param wallet {AbstractWallet}
    */
   deleteWallet(wallet) {
-    let secret = wallet.getSecret();
-    let tempWallets = [];
+    const secret = wallet.getSecret();
+    const tempWallets = [];
 
-    for (let value of this.wallets) {
+    for (const value of this.wallets) {
       if (value.getSecret() === secret) {
         // the one we should delete
         // nop
@@ -269,8 +273,8 @@ export class AppStorage {
    * @returns {Promise} Result of storage save
    */
   async saveToDisk() {
-    let walletsToSave = [];
-    for (let key of this.wallets) {
+    const walletsToSave = [];
+    for (const key of this.wallets) {
       if (typeof key === 'boolean') continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
@@ -285,9 +289,9 @@ export class AppStorage {
       // should find the correct bucket, encrypt and then save
       let buckets = await this.getItem('data');
       buckets = JSON.parse(buckets);
-      let newData = [];
-      for (let bucket of buckets) {
-        let decrypted = encryption.decrypt(bucket, this.cachedPassword);
+      const newData = [];
+      for (const bucket of buckets) {
+        const decrypted = encryption.decrypt(bucket, this.cachedPassword);
         if (!decrypted) {
           // no luck decrypting, its not our bucket
           newData.push(bucket);
@@ -322,13 +326,13 @@ export class AppStorage {
     console.log('fetchWalletBalances for wallet#', index);
     if (index || index === 0) {
       let c = 0;
-      for (let wallet of this.wallets) {
+      for (const wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchBalance();
         }
       }
     } else {
-      for (let wallet of this.wallets) {
+      for (const wallet of this.wallets) {
         await wallet.fetchBalance();
       }
     }
@@ -340,15 +344,15 @@ export class AppStorage {
    * To access transactions - get them from each respective wallet.
    * If index is present then fetch only from this specific wallet.
    *
-   * @param index {Integer} Index of the wallet in this.wallets array,
+   * @param index {Integer=} Index of the wallet in this.wallets array,
    *                        blank to fetch from all wallets
-   * @return {Promise.<void>} 
+   * @return {Promise.<void>}
    */
   async fetchWalletTransactions(index) {
     console.log('fetchWalletTransactions for wallet#', index);
     if (index || index === 0) {
       let c = 0;
-      for (let wallet of this.wallets) {
+      for (const wallet of this.wallets) {
         if (c++ === index) {
           await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {
@@ -360,7 +364,7 @@ export class AppStorage {
         }
       }
     } else {
-      for (let wallet of this.wallets) {
+      for (const wallet of this.wallets) {
         await wallet.fetchTransactions();
         if (wallet.fetchPendingTransactions) {
           await wallet.fetchPendingTransactions();
@@ -392,7 +396,7 @@ export class AppStorage {
     if (index || index === 0) {
       let txs = [];
       let c = 0;
-      for (let wallet of this.wallets) {
+      for (const wallet of this.wallets) {
         if (c++ === index) {
           txs = txs.concat(wallet.getTransactions());
         }
@@ -401,15 +405,15 @@ export class AppStorage {
     }
 
     let txs = [];
-    for (let wallet of this.wallets) {
-      let walletTransactions = wallet.getTransactions();
-      for (let t of walletTransactions) {
+    for (const wallet of this.wallets) {
+      const walletTransactions = wallet.getTransactions();
+      for (const t of walletTransactions) {
         t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
       }
       txs = txs.concat(walletTransactions);
     }
 
-    for (let t of txs) {
+    for (const t of txs) {
       t.sort_ts = +new Date(t.received);
     }
 
@@ -427,7 +431,7 @@ export class AppStorage {
    */
   getBalance() {
     let finalBalance = 0;
-    for (let wal of this.wallets) {
+    for (const wal of this.wallets) {
       finalBalance += wal.getBalance();
     }
     return finalBalance;

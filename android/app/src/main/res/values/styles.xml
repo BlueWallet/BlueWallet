@@ -5,5 +5,14 @@
         <!-- Customize your theme here. -->
         <item name="android:textColor">#000000</item>
     </style>
-
+    <!-- Adds the splash screen definition -->
+    <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/splashscreen_bg</item>
+        <item name="android:background">@drawable/background_splash</item>
+    </style>
+    <style name="SplashScreen">
+    <item name="android:src">@mipmap/splash</item>
+    <item name="android:adjustViewBounds">true</item>
+    <item name="android:scaleType">fitCenter</item>
+</style>
 </resources>

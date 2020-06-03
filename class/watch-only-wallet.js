@@ -1,7 +1,8 @@
-import { LegacyWallet } from './legacy-wallet';
-import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
 import { HDLegacyP2PKHWallet } from './hd-legacy-p2pkh-wallet';
 import { HDSegwitBech32Wallet } from './hd-segwit-bech32-wallet';
+import { HDSegwitP2SHWallet } from './hd-segwit-p2sh-wallet';
+import { LegacyWallet } from './legacy-wallet';
+
 const bitcoin = require('bitcoinjs-lib');
 
 export class WatchOnlyWallet extends LegacyWallet {
@@ -14,18 +15,26 @@ export class WatchOnlyWallet extends LegacyWallet {
   }
 
   allowSend() {
-    return !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSend();
+    return (
+      !!this.use_with_hardware_wallet &&
+      this._hdWalletInstance instanceof HDSegwitBech32Wallet &&
+      this._hdWalletInstance.allowSend()
+    );
   }
 
   allowBatchSend() {
     return (
-      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowBatchSend()
+      !!this.use_with_hardware_wallet &&
+      this._hdWalletInstance instanceof HDSegwitBech32Wallet &&
+      this._hdWalletInstance.allowBatchSend()
     );
   }
 
   allowSendMax() {
     return (
-      !!this.use_with_hardware_wallet && this._hdWalletInstance instanceof HDSegwitBech32Wallet && this._hdWalletInstance.allowSendMax()
+      !!this.use_with_hardware_wallet &&
+      this._hdWalletInstance instanceof HDSegwitBech32Wallet &&
+      this._hdWalletInstance.allowSendMax()
     );
   }
 
@@ -59,14 +68,14 @@ export class WatchOnlyWallet extends LegacyWallet {
     hdWalletInstance._xpub = this.secret;
     if (this._hdWalletInstance) {
       // now, porting all properties from old object to new one
-      for (let k of Object.keys(this._hdWalletInstance)) {
+      for (const k of Object.keys(this._hdWalletInstance)) {
         hdWalletInstance[k] = this._hdWalletInstance[k];
       }
-      hdWalletInstance.generateAddresses();
       // deleting properties that cant survive serialization/deserialization:
       delete hdWalletInstance._node1;
       delete hdWalletInstance._node0;
     }
+    hdWalletInstance.generateAddresses();
     this._hdWalletInstance = hdWalletInstance;
   }
 
