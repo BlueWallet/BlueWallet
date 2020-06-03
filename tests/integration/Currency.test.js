@@ -30,4 +30,32 @@ describe('currency', () => {
     cur = JSON.parse(await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES));
     assert.ok(cur.BTC_EUR > 0);
   });
+
+  it('formats everything correctly', async () => {
+    const currency = require('../../currency');
+    await currency.setPrefferedCurrency(FiatUnit.USD);
+    await currency.startUpdater();
+    currency.exchangeRates.BTC_USD = 10000;
+    assert.strictEqual(currency.satoshiToLocalCurrency(1), '$0.0001');
+    assert.strictEqual(currency.satoshiToLocalCurrency(-1), '-$0.0001');
+    assert.strictEqual(currency.satoshiToLocalCurrency(123), '$0.012');
+    assert.strictEqual(currency.satoshiToLocalCurrency(146), '$0.015');
+    assert.strictEqual(currency.satoshiToLocalCurrency(123456789), '$12,345.68');
+
+    assert.strictEqual(currency.BTCToLocalCurrency(1), '$10,000.00');
+    assert.strictEqual(currency.BTCToLocalCurrency(-1), '-$10,000.00');
+    assert.strictEqual(currency.BTCToLocalCurrency(1.00000001), '$10,000.00');
+    assert.strictEqual(currency.BTCToLocalCurrency(1.0000123), '$10,000.12');
+    assert.strictEqual(currency.BTCToLocalCurrency(1.0000146), '$10,000.15');
+
+    assert.strictEqual(currency.satoshiToBTC(1), '0.00000001');
+    assert.strictEqual(currency.satoshiToBTC(-1), '-0.00000001');
+    assert.strictEqual(currency.satoshiToBTC(100000000), '1');
+    assert.strictEqual(currency.satoshiToBTC(123456789123456789), '1234567891.2345678');
+
+    await currency.setPrefferedCurrency(FiatUnit.JPY);
+    await currency.startUpdater();
+    currency.exchangeRates.BTC_JPY = 1043740.8614;
+    assert.strictEqual(currency.satoshiToLocalCurrency(1), '¥0.01');
+  });
 });
