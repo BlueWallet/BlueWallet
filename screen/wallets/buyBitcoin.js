@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
 export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
-    title: loc.buyBitcoin.header,
+    title: '',
     headerLeft: null,
   });
 
