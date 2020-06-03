@@ -6,7 +6,6 @@ import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 const currency = require('../../currency');
 let BlueApp: AppStorage = require('../../BlueApp');
-let loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {

@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
 export default class TransactionsStatus extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
-        title: '',
+    title: '',
   });
 
   constructor(props) {
