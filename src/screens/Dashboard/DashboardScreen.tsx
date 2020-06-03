@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, RefreshControl, ActivityIndicator, Text } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
-import { ListEmptyState, WalletCard, ScreenTemplate, Header } from 'app/components';
+import { images } from 'app/assets';
+import { ListEmptyState, Image, WalletCard, ScreenTemplate, Header, SearchBar } from 'app/components';
 import { Wallet, Route, Transaction, CONST } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
 import { SecureStorageService } from 'app/services';
@@ -11,6 +12,9 @@ import { ApplicationState } from 'app/state';
 import { loadTransactions, TransactionsActionType } from 'app/state/transactions/actions';
 import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 
+import BlueApp from '../../../BlueApp';
+import EV from '../../../events';
+import { DashboarContentdHeader } from './DashboarContentdHeader';
 import { DashboardHeader } from './DashboardHeader';
 import { TransactionList } from './TransactionList';
 import { WalletsCarousel } from './WalletsCarousel';
@@ -29,24 +33,18 @@ interface Props extends NavigationInjectedProps {
 
 interface State {
   isFetching: boolean;
+  query: string;
+  wallets: Array<Wallet>;
+  isLoading: boolean;
+  isFlatListRefreshControlHidden: boolean;
   lastSnappedTo: number;
 }
 
-export class DashboardScreen extends Component<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: () => (
-      <Header title={i18n.wallets.dashboard.title} addFunction={() => props.navigation.navigate(Route.CreateWallet)} />
-    ),
-  });
-  state: State = {
-    query: '',
-    filters: {
-      isFilteringOn: false,
-    },
-    contentdHeaderHeight: 0,
-    isFetching: false,
-    lastSnappedTo: 0,
-  };
+class DashboardScreen extends Component<Props, State> {
+  // static navigationOptions = () => ({
+  //   // must be dynamic, as function as language switch stops to work
+  //   tabBarLabel: i18n.tabNavigator.dashboard,
+  // });
 
   state: State = {
     isFetching: false,
@@ -126,10 +124,31 @@ export class DashboardScreen extends Component<Props, State> {
     });
   };
 
-  render() {
+  renderTransactionList() {
     const { lastSnappedTo } = this.state;
     const { wallets, isInitialized, transactions, allTransactions } = this.props;
     const activeWallet = wallets[lastSnappedTo];
+
+    return transactions.length ? (
+      <TransactionList data={allTransactions} label={activeWallet.label as string} />
+    ) : (
+      <View style={styles.noTransactionsContainer}>
+        <Image source={images.noTransactions} style={styles.noTransactionsImage} />
+        <Text style={styles.noTransactionsLabel}>{i18n.wallets.dashboard.noTransactions}</Text>
+      </View>
+    );
+  }
+
+  setQuery = (query: string) => this.setState({ query });
+
+  render() {
+    const { lastSnappedTo, isLoading, query } = this.state;
+    const { wallets, isInitialized, transactions, allTransactions } = this.props;
+
+    const activeWallet = wallets[lastSnappedTo];
+    if (isLoading) {
+      return <View />;
+    }
     if (!isInitialized) {
       return (
         <View style={styles.loadingIndicatorContainer}>
@@ -137,52 +156,58 @@ export class DashboardScreen extends Component<Props, State> {
         </View>
       );
     }
+
     if (wallets.length) {
       return (
-        <ScreenTemplate
-          contentContainer={styles.contentContainer}
-          refreshControl={
-            <RefreshControl
-              onRefresh={() => this.refreshTransactions()}
-              refreshing={!this.state.isFlatListRefreshControlHidden}
-            />
-          }
-        >
+        <>
           <DashboardHeader
-            onSelectPress={this.showModal}
-            balance={activeWallet.balance}
-            label={activeWallet.label}
-            unit={activeWallet.preferredBalanceUnit}
-            onReceivePress={this.receiveCoins}
-            onSendPress={this.sendCoins}
-          />
+            onFilterPress={() => {
+              this.props.navigation.navigate(Route.FilterTransactions);
+            }}
+            onAddPress={() => {
+              this.props.navigation.navigate(Route.CreateWallet);
+            }}
+          >
+            <SearchBar query={query} setQuery={this.setQuery} />
+          </DashboardHeader>
           <ScreenTemplate
             contentContainer={styles.contentContainer}
             refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={this.state.isFetching} />}
           >
-            <DashboardHeader
-              onSelectPress={this.showModal}
-              balance={activeWallet.balance}
-              label={activeWallet.label}
-              headerHeight={this.state.contentdHeaderHeight}
-            />
-            {isAllWallets(activeWallet) ? (
-              <WalletsCarousel
-                ref={this.walletCarouselRef as any}
-                data={wallets.filter(wallet => wallet.label !== CONST.allWallets)}
-                keyExtractor={this._keyExtractor as any}
-                onSnapToItem={this.onSnapToItem}
+            <View
+              onLayout={() => {
+                this.setState({});
+              }}
+            >
+              <NavigationEvents
+                onWillFocus={() => {
+                  this.redrawScreen();
+                }}
               />
-            ) : (
-              <View style={{ alignItems: 'center' }}>
-                <WalletCard wallet={activeWallet} showEditButton />
-              </View>
-            )}
-            <TransactionList
-              transactions={isAllWallets(activeWallet) ? allTransactions : transactions[activeWallet.secret] || []}
-              transactionNotes={this.props.transactionNotes}
-              label={activeWallet.label}
-            />
+              <DashboarContentdHeader
+                onSelectPress={this.showModal}
+                balance={activeWallet.balance}
+                label={activeWallet.label === CONST.allWallets ? i18n.wallets.dashboard.allWallets : activeWallet.label}
+                unit={activeWallet.preferredBalanceUnit}
+                onReceivePress={this.receiveCoins}
+                onSendPress={this.sendCoins}
+              />
+              {activeWallet.label === CONST.allWallets ? (
+                <WalletsCarousel
+                  ref={this.walletCarouselRef as any}
+                  data={wallets.filter(wallet => wallet.label !== CONST.allWallets)}
+                  keyExtractor={this._keyExtractor as any}
+                  onSnapToItem={(index: number) => {
+                    this.onSnapToItem(index);
+                  }}
+                />
+              ) : (
+                <View style={{ alignItems: 'center' }}>
+                  <WalletCard wallet={activeWallet} showEditButton />
+                </View>
+              )}
+            </View>
+            {this.renderTransactionList()}
           </ScreenTemplate>
           {!!filters.isFilteringOn && (
             <TouchableOpacity onPress={this.resetFilters} style={styles.clearFiltersButton}>

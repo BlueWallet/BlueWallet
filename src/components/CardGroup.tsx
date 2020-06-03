@@ -20,6 +20,7 @@ export const CardHeader = (props: CardHeaderProps) => {
 
   return (
     <TouchableOpacity
+      activeOpacity={1}
       onPress={onPress}
       style={[styles.headerContainer, { borderBottomColor: isChoosen ? palette.textSecondary : palette.textGrey }]}
     >

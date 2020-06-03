@@ -14,7 +14,7 @@ import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnl
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
-import { DashboarContentdHeader } from './Dashboard/DashboarContentdHeader';
+import { DashboardHeader } from './Dashboard/DashboarContentdHeader';
 
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');

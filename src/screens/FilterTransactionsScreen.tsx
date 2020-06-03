@@ -50,12 +50,24 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
       <View style={styles.spacing10}>
         <RowTemplate
           items={[
-            <TouchableOpacity key={Index.From} onPress={() => showCalendar(Index.From)}>
-              <InputItem key={Index.From} editable={false} label={i18n.filterTransactions.fromDate} value={fromDate} />
-            </TouchableOpacity>,
-            <TouchableOpacity key={Index.To} onPress={() => showCalendar(Index.To)}>
+            <View key={Index.From}>
+              <InputItem
+                key={Index.From}
+                editable={false}
+                label={i18n.filterTransactions.fromDate}
+                value={fromDate}
+                onFocus={() => showCalendar(Index.From)}
+              />
+              <TouchableOpacity
+                key={Index.From}
+                onPress={() => showCalendar(Index.From)}
+                style={styles.buttonOverlay}
+              />
+            </View>,
+            <View key={Index.To}>
               <InputItem label={i18n.filterTransactions.toDate} value={toDate} editable={false} />
-            </TouchableOpacity>,
+              <TouchableOpacity onPress={() => showCalendar(Index.To)} style={styles.buttonOverlay} />
+            </View>,
           ]}
         />
       </View>
@@ -98,10 +110,9 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
   const renderCardContent = (label: string) => (
     <View>
       <View style={styles.spacing20}>
-        <TouchableOpacity onPress={() => navigateToChooseContactList(label)}>
-          <InputItem label={label} value={address} editable={false} onChangeText={setAddress} />
-          <Image style={styles.image} source={images.nextBlackArrow} />
-        </TouchableOpacity>
+        <InputItem label={label} value={address} editable={false} onChangeText={setAddress} />
+        <Image style={styles.image} source={images.nextBlackArrow} />
+        <TouchableOpacity onPress={() => navigateToChooseContactList(label)} style={styles.buttonOverlay} />
       </View>
       {renderCommonCardContent()}
     </View>
@@ -137,11 +148,12 @@ const styles = StyleSheet.create({
   spacing20: {
     marginBottom: 20,
   },
+  buttonOverlay: { position: 'absolute', height: '100%', width: '100%' },
   image: {
     width: 8,
     height: 13,
     top: 28,
-    left: '96%',
+    right: 10,
     position: 'absolute',
   },
 });
