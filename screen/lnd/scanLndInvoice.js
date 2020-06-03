@@ -367,8 +367,11 @@ export default class ScanLndInvoice extends React.Component {
                     {'decoded' in this.state && this.state.decoded !== undefined ? this.state.decoded.description : ''}
                   </Text>
                 </View>
-                {this.state.expiresIn !== undefined && <Text style={styles.expiresIn}>Expires in: {this.state.expiresIn}</Text>}
-
+                {this.state.expiresIn !== undefined && 
+                  <View>
+                    <Text style={styles.expiresIn}>Expires: {this.state.expiresIn}</Text>
+                    <Text style={styles.expiresIn}>Fee: 0.3% to 1% (+1 sat)</Text>
+                  </View>}
                 <BlueCard>
                   {this.state.isLoading ? (
                     <View>
