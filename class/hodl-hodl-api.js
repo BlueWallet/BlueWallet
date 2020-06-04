@@ -216,11 +216,20 @@ export class HodlHodlApi {
 
     const json = response.body;
     if (!json || !json.contract || json.status === 'error') {
-      if (json && json.validation_errors) throw new Error(JSON.stringify(json.validation_errors));
+      if (json && json.validation_errors) throw new Error(this.validationErrorsToReadable(json.validation_errors));
       throw new Error('API failure: ' + JSON.stringify(response));
     }
 
     return json.contract;
+  }
+
+  validationErrorsToReadable(errorz) {
+    const ret = [];
+    for (const er of Object.keys(errorz)) {
+      ret.push(errorz[er].join('; '));
+    }
+
+    return ret.join('\n');
   }
 
   async getContract(id) {
@@ -281,7 +290,7 @@ export class HodlHodlApi {
 
     const json = response.body;
     if (!json || !json.contract || json.status === 'error') {
-      if (json && json.validation_errors) throw new Error(JSON.stringify(json.validation_errors));
+      if (json && json.validation_errors) throw new Error(this.validationErrorsToReadable(json.validation_errors));
       throw new Error('API failure: ' + JSON.stringify(response));
     }
 

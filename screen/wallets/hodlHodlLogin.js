@@ -5,6 +5,8 @@ import PropTypes from 'prop-types';
 
 const url = 'https://accounts.hodlhodl.com/accounts/request_access?attributes=api_key,api_signature_key';
 
+let lastTimeIvebeenHere = 0;
+
 const INJECTED_JAVASCRIPT = `(function() {
 
  window.postMessage = function (data) {
@@ -37,6 +39,12 @@ export default class HodlHodlLogin extends Component {
           source={{ uri: this.state.url }}
           onMessage={e => {
             // this is a handler which receives messages sent from within the browser
+
+            if (lastTimeIvebeenHere && +new Date() - lastTimeIvebeenHere < 5000) return;
+            lastTimeIvebeenHere = +new Date();
+            // page can post messages several times, and that can confuse our react navigation, so we have protection
+            // against that
+
             let json = false;
             try {
               json = JSON.parse(e.nativeEvent.data);
@@ -44,7 +52,7 @@ export default class HodlHodlLogin extends Component {
 
             if (json && json.allowed && json.data && json.data.api_key) {
               this.props.route.params.cb(json.data.api_key, json.data.api_signature_key);
-              this.props.navigation.goBack();
+              this.props.navigation.pop();
             }
           }}
         />
@@ -62,6 +70,6 @@ HodlHodlLogin.propTypes = {
   navigation: PropTypes.shape({
     getParam: PropTypes.func,
     navigate: PropTypes.func,
-    goBack: PropTypes.func,
+    pop: PropTypes.func,
   }),
 };
