@@ -208,7 +208,7 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   async pay() {
-    if ('decoded' in this.state) {
+    if (!('decoded' in this.state)) {
       return null;
     }
 
