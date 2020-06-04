@@ -21,9 +21,7 @@ type Props = NavigationInjectedProps<{
 
 export class SendTransactionDetailsScreen extends PureComponent<Props> {
   static navigationOptions = (props: Props) => ({
-    header: (
-      <Header title={i18n.transactions.details.detailTitle} isCancelButton={true} navigation={props.navigation} />
-    ),
+    header: <Header title={i18n.transactions.details.details} isCancelButton={true} navigation={props.navigation} />,
   });
   render() {
     const { navigation } = this.props;
