@@ -1012,11 +1012,12 @@ export default class SendDetails extends Component {
   };
 
   render() {
+    const opacity = this.state.isLoading ? 0.5 : 1.0;
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root} pointerEvents={this.state.isLoading ? 'none' : 'auto'}>
           <View>
-            <View style={{ opacity: this.state.isLoading ? 0.5 : 1.0 }}>
+            <View style={{ opacity: opacity }}>
               <KeyboardAvoidingView behavior="position">
                 <ScrollView
                   pagingEnabled
