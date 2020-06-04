@@ -14,7 +14,7 @@ it.skip('can verify escrow address', () => {
   const witnessScript =
     '522103dc0edfea797214be15a69148bfb1dffa1c8295c05300b7632143a77d918b4a0821031fec42b60942633616aff7e245796b5caae6bf59ef5ba688b0a59f33f08b2896210351fd6e52d38a37b9834909e3f8345c471346e1f5990ec00dafcc53e238d3c7c553ae';
 
-  let Hodl = new HodlHodlApi();
+  const Hodl = new HodlHodlApi();
   assert.ok(Hodl.verifyEscrowAddress(encryptedSeed, encryptPassword, index, address, witnessScript));
   assert.ok(!Hodl.verifyEscrowAddress(encryptedSeed, encryptPassword, index, '3QDf45WU88t2kEBJTHcTPvtrXZx88SkmKC', witnessScript));
 });
@@ -132,7 +132,7 @@ describe('HodlHodl API', function () {
 
   it('can get offer', async () => {
     if (!process.env.HODLHODL_OFFER_ID) return;
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const offer = await Hodl.getOffer(process.env.HODLHODL_OFFER_ID);
     assert.ok(offer.id);
     assert.ok(offer.version);
@@ -141,20 +141,20 @@ describe('HodlHodl API', function () {
   it('can accept offer', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_OFFER_ID) return;
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const offer = await Hodl.getOffer(process.env.HODLHODL_OFFER_ID);
     assert.strictEqual(offer.side, 'sell');
-    let paymentMethodInstructionId = offer.payment_method_instructions[0].id;
-    let paymentMethodInstructionVersion = offer.payment_method_instructions[0].version;
-    let volume = 0.005;
-    let contract = await Hodl.acceptOffer(offer.id, offer.version, paymentMethodInstructionId, paymentMethodInstructionVersion, volume);
+    const paymentMethodInstructionId = offer.payment_method_instructions[0].id;
+    const paymentMethodInstructionVersion = offer.payment_method_instructions[0].version;
+    const volume = 0.005;
+    const contract = await Hodl.acceptOffer(offer.id, offer.version, paymentMethodInstructionId, paymentMethodInstructionVersion, volume);
     console.warn({ contract });
   });
 
   it('can get contract', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_CONTRACT_ID) return;
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const contract = await Hodl.getContract(process.env.HODLHODL_CONTRACT_ID);
     assert.ok(contract.your_role);
     assert.ok(contract.volume);
@@ -164,7 +164,7 @@ describe('HodlHodl API', function () {
   it('can mark contract as confirmed', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
     if (!process.env.HODLHODL_CONTRACT_ID) return;
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const result = await Hodl.markContractAsConfirmed(process.env.HODLHODL_CONTRACT_ID);
     console.warn(result);
   });
@@ -188,13 +188,13 @@ describe('HodlHodl API', function () {
   });
 
   it('cat get myself', async () => {
-    let Hodl = new HodlHodlApi();
+    const Hodl = new HodlHodlApi();
     const myself = await Hodl.getMyself();
     assert.ok(myself.encrypted_seed);
   });
 
   it('can create signature for autologin', async () => {
-    let Hodl = new HodlHodlApi('');
+    const Hodl = new HodlHodlApi('');
     const sig = Hodl.createSignature(
       'iqZC7uUmx4sVeIwFQN2YqGT5SyrXNLhxVX7QMGUeJK1CDdy87OcrOt3QvPE5LFC56Lgu7WLlg12U55Vy',
       'cce14197a08ebab7cfbb41cfce9fe91e0f31d572d3f48571ca3c30bfd516f769',
