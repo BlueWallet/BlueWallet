@@ -684,7 +684,6 @@ export class BlueHeader extends Component {
           borderBottomColor: 'transparent',
           borderBottomWidth: 0,
         }}
-        statusBarProps={{ barStyle: 'default' }}
       />
     );
   }
@@ -701,7 +700,6 @@ export class BlueHeaderDefaultSub extends Component {
             borderBottomColor: 'transparent',
             borderBottomWidth: 0,
           }}
-          statusBarProps={{ barStyle: 'default' }}
           leftComponent={
             <Text
               adjustsFontSizeToFit
@@ -740,7 +738,6 @@ export class BlueHeaderDefaultMain extends Component {
       <SafeAreaView style={{ paddingVertical: 8, paddingHorizontal: 4, backgroundColor: BlueApp.settings.brandingColor }}>
         <Header
           {...this.props}
-          statusBarProps={{ barStyle: 'default' }}
           leftComponent={{
             text: this.props.leftText,
             style: {
@@ -1812,9 +1809,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
     return (
       <NewWalletPanel
         onPress={() => {
-          onPressedOut();
           onPress(index);
-          onPressedOut();
         }}
       />
     );
@@ -1833,9 +1828,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
           onPressOut={item.getIsFailure() ? onPressedOut : null}
           onPress={() => {
             if (item.getIsFailure()) {
-              onPressedOut();
               onPress(index);
-              onPressedOut();
             }
           }}
         >
@@ -1903,9 +1896,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
           onPressOut={onPressedOut}
           onLongPress={handleLongPress}
           onPress={() => {
-            onPressedOut();
             onPress(index);
-            onPressedOut();
           }}
         >
           <LinearGradient
