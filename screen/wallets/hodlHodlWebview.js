@@ -13,7 +13,7 @@ export default class HodlHodlWebview extends Component {
   constructor(props) {
     super(props);
 
-    let uri = props.route.params.uri;
+    const uri = props.route.params.uri;
 
     this.state = {
       uri,

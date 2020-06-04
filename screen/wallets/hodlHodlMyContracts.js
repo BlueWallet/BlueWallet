@@ -89,6 +89,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#0c2550',
   },
+  emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 },
+  itemSeparatorComponent: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
+  flexDirectionRow: { flexDirection: 'row' },
+  flexDirectionColumn: { flexDirection: 'column' },
+  volumeBreakdownText: { fontSize: 18, color: '#0c2550' },
+  contractStatusText: { fontSize: 14, color: 'gray', fontWeight: 'normal' },
+  cancelContractText: { color: '#d0021b', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
+  openChatText: { color: '#1b02d0', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
+  flatList: { paddingTop: 30 },
+  roleText: { fontSize: 14, color: 'gray', padding: 5 },
 });
 
 export default class HodlHodlMyContracts extends Component {
@@ -133,11 +143,9 @@ export default class HodlHodlMyContracts extends Component {
           keyExtractor={(item, index) => {
             return item.id;
           }}
-          ListEmptyComponent={() => (
-            <Text style={{ textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 }}>You dont have any contracts in progress</Text>
-          )}
-          style={{ paddingTop: 30 }}
-          ItemSeparatorComponent={() => <View style={{ height: 0.5, width: '100%', backgroundColor: '#C8C8C8' }} />}
+          ListEmptyComponent={() => <Text style={styles.emptyComponentText}>You dont have any contracts in progress</Text>}
+          style={styles.flatList}
+          ItemSeparatorComponent={() => <View style={styles.itemSeparatorComponent} />}
           data={this.state.contracts}
           renderItem={({ item: contract, index, separators }) => (
             <TouchableHighlight
@@ -145,23 +153,23 @@ export default class HodlHodlMyContracts extends Component {
               onHideUnderlay={separators.unhighlight}
               onPress={() => this._onContractPress(contract)}
             >
-              <View style={{ flexDirection: 'row' }}>
+              <View style={styles.flexDirectionRow}>
                 <View style={['paid', 'completed'].includes(contract.status) ? styles.statusGreenWrapper : styles.statusGrayWrapper}>
                   <Text style={['paid', 'completed'].includes(contract.status) ? styles.statusGreenText : styles.statusGrayText}>
                     {contract.status}
                   </Text>
                 </View>
 
-                <View style={{ flexDirection: 'column' }}>
-                  <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontSize: 18, color: '#0c2550' }}>
+                <View style={styles.flexDirectionColumn}>
+                  <View style={styles.flexDirectionRow}>
+                    <Text style={styles.volumeBreakdownText}>
                       {contract.volume_breakdown.goes_to_buyer} {contract.asset_code}
                     </Text>
-                    <Text style={{ fontSize: 14, color: 'gray', padding: 5 }}>{contract.your_role === 'buyer' ? 'buying' : 'selling'}</Text>
+                    <Text style={styles.roleText}>{contract.your_role === 'buyer' ? 'buying' : 'selling'}</Text>
                   </View>
 
                   <View>
-                    <Text style={{ fontSize: 14, color: 'gray', fontWeight: 'normal' }}>{contract.statusText}</Text>
+                    <Text style={styles.contractStatusText}>{contract.statusText}</Text>
                   </View>
                 </View>
               </View>
@@ -179,7 +187,7 @@ export default class HodlHodlMyContracts extends Component {
     });
 
     const hodlApi = this.state.hodlApi;
-    let contracts = [];
+    const contracts = [];
     let contractToDisplay = this.state.contractToDisplay;
 
     const contractIds = await BlueApp.getHodlHodlContracts();
@@ -302,19 +310,13 @@ export default class HodlHodlMyContracts extends Component {
             <BlueSpacing20 />
 
             {this.state.contractToDisplay.can_be_canceled && (
-              <Text
-                onPress={() => this._onCancelContract()}
-                style={{ color: '#d0021b', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' }}
-              >
-                {'Cancel contract'}
+              <Text onPress={() => this._onCancelContract()} style={styles.cancelContractText}>
+                Cancel contract
               </Text>
             )}
 
-            <Text
-              onPress={() => this._onOpenContractOnWebsite()}
-              style={{ color: '#1b02d0', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' }}
-            >
-              {'Open chat with counterparty'}
+            <Text onPress={() => this._onOpenContractOnWebsite()} style={styles.openChatText}>
+              Open chat with counterparty
             </Text>
           </View>
         </KeyboardAvoidingView>
