@@ -34,6 +34,7 @@ interface Props extends NavigationInjectedProps {
 interface State {
   isFetching: boolean;
   query: string;
+  contentdHeaderHeight: number;
   wallets: Array<Wallet>;
   isLoading: boolean;
   isFlatListRefreshControlHidden: boolean;
@@ -47,6 +48,8 @@ class DashboardScreen extends Component<Props, State> {
   // });
 
   state: State = {
+    query: '',
+    contentdHeaderHeight: 0,
     isFetching: false,
     lastSnappedTo: 0,
   };
@@ -157,6 +160,7 @@ class DashboardScreen extends Component<Props, State> {
       );
     }
 
+    console.log('contentdHeaderHeight', this.state.contentdHeaderHeight);
     if (wallets.length) {
       return (
         <>
@@ -175,8 +179,11 @@ class DashboardScreen extends Component<Props, State> {
             refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={this.state.isFetching} />}
           >
             <View
-              onLayout={() => {
-                this.setState({});
+              onLayout={event => {
+                const { height } = event.nativeEvent.layout;
+                this.setState({
+                  contentdHeaderHeight: height,
+                });
               }}
             >
               <NavigationEvents
