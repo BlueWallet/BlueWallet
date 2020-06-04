@@ -6,10 +6,13 @@ describe('currency', () => {
   it('formats everything correctly', async () => {
     const currency = require('../../currency');
     currency.exchangeRates.BTC_USD = 10000;
+
     assert.strictEqual(currency.satoshiToLocalCurrency(1), '$0.0001');
     assert.strictEqual(currency.satoshiToLocalCurrency(-1), '-$0.0001');
-    assert.strictEqual(currency.satoshiToLocalCurrency(123), '$0.012');
-    assert.strictEqual(currency.satoshiToLocalCurrency(146), '$0.015');
+    assert.strictEqual(currency.satoshiToLocalCurrency(123), '$0.01');
+    assert.strictEqual(currency.satoshiToLocalCurrency(156), '$0.02');
+    assert.strictEqual(currency.satoshiToLocalCurrency(51), '$0.01');
+    assert.strictEqual(currency.satoshiToLocalCurrency(45), '$0.0045');
     assert.strictEqual(currency.satoshiToLocalCurrency(123456789), '$12,345.68');
 
     assert.strictEqual(currency.BTCToLocalCurrency(1), '$10,000.00');
@@ -27,6 +30,7 @@ describe('currency', () => {
     currency.preferredFiatCurrency.symbol = FiatUnit.JPY.symbol;
     currency.preferredFiatCurrency.locale = FiatUnit.JPY.locale;
     currency.exchangeRates.BTC_JPY = 1043740.8614;
+
     assert.strictEqual(currency.satoshiToLocalCurrency(1), '¥0.01');
   });
 });
