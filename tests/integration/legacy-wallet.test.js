@@ -1,9 +1,9 @@
 /* global describe, it, jasmine, afterAll, beforeAll */
 import { LegacyWallet, SegwitP2SHWallet, SegwitBech32Wallet } from '../../class';
-let assert = require('assert');
+const assert = require('assert');
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
-let BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
+const BlueElectrum = require('../../BlueElectrum'); // so it connects ASAP
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
@@ -18,19 +18,19 @@ beforeAll(async () => {
   await BlueElectrum.waitTillConnected();
 });
 
-describe('LegacyWallet', function() {
+describe('LegacyWallet', function () {
   it('can serialize and unserialize correctly', () => {
-    let a = new LegacyWallet();
+    const a = new LegacyWallet();
     a.setLabel('my1');
-    let key = JSON.stringify(a);
+    const key = JSON.stringify(a);
 
-    let b = LegacyWallet.fromJson(key);
+    const b = LegacyWallet.fromJson(key);
     assert.strictEqual(b.type, LegacyWallet.type);
     assert.strictEqual(key, JSON.stringify(b));
   });
 
   it('can validate addresses', () => {
-    let w = new LegacyWallet();
+    const w = new LegacyWallet();
     assert.ok(w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
     assert.ok(!w.isAddressValid('12eQ9m4sgAwTSQoNXkRABKhCXCsjm2j'));
     assert.ok(w.isAddressValid('3BDsBDxDimYgNZzsqszNZobqQq3yeUoJf2'));
@@ -41,7 +41,7 @@ describe('LegacyWallet', function() {
   });
 
   it('can fetch balance', async () => {
-    let w = new LegacyWallet();
+    const w = new LegacyWallet();
     w._address = '115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG'; // hack internals
     assert.ok(w.weOwnAddress('115fUy41sZkAG14CmdP1VbEKcNRZJWkUWG'));
     assert.ok(!w.weOwnAddress('aaa'));
@@ -55,12 +55,12 @@ describe('LegacyWallet', function() {
   });
 
   it('can fetch TXs', async () => {
-    let w = new LegacyWallet();
+    const w = new LegacyWallet();
     w._address = '12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG';
     await w.fetchTransactions();
     assert.strictEqual(w.getTransactions().length, 2);
 
-    for (let tx of w.getTransactions()) {
+    for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
       assert.ok(tx.value);
       assert.ok(tx.received);
@@ -70,12 +70,12 @@ describe('LegacyWallet', function() {
 
   it('can fetch TXs when addresses for vout are missing', async () => {
     // Transaction with missing address output https://www.blockchain.com/btc/tx/d45818ae11a584357f7b74da26012d2becf4ef064db015a45bdfcd9cb438929d
-    let w = new LegacyWallet();
+    const w = new LegacyWallet();
     w._address = '1PVfrmbn1vSMoFZB2Ga7nDuXLFDyJZHrHK';
     await w.fetchTransactions();
 
     assert.ok(w.getTransactions().length > 0);
-    for (let tx of w.getTransactions()) {
+    for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
       assert.ok(tx.value);
       assert.ok(tx.received);
@@ -89,12 +89,12 @@ describe('LegacyWallet', function() {
   ])(
     'can fetch TXs when %s',
     async (useCase, address) => {
-      let w = new LegacyWallet();
+      const w = new LegacyWallet();
       w._address = address;
       await w.fetchTransactions();
 
       assert.ok(w.getTransactions().length > 0);
-      for (let tx of w.getTransactions()) {
+      for (const tx of w.getTransactions()) {
         assert.ok(tx.hash);
         assert.ok(tx.value);
         assert.ok(tx.received);
@@ -105,22 +105,22 @@ describe('LegacyWallet', function() {
   );
 
   it('can fetch UTXO', async () => {
-    let w = new LegacyWallet();
+    const w = new LegacyWallet();
     w._address = '12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX';
     await w.fetchUtxo();
     assert.ok(w.utxo.length > 0, 'unexpected empty UTXO');
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
 
-    assert.ok(w.getUtxo()[0]['value']);
-    assert.ok(w.getUtxo()[0]['vout'] === 1, JSON.stringify(w.getUtxo()[0]));
-    assert.ok(w.getUtxo()[0]['txid']);
-    assert.ok(w.getUtxo()[0]['confirmations']);
+    assert.ok(w.getUtxo()[0].value);
+    assert.ok(w.getUtxo()[0].vout === 1, JSON.stringify(w.getUtxo()[0]));
+    assert.ok(w.getUtxo()[0].txid);
+    assert.ok(w.getUtxo()[0].confirmations);
   });
 });
 
-describe('SegwitP2SHWallet', function() {
+describe('SegwitP2SHWallet', function () {
   it('can generate segwit P2SH address from WIF', async () => {
-    let l = new SegwitP2SHWallet();
+    const l = new SegwitP2SHWallet();
     l.setSecret('Kxr9tQED9H44gCmp6HAdmemAzU3n84H3dGkuWTKvE23JgHMW8gct');
     assert.ok(l.getAddress() === '34AgLJhwXrvmkZS1o5TrcdeevMt22Nar53', 'expected ' + l.getAddress());
     assert.ok(l.getAddress() === (await l.getAddressAsync()));
@@ -128,9 +128,9 @@ describe('SegwitP2SHWallet', function() {
   });
 });
 
-describe('SegwitBech32Wallet', function() {
+describe('SegwitBech32Wallet', function () {
   it('can fetch balance', async () => {
-    let w = new SegwitBech32Wallet();
+    const w = new SegwitBech32Wallet();
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
     assert.ok(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc'));
     await w.fetchBalance();
@@ -138,16 +138,16 @@ describe('SegwitBech32Wallet', function() {
   });
 
   it('can fetch UTXO', async () => {
-    let w = new SegwitBech32Wallet();
+    const w = new SegwitBech32Wallet();
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
     await w.fetchUtxo();
     const l1 = w.getUtxo().length;
     assert.ok(w.getUtxo().length > 0, 'unexpected empty UTXO');
 
-    assert.ok(w.getUtxo()[0]['value']);
-    assert.ok(w.getUtxo()[0]['vout'] === 0);
-    assert.ok(w.getUtxo()[0]['txid']);
-    assert.ok(w.getUtxo()[0]['confirmations'], JSON.stringify(w.getUtxo()[0], null, 2));
+    assert.ok(w.getUtxo()[0].value);
+    assert.ok(w.getUtxo()[0].vout === 0);
+    assert.ok(w.getUtxo()[0].txid);
+    assert.ok(w.getUtxo()[0].confirmations, JSON.stringify(w.getUtxo()[0], null, 2));
     // double fetch shouldnt duplicate UTXOs:
     await w.fetchUtxo();
     const l2 = w.getUtxo().length;
@@ -155,12 +155,12 @@ describe('SegwitBech32Wallet', function() {
   });
 
   it('can fetch TXs', async () => {
-    let w = new LegacyWallet();
+    const w = new LegacyWallet();
     w._address = 'bc1quhnve8q4tk3unhmjts7ymxv8cd6w9xv8wy29uv';
     await w.fetchTransactions();
     assert.strictEqual(w.getTransactions().length, 2);
 
-    for (let tx of w.getTransactions()) {
+    for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
       assert.ok(tx.value);
       assert.ok(tx.received);
@@ -172,23 +172,23 @@ describe('SegwitBech32Wallet', function() {
   });
 
   it('can fetch TXs', async () => {
-    let w = new LegacyWallet();
+    const w = new LegacyWallet();
     w._address = 'bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc';
     assert.ok(w.weOwnAddress('bc1qn887fmetaytw4vj68vsh529ft408q8j9x3dndc'));
     await w.fetchTransactions();
     assert.strictEqual(w.getTransactions().length, 1);
 
-    for (let tx of w.getTransactions()) {
+    for (const tx of w.getTransactions()) {
       assert.ok(tx.hash);
       assert.strictEqual(tx.value, 100000);
       assert.ok(tx.received);
       assert.ok(tx.confirmations > 1);
     }
 
-    let tx0 = w.getTransactions()[0];
-    assert.ok(tx0['inputs']);
-    assert.ok(tx0['inputs'].length === 1);
-    assert.ok(tx0['outputs']);
-    assert.ok(tx0['outputs'].length === 3);
+    const tx0 = w.getTransactions()[0];
+    assert.ok(tx0.inputs);
+    assert.ok(tx0.inputs.length === 1);
+    assert.ok(tx0.outputs);
+    assert.ok(tx0.outputs.length === 3);
   });
 });

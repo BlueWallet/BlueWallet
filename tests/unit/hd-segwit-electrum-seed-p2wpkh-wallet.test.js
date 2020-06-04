@@ -1,10 +1,10 @@
 /* global describe, it */
 import { HDSegwitElectrumSeedP2WPKHWallet } from '../../class';
-let assert = require('assert');
+const assert = require('assert');
 
 describe('HDSegwitElectrumSeedP2WPKHWallet', () => {
-  it('can import mnemonics and generate addresses and WIFs', async function() {
-    let hd = new HDSegwitElectrumSeedP2WPKHWallet();
+  it('can import mnemonics and generate addresses and WIFs', async function () {
+    const hd = new HDSegwitElectrumSeedP2WPKHWallet();
     hd.setSecret('method goddess  humble  crumble output snake essay carpet monster barely trip betray ');
     assert.ok(hd.validateMnemonic());
     assert.strictEqual(

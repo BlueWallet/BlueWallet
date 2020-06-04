@@ -44,7 +44,7 @@ const PleaseBackupLNDHub = () => {
             size={qrCodeHeight}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
+            ecl="H"
           />
 
           <BlueSpacing20 />

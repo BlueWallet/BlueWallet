@@ -10,7 +10,8 @@ module.exports = {
   wallets: {
     select_wallet: 'Vyberte peňaženku',
     options: 'možnosti',
-    createBitcoinWallet: 'Momentálne nemáte Bitcoinovú peňaženku. Na naplnenie Lightning peňaženky potrebujete vytvoriť alebo importovať Bitcoinovú peňaženku. Chcete aj tak pokračovať?',
+    createBitcoinWallet:
+      'Momentálne nemáte Bitcoinovú peňaženku. Na naplnenie Lightning peňaženky potrebujete vytvoriť alebo importovať Bitcoinovú peňaženku. Chcete aj tak pokračovať?',
     list: {
       app_name: 'BlueWallet',
       title: 'peňaženky',
@@ -232,8 +233,7 @@ module.exports = {
   },
   pleasebackup: {
     title: 'Vaša peňaženka je vytvorená...',
-    text:
-      "Prosím zapíšte si túto mnemonic frázu na papier. Slúži ako záloha na obnovu peňaženky na inom zariadení.",
+    text: 'Prosím zapíšte si túto mnemonic frázu na papier. Slúži ako záloha na obnovu peňaženky na inom zariadení.',
     ok: 'OK, zapísané!',
   },
   lndViewInvoice: {

@@ -14,8 +14,8 @@ import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import PropTypes from 'prop-types';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 const dayjs = require('dayjs');
 
 const styles = StyleSheet.create({
@@ -59,8 +59,8 @@ function onlyUnique(value, index, self) {
 }
 
 function arrDiff(a1, a2) {
-  let ret = [];
-  for (let v of a2) {
+  const ret = [];
+  for (const v of a2) {
     if (a1.indexOf(v) === -1) {
       ret.push(v);
     }
@@ -75,17 +75,17 @@ export default class TransactionsDetails extends Component {
 
   constructor(props) {
     super(props);
-    let hash = props.route.params.hash;
+    const hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (let tx of BlueApp.getTransactions()) {
+    for (const tx of BlueApp.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
-        for (let input of foundTx.inputs) {
+        for (const input of foundTx.inputs) {
           from = from.concat(input.addresses);
         }
-        for (let output of foundTx.outputs) {
+        for (const output of foundTx.outputs) {
           if (output.addresses) to = to.concat(output.addresses);
           if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
@@ -93,8 +93,8 @@ export default class TransactionsDetails extends Component {
     }
 
     let wallet = false;
-    for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
+    for (const w of BlueApp.getWallets()) {
+      for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
           wallet = w;
@@ -121,7 +121,7 @@ export default class TransactionsDetails extends Component {
   }
 
   render() {
-    if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
+    if (this.state.isLoading || !('tx' in this.state)) {
       return <BlueLoading />;
     }
 
@@ -139,10 +139,10 @@ export default class TransactionsDetails extends Component {
           <BlueCard>
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
+                if (BlueApp.tx_metadata[this.state.tx.hash].memo) {
                   return (
                     <View>
-                      <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</BlueText>
+                      <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash].memo}</BlueText>
                       <BlueSpacing20 />
                     </View>
                   );
@@ -150,35 +150,35 @@ export default class TransactionsDetails extends Component {
               }
             })()}
 
-            {this.state.hasOwnProperty('from') && (
-              <React.Fragment>
+            {'from' in this.state && (
+              <>
                 <View style={styles.rowHeader}>
                   <BlueText style={styles.rowCaption}>{loc.transactions.details.from}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.from.filter(onlyUnique).join(', ')} />
                 </View>
                 <BlueText style={styles.rowValue}>{this.state.from.filter(onlyUnique).join(', ')}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.hasOwnProperty('to') && (
-              <React.Fragment>
+            {'to' in this.state && (
+              <>
                 <View style={styles.rowHeader}>
                   <BlueText style={styles.rowCaption}>{loc.transactions.details.to}</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.to.filter(onlyUnique).join(', ')} />
                 </View>
                 <BlueText style={styles.rowValue}>{arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ')}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('fee') && (
-              <React.Fragment>
+            {'fee' in this.state.tx && (
+              <>
                 <BlueText style={styles.rowCaption}>{loc.send.create.fee}</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.fee + ' sats'}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('hash') && (
-              <React.Fragment>
+            {'hash' in this.state.tx && (
+              <>
                 <View style={styles.rowHeader}>
                   <BlueText style={styles.txId}>Txid</BlueText>
                   <BlueCopyToClipboardButton stringToCopy={this.state.tx.hash} />
@@ -196,35 +196,35 @@ export default class TransactionsDetails extends Component {
                 >
                   <BlueText style={styles.txLink}>{loc.transactions.details.show_in_block_explorer}</BlueText>
                 </TouchableOpacity>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('received') && (
-              <React.Fragment>
+            {'received' in this.state.tx && (
+              <>
                 <BlueText style={styles.rowCaption}>Received</BlueText>
                 <BlueText style={styles.rowValue}>{dayjs(this.state.tx.received).format('MM/DD/YYYY h:mm A')}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('block_height') && this.state.tx.block_height > 0 && (
-              <React.Fragment>
+            {'block_height' in this.state.tx && this.state.tx.block_height > 0 && (
+              <>
                 <BlueText style={styles.rowCaption}>Block Height</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.block_height}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('inputs') && (
-              <React.Fragment>
+            {'inputs' in this.state.tx && (
+              <>
                 <BlueText style={styles.rowCaption}>Inputs</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.inputs.length}</BlueText>
-              </React.Fragment>
+              </>
             )}
 
-            {this.state.tx.hasOwnProperty('outputs') && this.state.tx.outputs.length > 0 && (
-              <React.Fragment>
+            {'outputs' in this.state.tx && this.state.tx.outputs.length > 0 && (
+              <>
                 <BlueText style={styles.rowCaption}>Outputs</BlueText>
                 <BlueText style={styles.rowValue}>{this.state.tx.outputs.length}</BlueText>
-              </React.Fragment>
+              </>
             )}
           </BlueCard>
         </ScrollView>

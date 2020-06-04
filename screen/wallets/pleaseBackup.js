@@ -82,7 +82,7 @@ const PleaseBackup = () => {
   }, [handleBackButton, words]);
 
   const renderSecret = () => {
-    let component = [];
+    const component = [];
     for (const [index, secret] of words.entries()) {
       component.push(
         <View style={styles.word} key={`${secret}${index}`}>

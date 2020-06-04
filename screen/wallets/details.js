@@ -180,7 +180,7 @@ export default class WalletDetails extends Component {
 
   async onUseWithHardwareWalletSwitch(value) {
     this.setState((state, props) => {
-      let wallet = state.wallet;
+      const wallet = state.wallet;
       wallet.setUseWithHardwareWalletEnabled(value);
       return { useWithHardwareWallet: !!value, wallet };
     });
@@ -229,10 +229,10 @@ export default class WalletDetails extends Component {
                     (this.state.wallet.type === WatchOnlyWallet.type && !this.state.wallet.isHd())
                   ) {
                     return (
-                      <React.Fragment>
+                      <>
                         <Text style={styles.textLabel1}>{loc.wallets.details.address.toLowerCase()}</Text>
                         <Text style={styles.textValue}>{this.state.wallet.getAddress()}</Text>
-                      </React.Fragment>
+                      </>
                     );
                   }
                 })()}
@@ -261,10 +261,10 @@ export default class WalletDetails extends Component {
                 <Text style={styles.textLabel1}>{loc.wallets.details.type.toLowerCase()}</Text>
                 <Text style={styles.textValue}>{this.state.wallet.typeReadable}</Text>
                 {this.state.wallet.type === LightningCustodianWallet.type && (
-                  <React.Fragment>
+                  <>
                     <Text style={styles.textLabel1}>{loc.wallets.details.connected_to.toLowerCase()}</Text>
                     <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
-                  </React.Fragment>
+                  </>
                 )}
                 <View>
                   <BlueSpacing20 />
@@ -278,10 +278,10 @@ export default class WalletDetails extends Component {
                           onValueChange={value => this.onUseWithHardwareWalletSwitch(value)}
                         />
                       </View>
-                      <React.Fragment>
+                      <>
                         <Text style={styles.textLabel1}>{loc.wallets.details.master_fingerprint.toLowerCase()}</Text>
                         <Text style={styles.textValue}>{this.state.wallet.getMasterFingerprintHex()}</Text>
-                      </React.Fragment>
+                      </>
                       <BlueSpacing20 />
                     </>
                   )}
@@ -301,7 +301,7 @@ export default class WalletDetails extends Component {
                     this.state.wallet.type === HDLegacyP2PKHWallet.type ||
                     this.state.wallet.type === HDSegwitBech32Wallet.type ||
                     this.state.wallet.type === HDSegwitP2SHWallet.type) && (
-                    <React.Fragment>
+                    <>
                       <BlueButton
                         onPress={() =>
                           this.props.navigation.navigate('WalletXpub', {
@@ -313,13 +313,13 @@ export default class WalletDetails extends Component {
 
                       <BlueSpacing20 />
                       {this.renderMarketplaceButton()}
-                    </React.Fragment>
+                    </>
                   )}
                   {this.state.wallet.type !== LightningCustodianWallet.type && (
-                    <React.Fragment>
+                    <>
                       <BlueSpacing20 />
                       <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
-                    </React.Fragment>
+                    </>
                   )}
                   <BlueSpacing20 />
                   <TouchableOpacity

@@ -139,7 +139,7 @@ export default class SendCreate extends Component {
           <ScrollView>
             <BlueCard style={styles.card}>
               <BlueText style={styles.cardText}>{loc.send.create.this_is_hex}</BlueText>
-              <TextInput testID={'TxhexInput'} style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
+              <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
               <TouchableOpacity style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
                 <Text style={styles.actionText}>Copy and broadcast later</Text>
