@@ -63,9 +63,9 @@ export class HodlHodlApi {
   }
 
   async getCountries() {
-    let response = await this._api.get('/api/v1/countries', this._getHeaders());
+    const response = await this._api.get('/api/v1/countries', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.countries || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -74,8 +74,8 @@ export class HodlHodlApi {
   }
 
   async getMyCountryCode() {
-    let _api = new Frisbee({ baseURI: 'https://ifconfig.co/' });
-    let _api2 = new Frisbee({ baseURI: 'https://geolocation-db.com/' });
+    const _api = new Frisbee({ baseURI: 'https://ifconfig.co/' });
+    const _api2 = new Frisbee({ baseURI: 'https://geolocation-db.com/' });
     let response;
 
     let allowedTries = 6;
@@ -87,7 +87,7 @@ export class HodlHodlApi {
       if (typeof body === 'string') body = body.replace('\n', '');
       if (!body || body.length !== 2) {
         // trying api2
-        let response = await _api2.get('/json/', { headers: { 'Access-Control-Allow-Origin': '*' } });
+        const response = await _api2.get('/json/', { headers: { 'Access-Control-Allow-Origin': '*' } });
         body = response.body;
         let json;
         try {
@@ -107,9 +107,9 @@ export class HodlHodlApi {
   }
 
   async getPaymentMethods(country) {
-    let response = await this._api.get('/api/v1/payment_methods?filters[country]=' + country, this._getHeaders());
+    const response = await this._api.get('/api/v1/payment_methods?filters[country]=' + country, this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.payment_methods || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -118,9 +118,9 @@ export class HodlHodlApi {
   }
 
   async getCurrencies() {
-    let response = await this._api.get('/api/v1/currencies', this._getHeaders());
+    const response = await this._api.get('/api/v1/currencies', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.currencies || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -129,9 +129,9 @@ export class HodlHodlApi {
   }
 
   async getOffer(id) {
-    let response = await this._api.get('/api/v1/offers/' + id, this._getHeadersWithoutAuthorization());
+    const response = await this._api.get('/api/v1/offers/' + id, this._getHeadersWithoutAuthorization());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.offer || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -140,19 +140,19 @@ export class HodlHodlApi {
   }
 
   async getOffers(pagination = {}, filters = {}, sort = {}) {
-    let uri = [];
-    for (let key in sort) {
+    const uri = [];
+    for (const key in sort) {
       uri.push('sort[' + key + ']=' + sort[key]);
     }
-    for (let key in filters) {
+    for (const key in filters) {
       uri.push('filters[' + key + ']=' + filters[key]);
     }
-    for (let key in pagination) {
+    for (const key in pagination) {
       uri.push('pagination[' + key + ']=' + pagination[key]);
     }
-    let response = await this._api.get('/api/v1/offers?' + uri.join('&'), this._getHeadersWithoutAuthorization());
+    const response = await this._api.get('/api/v1/offers?' + uri.join('&'), this._getHeadersWithoutAuthorization());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.offers || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -176,9 +176,9 @@ export class HodlHodlApi {
     nonce = nonce || Math.floor(+new Date() / 1000);
     const signature = this.createSignature(this.apiKey, apiSigKey, nonce);
 
-    let response = await this._api.get('/api/v1/users/login_token?nonce=' + nonce + '&hmac=' + signature, this._getHeaders());
+    const response = await this._api.get('/api/v1/users/login_token?nonce=' + nonce + '&hmac=' + signature, this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.token || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -187,9 +187,9 @@ export class HodlHodlApi {
   }
 
   async getMyself() {
-    let response = await this._api.get('/api/v1/users/me', this._getHeaders());
+    const response = await this._api.get('/api/v1/users/me', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.user || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -198,7 +198,7 @@ export class HodlHodlApi {
   }
 
   async acceptOffer(id, version, paymentMethodInstructionId, paymentMethodInstructionVersion, volume) {
-    let response = await this._api.post(
+    const response = await this._api.post(
       '/api/v1/contracts',
       Object.assign({}, this._getHeaders(), {
         body: {
@@ -214,7 +214,7 @@ export class HodlHodlApi {
       }),
     );
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.contract || json.status === 'error') {
       if (json && json.validation_errors) throw new Error(JSON.stringify(json.validation_errors));
       throw new Error('API failure: ' + JSON.stringify(response));
@@ -224,9 +224,9 @@ export class HodlHodlApi {
   }
 
   async getContract(id) {
-    let response = await this._api.get('/api/v1/contracts/' + id, this._getHeaders());
+    const response = await this._api.get('/api/v1/contracts/' + id, this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.contract || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -248,9 +248,9 @@ export class HodlHodlApi {
    * @returns {Promise<{}>}
    */
   async markContractAsConfirmed(id) {
-    let response = await this._api.post('/api/v1/contracts/' + id + '/confirm', this._getHeaders());
+    const response = await this._api.post('/api/v1/contracts/' + id + '/confirm', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.contract || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -266,9 +266,9 @@ export class HodlHodlApi {
    * @returns {Promise<{}>}
    */
   async markContractAsPaid(id) {
-    let response = await this._api.post('/api/v1/contracts/' + id + '/mark_as_paid', this._getHeaders());
+    const response = await this._api.post('/api/v1/contracts/' + id + '/mark_as_paid', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.contract || json.status === 'error') {
       throw new Error('API failure: ' + JSON.stringify(response));
     }
@@ -277,9 +277,9 @@ export class HodlHodlApi {
   }
 
   async cancelContract(id) {
-    let response = await this._api.post('/api/v1/contracts/' + id + '/cancel', this._getHeaders());
+    const response = await this._api.post('/api/v1/contracts/' + id + '/cancel', this._getHeaders());
 
-    let json = response.body;
+    const json = response.body;
     if (!json || !json.contract || json.status === 'error') {
       if (json && json.validation_errors) throw new Error(JSON.stringify(json.validation_errors));
       throw new Error('API failure: ' + JSON.stringify(response));

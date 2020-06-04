@@ -1,18 +1,27 @@
 {
   "parser": "babel-eslint",
   "plugins": [
-      "react", "prettier", "react-hooks"
+    "react-native", // for no-inline-styles rule
   ],
-  "extends": ["standard", "standard-react", "prettier"],
+  "extends": [
+    "standard",
+    "standard-react",
+    "plugin:react-hooks/recommended",
+    // "@react-native-community",
+    "plugin:prettier/recommended",
+    "prettier/react",
+    "prettier/standard",
+  ],
   "rules": {
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "error",
-    'prettier/prettier': [
-      'warn',
+    "react/jsx-handler-names": "off", // activated by standard-react config
+    "react-native/no-inline-styles": "error",
+    "prettier/prettier": [
+      "warn",
       {
-        singleQuote: true,
-        printWidth: 140,
-        trailingComma: 'all'
+        "singleQuote": true,
+        "printWidth": 140,
+        "trailingComma": "all",
+        "arrowParens": "avoid"
       }
     ]
   },

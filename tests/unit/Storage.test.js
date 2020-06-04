@@ -1,12 +1,12 @@
 /* global it */
 import { SegwitP2SHWallet, AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
-let assert = require('assert');
+const assert = require('assert');
 
 it('Appstorage - loadFromDisk works', async () => {
   /** @type {AppStorage} */
-  let Storage = new AppStorage();
-  let w = new SegwitP2SHWallet();
+  const Storage = new AppStorage();
+  const w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
   Storage.wallets.push(w);
@@ -14,7 +14,7 @@ it('Appstorage - loadFromDisk works', async () => {
 
   // saved, now trying to load
 
-  let Storage2 = new AppStorage();
+  const Storage2 = new AppStorage();
   await Storage2.loadFromDisk();
   assert.strictEqual(Storage2.wallets.length, 1);
   assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
@@ -25,14 +25,14 @@ it('Appstorage - loadFromDisk works', async () => {
 
   await AsyncStorage.setItem('data', false);
   await AsyncStorage.setItem(AppStorage.FLAG_ENCRYPTED, '1');
-  let Storage3 = new AppStorage();
+  const Storage3 = new AppStorage();
   isEncrypted = await Storage3.storageIsEncrypted();
   assert.ok(isEncrypted);
 });
 
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   /** @type {AppStorage} */
-  let Storage = new AppStorage();
+  const Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
@@ -92,7 +92,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
-  let createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
+  const createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
   assert.ok(createFakeStorageResult);
   assert.strictEqual(Storage2.wallets.length, 0);
   assert.strictEqual(Storage2.cachedPassword, 'fakePassword');
@@ -118,7 +118,7 @@ it('Appstorage - encryptStorage & load encrypted storage works', async () => {
 
 it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load storage works', async () => {
   /** @type {AppStorage} */
-  let Storage = new AppStorage();
+  const Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
@@ -178,7 +178,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
   assert.strictEqual(Storage2.wallets[1].getLabel(), 'testlabel2');
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
-  let createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
+  const createFakeStorageResult = await Storage2.createFakeStorage('fakePassword');
   assert.ok(createFakeStorageResult);
   assert.strictEqual(Storage2.wallets.length, 0);
   assert.strictEqual(Storage2.cachedPassword, 'fakePassword');
@@ -223,7 +223,7 @@ it('Appstorage - encryptStorage & load encrypted, then decryptStorage and load s
 
 it('can decrypt storage that is second in a list of buckets; and isPasswordInUse() works', async () => {
   /** @type {AppStorage} */
-  let Storage = new AppStorage();
+  const Storage = new AppStorage();
   let w = new SegwitP2SHWallet();
   w.setLabel('testlabel');
   await w.generate();
@@ -237,7 +237,7 @@ it('can decrypt storage that is second in a list of buckets; and isPasswordInUse
   assert.ok(isEncrypted);
 
   // next, adding new `fake` storage which should be unlocked with `fake` password
-  let createFakeStorageResult = await Storage.createFakeStorage('fakePassword');
+  const createFakeStorageResult = await Storage.createFakeStorage('fakePassword');
   assert.ok(createFakeStorageResult);
   assert.strictEqual(Storage.wallets.length, 0);
   assert.strictEqual(Storage.cachedPassword, 'fakePassword');

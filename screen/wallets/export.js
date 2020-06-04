@@ -7,8 +7,8 @@ import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -47,7 +47,7 @@ export default class WalletExport extends Component {
 
   constructor(props) {
     super(props);
-    let wallet = props.route.params.wallet;
+    const wallet = props.route.params.wallet;
     this.state = {
       isLoading: true,
       qrCodeHeight: height > width ? width - 40 : width / 2,
@@ -119,7 +119,7 @@ export default class WalletExport extends Component {
             logoSize={70}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
+            ecl="H"
           />
 
           <BlueSpacing20 />

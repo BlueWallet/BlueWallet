@@ -74,7 +74,7 @@ export class AbstractHDWallet extends LegacyWallet {
     let c;
     for (c = 0; c < this.gap_limit + 1; c++) {
       if (this.next_free_address_index + c < 0) continue;
-      let address = this._getExternalAddressByIndex(this.next_free_address_index + c);
+      const address = this._getExternalAddressByIndex(this.next_free_address_index + c);
       this.external_addresses_cache[this.next_free_address_index + c] = address; // updating cache just for any case
       let txs = [];
       try {
@@ -112,7 +112,7 @@ export class AbstractHDWallet extends LegacyWallet {
     let c;
     for (c = 0; c < this.gap_limit + 1; c++) {
       if (this.next_free_change_address_index + c < 0) continue;
-      let address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
+      const address = this._getInternalAddressByIndex(this.next_free_change_address_index + c);
       this.internal_addresses_cache[this.next_free_change_address_index + c] = address; // updating cache just for any case
       let txs = [];
       try {
@@ -182,7 +182,7 @@ export class AbstractHDWallet extends LegacyWallet {
       let offset = 0;
 
       while (1) {
-        let response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
+        const response = await api.get('/multiaddr?active=' + this.getXpub() + '&n=100&offset=' + offset);
 
         if (response && response.body) {
           if (response.body.txs && response.body.txs.length === 0) {
@@ -198,17 +198,17 @@ export class AbstractHDWallet extends LegacyWallet {
 
           // processing TXs and adding to internal memory
           if (response.body.txs) {
-            for (let tx of response.body.txs) {
+            for (const tx of response.body.txs) {
               let value = 0;
 
-              for (let input of tx.inputs) {
+              for (const input of tx.inputs) {
                 // ----- INPUTS
                 if (input.prev_out.xpub) {
                   // sent FROM US
                   value -= input.prev_out.value;
 
                   // setting internal caches to help ourselves in future...
-                  let path = input.prev_out.xpub.path.split('/');
+                  const path = input.prev_out.xpub.path.split('/');
                   if (path[path.length - 2] === '1') {
                     // change address
                     this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
@@ -223,14 +223,14 @@ export class AbstractHDWallet extends LegacyWallet {
                 }
               }
 
-              for (let output of tx.out) {
+              for (const output of tx.out) {
                 // ----- OUTPUTS
                 if (output.xpub) {
                   // sent TO US (change)
                   value += output.value;
 
                   // setting internal caches to help ourselves in future...
-                  let path = output.xpub.path.split('/');
+                  const path = output.xpub.path.split('/');
                   if (path[path.length - 2] === '1') {
                     // change address
                     this.next_free_change_address_index = Math.max(path[path.length - 1] * 1 + 1, this.next_free_change_address_index);
@@ -282,13 +282,13 @@ export class AbstractHDWallet extends LegacyWallet {
     if (this._address_to_wif_cache[address]) return this._address_to_wif_cache[address]; // cache hit
 
     // fast approach, first lets iterate over all addressess we have in cache
-    for (let index of Object.keys(this.internal_addresses_cache)) {
+    for (const index of Object.keys(this.internal_addresses_cache)) {
       if (this._getInternalAddressByIndex(index) === address) {
         return (this._address_to_wif_cache[address] = this._getInternalWIFByIndex(index));
       }
     }
 
-    for (let index of Object.keys(this.external_addresses_cache)) {
+    for (const index of Object.keys(this.external_addresses_cache)) {
       if (this._getExternalAddressByIndex(index) === address) {
         return (this._address_to_wif_cache[address] = this._getExternalWIFByIndex(index));
       }
@@ -296,14 +296,14 @@ export class AbstractHDWallet extends LegacyWallet {
 
     // no luck - lets iterate over all addresses we have up to first unused address index
     for (let c = 0; c <= this.next_free_change_address_index + this.gap_limit; c++) {
-      let possibleAddress = this._getInternalAddressByIndex(c);
+      const possibleAddress = this._getInternalAddressByIndex(c);
       if (possibleAddress === address) {
         return (this._address_to_wif_cache[address] = this._getInternalWIFByIndex(c));
       }
     }
 
     for (let c = 0; c <= this.next_free_address_index + this.gap_limit; c++) {
-      let possibleAddress = this._getExternalAddressByIndex(c);
+      const possibleAddress = this._getExternalAddressByIndex(c);
       if (possibleAddress === address) {
         return (this._address_to_wif_cache[address] = this._getExternalWIFByIndex(c));
       }
@@ -324,8 +324,8 @@ export class AbstractHDWallet extends LegacyWallet {
   }
 
   weOwnAddress(addr) {
-    let hashmap = {};
-    for (let a of this.usedAddresses) {
+    const hashmap = {};
+    for (const a of this.usedAddresses) {
       hashmap[a] = 1;
     }
 

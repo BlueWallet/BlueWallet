@@ -6,7 +6,7 @@ import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
-let loc = require('../../loc');
+const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -54,6 +54,10 @@ const styles = StyleSheet.create({
     marginTop: 43,
     marginBottom: 53,
   },
+  lottie: {
+    width: 400,
+    height: 400,
+  },
 });
 
 export default class Success extends Component {
@@ -99,7 +103,7 @@ export default class Success extends Component {
           )}
         </BlueCard>
         <View style={styles.ready}>
-          <LottieView style={{ width: 400, height: 400 }} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+          <LottieView style={styles.lottie} source={require('../../img/bluenice.json')} autoPlay loop={false} />
         </View>
         <BlueCard>
           <BlueButton

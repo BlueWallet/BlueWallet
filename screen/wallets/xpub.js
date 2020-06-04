@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 const { height, width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -32,10 +32,10 @@ export default class WalletXpub extends Component {
   constructor(props) {
     super(props);
 
-    let secret = props.route.params.secret;
+    const secret = props.route.params.secret;
     let wallet;
 
-    for (let w of BlueApp.getWallets()) {
+    for (const w of BlueApp.getWallets()) {
       if (w.getSecret() === secret) {
         // found our wallet
         wallet = w;
@@ -99,7 +99,7 @@ export default class WalletXpub extends Component {
             logoSize={90}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
+            ecl="H"
           />
 
           <BlueSpacing20 />

@@ -36,7 +36,7 @@ export default function Broadcast() {
       const walletObj = new HDSegwitBech32Wallet();
       const result = await walletObj.broadcastTx(txHex);
       if (result) {
-        let tx = bitcoin.Transaction.fromHex(txHex);
+        const tx = bitcoin.Transaction.fromHex(txHex);
         const txid = tx.getId();
         setTx(txid);
         setBroadcastResult(BROADCAST_RESULT.success);
@@ -63,8 +63,8 @@ export default function Broadcast() {
                 style={styles.text}
                 maxHeight={100}
                 minHeight={100}
-                maxWidth={'100%'}
-                minWidth={'100%'}
+                maxWidth="100%"
+                minWidth="100%"
                 multiline
                 editable
                 value={txHex}

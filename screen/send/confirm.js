@@ -17,11 +17,11 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
 } from '../../class';
-let loc = require('../../loc');
-let EV = require('../../events');
-let currency = require('../../currency');
-let BlueElectrum = require('../../BlueElectrum');
-let Bignumber = require('bignumber.js');
+const loc = require('../../loc');
+const EV = require('../../events');
+const currency = require('../../currency');
+const BlueElectrum = require('../../BlueElectrum');
+const Bignumber = require('bignumber.js');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 
@@ -66,7 +66,7 @@ export default class Confirm extends Component {
           }
         }
 
-        let result = await this.state.fromWallet.broadcastTx(this.state.tx);
+        const result = await this.state.fromWallet.broadcastTx(this.state.tx);
         if (!result) {
           throw new Error(`Broadcast failed`);
         } else {
@@ -118,7 +118,7 @@ export default class Confirm extends Component {
     return (
       <>
         <View style={styles.valueWrap}>
-          <Text testID={'TransactionValue'} style={styles.valueValue}>
+          <Text testID="TransactionValue" style={styles.valueValue}>
             {!item.value || item.value === BitcoinUnit.MAX
               ? currency.satoshiToBTC(this.state.fromWallet.getBalance() - this.state.feeSatoshi)
               : item.amount || currency.satoshiToBTC(item.value)}
@@ -169,7 +169,7 @@ export default class Confirm extends Component {
               )}
 
               <TouchableOpacity
-                testID={'TransactionDetailsButton'}
+                testID="TransactionDetailsButton"
                 style={styles.txDetails}
                 onPress={async () => {
                   if (this.isBiometricUseCapableAndEnabled) {

@@ -86,14 +86,6 @@ react-native run-ios
 npm run test
 ```
 
-## QA
-
-Builds automated and tested with BrowserStack
-
-<a href="https://www.browserstack.com/"><img src="https://i.imgur.com/syscHCN.png" width="160px"></a>
-
-
-
 
 ## MOTIVATION TO BUILD IT
 
@@ -108,9 +100,8 @@ MIT
 
 ## WANT TO CONTRIBUTE?
 
-Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you.
+Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you. Contributors have a private telegram group, request access by email bluewallet@bluewallet.io
 
-Join us at our [telegram group](https://t.me/bluewallet) where we hangout :+1:
 
 ## RESPONSIBLE DISCLOSURE
 

@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
 import { useNavigation } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
-let BlueApp: AppStorage = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp: AppStorage = require('../../BlueApp');
+const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -51,7 +51,7 @@ const GeneralSettings = () => {
           <>
             <BlueListItem
               hideChevron
-              title={'Continuity'}
+              title="Continuity"
               Component={TouchableWithoutFeedback}
               switch={{ onValueChange: onHandOffEnabledSwitch, value: isHandoffUseEnabled }}
             />

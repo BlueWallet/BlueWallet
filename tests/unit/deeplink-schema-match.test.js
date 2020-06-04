@@ -2,7 +2,7 @@
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const assert = require('assert');
 
-describe('unit - DeepLinkSchemaMatch', function() {
+describe('unit - DeepLinkSchemaMatch', function () {
   it('hasSchema', () => {
     assert.ok(DeeplinkSchemaMatch.hasSchema('bitcoin:12eQ9m4sgAwTSQoNXkRABKhCXCsjm2jdVG'));
     assert.ok(DeeplinkSchemaMatch.hasSchema('bitcoin:bc1qh6tf004ty7z7un2v5ntu4mkf630545gvhs45u7?amount=666&label=Yo'));
@@ -153,16 +153,16 @@ describe('unit - DeepLinkSchemaMatch', function() {
       },
     ];
 
-    const asyncNavigationRouteFor = async function(event) {
-      return new Promise(function(resolve) {
+    const asyncNavigationRouteFor = async function (event) {
+      return new Promise(function (resolve) {
         DeeplinkSchemaMatch.navigationRouteFor(event, navValue => {
           resolve(navValue);
         });
       });
     };
 
-    for (let event of events) {
-      let navValue = await asyncNavigationRouteFor(event.argument);
+    for (const event of events) {
+      const navValue = await asyncNavigationRouteFor(event.argument);
       assert.deepStrictEqual(navValue, event.expected);
     }
   });

@@ -25,9 +25,9 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-let BlueApp = require('../../BlueApp');
-let EV = require('../../events');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const EV = require('../../events');
+const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   createButton: {
@@ -207,14 +207,14 @@ export default class LNDCreateInvoice extends Component {
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
-          let { callback, k1 } = this.state.lnurlParams;
-          let callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
-          let resp = await fetch(callbackUrl, { method: 'GET' });
+          const { callback, k1 } = this.state.lnurlParams;
+          const callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
+          const resp = await fetch(callbackUrl, { method: 'GET' });
           if (resp.status >= 300) {
-            let text = await resp.text();
+            const text = await resp.text();
             throw new Error(text);
           }
-          let reply = await resp.json();
+          const reply = await resp.json();
           if (reply.status === 'ERROR') {
             throw new Error('Reply from server: ' + reply.reason);
           }
@@ -242,7 +242,7 @@ export default class LNDCreateInvoice extends Component {
       }
 
       // handling fallback lnurl
-      let ind = data.indexOf('lightning=');
+      const ind = data.indexOf('lightning=');
       if (ind !== -1) {
         data = data.substring(ind + 10).split('&')[0];
       }
@@ -251,16 +251,16 @@ export default class LNDCreateInvoice extends Component {
       console.log(data);
 
       // decoding the lnurl
-      let decoded = bech32.decode(data, 1500);
-      let url = Buffer.from(bech32.fromWords(decoded.words)).toString();
+      const decoded = bech32.decode(data, 1500);
+      const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
 
       // calling the url
       try {
-        let resp = await fetch(url, { method: 'GET' });
+        const resp = await fetch(url, { method: 'GET' });
         if (resp.status >= 300) {
           throw new Error('Bad response from server');
         }
-        let reply = await resp.json();
+        const reply = await resp.json();
         if (reply.status === 'ERROR') {
           throw new Error('Reply from server: ' + reply.reason);
         }
@@ -382,8 +382,8 @@ export default class LNDCreateInvoice extends Component {
                 onChangeText={text => {
                   if (this.state.lnurlParams) {
                     // in this case we prevent the user from changing the amount to < min or > max
-                    let { min, max } = this.state.lnurlParams;
-                    let nextAmount = parseInt(text);
+                    const { min, max } = this.state.lnurlParams;
+                    const nextAmount = parseInt(text);
                     if (nextAmount < min) {
                       text = min.toString();
                     } else if (nextAmount > max) {

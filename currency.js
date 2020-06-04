@@ -4,9 +4,9 @@ import { AppStorage } from './class';
 import { FiatUnit } from './models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
 import DeviceQuickActions from './class/quick-actions';
-let BigNumber = require('bignumber.js');
+const BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
-let exchangeRates = {};
+const exchangeRates = {};
 
 const STRUCT = {
   LAST_UPDATED: 'LAST_UPDATED',
@@ -28,7 +28,7 @@ async function setPrefferedCurrency(item) {
 }
 
 async function getPreferredCurrency() {
-  let preferredCurrency = await JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
+  const preferredCurrency = await JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
   await DefaultPreference.set('preferredCurrency', preferredCurrency.endPointKey);
   await DefaultPreference.set('preferredCurrencyLocale', preferredCurrency.locale.replace('-', '_'));
   return preferredCurrency;
@@ -50,7 +50,7 @@ async function updateExchangeRate() {
     const api = new Frisbee({
       baseURI: 'https://api.coindesk.com',
     });
-    let response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
+    const response = await api.get('/v1/bpi/currentprice/' + preferredFiatCurrency.endPointKey + '.json');
     json = JSON.parse(response.body);
     if (!json || !json.bpi || !json.bpi[preferredFiatCurrency.endPointKey] || !json.bpi[preferredFiatCurrency.endPointKey].rate_float) {
       throw new Error('Could not update currency rate: ' + response.err);
