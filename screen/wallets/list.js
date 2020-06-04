@@ -646,7 +646,7 @@ export default class WalletsList extends Component {
   render() {
     return (
       <View style={styles.root}>
-        <StatusBar barStyle={'dark-content'} />
+        <StatusBar barStyle="dark-content" />
         <View style={styles.walletsListWrapper}>
           <SectionList
             refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={!this.state.isFlatListRefreshControlHidden} />}
