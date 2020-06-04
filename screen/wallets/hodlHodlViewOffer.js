@@ -120,8 +120,6 @@ export default class HodlHodlViewOffer extends Component {
   constructor(props) {
     super(props);
 
-    /**  @type {AbstractWallet}   */
-    const wallet = props.route.params.wallet;
     const offerToDisplay = props.route.params.offerToDisplay;
 
     const horizontalScrollData = [];
@@ -155,7 +153,6 @@ export default class HodlHodlViewOffer extends Component {
       hodlApi: false,
       isLoading: true,
       horizontalScrollData,
-      wallet,
       offerToDisplay,
     };
   }
@@ -314,7 +311,6 @@ export default class HodlHodlViewOffer extends Component {
 HodlHodlViewOffer.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.shape({
-      wallet: PropTypes.object,
       offerToDisplay: PropTypes.object,
     }),
   }),

@@ -226,9 +226,6 @@ const HodlHodlListSections = { OFFERS: 'OFFERS' };
 export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
-    /**  @type {AbstractWallet}   */
-    let wallet;
-    if (props.route.params) wallet = props.route.params.wallet;
 
     props.navigation.setParams({
       handleLoginPress: this.handleLoginPress,
@@ -247,7 +244,6 @@ export default class HodlHodl extends Component {
       currency: false, // means no currency filtering is enabled by default
       method: false, // means no payment method filtering is enabled by default
       side: HodlHodlApi.FILTERS_SIDE_VALUE_SELL, // means 'show me sell offers as Im buying'
-      wallet,
       offers: [],
       countries: [], // list of hodlhodl supported countries. filled later via api
       currencies: [], // list of hodlhodl supported currencies. filled later via api
@@ -379,7 +375,6 @@ export default class HodlHodl extends Component {
     if (offers && offers[0]) {
       NavigationService.navigate('HodlHodlViewOffer', {
         offerToDisplay: offers[0],
-        wallet: this.state.wallet,
       });
     } else {
       Linking.openURL('https://hodlhodl.com/offers/' + item.id);
@@ -1004,11 +999,6 @@ HodlHodl.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     setParams: PropTypes.func,
-  }),
-  route: PropTypes.shape({
-    params: PropTypes.shape({
-      wallet: PropTypes.object,
-    }),
   }),
 };
 
