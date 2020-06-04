@@ -315,6 +315,12 @@ export default class ScanLndInvoice extends React.Component {
     );
   };
 
+  getFees() {
+    const min = Math.floor(this.state.decoded.num_satoshis * 0.003);
+    const max = Math.floor(this.state.decoded.num_satoshis * 0.01) + 1;
+    return `${min} sat - ${max} sat`;
+  }
+
   onWalletSelect = wallet => {
     this.setState({ fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
       this.props.navigation.pop();
@@ -367,8 +373,14 @@ export default class ScanLndInvoice extends React.Component {
                     {'decoded' in this.state && this.state.decoded !== undefined ? this.state.decoded.description : ''}
                   </Text>
                 </View>
-                {this.state.expiresIn !== undefined && <Text style={styles.expiresIn}>Expires in: {this.state.expiresIn}</Text>}
-
+                {this.state.expiresIn !== undefined && (
+                  <View>
+                    <Text style={styles.expiresIn}>Expires: {this.state.expiresIn}</Text>
+                    {this.state.decoded && this.state.decoded.num_satoshis > 0 && (
+                      <Text style={styles.expiresIn}>Potential fee: {this.getFees()}</Text>
+                    )}
+                  </View>
+                )}
                 <BlueCard>
                   {this.state.isLoading ? (
                     <View>
