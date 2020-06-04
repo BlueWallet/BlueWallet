@@ -197,7 +197,7 @@ export class HodlHodlApi {
     return (this._user = json.user);
   }
 
-  async acceptOffer(id, version, paymentMethodInstructionId, paymentMethodInstructionVersion, volume) {
+  async acceptOffer(id, version, paymentMethodInstructionId, paymentMethodInstructionVersion, value) {
     const response = await this._api.post(
       '/api/v1/contracts',
       Object.assign({}, this._getHeaders(), {
@@ -208,7 +208,7 @@ export class HodlHodlApi {
             payment_method_instruction_id: paymentMethodInstructionId,
             payment_method_instruction_version: paymentMethodInstructionVersion,
             comment: 'I accept your offer',
-            volume,
+            value,
           },
         },
       }),

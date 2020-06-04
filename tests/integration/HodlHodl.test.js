@@ -146,8 +146,14 @@ describe('HodlHodl API', function () {
     assert.strictEqual(offer.side, 'sell');
     const paymentMethodInstructionId = offer.payment_method_instructions[0].id;
     const paymentMethodInstructionVersion = offer.payment_method_instructions[0].version;
-    const volume = 0.005;
-    const contract = await Hodl.acceptOffer(offer.id, offer.version, paymentMethodInstructionId, paymentMethodInstructionVersion, volume);
+    const fiatValue = 100;
+    const contract = await Hodl.acceptOffer(
+      offer.id,
+      offer.version,
+      paymentMethodInstructionId,
+      paymentMethodInstructionVersion,
+      fiatValue,
+    );
     console.warn({ contract });
   });
 

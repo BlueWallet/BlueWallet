@@ -173,13 +173,13 @@ export default class HodlHodlViewOffer extends Component {
   }
 
   async _onAcceptOfferPress(offer) {
-    let btcVolume;
+    let fiatValue;
     try {
-      btcVolume = await prompt('How much BTC do you want to buy?', 'For example 0.005', true, 'numeric');
+      fiatValue = await prompt('How much ' + offer.currency_code + ' do you want to buy?', 'For example 100', true, 'numeric');
     } catch (_) {
       return;
     }
-    if (!btcVolume) return;
+    if (!fiatValue) return;
 
     const buttons = [];
     for (const paym of offer.payment_method_instructions) {
@@ -190,7 +190,7 @@ export default class HodlHodlViewOffer extends Component {
           this.setState({ isLoading: true });
           let contract;
           try {
-            contract = await this.state.hodlApi.acceptOffer(offer.id, offer.version, paym.id, paym.version, btcVolume);
+            contract = await this.state.hodlApi.acceptOffer(offer.id, offer.version, paym.id, paym.version, fiatValue);
           } catch (Error) {
             noError = false;
             alert(Error);
