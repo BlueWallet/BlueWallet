@@ -42,11 +42,6 @@ interface State {
 }
 
 class DashboardScreen extends Component<Props, State> {
-  // static navigationOptions = () => ({
-  //   // must be dynamic, as function as language switch stops to work
-  //   tabBarLabel: i18n.tabNavigator.dashboard,
-  // });
-
   state: State = {
     query: '',
     contentdHeaderHeight: 0,
@@ -54,8 +49,8 @@ class DashboardScreen extends Component<Props, State> {
     lastSnappedTo: 0,
   };
 
-  walletCarouselRef = React.createRef();
-
+  walletCarouselRef = React.createRef<WalletsCarousel>();
+  screenTemplateRef = React.createRef<ScreenTemplate>();
   componentDidMount() {
     SecureStorageService.getSecuredValue('pin')
       .then(() => {
@@ -144,6 +139,14 @@ class DashboardScreen extends Component<Props, State> {
 
   setQuery = (query: string) => this.setState({ query });
 
+  scrollToTransactionList = () => {
+    this.screenTemplateRef.current?.scrollRef.current?.scrollTo({
+      x: 0,
+      y: this.state.contentdHeaderHeight + 24,
+      animated: true,
+    });
+  };
+
   render() {
     const { lastSnappedTo, isLoading, query } = this.state;
     const { wallets, isInitialized, transactions, allTransactions } = this.props;
@@ -172,9 +175,10 @@ class DashboardScreen extends Component<Props, State> {
               this.props.navigation.navigate(Route.CreateWallet);
             }}
           >
-            <SearchBar query={query} setQuery={this.setQuery} />
+            <SearchBar query={query} setQuery={this.setQuery} onFocus={this.scrollToTransactionList} />
           </DashboardHeader>
           <ScreenTemplate
+            ref={this.screenTemplateRef}
             contentContainer={styles.contentContainer}
             refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={this.state.isFetching} />}
           >
@@ -201,7 +205,7 @@ class DashboardScreen extends Component<Props, State> {
               />
               {activeWallet.label === CONST.allWallets ? (
                 <WalletsCarousel
-                  ref={this.walletCarouselRef as any}
+                  ref={this.walletCarouselRef}
                   data={wallets.filter(wallet => wallet.label !== CONST.allWallets)}
                   keyExtractor={this._keyExtractor as any}
                   onSnapToItem={(index: number) => {

@@ -29,9 +29,7 @@ export class SearchBar extends React.PureComponent<Props, State> {
   cancelSearch = () => Keyboard.dismiss();
 
   focus = () => {
-    if (this.props.onFocus) {
-      this.props.onFocus();
-    }
+    this.props.onFocus!();
     this.setState({ focused: true });
   };
 
