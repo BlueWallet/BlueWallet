@@ -680,7 +680,7 @@ export default class HodlHodl extends Component {
                   <View style={styles.whiteBackground}>
                     <View style={styles.itemNameWrapper}>
                       <View style={styles.paddingLeft10}>
-                        <Text style={item.code === this.state.country ? styles.countryNativeNameBold : styles.countryNativeNameBold}>
+                        <Text style={item.code === this.state.country ? styles.countryNativeNameBold : styles.countryNativeNameNormal}>
                           {item.native_name}
                         </Text>
                       </View>

@@ -318,8 +318,4 @@ HodlHodlViewOffer.propTypes = {
       offerToDisplay: PropTypes.object,
     }),
   }),
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
 };
