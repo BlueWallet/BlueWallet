@@ -73,11 +73,8 @@ const ScanQRCode = () => {
     });
   }, [navigation]);
 
-  const HashIt = function(s) {
-    return createHash('sha256')
-      .update(s)
-      .digest()
-      .toString('hex');
+  const HashIt = function (s) {
+    return createHash('sha256').update(s).digest().toString('hex');
   };
 
   const onBarCodeRead = ret => {

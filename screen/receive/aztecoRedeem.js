@@ -8,7 +8,7 @@ import { AppStorage, PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
 
 const EV = require('../../events');
-let BlueApp: AppStorage = require('../../BlueApp');
+const BlueApp: AppStorage = require('../../BlueApp');
 
 const styles = StyleSheet.create({
   loading: {
@@ -162,7 +162,7 @@ export default class AztecoRedeem extends Component {
               {this.state.c1}-{this.state.c2}-{this.state.c3}-{this.state.c4}
             </BlueText>
             {this.renderWalletSelectionButton()}
-            <BlueButton onPress={this.redeem} title={'Redeem'} />
+            <BlueButton onPress={this.redeem} title="Redeem" />
             <BlueSpacing />
           </View>
         </View>

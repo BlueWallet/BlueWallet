@@ -8,7 +8,7 @@ it('Legacy HD (BIP44) works', async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  let hd = new HDLegacyP2PKHWallet();
+  const hd = new HDLegacyP2PKHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
 
@@ -41,7 +41,7 @@ it.only('Legacy HD (BIP44) can create TX', async () => {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;
   }
-  let hd = new HDLegacyP2PKHWallet();
+  const hd = new HDLegacyP2PKHWallet();
   hd.setSecret(process.env.HD_MNEMONIC);
   assert.ok(hd.validateMnemonic());
 
@@ -112,7 +112,7 @@ it.only('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.outs[0].value, 80000); // payee
   assert.strictEqual(tx.outs[1].value, 19334); // change
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
-  let changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
+  const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
   assert.strictEqual(hd._getInternalAddressByIndex(hd.next_free_change_address_index), changeAddress);
 

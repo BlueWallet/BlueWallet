@@ -108,7 +108,7 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
-      let urlObject = url.parse(event.url, true) // eslint-disable-line
+      const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
 
       const safelloStateToken = urlObject.query['safello-state-token'];
 
@@ -128,16 +128,16 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else {
-      let urlObject = url.parse(event.url, true); // eslint-disable-line
+      const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
       console.log('parsed', event.url, 'into', urlObject);
       (async () => {
         if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
           switch (urlObject.host) {
-            case 'openlappbrowser':
+            case 'openlappbrowser': {
               console.log('opening LAPP', urlObject.query.url);
               // searching for LN wallet:
               let haveLnWallet = false;
-              for (let w of BlueApp.getWallets()) {
+              for (const w of BlueApp.getWallets()) {
                 if (w.type === LightningCustodianWallet.type) {
                   haveLnWallet = true;
                 }
@@ -145,11 +145,11 @@ class DeeplinkSchemaMatch {
 
               if (!haveLnWallet) {
                 // need to create one
-                let w = new LightningCustodianWallet();
+                const w = new LightningCustodianWallet();
                 w.setLabel(w.typeReadable);
 
                 try {
-                  let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
+                  const lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
                   if (lndhub) {
                     w.setBaseURI(lndhub);
                     w.init();
@@ -167,7 +167,7 @@ class DeeplinkSchemaMatch {
               // now, opening lapp browser and navigating it to URL.
               // looking for a LN wallet:
               let lnWallet;
-              for (let w of BlueApp.getWallets()) {
+              for (const w of BlueApp.getWallets()) {
                 if (w.type === LightningCustodianWallet.type) {
                   lnWallet = w;
                   break;
@@ -188,6 +188,7 @@ class DeeplinkSchemaMatch {
                 },
               ]);
               break;
+            }
           }
         }
       })();
@@ -223,11 +224,7 @@ class DeeplinkSchemaMatch {
   }
 
   static isBitcoinAddress(address) {
-    address = address
-      .replace('bitcoin:', '')
-      .replace('BITCOIN:', '')
-      .replace('bitcoin=', '')
-      .split('?')[0];
+    address = address.replace('bitcoin:', '').replace('BITCOIN:', '').replace('bitcoin=', '').split('?')[0];
     let isValidBitcoinAddress = false;
     try {
       bitcoin.address.toOutputScript(address);
@@ -254,7 +251,7 @@ class DeeplinkSchemaMatch {
   }
 
   static isSafelloRedirect(event) {
-    let urlObject = url.parse(event.url, true) // eslint-disable-line
+    const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
 
     return !!urlObject.query['safello-state-token'];
   }

@@ -7,7 +7,7 @@ it('Legacy HD Breadwallet works', async () => {
     console.error('process.env.HD_MNEMONIC_BREAD not set, skipped');
     return;
   }
-  let hdBread = new HDLegacyBreadwalletWallet();
+  const hdBread = new HDLegacyBreadwalletWallet();
   hdBread.setSecret(process.env.HD_MNEMONIC_BREAD);
 
   assert.strictEqual(hdBread.validateMnemonic(), true);

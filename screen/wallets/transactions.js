@@ -38,10 +38,10 @@ import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
-let EV = require('../../events');
-let BlueElectrum = require('../../BlueElectrum');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
+const EV = require('../../events');
+const BlueElectrum = require('../../BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const styles = StyleSheet.create({
@@ -242,8 +242,8 @@ export default class WalletTransactions extends Component {
    * Forcefully fetches TXs and balance for wallet
    */
   refreshTransactionsFunction() {
-    let that = this;
-    setTimeout(function() {
+    const that = this;
+    setTimeout(function () {
       that.refreshTransactions();
     }, 4000); // giving a chance to remote server to propagate
   }
@@ -256,13 +256,13 @@ export default class WalletTransactions extends Component {
    * @returns {Array}
    */
   getTransactions(limit = Infinity) {
-    let wallet = this.props.route.params.wallet;
+    const wallet = this.props.route.params.wallet;
 
     let txs = wallet.getTransactions();
-    for (let tx of txs) {
+    for (const tx of txs) {
       tx.sort_ts = +new Date(tx.received);
     }
-    txs = txs.sort(function(a, b) {
+    txs = txs.sort(function (a, b) {
       return b.sort_ts - a.sort_ts;
     });
     return txs.slice(0, limit);
@@ -281,7 +281,7 @@ export default class WalletTransactions extends Component {
   }
 
   isLightning() {
-    let w = this.state.wallet;
+    const w = this.state.wallet;
     if (w && w.chain === Chain.OFFCHAIN) {
       return true;
     }
@@ -306,14 +306,14 @@ export default class WalletTransactions extends Component {
           await BlueElectrum.ping();
           await BlueElectrum.waitTillConnected();
           /** @type {LegacyWallet} */
-          let wallet = this.state.wallet;
-          let balanceStart = +new Date();
+          const wallet = this.state.wallet;
+          const balanceStart = +new Date();
           const oldBalance = wallet.getBalance();
           await wallet.fetchBalance();
           if (oldBalance !== wallet.getBalance()) smthChanged = true;
-          let balanceEnd = +new Date();
+          const balanceEnd = +new Date();
           console.log(wallet.getLabel(), 'fetch balance took', (balanceEnd - balanceStart) / 1000, 'sec');
-          let start = +new Date();
+          const start = +new Date();
           const oldTxLen = wallet.getTransactions().length;
           await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {
@@ -323,7 +323,7 @@ export default class WalletTransactions extends Component {
             await wallet.fetchUserInvoices();
           }
           if (oldTxLen !== wallet.getTransactions().length) smthChanged = true;
-          let end = +new Date();
+          const end = +new Date();
           console.log(wallet.getLabel(), 'fetch tx took', (end - start) / 1000, 'sec');
         } catch (err) {
           noErr = false;
@@ -415,7 +415,7 @@ export default class WalletTransactions extends Component {
                   }),
                 );
               }}
-              title={'Refill with External Wallet'}
+              title="Refill with External Wallet"
             />
 
             <BlueListItem
@@ -428,7 +428,7 @@ export default class WalletTransactions extends Component {
                   });
                 });
               }}
-              title={'Refill with bank card'}
+              title="Refill with bank card"
             />
 
             <BlueListItem
@@ -493,6 +493,7 @@ export default class WalletTransactions extends Component {
       </TouchableOpacity>
     );
   };
+
   renderSellFiat = () => {
     return (
       <TouchableOpacity
@@ -626,7 +627,7 @@ export default class WalletTransactions extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      let options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
       }
@@ -644,7 +645,7 @@ export default class WalletTransactions extends Component {
         }
       });
     } else if (Platform.OS === 'android') {
-      let buttons = [
+      const buttons = [
         {
           text: loc.send.details.cancel,
           onPress: () => {},

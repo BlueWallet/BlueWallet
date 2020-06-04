@@ -17,7 +17,7 @@ export default class Azteco {
     const url = `/blue_despatch.php?CODE_1=${voucher[0]}&CODE_2=${voucher[1]}&CODE_3=${voucher[2]}&CODE_4=${voucher[3]}&ADDRESS=${address}`;
 
     try {
-      let response = await api.get(url);
+      const response = await api.get(url);
       return response && response.originalResponse && +response.originalResponse.status === 200;
     } catch (_) {
       return false;
@@ -29,7 +29,7 @@ export default class Azteco {
   }
 
   static getParamsFromUrl(u) {
-    let urlObject = url.parse(u, true); // eslint-disable-line
+    const urlObject = url.parse(u, true); // eslint-disable-line node/no-deprecated-api
     return {
       uri: u,
       c1: urlObject.query.c1,
