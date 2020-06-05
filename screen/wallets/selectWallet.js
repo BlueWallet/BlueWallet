@@ -160,6 +160,7 @@ const SelectWallet = () => {
 SelectWallet.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true, () => navigation.goBack(null)),
   title: loc.wallets.select_wallet,
+  gestureEnabled: false,
 });
 
 export default SelectWallet;
