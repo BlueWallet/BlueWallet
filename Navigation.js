@@ -211,18 +211,6 @@ const ScanLndInvoiceRoot = () => (
   </ScanLndInvoiceStack.Navigator>
 );
 
-const HandleOffchainAndOnChainStack = createStackNavigator();
-const HandleOffchainAndOnChain = () => (
-  <HandleOffchainAndOnChainStack.Navigator screenOptions={{ headerBackTitleVisible: false, ...defaultStackScreenOptions }}>
-    {/* screens */}
-    <HandleOffchainAndOnChainStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
-    <HandleOffchainAndOnChainStack.Screen name="ScanQRCode" component={ScanQRCodeRoot} />
-    {/* stacks */}
-    <HandleOffchainAndOnChainStack.Screen name="ScanLndInvoice" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
-    <HandleOffchainAndOnChainStack.Screen name="SendDetails" component={SendDetailsRoot} options={{ headerShown: false }} />
-  </HandleOffchainAndOnChainStack.Navigator>
-);
-
 const AztecoRedeemStack = createStackNavigator();
 const AztecoRedeemRoot = () => (
   <AztecoRedeemStack.Navigator screenOptions={defaultStackScreenOptions}>
@@ -247,7 +235,6 @@ const Navigation = () => (
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
-    <RootStack.Screen name="HandleOffchainAndOnChain" component={HandleOffchainAndOnChain} options={{ headerShown: false }} />
     <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
     <RootStack.Screen
       name="ScanQRCodeRoot"

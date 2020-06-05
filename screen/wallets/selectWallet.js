@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const SelectWallet = () => {
+const SelectWallet = ({ navigation }) => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
   let data = chainType
@@ -96,7 +96,7 @@ const SelectWallet = () => {
       <TouchableOpacity
         onPress={() => {
           ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-          onWalletSelect(item);
+          onWalletSelect(item, { navigation });
         }}
       >
         <View shadowOpacity={40 / 100} shadowOffset={{ width: 0, height: 0 }} shadowRadius={5} style={styles.itemRoot}>
