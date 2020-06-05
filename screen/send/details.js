@@ -1,7 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
   View,
   TextInput,
   Alert,
@@ -14,6 +13,7 @@ import {
   Dimensions,
   Platform,
   ScrollView,
+  ActivityIndicator,
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -24,7 +24,6 @@ import {
   BlueBitcoinAmount,
   BlueAddressInput,
   BlueDismissKeyboardInputAccessory,
-  BlueLoading,
   BlueUseAllFundsButton,
   BlueListItem,
   BlueText,
@@ -787,7 +786,7 @@ export default class SendDetails extends Component {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
       <Modal
-        isVisible={this.state.isAdvancedTransactionOptionsVisible}
+        isVisible={this.state.isAdvancedTransactionOptionsVisible && !this.state.isLoading}
         style={styles.bottomModal}
         onBackdropPress={() => {
           Keyboard.dismiss();
@@ -1013,58 +1012,54 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
-      return (
-        <View style={styles.loading}>
-          <BlueLoading />
-        </View>
-      );
-    }
+    const opacity = this.state.isLoading ? 0.5 : 1.0;
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.root}>
+        <View style={styles.root} pointerEvents={this.state.isLoading ? 'none' : 'auto'}>
           <View>
-            <KeyboardAvoidingView behavior="position">
-              <ScrollView
-                pagingEnabled
-                horizontal
-                contentContainerStyle={styles.scrollViewContent}
-                ref={ref => (this.scrollView = ref)}
-                onContentSizeChange={() => this.scrollView.scrollToEnd()}
-                onLayout={() => this.scrollView.scrollToEnd()}
-                onMomentumScrollEnd={this.handlePageChange}
-                scrollEnabled={this.state.addresses.length > 1}
-                scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
-              >
-                {this.renderBitcoinTransactionInfoFields()}
-              </ScrollView>
-              <View hide={!this.state.showMemoRow} style={styles.memo}>
-                <TextInput
-                  onChangeText={text => this.setState({ memo: text })}
-                  placeholder={loc.send.details.note_placeholder}
-                  value={this.state.memo}
-                  numberOfLines={1}
-                  style={styles.memoText}
-                  editable={!this.state.isLoading}
-                  onSubmitEditing={Keyboard.dismiss}
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
-                disabled={this.state.isLoading}
-                style={styles.fee}
-              >
-                <Text style={styles.feeLabel}>Fee</Text>
-                <View style={styles.feeRow}>
-                  <Text style={styles.feeValue}>{this.state.fee}</Text>
-                  <Text style={styles.feeUnit}>sat/b</Text>
+            <View style={{ opacity: opacity }}>
+              <KeyboardAvoidingView behavior="position">
+                <ScrollView
+                  pagingEnabled
+                  horizontal
+                  contentContainerStyle={styles.scrollViewContent}
+                  ref={ref => (this.scrollView = ref)}
+                  onContentSizeChange={() => this.scrollView.scrollToEnd()}
+                  onLayout={() => this.scrollView.scrollToEnd()}
+                  onMomentumScrollEnd={this.handlePageChange}
+                  scrollEnabled={this.state.addresses.length > 1}
+                  scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
+                >
+                  {this.renderBitcoinTransactionInfoFields()}
+                </ScrollView>
+                <View hide={!this.state.showMemoRow} style={styles.memo}>
+                  <TextInput
+                    onChangeText={text => this.setState({ memo: text })}
+                    placeholder={loc.send.details.note_placeholder}
+                    value={this.state.memo}
+                    numberOfLines={1}
+                    style={styles.memoText}
+                    editable={!this.state.isLoading}
+                    onSubmitEditing={Keyboard.dismiss}
+                    inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                  />
                 </View>
-              </TouchableOpacity>
-              {this.renderCreateButton()}
-              {this.renderFeeSelectionModal()}
-              {this.renderAdvancedTransactionOptionsModal()}
-            </KeyboardAvoidingView>
+                <TouchableOpacity
+                  onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+                  disabled={this.state.isLoading}
+                  style={styles.fee}
+                >
+                  <Text style={styles.feeLabel}>Fee</Text>
+                  <View style={styles.feeRow}>
+                    <Text style={styles.feeValue}>{this.state.fee}</Text>
+                    <Text style={styles.feeUnit}>sat/b</Text>
+                  </View>
+                </TouchableOpacity>
+                {this.renderFeeSelectionModal()}
+                {this.renderAdvancedTransactionOptionsModal()}
+              </KeyboardAvoidingView>
+            </View>
+            {this.renderCreateButton()}
           </View>
           <BlueDismissKeyboardInputAccessory />
           {Platform.select({
