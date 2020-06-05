@@ -74,6 +74,7 @@ export default class ReorderWallets extends Component {
     ),
     headerTitle: loc.wallets.reorder.title,
     headerLeft: null,
+    gestureEnabled: false,
   });
 
   constructor(props) {
