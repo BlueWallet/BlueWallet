@@ -4,7 +4,7 @@ import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import relativeTime from 'dayjs/plugin/relativeTime';
 const dayjs = require('dayjs');
-const currency = require('../currency');
+const currency = require('../blue_modules/currency');
 const BigNumber = require('bignumber.js');
 dayjs.extend(relativeTime);
 
@@ -149,7 +149,7 @@ strings.transactionTimeToReadable = time => {
   return ret;
 };
 
-function removeTrailingZeros(value) {
+strings.removeTrailingZeros = value => {
   value = value.toString();
 
   if (value.indexOf('.') === -1) {
@@ -159,21 +159,22 @@ function removeTrailingZeros(value) {
     value = value.substr(0, value.length - 1);
   }
   return value;
-}
+};
 
 /**
  *
- * @param balance {Number} Float amount of bitcoins
+ * @param balance {number} Satoshis
  * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-strings.formatBalance = (balance, toUnit, withFormatting = false) => {
+function formatBalance(balance, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
+    return strings.removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     return (
       (balance < 0 ? '-' : '') +
@@ -184,22 +185,23 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.satoshiToLocalCurrency(balance);
   }
-};
+}
 
 /**
  *
  * @param balance {Integer} Satoshis
- * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = false) => {
+function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance;
   }
   if (balance !== 0) {
     if (toUnit === BitcoinUnit.BTC) {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-      return removeTrailingZeros(value);
+      return strings.removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
       return (balance < 0 ? '-' : '') + (withFormatting ? new Intl.NumberFormat().format(balance).replace(/[^0-9]/g, ' ') : balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
@@ -207,6 +209,8 @@ strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = fals
     }
   }
   return balance.toString();
-};
+}
 
 module.exports = strings;
+module.exports.formatBalanceWithoutSuffix = formatBalanceWithoutSuffix;
+module.exports.formatBalance = formatBalance;

@@ -85,6 +85,8 @@ export default class ReorderWallets extends Component {
     };
   }
 
+  sortableList = React.createRef();
+
   componentDidMount() {
     this.props.navigation.setParams({
       customCloseButtonFunction: async () => {
@@ -159,7 +161,7 @@ export default class ReorderWallets extends Component {
     return (
       <SafeBlueArea>
         <SortableList
-          ref={ref => (this.sortableList = ref)}
+          ref={this.sortableList}
           style={styles.root}
           data={this.state.data}
           renderRow={this._renderItem}

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
 const loc = require('../../loc');
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 
 const data = Object.values(FiatUnit);
 

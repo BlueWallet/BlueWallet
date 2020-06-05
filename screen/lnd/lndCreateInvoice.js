@@ -25,6 +25,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../events');
 const loc = require('../../loc');
@@ -137,6 +138,7 @@ export default class LNDCreateInvoice extends Component {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+    /** @type LightningCustodianWallet */
     let fromWallet;
     if (props.route.params.fromWallet) fromWallet = props.route.params.fromWallet;
 
@@ -152,6 +154,7 @@ export default class LNDCreateInvoice extends Component {
     this.state = {
       fromWallet,
       amount: '',
+      unit: fromWallet.preferredBalanceUnit,
       description: '',
       lnurl: '',
       lnurlParams: null,
@@ -170,6 +173,7 @@ export default class LNDCreateInvoice extends Component {
   };
 
   componentDidMount() {
+    console.log('lnd/lndCreateInvoice mounted');
     if (this.state.fromWallet.getUserHasSavedExport()) {
       this.renderReceiveDetails();
     } else {
@@ -201,7 +205,22 @@ export default class LNDCreateInvoice extends Component {
   async createInvoice() {
     this.setState({ isLoading: true }, async () => {
       try {
-        const invoiceRequest = await this.state.fromWallet.addInvoice(this.state.amount, this.state.description);
+        this.setState({ isLoading: false });
+        let amount = this.state.amount;
+        switch (this.state.unit) {
+          case BitcoinUnit.SATS:
+            amount = parseInt(amount); // basically nop
+            break;
+          case BitcoinUnit.BTC:
+            amount = currency.btcToSatoshi(amount);
+            break;
+          case BitcoinUnit.LOCAL_CURRENCY:
+            // trying to fetch cached sat equivalent for this fiat amount
+            amount = BlueBitcoinAmount.getCachedSatoshis(amount) || currency.btcToSatoshi(currency.fiatToBTC(amount));
+            break;
+        }
+
+        const invoiceRequest = await this.state.fromWallet.addInvoice(amount, this.state.description);
         EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
@@ -379,6 +398,9 @@ export default class LNDCreateInvoice extends Component {
               <BlueBitcoinAmount
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
+                onAmountUnitChange={unit => {
+                  this.setState({ unit });
+                }}
                 onChangeText={text => {
                   if (this.state.lnurlParams) {
                     // in this case we prevent the user from changing the amount to < min or > max
@@ -394,7 +416,7 @@ export default class LNDCreateInvoice extends Component {
                   this.setState({ amount: text });
                 }}
                 disabled={this.state.isLoading || (this.state.lnurlParams && this.state.lnurlParams.fixed)}
-                unit={BitcoinUnit.SATS}
+                unit={this.state.unit}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <View style={styles.fiat}>

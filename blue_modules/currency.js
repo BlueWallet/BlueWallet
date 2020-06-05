@@ -1,9 +1,9 @@
 import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-community/async-storage';
-import { AppStorage } from './class';
-import { FiatUnit } from './models/fiatUnit';
+import { AppStorage } from '../class';
+import { FiatUnit } from '../models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
-import DeviceQuickActions from './class/quick-actions';
+import DeviceQuickActions from '../class/quick-actions';
 const BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
 const exchangeRates = {};
@@ -127,11 +127,24 @@ function satoshiToBTC(satoshi) {
   return b.toString(10);
 }
 
+function btcToSatoshi(btc) {
+  return new BigNumber(btc).multipliedBy(100000000).toNumber();
+}
+
+function fiatToBTC(fiatFloat) {
+  let b = new BigNumber(fiatFloat);
+  b = b.dividedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]).toFixed(8);
+  return b;
+}
+
 module.exports.updateExchangeRate = updateExchangeRate;
 module.exports.startUpdater = startUpdater;
 module.exports.STRUCT = STRUCT;
 module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
+module.exports.fiatToBTC = fiatToBTC;
 module.exports.satoshiToBTC = satoshiToBTC;
 module.exports.BTCToLocalCurrency = BTCToLocalCurrency;
 module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
+module.exports.preferredFiatCurrency = preferredFiatCurrency;
+module.exports.btcToSatoshi = btcToSatoshi;

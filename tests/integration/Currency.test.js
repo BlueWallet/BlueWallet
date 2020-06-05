@@ -8,7 +8,7 @@ jest.useFakeTimers();
 describe('currency', () => {
   it('fetches exchange rate and saves to AsyncStorage', async () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 15000;
-    const currency = require('../../currency');
+    const currency = require('../../blue_modules/currency');
     await currency.startUpdater();
     let cur = await AsyncStorage.getItem(AppStorage.EXCHANGE_RATES);
     cur = JSON.parse(cur);

@@ -19,7 +19,7 @@ import {
 } from '../../class';
 const loc = require('../../loc');
 const EV = require('../../events');
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../BlueElectrum');
 const Bignumber = require('bignumber.js');
 /** @type {AppStorage} */
@@ -125,6 +125,11 @@ export default class Confirm extends Component {
           </Text>
           <Text style={styles.valueUnit}>{' ' + BitcoinUnit.BTC}</Text>
         </View>
+        <Text style={styles.transactionAmountFiat}>
+          {item.value !== BitcoinUnit.MAX && item.value
+            ? currency.satoshiToLocalCurrency(item.value)
+            : currency.satoshiToLocalCurrency(this.state.fromWallet.getBalance() - this.state.feeSatoshi)}
+        </Text>
         <BlueCard>
           <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
@@ -212,6 +217,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 20,
   },
+  transactionAmountFiat: {
+    color: '#9aa0aa',
+    fontWeight: '500',
+    fontSize: 15,
+    marginVertical: 20,
+    textAlign: 'center',
+  },
   valueWrap: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -247,6 +259,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
   },
   flat: {
     maxHeight: '55%',
@@ -256,6 +269,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 16,
     paddingBottom: 16,
+    backgroundColor: '#FFFFFF',
   },
   cardText: {
     color: '#37c0a1',
