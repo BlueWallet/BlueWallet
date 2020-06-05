@@ -52,7 +52,7 @@ const filterByToDate = (transactions: Transaction[], toDate: number) => {
 const fileterByFromAmount = (transactions: Transaction[], fromAmount: number) => {
   return transactions.filter(transaction => {
     return (
-      i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) >= fromAmount
+      i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) > fromAmount
     );
   });
 };
@@ -62,27 +62,6 @@ const fileterByToAmount = (transactions: Transaction[], toAmount: number) => {
     transaction =>
       i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) <= toAmount,
   );
-};
-
-export const filterBySearch = (transactions: Transaction[], search: string) => {
-  return transactions.filter(transaction => {
-    const inputs: string[] = [];
-    const outputs: string[] = [];
-    transaction.inputs.filter(input => {
-      inputs.push(...input.addresses);
-    });
-    transaction.outputs.filter(output => {
-      outputs.push(...output.addresses);
-    });
-    return (
-      transaction.note?.toLowerCase().includes(search) ||
-      inputs.map(input => input.toLowerCase().includes(search)).includes(true) ||
-      outputs.map(output => output.toLowerCase().includes(search)).includes(true) ||
-      i18n
-        .formatBalanceWithoutSuffix(Math.abs(Number(transaction.value)), transaction.walletPreferredBalanceUnit)
-        .includes(search)
-    );
-  });
 };
 
 export const filterTransaction = (transactions: Transaction[], filters: any) => {

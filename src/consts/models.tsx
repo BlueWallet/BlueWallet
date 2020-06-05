@@ -107,12 +107,11 @@ export interface AppSettings {
 
 export interface Filters {
   isFilteringOn: boolean;
-  dateKey?: number;
-  isCalendarVisible?: boolean;
-  address?: string;
-  fromDate?: string;
-  toDate?: string;
-  fromAmount?: number;
-  toAmount?: number;
-  transactionType?: string;
+  dateKey: number;
+  isCalendarVisible: boolean;
+  fromDate: string;
+  toDate: string;
+  fromAmount: number;
+  toAmount: number;
+  transactionType: string;
 }

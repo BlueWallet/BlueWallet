@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { DateObject } from 'react-native-calendars';
 import { NavigationScreenProps } from 'react-navigation';
+import { useNavigationParam } from 'react-navigation-hooks';
 
 import { images } from 'app/assets';
 import { Header, ScreenTemplate, InputItem, Image } from 'app/components';
@@ -9,7 +10,7 @@ import { Button } from 'app/components/Button';
 import { Calendar } from 'app/components/Calendar';
 import { CardGroup } from 'app/components/CardGroup';
 import { RowTemplate } from 'app/components/RowTemplate';
-import { Route } from 'app/consts';
+import { CONST, Route } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
 
 const i18n = require('../../loc');
@@ -19,7 +20,7 @@ enum Index {
   To = 1,
 }
 
-export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
+export const FilterTransactionsScreen = (props: NavigationScreenProps<{ onFilterPress: () => void }>) => {
   const [address, setAddress] = useState('');
   const [dateKey, setDateKey] = useState(0);
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
@@ -27,8 +28,13 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
   const [toDate, setToDate] = useState('');
   const [fromAmount, setFromAmount] = useState('');
   const [toAmount, setToAmount] = useState('');
+  const [transactionType, setTransactionType] = useState(CONST.receive);
+  const onFilterPress = useNavigationParam('onFilterPress');
 
-  const onFilterButtonPress = () => {};
+  const onFilterButtonPress = () => {
+    onFilterPress({ address, dateKey, isCalendarVisible, fromDate, toDate, fromAmount, toAmount, transactionType });
+    props.navigation.goBack();
+  };
 
   const onDateSelect = (date: DateObject) => {
     setIsCalendarVisible(false);
@@ -117,7 +123,6 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
       {renderCommonCardContent()}
     </View>
   );
-
   return (
     <ScreenTemplate
       footer={
@@ -128,9 +133,10 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps) => {
     >
       <Calendar isVisible={isCalendarVisible} onDateSelect={onDateSelect} />
       <CardGroup
+        onCardPressAction={title => setTransactionType(title)}
         cards={[
-          { title: i18n.filterTransactions.receive, content: renderCardContent(i18n.filterTransactions.from) },
-          { title: i18n.filterTransactions.send, content: renderCardContent(i18n.filterTransactions.to) },
+          { title: CONST.receive, content: renderCardContent(i18n.filterTransactions.from) },
+          { title: CONST.send, content: renderCardContent(i18n.filterTransactions.to) },
         ]}
       />
     </ScreenTemplate>
@@ -152,7 +158,7 @@ const styles = StyleSheet.create({
   image: {
     width: 8,
     height: 13,
-    top: 28,
+    top: 15,
     right: 10,
     position: 'absolute',
   },

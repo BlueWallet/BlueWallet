@@ -36,9 +36,10 @@ export interface Card {
 
 interface Props {
   cards: Card[];
+  onCardPressAction: (title: string) => void;
 }
 
-export const CardGroup = ({ cards }: Props) => {
+export const CardGroup = ({ cards, onCardPressAction }: Props) => {
   const [choosenCard, setChoosenCard] = useState('');
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export const CardGroup = ({ cards }: Props) => {
   }, [cards, choosenCard]);
 
   const onCardPress = (title: string) => {
+    onCardPressAction(title);
     setChoosenCard(title);
   };
 

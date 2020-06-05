@@ -4,7 +4,8 @@ import { SectionList, SectionListData, StyleSheet, Text, View } from 'react-nati
 
 import { images } from 'app/assets';
 import { Image, TransactionItem } from 'app/components';
-import { Route, Transaction } from 'app/consts';
+import { Route, Transaction, Filters } from 'app/consts';
+import { filterTransaction } from 'app/helpers/filters';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
@@ -36,7 +37,11 @@ export class TransactionList extends Component<Props, State> {
   static getDerivedStateFromProps(props: Props) {
     moment.locale(i18n._.languageCode);
     const groupedTransactions = [] as any;
-    const dataToGroup = props.transactions
+    const fileteredTransactions = props.filters.isFilteringOn
+      ? filterTransaction(props.transactions, props.filters)
+      : props.transactions;
+
+    const dataToGroup = fileteredTransactions
       .map((transaction: Transaction) => {
         const note = props.transactionNotes[transaction.hash];
         return {
