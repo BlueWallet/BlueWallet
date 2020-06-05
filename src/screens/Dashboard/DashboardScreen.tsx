@@ -3,7 +3,7 @@ import { View, StyleSheet, RefreshControl, ActivityIndicator, Text } from 'react
 import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
-import { ListEmptyState, WalletCard, ScreenTemplate, Header, SearchBar } from 'app/components';
+import { ListEmptyState, WalletCard, ScreenTemplate, Header, SearchBar, StyledText } from 'app/components';
 import { Wallet, Route, Transaction, CONST } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
 import { SecureStorageService } from 'app/services';
@@ -135,6 +135,19 @@ class DashboardScreen extends Component<Props, State> {
     this.scrollToTransactionList();
   };
 
+  resetFilters = () => {
+    this.setState({
+      filters: {
+        isFilteringOn: false,
+      },
+    });
+    this.screenTemplateRef.current?.scrollRef.current?.scrollTo({
+      x: 0,
+      y: 1,
+      animated: true,
+    });
+  };
+
   render() {
     const { lastSnappedTo, query, filters } = this.state;
     const { wallets, isInitialized, transactions, allTransactions } = this.props;
@@ -161,6 +174,11 @@ class DashboardScreen extends Component<Props, State> {
           >
             <SearchBar query={query} setQuery={this.setQuery} onFocus={this.scrollToTransactionList} />
           </DashboardHeader>
+          {!!filters.isFilteringOn && (
+            <View style={styles.clearFiltersButton}>
+              <StyledText title="Clear filters" onPress={this.resetFilters} />
+            </View>
+          )}
           <ScreenTemplate
             ref={this.screenTemplateRef}
             contentContainer={styles.contentContainer}
@@ -248,6 +266,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  clearFiltersButton: {
+    position: 'absolute',
+    zIndex: 10,
+    bottom: 50,
+    alignSelf: 'center',
   },
   contentContainer: {
     paddingHorizontal: 0,
