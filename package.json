@@ -102,7 +102,7 @@
     "prop-types": "15.7.2",
     "react": "16.9.0",
     "react-localization": "1.0.15",
-    "react-native": "0.61.5",
+    "react-native": "0.62.0",
     "react-native-biometrics": "git+https://github.com/BlueWallet/react-native-biometrics.git#2.0.0",
     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
     "react-native-camera": "3.26.0",
