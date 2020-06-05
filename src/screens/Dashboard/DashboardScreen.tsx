@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, RefreshControl, ActivityIndicator, Text } from 'react-native';
+import { View, StyleSheet, RefreshControl, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { ListEmptyState, WalletCard, ScreenTemplate, Header, SearchBar, StyledText } from 'app/components';
-import { Wallet, Route, Transaction, CONST } from 'app/consts';
+import { Wallet, Route, Transaction, CONST, Filters } from 'app/consts';
 import { isAllWallets } from 'app/helpers/helpers';
 import { SecureStorageService } from 'app/services';
 import { ApplicationState } from 'app/state';
@@ -30,7 +30,7 @@ interface Props extends NavigationInjectedProps {
 
 interface State {
   isFetching: boolean;
-  filters: any;
+  filters: Filters;
   query: string;
   contentdHeaderHeight: number;
   lastSnappedTo: number;
@@ -136,6 +136,7 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   resetFilters = () => {
+    console.log('resetFilters');
     this.setState({
       filters: {
         isFilteringOn: false,
@@ -174,11 +175,6 @@ class DashboardScreen extends Component<Props, State> {
           >
             <SearchBar query={query} setQuery={this.setQuery} onFocus={this.scrollToTransactionList} />
           </DashboardHeader>
-          {!!filters.isFilteringOn && (
-            <View style={styles.clearFiltersButton}>
-              <StyledText title="Clear filters" onPress={this.resetFilters} />
-            </View>
-          )}
           <ScreenTemplate
             ref={this.screenTemplateRef}
             contentContainer={styles.contentContainer}
@@ -269,7 +265,8 @@ const styles = StyleSheet.create({
   },
   clearFiltersButton: {
     position: 'absolute',
-    zIndex: 10,
+    zIndex: 1,
+    height: 50,
     bottom: 50,
     alignSelf: 'center',
   },
