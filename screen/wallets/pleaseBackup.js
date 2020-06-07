@@ -75,6 +75,7 @@ const PleaseBackup = () => {
   useEffect(() => {
     Privacy.enableBlur();
     setIsLoading(false);
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
       Privacy.disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
@@ -125,6 +126,8 @@ PleaseBackup.navigationOptions = ({ navigation }) => ({
   title: loc.pleasebackup.title,
   headerLeft: null,
   headerRight: null,
+  gestureEnabled: false,
+  swipeEnabled: false,
 });
 
 export default PleaseBackup;
