@@ -146,25 +146,8 @@ const AddWalletRoot = () => (
   <AddWalletStack.Navigator screenOptions={defaultStackScreenOptions}>
     <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions} />
     <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions} />
-    <AddWalletStack.Screen
-      name="PleaseBackup"
-      component={PleaseBackup}
-      options={PleaseBackup.navigationOptions}
-      screenOptions={{
-        headerShown: false,
-        swipeEnabled: false,
-        gestureEnabled: false,
-      }}
-    />
-    <AddWalletStack.Screen
-      name="PleaseBackupLNDHub"
-      component={PleaseBackupLNDHub}
-      screenOptions={{
-        headerShown: false,
-        swipeEnabled: false,
-        gestureEnabled: false,
-      }}
-    />
+    <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions} />
+    <AddWalletStack.Screen name="PleaseBackupLNDHub" component={PleaseBackupLNDHub} options={PleaseBackupLNDHub.navigationOptions} />
   </AddWalletStack.Navigator>
 );
 
