@@ -139,6 +139,29 @@ function fiatToBTC(fiatFloat) {
   return b;
 }
 
+function getCurrencySymbol() {
+  return preferredFiatCurrency.symbol;
+}
+
+/**
+ * Used to mock data in tests
+ *
+ * @param {object} currency, one of FiatUnit.*
+ */
+function _setPreferredFiatCurrency(currency) {
+  preferredFiatCurrency = currency;
+}
+
+/**
+ * Used to mock data in tests
+ *
+ * @param {string} pair as expected by rest of this module, e.g 'BTC_JPY' or 'BTC_USD'
+ * @param {number} rate exchange rate
+ */
+function _setExchangeRate(pair, rate) {
+  exchangeRates[pair] = rate;
+}
+
 module.exports.updateExchangeRate = updateExchangeRate;
 module.exports.startUpdater = startUpdater;
 module.exports.STRUCT = STRUCT;
@@ -149,5 +172,6 @@ module.exports.BTCToLocalCurrency = BTCToLocalCurrency;
 module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
 module.exports.btcToSatoshi = btcToSatoshi;
-module.exports.exchangeRates = exchangeRates; // export it to mock data in tests
-module.exports.preferredFiatCurrency = preferredFiatCurrency; // export it to mock data in tests
+module.exports.getCurrencySymbol = getCurrencySymbol;
+module.exports._setPreferredFiatCurrency = _setPreferredFiatCurrency; // export it to mock data in tests
+module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in tests

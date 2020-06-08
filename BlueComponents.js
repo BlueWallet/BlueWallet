@@ -2308,8 +2308,7 @@ export class BlueBitcoinAmount extends Component {
     }
     console.log('so, in sats its', sats);
 
-    let newInputValue = loc.formatBalanceWithoutSuffix(sats, newUnit, false);
-    newInputValue = newInputValue.replace(/[^\d.-]/g, ''); // filtering, leaving only numbers & dots
+    const newInputValue = loc.formatBalancePlain(sats, newUnit, false);
     console.log('and in', newUnit, 'its', newInputValue);
 
     if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
@@ -2398,7 +2397,7 @@ export class BlueBitcoinAmount extends Component {
                     alignSelf: 'flex-end',
                   }}
                 >
-                  {currency.preferredFiatCurrency.symbol + ' '}
+                  {currency.getCurrencySymbol() + ' '}
                 </Text>
               )}
               <TextInput

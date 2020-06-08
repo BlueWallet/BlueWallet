@@ -211,6 +211,29 @@ function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false)
   return balance.toString();
 }
 
+/**
+ * Should be used when we need a simple string to be put in text input, for example
+ *
+ * @param  balance {integer} Satoshis
+ * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @returns {string}
+ */
+function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {
+  const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
+  return _leaveNumbersAndDots(newInputValue);
+}
+
+function _leaveNumbersAndDots(newInputValue) {
+  newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
+  if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
+  newInputValue = newInputValue.replace(/,/gi, '');
+
+  return newInputValue;
+}
+
 module.exports = strings;
 module.exports.formatBalanceWithoutSuffix = formatBalanceWithoutSuffix;
 module.exports.formatBalance = formatBalance;
+module.exports.formatBalancePlain = formatBalancePlain;
+module.exports._leaveNumbersAndDots = _leaveNumbersAndDots;
