@@ -227,6 +227,11 @@ function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {
 function _leaveNumbersAndDots(newInputValue) {
   newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
   if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
+
+  if (newInputValue[newInputValue.length - 3] === ',') {
+    // this is a fractional value, lets replace comma to dot so it represents actual fractional value for normal people
+    newInputValue = newInputValue.substring(0, newInputValue.length - 3) + '.' + newInputValue.substring(newInputValue.length - 2);
+  }
   newInputValue = newInputValue.replace(/,/gi, '');
 
   return newInputValue;

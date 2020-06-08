@@ -9,6 +9,7 @@ const currency = require('../../blue_modules/currency');
 describe('Localization', () => {
   it('internal formatter', () => {
     assert.strictEqual(loc._leaveNumbersAndDots('1,00 ₽'), '1');
+    assert.strictEqual(loc._leaveNumbersAndDots('0,50 ₽"'), '0.50');
     assert.strictEqual(loc._leaveNumbersAndDots('RUB 1,00'), '1');
   });
 
@@ -29,6 +30,9 @@ describe('Localization', () => {
     assert.strictEqual(newInputValue, 'RUB 110,869.52');
     newInputValue = loc.formatBalancePlain(16793829, BitcoinUnit.LOCAL_CURRENCY, false);
     assert.strictEqual(newInputValue, '110869.52');
+
+    newInputValue = loc.formatBalancePlain(76, BitcoinUnit.LOCAL_CURRENCY, false);
+    assert.strictEqual(newInputValue, '0.50');
 
     currency._setExchangeRate('BTC_USD', 10000);
     currency._setPreferredFiatCurrency(FiatUnit.USD);

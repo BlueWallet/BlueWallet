@@ -2426,8 +2426,21 @@ export class BlueBitcoinAmount extends Component {
                       text = text.replace(/[^0-9.]/g, '');
                     }
                   } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
-                    // text = text.replace(/,/gi, '');
-                    // text = text.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+                    text = text.replace(/,/gi, '');
+                    if (text.split('.').length > 2) {
+                      // too many dots. stupid code to remove all but first dot:
+                      let rez = '';
+                      let first = true;
+                      for (const part of text.split('.')) {
+                        rez += part;
+                        if (first) {
+                          rez += '.';
+                          first = false;
+                        }
+                      }
+                      text = rez;
+                    }
+                    text = text.replace(/[^\d.,-]/g, ''); // remove all but numberd, dots & commas
                   }
 
                   this.props.onChangeText(text);
