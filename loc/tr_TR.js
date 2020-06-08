@@ -52,7 +52,7 @@ module.exports = {
   },
   unlock: {
     title: 'Kilidi Aç',
-    touchID: '“Altın Cüzdan” için Dokunmatik Kimlik',
+    touchID: '"Gold Wallet" için Touch ID',
     confirmButton: 'Devam etmek için parmak iziyle doğrulama yapın.',
     enter: 'PIN Girin',
   },

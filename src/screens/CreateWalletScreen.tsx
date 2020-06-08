@@ -105,7 +105,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
   get validationError(): string | undefined {
     const walletLabels = BlueApp.getWallets().map((wallet: Wallet) => wallet.label) || [];
     if (walletLabels.includes(this.state.label)) {
-      return 'Name is already in use. Please enter a valid name.';
+      return i18n.wallets.importWallet.walletInUseValidationError;
     }
   }
 

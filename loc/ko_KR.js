@@ -51,9 +51,9 @@ module.exports = {
   },
   unlock: {
     title: '해제',
-    touchID: '"골드 월렛 (Gold Wallet)" Touch ID',
+    touchID: '"골드 월렛" Touch ID',
     confirmButton: '지문 확인 후 넘어가기',
-    enter: 'PIN 코드 입력',
+    enter: 'PIN 입력',
   },
   unlockTransaction: {
     headerText: '트랜잭션 승인',

@@ -1,5 +1,7 @@
 import ReactNativeBiometrics from 'react-native-biometrics';
 
+const i18n = require('../../loc');
+
 type BiometryType =
   | undefined
   | ReactNativeBiometrics.FaceID
@@ -30,8 +32,8 @@ export default class BiometricService {
   unlockWithBiometrics = async () => {
     try {
       const checkResult = await ReactNativeBiometrics.simplePrompt({
-        promptMessage: 'Touch ID for "Gold Wallet"',
-        cancelButtonText: 'Enter PIN',
+        promptMessage: i18n.unlock.touchID,
+        cancelButtonText: i18n.unlock.enter,
       });
       const { success } = checkResult;
 

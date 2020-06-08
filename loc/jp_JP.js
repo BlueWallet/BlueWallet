@@ -51,7 +51,7 @@ module.exports = {
   },
   unlock: {
     title: '解除',
-    touchID: '"Gold Wallet"のTouch ID',
+    touchID: '"ゴールドウォレット" のTouch ID',
     confirmButton: '指紋認証を完了してください。',
     enter: 'PINコードの入力',
   },

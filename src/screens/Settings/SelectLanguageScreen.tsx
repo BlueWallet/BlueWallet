@@ -40,13 +40,13 @@ export const SelectLanguageScreen = () => {
   const [selectedLanguageValue, setselectedLanguageValue] = useState('en');
   const availableLanguages: Language[] = [
     { label: 'English (EN)', value: 'en' },
-    { label: 'Chinese (ZH)', value: 'zh_cn' },
+    { label: '中文 (ZH)', value: 'zh_cn' },
     { label: 'Español (ES)', value: 'es' },
-    { label: 'Indonesia (ID)', value: 'id_id' },
+    { label: 'Indonesian (ID)', value: 'id_id' },
     { label: '日本語 (JP)', value: 'jp_jp' },
     { label: '한국어 (KO)', value: 'ko_kr' },
     { label: 'Português (PT)', value: 'pt_pt' },
-    { label: 'Vietnamese (VN)', value: 'vi_vn' },
+    { label: 'Tiếng Việt', value: 'vi_vn' },
     { label: 'Türkçe (TR)', value: 'tr_tr' },
   ];
 

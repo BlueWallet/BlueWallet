@@ -55,7 +55,7 @@ module.exports = {
   },
   unlock: {
     title: 'Mở khóa ',
-    touchID: 'Chạm ID cho "Gold Wallet"',
+    touchID: 'Chạm ID cho “Gold Wallet”',
     confirmButton: 'Xác nhận dấu vân tay để tiếp tục.',
     enter: 'Nhập PIN',
   },
