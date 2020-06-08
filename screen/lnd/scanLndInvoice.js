@@ -18,8 +18,8 @@ import { Icon } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let EV = require('../../events');
+const BlueApp = require('../../BlueApp');
+const EV = require('../../events');
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
@@ -128,7 +128,7 @@ export default class ScanLndInvoice extends React.Component {
         }
       }
 
-      for (let w of BlueApp.getWallets()) {
+      for (const w of BlueApp.getWallets()) {
         if (w.getSecret() === fromSecret) {
           fromWallet = w;
           break;
@@ -147,7 +147,7 @@ export default class ScanLndInvoice extends React.Component {
     if (props.route.params.uri) {
       let data = props.route.params.uri;
       // handling BIP21 w/BOLT11 support
-      let ind = data.indexOf('lightning=');
+      const ind = data.indexOf('lightning=');
       if (ind !== -1) {
         data = data.substring(ind + 10).split('&')[0];
       }
@@ -158,7 +158,7 @@ export default class ScanLndInvoice extends React.Component {
       /**
        * @type {LightningCustodianWallet}
        */
-      let w = state.fromWallet;
+      const w = state.fromWallet;
       let decoded;
       try {
         decoded = w.decodeInvoice(data);
@@ -208,7 +208,7 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   async pay() {
-    if (!this.state.hasOwnProperty('decoded')) {
+    if (!('decoded' in this.state)) {
       return null;
     }
 
@@ -225,12 +225,12 @@ export default class ScanLndInvoice extends React.Component {
         isLoading: true,
       },
       async () => {
-        let decoded = this.state.decoded;
+        const decoded = this.state.decoded;
 
         /** @type {LightningCustodianWallet} */
-        let fromWallet = this.state.fromWallet;
+        const fromWallet = this.state.fromWallet;
 
-        let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+        const expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
         if (+new Date() > expiresIn) {
           this.setState({ isLoading: false });
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -315,6 +315,12 @@ export default class ScanLndInvoice extends React.Component {
     );
   };
 
+  getFees() {
+    const min = Math.floor(this.state.decoded.num_satoshis * 0.003);
+    const max = Math.floor(this.state.decoded.num_satoshis * 0.01) + 1;
+    return `${min} sat - ${max} sat`;
+  }
+
   onWalletSelect = wallet => {
     this.setState({ fromSecret: wallet.getSecret(), fromWallet: wallet }, () => {
       this.props.navigation.pop();
@@ -338,7 +344,7 @@ export default class ScanLndInvoice extends React.Component {
                   onChangeText={text => {
                     if (typeof this.state.decoded === 'object') {
                       text = parseInt(text || 0);
-                      let decoded = this.state.decoded;
+                      const decoded = this.state.decoded;
                       decoded.num_satoshis = text;
                       this.setState({ decoded: decoded });
                     }
@@ -364,11 +370,17 @@ export default class ScanLndInvoice extends React.Component {
                 />
                 <View style={styles.description}>
                   <Text numberOfLines={0} style={styles.descriptionText}>
-                    {this.state.hasOwnProperty('decoded') && this.state.decoded !== undefined ? this.state.decoded.description : ''}
+                    {'decoded' in this.state && this.state.decoded !== undefined ? this.state.decoded.description : ''}
                   </Text>
                 </View>
-                {this.state.expiresIn !== undefined && <Text style={styles.expiresIn}>Expires in: {this.state.expiresIn}</Text>}
-
+                {this.state.expiresIn !== undefined && (
+                  <View>
+                    <Text style={styles.expiresIn}>Expires: {this.state.expiresIn}</Text>
+                    {this.state.decoded && this.state.decoded.num_satoshis > 0 && (
+                      <Text style={styles.expiresIn}>Potential fee: {this.getFees()}</Text>
+                    )}
+                  </View>
+                )}
                 <BlueCard>
                   {this.state.isLoading ? (
                     <View>
@@ -376,7 +388,7 @@ export default class ScanLndInvoice extends React.Component {
                     </View>
                   ) : (
                     <BlueButton
-                      title={'Pay'}
+                      title="Pay"
                       onPress={() => {
                         this.pay();
                       }}

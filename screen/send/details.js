@@ -1,7 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
 import {
-  ActivityIndicator,
   View,
   TextInput,
   Alert,
@@ -14,6 +13,7 @@ import {
   Dimensions,
   Platform,
   ScrollView,
+  ActivityIndicator,
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -24,7 +24,6 @@ import {
   BlueBitcoinAmount,
   BlueAddressInput,
   BlueDismissKeyboardInputAccessory,
-  BlueLoading,
   BlueUseAllFundsButton,
   BlueListItem,
   BlueText,
@@ -42,10 +41,10 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const bitcoin = require('bitcoinjs-lib');
-let BigNumber = require('bignumber.js');
+const BigNumber = require('bignumber.js');
 const { width } = Dimensions.get('window');
-let BlueApp: AppStorage = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp: AppStorage = require('../../BlueApp');
+const loc = require('../../loc');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -293,7 +292,7 @@ export default class SendDetails extends Component {
         });
       } else {
         console.warn('2');
-        let recipients = this.state.addresses;
+        const recipients = this.state.addresses;
         const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
         if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
           recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
@@ -342,7 +341,7 @@ export default class SendDetails extends Component {
     this.renderNavigationHeader();
     console.log('send/details - componentDidMount');
     StatusBar.setBarStyle('dark-content');
-    let addresses = [];
+    const addresses = [];
     let initialMemo = '';
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
@@ -373,7 +372,7 @@ export default class SendDetails extends Component {
     try {
       const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
 
-      if (cachedNetworkTransactionFees && cachedNetworkTransactionFees.hasOwnProperty('mediumFee')) {
+      if (cachedNetworkTransactionFees && 'mediumFee' in cachedNetworkTransactionFees) {
         this.setState({
           fee: cachedNetworkTransactionFees.fastestFee,
           networkTransactionFees: cachedNetworkTransactionFees,
@@ -383,8 +382,8 @@ export default class SendDetails extends Component {
     } catch (_) {}
 
     try {
-      let recommendedFees = await NetworkTransactionFees.recommendedFees();
-      if (recommendedFees && recommendedFees.hasOwnProperty('fastestFee')) {
+      const recommendedFees = await NetworkTransactionFees.recommendedFees();
+      if (recommendedFees && 'fastestFee' in recommendedFees) {
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
           fee: recommendedFees.fastestFee,
@@ -432,13 +431,13 @@ export default class SendDetails extends Component {
     let memo = '';
     try {
       parsedBitcoinUri = DeeplinkSchemaMatch.bip21decode(uri);
-      address = parsedBitcoinUri.hasOwnProperty('address') ? parsedBitcoinUri.address : address;
-      if (parsedBitcoinUri.hasOwnProperty('options')) {
-        if (parsedBitcoinUri.options.hasOwnProperty('amount')) {
+      address = 'address' in parsedBitcoinUri ? parsedBitcoinUri.address : address;
+      if ('options' in parsedBitcoinUri) {
+        if ('amount' in parsedBitcoinUri.options) {
           amount = parsedBitcoinUri.options.amount.toString();
           amount = parsedBitcoinUri.options.amount;
         }
-        if (parsedBitcoinUri.options.hasOwnProperty('label')) {
+        if ('label' in parsedBitcoinUri.options) {
           memo = parsedBitcoinUri.options.label || memo;
         }
       }
@@ -496,7 +495,7 @@ export default class SendDetails extends Component {
     Keyboard.dismiss();
     this.setState({ isLoading: true });
     let error = false;
-    let requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
+    const requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
     for (const [index, transaction] of this.state.addresses.entries()) {
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
         error = loc.send.details.amount_field_is_not_valid;
@@ -583,7 +582,7 @@ export default class SendDetails extends Component {
       }
     }
 
-    let { tx, fee, psbt } = wallet.createTransaction(
+    const { tx, fee, psbt } = wallet.createTransaction(
       wallet.getUtxo(),
       targets,
       requestedSatPerByte,
@@ -705,7 +704,7 @@ export default class SendDetails extends Component {
                   }
                 }}
                 onChangeText={value => {
-                  let newValue = value.replace(/\D/g, '');
+                  const newValue = value.replace(/\D/g, '');
                   this.setState({ fee: newValue, feeSliderValue: Number(newValue) });
                 }}
                 maxLength={9}
@@ -787,7 +786,7 @@ export default class SendDetails extends Component {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
       <Modal
-        isVisible={this.state.isAdvancedTransactionOptionsVisible}
+        isVisible={this.state.isAdvancedTransactionOptionsVisible && !this.state.isLoading}
         style={styles.bottomModal}
         onBackdropPress={() => {
           Keyboard.dismiss();
@@ -877,7 +876,7 @@ export default class SendDetails extends Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton onPress={() => this.createTransaction()} title={'Next'} testID={'CreateTransactionButton'} />
+          <BlueButton onPress={() => this.createTransaction()} title="Next" testID="CreateTransactionButton" />
         )}
       </View>
     );
@@ -934,8 +933,8 @@ export default class SendDetails extends Component {
   };
 
   renderBitcoinTransactionInfoFields = () => {
-    let rows = [];
-    for (let [index, item] of this.state.addresses.entries()) {
+    const rows = [];
+    for (const [index, item] of this.state.addresses.entries()) {
       rows.push(
         <View key={index} style={{ minWidth: width, maxWidth: width, width: width }}>
           <BlueBitcoinAmount
@@ -952,7 +951,7 @@ export default class SendDetails extends Component {
           <BlueAddressInput
             onChangeText={async text => {
               text = text.trim();
-              let transactions = this.state.addresses;
+              const transactions = this.state.addresses;
               try {
                 const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(text);
                 transactions[index].address = recipient.address;
@@ -1013,58 +1012,54 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
-      return (
-        <View style={styles.loading}>
-          <BlueLoading />
-        </View>
-      );
-    }
+    const opacity = this.state.isLoading ? 0.5 : 1.0;
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.root}>
+        <View style={styles.root} pointerEvents={this.state.isLoading ? 'none' : 'auto'}>
           <View>
-            <KeyboardAvoidingView behavior="position">
-              <ScrollView
-                pagingEnabled
-                horizontal
-                contentContainerStyle={styles.scrollViewContent}
-                ref={ref => (this.scrollView = ref)}
-                onContentSizeChange={() => this.scrollView.scrollToEnd()}
-                onLayout={() => this.scrollView.scrollToEnd()}
-                onMomentumScrollEnd={this.handlePageChange}
-                scrollEnabled={this.state.addresses.length > 1}
-                scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
-              >
-                {this.renderBitcoinTransactionInfoFields()}
-              </ScrollView>
-              <View hide={!this.state.showMemoRow} style={styles.memo}>
-                <TextInput
-                  onChangeText={text => this.setState({ memo: text })}
-                  placeholder={loc.send.details.note_placeholder}
-                  value={this.state.memo}
-                  numberOfLines={1}
-                  style={styles.memoText}
-                  editable={!this.state.isLoading}
-                  onSubmitEditing={Keyboard.dismiss}
-                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                />
-              </View>
-              <TouchableOpacity
-                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
-                disabled={this.state.isLoading}
-                style={styles.fee}
-              >
-                <Text style={styles.feeLabel}>Fee</Text>
-                <View style={styles.feeRow}>
-                  <Text style={styles.feeValue}>{this.state.fee}</Text>
-                  <Text style={styles.feeUnit}>sat/b</Text>
+            <View style={{ opacity: opacity }}>
+              <KeyboardAvoidingView behavior="position">
+                <ScrollView
+                  pagingEnabled
+                  horizontal
+                  contentContainerStyle={styles.scrollViewContent}
+                  ref={ref => (this.scrollView = ref)}
+                  onContentSizeChange={() => this.scrollView.scrollToEnd()}
+                  onLayout={() => this.scrollView.scrollToEnd()}
+                  onMomentumScrollEnd={this.handlePageChange}
+                  scrollEnabled={this.state.addresses.length > 1}
+                  scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
+                >
+                  {this.renderBitcoinTransactionInfoFields()}
+                </ScrollView>
+                <View hide={!this.state.showMemoRow} style={styles.memo}>
+                  <TextInput
+                    onChangeText={text => this.setState({ memo: text })}
+                    placeholder={loc.send.details.note_placeholder}
+                    value={this.state.memo}
+                    numberOfLines={1}
+                    style={styles.memoText}
+                    editable={!this.state.isLoading}
+                    onSubmitEditing={Keyboard.dismiss}
+                    inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                  />
                 </View>
-              </TouchableOpacity>
-              {this.renderCreateButton()}
-              {this.renderFeeSelectionModal()}
-              {this.renderAdvancedTransactionOptionsModal()}
-            </KeyboardAvoidingView>
+                <TouchableOpacity
+                  onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+                  disabled={this.state.isLoading}
+                  style={styles.fee}
+                >
+                  <Text style={styles.feeLabel}>Fee</Text>
+                  <View style={styles.feeRow}>
+                    <Text style={styles.feeValue}>{this.state.fee}</Text>
+                    <Text style={styles.feeUnit}>sat/b</Text>
+                  </View>
+                </TouchableOpacity>
+                {this.renderFeeSelectionModal()}
+                {this.renderAdvancedTransactionOptionsModal()}
+              </KeyboardAvoidingView>
+            </View>
+            {this.renderCreateButton()}
           </View>
           <BlueDismissKeyboardInputAccessory />
           {Platform.select({

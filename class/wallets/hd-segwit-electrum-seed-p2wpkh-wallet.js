@@ -32,10 +32,7 @@ export class HDSegwitElectrumSeedP2WPKHWallet extends HDSegwitBech32Wallet {
       return this._xpub; // cache hit
     }
     const root = bitcoin.bip32.fromSeed(mn.mnemonicToSeedSync(this.secret, MNEMONIC_TO_SEED_OPTS));
-    this._xpub = root
-      .derivePath("m/0'")
-      .neutered()
-      .toBase58();
+    this._xpub = root.derivePath("m/0'").neutered().toBase58();
     return this._xpub;
   }
 

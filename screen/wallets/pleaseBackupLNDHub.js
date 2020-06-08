@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { View, Dimensions, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueSpacing20, BlueCopyTextToClipboard, BlueButton, BlueCard, BlueTextCentered } from '../../BlueComponents';
+import { View, Dimensions, StyleSheet, BackHandler } from 'react-native';
+import {
+  SafeBlueArea,
+  BlueNavigationStyle,
+  BlueSpacing20,
+  BlueCopyTextToClipboard,
+  BlueButton,
+  BlueCard,
+  BlueTextCentered,
+} from '../../BlueComponents';
 import QRCode from 'react-native-qrcode-svg';
+import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
 const { height, width } = Dimensions.get('window');
 const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -20,6 +30,20 @@ const PleaseBackupLNDHub = () => {
   const { wallet } = useRoute().params;
   const navigation = useNavigation();
   const [qrCodeHeight, setQrCodeHeight] = useState(height > width ? width - 40 : width / 2);
+
+  const handleBackButton = useCallback(() => {
+    navigation.dangerouslyGetParent().pop();
+    return true;
+  }, [navigation]);
+
+  useEffect(() => {
+    Privacy.enableBlur();
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+    return () => {
+      Privacy.disableBlur();
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+    };
+  }, [handleBackButton]);
 
   const onLayout = () => {
     const { height } = Dimensions.get('window');
@@ -44,7 +68,7 @@ const PleaseBackupLNDHub = () => {
             size={qrCodeHeight}
             color={BlueApp.settings.foregroundColor}
             logoBackgroundColor={BlueApp.settings.brandingColor}
-            ecl={'H'}
+            ecl="H"
           />
 
           <BlueSpacing20 />
@@ -56,5 +80,14 @@ const PleaseBackupLNDHub = () => {
     </SafeBlueArea>
   );
 };
+
+PleaseBackupLNDHub.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.pleasebackup.title,
+  headerLeft: null,
+  headerRight: null,
+  gestureEnabled: false,
+  swipeEnabled: false,
+});
 
 export default PleaseBackupLNDHub;

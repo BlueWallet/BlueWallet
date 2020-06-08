@@ -34,7 +34,7 @@ export class LegacyWallet extends AbstractWallet {
    * @return {boolean}
    */
   timeToRefreshTransaction() {
-    for (let tx of this.getTransactions()) {
+    for (const tx of this.getTransactions()) {
       if (tx.confirmations < 7) {
         return true;
       }
@@ -55,7 +55,7 @@ export class LegacyWallet extends AbstractWallet {
     if (this._address) return this._address;
     let address;
     try {
-      let keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
       address = bitcoin.payments.p2pkh({
         pubkey: keyPair.publicKey,
       }).address;
@@ -75,7 +75,7 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchBalance() {
     try {
-      let balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
+      const balance = await BlueElectrum.getBalanceByAddress(this.getAddress());
       this.balance = Number(balance.confirmed);
       this.unconfirmed_balance = Number(balance.unconfirmed);
       this._lastBalanceFetch = +new Date();
@@ -91,22 +91,22 @@ export class LegacyWallet extends AbstractWallet {
    */
   async fetchUtxo() {
     try {
-      let utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
+      const utxos = await BlueElectrum.multiGetUtxoByAddress([this.getAddress()]);
       this.utxo = [];
-      for (let arr of Object.values(utxos)) {
+      for (const arr of Object.values(utxos)) {
         this.utxo = this.utxo.concat(arr);
       }
 
       // now we need to fetch txhash for each input as required by PSBT
       if (LegacyWallet.type !== this.type) return; // but only for LEGACY single-address wallets
-      let txhexes = await BlueElectrum.multiGetTransactionByTxid(
-        this.utxo.map(u => u['txId']),
+      const txhexes = await BlueElectrum.multiGetTransactionByTxid(
+        this.utxo.map(u => u.txId),
         50,
         false,
       );
 
-      let newUtxos = [];
-      for (let u of this.utxo) {
+      const newUtxos = [];
+      for (const u of this.utxo) {
         if (txhexes[u.txId]) u.txhex = txhexes[u.txId];
         newUtxos.push(u);
       }
@@ -118,8 +118,8 @@ export class LegacyWallet extends AbstractWallet {
   }
 
   getUtxo() {
-    let ret = [];
-    for (let u of this.utxo) {
+    const ret = [];
+    for (const u of this.utxo) {
       if (u.txId) u.txid = u.txId;
       if (!u.confirmations && u.height) u.confirmations = BlueElectrum.estimateCurrentBlockheight() - u.height;
       ret.push(u);
@@ -137,37 +137,37 @@ export class LegacyWallet extends AbstractWallet {
   async fetchTransactions() {
     // Below is a simplified copypaste from HD electrum wallet
     this._txs_by_external_index = [];
-    let addresses2fetch = [this.getAddress()];
+    const addresses2fetch = [this.getAddress()];
 
     // first: batch fetch for all addresses histories
-    let histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
-    let txs = {};
-    for (let history of Object.values(histories)) {
-      for (let tx of history) {
+    const histories = await BlueElectrum.multiGetHistoryByAddress(addresses2fetch);
+    const txs = {};
+    for (const history of Object.values(histories)) {
+      for (const tx of history) {
         txs[tx.tx_hash] = tx;
       }
     }
 
     // next, batch fetching each txid we got
-    let txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs));
+    const txdatas = await BlueElectrum.multiGetTransactionByTxid(Object.keys(txs));
 
     // now, tricky part. we collect all transactions from inputs (vin), and batch fetch them too.
     // then we combine all this data (we need inputs to see source addresses and amounts)
-    let vinTxids = [];
-    for (let txdata of Object.values(txdatas)) {
-      for (let vin of txdata.vin) {
+    const vinTxids = [];
+    for (const txdata of Object.values(txdatas)) {
+      for (const vin of txdata.vin) {
         vinTxids.push(vin.txid);
       }
     }
-    let vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
+    const vintxdatas = await BlueElectrum.multiGetTransactionByTxid(vinTxids);
 
     // fetched all transactions from our inputs. now we need to combine it.
     // iterating all _our_ transactions:
-    for (let txid of Object.keys(txdatas)) {
+    for (const txid of Object.keys(txdatas)) {
       // iterating all inputs our our single transaction:
       for (let inpNum = 0; inpNum < txdatas[txid].vin.length; inpNum++) {
-        let inpTxid = txdatas[txid].vin[inpNum].txid;
-        let inpVout = txdatas[txid].vin[inpNum].vout;
+        const inpTxid = txdatas[txid].vin[inpNum].txid;
+        const inpVout = txdatas[txid].vin[inpNum].vout;
         // got txid and output number of _previous_ transaction we shoud look into
         if (vintxdatas[inpTxid] && vintxdatas[inpTxid].vout[inpVout]) {
           // extracting amount & addresses from previous output and adding it to _our_ input:
@@ -179,11 +179,11 @@ export class LegacyWallet extends AbstractWallet {
 
     // now, we need to put transactions in all relevant `cells` of internal hashmaps: this.transactions_by_internal_index && this.transactions_by_external_index
 
-    for (let tx of Object.values(txdatas)) {
-      for (let vin of tx.vin) {
+    for (const tx of Object.values(txdatas)) {
+      for (const vin of tx.vin) {
         if (vin.addresses && vin.addresses.indexOf(this.getAddress()) !== -1) {
           // this TX is related to our address
-          let clonedTx = Object.assign({}, tx);
+          const clonedTx = Object.assign({}, tx);
           clonedTx.inputs = tx.vin.slice(0);
           clonedTx.outputs = tx.vout.slice(0);
           delete clonedTx.vin;
@@ -192,10 +192,10 @@ export class LegacyWallet extends AbstractWallet {
           this._txs_by_external_index.push(clonedTx);
         }
       }
-      for (let vout of tx.vout) {
+      for (const vout of tx.vout) {
         if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses.indexOf(this.getAddress()) !== -1) {
           // this TX is related to our address
-          let clonedTx = Object.assign({}, tx);
+          const clonedTx = Object.assign({}, tx);
           clonedTx.inputs = tx.vin.slice(0);
           clonedTx.outputs = tx.vout.slice(0);
           delete clonedTx.vin;
@@ -214,7 +214,7 @@ export class LegacyWallet extends AbstractWallet {
     this._txs_by_external_index = this._txs_by_external_index || [];
     this._txs_by_internal_index = [];
 
-    let hd = new HDSegwitBech32Wallet();
+    const hd = new HDSegwitBech32Wallet();
     return hd.getTransactions.apply(this);
   }
 
@@ -225,7 +225,7 @@ export class LegacyWallet extends AbstractWallet {
    * @returns {Promise<boolean>}
    */
   async broadcastTx(txhex) {
-    let broadcast = await BlueElectrum.broadcastV2(txhex);
+    const broadcast = await BlueElectrum.broadcastV2(txhex);
     console.log({ broadcast });
     if (broadcast.indexOf('successfully') !== -1) return true;
     return broadcast.length === 64; // this means return string is txid (precise length), so it was broadcasted ok
@@ -252,17 +252,17 @@ export class LegacyWallet extends AbstractWallet {
       algo = coinSelectSplit;
     }
 
-    let { inputs, outputs, fee } = algo(utxos, targets, feeRate);
+    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    let psbt = new bitcoin.Psbt();
+    const psbt = new bitcoin.Psbt();
 
     let c = 0;
-    let values = {};
+    const values = {};
     let keyPair;
 
     inputs.forEach(input => {
@@ -290,7 +290,7 @@ export class LegacyWallet extends AbstractWallet {
         output.address = changeAddress;
       }
 
-      let outputData = {
+      const outputData = {
         address: output.address,
         value: output.value,
       };
@@ -317,7 +317,7 @@ export class LegacyWallet extends AbstractWallet {
       return 0;
     }
     let max = 0;
-    for (let tx of this.getTransactions()) {
+    for (const tx of this.getTransactions()) {
       max = Math.max(new Date(tx.received) * 1, max);
     }
 

@@ -16,7 +16,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 const EV = require('../../events');
 const { width, height } = Dimensions.get('window');
@@ -130,7 +130,7 @@ export default class LNDViewInvoice extends Component {
       invoice,
       fromWallet,
       isLoading: typeof invoice === 'string',
-      addressText: typeof invoice === 'object' && invoice.hasOwnProperty('payment_request') ? invoice.payment_request : invoice,
+      addressText: typeof invoice === 'object' && 'payment_request' in invoice ? invoice.payment_request : invoice,
       isFetchingInvoices: true,
       qrCodeHeight: height > width ? width - 20 : width / 2,
     };
@@ -313,7 +313,7 @@ export default class LNDViewInvoice extends Component {
             <BlueText>
               {loc.lndViewInvoice.please_pay} {invoice.amt} {loc.lndViewInvoice.sats}
             </BlueText>
-            {invoice && invoice.hasOwnProperty('description') && invoice.description.length > 0 && (
+            {invoice && 'description' in invoice && invoice.description.length > 0 && (
               <BlueText>
                 {loc.lndViewInvoice.for} {invoice.description}
               </BlueText>
@@ -333,7 +333,7 @@ export default class LNDViewInvoice extends Component {
                 } else {
                   InteractionManager.runAfterInteractions(async () => {
                     this.qrCodeSVG.toDataURL(data => {
-                      let shareImageBase64 = {
+                      const shareImageBase64 = {
                         message: `lightning:${invoice.payment_request}`,
                         url: `data:image/png;base64,${data}`,
                       };

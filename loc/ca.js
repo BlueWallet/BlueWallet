@@ -1,6 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'L\'informació està xifrada. Es requereix la contrasenya per a desxifrar-la.',
+    storage_is_encrypted: "L'informació està xifrada. Es requereix la contrasenya per a desxifrar-la.",
     enter_password: 'Introduïu la contrasenya',
     bad_password: 'Contrasenya incorrecta. Torna-ho a provar.',
     never: 'mai',
@@ -82,7 +82,7 @@ module.exports = {
       explanation:
         'Escrigui aquí el mnemotècnic, clau privada, WIF, o quelcom que tingui. BlueWallet fara tot el posible per encertar el formato correcte e importar el moneder.',
       imported: 'Importat',
-      error: 'No s\'ha pogut importar. ¿És vàlid?',
+      error: "No s'ha pogut importar. ¿És vàlid?",
       success: 'Èxit',
       do_import: 'Importar',
       scan_qr: 'o escanejar codi QR?',
@@ -116,7 +116,7 @@ module.exports = {
       to: 'A',
       copy: 'Copiar',
       transaction_details: 'Detalls de la transacció',
-      show_in_block_explorer: 'Mostrar en l\'explorador de blocs',
+      show_in_block_explorer: "Mostrar en l'explorador de blocs",
     },
   },
   send: {
@@ -133,11 +133,11 @@ module.exports = {
       amount_field_is_not_valid: 'Quantitat invalida',
       fee_field_is_not_valid: 'Comissió invalida',
       address_field_is_not_valid: 'Adreça invalida',
-      receiver_placeholder: 'L\'adreça del beneficiari',
+      receiver_placeholder: "L'adreça del beneficiari",
       amount_placeholder: 'quantitat a enviar (en BTC)',
       fee_placeholder: 'més la comissió per la transacció (en BTC)',
       note_placeholder: 'comentari (útil per tu)',
-      create_tx_error: 'S\'ha produït un error en crear la transacció. Si us plau, asseguris que l\'adreça es valida.',
+      create_tx_error: "S'ha produït un error en crear la transacció. Si us plau, asseguris que l'adreça es valida.",
       cancel: 'Cancel·lar',
       scan: 'Escanejar',
       address: 'Adreça',
@@ -149,9 +149,10 @@ module.exports = {
     create: {
       title: 'Crear una transacció',
       details: 'Detalls',
-      error: 'Error en crear una transacció. Són l\'adreça i la quantitat valides?',
+      error: "Error en crear una transacció. Són l'adreça i la quantitat valides?",
       go_back: 'Tornar enrere',
-      this_is_hex: 'Això és la representació en hexadecimal (hex) de la transacció, firmada i llesta per ser enviada a la xarxa. ¿Continuar?',
+      this_is_hex:
+        'Això és la representació en hexadecimal (hex) de la transacció, firmada i llesta per ser enviada a la xarxa. ¿Continuar?',
       to: 'A',
       amount: 'Quantitat',
       fee: 'Comissió',
@@ -186,16 +187,16 @@ module.exports = {
     storage_not_encrypted: 'Informació: NO xifrada (es recomana xifrar-la)',
     storage_encrypted: 'Informació: xifrada',
     password: 'Contrasenya',
-    password_explain: 'Crear la contrasenya que usaràs per desxifrar l\'informació dels moneders',
+    password_explain: "Crear la contrasenya que usaràs per desxifrar l'informació dels moneders",
     retype_password: 'Introdueix de nou la contrasenya contrasenya',
     passwords_do_not_match: 'La contrasenya no coincideix',
-    encrypt_storage: 'Xifrar l\'informacio del moneder',
+    encrypt_storage: "Xifrar l'informacio del moneder",
     lightning_settings: 'Configuració Lightning',
     lightning_settings_explain:
       'Per connectar-te al teu propi node LND node instala LndHub' +
       ' i posa la seva URL aquí. Deixa el camp buit per utilitzar el LndHub per defecte ' +
       '\n (lndhub.io)',
-    electrum_settings: 'Configuració d\'Electrum',
+    electrum_settings: "Configuració d'Electrum",
     electrum_settings_explain: 'Deixa-ho buit per usar el valor per defecte',
     save: 'guardar',
     about: 'Sobre nosaltres',
@@ -229,12 +230,11 @@ module.exports = {
     withdraw: 'Retirar',
     placeholder: 'Factura',
     expired: 'Caducat',
-    sameWalletAsInvoiceError: 'No pots pagar una factura amb el mateix moneder que l\'ha creat.',
+    sameWalletAsInvoiceError: "No pots pagar una factura amb el mateix moneder que l'ha creat.",
   },
   pleasebackup: {
     title: 'El teu moneder ha estat creat...',
-    text:
-      "Si us plau, apunteu en un paper el mnemotècnic. Aquesta 'frase' et permetrà regenerar el teu moneder en altres dispositius.",
+    text: "Si us plau, apunteu en un paper el mnemotècnic. Aquesta 'frase' et permetrà regenerar el teu moneder en altres dispositius.",
     ok: 'OK, ja he assegurat una còpia en paper!',
   },
   lndViewInvoice: {

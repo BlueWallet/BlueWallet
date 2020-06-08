@@ -19,8 +19,8 @@ import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
 import HandoffSettings from '../../class/handoff';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -139,17 +139,17 @@ export default class TransactionsStatus extends Component {
 
   constructor(props) {
     super(props);
-    let hash = props.route.params.hash;
+    const hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (let tx of BlueApp.getTransactions()) {
+    for (const tx of BlueApp.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
-        for (let input of foundTx.inputs) {
+        for (const input of foundTx.inputs) {
           from = from.concat(input.addresses);
         }
-        for (let output of foundTx.outputs) {
+        for (const output of foundTx.outputs) {
           if (output.addresses) to = to.concat(output.addresses);
           if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
@@ -157,8 +157,8 @@ export default class TransactionsStatus extends Component {
     }
 
     let wallet = false;
-    for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
+    for (const w of BlueApp.getWallets()) {
+      for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
           wallet = w;
@@ -205,7 +205,7 @@ export default class TransactionsStatus extends Component {
       return this.setState({ isCPFPpossible: buttonStatus.notPossible });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
       return this.setState({ isCPFPpossible: buttonStatus.possible });
     } else {
@@ -218,7 +218,7 @@ export default class TransactionsStatus extends Component {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.possible });
     } else {
@@ -231,7 +231,7 @@ export default class TransactionsStatus extends Component {
       return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
@@ -245,7 +245,7 @@ export default class TransactionsStatus extends Component {
   }
 
   render() {
-    if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
+    if (this.state.isLoading || !('tx' in this.state)) {
       return <BlueLoading />;
     }
 
@@ -271,10 +271,10 @@ export default class TransactionsStatus extends Component {
 
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
+                if (BlueApp.tx_metadata[this.state.tx.hash].memo) {
                   return (
                     <View style={styles.memo}>
-                      <Text style={styles.memoText}>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</Text>
+                      <Text style={styles.memoText}>{BlueApp.tx_metadata[this.state.tx.hash].memo}</Text>
                       <BlueSpacing20 />
                     </View>
                   );
@@ -311,7 +311,7 @@ export default class TransactionsStatus extends Component {
               </View>
             </View>
 
-            {this.state.tx.hasOwnProperty('fee') && (
+            {'fee' in this.state.tx && (
               <View style={styles.fee}>
                 <BlueText style={styles.feeText}>
                   {loc.send.create.fee.toLowerCase()}{' '}
@@ -332,14 +332,14 @@ export default class TransactionsStatus extends Component {
             {(() => {
               if (this.state.isCPFPpossible === buttonStatus.unknown) {
                 return (
-                  <React.Fragment>
+                  <>
                     <ActivityIndicator />
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 );
               } else if (this.state.isCPFPpossible === buttonStatus.possible) {
                 return (
-                  <React.Fragment>
+                  <>
                     <BlueButton
                       onPress={() =>
                         this.props.navigation.navigate('CPFP', {
@@ -350,7 +350,7 @@ export default class TransactionsStatus extends Component {
                       title="Bump Fee"
                     />
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 );
               }
             })()}
@@ -358,14 +358,14 @@ export default class TransactionsStatus extends Component {
             {(() => {
               if (this.state.isRBFBumpFeePossible === buttonStatus.unknown) {
                 return (
-                  <React.Fragment>
+                  <>
                     <ActivityIndicator />
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 );
               } else if (this.state.isRBFBumpFeePossible === buttonStatus.possible) {
                 return (
-                  <React.Fragment>
+                  <>
                     <BlueButton
                       onPress={() =>
                         this.props.navigation.navigate('RBFBumpFee', {
@@ -375,20 +375,20 @@ export default class TransactionsStatus extends Component {
                       }
                       title="Bump Fee"
                     />
-                  </React.Fragment>
+                  </>
                 );
               }
             })()}
             {(() => {
               if (this.state.isRBFCancelPossible === buttonStatus.unknown) {
                 return (
-                  <React.Fragment>
+                  <>
                     <ActivityIndicator />
-                  </React.Fragment>
+                  </>
                 );
               } else if (this.state.isRBFCancelPossible === buttonStatus.possible) {
                 return (
-                  <React.Fragment>
+                  <>
                     <TouchableOpacity style={styles.cancel}>
                       <Text
                         onPress={() =>
@@ -399,10 +399,10 @@ export default class TransactionsStatus extends Component {
                         }
                         style={styles.cancelText}
                       >
-                        {'Cancel Transaction'}
+                        Cancel Transaction
                       </Text>
                     </TouchableOpacity>
-                  </React.Fragment>
+                  </>
                 );
               }
             })()}

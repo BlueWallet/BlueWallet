@@ -18,6 +18,7 @@ export class BitcoinBIP70TransactionError {
 
 export default class BitcoinBIP70TransactionDecode {
   static decode(data) {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
         let url;
@@ -32,7 +33,7 @@ export default class BitcoinBIP70TransactionDecode {
             Accept: 'application/payment-request',
           },
         });
-        let response = await api.get();
+        const response = await api.get();
         if (response && response.body) {
           const parsedJSON = JSON.parse(response.body);
 
@@ -74,6 +75,11 @@ export default class BitcoinBIP70TransactionDecode {
   }
 
   static matchesPaymentURL(data) {
-    return data !== null && (data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null || data.startsWith('https://bitpay.com/i/') || data.startsWith('https://www.bitpay.com/i/'));
+    return (
+      data !== null &&
+      (data.match(/bitcoin:\?r=https?:\/\/\S+/gi) !== null ||
+        data.startsWith('https://bitpay.com/i/') ||
+        data.startsWith('https://www.bitpay.com/i/'))
+    );
   }
 }

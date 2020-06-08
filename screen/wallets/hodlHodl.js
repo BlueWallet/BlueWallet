@@ -312,7 +312,7 @@ export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
     /**  @type {AbstractWallet}   */
-    let wallet = props.route.params.wallet;
+    const wallet = props.route.params.wallet;
 
     this.state = {
       isLoading: true,
@@ -340,10 +340,10 @@ export default class HodlHodl extends Component {
    * @returns {Promise<void>}
    */
   async fetchOffers() {
-    let pagination = {
+    const pagination = {
       [HodlHodlApi.PAGINATION_LIMIT]: 200,
     };
-    let filters = {
+    const filters = {
       [HodlHodlApi.FILTERS_COUNTRY]: this.state.country,
       [HodlHodlApi.FILTERS_SIDE]: this.state.side,
       [HodlHodlApi.FILTERS_ASSET_CODE]: HodlHodlApi.FILTERS_ASSET_CODE_VALUE_BTC,
@@ -359,7 +359,7 @@ export default class HodlHodl extends Component {
       filters[HodlHodlApi.FILTERS_PAYMENT_METHOD_ID] = this.state.method;
     }
 
-    let sort = {
+    const sort = {
       [HodlHodlApi.SORT_BY]: HodlHodlApi.SORT_BY_VALUE_PRICE,
       [HodlHodlApi.SORT_DIRECTION]: HodlHodlApi.SORT_DIRECTION_VALUE_ASC,
     };
@@ -371,7 +371,7 @@ export default class HodlHodl extends Component {
   }
 
   async fetchMyCountry() {
-    let myCountryCode = await HodlApi.getMyCountryCode();
+    const myCountryCode = await HodlApi.getMyCountryCode();
     this.setState({
       myCountryCode,
       country: myCountryCode, // we start with orders from current country
@@ -384,7 +384,7 @@ export default class HodlHodl extends Component {
    * @returns {Promise<void>}
    **/
   async fetchListOfCountries() {
-    let countries = await HodlApi.getCountries();
+    const countries = await HodlApi.getCountries();
     this.setState({ countries });
   }
 
@@ -394,7 +394,7 @@ export default class HodlHodl extends Component {
    * @returns {Promise<void>}
    **/
   async fetchListOfCurrencies() {
-    let currencies = await HodlApi.getCurrencies();
+    const currencies = await HodlApi.getCurrencies();
     this.setState({ currencies });
   }
 
@@ -404,7 +404,7 @@ export default class HodlHodl extends Component {
    * @returns {Promise<void>}
    **/
   async fetchListOfMethods() {
-    let methods = await HodlApi.getPaymentMethods(this.state.country || HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL);
+    const methods = await HodlApi.getPaymentMethods(this.state.country || HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL);
     this.setState({ methods });
   }
 
@@ -520,20 +520,14 @@ export default class HodlHodl extends Component {
     let ret = title;
     if (description) {
       if (description.startsWith(title)) title = '';
-      ret =
-        title +
-        '\n' +
-        description
-          .split('\n')
-          .slice(0, 2)
-          .join('\n');
+      ret = title + '\n' + description.split('\n').slice(0, 2).join('\n');
     }
     if (ret.length >= 200) ret = ret.substr(0, 200) + '...';
     return ret;
   }
 
   getMethodName(id) {
-    for (let m of this.state.methods) {
+    for (const m of this.state.methods) {
       if (m.id === id) return m.name;
     }
     return '';
@@ -561,7 +555,7 @@ export default class HodlHodl extends Component {
 
   getNativeCountryName() {
     if (this.state.country === this.state.myCountryCode) return 'Near me';
-    for (let c of this.state.countries) {
+    for (const c of this.state.countries) {
       if (c.code === this.state.country) return c.native_name;
     }
     return 'Global offers';
@@ -675,10 +669,10 @@ export default class HodlHodl extends Component {
   };
 
   renderChooseContryModal = () => {
-    let countries2render = [];
+    const countries2render = [];
 
     // first, we include in the list current country
-    for (let country of this.state.countries) {
+    for (const country of this.state.countries) {
       if (country.code === this.state.country) {
         countries2render.push(country);
       }
@@ -692,7 +686,7 @@ export default class HodlHodl extends Component {
     });
 
     // lastly, we include other countries
-    for (let country of this.state.countries) {
+    for (const country of this.state.countries) {
       if (country.code !== this.state.country) {
         // except currently selected one
         if (this.state.countrySearchInput) {
@@ -724,7 +718,7 @@ export default class HodlHodl extends Component {
             <View style={styles.modalSearch}>
               <TextInput
                 onChangeText={text => this.setState({ countrySearchInput: text })}
-                placeholder={'Search..'}
+                placeholder="Search.."
                 placeholderTextColor="#9AA0AA"
                 value={this.state.countrySearchInput || ''}
                 numberOfLines={1}
@@ -762,7 +756,7 @@ export default class HodlHodl extends Component {
   };
 
   renderChooseCurrencyModal = () => {
-    let currencies2render = [];
+    const currencies2render = [];
 
     // first, option to choose any currency
     currencies2render.push({
@@ -771,7 +765,7 @@ export default class HodlHodl extends Component {
     });
 
     // lastly, we include other countries
-    for (let curr of this.state.currencies) {
+    for (const curr of this.state.currencies) {
       if (this.state.currencySearchInput) {
         // if user typed something in search box we apply that filter
         if (
@@ -800,7 +794,7 @@ export default class HodlHodl extends Component {
             <View style={styles.modalSearch}>
               <TextInput
                 onChangeText={text => this.setState({ currencySearchInput: text })}
-                placeholder={'Search..'}
+                placeholder="Search.."
                 placeholderTextColor="#9AA0AA"
                 value={this.state.currencySearchInput || ''}
                 numberOfLines={1}
@@ -845,7 +839,7 @@ export default class HodlHodl extends Component {
   };
 
   renderChooseMethodModal = () => {
-    let methods2render = [];
+    const methods2render = [];
 
     // first, option to choose any currency
     methods2render.push({
@@ -854,7 +848,7 @@ export default class HodlHodl extends Component {
     });
 
     // lastly, we include other countries
-    for (let curr of this.state.methods) {
+    for (const curr of this.state.methods) {
       if (this.state.methodSearchInput) {
         // if user typed something in search box we apply that filter
         if (
@@ -883,7 +877,7 @@ export default class HodlHodl extends Component {
             <View style={styles.modalSearch}>
               <TextInput
                 onChangeText={text => this.setState({ methodSearchInput: text })}
-                placeholder={'Search..'}
+                placeholder="Search.."
                 placeholderTextColor="#9AA0AA"
                 value={this.state.methodSearchInput || ''}
                 numberOfLines={1}

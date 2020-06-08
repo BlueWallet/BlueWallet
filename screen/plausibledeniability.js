@@ -5,10 +5,10 @@ import { BlueLoading, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigati
 import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AppStorage } from '../class';
-let BlueApp: AppStorage = require('../BlueApp');
-let prompt = require('../prompt');
-let EV = require('../events');
-let loc = require('../loc');
+const BlueApp: AppStorage = require('../BlueApp');
+const prompt = require('../prompt');
+const EV = require('../events');
+const loc = require('../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -56,7 +56,7 @@ export default class PlausibleDeniability extends Component {
               testID="CreateFakeStorageButton"
               title={loc.plausibledeniability.create_fake_storage}
               onPress={async () => {
-                let p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
+                const p1 = await prompt(loc.plausibledeniability.create_password, loc.plausibledeniability.create_password_explanation);
                 const isPasswordInUse = p1 === BlueApp.cachedPassword || (await BlueApp.isPasswordInUse(p1));
                 if (isPasswordInUse) {
                   ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
@@ -65,7 +65,7 @@ export default class PlausibleDeniability extends Component {
                 if (!p1) {
                   return;
                 }
-                let p2 = await prompt(loc.plausibledeniability.retype_password);
+                const p2 = await prompt(loc.plausibledeniability.retype_password);
                 if (p1 !== p2) {
                   ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
                   return alert(loc.plausibledeniability.passwords_do_not_match);

@@ -1,5 +1,6 @@
 import * as Watch from 'react-native-watch-connectivity';
 import { InteractionManager } from 'react-native';
+import { Chain } from './models/bitcoinUnits';
 const loc = require('./loc');
 export default class WatchConnectivity {
   isAppInstalled = false;
@@ -68,31 +69,38 @@ export default class WatchConnectivity {
 
     return InteractionManager.runAfterInteractions(async () => {
       if (WatchConnectivity.shared.isAppInstalled) {
-        let wallets = [];
+        const wallets = [];
 
         for (const wallet of allWallets) {
-          let receiveAddress = '';
-          if (wallet.allowReceive()) {
-            if (wallet.getAddressAsync) {
+          let receiveAddress;
+          if (wallet.getAddressAsync) {
+            if (wallet.chain === Chain.ONCHAIN) {
+              try {
+                receiveAddress = await wallet.getAddressAsync();
+              } catch (_) {}
+              if (!receiveAddress) {
+                // either sleep expired or getAddressAsync threw an exception
+                receiveAddress = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+              }
+            } else if (wallet.chain === Chain.OFFCHAIN) {
               try {
                 await wallet.getAddressAsync();
                 receiveAddress = wallet.getAddress();
-              } catch (error) {
-                console.log(error);
+              } catch (_) {}
+              if (!receiveAddress) {
+                // either sleep expired or getAddressAsync threw an exception
                 receiveAddress = wallet.getAddress();
               }
-            } else {
-              receiveAddress = wallet.getAddress();
             }
           }
-          let transactions = wallet.getTransactions(10);
-          let watchTransactions = [];
+          const transactions = wallet.getTransactions(10);
+          const watchTransactions = [];
           for (const transaction of transactions) {
             let type = 'pendingConfirmation';
             let memo = '';
             let amount = 0;
 
-            if (transaction.hasOwnProperty('confirmations') && !(transaction.confirmations > 0)) {
+            if ('confirmations' in transaction && !(transaction.confirmations > 0)) {
               type = 'pendingConfirmation';
             } else if (transaction.type === 'user_invoice' || transaction.type === 'payment_request') {
               const currentDate = new Date();
@@ -133,8 +141,8 @@ export default class WatchConnectivity {
             } else {
               amount = loc.formatBalance(transaction.value, wallet.getPreferredBalanceUnit(), true).toString();
             }
-            if (WatchConnectivity.shared.tx_metadata[transaction.hash] && WatchConnectivity.shared.tx_metadata[transaction.hash]['memo']) {
-              memo = WatchConnectivity.shared.tx_metadata[transaction.hash]['memo'];
+            if (WatchConnectivity.shared.tx_metadata[transaction.hash] && WatchConnectivity.shared.tx_metadata[transaction.hash].memo) {
+              memo = WatchConnectivity.shared.tx_metadata[transaction.hash].memo;
             } else if (transaction.memo) {
               memo = transaction.memo;
             }

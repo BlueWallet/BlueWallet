@@ -75,6 +75,7 @@ const PleaseBackup = () => {
   useEffect(() => {
     Privacy.enableBlur();
     setIsLoading(false);
+    BackHandler.addEventListener('hardwareBackPress', handleBackButton);
     return () => {
       Privacy.disableBlur();
       BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
@@ -82,7 +83,7 @@ const PleaseBackup = () => {
   }, [handleBackButton, words]);
 
   const renderSecret = () => {
-    let component = [];
+    const component = [];
     for (const [index, secret] of words.entries()) {
       component.push(
         <View style={styles.word} key={`${secret}${index}`}>
@@ -125,6 +126,8 @@ PleaseBackup.navigationOptions = ({ navigation }) => ({
   title: loc.pleasebackup.title,
   headerLeft: null,
   headerRight: null,
+  gestureEnabled: false,
+  swipeEnabled: false,
 });
 
 export default PleaseBackup;

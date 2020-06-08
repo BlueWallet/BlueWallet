@@ -19,7 +19,7 @@ export default class DeviceQuickActions {
     }
     QuickActions.isSupported((error, _supported) => {
       if (error === null) {
-        let shortcutItems = [];
+        const shortcutItems = [];
         const loc = require('../loc');
         for (const wallet of DeviceQuickActions.shared.wallets) {
           shortcutItems.push({

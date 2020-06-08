@@ -16,7 +16,7 @@ export default class Marketplace extends Component {
   constructor(props) {
     super(props);
     if (!props.route.params.fromWallet) throw new Error('Invalid param');
-    let fromWallet = props.route.params.fromWallet;
+    const fromWallet = props.route.params.fromWallet;
 
     this.state = {
       url: '',

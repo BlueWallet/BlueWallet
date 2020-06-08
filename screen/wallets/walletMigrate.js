@@ -2,6 +2,7 @@ import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
+import DefaultPreference from 'react-native-default-preference';
 
 export default class WalletMigrate {
   static expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
@@ -12,17 +13,23 @@ export default class WalletMigrate {
 
   // 0: Let's start!
   async start() {
-    const isNotFirstLaunch = await AsyncStorage.getItem('RnSksIsAppInstalled');
+    const isNotFirstLaunch = await DefaultPreference.get('RnSksIsAppInstalled');
     if (!isNotFirstLaunch) {
       try {
-        console.warn('It is the first launch...')
+        console.warn('It is the first launch...');
         await RNSecureKeyStore.setResetOnAppUninstallTo(false);
         const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+        console.log('----- deleteWalletsFromKeychain');
+        console.log(deleteWalletsFromKeychain);
+        console.log('----- ');
         await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
-        await AsyncStorage.setItem('RnSksIsAppInstalled', '1');
-      } catch (_e) {}
-      await AsyncStorage.setItem('RnSksIsAppInstalled', '1');
+        await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+        await DefaultPreference.set('RnSksIsAppInstalled', '1');
+      } catch (e) {
+        console.log(e);
+      }
     }
+    await DefaultPreference.set('RnSksIsAppInstalled', '1');
     return this.migrateDataFromExpo();
   }
 
@@ -61,12 +68,12 @@ export default class WalletMigrate {
           if (file.name === 'manifest.json') {
             const manifestFile = await RNFS.readFile(file.path);
             const manifestFileParsed = JSON.parse(manifestFile);
-            if (manifestFileParsed.hasOwnProperty('data')) {
+            if ('data' in manifestFileParsed) {
               if (typeof manifestFileParsed.data === 'string') {
                 await AsyncStorage.setItem('data', manifestFileParsed.data);
               }
             }
-            if (manifestFileParsed.hasOwnProperty('data_encrypted')) {
+            if ('data_encrypted' in manifestFileParsed) {
               if (typeof manifestFileParsed.data_encrypted === 'string') {
                 await AsyncStorage.setItem('data_encrypted', manifestFileParsed.data_encrypted);
               }

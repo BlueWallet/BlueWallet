@@ -51,8 +51,8 @@ export class SegwitP2SHWallet extends LegacyWallet {
     if (this._address) return this._address;
     let address;
     try {
-      let keyPair = bitcoin.ECPair.fromWIF(this.secret);
-      let pubKey = keyPair.publicKey;
+      const keyPair = bitcoin.ECPair.fromWIF(this.secret);
+      const pubKey = keyPair.publicKey;
       if (!keyPair.compressed) {
         console.warn('only compressed public keys are good for segwit');
         return false;
@@ -87,17 +87,17 @@ export class SegwitP2SHWallet extends LegacyWallet {
       algo = coinSelectSplit;
     }
 
-    let { inputs, outputs, fee } = algo(utxos, targets, feeRate);
+    const { inputs, outputs, fee } = algo(utxos, targets, feeRate);
 
     // .inputs and .outputs will be undefined if no solution was found
     if (!inputs || !outputs) {
       throw new Error('Not enough balance. Try sending smaller amount');
     }
 
-    let psbt = new bitcoin.Psbt();
+    const psbt = new bitcoin.Psbt();
 
     let c = 0;
-    let values = {};
+    const values = {};
     let keyPair;
 
     inputs.forEach(input => {
@@ -110,7 +110,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
 
       const pubkey = keyPair.publicKey;
       const p2wpkh = bitcoin.payments.p2wpkh({ pubkey });
-      let p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
+      const p2sh = bitcoin.payments.p2sh({ redeem: p2wpkh });
 
       psbt.addInput({
         hash: input.txid,
@@ -130,7 +130,7 @@ export class SegwitP2SHWallet extends LegacyWallet {
         output.address = changeAddress;
       }
 
-      let outputData = {
+      const outputData = {
         address: output.address,
         value: output.value,
       };
