@@ -97,7 +97,7 @@ export class AppStorage {
   async setResetOnAppUninstallTo(value) {
     await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
     try {
-      await RNSecureKeyStore.setResetOnAppUninstallTo(value);
+      RNSecureKeyStore.setResetOnAppUninstallTo(value);
     } catch (Error) {
       console.warn(Error);
     }
