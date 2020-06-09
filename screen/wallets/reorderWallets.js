@@ -77,8 +77,6 @@ export default class ReorderWallets extends Component {
     gestureEnabled: false,
   });
 
-  sortableList = React.createRef();
-
   constructor(props) {
     super(props);
     this.state = {
@@ -88,6 +86,8 @@ export default class ReorderWallets extends Component {
       scrollEnabled: true,
     };
   }
+
+  sortableList = React.createRef();
 
   componentDidMount() {
     this.props.navigation.setParams({

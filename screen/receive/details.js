@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {
   BlueLoading,
   SafeBlueArea,
@@ -25,20 +25,21 @@ import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
+const currency = require('../../blue_modules/currency');
 
 const ReceiveDetails = () => {
   const { secret } = useRoute().params;
-  const [wallet, setWallet] = useState();
+  const wallet = BlueApp.getWallets().find(w => w.getSecret() === secret);
   const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
   const [address, setAddress] = useState('');
   const [customLabel, setCustomLabel] = useState();
   const [customAmount, setCustomAmount] = useState(0);
+  const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState();
   const [qrCodeSVG, setQrCodeSVG] = useState();
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
-  const isFocused = useIsFocused();
 
   const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
@@ -82,10 +83,6 @@ const ReceiveDetails = () => {
   }, [wallet]);
 
   useEffect(() => {
-    Privacy.enableBlur();
-
-    setWallet(BlueApp.getWallets().find(w => w.getSecret() === secret));
-
     if (wallet) {
       if (!wallet.getUserHasSavedExport()) {
         BlueAlertWalletExportReminder({
@@ -102,6 +99,7 @@ const ReceiveDetails = () => {
       }
     }
     HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    Privacy.enableBlur();
     return () => Privacy.disableBlur();
   }, [goBack, navigate, renderReceiveDetails, secret, wallet]);
 
@@ -117,7 +115,24 @@ const ReceiveDetails = () => {
   const createCustomAmountAddress = () => {
     setIsCustom(true);
     setIsCustomModalVisible(false);
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount: customAmount, label: customLabel }));
+    let amount = customAmount;
+    switch (customUnit) {
+      case BitcoinUnit.BTC:
+        // nop
+        break;
+      case BitcoinUnit.SATS:
+        amount = currency.satoshiToBTC(customAmount);
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        if (BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+          // cache hit! we reuse old value that supposedly doesnt have rounding errors
+          amount = currency.satoshiToBTC(BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
+        } else {
+          amount = currency.fiatToBTC(customAmount);
+        }
+        break;
+    }
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
   };
 
   const clearCustomAmount = () => {
@@ -133,7 +148,12 @@ const ReceiveDetails = () => {
       <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <BlueBitcoinAmount amount={customAmount || ''} onChangeText={setCustomAmount} />
+            <BlueBitcoinAmount
+              unit={customUnit}
+              amount={customAmount || ''}
+              onChangeText={setCustomAmount}
+              onAmountUnitChange={setCustomUnit}
+            />
             <View style={styles.customAmount}>
               <TextInput
                 onChangeText={setCustomLabel}
@@ -172,6 +192,21 @@ const ReceiveDetails = () => {
     }
   };
 
+  /**
+   * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
+   */
+  const getDisplayAmount = () => {
+    switch (customUnit) {
+      case BitcoinUnit.BTC:
+        return customAmount + ' BTC';
+      case BitcoinUnit.SATS:
+        return currency.satoshiToBTC(customAmount) + ' BTC';
+      case BitcoinUnit.LOCAL_CURRENCY:
+        return currency.fiatToBTC(customAmount) + ' BTC';
+    }
+    return customAmount + ' ' + customUnit;
+  };
+
   return (
     <SafeBlueArea style={styles.root}>
       {isHandOffUseEnabled && address !== undefined && (
@@ -181,19 +216,19 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
         <View style={styles.scrollBody}>
           {isCustom && (
             <>
               <BlueText style={styles.amount} numberOfLines={1}>
-                {customAmount} {BitcoinUnit.BTC}
+                {getDisplayAmount()}
               </BlueText>
               <BlueText style={styles.label} numberOfLines={1}>
                 {customLabel}
               </BlueText>
             </>
           )}
-          {bip21encoded === undefined && isFocused ? (
+          {bip21encoded === undefined ? (
             <View style={styles.loading}>
               <BlueLoading />
             </View>

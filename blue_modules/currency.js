@@ -1,9 +1,9 @@
 import Frisbee from 'frisbee';
 import AsyncStorage from '@react-native-community/async-storage';
-import { AppStorage } from './class';
-import { FiatUnit } from './models/fiatUnit';
+import { AppStorage } from '../class';
+import { FiatUnit } from '../models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
-import DeviceQuickActions from './class/quick-actions';
+import DeviceQuickActions from '../class/quick-actions';
 const BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
 const exchangeRates = {};
@@ -129,13 +129,49 @@ function satoshiToBTC(satoshi) {
   return b.toString(10);
 }
 
+function btcToSatoshi(btc) {
+  return new BigNumber(btc).multipliedBy(100000000).toNumber();
+}
+
+function fiatToBTC(fiatFloat) {
+  let b = new BigNumber(fiatFloat);
+  b = b.dividedBy(exchangeRates['BTC_' + preferredFiatCurrency.endPointKey]).toFixed(8);
+  return b;
+}
+
+function getCurrencySymbol() {
+  return preferredFiatCurrency.symbol;
+}
+
+/**
+ * Used to mock data in tests
+ *
+ * @param {object} currency, one of FiatUnit.*
+ */
+function _setPreferredFiatCurrency(currency) {
+  preferredFiatCurrency = currency;
+}
+
+/**
+ * Used to mock data in tests
+ *
+ * @param {string} pair as expected by rest of this module, e.g 'BTC_JPY' or 'BTC_USD'
+ * @param {number} rate exchange rate
+ */
+function _setExchangeRate(pair, rate) {
+  exchangeRates[pair] = rate;
+}
+
 module.exports.updateExchangeRate = updateExchangeRate;
 module.exports.startUpdater = startUpdater;
 module.exports.STRUCT = STRUCT;
 module.exports.satoshiToLocalCurrency = satoshiToLocalCurrency;
+module.exports.fiatToBTC = fiatToBTC;
 module.exports.satoshiToBTC = satoshiToBTC;
 module.exports.BTCToLocalCurrency = BTCToLocalCurrency;
 module.exports.setPrefferedCurrency = setPrefferedCurrency;
 module.exports.getPreferredCurrency = getPreferredCurrency;
-module.exports.exchangeRates = exchangeRates; // export it to mock data in tests
-module.exports.preferredFiatCurrency = preferredFiatCurrency; // export it to mock data in tests
+module.exports.btcToSatoshi = btcToSatoshi;
+module.exports.getCurrencySymbol = getCurrencySymbol;
+module.exports._setPreferredFiatCurrency = _setPreferredFiatCurrency; // export it to mock data in tests
+module.exports._setExchangeRate = _setExchangeRate; // export it to mock data in tests
