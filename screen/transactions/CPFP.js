@@ -1,6 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, Clipboard, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import {
   BlueSpacing20,
   BlueReplaceFeeSuggestions,

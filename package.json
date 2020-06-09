@@ -61,6 +61,7 @@
     "@babel/preset-env": "7.9.6",
     "@react-native-community/async-storage": "1.10.3",
     "@react-native-community/blur": "3.6.0",
+    "@react-native-community/clipboard": "1.2.2",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/slider": "2.0.8",
     "@react-navigation/native": "5.5.0",

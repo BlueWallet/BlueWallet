@@ -257,7 +257,9 @@ PODS:
     - React
   - RemobileReactNativeQrcodeLocalImage (1.0.4):
     - React
-  - RNCAsyncStorage (1.10.0):
+  - RNCAsyncStorage (1.10.3):
+    - React
+  - RNCClipboard (1.2.2):
     - React
   - RNCMaskedView (0.1.10):
     - React
@@ -345,6 +347,7 @@ DEPENDENCIES:
   - ReactNativePrivacySnapshot (from `../node_modules/react-native-privacy-snapshot`)
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
@@ -453,6 +456,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@remobile/react-native-qrcode-local-image"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
+  RNCClipboard:
+    :path: "../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
   RNDefaultPreference:
@@ -533,7 +538,8 @@ SPEC CHECKSUMS:
   ReactCommon: 198c7c8d3591f975e5431bec1b0b3b581aa1c5dd
   ReactNativePrivacySnapshot: cc295e45dc22810e9ff2c93380d643de20a77015
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
-  RNCAsyncStorage: b34d2399d3e25db01d5b881949b503bd3c224d57
+  RNCAsyncStorage: 62559ca9a3e7790bac152a3e69bdd9ca349d37bd
+  RNCClipboard: a254f6e568bc713b7ef49646e216661369882030
   RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNDefaultPreference: 21816c0a6f61a2829ccc0cef034392e9b509ee5f
   RNDeviceInfo: 12faae605ba42a1a5041c3c41a77834bc23f049d
