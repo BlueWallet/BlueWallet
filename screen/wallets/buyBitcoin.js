@@ -6,7 +6,6 @@ import { WebView } from 'react-native-webview';
 import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 const currency = require('../../blue_modules/currency');
 const BlueApp: AppStorage = require('../../BlueApp');
-const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
@@ -17,7 +16,7 @@ const styles = StyleSheet.create({
 export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
-    title: loc.buyBitcoin.header,
+    title: '',
     headerLeft: null,
   });
 
