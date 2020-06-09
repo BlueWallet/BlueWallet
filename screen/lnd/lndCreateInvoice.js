@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+    color: "#81868e",
   },
 });
 
@@ -425,6 +426,7 @@ export default class LNDCreateInvoice extends Component {
                   placeholder={loc.receive.details.label}
                   value={this.state.description}
                   numberOfLines={1}
+                  placeholderTextColor="#81868e"
                   style={styles.fiat2}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
