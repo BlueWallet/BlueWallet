@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   customAmountText: {
     flex: 1,
     marginHorizontal: 8,
-    color: "81868e",
+    color: "#81868e",
     minHeight: 33,
   },
   root: {
