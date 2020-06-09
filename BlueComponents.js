@@ -2384,17 +2384,26 @@ export class BlueBitcoinAmount extends Component {
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        {!this.props.disabled && (
+         <View style={{ alignSelf: 'center', marginLeft: 16, padding: 15 }}>
+            </View>
+            )}
           <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
+          
+
+            <View style={{ flexDirection: 'row', alignContent: 'space-between', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
+              
+           
+
               {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && (
                 <Text
                   style={{
                     color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
-                    fontSize: 24,
+                    fontSize: 18,
                     marginHorizontal: 4,
-                    paddingBottom: 6,
-                    fontWeight: '600',
-                    alignSelf: 'flex-end',
+                    fontWeight: 'bold',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   {currency.getCurrencySymbol() + ' '}
@@ -2461,7 +2470,7 @@ export class BlueBitcoinAmount extends Component {
                 }
                 style={{
                   color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
-                  fontWeight: '600',
+                  fontWeight: 'bold',
                   fontSize: amount.length > 10 ? 20 : 36,
                 }}
               />
@@ -2469,19 +2478,19 @@ export class BlueBitcoinAmount extends Component {
                 <Text
                   style={{
                     color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
-                    fontSize: 16,
+                    fontSize: 15,
                     marginHorizontal: 4,
-                    paddingBottom: 6,
                     fontWeight: '600',
-                    alignSelf: 'flex-end',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
                   }}
                 >
                   {' ' + this.state.unit}
                 </Text>
               )}
             </View>
-            <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-              <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>
+            <View style={{ alignItems: 'center', marginBottom: 22, }}>
+              <Text style={{ fontSize: 16, color: '#9BA0A9', fontWeight: '600' }}>
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
                   ? loc.removeTrailingZeros(secondaryDisplayCurrency)
                   : secondaryDisplayCurrency}
@@ -2490,7 +2499,7 @@ export class BlueBitcoinAmount extends Component {
             </View>
           </View>
           {!this.props.disabled && (
-            <TouchableOpacity style={{ alignSelf: 'center', marginRight: 20 }} onPress={this.changeAmountUnit}>
+            <TouchableOpacity style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }} onPress={this.changeAmountUnit}>
               <Image source={require('./img/round-compare-arrows-24-px.png')} />
             </TouchableOpacity>
           )}
