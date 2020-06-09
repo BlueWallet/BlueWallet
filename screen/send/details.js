@@ -1,6 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
 import {
+  ActivityIndicator,
   View,
   TextInput,
   Alert,
@@ -13,7 +14,6 @@ import {
   Dimensions,
   Platform,
   ScrollView,
-  ActivityIndicator,
   Text,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
@@ -24,6 +24,7 @@ import {
   BlueBitcoinAmount,
   BlueAddressInput,
   BlueDismissKeyboardInputAccessory,
+  BlueLoading,
   BlueUseAllFundsButton,
   BlueListItem,
   BlueText,
@@ -41,6 +42,7 @@ import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 const bitcoin = require('bitcoinjs-lib');
+const currency = require('../../blue_modules/currency');
 const BigNumber = require('bignumber.js');
 const { width } = Dimensions.get('window');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -52,6 +54,7 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     paddingTop: 20,
+    backgroundColor: '#FFFFFF',
   },
   root: {
     flex: 1,
@@ -254,10 +257,12 @@ export default class SendDetails extends Component {
         recipientsScrollIndex: 0,
         fromWallet,
         addresses: [],
+        units: [],
         memo: '',
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         fee: 1,
         feeSliderValue: 1,
+        amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         bip70TransactionExpiration: null,
         renderWalletSelectionButtonHidden: false,
       };
@@ -289,18 +294,22 @@ export default class SendDetails extends Component {
           feeSliderValue: bip70.feeSliderValue,
           fee: bip70.fee,
           isLoading: false,
+          amountUnit: BitcoinUnit.BTC,
           bip70TransactionExpiration: bip70.bip70TransactionExpiration,
         });
       } else {
-        console.warn('2');
         const recipients = this.state.addresses;
         const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
         if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
           recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
+          const units = this.state.units;
+          units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
           this.setState({
             address: recipients,
             bip70TransactionExpiration: null,
             isLoading: false,
+            amountUnit: BitcoinUnit.BTC,
+            units,
           });
         } else {
           let address = '';
@@ -322,6 +331,8 @@ export default class SendDetails extends Component {
           }
           console.log(options);
           if (btcAddressRx.test(address) || address.indexOf('bc1') === 0 || address.indexOf('BC1') === 0) {
+            const units = this.state.units;
+            units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
             recipients[[this.state.recipientsScrollIndex]].address = address;
             recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
             this.setState({
@@ -329,6 +340,8 @@ export default class SendDetails extends Component {
               memo: options.label || options.message,
               bip70TransactionExpiration: null,
               isLoading: false,
+              amountUnit: BitcoinUnit.BTC,
+              units,
             });
           } else {
             this.setState({ isLoading: false });
@@ -342,6 +355,7 @@ export default class SendDetails extends Component {
     this.renderNavigationHeader();
     console.log('send/details - componentDidMount');
     StatusBar.setBarStyle('dark-content');
+    /** @type {BitcoinTransaction[]} */
     const addresses = [];
     let initialMemo = '';
     if (this.props.route.params.uri) {
@@ -350,13 +364,13 @@ export default class SendDetails extends Component {
         const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(uri);
         addresses.push(recipient);
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, fee, feeSliderValue, isLoading: false });
+        this.setState({ addresses, memo: initialMemo, fee, feeSliderValue, isLoading: false, amountUnit: BitcoinUnit.BTC });
       } else {
         try {
           const { address, amount, memo } = this.decodeBitcoinUri(uri);
-          addresses.push(new BitcoinTransaction(address, amount));
+          addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
           initialMemo = memo;
-          this.setState({ addresses, memo: initialMemo, isLoading: false });
+          this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
         } catch (error) {
           console.log(error);
           alert('Error: Unable to decode Bitcoin address');
@@ -365,7 +379,7 @@ export default class SendDetails extends Component {
     } else if (this.props.route.params.address) {
       addresses.push(new BitcoinTransaction(this.props.route.params.address));
       if (this.props.route.params.memo) initialMemo = this.props.route.params.memo;
-      this.setState({ addresses, memo: initialMemo, isLoading: false });
+      this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
     } else {
       this.setState({ addresses: [new BitcoinTransaction()], isLoading: false });
     }
@@ -446,33 +460,13 @@ export default class SendDetails extends Component {
     return { address, amount, memo };
   }
 
-  recalculateAvailableBalance(balance, amount, fee) {
-    if (!amount) amount = 0;
-    if (!fee) fee = 0;
-    let availableBalance;
-    try {
-      availableBalance = new BigNumber(balance);
-      availableBalance = availableBalance.div(100000000); // sat2btc
-      availableBalance = availableBalance.minus(amount);
-      availableBalance = availableBalance.minus(fee);
-      availableBalance = availableBalance.toString(10);
-    } catch (err) {
-      return balance;
-    }
-
-    return (availableBalance === 'NaN' && balance) || availableBalance;
-  }
-
   async processBIP70Invoice(text) {
     try {
       if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
         Keyboard.dismiss();
         return BitcoinBIP70TransactionDecode.decode(text)
           .then(response => {
-            const recipient = new BitcoinTransaction(
-              response.address,
-              loc.formatBalanceWithoutSuffix(response.amount, BitcoinUnit.BTC, false),
-            );
+            const recipient = new BitcoinTransaction(response.address, currency.satoshiToBTC(response.amount), response.amount);
             return {
               recipient,
               memo: response.memo,
@@ -507,7 +501,7 @@ export default class SendDetails extends Component {
       } else if (!transaction.address) {
         error = loc.send.details.address_field_is_not_valid;
         console.log('validation error');
-      } else if (this.recalculateAvailableBalance(this.state.fromWallet.getBalance(), transaction.amount, 0) < 0) {
+      } else if (this.state.fromWallet.getBalance() - transaction.amountSats < 0) {
         // first sanity check is that sending amount is not bigger than available balance
         error = loc.send.details.total_exceeds_balance;
         console.log('validation error');
@@ -577,7 +571,7 @@ export default class SendDetails extends Component {
         targets = [{ address: transaction.address }];
         break;
       }
-      const value = new BigNumber(transaction.amount).multipliedBy(100000000).toNumber();
+      const value = parseInt(transaction.amountSats);
       if (value > 0) {
         targets.push({ address: transaction.address, value });
       }
@@ -787,7 +781,7 @@ export default class SendDetails extends Component {
     const isSendMaxUsed = this.state.addresses.some(element => element.amount === BitcoinUnit.MAX);
     return (
       <Modal
-        isVisible={this.state.isAdvancedTransactionOptionsVisible && !this.state.isLoading}
+        isVisible={this.state.isAdvancedTransactionOptionsVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
           Keyboard.dismiss();
@@ -835,6 +829,8 @@ export default class SendDetails extends Component {
                       () => {
                         this.scrollView.scrollToEnd();
                         if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
+                        // after adding recipient it automatically scrolls to the last one
+                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
                       },
                     );
                   }}
@@ -854,7 +850,8 @@ export default class SendDetails extends Component {
                       },
                       () => {
                         if (this.state.addresses.length > 1) this.scrollView.flashScrollIndicators();
-                        this.setState({ recipientsScrollIndex: this.scrollViewCurrentIndex });
+                        // after deletion it automatically scrolls to the last one
+                        this.setState({ recipientsScrollIndex: this.state.addresses.length - 1 });
                       },
                     );
                   }}
@@ -941,12 +938,49 @@ export default class SendDetails extends Component {
           <BlueBitcoinAmount
             isLoading={this.state.isLoading}
             amount={item.amount ? item.amount.toString() : null}
+            onAmountUnitChange={unit => {
+              const units = this.state.units;
+              units[index] = unit;
+
+              const addresses = this.state.addresses;
+              const item = addresses[index];
+
+              switch (unit) {
+                case BitcoinUnit.SATS:
+                  item.amountSats = parseInt(item.amount);
+                  break;
+                case BitcoinUnit.BTC:
+                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  break;
+                case BitcoinUnit.LOCAL_CURRENCY:
+                  // also accounting for cached fiat->sat conversion to avoid rounding error
+                  item.amountSats =
+                    BlueBitcoinAmount.getCachedSatoshis(item.amount) || currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  break;
+              }
+
+              addresses[index] = item;
+              this.setState({ units, addresses });
+            }}
             onChangeText={text => {
               item.amount = text;
-              const transactions = this.state.addresses;
-              transactions[index] = item;
-              this.setState({ addresses: transactions });
+              switch (this.state.units[index] || this.state.amountUnit) {
+                case BitcoinUnit.BTC:
+                  item.amountSats = currency.btcToSatoshi(item.amount);
+                  break;
+                case BitcoinUnit.LOCAL_CURRENCY:
+                  item.amountSats = currency.btcToSatoshi(currency.fiatToBTC(item.amount));
+                  break;
+                default:
+                case BitcoinUnit.SATS:
+                  item.amountSats = parseInt(text);
+                  break;
+              }
+              const addresses = this.state.addresses;
+              addresses[index] = item;
+              this.setState({ addresses });
             }}
+            unit={this.state.units[index] || this.state.amountUnit}
             inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
           />
           <BlueAddressInput
@@ -1002,7 +1036,12 @@ export default class SendDetails extends Component {
             Keyboard.dismiss();
             const recipient = this.state.addresses[this.state.recipientsScrollIndex];
             recipient.amount = BitcoinUnit.MAX;
-            this.setState({ addresses: [recipient], recipientsScrollIndex: 0, isAdvancedTransactionOptionsVisible: false });
+            this.setState({
+              addresses: [recipient],
+              units: [BitcoinUnit.BTC],
+              recipientsScrollIndex: 0,
+              isAdvancedTransactionOptionsVisible: false,
+            });
           },
           style: 'default',
         },
@@ -1013,61 +1052,68 @@ export default class SendDetails extends Component {
   };
 
   render() {
-    const opacity = this.state.isLoading ? 0.5 : 1.0;
+    if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
+      return (
+        <View style={styles.loading}>
+          <BlueLoading />
+        </View>
+      );
+    }
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.root} pointerEvents={this.state.isLoading ? 'none' : 'auto'}>
+        <View style={styles.root}>
           <View>
-            <View style={{ opacity: opacity }}>
-              <KeyboardAvoidingView behavior="position">
-                <ScrollView
-                  pagingEnabled
-                  horizontal
-                  contentContainerStyle={styles.scrollViewContent}
-                  ref={ref => (this.scrollView = ref)}
-                  onContentSizeChange={() => this.scrollView.scrollToEnd()}
-                  onLayout={() => this.scrollView.scrollToEnd()}
-                  onMomentumScrollEnd={this.handlePageChange}
-                  scrollEnabled={this.state.addresses.length > 1}
-                  scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
-                >
-                  {this.renderBitcoinTransactionInfoFields()}
-                </ScrollView>
-                <View hide={!this.state.showMemoRow} style={styles.memo}>
-                  <TextInput
-                    onChangeText={text => this.setState({ memo: text })}
-                    placeholder={loc.send.details.note_placeholder}
-                    placeholderTextColor="#81868e"
-                    value={this.state.memo}
-                    numberOfLines={1}
-                    style={styles.memoText}
-                    editable={!this.state.isLoading}
-                    onSubmitEditing={Keyboard.dismiss}
-                    inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-                  />
+            <KeyboardAvoidingView behavior="position">
+              <ScrollView
+                pagingEnabled
+                horizontal
+                contentContainerStyle={styles.scrollViewContent}
+                ref={ref => (this.scrollView = ref)}
+                keyboardShouldPersistTaps="always"
+                onContentSizeChange={() => this.scrollView.scrollToEnd()}
+                onLayout={() => this.scrollView.scrollToEnd()}
+                onMomentumScrollEnd={this.handlePageChange}
+                scrollEnabled={this.state.addresses.length > 1}
+                scrollIndicatorInsets={{ top: 0, left: 8, bottom: 0, right: 8 }}
+              >
+                {this.renderBitcoinTransactionInfoFields()}
+              </ScrollView>
+              <View hide={!this.state.showMemoRow} style={styles.memo}>
+                <TextInput
+                  onChangeText={text => this.setState({ memo: text })}
+                  placeholder={loc.send.details.note_placeholder}
+                  placeholderTextColor="#81868e"
+                  value={this.state.memo}
+                  numberOfLines={1}
+                  style={styles.memoText}
+                  editable={!this.state.isLoading}
+                  onSubmitEditing={Keyboard.dismiss}
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
+                />
+              </View>
+              <TouchableOpacity
+                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+                disabled={this.state.isLoading}
+                style={styles.fee}
+              >
+                <Text style={styles.feeLabel}>Fee</Text>
+                <View style={styles.feeRow}>
+                  <Text style={styles.feeValue}>{this.state.fee}</Text>
+                  <Text style={styles.feeUnit}>sat/b</Text>
                 </View>
-                <TouchableOpacity
-                  onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
-                  disabled={this.state.isLoading}
-                  style={styles.fee}
-                >
-                  <Text style={styles.feeLabel}>Fee</Text>
-                  <View style={styles.feeRow}>
-                    <Text style={styles.feeValue}>{this.state.fee}</Text>
-                    <Text style={styles.feeUnit}>sat/b</Text>
-                  </View>
-                </TouchableOpacity>
-                {this.renderFeeSelectionModal()}
-                {this.renderAdvancedTransactionOptionsModal()}
-              </KeyboardAvoidingView>
-            </View>
-            {this.renderCreateButton()}
+              </TouchableOpacity>
+              {this.renderCreateButton()}
+              {this.renderFeeSelectionModal()}
+              {this.renderAdvancedTransactionOptionsModal()}
+            </KeyboardAvoidingView>
           </View>
           <BlueDismissKeyboardInputAccessory />
           {Platform.select({
-            ios: <BlueUseAllFundsButton onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />,
+            ios: (
+              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+            ),
             android: this.state.isAmountToolbarVisibleForAndroid && (
-              <BlueUseAllFundsButton onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
+              <BlueUseAllFundsButton unit={this.state.amountUnit} onUseAllPressed={this.onUseAllPressed} wallet={this.state.fromWallet} />
             ),
           })}
 

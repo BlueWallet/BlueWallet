@@ -40,6 +40,7 @@ const BlueApp = require('./BlueApp');
 const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
+const currency = require('./blue_modules/currency');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;
@@ -579,7 +580,6 @@ export class BlueText extends Component {
     );
   }
 }
-
 export class BlueTextCentered extends Component {
   render() {
     return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center' }} />;
@@ -826,6 +826,10 @@ export class BlueUseAllFundsButton extends Component {
   static propTypes = {
     wallet: PropTypes.shape().isRequired,
     onUseAllPressed: PropTypes.func.isRequired,
+  };
+
+  static defaultProps = {
+    unit: BitcoinUnit.BTC,
   };
 
   render() {
@@ -1809,7 +1813,9 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
     return (
       <NewWalletPanel
         onPress={() => {
+          onPressedOut();
           onPress(index);
+          onPressedOut();
         }}
       />
     );
@@ -1828,7 +1834,9 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
           onPressOut={item.getIsFailure() ? onPressedOut : null}
           onPress={() => {
             if (item.getIsFailure()) {
+              onPressedOut();
               onPress(index);
+              onPressedOut();
             }
           }}
         >
@@ -1896,7 +1904,9 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
           onPressOut={onPressedOut}
           onLongPress={handleLongPress}
           onPress={() => {
+            onPressedOut();
             onPress(index);
+            onPressedOut();
           }}
         >
           <LinearGradient
@@ -2016,7 +2026,7 @@ export class WalletsCarousel extends Component {
           itemWidth={itemWidth}
           inactiveSlideScale={1}
           inactiveSlideOpacity={0.7}
-          initialNumToRender={4}
+          initialNumToRender={20}
           onLayout={this.onLayout}
           contentContainerCustomStyle={{ left: -20 }}
         />
@@ -2240,14 +2250,104 @@ export class BlueReplaceFeeSuggestions extends Component {
 export class BlueBitcoinAmount extends Component {
   static propTypes = {
     isLoading: PropTypes.bool,
+    /**
+     * amount is a sting thats always in current unit denomination, e.g. '0.001' or '9.43' or '10000'
+     */
     amount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    /**
+     * callback that returns currently typed amount, in current denomination, e.g. 0.001 or 10000 or $9.34
+     * (btc, sat, fiat)
+     */
     onChangeText: PropTypes.func,
+    /**
+     * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
+     */
+    onAmountUnitChange: PropTypes.func,
     disabled: PropTypes.bool,
-    unit: PropTypes.string,
   };
 
-  static defaultProps = {
-    unit: BitcoinUnit.BTC,
+  /**
+   * cache of conversions  fiat amount => satoshi
+   * @type {{}}
+   */
+  static conversionCache = {};
+
+  static getCachedSatoshis(amount) {
+    return BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] || false;
+  }
+
+  constructor(props) {
+    super(props);
+    this.state = { unit: props.unit || BitcoinUnit.BTC, previousUnit: BitcoinUnit.SATS };
+  }
+
+  /**
+   * here we must recalculate old amont value (which was denominated in `previousUnit`) to new denomination `newUnit`
+   * and fill this value in input box, so user can switch between, for example, 0.001 BTC <=> 100000 sats
+   *
+   * @param previousUnit {string} one of {BitcoinUnit.*}
+   * @param newUnit {string} one of {BitcoinUnit.*}
+   */
+  onAmountUnitChange(previousUnit, newUnit) {
+    const amount = this.props.amount || 0;
+    console.log('was:', amount, previousUnit, '; converting to', newUnit);
+    let sats = 0;
+    switch (previousUnit) {
+      case BitcoinUnit.BTC:
+        sats = new BigNumber(amount).multipliedBy(100000000).toString();
+        break;
+      case BitcoinUnit.SATS:
+        sats = amount;
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        sats = new BigNumber(currency.fiatToBTC(amount)).multipliedBy(100000000).toString();
+        break;
+    }
+    if (previousUnit === BitcoinUnit.LOCAL_CURRENCY && BlueBitcoinAmount.conversionCache[amount + previousUnit]) {
+      // cache hit! we reuse old value that supposedly doesnt have rounding errors
+      sats = BlueBitcoinAmount.conversionCache[amount + previousUnit];
+    }
+    console.log('so, in sats its', sats);
+
+    const newInputValue = loc.formatBalancePlain(sats, newUnit, false);
+    console.log('and in', newUnit, 'its', newInputValue);
+
+    if (newUnit === BitcoinUnit.LOCAL_CURRENCY && previousUnit === BitcoinUnit.SATS) {
+      // we cache conversion, so when we will need reverse conversion there wont be a rounding error
+      BlueBitcoinAmount.conversionCache[newInputValue + newUnit] = amount;
+    }
+    this.props.onChangeText(newInputValue);
+    if (this.props.onAmountUnitChange) this.props.onAmountUnitChange(newUnit);
+  }
+
+  /**
+   * responsible for cycling currently selected denomination, BTC->SAT->LOCAL_CURRENCY->BTC
+   */
+  changeAmountUnit = () => {
+    let previousUnit = this.state.unit;
+    let newUnit;
+    if (previousUnit === BitcoinUnit.BTC) {
+      newUnit = BitcoinUnit.SATS;
+    } else if (previousUnit === BitcoinUnit.SATS) {
+      newUnit = BitcoinUnit.LOCAL_CURRENCY;
+    } else if (previousUnit === BitcoinUnit.LOCAL_CURRENCY) {
+      newUnit = BitcoinUnit.BTC;
+    } else {
+      newUnit = BitcoinUnit.BTC;
+      previousUnit = BitcoinUnit.SATS;
+    }
+    this.setState({ unit: newUnit, previousUnit }, () => this.onAmountUnitChange(previousUnit, newUnit));
+  };
+
+  maxLength = () => {
+    switch (this.state.unit) {
+      case BitcoinUnit.BTC:
+        return 10;
+      case BitcoinUnit.SATS:
+        return 15;
+      default:
+        return 15;
+    }
   };
 
   textInput = React.createRef();
@@ -2257,85 +2357,155 @@ export class BlueBitcoinAmount extends Component {
   };
 
   render() {
-    const amount = this.props.amount || '0';
-    let localCurrency = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
-    if (this.props.unit === BitcoinUnit.BTC) {
-      let sat = new BigNumber(amount);
-      sat = sat.multipliedBy(100000000).toString();
-      localCurrency = loc.formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
-    } else {
-      localCurrency = loc.formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
-    }
-    if (amount === BitcoinUnit.MAX) localCurrency = ''; // we dont want to display NaN
-    return (
-      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={this.handleTextInputOnPress}>
-        <View>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
-            <TextInput
-              {...this.props}
-              testID="BitcoinAmountInput"
-              keyboardType="numeric"
-              onChangeText={text => {
-                text = text.trim();
-                text = text.replace(',', '.');
-                const split = text.split('.');
-                if (split.length >= 2) {
-                  text = `${parseInt(split[0], 10)}.${split[1]}`;
-                } else {
-                  text = `${parseInt(split[0], 10)}`;
-                }
-                text = this.props.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
-                text = text.replace(/(\..*)\./g, '$1');
+    const amount = this.props.amount || 0;
+    let secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(amount, BitcoinUnit.LOCAL_CURRENCY, false);
 
-                if (text.startsWith('.')) {
-                  text = '0.';
-                }
-                text = text.replace(/(0{1,}.)\./g, '$1');
-                if (this.props.unit !== BitcoinUnit.BTC) {
-                  text = text.replace(/[^0-9.]/g, '');
-                }
-                this.props.onChangeText(text);
-              }}
-              onBlur={() => {
-                if (this.props.onBlur) this.props.onBlur();
-              }}
-              onFocus={() => {
-                if (this.props.onFocus) this.props.onFocus();
-              }}
-              placeholder="0"
-              maxLength={10}
-              ref={this.textInput}
-              editable={!this.props.isLoading && !this.props.disabled}
-              value={amount}
-              placeholderTextColor={this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2}
-              style={{
-                color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
-                fontSize: 36,
-                fontWeight: '600',
-              }}
-            />
-            <Text
-              style={{
-                color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
-                fontSize: 16,
-                marginHorizontal: 4,
-                paddingBottom: 6,
-                fontWeight: '600',
-                alignSelf: 'flex-end',
-              }}
+    // if main display is sat or btc - secondary display is fiat
+    // if main display is fiat - secondary dislay is btc
+    let sat;
+    switch (this.state.unit) {
+      case BitcoinUnit.BTC:
+        sat = new BigNumber(amount).multipliedBy(100000000).toString();
+        secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(sat, BitcoinUnit.LOCAL_CURRENCY, false);
+        break;
+      case BitcoinUnit.SATS:
+        secondaryDisplayCurrency = loc.formatBalanceWithoutSuffix(amount.toString(), BitcoinUnit.LOCAL_CURRENCY, false);
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        secondaryDisplayCurrency = currency.fiatToBTC(parseFloat(amount));
+        if (BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+          // cache hit! we reuse old value that supposedly doesnt have rounding errors
+          const sats = BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY];
+          secondaryDisplayCurrency = currency.satoshiToBTC(sats);
+        }
+        break;
+    }
+
+    if (amount === BitcoinUnit.MAX) secondaryDisplayCurrency = ''; // we dont want to display NaN
+    return (
+      <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          {!this.props.disabled && <View style={{ alignSelf: 'center', marginLeft: 16, padding: 15 }} />}
+          <View style={{ flex: 1 }}>
+            <View
+              style={{ flexDirection: 'row', alignContent: 'space-between', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}
             >
-              {' ' + this.props.unit}
-            </Text>
+              {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && (
+                <Text
+                  style={{
+                    color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
+                    fontSize: 18,
+                    marginHorizontal: 4,
+                    fontWeight: 'bold',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {currency.getCurrencySymbol() + ' '}
+                </Text>
+              )}
+              <TextInput
+                {...this.props}
+                testID="BitcoinAmountInput"
+                keyboardType="numeric"
+                adjustsFontSizeToFit
+                onChangeText={text => {
+                  text = text.trim();
+                  if (this.state.unit !== BitcoinUnit.LOCAL_CURRENCY) {
+                    text = text.replace(',', '.');
+                    const split = text.split('.');
+                    if (split.length >= 2) {
+                      text = `${parseInt(split[0], 10)}.${split[1]}`;
+                    } else {
+                      text = `${parseInt(split[0], 10)}`;
+                    }
+                    text = this.state.unit === BitcoinUnit.BTC ? text.replace(/[^0-9.]/g, '') : text.replace(/[^0-9]/g, '');
+                    text = text.replace(/(\..*)\./g, '$1');
+
+                    if (text.startsWith('.')) {
+                      text = '0.';
+                    }
+                    text = text.replace(/(0{1,}.)\./g, '$1');
+                    if (this.state.unit !== BitcoinUnit.BTC) {
+                      text = text.replace(/[^0-9.]/g, '');
+                    }
+                  } else if (this.state.unit === BitcoinUnit.LOCAL_CURRENCY) {
+                    text = text.replace(/,/gi, '');
+                    if (text.split('.').length > 2) {
+                      // too many dots. stupid code to remove all but first dot:
+                      let rez = '';
+                      let first = true;
+                      for (const part of text.split('.')) {
+                        rez += part;
+                        if (first) {
+                          rez += '.';
+                          first = false;
+                        }
+                      }
+                      text = rez;
+                    }
+                    text = text.replace(/[^\d.,-]/g, ''); // remove all but numberd, dots & commas
+                  }
+
+                  this.props.onChangeText(text);
+                }}
+                onBlur={() => {
+                  if (this.props.onBlur) this.props.onBlur();
+                }}
+                onFocus={() => {
+                  if (this.props.onFocus) this.props.onFocus();
+                }}
+                placeholder="0"
+                maxLength={this.maxLength()}
+                ref={textInput => (this.textInput = textInput)}
+                editable={!this.props.isLoading && !this.props.disabled}
+                value={parseFloat(amount) > 0 || amount === BitcoinUnit.MAX ? amount : undefined}
+                placeholderTextColor={
+                  this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2
+                }
+                style={{
+                  color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
+                  fontWeight: 'bold',
+                  fontSize: amount.length > 10 ? 20 : 36,
+                }}
+              />
+              {this.state.unit !== BitcoinUnit.LOCAL_CURRENCY && (
+                <Text
+                  style={{
+                    color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.alternativeTextColor2,
+                    fontSize: 15,
+                    marginHorizontal: 4,
+                    fontWeight: '600',
+                    alignSelf: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {' ' + this.state.unit}
+                </Text>
+              )}
+            </View>
+            <View style={{ alignItems: 'center', marginBottom: 22 }}>
+              <Text style={{ fontSize: 16, color: '#9BA0A9', fontWeight: '600' }}>
+                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
+                  ? loc.removeTrailingZeros(secondaryDisplayCurrency)
+                  : secondaryDisplayCurrency}
+                {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX ? ` ${BitcoinUnit.BTC}` : null}
+              </Text>
+            </View>
           </View>
-          <View style={{ alignItems: 'center', marginBottom: 22, marginTop: 4 }}>
-            <Text style={{ fontSize: 18, color: '#d4d4d4', fontWeight: '600' }}>{localCurrency}</Text>
-          </View>
+          {!this.props.disabled && (
+            <TouchableOpacity
+              style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }}
+              onPress={this.changeAmountUnit}
+            >
+              <Image source={require('./img/round-compare-arrows-24-px.png')} />
+            </TouchableOpacity>
+          )}
         </View>
       </TouchableWithoutFeedback>
     );
   }
 }
-
 const styles = StyleSheet.create({
   balanceBlur: {
     height: 30,
