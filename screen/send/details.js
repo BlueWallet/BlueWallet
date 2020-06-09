@@ -183,6 +183,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+    color: '#81868e',
   },
   fee: {
     flexDirection: 'row',
@@ -1036,6 +1037,7 @@ export default class SendDetails extends Component {
                   <TextInput
                     onChangeText={text => this.setState({ memo: text })}
                     placeholder={loc.send.details.note_placeholder}
+                    placeholderTextColor="#81868e"
                     value={this.state.memo}
                     numberOfLines={1}
                     style={styles.memoText}
