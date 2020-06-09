@@ -157,6 +157,7 @@ const ReceiveDetails = () => {
             <View style={styles.customAmount}>
               <TextInput
                 onChangeText={setCustomLabel}
+                placeholderTextColor="#81868e"
                 placeholder={loc.receive.details.label}
                 value={customLabel || ''}
                 numberOfLines={1}
@@ -307,6 +308,7 @@ const styles = StyleSheet.create({
   customAmountText: {
     flex: 1,
     marginHorizontal: 8,
+    color: "81868e",
     minHeight: 33,
   },
   root: {
