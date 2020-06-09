@@ -20,87 +20,6 @@ import NavigationService from '../../NavigationService';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 
-const styles = StyleSheet.create({
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 400,
-    height: 400,
-  },
-  modalContentCentered: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  statusGreenWrapper: {
-    backgroundColor: '#d2f8d5',
-    borderRadius: 20,
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 15,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-  statusGreenText: {
-    fontSize: 12,
-    color: '#37bfa0',
-  },
-  statusGrayWrapper: {
-    backgroundColor: '#ebebeb',
-    borderRadius: 20,
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 15,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-  statusGrayText: {
-    fontSize: 12,
-    color: 'gray',
-  },
-  statusGrayWrapper2: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 5,
-    height: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-  statusGrayText2: {
-    fontSize: 12,
-    color: 'gray',
-  },
-  btcText: {
-    fontWeight: 'bold',
-    fontSize: 18,
-    color: '#0c2550',
-  },
-  subheaderText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#0c2550',
-  },
-  emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 },
-  itemSeparatorComponent: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
-  flexDirectionRow: { flexDirection: 'row' },
-  flexDirectionColumn: { flexDirection: 'column' },
-  volumeBreakdownText: { fontSize: 18, color: '#0c2550' },
-  contractStatusText: { fontSize: 14, color: 'gray', fontWeight: 'normal' },
-  cancelContractText: { color: '#d0021b', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
-  openChatText: { color: '#1b02d0', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
-  flatList: { paddingTop: 30 },
-  roleText: { fontSize: 14, color: 'gray', padding: 5 },
-});
-
 export default class HodlHodlMyContracts extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
@@ -405,3 +324,84 @@ export default class HodlHodlMyContracts extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  bottomModal: {
+    justifyContent: 'flex-end',
+    margin: 0,
+  },
+  modalContent: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderColor: 'rgba(0, 0, 0, 0.1)',
+    minHeight: 400,
+    height: 400,
+  },
+  modalContentCentered: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusGreenWrapper: {
+    backgroundColor: '#d2f8d5',
+    borderRadius: 20,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 15,
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
+  statusGreenText: {
+    fontSize: 12,
+    color: '#37bfa0',
+  },
+  statusGrayWrapper: {
+    backgroundColor: '#ebebeb',
+    borderRadius: 20,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 15,
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
+  statusGrayText: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  statusGrayWrapper2: {
+    backgroundColor: '#f8f8f8',
+    borderRadius: 5,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
+  statusGrayText2: {
+    fontSize: 12,
+    color: 'gray',
+  },
+  btcText: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    color: '#0c2550',
+  },
+  subheaderText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#0c2550',
+  },
+  emptyComponentText: { textAlign: 'center', color: '#9AA0AA', paddingHorizontal: 16 },
+  itemSeparatorComponent: { height: 0.5, width: '100%', backgroundColor: '#C8C8C8' },
+  flexDirectionRow: { flexDirection: 'row' },
+  flexDirectionColumn: { flexDirection: 'column' },
+  volumeBreakdownText: { fontSize: 18, color: '#0c2550' },
+  contractStatusText: { fontSize: 14, color: 'gray', fontWeight: 'normal' },
+  cancelContractText: { color: '#d0021b', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
+  openChatText: { color: '#1b02d0', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
+  flatList: { paddingTop: 30 },
+  roleText: { fontSize: 14, color: 'gray', padding: 5 },
+});
