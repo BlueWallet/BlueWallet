@@ -21,7 +21,6 @@ const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
   blacklist: ['wallets'],
-  whitelist: ['contacts'],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
