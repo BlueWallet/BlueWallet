@@ -1,6 +1,7 @@
 // import { createAppContainer } from '@react-navigation/native';
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import { Platform, Dimensions } from 'react-native';
 
 import Settings from './screen/settings/settings';
 import About from './screen/settings/about';
@@ -58,12 +59,13 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
-import { Platform } from 'react-native';
 
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
   Platform.OS === 'ios'
     ? ({ route, navigation }) => ({
         gestureEnabled: true,
+        gestureResponseDistance: { vertical: SCREEN_HEIGHT, horizontal: 50 },
         cardOverlayEnabled: true,
         headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
         ...TransitionPresets.ModalPresentationIOS,
@@ -77,6 +79,7 @@ const defaultStackScreenOptions =
         headerStatusBarHeight: 10,
       }
     : undefined;
+
 const WalletsStack = createStackNavigator();
 const WalletsRoot = () => (
   <WalletsStack.Navigator>
@@ -150,25 +153,8 @@ const AddWalletRoot = () => (
   <AddWalletStack.Navigator screenOptions={defaultStackScreenOptions}>
     <AddWalletStack.Screen name="AddWallet" component={AddWallet} options={AddWallet.navigationOptions} />
     <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions} />
-    <AddWalletStack.Screen
-      name="PleaseBackup"
-      component={PleaseBackup}
-      options={PleaseBackup.navigationOptions}
-      screenOptions={{
-        headerShown: false,
-        swipeEnabled: false,
-        gestureEnabled: false,
-      }}
-    />
-    <AddWalletStack.Screen
-      name="PleaseBackupLNDHub"
-      component={PleaseBackupLNDHub}
-      screenOptions={{
-        headerShown: false,
-        swipeEnabled: false,
-        gestureEnabled: false,
-      }}
-    />
+    <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions} />
+    <AddWalletStack.Screen name="PleaseBackupLNDHub" component={PleaseBackupLNDHub} options={PleaseBackupLNDHub.navigationOptions} />
   </AddWalletStack.Navigator>
 );
 
@@ -282,7 +268,11 @@ const Navigation = () => (
     <RootStack.Screen
       name="ScanQRCodeRoot"
       component={ScanQRCodeRoot}
-      options={{ ...TransitionPresets.ModalTransition, headerShown: false }}
+      options={{
+        ...TransitionPresets.ModalTransition,
+        headerShown: false,
+        gestureResponseDistance: { vertical: SCREEN_HEIGHT, horizontal: 50 },
+      }}
     />
     {/* screens */}
     <RootStack.Screen name="WalletExport" component={WalletExport} options={WalletExport.navigationOptions} />

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15505" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="15705" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="AgC-eL-Hgc">
     <device id="watch44"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="15501"/>
     </dependencies>
     <scenes>
@@ -18,7 +18,7 @@
                                     <group key="rootItem" width="1" height="66.5" alignment="left" backgroundImage="walletHD" radius="8" id="H28-wi-Sks" customClass="WalletInformation" customModule="BlueWalletWatch_Extension">
                                         <items>
                                             <label width="6" alignment="left" id="RJV-QC-scb"/>
-                                            <group width="1" alignment="center" verticalAlignment="center" layout="vertical" id="UrU-xX-jYW">
+                                            <group width="0.90000000000000002" alignment="center" verticalAlignment="center" layout="vertical" id="UrU-xX-jYW">
                                                 <items>
                                                     <label width="1" alignment="left" text="Balance" minimumScaleFactor="0.5" id="QYx-3e-6zf">
                                                         <fontDescription key="font" style="UICTFontTextStyleHeadline"/>

@@ -1,5 +1,6 @@
 import * as Watch from 'react-native-watch-connectivity';
 import { InteractionManager } from 'react-native';
+import { Chain } from './models/bitcoinUnits';
 const loc = require('./loc');
 export default class WatchConnectivity {
   isAppInstalled = false;
@@ -71,18 +72,25 @@ export default class WatchConnectivity {
         const wallets = [];
 
         for (const wallet of allWallets) {
-          let receiveAddress = '';
-          if (wallet.allowReceive()) {
-            if (wallet.getAddressAsync) {
+          let receiveAddress;
+          if (wallet.getAddressAsync) {
+            if (wallet.chain === Chain.ONCHAIN) {
+              try {
+                receiveAddress = await wallet.getAddressAsync();
+              } catch (_) {}
+              if (!receiveAddress) {
+                // either sleep expired or getAddressAsync threw an exception
+                receiveAddress = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
+              }
+            } else if (wallet.chain === Chain.OFFCHAIN) {
               try {
                 await wallet.getAddressAsync();
                 receiveAddress = wallet.getAddress();
-              } catch (error) {
-                console.log(error);
+              } catch (_) {}
+              if (!receiveAddress) {
+                // either sleep expired or getAddressAsync threw an exception
                 receiveAddress = wallet.getAddress();
               }
-            } else {
-              receiveAddress = wallet.getAddress();
             }
           }
           const transactions = wallet.getTransactions(10);
