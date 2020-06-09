@@ -2385,17 +2385,11 @@ export class BlueBitcoinAmount extends Component {
     return (
       <TouchableWithoutFeedback disabled={this.props.pointerEvents === 'none'} onPress={() => this.textInput.focus()}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        {!this.props.disabled && (
-         <View style={{ alignSelf: 'center', marginLeft: 16, padding: 15 }}>
-            </View>
-            )}
+          {!this.props.disabled && <View style={{ alignSelf: 'center', marginLeft: 16, padding: 15 }} />}
           <View style={{ flex: 1 }}>
-          
-
-            <View style={{ flexDirection: 'row', alignContent: 'space-between', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}>
-              
-           
-
+            <View
+              style={{ flexDirection: 'row', alignContent: 'space-between', justifyContent: 'center', paddingTop: 16, paddingBottom: 2 }}
+            >
               {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && (
                 <Text
                   style={{
@@ -2490,7 +2484,7 @@ export class BlueBitcoinAmount extends Component {
                 </Text>
               )}
             </View>
-            <View style={{ alignItems: 'center', marginBottom: 22, }}>
+            <View style={{ alignItems: 'center', marginBottom: 22 }}>
               <Text style={{ fontSize: 16, color: '#9BA0A9', fontWeight: '600' }}>
                 {this.state.unit === BitcoinUnit.LOCAL_CURRENCY && amount !== BitcoinUnit.MAX
                   ? loc.removeTrailingZeros(secondaryDisplayCurrency)
@@ -2500,7 +2494,10 @@ export class BlueBitcoinAmount extends Component {
             </View>
           </View>
           {!this.props.disabled && (
-            <TouchableOpacity style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }} onPress={this.changeAmountUnit}>
+            <TouchableOpacity
+              style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }}
+              onPress={this.changeAmountUnit}
+            >
               <Image source={require('./img/round-compare-arrows-24-px.png')} />
             </TouchableOpacity>
           )}
