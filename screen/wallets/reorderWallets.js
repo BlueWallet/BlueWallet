@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, Image, Text, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, Image, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -77,21 +77,24 @@ export default class ReorderWallets extends Component {
     gestureEnabled: false,
   });
 
+  sortableList = React.createRef();
+
   constructor(props) {
     super(props);
     this.state = {
       isLoading: true,
       data: [],
       hasMovedARow: false,
+      scrollEnabled: true,
     };
   }
 
   componentDidMount() {
     this.props.navigation.setParams({
       customCloseButtonFunction: async () => {
-        if (this.sortableList.state.data.length === this.state.data.length && this.state.hasMovedARow) {
+        if (this.sortableList.current.state.data.length === this.state.data.length && this.state.hasMovedARow) {
           const newWalletsOrderArray = [];
-          this.sortableList.state.order.forEach(element => {
+          this.sortableList.current.state.order.forEach(element => {
             newWalletsOrderArray.push(this.state.data[element]);
           });
           BlueApp.wallets = newWalletsOrderArray;
@@ -159,22 +162,27 @@ export default class ReorderWallets extends Component {
 
     return (
       <SafeBlueArea>
-        <SortableList
-          ref={ref => (this.sortableList = ref)}
-          style={styles.root}
-          data={this.state.data}
-          renderRow={this._renderItem}
-          onChangeOrder={() => {
-            ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
-            this.setState({ hasMovedARow: true });
-          }}
-          onActivateRow={() => {
-            ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
-          }}
-          onReleaseRow={() => {
-            ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
-          }}
-        />
+        <ScrollView scrollEnabled={this.state.scrollEnabled}>
+          <SortableList
+            ref={this.sortableList}
+            style={styles.root}
+            data={this.state.data}
+            renderRow={this._renderItem}
+            scrollEnabled={false}
+            onChangeOrder={() => {
+              ReactNativeHapticFeedback.trigger('impactMedium', { ignoreAndroidSystemSettings: false });
+              this.setState({ hasMovedARow: true });
+            }}
+            onActivateRow={() => {
+              ReactNativeHapticFeedback.trigger('selection', { ignoreAndroidSystemSettings: false });
+              this.setState({ scrollEnabled: false });
+            }}
+            onReleaseRow={() => {
+              ReactNativeHapticFeedback.trigger('impactLight', { ignoreAndroidSystemSettings: false });
+              this.setState({ scrollEnabled: true });
+            }}
+          />
+        </ScrollView>
       </SafeBlueArea>
     );
   }
