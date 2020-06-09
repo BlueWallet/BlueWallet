@@ -109,6 +109,7 @@ export interface Filters {
   isFilteringOn: boolean;
   dateKey?: number;
   isCalendarVisible?: boolean;
+  address?: string;
   fromDate?: string;
   toDate?: string;
   fromAmount?: number;

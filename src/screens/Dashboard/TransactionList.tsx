@@ -5,7 +5,7 @@ import { SectionList, SectionListData, StyleSheet, Text, View } from 'react-nati
 import { images } from 'app/assets';
 import { Image, TransactionItem } from 'app/components';
 import { Route, Transaction, Filters } from 'app/consts';
-import { filterTransaction } from 'app/helpers/filters';
+import { filterTransaction, filterBySearch } from 'app/helpers/filters';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
@@ -53,7 +53,8 @@ export class TransactionList extends Component<Props, State> {
       })
       .sort((a: any, b: any) => b.time - a.time);
 
-    const filteredBySearch = props.search ? filterBySearch(dataToGroup, props.search.toLowerCase()) : dataToGroup;
+    const filteredBySearch = props.search ? filterBySearch(dataToGroup, props.search) : dataToGroup;
+
     const uniqueValues = [...new Set(filteredBySearch.map((item: any) => item.day))].sort(
       (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime(),
     );
@@ -90,13 +91,12 @@ export class TransactionList extends Component<Props, State> {
   };
 
   render() {
-    const { transactions } = this.state;
-    const { headerHeight, search } = this.props;
+    console.log('this.props.filters.isFilteringOn', this.props.filters.isFilteringOn);
     return (
       <View style={{ padding: 20 }}>
         <SectionList
-          ListFooterComponent={search ? <View style={{ height: transactions.length ? headerHeight / 2 : 0 }} /> : null}
-          sections={transactions}
+          ListFooterComponent={this.props.search ? <View style={styles.footer} /> : null}
+          sections={this.state.transactions}
           keyExtractor={(item, index) => `${item.txid}-${index}`}
           renderItem={item => <TransactionItem item={item.item} onPress={this.onTransactionItemPress} />}
           renderSectionHeader={this.renderSectionTitle}
@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
   noTransactionsContainer: {
     alignItems: 'center',
   },
+  footer: { height: 500 },
   noTransactionsImage: { height: 167, width: 167, marginVertical: 30 },
   noTransactionsLabel: {
     ...typography.caption,

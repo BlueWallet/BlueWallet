@@ -64,6 +64,26 @@ const fileterByToAmount = (transactions: Transaction[], toAmount: number) => {
   );
 };
 
+export const filterBySearch = (transactions: Transaction[], search: string) => {
+  return transactions.filter(transaction => {
+    const inputs: string[] = [];
+    const outputs: string[] = [];
+    transaction.inputs.filter(input => {
+      inputs.push(...input.addresses);
+    });
+    transaction.outputs.filter(output => {
+      outputs.push(...output.addresses);
+    });
+    return (
+      transaction.note?.includes(search) ||
+      inputs.map(input => input.includes(search)).includes(true) ||
+      outputs.map(output => output.includes(search)).includes(true) ||
+      i18n.formatBalanceWithoutSuffix(Math.abs(Number(transaction.value)), transaction.walletPreferredBalanceUnit) ===
+        search
+    );
+  });
+};
+
 export const filterTransaction = (transactions: Transaction[], filters: any) => {
   const filteredByType = filterByTransactionType(transactions, filters.transactionType);
   const filteredbyAddress = filters.address
