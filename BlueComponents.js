@@ -2066,8 +2066,9 @@ export class BlueAddressInput extends Component {
           }}
           placeholder={this.props.placeholder}
           numberOfLines={1}
+          placeholderTextColor="#81868e"
           value={this.props.address}
-          style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+          style={{ flex: 1, marginHorizontal: 8, minHeight: 33, color: '#81868e' }}
           editable={!this.props.isLoading}
           onSubmitEditing={Keyboard.dismiss}
           {...this.props}
