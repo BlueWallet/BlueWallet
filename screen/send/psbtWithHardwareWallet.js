@@ -8,14 +8,14 @@ import {
   Dimensions,
   Image,
   TextInput,
-  Clipboard,
   Linking,
   Platform,
+  Text,
   PermissionsAndroid,
   StyleSheet,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { Text } from 'react-native-elements';
+import Clipboard from '@react-native-community/clipboard';
 import {
   BlueButton,
   BlueText,

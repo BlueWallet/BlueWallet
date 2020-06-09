@@ -6,7 +6,6 @@ import {
   ScrollView,
   Linking,
   TouchableOpacity,
-  Clipboard,
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
@@ -15,6 +14,7 @@ import {
   Platform,
   PermissionsAndroid,
 } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
