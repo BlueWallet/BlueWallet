@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import RNFS from 'react-native-fs';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import DefaultPreference from 'react-native-default-preference';
+import { Platform } from 'react-native';
 
 export default class WalletMigrate {
   static expoDataDirectory = RNFS.DocumentDirectoryPath + '/ExponentExperienceData/%40overtorment%2Fbluewallet/RCTAsyncLocalStorage';
@@ -13,23 +14,25 @@ export default class WalletMigrate {
 
   // 0: Let's start!
   async start() {
-    const isNotFirstLaunch = await DefaultPreference.get('RnSksIsAppInstalled');
-    if (!isNotFirstLaunch) {
-      try {
-        console.warn('It is the first launch...');
-        await RNSecureKeyStore.setResetOnAppUninstallTo(false);
-        const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-        console.log('----- deleteWalletsFromKeychain');
-        console.log(deleteWalletsFromKeychain);
-        console.log('----- ');
-        await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
-        await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
-        await DefaultPreference.set('RnSksIsAppInstalled', '1');
-      } catch (e) {
-        console.log(e);
+    if (Platform.OS === 'ios') {
+      const isNotFirstLaunch = await DefaultPreference.get('RnSksIsAppInstalled');
+      if (!isNotFirstLaunch) {
+        try {
+          console.warn('It is the first launch...');
+          await RNSecureKeyStore.setResetOnAppUninstallTo(false);
+          const deleteWalletsFromKeychain = await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          console.log('----- deleteWalletsFromKeychain');
+          console.log(deleteWalletsFromKeychain);
+          console.log('----- ');
+          await RNSecureKeyStore.setResetOnAppUninstallTo(deleteWalletsFromKeychain === '1');
+          await RNSecureKeyStore.get(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+          await DefaultPreference.set('RnSksIsAppInstalled', '1');
+        } catch (e) {
+          console.log(e);
+        }
       }
+      await DefaultPreference.set('RnSksIsAppInstalled', '1');
     }
-    await DefaultPreference.set('RnSksIsAppInstalled', '1');
     return this.migrateDataFromExpo();
   }
 
