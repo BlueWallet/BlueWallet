@@ -70,6 +70,7 @@
     "@sentry/react-native": "1.3.9",
     "amplitude-js": "5.11.0",
     "assert": "1.5.0",
+    "bc-ur": "^0.1.6",
     "bech32": "1.1.3",
     "bignumber.js": "9.0.0",
     "bip21": "2.0.2",

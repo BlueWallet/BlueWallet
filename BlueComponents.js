@@ -34,6 +34,8 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+import {encodeUR} from "bc-ur/dist";
+import QRCode from "react-native-qrcode-svg";
 const loc = require('./loc/');
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
@@ -2532,3 +2534,91 @@ export function BlueBigCheckmark({ style }) {
     </View>
   );
 }
+
+export class DynamicQRCode extends Component{
+  state = {
+    index: 0,
+    total: 0,
+    qrCodeHeight: height > width ? width - 40 : width / 3,
+  }
+
+  fragments = [];
+
+  componentDidMount() {
+    const {value, capacity = 800} = this.props;
+    this.fragments = encodeUR(value, capacity);
+    this.setState({
+      total: this.fragments.length
+    })
+  }
+
+  moveToNextFragment = () => {
+    const {index, total} = this.state;
+    if(index === total -1){
+      this.setState({
+        index: 0
+      })
+    }else{
+      this.setState(state=>({
+        index: state.index+1,
+      }))
+    }
+  }
+
+  moveToPreviousFragment = () => {
+    const {index, total} = this.state;
+    if(index > 0){
+      this.setState(state => ({
+        index: state.index-1
+      }))
+    }else{
+      this.setState(state => ({
+        index: total - 1
+      }))
+    }
+  }
+
+  render(){
+    const currentFragment = this.fragments[this.state.index];
+    return currentFragment ? <View style={dynamicQRCodeStyle.container}>
+      <BlueSpacing20 />
+      <QRCode
+          value={currentFragment.toUpperCase()}
+          size={this.state.qrCodeHeight}
+          color={BlueApp.settings.foregroundColor}
+          logoBackgroundColor={BlueApp.settings.brandingColor}
+          ecl="L"
+      />
+      <View>
+        <Text>{this.state.index + 1} of {this.state.total}</Text>
+      </View>
+      <BlueSpacing20 />
+      <BlueButton
+          onPress={this.moveToPreviousFragment}
+          title="Previous"
+      />
+      <BlueSpacing20 />
+      <BlueButton
+          onPress={this.moveToNextFragment}
+          title="Next"
+      />
+      <BlueSpacing20 />
+      <BlueButton
+          onPress={this.props.onDone}
+          title="Done"
+      />
+    </View>
+    :
+    <View>
+      <Text>Initialing</Text>
+    </View>
+  }
+}
+
+const dynamicQRCodeStyle = StyleSheet.create({
+  container: {
+    flex:1,
+    flexDirection: 'column',
+    alignItems: 'center',
+  }
+})

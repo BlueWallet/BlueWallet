@@ -144,6 +144,11 @@ export class AbstractWallet {
         this.secret = parsedSecret.keystore.xpub;
         this.masterFingerprint = masterFingerprint;
       }
+      // It is a Cobo Vault Hardware Wallet
+      if (parsedSecret && parsedSecret.ExtPubKey && parsedSecret.MasterFingerprint) {
+        this.secret = parsedSecret.ExtPubKey;
+        this.masterFingerprint = parseInt(parsedSecret.MasterFingerprint, 16);
+      }
     } catch (_) {}
     return this;
   }

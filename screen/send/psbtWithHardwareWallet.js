@@ -24,7 +24,7 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
-  BlueBigCheckmark,
+  BlueBigCheckmark, DynamicQRCode,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Share from 'react-native-share';
@@ -149,6 +149,7 @@ export default class PsbtWithHardwareWallet extends Component {
     this.state = {
       isLoading: false,
       renderScanner: false,
+      dynamicQRCode: false,
       qrCodeHeight: height > width ? width - 40 : width / 3,
       memo: props.route.params.memo,
       psbt: props.route.params.psbt,
@@ -321,6 +322,12 @@ export default class PsbtWithHardwareWallet extends Component {
     }
   };
 
+  _renderDynamicQRCode = () => {
+    return <DynamicQRCode value={this.state.psbt.toHex()} capacity={200} onDone={() => this.setState(state=>({
+      dynamicQRCode: false,
+    }))} />
+  }
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -333,6 +340,7 @@ export default class PsbtWithHardwareWallet extends Component {
     if (this.state.success) return this._renderSuccess();
     if (this.state.renderScanner) return this._renderScanner();
     if (this.state.txhex) return this._renderBroadcastHex();
+    if (this.state.dynamicQRCode) return this._renderDynamicQRCode();
 
     return (
       <SafeBlueArea style={styles.root}>
@@ -349,6 +357,11 @@ export default class PsbtWithHardwareWallet extends Component {
                 color={BlueApp.settings.foregroundColor}
                 logoBackgroundColor={BlueApp.settings.brandingColor}
                 ecl="L"
+              />
+              <BlueSpacing20 />
+              <BlueButton
+                  onPress={() => this.setState({ dynamicQRCode: true })}
+                  title="Dynamic QR Code"
               />
               <BlueSpacing20 />
               <BlueButton
