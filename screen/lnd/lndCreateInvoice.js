@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
-    color: "#81868e",
+    color: '#81868e',
   },
 });
 
