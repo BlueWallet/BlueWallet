@@ -32,7 +32,7 @@ export const AboutUsScreen = (props: NavigationScreenProps) => {
 
   const handleRateButtonPress = () => {
     const options = {
-      AppleAppID: '1376878040',
+      AppleAppID: '1515116464',
       GooglePackageName: 'io.goldwallet.wallet',
       preferredAndroidMarket: AndroidMarket.Google,
       preferInApp: true,
