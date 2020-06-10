@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
+    color: '#81868e',
   },
   hardware: {
     flexDirection: 'row',
@@ -252,6 +253,7 @@ export default class WalletDetails extends Component {
                       }
                     }}
                     numberOfLines={1}
+                    placeholderTextColor="#81868e"
                     style={styles.inputText}
                     editable={!this.state.isLoading}
                     underlineColorAndroid="transparent"

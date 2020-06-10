@@ -21,6 +21,7 @@ import Biometric from '../../class/biometrics';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../events');
 const loc = require('../../loc');
+const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
   walletSelectRoot: {
@@ -138,6 +139,7 @@ export default class ScanLndInvoice extends React.Component {
       this.state = {
         fromWallet,
         fromSecret,
+        unit: BitcoinUnit.SATS,
         destination: '',
       };
     }
@@ -174,6 +176,8 @@ export default class ScanLndInvoice extends React.Component {
         return {
           invoice: data,
           decoded,
+          unit: state.unit,
+          amount: decoded.num_satoshis,
           expiresIn,
           destination: data,
           isAmountInitiallyEmpty: decoded.num_satoshis === '0',
@@ -220,6 +224,19 @@ export default class ScanLndInvoice extends React.Component {
       }
     }
 
+    let amountSats = this.state.amount;
+    switch (this.state.unit) {
+      case BitcoinUnit.SATS:
+        amountSats = parseInt(amountSats); // nop
+        break;
+      case BitcoinUnit.BTC:
+        amountSats = currency.btcToSatoshi(amountSats);
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        amountSats = currency.btcToSatoshi(currency.fiatToBTC(amountSats));
+        break;
+    }
+
     this.setState(
       {
         isLoading: true,
@@ -245,7 +262,7 @@ export default class ScanLndInvoice extends React.Component {
         }
 
         try {
-          await fromWallet.payInvoice(this.state.invoice, this.state.decoded.num_satoshis);
+          await fromWallet.payInvoice(this.state.invoice, amountSats);
         } catch (Err) {
           console.log(Err.message);
           this.setState({ isLoading: false });
@@ -255,7 +272,7 @@ export default class ScanLndInvoice extends React.Component {
 
         EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
         this.props.navigation.navigate('Success', {
-          amount: this.state.decoded.num_satoshis,
+          amount: amountSats,
           amountUnit: BitcoinUnit.SATS,
           invoiceDescription: this.state.decoded.description,
         });
@@ -275,11 +292,12 @@ export default class ScanLndInvoice extends React.Component {
     if (typeof this.state.decoded !== 'object') {
       return true;
     } else {
-      if (!this.state.decoded.num_satoshis) {
+      if (!this.state.amount) {
         return true;
       }
     }
-    return this.state.decoded.num_satoshis <= 0 || this.state.isLoading || isNaN(this.state.decoded.num_satoshis);
+    return !(this.state.amount > 0);
+    // return this.state.decoded.num_satoshis <= 0 || this.state.isLoading || isNaN(this.state.decoded.num_satoshis);
   };
 
   renderWalletSelectionButton = () => {
@@ -327,6 +345,10 @@ export default class ScanLndInvoice extends React.Component {
     });
   };
 
+  async componentDidMount() {
+    console.log('scanLndInvoice did mount');
+  }
+
   render() {
     if (!this.state.fromWallet) {
       return <BlueLoading />;
@@ -340,16 +362,25 @@ export default class ScanLndInvoice extends React.Component {
                 <BlueBitcoinAmount
                   pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
                   isLoading={this.state.isLoading}
-                  amount={typeof this.state.decoded === 'object' ? this.state.decoded.num_satoshis : 0}
+                  amount={this.state.amount}
+                  onAmountUnitChange={unit => {
+                    this.setState({ unit });
+                  }}
                   onChangeText={text => {
-                    if (typeof this.state.decoded === 'object') {
+                    this.setState({ amount: text });
+
+                    /* if (typeof this.state.decoded === 'object') {
                       text = parseInt(text || 0);
                       const decoded = this.state.decoded;
                       decoded.num_satoshis = text;
                       this.setState({ decoded: decoded });
-                    }
+                    } */
                   }}
-                  disabled={typeof this.state.decoded !== 'object' || this.state.isLoading}
+                  disabled={
+                    typeof this.state.decoded !== 'object' ||
+                    this.state.isLoading ||
+                    (this.state.decoded && this.state.decoded.num_satoshis > 0)
+                  }
                   unit={BitcoinUnit.SATS}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
