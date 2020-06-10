@@ -39,7 +39,7 @@ export class AbstractHDWallet extends LegacyWallet {
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     this._address = [];
-    await this.generateAddresses();
+    this.generateAddresses();
     return this;
   }
 

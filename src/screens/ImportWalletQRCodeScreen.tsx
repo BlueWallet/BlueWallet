@@ -147,45 +147,93 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
       this.setState({ isLoading: false });
       return;
     }
-    // nope
+    this.setState({ isLoading: true }, async () => {
+      // make sure it re-renders
+      await sleep(100);
+      try {
+        // trying other wallet types
+        const segwitWallet = new SegwitP2SHWallet();
+        segwitWallet.setSecret(text);
+        if (segwitWallet.getAddress()) {
+          // ok its a valid WIF
 
-    // is it HD BIP84 mnemonic?
-    let hd;
-    hd = new HDSegwitBech32Wallet();
-    hd.setSecret(event.data);
-    if (hd.validateMnemonic()) {
-      for (const w of BlueApp.wallets) {
-        if (w.getSecret() === hd.getSecret()) {
-          // lookig for duplicates
-          this.setState({ isLoading: false });
-          return Alert.alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
+          const legacyWallet = new LegacyWallet();
+          legacyWallet.setSecret(text);
+
+          await legacyWallet.fetchBalance();
+          if (legacyWallet.getBalance() > 0) {
+            // yep, its legacy we're importing
+            await legacyWallet.fetchTransactions();
+            return this.saveWallet(legacyWallet);
+          } else {
+            // by default, we import wif as Segwit P2SH
+            await segwitWallet.fetchBalance();
+            await segwitWallet.fetchTransactions();
+            return this.saveWallet(segwitWallet);
+          }
         }
-      }
-      this.setState({ isLoading: true });
-      hd.setLabel(loc.wallets.import.imported + ' ' + hd.typeReadable);
-      await hd.fetchBalance();
-      if (hd.getBalance() !== 0) {
-        await hd.fetchTransactions();
-        BlueApp.wallets.push(hd);
-        await BlueApp.saveToDisk();
-        Alert.alert(loc.wallets.import.success);
-        this.props.navigation.popToTop();
-        setTimeout(() => EV(EV.enum.WALLETS_COUNT_CHANGED), 500);
-        this.setState({ isLoading: false });
-        return;
-      }
-    }
-    // nope
 
-    // is it HD legacy (BIP44) mnemonic?
-    hd = new HDLegacyP2PKHWallet();
-    hd.setSecret(event.data);
-    if (hd.validateMnemonic()) {
-      for (const w of BlueApp.wallets) {
-        if (w.getSecret() === hd.getSecret()) {
-          // lookig for duplicates
-          this.setState({ isLoading: false });
-          return Alert.alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
+        // case - WIF is valid, just has uncompressed pubkey
+
+        const legacyWallet = new LegacyWallet();
+        legacyWallet.setSecret(text);
+        if (legacyWallet.getAddress()) {
+          await legacyWallet.fetchBalance();
+          await legacyWallet.fetchTransactions();
+          return this.saveWallet(legacyWallet);
+        }
+
+        // if we're here - nope, its not a valid WIF
+
+        const hd2 = new HDSegwitP2SHWallet();
+        hd2.setSecret(text);
+        if (hd2.validateMnemonic()) {
+          await hd2.fetchBalance();
+          if (hd2.getBalance() > 0) {
+            await hd2.fetchTransactions();
+            return this.saveWallet(hd2);
+          }
+        }
+
+        const hd4 = new HDSegwitBech32Wallet();
+        hd4.setSecret(text);
+        if (hd4.validateMnemonic()) {
+          await hd4.fetchBalance();
+          if (hd4.getBalance() > 0) {
+            await hd4.fetchTransactions();
+            return this.saveWallet(hd4);
+          }
+        }
+
+        const hd3 = new HDLegacyP2PKHWallet();
+        hd3.setSecret(text);
+        if (hd3.validateMnemonic()) {
+          await hd3.fetchBalance();
+          if (hd3.getBalance() > 0) {
+            await hd3.fetchTransactions();
+            return this.saveWallet(hd3);
+          }
+        }
+
+        // no balances? how about transactions count?
+
+        if (hd2.validateMnemonic()) {
+          await hd2.fetchTransactions();
+          if (hd2.getTransactions().length !== 0) {
+            return this.saveWallet(hd2);
+          }
+        }
+        if (hd3.validateMnemonic()) {
+          await hd3.fetchTransactions();
+          if (hd3.getTransactions().length !== 0) {
+            return this.saveWallet(hd3);
+          }
+        }
+        if (hd4.validateMnemonic()) {
+          await hd4.fetchTransactions();
+          if (hd4.getTransactions().length !== 0) {
+            return this.saveWallet(hd4);
+          }
         }
       }
       await hd.fetchTransactions();
