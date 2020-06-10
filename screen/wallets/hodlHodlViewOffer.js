@@ -70,6 +70,34 @@ export default class HodlHodlViewOffer extends Component {
   }
 
   async _onAcceptOfferPress(offer) {
+    const myself = await this.state.hodlApi.getMyself();
+    if (!myself.encrypted_seed || myself.encrypted_seed.length < 10) {
+      const buttons = [
+        {
+          text: 'Yes',
+          onPress: async a => {
+            const sigKey = await BlueApp.getHodlHodlSignatureKey();
+            if (!sigKey) {
+              alert('Error: signature key not set'); // should never happen
+              return;
+            }
+
+            const autologinKey = await this.state.hodlApi.requestAutologinToken(sigKey);
+            const uri = 'https://hodlhodl.com/dashboards/settings?sign_in_token=' + autologinKey;
+            NavigationService.navigate('HodlHodlWebview', { uri });
+          },
+        },
+        {
+          text: 'Cancel',
+          onPress: async a => {},
+        },
+      ];
+      Alert.alert('HodlHodl', `Looks like you didn't finish setting up account on HodlHodl, would you like to finish setup now?`, buttons, {
+        cancelable: true,
+      });
+      return;
+    }
+
     let fiatValue;
     try {
       fiatValue = await prompt('How much ' + offer.currency_code + ' do you want to buy?', 'For example 100', true, 'numeric');
@@ -169,7 +197,7 @@ export default class HodlHodlViewOffer extends Component {
                 </View>
                 <View style={styles.traderWrapper}>
                   <View style={styles.flexDirRow}>
-                    {this.state.offerToDisplay.trader.verified && (
+                    {this.state.offerToDisplay.trader.strong_hodler && (
                       <Icon name="verified-user" type="material" size={14} color="#0071fc" containerStyle={styles.verifiedIcon} />
                     )}
                     <Text style={styles.nicknameText}>{this.state.offerToDisplay.trader.login}</Text>
@@ -187,7 +215,7 @@ export default class HodlHodlViewOffer extends Component {
               </View>
               {/* end */}
 
-              {this.state.hodlApiKey && this.state.offerToDisplay.side === 'sell' && (
+              {this.state.hodlApiKey && this.state.offerToDisplay.side === 'sell' ? (
                 <View style={styles.acceptOfferButtonWrapperWrapper}>
                   <View style={styles.acceptOfferButtonWrapper}>
                     <BlueSpacing10 />
@@ -199,6 +227,8 @@ export default class HodlHodlViewOffer extends Component {
                     />
                   </View>
                 </View>
+              ) : (
+                <View />
               )}
             </View>
           </KeyboardAvoidingView>

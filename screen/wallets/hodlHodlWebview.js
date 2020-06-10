@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 export default class HodlHodlWebview extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
-    title: 'HodlHodl Contract',
+    title: '',
     headerLeft: null,
   });
 

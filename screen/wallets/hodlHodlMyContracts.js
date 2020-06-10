@@ -210,20 +210,28 @@ export default class HodlHodlMyContracts extends Component {
             </View>
             <BlueSpacing20 />
 
-            <Text style={styles.subheaderText}>How to pay</Text>
-            <View style={styles.modalContentCentered}>
-              <View style={styles.statusGrayWrapper2}>
-                <Text style={styles.statusGrayText2}>{this.state.contractToDisplay.payment_method_instruction.details}</Text>
+            {this.isAllowedToMarkContractAsPaid() ? (
+              <View>
+                <Text style={styles.subheaderText}>How to pay</Text>
+                <View style={styles.modalContentCentered}>
+                  <View style={styles.statusGrayWrapper2}>
+                    <Text style={styles.statusGrayText2}>{this.state.contractToDisplay.payment_method_instruction.details}</Text>
+                  </View>
+                </View>
               </View>
-            </View>
+            ) : (
+              <View />
+            )}
 
             <BlueSpacing20 />
 
-            {this.state.contractToDisplay.status === 'in_progress' && this.state.contractToDisplay.your_role === 'buyer' && (
+            {this.isAllowedToMarkContractAsPaid() ? (
               <View>
                 <BlueButton title="Mark contract as Paid" onPress={() => this._onMarkContractAsPaid()} />
                 <BlueSpacing20 />
               </View>
+            ) : (
+              <View />
             )}
 
             <BlueSpacing20 />
@@ -323,6 +331,10 @@ export default class HodlHodlMyContracts extends Component {
       { cancelable: true },
     );
   }
+
+  isAllowedToMarkContractAsPaid() {
+    return this.state.contractToDisplay.status === 'in_progress' && this.state.contractToDisplay.your_role === 'buyer';
+  }
 }
 
 const styles = StyleSheet.create({
@@ -336,8 +348,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 400,
-    height: 400,
+    minHeight: 425,
   },
   modalContentCentered: {
     justifyContent: 'center',

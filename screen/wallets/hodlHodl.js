@@ -745,9 +745,16 @@ export default class HodlHodl extends Component {
                 )}
               </View>
               <View style={styles.paddingLeft10}>
-                <Text style={styles.nicknameText}>{item.trader.login}</Text>
+                <View style={styles.flexRow}>
+                  {item.trader.strong_hodler && (
+                    <Icon name="verified-user" type="material" size={14} color="#0071fc" containerStyle={styles.verifiedIcon} />
+                  )}
+                  <Text style={styles.nicknameText}>{item.trader.login}</Text>
+                </View>
                 <Text style={styles.traderRatingText2}>
-                  {item.trader.trades_count > 0 ? Math.round(item.trader.rating * 100) + '%' : 'No rating'}
+                  {item.trader.trades_count > 0
+                    ? Math.round(item.trader.rating * 100) + '% / ' + item.trader.trades_count + ' trades'
+                    : 'No rating'}
                 </Text>
               </View>
             </View>
@@ -1013,4 +1020,5 @@ const styles = StyleSheet.create({
   avatarWrapper: { backgroundColor: 'white', flex: 1, flexDirection: 'row' },
   avatarWrapperWrapper: { backgroundColor: 'white', paddingTop: 16, paddingBottom: 16 },
   headerWrapper: { marginHorizontal: 20, marginBottom: 8 },
+  verifiedIcon: { marginTop: 5, marginRight: 5 },
 });
