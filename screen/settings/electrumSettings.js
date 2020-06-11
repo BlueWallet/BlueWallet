@@ -109,7 +109,7 @@ export default class ElectrumSettings extends Component {
       this.setState({
         config: await BlueElectrum.getConfig(),
       });
-    }, 1000);
+    }, 500);
 
     this.setState({
       config: await BlueElectrum.getConfig(),
@@ -145,7 +145,9 @@ export default class ElectrumSettings extends Component {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
           alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
         }
-      } catch (_) {}
+      } catch (error) {
+        alert(error);
+      }
       this.setState({ isLoading: false });
     });
   };
