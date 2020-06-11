@@ -2026,7 +2026,7 @@ export class WalletsCarousel extends Component {
           itemWidth={itemWidth}
           inactiveSlideScale={1}
           inactiveSlideOpacity={0.7}
-          initialNumToRender={20}
+          initialNumToRender={4}
           onLayout={this.onLayout}
           contentContainerCustomStyle={{ left: -20 }}
         />
