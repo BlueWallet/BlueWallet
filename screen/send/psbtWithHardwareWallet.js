@@ -24,7 +24,8 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
-  BlueBigCheckmark, DynamicQRCode,
+  BlueBigCheckmark,
+  DynamicQRCode,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Share from 'react-native-share';
@@ -32,6 +33,8 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
+import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
+import { Psbt } from 'bitcoinjs-lib';
 const loc = require('../../loc');
 const EV = require('../../events');
 const BlueElectrum = require('../../BlueElectrum');
@@ -122,9 +125,59 @@ export default class PsbtWithHardwareWallet extends Component {
 
   cameraRef = null;
 
+  _onReadUniformResource = ur => {
+    const [index, total] = extractSingleWorkload(ur);
+    const { animatedQRCodeData } = this.state;
+    if (animatedQRCodeData.length > 0) {
+      const currentTotal = animatedQRCodeData[0].total;
+      if (total !== currentTotal) {
+        alert('invalid dynamic QRCode');
+        this.setState({ renderScanner: false });
+      }
+    }
+    if (!animatedQRCodeData.find(i => i.index === index)) {
+      this.setState(
+        state => ({
+          animatedQRCodeData: [
+            ...state.animatedQRCodeData,
+            {
+              index,
+              total,
+              data: ur,
+            },
+          ],
+        }),
+        () => {
+          if (this.state.animatedQRCodeData.length === total) {
+            this.setState(
+              {
+                renderScanner: false,
+              },
+              () => {
+                const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
+                const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
+                const psbt = Psbt.fromBase64(psbtB64);
+                this.setState({ txhex: psbt.extractTransaction().toHex() });
+              },
+            );
+          }
+        },
+      );
+    }
+  };
+
+  _combinePSBT = receivedPSBT => {
+    return this.state.fromWallet.combinePsbt(
+      this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
+      receivedPSBT,
+    );
+  };
+
   onBarCodeRead = ret => {
     if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
-
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      return this._onReadUniformResource(ret.data);
+    }
     if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
       // this looks like NOT base64, so maybe its transaction's hex
       this.setState({ renderScanner: false, txhex: ret.data });
@@ -133,10 +186,7 @@ export default class PsbtWithHardwareWallet extends Component {
 
     this.setState({ renderScanner: false }, () => {
       try {
-        const Tx = this.state.fromWallet.combinePsbt(
-          this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
-          ret.data,
-        );
+        const Tx = this._combinePSBT(ret.data);
         this.setState({ txhex: Tx.toHex() });
       } catch (Err) {
         alert(Err);
@@ -149,7 +199,7 @@ export default class PsbtWithHardwareWallet extends Component {
     this.state = {
       isLoading: false,
       renderScanner: false,
-      dynamicQRCode: false,
+      showAnimatedQRCode: false,
       qrCodeHeight: height > width ? width - 40 : width / 3,
       memo: props.route.params.memo,
       psbt: props.route.params.psbt,
@@ -158,6 +208,7 @@ export default class PsbtWithHardwareWallet extends Component {
       isSecondPSBTAlreadyBase64: false,
       deepLinkPSBT: undefined,
       txhex: props.route.params.txhex || undefined,
+      animatedQRCodeData: [],
     };
     this.fileName = `${Date.now()}.psbt`;
   }
@@ -323,10 +374,18 @@ export default class PsbtWithHardwareWallet extends Component {
   };
 
   _renderDynamicQRCode = () => {
-    return <DynamicQRCode value={this.state.psbt.toHex()} capacity={200} onDone={() => this.setState(state=>({
-      dynamicQRCode: false,
-    }))} />
-  }
+    return (
+      <DynamicQRCode
+        value={this.state.psbt.toHex()}
+        capacity={200}
+        onDone={() =>
+          this.setState(state => ({
+            showAnimatedQRCode: false,
+          }))
+        }
+      />
+    );
+  };
 
   render() {
     if (this.state.isLoading) {
@@ -340,7 +399,7 @@ export default class PsbtWithHardwareWallet extends Component {
     if (this.state.success) return this._renderSuccess();
     if (this.state.renderScanner) return this._renderScanner();
     if (this.state.txhex) return this._renderBroadcastHex();
-    if (this.state.dynamicQRCode) return this._renderDynamicQRCode();
+    if (this.state.showAnimatedQRCode) return this._renderDynamicQRCode();
 
     return (
       <SafeBlueArea style={styles.root}>
@@ -359,10 +418,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 ecl="L"
               />
               <BlueSpacing20 />
-              <BlueButton
-                  onPress={() => this.setState({ dynamicQRCode: true })}
-                  title="Dynamic QR Code"
-              />
+              <BlueButton onPress={() => this.setState({ showAnimatedQRCode: true })} title="Animated QR Code" />
               <BlueSpacing20 />
               <BlueButton
                 icon={{
@@ -370,7 +426,7 @@ export default class PsbtWithHardwareWallet extends Component {
                   type: 'font-awesome',
                   color: BlueApp.settings.buttonTextColor,
                 }}
-                onPress={() => this.setState({ renderScanner: true })}
+                onPress={() => this.setState({ renderScanner: true, animatedQRCodeData: [] })}
                 title="Scan Signed Transaction"
               />
               <BlueSpacing20 />
