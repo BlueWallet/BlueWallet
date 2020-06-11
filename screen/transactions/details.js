@@ -1,5 +1,6 @@
+/* global alert */
 import React, { Component } from 'react';
-import { View, ScrollView, TouchableOpacity, Linking, StyleSheet } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet } from 'react-native';
 import {
   SafeBlueArea,
   BlueCard,
@@ -52,6 +53,15 @@ const styles = StyleSheet.create({
     marginBottom: 26,
     color: '#2f5fb3',
   },
+  save: {
+    marginHorizontal: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  memoTextInput: {
+    fontSize: 24,
+    color: '#2f5fb3',
+  },
 });
 
 function onlyUnique(value, index, self) {
@@ -69,8 +79,14 @@ function arrDiff(a1, a2) {
 }
 
 export default class TransactionsDetails extends Component {
-  static navigationOptions = () => ({
+  static navigationOptions = ({ navigation, route }) => ({
     ...BlueNavigationStyle(),
+    title: '',
+    headerRight: () => (
+      <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
+        <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
+      </TouchableOpacity>
+    ),
   });
 
   constructor(props) {
@@ -101,6 +117,12 @@ export default class TransactionsDetails extends Component {
         }
       }
     }
+    let memo = '';
+    if (BlueApp.tx_metadata[foundTx.hash]) {
+      if (BlueApp.tx_metadata[foundTx.hash].memo) {
+        memo = BlueApp.tx_metadata[foundTx.hash].memo;
+      }
+    }
     this.state = {
       isLoading: true,
       tx: foundTx,
@@ -108,7 +130,9 @@ export default class TransactionsDetails extends Component {
       to,
       wallet,
       isHandOffUseEnabled: false,
+      memo,
     };
+    props.navigation.setParams({ handleOnSaveButtonTapped: this.handleOnSaveButtonTapped });
   }
 
   async componentDidMount() {
@@ -119,6 +143,15 @@ export default class TransactionsDetails extends Component {
       isHandOffUseEnabled,
     });
   }
+
+  handleOnSaveButtonTapped = () => {
+    BlueApp.tx_metadata[this.state.tx.hash] = { memo: this.state.memo };
+    BlueApp.saveToDisk().then(_success => alert('Transaction note has been successfully saved.'));
+  };
+
+  handleOnMemoChangeText = value => {
+    this.setState({ memo: value });
+  };
 
   render() {
     if (this.state.isLoading || !('tx' in this.state)) {
@@ -137,18 +170,16 @@ export default class TransactionsDetails extends Component {
         <BlueHeaderDefaultSub leftText={loc.transactions.details.title} rightComponent={null} />
         <ScrollView style={styles.scroll}>
           <BlueCard>
-            {(() => {
-              if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash].memo) {
-                  return (
-                    <View>
-                      <BlueText h4>{BlueApp.tx_metadata[this.state.tx.hash].memo}</BlueText>
-                      <BlueSpacing20 />
-                    </View>
-                  );
-                }
-              }
-            })()}
+            <View>
+              <TextInput
+                placeholder={loc.send.details.note_placeholder}
+                value={this.state.memo}
+                placeholderTextColor="#81868e"
+                style={styles.memoTextInput}
+                onChangeText={this.handleOnMemoChangeText}
+              />
+              <BlueSpacing20 />
+            </View>
 
             {'from' in this.state && (
               <>
@@ -239,5 +270,8 @@ TransactionsDetails.propTypes = {
     params: PropTypes.shape({
       hash: PropTypes.string,
     }),
+  }),
+  navigation: PropTypes.shape({
+    setParams: PropTypes.func,
   }),
 };
