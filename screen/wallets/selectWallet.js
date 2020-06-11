@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle, BlueText, BlueSpacing20, BluePrivateBalance } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
@@ -141,6 +141,7 @@ const SelectWallet = ({ navigation }) => {
   } else if (data.length <= 0) {
     return (
       <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="dark-content" />
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>There are currently no Bitcoin wallets available.</BlueText>
           <BlueSpacing20 />
@@ -151,6 +152,7 @@ const SelectWallet = ({ navigation }) => {
   } else {
     return (
       <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="dark-content" />
         <FlatList extraData={data} data={data} renderItem={renderItem} keyExtractor={(_item, index) => `${index}`} />
       </SafeBlueArea>
     );

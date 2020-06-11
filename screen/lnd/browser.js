@@ -1,5 +1,16 @@
 import React, { Component } from 'react';
-import { TouchableOpacity, ActivityIndicator, TextInput, Keyboard, BackHandler, View, Alert, Platform, StyleSheet } from 'react-native';
+import {
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  StatusBar,
+  Keyboard,
+  BackHandler,
+  View,
+  Alert,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -423,6 +434,7 @@ export default class Browser extends Component {
     return (
       <SafeBlueArea>
         <View style={styles.safeRoot}>
+          <StatusBar barStyle="light-content" />
           <TouchableOpacity
             disabled={!this.state.canGoBack}
             onPress={() => {

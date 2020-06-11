@@ -6,6 +6,7 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Keyboard,
+  StatusBar,
   TouchableWithoutFeedback,
   TouchableOpacity,
   Text,
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 33,
-    color: "#81868e",
+    color: '#81868e',
   },
 });
 
@@ -394,6 +395,7 @@ export default class LNDCreateInvoice extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root}>
+          <StatusBar barStyle="light-content" />
           <View style={styles.amount}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount

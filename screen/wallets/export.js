@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, ScrollView, ActivityIndicator, View, StyleSheet } from 'react-native';
+import { Dimensions, ScrollView, ActivityIndicator, StatusBar, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueCopyTextToClipboard, BlueCard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -96,6 +96,7 @@ export default class WalletExport extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="light-content" />
         <ScrollView contentContainerStyle={styles.scrollViewContent} onLayout={this.onLayout}>
           <View>
             <BlueText style={styles.type}>{this.state.wallet.typeReadable}</BlueText>
