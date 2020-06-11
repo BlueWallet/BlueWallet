@@ -478,7 +478,7 @@ export class AppStorage {
    * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
    * @return {Array}
    */
-  getTransactions(index, limit = Infinity) {
+  getTransactions(index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = true) {
     if (index || index === 0) {
       let txs = [];
       let c = 0;
@@ -492,11 +492,18 @@ export class AppStorage {
 
     let txs = [];
     for (const wallet of this.wallets) {
-      const walletTransactions = wallet.getTransactions();
-      for (const t of walletTransactions) {
-        t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
+      if (
+        includeWalletsWithHideTransactionsEnabled ||
+        (!includeWalletsWithHideTransactionsEnabled && !wallet.getHideTransactionsInWalletsList())
+      ) {
+        const walletTransactions = wallet.getTransactions();
+        for (const t of walletTransactions) {
+          t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
+        }
+        txs = txs.concat(walletTransactions);
+      } else {
+        continue;
       }
-      txs = txs.concat(walletTransactions);
     }
 
     for (const t of txs) {
