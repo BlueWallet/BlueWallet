@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
+import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate } from 'app/components';
@@ -28,7 +28,7 @@ interface Props extends NavigationInjectedProps {
   loadWallets: () => Promise<WalletsActionType>;
 }
 
-export const ImportWalletScreen: React.FunctionComponent<Props> = ({ loadWallets }: Props) => {
+export const ImportWalletScreen: React.FunctionComponent<Props> = (props: Props) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [text, setText] = useState('');
   const [validationError, setValidationError] = useState('');
@@ -87,7 +87,7 @@ export const ImportWalletScreen: React.FunctionComponent<Props> = ({ loadWallets
       newWallet.setLabel(i18n.wallets.import.imported + ' ' + newWallet.typeReadable);
       BlueApp.wallets.push(newWallet);
       await BlueApp.saveToDisk();
-      loadWallets();
+      props.loadWallets();
       showSuccessImportMessageScreen();
       // this.props.navigation.dismiss();
     }
@@ -130,7 +130,7 @@ export const ImportWalletScreen: React.FunctionComponent<Props> = ({ loadWallets
       // if we're here - nope, its not a valid WIF
 
       const hd2 = new HDSegwitP2SHWallet();
-      await hd2.setSecret(mnemonic);
+      hd2.setSecret(mnemonic);
       if (hd2.validateMnemonic()) {
         await hd2.fetchBalance();
         if (hd2.getBalance() > 0) {
@@ -140,7 +140,7 @@ export const ImportWalletScreen: React.FunctionComponent<Props> = ({ loadWallets
       }
 
       const hd4 = new HDSegwitBech32Wallet();
-      await hd4.setSecret(mnemonic);
+      hd4.setSecret(mnemonic);
       if (hd4.validateMnemonic()) {
         await hd4.fetchBalance();
         if (hd4.getBalance() > 0) {
@@ -150,7 +150,7 @@ export const ImportWalletScreen: React.FunctionComponent<Props> = ({ loadWallets
       }
 
       const hd3 = new HDLegacyP2PKHWallet();
-      await hd3.setSecret(mnemonic);
+      hd3.setSecret(mnemonic);
       if (hd3.validateMnemonic()) {
         await hd3.fetchBalance();
         if (hd3.getBalance() > 0) {
