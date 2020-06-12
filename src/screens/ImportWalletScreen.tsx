@@ -76,16 +76,16 @@ export const ImportWalletScreen: React.FunctionComponent<Props> = ({ loadWallets
     NavigationService.navigate(Route.ImportWalletQRCode);
   };
 
-  const saveWallet = async (wallet: any) => {
-    if (BlueApp.getWallets().some(wallet => wallet.getSecret() === wallet.secret)) {
+  const saveWallet = async (newWallet: any) => {
+    if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === newWallet.secret)) {
       NavigationService.navigate(Route.ImportWallet);
       setValidationError(i18n.wallets.importWallet.walletInUseValidationError);
     } else {
       ReactNativeHapticFeedback.trigger('notificationSuccess', {
         ignoreAndroidSystemSettings: false,
       });
-      wallet.setLabel(i18n.wallets.import.imported + ' ' + wallet.typeReadable);
-      BlueApp.wallets.push(wallet);
+      newWallet.setLabel(i18n.wallets.import.imported + ' ' + newWallet.typeReadable);
+      BlueApp.wallets.push(newWallet);
       await BlueApp.saveToDisk();
       loadWallets();
       showSuccessImportMessageScreen();
