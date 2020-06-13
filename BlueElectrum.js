@@ -50,7 +50,7 @@ async function connectMain() {
         mainClient.close();
         mainConnected = false;
         setTimeout(connectMain, 500);
-        console.warn('reconnecting after socket error');
+        console.log('reconnecting after socket error');
         return;
       }
       mainConnected = false;
@@ -148,9 +148,13 @@ module.exports.getConfig = async function () {
   return {
     host: mainClient.host,
     port: mainClient.port,
-    status: mainClient.status && mainConnected ? 1 : 0,
+    status: mainClient.status ? 1 : 0,
     serverName,
   };
+};
+
+module.exports.getSecondsSinceLastRequest = function () {
+  return mainClient && mainClient.timeLastCall ? (+new Date() - mainClient.timeLastCall) / 1000 : -1;
 };
 
 /**

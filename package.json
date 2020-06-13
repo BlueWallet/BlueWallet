@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.4.1",
+  "version": "5.4.2",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -83,7 +83,7 @@
     "dayjs": "1.8.27",
     "detox": "16.7.1",
     "ecurve": "1.0.6",
-    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#2a5bb11dd9a8d89f328049d9ed59bce49d88a15d",
+    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#cc018effafd2256272f348953500c4d27cef0d2f",
     "electrum-mnemonic": "2.0.0",
     "eslint-config-prettier": "6.11.0",
     "eslint-config-standard": "14.1.1",
@@ -132,7 +132,7 @@
     "react-native-snap-carousel": "3.9.1",
     "react-native-sortable-list": "0.0.24",
     "react-native-svg": "9.13.6",
-    "react-native-tcp": "git+https://github.com/BlueWallet/react-native-tcp.git",
+    "react-native-tcp-socket": "3.6.0",
     "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
     "react-native-vector-icons": "6.6.0",
     "react-native-watch-connectivity": "0.4.2",
