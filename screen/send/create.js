@@ -25,7 +25,7 @@ import RNFS from 'react-native-fs';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
   static navigationOptions = ({ navigation, route }) => {

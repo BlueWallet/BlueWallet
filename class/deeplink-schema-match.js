@@ -68,12 +68,11 @@ class DeeplinkSchemaMatch {
     }
     if (isBothBitcoinAndLightning) {
       completionHandler([
-        'HandleOffchainAndOnChain',
+        'SelectWallet',
         {
-          screen: 'SelectWallet',
-          params: {
-            onWalletSelect: wallet =>
-              completionHandler(DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning)),
+          onWalletSelect: (wallet, { navigation }) => {
+            navigation.pop(); // close select wallet screen
+            navigation.navigate(...DeeplinkSchemaMatch.isBothBitcoinAndLightningOnWalletSelect(wallet, isBothBitcoinAndLightning));
           },
         },
       ]);
@@ -206,18 +205,24 @@ class DeeplinkSchemaMatch {
   static isBothBitcoinAndLightningOnWalletSelect(wallet, uri) {
     if (wallet.chain === Chain.ONCHAIN) {
       return [
-        'SendDetails',
+        'SendDetailsRoot',
         {
-          uri: uri.bitcoin,
-          fromWallet: wallet,
+          screen: 'SendDetails',
+          params: {
+            uri: uri.bitcoin,
+            fromWallet: wallet,
+          },
         },
       ];
     } else if (wallet.chain === Chain.OFFCHAIN) {
       return [
-        'ScanLndInvoice',
+        'ScanLndInvoiceRoot',
         {
-          uri: uri.lndInvoice,
-          fromSecret: wallet.getSecret(),
+          screen: 'ScanLndInvoice',
+          params: {
+            uri: uri.lndInvoice,
+            fromSecret: wallet.getSecret(),
+          },
         },
       ];
     }

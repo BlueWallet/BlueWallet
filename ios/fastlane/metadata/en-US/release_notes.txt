@@ -1,3 +1,15 @@
+v5.4.1
+======
+
+* ADD: fiat input for receive & send
+* ADD: Fee details to lighting invoice
+* FIX: Watch-only Wallets we're not being synced to Watch app
+* FIX: following onchain+offchain invoice
+* FIX: Reorder wallets not working
+* FIX: extend pull to close gesture area to full modal height
+* FIX: Don't allow navigating backwards on backup screens
+* FIX: round fiat currencies
+
 v5.4.0
 ======
 
@@ -35,10 +47,3 @@ v5.3.7
 * FIX: allow view to be scrolled on small devices
 * FIX: Biometrics switch value
 * REF: prevent possible crash on ln view invoice screen
-
-v5.3.6
-======
-
-* ADD: Electrum seed recovery for Segwit as well (not just legacy)
-* ADD: support for  deeplinks (closes #892)
-* FIX: Electrum seed recovery bug

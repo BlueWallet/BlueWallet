@@ -5,7 +5,7 @@ import { AppStorage } from './class';
 import DeviceQuickActions from './class/quick-actions';
 const prompt = require('./prompt');
 const EV = require('./events');
-const currency = require('./currency');
+const currency = require('./blue_modules/currency');
 const loc = require('./loc');
 const BlueElectrum = require('./BlueElectrum'); // eslint-disable-line no-unused-vars
 
