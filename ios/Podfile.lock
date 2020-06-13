@@ -372,7 +372,7 @@ PODS:
     - Sentry/Core (= 4.4.3)
   - Sentry/Core (4.4.3)
   - swift_qrcodejs (1.1.2)
-  - ToolTipMenu (5.2.1):
+  - ToolTipMenu (5.2.0):
     - React
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -672,7 +672,7 @@ SPEC CHECKSUMS:
   RNWatch: a36ea17fac675b98b1d8cd41604af68cf1fa9a03
   Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
-  ToolTipMenu: bdcaa0e888bcf44778a67fe34639b094352e904e
+  ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

@@ -134,7 +134,7 @@
     "react-native-sortable-list": "0.0.24",
     "react-native-svg": "9.13.6",
     "react-native-tcp-socket": "3.6.0",
-    "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
+    "react-native-tooltip": "git+https://github.com/BlueWallet/react-native-tooltip.git#d369e7ece09e4dec73873f1cfeac83e9d35294a6",
     "react-native-vector-icons": "6.6.0",
     "react-native-watch-connectivity": "0.4.2",
     "react-native-webview": "6.11.1",
