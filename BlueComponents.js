@@ -1792,18 +1792,15 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
 
   const onPressedIn = () => {
     const props = { duration: 50 };
-    if (Platform.OS === 'android') {
-      props.useNativeDriver = true;
-    }
+    props.useNativeDriver = true;
 
     props.toValue = 0.9;
     Animated.spring(scaleValue, props).start();
   };
   const onPressedOut = () => {
     const props = { duration: 50 };
-    if (Platform.OS === 'android') {
-      props.useNativeDriver = true;
-    }
+
+    props.useNativeDriver = true;
 
     props.toValue = 1.0;
     Animated.spring(scaleValue, props).start();
