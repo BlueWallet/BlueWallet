@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, Image, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, ActivityIndicator, Image, Text, StyleSheet, StatusBar, ScrollView } from 'react-native';
 import { SafeBlueArea, BlueNavigationStyle } from '../../BlueComponents';
 import SortableList from 'react-native-sortable-list';
 import LinearGradient from 'react-native-linear-gradient';
@@ -162,6 +162,7 @@ export default class ReorderWallets extends Component {
 
     return (
       <SafeBlueArea>
+        <StatusBar barStyle="light-content" />
         <ScrollView scrollEnabled={this.state.scrollEnabled}>
           <SortableList
             ref={this.sortableList}

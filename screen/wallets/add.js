@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   View,
+  StatusBar,
   TextInput,
   StyleSheet,
 } from 'react-native';
@@ -167,6 +168,7 @@ export default class WalletsAdd extends Component {
 
     return (
       <SafeBlueArea>
+        <StatusBar barStyle="light-content" />
         <ScrollView>
           <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
             <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>

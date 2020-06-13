@@ -1,6 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
-import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StyleSheet } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, Linking, StatusBar, StyleSheet } from 'react-native';
 import {
   SafeBlueArea,
   BlueCard,
@@ -160,6 +160,7 @@ export default class TransactionsDetails extends Component {
 
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+        <StatusBar barStyle="dark-content" />
         {this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Transaction ${this.state.tx.hash}`}

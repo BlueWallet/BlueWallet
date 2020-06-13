@@ -14,6 +14,7 @@ import {
   Platform,
   Linking,
   StyleSheet,
+  StatusBar,
 } from 'react-native';
 import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -220,6 +221,7 @@ export default class WalletDetails extends Component {
     }
     return (
       <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="dark-content" />
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView behavior="position">
             <ScrollView contentContainerStyle={styles.scrollViewContent}>

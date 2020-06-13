@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
@@ -61,17 +61,6 @@ const ScanQRCode = () => {
   const { launchedBy, onBarScanned } = route.params;
   const scannedCache = {};
   const isFocused = useIsFocused();
-
-  useEffect(() => {
-    navigation.addListener('focus', () => {
-      StatusBar.setBarStyle('light-content');
-      if (Platform.OS === 'android') StatusBar.setBackgroundColor('#000000');
-    });
-    navigation.addListener('blur', () => {
-      StatusBar.setBarStyle('dark-content');
-      if (Platform.OS === 'android') StatusBar.setBackgroundColor('#ffffff');
-    });
-  }, [navigation]);
 
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');

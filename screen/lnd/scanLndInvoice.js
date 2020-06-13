@@ -1,6 +1,16 @@
 /* global alert */
 import React from 'react';
-import { Text, ActivityIndicator, KeyboardAvoidingView, View, TouchableOpacity, Keyboard, ScrollView, StyleSheet } from 'react-native';
+import {
+  Text,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  View,
+  TouchableOpacity,
+  StatusBar,
+  Keyboard,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueButton,
@@ -355,6 +365,7 @@ export default class ScanLndInvoice extends React.Component {
     }
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+        <StatusBar barStyle="light-content" />
         <View style={styles.root}>
           <ScrollView contentContainerStyle={styles.scroll}>
             <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
