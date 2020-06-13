@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 36,
+    color: '#81868e',
     height: 36,
   },
 });
@@ -183,6 +184,7 @@ export default class ElectrumSettings extends Component {
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
               />
             </View>
@@ -195,6 +197,7 @@ export default class ElectrumSettings extends Component {
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
               />
             </View>
@@ -207,6 +210,7 @@ export default class ElectrumSettings extends Component {
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
               />
             </View>

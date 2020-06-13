@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
   },
   uriText: {
     flex: 1,
+    color: '#81868e',
     marginHorizontal: 8,
     minHeight: 36,
     height: 36,
@@ -109,6 +110,7 @@ export default class LightningSettings extends Component {
               onChangeText={text => this.setState({ URI: text })}
               numberOfLines={1}
               style={styles.uriText}
+              placeholderTextColor="#81868e"
               editable={!this.state.isLoading}
               underlineColorAndroid="transparent"
             />
