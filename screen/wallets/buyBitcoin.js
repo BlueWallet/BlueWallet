@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, StatusBar } from 'react-native';
 import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
@@ -97,6 +97,7 @@ export default class BuyBitcoin extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="light-content" />
         <WebView
           source={{
             uri,

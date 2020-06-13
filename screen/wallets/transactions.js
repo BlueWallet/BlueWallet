@@ -228,8 +228,6 @@ export default class WalletTransactions extends Component {
 
   componentDidMount() {
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
-    this._unsubscribeBlur = this.props.navigation.addListener('blur', this.onBlur);
-
     this.props.navigation.setParams({ isLoading: false });
     this.interval = setInterval(() => {
       this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
@@ -538,24 +536,13 @@ export default class WalletTransactions extends Component {
   };
 
   onFocus = () => {
-    StatusBar.setBarStyle('light-content');
-    if (Platform.OS === 'android') {
-      StatusBar.setBackgroundColor(WalletGradient.headerColorFor(this.props.route.params.wallet.type));
-    }
     this.redrawScreen();
     this.props.navigation.setParams({ isLoading: false });
   };
 
-  onBlur = () => {
-    StatusBar.setBarStyle('dark-content');
-    if (Platform.OS === 'android') StatusBar.setBackgroundColor('#ffffff');
-  };
-
   componentWillUnmount() {
-    this.onBlur();
     clearInterval(this.interval);
     this._unsubscribeFocus();
-    this._unsubscribeBlur();
   }
 
   navigateToSendScreen = () => {
@@ -683,6 +670,7 @@ export default class WalletTransactions extends Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={styles.flex}>
+        <StatusBar barStyle="light-content" backgroundColor={WalletGradient.headerColorFor(this.props.route.params.wallet.type)} />
         {this.state.wallet.chain === Chain.ONCHAIN && this.state.isHandOffUseEnabled && (
           <Handoff
             title={`Bitcoin Wallet ${this.state.wallet.getLabel()}`}

@@ -1,6 +1,6 @@
 /* global alert */
 import React, { useEffect, useState } from 'react';
-import { Platform, Dimensions, View, Keyboard, StyleSheet } from 'react-native';
+import { Platform, Dimensions, View, Keyboard, StatusBar, StyleSheet } from 'react-native';
 import {
   BlueFormMultiInput,
   BlueButtonLink,
@@ -92,6 +92,8 @@ const WalletsImport = () => {
 
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      <StatusBar barStyle="light-content" />
+
       <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput
