@@ -653,6 +653,7 @@ export default class WalletsList extends Component {
             renderItem={this.renderSectionItem}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
+            initialNumToRender={20}
             contentInset={styles.scrollContent}
             renderSectionFooter={this.renderSectionFooter}
             sections={[

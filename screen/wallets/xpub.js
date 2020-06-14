@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dimensions, ActivityIndicator, View, StyleSheet } from 'react-native';
+import { Dimensions, ActivityIndicator, View, StatusBar, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTextToClipboard } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -86,6 +86,7 @@ export default class WalletXpub extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="light-content" />
         <View style={styles.container} onLayout={this.onLayout}>
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>

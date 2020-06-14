@@ -354,7 +354,6 @@ export default class SendDetails extends Component {
   async componentDidMount() {
     this.renderNavigationHeader();
     console.log('send/details - componentDidMount');
-    StatusBar.setBarStyle('dark-content');
     /** @type {BitcoinTransaction[]} */
     const addresses = [];
     let initialMemo = '';
@@ -1062,6 +1061,7 @@ export default class SendDetails extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root}>
+          <StatusBar barStyle="light-content" />
           <View>
             <KeyboardAvoidingView behavior="position">
               <ScrollView
