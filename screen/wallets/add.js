@@ -166,6 +166,20 @@ export default class WalletsAdd extends Component {
       );
     }
 
+    let entropyTitle;
+    if (!this.state.entropy) {
+      entropyTitle = loc.wallets.add.entropy_provide;
+    } else if (this.state.entropy.length < 32) {
+      entropyTitle = loc.formatString(loc.wallets.add.entropy_remain, {
+        gen: this.state.entropy.length,
+        rem: 32 - this.state.entropy.length,
+      });
+    } else {
+      entropyTitle = loc.formatString(loc.wallets.add.entropy_generated, {
+        gen: this.state.entropy.length,
+      });
+    }
+
     return (
       <SafeBlueArea>
         <StatusBar barStyle="light-content" />
@@ -359,7 +373,18 @@ export default class WalletsAdd extends Component {
                           w.setLabel(this.state.label || loc.wallets.details.title);
                         }
                         if (this.state.activeBitcoin) {
-                          await w.generate();
+                          if (this.state.entropy) {
+                            try {
+                              await w.generateFromEntropy(this.state.entropy);
+                            } catch (e) {
+                              console.log(e.toString());
+                              alert(e.toString());
+                              this.props.navigation.goBack();
+                              return;
+                            }
+                          } else {
+                            await w.generate();
+                          }
                           BlueApp.wallets.push(w);
                           await BlueApp.saveToDisk();
                           EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -388,6 +413,15 @@ export default class WalletsAdd extends Component {
                   this.props.navigation.navigate('ImportWallet');
                 }}
               />
+              {this.state.isAdvancedOptionsEnabled && (
+                <BlueButtonLink
+                  style={styles.import}
+                  title={entropyTitle}
+                  onPress={() => {
+                    this.props.navigation.navigate('ProvideEntropy', { onGenerated: entropy => this.setState({ entropy }) });
+                  }}
+                />
+              )}
             </View>
           </KeyboardAvoidingView>
         </ScrollView>

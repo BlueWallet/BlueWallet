@@ -2529,3 +2529,39 @@ export function BlueBigCheckmark({ style }) {
     </View>
   );
 }
+
+const tabsStyles = StyleSheet.create({
+  root: {
+    flexDirection: 'row',
+    height: 50,
+    borderColor: '#e3e3e3',
+    borderBottomWidth: 1,
+  },
+  tabRoot: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderColor: 'white',
+    borderBottomWidth: 2,
+  },
+});
+
+export const BlueTabs = ({ active, onSwitch, tabs }) => (
+  <View style={tabsStyles.root}>
+    {tabs.map((Tab, i) => (
+      <TouchableOpacity
+        key={i}
+        onPress={() => onSwitch(i)}
+        style={[
+          tabsStyles.tabRoot,
+          active === i && {
+            borderColor: BlueApp.settings.buttonAlternativeTextColor,
+            borderBottomWidth: 2,
+          },
+          { width: width / tabs.length },
+        ]}
+      >
+        <Tab active={active === i} />
+      </TouchableOpacity>
+    ))}
+  </View>
+);
