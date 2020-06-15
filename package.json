@@ -137,7 +137,7 @@
     "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
     "react-native-vector-icons": "6.6.0",
     "react-native-watch-connectivity": "0.4.2",
-    "react-native-webview": "6.11.1",
+    "react-native-webview": "9.0.2",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "rn-nodeify": "10.2.0",
