@@ -290,6 +290,20 @@ export default class LNDCreateInvoice extends Component {
           throw new Error('Unsupported lnurl');
         }
 
+        // amount that comes from lnurl is always in sats
+        let amount = (reply.maxWithdrawable / 1000).toString();
+        switch (this.state.unit) {
+          case BitcoinUnit.SATS:
+            // nop
+            break;
+          case BitcoinUnit.BTC:
+            amount = currency.satoshiToBTC(amount);
+            break;
+          case BitcoinUnit.LOCAL_CURRENCY:
+            amount = loc.formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
+            break;
+        }
+
         // setting the invoice creating screen with the parameters
         this.setState({
           isLoading: false,
@@ -300,7 +314,7 @@ export default class LNDCreateInvoice extends Component {
             min: (reply.minWithdrawable || 0) / 1000,
             max: reply.maxWithdrawable / 1000,
           },
-          amount: (reply.maxWithdrawable / 1000).toString(),
+          amount,
           description: reply.defaultDescription,
         });
       } catch (Err) {

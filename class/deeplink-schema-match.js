@@ -1,6 +1,5 @@
 import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
-import BitcoinBIP70TransactionDecode from '../bip70/bip70';
 import RNFS from 'react-native-fs';
 import url from 'url';
 import { Chain } from '../models/bitcoinUnits';
@@ -76,7 +75,7 @@ class DeeplinkSchemaMatch {
           },
         },
       ]);
-    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url) || BitcoinBIP70TransactionDecode.matchesPaymentURL(event.url)) {
+    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
       completionHandler([
         'SendDetailsRoot',
         {
@@ -110,12 +109,18 @@ class DeeplinkSchemaMatch {
       const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
 
       const safelloStateToken = urlObject.query['safello-state-token'];
+      let wallet;
+      for (const w of BlueApp.getWallets()) {
+        wallet = w;
+        break;
+      }
 
       completionHandler([
         'BuyBitcoin',
         {
           uri: event.url,
           safelloStateToken,
+          wallet,
         },
       ]);
     } else if (Azteco.isRedeemUrl(event.url)) {
