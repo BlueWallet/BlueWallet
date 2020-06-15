@@ -29,6 +29,10 @@ import WalletExport from './screen/wallets/export';
 import WalletXpub from './screen/wallets/xpub';
 import BuyBitcoin from './screen/wallets/buyBitcoin';
 import HodlHodl from './screen/wallets/hodlHodl';
+import HodlHodlViewOffer from './screen/wallets/hodlHodlViewOffer';
+import HodlHodlLogin from './screen/wallets/hodlHodlLogin';
+import HodlHodlWebview from './screen/wallets/hodlHodlWebview';
+import HodlHodlMyContracts from './screen/wallets/hodlHodlMyContracts';
 import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
@@ -201,6 +205,17 @@ const LNDCreateInvoiceRoot = () => (
   </LNDCreateInvoiceStack.Navigator>
 );
 
+const HodlHodlStack = createStackNavigator();
+const HodlHodlRoot = () => (
+  <HodlHodlStack.Navigator>
+    <HodlHodlStack.Screen name="HodlHodl" component={HodlHodl} options={HodlHodl.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
+    <HodlHodlStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
+  </HodlHodlStack.Navigator>
+);
+
 // LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
 const ScanLndInvoiceStack = createStackNavigator();
 const ScanLndInvoiceRoot = () => (
@@ -236,6 +251,7 @@ const Navigation = () => (
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="HodlHodlRoot" component={HodlHodlRoot} options={{ headerShown: false }} />
     <RootStack.Screen
       name="ScanQRCodeRoot"
       component={ScanQRCodeRoot}
