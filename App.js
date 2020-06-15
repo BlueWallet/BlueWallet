@@ -171,7 +171,11 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigation && this.navigation.navigate(...value));
+    // dirty hack with timeout till we make a proper refactoring
+    // @see https://reactnavigation.org/docs/deep-linking/
+    setTimeout(() => {
+      DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigation && this.navigation.navigate(...value));
+    }, 1000);
   };
 
   renderClipboardContentModal = () => {
