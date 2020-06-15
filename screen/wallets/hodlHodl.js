@@ -88,12 +88,15 @@ export default class HodlHodl extends Component {
       [HodlHodlApi.PAGINATION_LIMIT]: 200,
     };
     const filters = {
-      [HodlHodlApi.FILTERS_COUNTRY]: this.state.country,
       [HodlHodlApi.FILTERS_SIDE]: this.state.side,
       [HodlHodlApi.FILTERS_ASSET_CODE]: HodlHodlApi.FILTERS_ASSET_CODE_VALUE_BTC,
       [HodlHodlApi.FILTERS_INCLUDE_GLOBAL]: this.state.country === HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL,
       [HodlHodlApi.FILTERS_ONLY_WORKING_NOW]: true, // so there wont be any offers which user tries to open website says 'offer not found'
     };
+
+    if (this.state.country !== HodlHodlApi.FILTERS_COUNTRY_VALUE_GLOBAL) {
+      filters[HodlHodlApi.FILTERS_COUNTRY] = this.state.country;
+    }
 
     if (this.state.currency) {
       filters[HodlHodlApi.FILTERS_CURRENCY_CODE] = this.state.currency;
