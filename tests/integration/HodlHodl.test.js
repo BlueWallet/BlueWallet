@@ -5,6 +5,20 @@ import { HodlHodlApi } from '../../class/hodl-hodl-api';
 const bitcoin = require('bitcoinjs-lib');
 const assert = require('assert');
 
+it.skip('can verify escrow address', () => {
+  const encryptedSeed =
+    'ES1:b2dc8bd89782f70ef11ff1d1c6bf6adde0bea78fb959391de48f49acbf7f9766ca128b89c1a9a013d158b6c4dabee77997f8a15764d1b083f213b1d6aa9fb3a14a1edb406930a25423a1df3be72306f120b08972cea669dba1284bd8:bf5af8737529b419cc20935a1c05c742:pbkdf2:10000';
+  const encryptPassword = 'Qwert12345';
+  const address = '34n3rBtPA16BQYWycphnhK7C9DoucWb527';
+  const index = 10298;
+  const witnessScript =
+    '522103dc0edfea797214be15a69148bfb1dffa1c8295c05300b7632143a77d918b4a0821031fec42b60942633616aff7e245796b5caae6bf59ef5ba688b0a59f33f08b2896210351fd6e52d38a37b9834909e3f8345c471346e1f5990ec00dafcc53e238d3c7c553ae';
+
+  const Hodl = new HodlHodlApi();
+  assert.ok(Hodl.verifyEscrowAddress(encryptedSeed, encryptPassword, index, address, witnessScript));
+  assert.ok(!Hodl.verifyEscrowAddress(encryptedSeed, encryptPassword, index, '3QDf45WU88t2kEBJTHcTPvtrXZx88SkmKC', witnessScript));
+});
+
 it('can create escrow address', () => {
   const keyPairServer = bitcoin.ECPair.fromPrivateKey(
     Buffer.from('9a8cfd0e33a37c90a46d358c84ca3d8dd089ed35409a6eb1973148c0df492288', 'hex'),
@@ -109,10 +123,56 @@ describe('HodlHodl API', function () {
     assert.ok(offers[0].asset_code === 'BTC');
     assert.ok(offers[0].country_code);
     assert.ok(offers[0].side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL);
-    assert.ok(offers[0].title || offers[0].description || offers[1].title || offers[1].description, JSON.stringify(offers[0], null, 2));
+    assert.ok(typeof offers[0].title !== 'undefined', JSON.stringify(offers[0], null, 2));
+    assert.ok(typeof offers[0].description !== 'undefined', JSON.stringify(offers[0], null, 2));
     assert.ok(offers[0].price);
     assert.ok(offers[0].payment_method_instructions);
     assert.ok(offers[0].trader);
+  });
+
+  it('can get offer', async () => {
+    if (!process.env.HODLHODL_OFFER_ID) return;
+    const Hodl = new HodlHodlApi();
+    const offer = await Hodl.getOffer(process.env.HODLHODL_OFFER_ID);
+    assert.ok(offer.id);
+    assert.ok(offer.version);
+  });
+
+  it('can accept offer', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
+    if (!process.env.HODLHODL_OFFER_ID) return;
+    const Hodl = new HodlHodlApi();
+    const offer = await Hodl.getOffer(process.env.HODLHODL_OFFER_ID);
+    assert.strictEqual(offer.side, 'sell');
+    const paymentMethodInstructionId = offer.payment_method_instructions[0].id;
+    const paymentMethodInstructionVersion = offer.payment_method_instructions[0].version;
+    const fiatValue = 100;
+    const contract = await Hodl.acceptOffer(
+      offer.id,
+      offer.version,
+      paymentMethodInstructionId,
+      paymentMethodInstructionVersion,
+      fiatValue,
+    );
+    console.warn({ contract });
+  });
+
+  it('can get contract', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
+    if (!process.env.HODLHODL_CONTRACT_ID) return;
+    const Hodl = new HodlHodlApi();
+    const contract = await Hodl.getContract(process.env.HODLHODL_CONTRACT_ID);
+    assert.ok(contract.your_role);
+    assert.ok(contract.volume);
+    assert.ok(contract.escrow);
+  });
+
+  it('can mark contract as confirmed', async () => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 200 * 1000;
+    if (!process.env.HODLHODL_CONTRACT_ID) return;
+    const Hodl = new HodlHodlApi();
+    const result = await Hodl.markContractAsConfirmed(process.env.HODLHODL_CONTRACT_ID);
+    console.warn(result);
   });
 
   it('can get payment methods', async () => {
@@ -131,5 +191,21 @@ describe('HodlHodl API', function () {
     assert.ok(currencies[0].code);
     assert.ok(currencies[0].name);
     assert.ok(currencies[0].type);
+  });
+
+  it('cat get myself', async () => {
+    const Hodl = new HodlHodlApi();
+    const myself = await Hodl.getMyself();
+    assert.ok(myself.encrypted_seed);
+  });
+
+  it('can create signature for autologin', async () => {
+    const Hodl = new HodlHodlApi('');
+    const sig = Hodl.createSignature(
+      'iqZC7uUmx4sVeIwFQN2YqGT5SyrXNLhxVX7QMGUeJK1CDdy87OcrOt3QvPE5LFC56Lgu7WLlg12U55Vy',
+      'cce14197a08ebab7cfbb41cfce9fe91e0f31d572d3f48571ca3c30bfd516f769',
+      1589980224,
+    );
+    assert.strictEqual(sig, '1d2a51ca2c54ff9107a3460b22f01bc877e527a9a719d81b32038741332159fc');
   });
 });
