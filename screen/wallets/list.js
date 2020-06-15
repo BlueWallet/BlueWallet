@@ -200,6 +200,7 @@ export default class WalletsList extends Component {
         await BlueApp.fetchWalletTransactions();
         const end = +new Date();
         console.log('fetch all wallet txs took', (end - start) / 1000, 'sec');
+        await BlueApp.saveToDisk();
       } catch (error) {
         console.log(error);
       }
@@ -653,6 +654,7 @@ export default class WalletsList extends Component {
             renderItem={this.renderSectionItem}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
+            initialNumToRender={20}
             contentInset={styles.scrollContent}
             renderSectionFooter={this.renderSectionFooter}
             sections={[

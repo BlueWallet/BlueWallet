@@ -18,11 +18,11 @@ import {
   Keyboard,
   SafeAreaView,
   InputAccessoryView,
-  Clipboard,
   Platform,
   FlatList,
   TextInput,
 } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
@@ -2026,7 +2026,7 @@ export class WalletsCarousel extends Component {
           itemWidth={itemWidth}
           inactiveSlideScale={1}
           inactiveSlideOpacity={0.7}
-          initialNumToRender={20}
+          initialNumToRender={4}
           onLayout={this.onLayout}
           contentContainerCustomStyle={{ left: -20 }}
         />

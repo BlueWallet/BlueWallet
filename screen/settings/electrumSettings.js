@@ -32,9 +32,6 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     borderRadius: 20,
   },
-  connectText: {
-    fontWeight: '600',
-  },
   containerConnected: {
     backgroundColor: '#D2F8D6',
   },
@@ -43,9 +40,11 @@ const styles = StyleSheet.create({
   },
   textConnected: {
     color: '#37C0A1',
+    fontWeight: 'bold',
   },
   textDisconnected: {
     color: '#D0021B',
+    fontWeight: 'bold',
   },
   hostname: {
     textAlign: 'center',
@@ -71,6 +70,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 8,
     minHeight: 36,
+    color: '#81868e',
     height: 36,
   },
 });
@@ -109,7 +109,7 @@ export default class ElectrumSettings extends Component {
       this.setState({
         config: await BlueElectrum.getConfig(),
       });
-    }, 1000);
+    }, 500);
 
     this.setState({
       config: await BlueElectrum.getConfig(),
@@ -145,7 +145,9 @@ export default class ElectrumSettings extends Component {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
           alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
         }
-      } catch (_) {}
+      } catch (error) {
+        alert(error);
+      }
       this.setState({ isLoading: false });
     });
   };
@@ -158,7 +160,7 @@ export default class ElectrumSettings extends Component {
             <BlueText style={styles.status}>Status</BlueText>
             <View style={styles.connectWrap}>
               <View style={[styles.container, this.state.config.status === 1 ? styles.containerConnected : styles.containerDisconnected]}>
-                <BlueText style={[styles.connectText, this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected]}>
+                <BlueText style={this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected}>
                   {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
                 </BlueText>
               </View>
@@ -181,6 +183,7 @@ export default class ElectrumSettings extends Component {
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
               />
             </View>
@@ -193,6 +196,7 @@ export default class ElectrumSettings extends Component {
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
               />
             </View>
@@ -205,6 +209,7 @@ export default class ElectrumSettings extends Component {
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
                 underlineColorAndroid="transparent"
               />
             </View>

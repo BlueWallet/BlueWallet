@@ -1,5 +1,15 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, InteractionManager, Platform, TextInput, KeyboardAvoidingView, Keyboard, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  InteractionManager,
+  StatusBar,
+  Platform,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import {
@@ -210,6 +220,7 @@ const ReceiveDetails = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
+      <StatusBar barStyle="light-content" />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
@@ -308,7 +319,7 @@ const styles = StyleSheet.create({
   customAmountText: {
     flex: 1,
     marginHorizontal: 8,
-    color: "#81868e",
+    color: '#81868e',
     minHeight: 33,
   },
   root: {
