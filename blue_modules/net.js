@@ -14,6 +14,8 @@ import TcpSocket from 'react-native-tcp-socket';
  */
 function Socket() {
   this._socket = false; // reference to socket thats gona be created later
+  // defaults:
+  this._noDelay = true;
 
   this._listeners = {};
 
@@ -21,7 +23,12 @@ function Socket() {
   this.setTimeout = () => {};
   this.setEncoding = () => {};
   this.setKeepAlive = () => {};
-  this.setNoDelay = () => {};
+
+  // proxying call to real socket object:
+  this.setNoDelay = noDelay => {
+    if (this._socket) this._socket.setNoDelay(noDelay);
+    this._noDelay = noDelay;
+  };
 
   this.connect = (port, host, callback) => {
     this._socket = TcpSocket.createConnection(
@@ -36,15 +43,6 @@ function Socket() {
     this._socket.on('data', data => {
       this._passOnEvent('data', data);
     });
-    this._socket.on('end', data => {
-      this._passOnEvent('end', data);
-    });
-    this._socket.on('timeout', () => {
-      this._passOnEvent('timeout');
-    });
-    this._socket.on('onerror', data => {
-      this._passOnEvent('onerror', data);
-    });
     this._socket.on('error', data => {
       this._passOnEvent('error', data);
     });
@@ -53,9 +51,7 @@ function Socket() {
     });
     this._socket.on('connect', data => {
       this._passOnEvent('connect', data);
-    });
-    this._socket.on('secureConnect', data => {
-      this._passOnEvent('secureConnect', data);
+      this._socket.setNoDelay(this._noDelay);
     });
     this._socket.on('connection', data => {
       this._passOnEvent('connection', data);
