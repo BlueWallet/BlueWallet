@@ -149,7 +149,7 @@ export default class WalletDetails extends Component {
         this.state.wallet.setLabel(this.state.walletName);
       }
       await BlueApp.saveToDisk();
-      EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED);
+      EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
     });
