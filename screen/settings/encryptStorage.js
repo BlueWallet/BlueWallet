@@ -163,7 +163,7 @@ export default class EncryptStorage extends Component {
           <BlueListItem
             testID="EncyptedAndPasswordProtected"
             hideChevron
-            title="Encypted and Password protected"
+            title="Encrypted and Password protected"
             Component={TouchableWithoutFeedback}
             switch={{ onValueChange: this.onEncryptStorageSwitch, value: this.state.storageIsEncrypted }}
           />
