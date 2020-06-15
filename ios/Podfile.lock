@@ -265,7 +265,7 @@ PODS:
     - React
   - react-native-slider (3.0.0):
     - React
-  - react-native-tcp-socket (3.6.0):
+  - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
   - react-native-webview (6.11.1):
@@ -359,7 +359,7 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.3.7):
+  - RNSentry (1.3.9):
     - React
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
@@ -644,7 +644,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 0b0460e3298465bdb4b859ea43c2d7b9128cf988
   react-native-slider: 05f11678260cb27c3d00a2dd1558b623be3ec8d2
-  react-native-tcp-socket: b53ac2c9cbec9f3def9b867aa4a3ea51b104f8db
+  react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
   React-RCTActionSheet: f41ea8a811aac770e0cc6e0ad6b270c644ea8b7c
   React-RCTAnimation: 49ab98b1c1ff4445148b72a3d61554138565bad0
@@ -671,7 +671,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 370623102247ebea20191b5fb549ecc7a275b324
+  RNSentry: 9c9783b13fb5cba387fff55f085cc1da3854ce71
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
