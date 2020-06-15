@@ -4,6 +4,7 @@ import { AppStorage } from '../class';
 import { FiatUnit } from '../models/fiatUnit';
 import DefaultPreference from 'react-native-default-preference';
 import DeviceQuickActions from '../class/quick-actions';
+import * as RNLocalize from 'react-native-localize';
 const BigNumber = require('bignumber.js');
 let preferredFiatCurrency = FiatUnit.USD;
 const exchangeRates = {};
@@ -42,8 +43,17 @@ async function updateExchangeRate() {
 
   try {
     preferredFiatCurrency = JSON.parse(await AsyncStorage.getItem(AppStorage.PREFERRED_CURRENCY));
-  } catch (_) {}
-  preferredFiatCurrency = preferredFiatCurrency || FiatUnit.USD;
+    if (preferredFiatCurrency === null) {
+      throw Error('No Preferred Fiat selected');
+    }
+  } catch (_) {
+    const deviceCurrencies = RNLocalize.getCurrencies();
+    if (Object.keys(FiatUnit).some(unit => unit === deviceCurrencies[0])) {
+      preferredFiatCurrency = FiatUnit[deviceCurrencies[0]];
+    } else {
+      preferredFiatCurrency = FiatUnit.USD;
+    }
+  }
 
   let json;
   try {
@@ -66,6 +76,7 @@ async function updateExchangeRate() {
   exchangeRates['BTC_' + preferredFiatCurrency.endPointKey] = json.bpi[preferredFiatCurrency.endPointKey].rate_float * 1;
   await AsyncStorage.setItem(AppStorage.EXCHANGE_RATES, JSON.stringify(exchangeRates));
   await AsyncStorage.setItem(AppStorage.PREFERRED_CURRENCY, JSON.stringify(preferredFiatCurrency));
+  await setPrefferedCurrency(preferredFiatCurrency);
   DeviceQuickActions.setQuickActions();
 }
 
