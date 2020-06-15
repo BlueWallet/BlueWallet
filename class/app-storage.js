@@ -478,7 +478,7 @@ export class AppStorage {
    * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
    * @return {Array}
    */
-  getTransactions(index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = true) {
+  getTransactions(index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = false) {
     if (index || index === 0) {
       let txs = [];
       let c = 0;
