@@ -215,7 +215,7 @@ PODS:
     - React
   - react-native-slider (2.0.8):
     - React
-  - react-native-tcp-socket (3.6.0):
+  - react-native-tcp-socket (3.7.1):
     - CocoaAsyncSocket
     - React
   - react-native-webview (6.11.1):
@@ -533,7 +533,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 0b0460e3298465bdb4b859ea43c2d7b9128cf988
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
-  react-native-tcp-socket: b53ac2c9cbec9f3def9b867aa4a3ea51b104f8db
+  react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
