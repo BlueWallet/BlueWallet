@@ -2,6 +2,7 @@ PODS:
   - boost-for-react-native (1.63.0)
   - BVLinearGradient (2.5.6):
     - React
+  - CocoaAsyncSocket (7.6.4)
   - DoubleConversion (1.1.6)
   - EFQRCode (5.1.0):
     - swift_qrcodejs (~> 1.1.1)
@@ -214,7 +215,8 @@ PODS:
     - React
   - react-native-slider (2.0.8):
     - React
-  - react-native-tcp (3.3.2):
+  - react-native-tcp-socket (3.7.1):
+    - CocoaAsyncSocket
     - React
   - react-native-webview (6.11.1):
     - React
@@ -283,7 +285,7 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.3.7):
+  - RNSentry (1.3.9):
     - React
     - Sentry (~> 4.4.0)
   - RNShare (2.0.0):
@@ -331,7 +333,7 @@ DEPENDENCIES:
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
-  - react-native-tcp (from `../node_modules/react-native-tcp`)
+  - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -370,6 +372,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - boost-for-react-native
+    - CocoaAsyncSocket
     - EFQRCode
     - lottie-ios
     - Sentry
@@ -426,8 +429,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
-  react-native-tcp:
-    :path: "../node_modules/react-native-tcp"
+  react-native-tcp-socket:
+    :path: "../node_modules/react-native-tcp-socket"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
@@ -498,6 +501,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   BVLinearGradient: e3aad03778a456d77928f594a649e96995f1c872
+  CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   EFQRCode: 07ee69f29196329e974b9bffa5381240cc09ea4c
   FBLazyVector: aaeaf388755e4f29cd74acbc9e3b8da6d807c37f
@@ -524,7 +528,7 @@ SPEC CHECKSUMS:
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: 0b0460e3298465bdb4b859ea43c2d7b9128cf988
   react-native-slider: b2f361499888302147205f17f6fffa921a7bda70
-  react-native-tcp: be8e119e631970aaeda7f6e3207f6b7be72d5eb8
+  react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: f11ac6c8bcaba5b71ddda1c12a10c8ea059b080f
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
   React-RCTAnimation: 791a87558389c80908ed06cc5dfc5e7920dfa360
@@ -551,7 +555,7 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 2566b468cc8d0e7bb2f84b23adc0f4614594d071
   RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 370623102247ebea20191b5fb549ecc7a275b324
+  RNSentry: 9c9783b13fb5cba387fff55f085cc1da3854ce71
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
   RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4

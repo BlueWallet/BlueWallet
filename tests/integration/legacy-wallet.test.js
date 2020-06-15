@@ -85,7 +85,9 @@ describe('LegacyWallet', function () {
 
   it.each([
     ['addresses for vout missing', '1PVfrmbn1vSMoFZB2Ga7nDuXLFDyJZHrHK'],
-    ['txdatas were coming back null from BlueElectrum because of high batchsize', '34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo'],
+    // ['txdatas were coming back null from BlueElectrum because of high batchsize', '34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo'],
+    // skipped because its slow and flaky if being run in pack with other electrum tests. uncomment and run single
+    // if you need to debug huge electrum batches
   ])(
     'can fetch TXs when %s',
     async (useCase, address) => {

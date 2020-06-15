@@ -22,10 +22,23 @@ function connect(config, callback) {
     callback,
   );
 
+  // defaults:
+  this._noDelay = true;
+
   // functions not supported by RN module, yet:
+  client.setTimeout = () => {};
   client.setEncoding = () => {};
   client.setKeepAlive = () => {};
-  client.setNoDelay = () => {};
+
+  // we will save `noDelay` and proxy it to socket object when its actually created and connected:
+  const realSetNoDelay = client.setNoDelay; // reference to real setter
+  client.setNoDelay = noDelay => {
+    this._noDelay = noDelay;
+  };
+
+  client.on('connect', () => {
+    realSetNoDelay.apply(client, [this._noDelay]);
+  });
 
   return client;
 }
