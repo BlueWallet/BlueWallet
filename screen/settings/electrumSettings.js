@@ -32,9 +32,6 @@ const styles = StyleSheet.create({
     paddingRight: 16,
     borderRadius: 20,
   },
-  connectText: {
-    fontWeight: '600',
-  },
   containerConnected: {
     backgroundColor: '#D2F8D6',
   },
@@ -43,9 +40,11 @@ const styles = StyleSheet.create({
   },
   textConnected: {
     color: '#37C0A1',
+    fontWeight: 'bold',
   },
   textDisconnected: {
     color: '#D0021B',
+    fontWeight: 'bold',
   },
   hostname: {
     textAlign: 'center',
@@ -161,7 +160,7 @@ export default class ElectrumSettings extends Component {
             <BlueText style={styles.status}>Status</BlueText>
             <View style={styles.connectWrap}>
               <View style={[styles.container, this.state.config.status === 1 ? styles.containerConnected : styles.containerDisconnected]}>
-                <BlueText style={[styles.connectText, this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected]}>
+                <BlueText style={this.state.config.status === 1 ? styles.textConnected : styles.textDisconnected}>
                   {(this.state.config.status === 1 && 'Connected') || 'Not Connected'}
                 </BlueText>
               </View>
