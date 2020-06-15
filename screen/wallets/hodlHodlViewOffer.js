@@ -70,6 +70,10 @@ export default class HodlHodlViewOffer extends Component {
   }
 
   async _onAcceptOfferPress(offer) {
+    if (!this.state.hodlApiKey) {
+      alert('Please login to HodlHodl to accept offers');
+      return;
+    }
     const myself = await this.state.hodlApi.getMyself();
     if (!myself.encrypted_seed || myself.encrypted_seed.length < 10) {
       const buttons = [
@@ -215,7 +219,7 @@ export default class HodlHodlViewOffer extends Component {
               </View>
               {/* end */}
 
-              {this.state.hodlApiKey && this.state.offerToDisplay.side === 'sell' ? (
+              {this.state.offerToDisplay.side === 'sell' ? (
                 <View style={styles.acceptOfferButtonWrapperWrapper}>
                   <View style={styles.acceptOfferButtonWrapper}>
                     <BlueSpacing10 />
