@@ -249,6 +249,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 4,
     minHeight: 33,
+    color: '#81868e',
   },
   safeURLHome: {
     alignContent: 'flex-end',
@@ -455,6 +456,7 @@ export default class Browser extends Component {
                 onChangeText={text => this.setState({ stateURL: text })}
                 value={this.state.stateURL}
                 numberOfLines={1}
+                placeholderTextColor="#81868e"
                 style={styles.safeURLText}
                 editable
                 onSubmitEditing={() => {
@@ -486,11 +488,7 @@ export default class Browser extends Component {
 
             <TouchableOpacity
               onPress={() => {
-                const reloadUrl = this.state.url;
-                this.setState({ url: 'about:blank' });
-                processedInvoices = {};
-                setTimeout(() => this.setState({ url: reloadUrl }), 500);
-                // this.webview.reload();
+                this.webview.reload();
               }}
             >
               {!this.state.pageIsLoading ? (

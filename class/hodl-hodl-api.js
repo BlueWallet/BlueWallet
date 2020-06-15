@@ -1,4 +1,5 @@
 import Frisbee from 'frisbee';
+const CryptoJS = require('crypto-js');
 
 export class HodlHodlApi {
   static PAGINATION_LIMIT = 'limit'; // int
@@ -74,18 +75,27 @@ export class HodlHodlApi {
 
   async getMyCountryCode() {
     const _api = new Frisbee({ baseURI: 'https://ifconfig.co/' });
+    const _api2 = new Frisbee({ baseURI: 'https://geolocation-db.com/' });
     let response;
 
     let allowedTries = 6;
     while (allowedTries > 0) {
       // this API fails a lot, so lets retry several times
-      response = await _api.get('/country-iso', {
-        headers: { 'Access-Control-Allow-Origin': '*' },
-      });
+      response = await _api.get('/country-iso', { headers: { 'Access-Control-Allow-Origin': '*' } });
 
       let body = response.body;
       if (typeof body === 'string') body = body.replace('\n', '');
       if (!body || body.length !== 2) {
+        // trying api2
+        const response = await _api2.get('/json/', { headers: { 'Access-Control-Allow-Origin': '*' } });
+        body = response.body;
+        let json;
+        try {
+          json = JSON.parse(body);
+        } catch (_) {}
+        if (json && json.country_code) return (this._myCountryCode = json.country_code);
+        // failed, retry
+
         allowedTries--;
         await (async () => new Promise(resolve => setTimeout(resolve, 3000)))(); // sleep
       } else {
@@ -118,6 +128,17 @@ export class HodlHodlApi {
     return (this._currencies = json.currencies.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
   }
 
+  async getOffer(id) {
+    const response = await this._api.get('/api/v1/offers/' + id, this._getHeadersWithoutAuthorization());
+
+    const json = response.body;
+    if (!json || !json.offer || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.offer;
+  }
+
   async getOffers(pagination = {}, filters = {}, sort = {}) {
     const uri = [];
     for (const key in sort) {
@@ -137,5 +158,142 @@ export class HodlHodlApi {
     }
 
     return (this._offers = json.offers);
+  }
+
+  createSignature(apiKey, sigKey, nonce) {
+    const sourceMessageForSigning = apiKey + ':' + nonce; // <api_key>:<nonce>
+    return CryptoJS.HmacSHA256(sourceMessageForSigning, sigKey).toString(CryptoJS.enc.Hex);
+  }
+
+  /**
+   * @see https://gitlab.com/hodlhodl-public/public_docs/-/blob/master/autologin.md
+   *
+   * @param apiSigKey {string}
+   * @param nonce {integer|null} Optional unix timestamp (sec, not msec), or nothing
+   * @returns {Promise<string>} Token usable for autologin (works only once and only about 30 seconds)
+   */
+  async requestAutologinToken(apiSigKey, nonce) {
+    nonce = nonce || Math.floor(+new Date() / 1000);
+    const signature = this.createSignature(this.apiKey, apiSigKey, nonce);
+
+    const response = await this._api.get('/api/v1/users/login_token?nonce=' + nonce + '&hmac=' + signature, this._getHeaders());
+
+    const json = response.body;
+    if (!json || !json.token || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.token;
+  }
+
+  async getMyself() {
+    const response = await this._api.get('/api/v1/users/me', this._getHeaders());
+
+    const json = response.body;
+    if (!json || !json.user || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return (this._user = json.user);
+  }
+
+  async acceptOffer(id, version, paymentMethodInstructionId, paymentMethodInstructionVersion, value) {
+    const response = await this._api.post(
+      '/api/v1/contracts',
+      Object.assign({}, this._getHeaders(), {
+        body: {
+          contract: {
+            offer_id: id,
+            offer_version: version,
+            payment_method_instruction_id: paymentMethodInstructionId,
+            payment_method_instruction_version: paymentMethodInstructionVersion,
+            comment: 'I accept your offer',
+            value,
+          },
+        },
+      }),
+    );
+
+    const json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      if (json && json.validation_errors) throw new Error(this.validationErrorsToReadable(json.validation_errors));
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  validationErrorsToReadable(errorz) {
+    const ret = [];
+    for (const er of Object.keys(errorz)) {
+      ret.push(errorz[er].join('; '));
+    }
+
+    return ret.join('\n');
+  }
+
+  async getContract(id) {
+    const response = await this._api.get('/api/v1/contracts/' + id, this._getHeaders());
+
+    const json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  verifyEscrowAddress(encryptedSeed, encryptPassword, index, address, witnessScript) {
+    // TODO
+    // @see https://gitlab.com/hodlhodl-public/hodl-client-js
+    return true;
+  }
+
+  /**
+   * This method is used to confirm that client-side validation of escrow data was successful.
+   * This method should be called immediately after escrow address appeared in Getting contract response and this escrow address has been verified locally by the client.
+   *
+   * @param id
+   * @returns {Promise<{}>}
+   */
+  async markContractAsConfirmed(id) {
+    const response = await this._api.post('/api/v1/contracts/' + id + '/confirm', this._getHeaders());
+
+    const json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  /**
+   * Buyer (and only buyer) should call this method when fiat payment was made.
+   * This method could be called only if contract’s status is "in_progress".
+   *
+   * @param id
+   * @returns {Promise<{}>}
+   */
+  async markContractAsPaid(id) {
+    const response = await this._api.post('/api/v1/contracts/' + id + '/mark_as_paid', this._getHeaders());
+
+    const json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
+  }
+
+  async cancelContract(id) {
+    const response = await this._api.post('/api/v1/contracts/' + id + '/cancel', this._getHeaders());
+
+    const json = response.body;
+    if (!json || !json.contract || json.status === 'error') {
+      if (json && json.validation_errors) throw new Error(this.validationErrorsToReadable(json.validation_errors));
+      throw new Error('API failure: ' + JSON.stringify(response));
+    }
+
+    return json.contract;
   }
 }
