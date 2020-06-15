@@ -110,12 +110,18 @@ class DeeplinkSchemaMatch {
       const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
 
       const safelloStateToken = urlObject.query['safello-state-token'];
+      let wallet;
+      for (const w of BlueApp.getWallets()) {
+        wallet = w;
+        break;
+      }
 
       completionHandler([
         'BuyBitcoin',
         {
           uri: event.url,
           safelloStateToken,
+          wallet,
         },
       ]);
     } else if (Azteco.isRedeemUrl(event.url)) {
