@@ -33,7 +33,6 @@ import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
-import BitcoinBIP70TransactionDecode from '../../bip70/bip70';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -263,7 +262,6 @@ export default class SendDetails extends Component {
         fee: 1,
         feeSliderValue: 1,
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
-        bip70TransactionExpiration: null,
         renderWalletSelectionButtonHidden: false,
       };
     }
@@ -286,66 +284,51 @@ export default class SendDetails extends Component {
    */
   processAddressData = data => {
     this.setState({ isLoading: true }, async () => {
-      if (BitcoinBIP70TransactionDecode.matchesPaymentURL(data)) {
-        const bip70 = await this.processBIP70Invoice(data);
+      const recipients = this.state.addresses;
+      const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
+      if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
+        recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
+        const units = this.state.units;
+        units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
         this.setState({
-          addresses: [bip70.recipient],
-          memo: bip70.memo,
-          feeSliderValue: bip70.feeSliderValue,
-          fee: bip70.fee,
+          address: recipients,
           isLoading: false,
           amountUnit: BitcoinUnit.BTC,
-          bip70TransactionExpiration: bip70.bip70TransactionExpiration,
+          units,
         });
       } else {
-        const recipients = this.state.addresses;
-        const dataWithoutSchema = data.replace('bitcoin:', '').replace('BITCOIN:', '');
-        if (this.state.fromWallet.isAddressValid(dataWithoutSchema)) {
-          recipients[[this.state.recipientsScrollIndex]].address = dataWithoutSchema;
+        let address = '';
+        let options;
+        try {
+          if (!data.toLowerCase().startsWith('bitcoin:')) {
+            data = `bitcoin:${data}`;
+          }
+          const decoded = DeeplinkSchemaMatch.bip21decode(data);
+          address = decoded.address;
+          options = decoded.options;
+        } catch (error) {
+          data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
+          const decoded = DeeplinkSchemaMatch.bip21decode(data);
+          decoded.options.amount = 0;
+          address = decoded.address;
+          options = decoded.options;
+          this.setState({ isLoading: false });
+        }
+        console.log(options);
+        if (btcAddressRx.test(address) || address.indexOf('bc1') === 0 || address.indexOf('BC1') === 0) {
           const units = this.state.units;
           units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
+          recipients[[this.state.recipientsScrollIndex]].address = address;
+          recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
           this.setState({
-            address: recipients,
-            bip70TransactionExpiration: null,
+            addresses: recipients,
+            memo: options.label || options.message,
             isLoading: false,
             amountUnit: BitcoinUnit.BTC,
             units,
           });
         } else {
-          let address = '';
-          let options;
-          try {
-            if (!data.toLowerCase().startsWith('bitcoin:')) {
-              data = `bitcoin:${data}`;
-            }
-            const decoded = DeeplinkSchemaMatch.bip21decode(data);
-            address = decoded.address;
-            options = decoded.options;
-          } catch (error) {
-            data = data.replace(/(amount)=([^&]+)/g, '').replace(/(amount)=([^&]+)&/g, '');
-            const decoded = DeeplinkSchemaMatch.bip21decode(data);
-            decoded.options.amount = 0;
-            address = decoded.address;
-            options = decoded.options;
-            this.setState({ isLoading: false });
-          }
-          console.log(options);
-          if (btcAddressRx.test(address) || address.indexOf('bc1') === 0 || address.indexOf('BC1') === 0) {
-            const units = this.state.units;
-            units[this.state.recipientsScrollIndex] = BitcoinUnit.BTC; // also resetting current unit to BTC
-            recipients[[this.state.recipientsScrollIndex]].address = address;
-            recipients[[this.state.recipientsScrollIndex]].amount = options.amount;
-            this.setState({
-              addresses: recipients,
-              memo: options.label || options.message,
-              bip70TransactionExpiration: null,
-              isLoading: false,
-              amountUnit: BitcoinUnit.BTC,
-              units,
-            });
-          } else {
-            this.setState({ isLoading: false });
-          }
+          this.setState({ isLoading: false });
         }
       }
     });
@@ -359,21 +342,14 @@ export default class SendDetails extends Component {
     let initialMemo = '';
     if (this.props.route.params.uri) {
       const uri = this.props.route.params.uri;
-      if (BitcoinBIP70TransactionDecode.matchesPaymentURL(uri)) {
-        const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(uri);
-        addresses.push(recipient);
+      try {
+        const { address, amount, memo } = this.decodeBitcoinUri(uri);
+        addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
         initialMemo = memo;
-        this.setState({ addresses, memo: initialMemo, fee, feeSliderValue, isLoading: false, amountUnit: BitcoinUnit.BTC });
-      } else {
-        try {
-          const { address, amount, memo } = this.decodeBitcoinUri(uri);
-          addresses.push(new BitcoinTransaction(address, amount, currency.btcToSatoshi(amount)));
-          initialMemo = memo;
-          this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
-        } catch (error) {
-          console.log(error);
-          alert('Error: Unable to decode Bitcoin address');
-        }
+        this.setState({ addresses, memo: initialMemo, isLoading: false, amountUnit: BitcoinUnit.BTC });
+      } catch (error) {
+        console.log(error);
+        alert('Error: Unable to decode Bitcoin address');
       }
     } else if (this.props.route.params.address) {
       addresses.push(new BitcoinTransaction(this.props.route.params.address));
@@ -406,17 +382,13 @@ export default class SendDetails extends Component {
         });
 
         if (this.props.route.params.uri) {
-          if (BitcoinBIP70TransactionDecode.matchesPaymentURL(this.props.route.params.uri)) {
-            this.processBIP70Invoice(this.props.route.params.uri);
-          } else {
-            try {
-              const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
-              this.setState({ address, amount, memo, isLoading: false });
-            } catch (error) {
-              console.log(error);
-              this.setState({ isLoading: false });
-              alert('Error: Unable to decode Bitcoin address');
-            }
+          try {
+            const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
+            this.setState({ address, amount, memo, isLoading: false });
+          } catch (error) {
+            console.log(error);
+            this.setState({ isLoading: false });
+            alert('Error: Unable to decode Bitcoin address');
           }
         }
       } else {
@@ -459,32 +431,6 @@ export default class SendDetails extends Component {
     return { address, amount, memo };
   }
 
-  async processBIP70Invoice(text) {
-    try {
-      if (BitcoinBIP70TransactionDecode.matchesPaymentURL(text)) {
-        Keyboard.dismiss();
-        return BitcoinBIP70TransactionDecode.decode(text)
-          .then(response => {
-            const recipient = new BitcoinTransaction(response.address, currency.satoshiToBTC(response.amount), response.amount);
-            return {
-              recipient,
-              memo: response.memo,
-              fee: response.fee,
-              feeSliderValue: response.fee,
-              bip70TransactionExpiration: response.expires,
-            };
-          })
-          .catch(error => {
-            alert(error.errorMessage);
-            throw error;
-          });
-      }
-    } catch (error) {
-      return false;
-    }
-    throw new Error('BIP70: Unable to process.');
-  }
-
   async createTransaction() {
     Keyboard.dismiss();
     this.setState({ isLoading: true });
@@ -503,9 +449,6 @@ export default class SendDetails extends Component {
       } else if (this.state.fromWallet.getBalance() - transaction.amountSats < 0) {
         // first sanity check is that sending amount is not bigger than available balance
         error = loc.send.details.total_exceeds_balance;
-        console.log('validation error');
-      } else if (BitcoinBIP70TransactionDecode.isExpired(this.state.bip70TransactionExpiration)) {
-        error = 'Transaction has expired.';
         console.log('validation error');
       } else if (transaction.address) {
         const address = transaction.address.trim().toLowerCase();
@@ -986,23 +929,15 @@ export default class SendDetails extends Component {
             onChangeText={async text => {
               text = text.trim();
               const transactions = this.state.addresses;
-              try {
-                const { recipient, memo, fee, feeSliderValue } = await this.processBIP70Invoice(text);
-                transactions[index].address = recipient.address;
-                transactions[index].amount = recipient.amount;
-                this.setState({ addresses: transactions, memo: memo, fee, feeSliderValue, isLoading: false });
-              } catch (_e) {
-                const { address, amount, memo } = this.decodeBitcoinUri(text);
-                item.address = address || text;
-                item.amount = amount || item.amount;
-                transactions[index] = item;
-                this.setState({
-                  addresses: transactions,
-                  memo: memo || this.state.memo,
-                  isLoading: false,
-                  bip70TransactionExpiration: null,
-                });
-              }
+              const { address, amount, memo } = this.decodeBitcoinUri(text);
+              item.address = address || text;
+              item.amount = amount || item.amount;
+              transactions[index] = item;
+              this.setState({
+                addresses: transactions,
+                memo: memo || this.state.memo,
+                isLoading: false,
+              });
             }}
             onBarScanned={this.processAddressData}
             address={item.address}

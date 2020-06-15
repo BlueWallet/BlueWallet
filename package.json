@@ -40,7 +40,7 @@
     "e2e:release": "detox build -c android.emu.release; npm run e2e:release-no-build",
     "e2e:release-no-build": "detox test -c android.emu.release --record-videos all --take-screenshots all --headless",
     "e2e:debug": "(test -f android/app/build/outputs/apk/debug/app-debug.apk && test -f android/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk) || detox build -c android.emu.debug; detox test -c android.emu.debug",
-    "lint": "eslint *.js screen/**/*.js bip70/ blue_modules/crypto.js class/**/*.js models/ loc/ tests/**/*.js",
+    "lint": "eslint *.js screen/**/*.js blue_modules/crypto.js class/**/*.js models/ loc/ tests/**/*.js",
     "lint:fix": "npm run lint -- --fix",
     "lint:quickfix": "git status --porcelain | grep -v '\\.json' | grep '\\.js' --color=never |  awk '{print $2}' | xargs eslint --fix; exit 0",
     "unit": "jest tests/unit/*"
