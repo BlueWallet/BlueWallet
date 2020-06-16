@@ -367,7 +367,7 @@ export default class ScanLndInvoice extends React.Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => Linking.openURL(`https://hub.escher.app/cashout/BlueWallet?amount=${this.state.amount}`)} title={loc.send.details.create} />
+          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => Linking.openURL(`https://hub.escher.app/cashout/BlueWallet?amount=${this.state.amount}`)} title={'Send to Escher'} />
         )}
       </View>
     );
