@@ -230,6 +230,7 @@ module.exports = {
     refill: 'Déposer des fonds',
     withdraw: 'Retirer des fonds',
     placeholder: 'Invoice',
+    exchange: 'Exchange',
     expired: 'Expiré',
     sameWalletAsInvoiceError: 'Vous ne pouvez pas payer une facture avec le même portefeuille utilisé pour la créer.',
   },

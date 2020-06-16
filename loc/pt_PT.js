@@ -232,6 +232,7 @@ module.exports = {
     refill: 'Carregar',
     placeholder: 'Factura',
     withdraw: 'Transferir',
+    exchange: 'Exchange',
     expired: 'Expirado',
     sameWalletAsInvoiceError: 'Não pode pagar uma factura com a mesma wallet usada para a criar.',
   },

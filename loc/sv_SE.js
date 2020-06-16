@@ -228,6 +228,7 @@ module.exports = {
     refill_lnd_balance: 'Fyll på Lightning-plånbok',
     refill: 'Sätt in',
     withdraw: 'Ta ut',
+    exchange: 'Exchange',
     expired: 'Förfallen',
     placeholder: 'Faktura',
     sameWalletAsInvoiceError: 'Du kan inte betala en faktura från samma plånbok som användes för att skapa den.',
