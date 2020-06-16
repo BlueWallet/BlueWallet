@@ -28,7 +28,6 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
     onSave(value);
     props.navigation.pop();
   };
-
   return (
     <ScreenTemplate
       footer={
@@ -46,7 +45,7 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
           value={value}
           setValue={setValue}
           autoFocus={true}
-          error={value && !!validate && validate(value)}
+          error={!!validate && validate(value)}
           keyboardType={keyboardType as KeyboardType}
         />
       </View>

@@ -19,7 +19,7 @@ export const GenericInputItem = (props: Props) => {
   const [value, setValue] = useState(props.value);
   const handleValueSave = (newValue: string) => {
     setValue(newValue);
-    value && props.onSave && props.onSave(newValue);
+    value && props.onSave && props.onSave(value);
   };
   const onFocus = () => {
     NavigationService.navigate(Route.EditText, {
