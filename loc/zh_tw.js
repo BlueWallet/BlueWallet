@@ -223,6 +223,7 @@ module.exports = {
     refill: '充值',
     withdraw: '提取',
     expired: '超時',
+    exchange: 'Exchange',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError: '你不能用建立賬單的錢包去支付該賬單',
   },

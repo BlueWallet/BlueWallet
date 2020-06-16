@@ -232,6 +232,7 @@ module.exports = {
     refill_lnd_balance: 'Recarregar a carteira Lightning',
     refill: 'Recarregar',
     placeholder: 'Invoice',
+    exchange: 'Exchange',
     withdraw: 'Sacar',
     expired: 'Vencido',
     sameWalletAsInvoiceError: 'Você não pode pagar uma fatura com a mesma carteira que a criou.',

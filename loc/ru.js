@@ -232,6 +232,7 @@ module.exports = {
     refill: 'Пополнить',
     withdraw: 'Вывести',
     expired: 'Истекший',
+    exchange: 'Exchange',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError: 'Ты не можешь оплатить счет тем же кошельком, который ты использовал для его создания.',
   },

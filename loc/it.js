@@ -228,6 +228,7 @@ module.exports = {
     choose_source_wallet: 'Scegli un portafoglio sorgente',
     refill_lnd_balance: 'Ricarica saldo del portafoglio Lightning',
     refill: 'Ricarica',
+    exchange: 'Exchange',
     withdraw: 'Preleva',
     expired: 'Scaduto',
     placeholder: 'Fattura',
