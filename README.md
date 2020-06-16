@@ -69,14 +69,14 @@ The above command will build the app and install it. Once you launch the app it 
 
 ```
 cd ios
-pod install
+npx pod-install
 cd ..
-npm start ios
+npm start
 ```
 
 In another terminal window within the BlueWallet folder
 ```
-react-native run-ios
+npx react-native run-ios
 ```
 
 
