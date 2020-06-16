@@ -10,12 +10,14 @@ import {
   Keyboard,
   ScrollView,
   StyleSheet,
+  Linking,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
+  BlueSpacing20,
   BlueDismissKeyboardInputAccessory,
   BlueNavigationStyle,
   BlueAddressInput,
@@ -359,6 +361,18 @@ export default class ScanLndInvoice extends React.Component {
     console.log('scanLndInvoice did mount');
   }
 
+  renderEscherButton = () => {
+    return (
+      <View style={styles.createButton}>
+        {this.state.isLoading ? (
+          <ActivityIndicator />
+        ) : (
+          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => Linking.openURL(`https://hub.escher.app/cashout/BlueWallet?amount=${this.state.amount}`)} title={loc.send.details.create} />
+        )}
+      </View>
+    );
+  };
+
   render() {
     if (!this.state.fromWallet) {
       return <BlueLoading />;
@@ -371,7 +385,7 @@ export default class ScanLndInvoice extends React.Component {
             <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>
               <View style={styles.scrollMargin}>
                 <BlueBitcoinAmount
-                  pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
+                  // pointerEvents={this.state.isAmountInitiallyEmpty ? 'auto' : 'none'}
                   isLoading={this.state.isLoading}
                   amount={this.state.amount}
                   onAmountUnitChange={unit => {
@@ -387,11 +401,11 @@ export default class ScanLndInvoice extends React.Component {
                       this.setState({ decoded: decoded });
                     } */
                   }}
-                  disabled={
-                    typeof this.state.decoded !== 'object' ||
-                    this.state.isLoading ||
-                    (this.state.decoded && this.state.decoded.num_satoshis > 0)
-                  }
+                  // disabled={
+                  //   typeof this.state.decoded !== 'object' ||
+                  //   this.state.isLoading ||
+                  //   (this.state.decoded && this.state.decoded.num_satoshis > 0)
+                  // }
                   unit={BitcoinUnit.SATS}
                   inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
@@ -437,6 +451,9 @@ export default class ScanLndInvoice extends React.Component {
                       disabled={this.shouldDisablePayButton()}
                     />
                   )}
+                  <BlueSpacing20 />
+                              {this.renderEscherButton()}  
+
                 </BlueCard>
               </BlueCard>
             </KeyboardAvoidingView>
