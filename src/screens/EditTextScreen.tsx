@@ -12,6 +12,7 @@ export interface EditTextProps {
   onSave: (value: string) => void;
   label: string;
   value?: string;
+  validate?: (value: string) => string | undefined;
   keyboardType?: KeyboardType;
 }
 
@@ -20,6 +21,7 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
   const keyboardType: string = useNavigationParam('keyboardType') || 'default';
   const header: React.ReactNode = useNavigationParam('header');
   const onSave: (value: string) => void = useNavigationParam('onSave');
+  const validate: (value: string) => string | undefined = useNavigationParam('validate') || null;
   const [value, setValue] = useState(useNavigationParam('value') || '');
 
   const handlePressOnSaveButton = () => {
@@ -28,7 +30,15 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
   };
 
   return (
-    <ScreenTemplate footer={<Button title={i18n._.save} onPress={handlePressOnSaveButton} disabled={!value} />}>
+    <ScreenTemplate
+      footer={
+        <Button
+          title={i18n._.save}
+          onPress={handlePressOnSaveButton}
+          disabled={!value || (!!validate && !!validate(value))}
+        />
+      }
+    >
       {header}
       <View style={styles.inputItemContainer}>
         <InputItem
@@ -36,6 +46,7 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
           value={value}
           setValue={setValue}
           autoFocus={true}
+          error={value && !!validate && validate(value)}
           keyboardType={keyboardType as KeyboardType}
         />
       </View>
