@@ -12,7 +12,15 @@ import {
   TouchableHighlight,
   View,
 } from 'react-native';
-import { BlueButton, BlueLoading, BlueNavigationStyle, BlueSpacing10, BlueSpacing20, SafeBlueArea } from '../../BlueComponents';
+import {
+  BlueButton,
+  BlueCopyTextToClipboard,
+  BlueLoading,
+  BlueNavigationStyle,
+  BlueSpacing10,
+  BlueSpacing20,
+  SafeBlueArea,
+} from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
@@ -215,7 +223,7 @@ export default class HodlHodlMyContracts extends Component {
                 <Text style={styles.subheaderText}>How to pay</Text>
                 <View style={styles.modalContentCentered}>
                   <View style={styles.statusGrayWrapper2}>
-                    <Text style={styles.statusGrayText2}>{this.state.contractToDisplay.payment_method_instruction.details}</Text>
+                    <BlueCopyTextToClipboard text={this.state.contractToDisplay.payment_method_instruction.details} />
                   </View>
                 </View>
               </View>
@@ -385,7 +393,8 @@ const styles = StyleSheet.create({
   statusGrayWrapper2: {
     backgroundColor: '#f8f8f8',
     borderRadius: 5,
-    height: 28,
+    minHeight: 28,
+    maxHeight: 56,
     justifyContent: 'center',
     alignItems: 'center',
     paddingLeft: 15,
