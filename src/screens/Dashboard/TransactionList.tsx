@@ -91,7 +91,6 @@ export class TransactionList extends Component<Props, State> {
   };
 
   render() {
-    console.log('this.props.filters.isFilteringOn', this.props.filters.isFilteringOn);
     return (
       <View style={{ padding: 20 }}>
         <SectionList

@@ -64,28 +64,13 @@ class DashboardScreen extends Component<Props, State> {
 
   refreshTransactions = async () => {
     this.setState({ isFetching: true });
-    const { lastSnappedTo } = this.state;
-    const { wallets } = this.props;
-    if (isAllWallets(wallets[lastSnappedTo])) {
-      await this.props.loadWallets();
-    } else {
-      await this.props.loadTransactions(wallets[lastSnappedTo].secret);
-    }
+    await this.props.loadWallets();
+
     this.setState({ isFetching: false });
   };
 
   chooseItemFromModal = (index: number) => {
     this.setState({ lastSnappedTo: index });
-  };
-
-  onSnapToItem = async (index: number) => {
-    this.refreshWallet(index);
-  };
-
-  refreshWallet = (index: number) => {
-    // TODO do not get all data eagerly
-    console.log('fetch data for wallet:', index);
-    this.props.loadWallets();
   };
 
   _keyExtractor = (item: Wallet, index: number) => index.toString();
@@ -136,7 +121,6 @@ class DashboardScreen extends Component<Props, State> {
   };
 
   resetFilters = () => {
-    console.log('resetFilters');
     this.setState({
       filters: {
         isFilteringOn: false,
@@ -201,8 +185,8 @@ class DashboardScreen extends Component<Props, State> {
                   ref={this.walletCarouselRef}
                   data={wallets.filter(wallet => wallet.label !== CONST.allWallets)}
                   keyExtractor={this._keyExtractor as any}
-                  onSnapToItem={(index: number) => {
-                    this.onSnapToItem(index);
+                  onSnapToItem={() => {
+                    this.props.loadWallets();
                   }}
                 />
               ) : (
