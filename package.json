@@ -1,6 +1,6 @@
 {
   "name": "bluewallet",
-  "version": "5.4.2",
+  "version": "5.4.3",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -117,6 +117,7 @@
     "react-native-image-picker": "1.1.0",
     "react-native-level-fs": "3.0.1",
     "react-native-linear-gradient": "2.5.6",
+    "react-native-localize": "  1.4.0",
     "react-native-modal": "11.5.6",
     "react-native-obscure": "1.2.1",
     "react-native-popup-menu-android": "1.0.3",
@@ -126,7 +127,7 @@
     "react-native-quick-actions": "0.3.13",
     "react-native-randombytes": "3.5.3",
     "react-native-rate": "1.1.10",
-    "react-native-safe-area-context": "2.0.0",
+    "react-native-safe-area-context": "2.0.3",
     "react-native-screens": "2.8.0",
     "react-native-secure-key-store": "git+https://github.com/BlueWallet/react-native-secure-key-store.git#4ba25dedb3d5ae15c22fd0ea0555116055630966",
     "react-native-share": "2.0.0",
@@ -137,7 +138,7 @@
     "react-native-tooltip": "git+https://github.com/marcosrdz/react-native-tooltip.git",
     "react-native-vector-icons": "6.6.0",
     "react-native-watch-connectivity": "0.4.2",
-    "react-native-webview": "6.11.1",
+    "react-native-webview": "9.0.2",
     "react-test-render": "1.1.2",
     "readable-stream": "3.6.0",
     "rn-nodeify": "10.2.0",

@@ -230,6 +230,7 @@ module.exports = {
     refill_lnd_balance: 'Vul Lightning-portemonneesaldo bij',
     refill: 'Bijvullen',
     withdraw: 'Opvragen',
+    exchange: 'Exchange',
     expired: 'Verlopen',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError: 'U kunt geen factuur betalen met dezelfde portemonnee die is gebruikt om de factuur te maken.',

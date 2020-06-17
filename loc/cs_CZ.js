@@ -228,6 +228,7 @@ module.exports = {
     withdraw: 'Vybrat',
     expired: 'Expirováno',
     placeholder: 'Invoice',
+    exchange: 'Exchange',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {

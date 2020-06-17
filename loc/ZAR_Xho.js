@@ -229,6 +229,7 @@
     choose_source_wallet: 'Ukhethe ingxowa yomthombo',
     refill_lnd_balance: 'Gcwalisa ingxowa yakho yemali',
     refill: 'Gcwalisa',
+    exchange: 'Exchange',
     withdraw: 'Khupha imali',
     expired: 'Iphelewe lixesha',
     placeholder: 'Invoyisi',

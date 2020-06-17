@@ -225,6 +225,7 @@ module.exports = {
     choose_source_wallet: 'Pilih dompet sumber',
     refill_lnd_balance: 'Isi ulang saldo Lightning',
     refill: 'Isi ulang',
+    exchange: 'Exchange',
     withdraw: 'Tarik',
     placeholder: 'Invoice',
     expired: 'Kadaluarsa',

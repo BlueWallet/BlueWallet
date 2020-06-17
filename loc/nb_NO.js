@@ -228,6 +228,7 @@ module.exports = {
     refill: 'Fylle på',
     withdraw: 'Ta ut',
     expired: 'Utløpt',
+    exchange: 'Exchange',
     placeholder: 'Faktura',
     sameWalletAsInvoiceError: 'Du kan ikke betale en faktura med samme lommebok som brukes til å lage den.',
   },
