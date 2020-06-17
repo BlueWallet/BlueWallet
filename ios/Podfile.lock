@@ -261,7 +261,7 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-safe-area-context (2.0.0):
+  - react-native-safe-area-context (2.0.3):
     - React
   - react-native-slider (3.0.0):
     - React
@@ -642,7 +642,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
-  react-native-safe-area-context: 0b0460e3298465bdb4b859ea43c2d7b9128cf988
+  react-native-safe-area-context: ce7e110923a56ba3e3c615d4920ebbe01324326e
   react-native-slider: 05f11678260cb27c3d00a2dd1558b623be3ec8d2
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: 838be111a7805977e5fc4fa6b66ae293f6c17384
