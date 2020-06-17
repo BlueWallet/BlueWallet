@@ -226,6 +226,7 @@ module.exports = {
     choose_source_wallet: 'Vyberte zdrojovú peňaženku',
     refill_lnd_balance: 'Doplniť zostatok na Lightning peňaženke',
     refill: 'Doplniť',
+    exchange: 'Exchange',
     withdraw: 'Vybrať',
     expired: 'Expirovaná',
     placeholder: 'Faktúra',

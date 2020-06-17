@@ -227,6 +227,7 @@ module.exports = {
     choose_source_wallet: 'Vælge en wallet',
     refill_lnd_balance: 'Genopfyld Lightning wallet',
     refill: 'Genopfyld',
+    exchange: 'Exchange',
     withdraw: 'Træk coins tilbage',
     expired: 'Expired',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',

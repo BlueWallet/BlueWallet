@@ -229,6 +229,7 @@ module.exports = {
     choose_source_wallet: 'Elija una billetera de fuente',
     refill_lnd_balance: 'Rellenar el balance de la billetera Lightning',
     refill: 'Rellenar',
+    exchange: 'Exchange',
     withdraw: 'Retirar',
     placeholder: 'Invoice',
     expired: 'Expirado',

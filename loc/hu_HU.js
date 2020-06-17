@@ -227,6 +227,7 @@ module.exports = {
     choose_source_wallet: 'Válassz forrás tárcát',
     refill_lnd_balance: 'Lightning egyenleg feltöltése',
     refill: 'Feltölt',
+    exchange: 'Exchange',
     withdraw: 'Pénzkivétel',
     expired: 'Lejárt',
     placeholder: 'Számla',
