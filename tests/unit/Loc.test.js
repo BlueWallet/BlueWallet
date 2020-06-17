@@ -92,8 +92,7 @@ describe('Localization', () => {
         const files = fs.readdirSync('./loc/');
 
         for (const lang of files) {
-          if (lang === 'en.js') continue; // iteratin all locales except EN
-          if (lang === 'index.js') continue;
+          if (lang === 'en.js' || lang === 'index.js' || lang === 'languages.js') continue; // iteratin all locales except EN
 
           const locale = require('../../loc/' + lang);
 
