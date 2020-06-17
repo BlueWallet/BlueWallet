@@ -222,6 +222,7 @@ module.exports = {
     refill_lnd_balance: '给闪电钱包充值',
     refill: '充值',
     withdraw: '提取',
+    exchange: 'Exchange',
     expired: '超时',
     sameWalletAsInvoiceError: '你不能用创建账单的钱包去支付该账单',
     placeholder: 'Invoice',

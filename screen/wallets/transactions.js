@@ -430,7 +430,7 @@ export default class WalletTransactions extends Component {
             />
 
             <BlueListItem
-              title={loc.lnd.withdraw}
+              title={loc.lnd.exchange}
               hideChevron
               component={TouchableOpacity}
               onPress={a => {

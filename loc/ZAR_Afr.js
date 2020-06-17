@@ -229,6 +229,7 @@
     withdraw: 'Ontrek',
     expired: 'Verval',
     placeholder: 'Faktuur',
+    exchange: 'Exchange',
     sameWalletAsInvoiceError: 'U kan nie ‘n faktuur betaal met die selfde beursie waarmee die faktuur geksep is nie.',
   },
   pleasebackup: {

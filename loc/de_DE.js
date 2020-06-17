@@ -231,6 +231,7 @@ module.exports = {
     refill: 'Aufladen',
     withdraw: 'Abheben',
     expired: 'Abgelaufen',
+    exchange: 'Exchange',
     placeholder: 'Rechnung',
     sameWalletAsInvoiceError:
       'Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.',

@@ -227,6 +227,7 @@ module.exports = {
     refill_lnd_balance: 'Lightning cüzdana bakiye yükle',
     refill: 'Yükle',
     withdraw: 'Çek',
+    exchange: 'Exchange',
     expired: 'Süresi doldu',
     placeholder: 'Fatura',
     sameWalletAsInvoiceError: 'Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.',

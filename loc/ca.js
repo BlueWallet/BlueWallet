@@ -229,6 +229,7 @@ module.exports = {
     refill: 'Recarregar',
     withdraw: 'Retirar',
     placeholder: 'Factura',
+    exchange: 'Exchange',
     expired: 'Caducat',
     sameWalletAsInvoiceError: "No pots pagar una factura amb el mateix moneder que l'ha creat.",
   },
