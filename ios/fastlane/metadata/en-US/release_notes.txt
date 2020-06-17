@@ -1,3 +1,20 @@
+v5.4.3
+======
+
+* ADD: Login to Local Trader with HodlHodl
+* ADD: See full listing screen
+* ADD: See your contracts/offers
+* ADD: Accept offer (buy Bitcoin)
+* ADD: You can now modify on-chain transaction note to self
+* ADD: ILS Fiat
+* REF: improved electrum server connectivity
+* FIX: deeplinking for cold boot
+* FIX: lnurl withdrawal when default unit is not sat (closes #1234)
+* FIX: StatusBar wasn't visible when modals opened
+* FIX: Euro symbol for iOS Today extension
+* FIX: Change Withdraw to Exchange
+* DEL: support for BIP70
+
 v5.4.1
 ======
 
@@ -37,13 +54,3 @@ v5.3.9
 * FIX: Add chevrons on Settings and add wallets screens
 * FIX: Wallet Animation for press out
 * FIX: typo
-
-v5.3.7
-======
-
-* ADD: Storage delete/not-delete for unencrypted storage.
-* ADD: some missing localizations
-* FIX: Fee suggestion selection
-* FIX: allow view to be scrolled on small devices
-* FIX: Biometrics switch value
-* REF: prevent possible crash on ln view invoice screen
