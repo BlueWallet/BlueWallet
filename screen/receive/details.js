@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   InteractionManager,
@@ -46,7 +46,7 @@ const ReceiveDetails = () => {
   const [customAmount, setCustomAmount] = useState(0);
   const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
   const [bip21encoded, setBip21encoded] = useState();
-  const [qrCodeSVG, setQrCodeSVG] = useState();
+  const qrCodeSVG = useRef();
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
@@ -192,7 +192,7 @@ const ReceiveDetails = () => {
       Share.open({ message: bip21encoded }).catch(error => console.log(error));
     } else {
       InteractionManager.runAfterInteractions(async () => {
-        qrCodeSVG.toDataURL(data => {
+        qrCodeSVG.current.toDataURL(data => {
           const shareImageBase64 = {
             message: bip21encoded,
             url: `data:image/png;base64,${data}`,
@@ -253,7 +253,7 @@ const ReceiveDetails = () => {
               color={BlueApp.settings.foregroundColor}
               logoBackgroundColor={BlueApp.settings.brandingColor}
               ecl="H"
-              getRef={setQrCodeSVG}
+              getRef={qrCodeSVG}
             />
           )}
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
