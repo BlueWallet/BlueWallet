@@ -31,6 +31,7 @@ export class AbstractWallet {
     this.chain = Chain.ONCHAIN;
     this.hideBalance = false;
     this.userHasSavedExport = false;
+    this._hideTransactionsInWalletsList = false;
   }
 
   getID() {
@@ -47,6 +48,14 @@ export class AbstractWallet {
 
   setUserHasSavedExport(value) {
     this.userHasSavedExport = value;
+  }
+
+  getHideTransactionsInWalletsList() {
+    return this._hideTransactionsInWalletsList;
+  }
+
+  setHideTransactionsInWalletsList(value) {
+    this._hideTransactionsInWalletsList = value;
   }
 
   /**
