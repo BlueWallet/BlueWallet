@@ -479,6 +479,7 @@ export class AppStorage {
    *
    * @param index {Integer|null} Wallet index in this.wallets. Empty (or null) for all wallets.
    * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
+   * @param includeWalletsWithHideTransactionsEnabled {Boolean} Wallets' _hideTransactionsInWalletsList property determines wether the user wants this wallet's txs hidden from the main list view.
    * @return {Array}
    */
   getTransactions(index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = false) {
@@ -494,19 +495,12 @@ export class AppStorage {
     }
 
     let txs = [];
-    for (const wallet of this.wallets) {
-      if (
-        includeWalletsWithHideTransactionsEnabled ||
-        (!includeWalletsWithHideTransactionsEnabled && !wallet.getHideTransactionsInWalletsList())
-      ) {
-        const walletTransactions = wallet.getTransactions();
-        for (const t of walletTransactions) {
-          t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
-        }
-        txs = txs.concat(walletTransactions);
-      } else {
-        continue;
+    for (const wallet of this.wallets.filter(w => includeWalletsWithHideTransactionsEnabled || !w.getHideTransactionsInWalletsList())) {
+      const walletTransactions = wallet.getTransactions();
+      for (const t of walletTransactions) {
+        t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
       }
+      txs = txs.concat(walletTransactions);
     }
 
     for (const t of txs) {
@@ -554,7 +548,7 @@ export class AppStorage {
    */
   async getHodlHodlContracts() {
     try {
-      let json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
+      const json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
       return JSON.parse(json);
     } catch (_) {}
     return [];
