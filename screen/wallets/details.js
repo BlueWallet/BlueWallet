@@ -148,7 +148,8 @@ export default class WalletDetails extends Component {
       if (this.state.walletName.trim().length > 0) {
         this.state.wallet.setLabel(this.state.walletName);
       }
-      BlueApp.saveToDisk();
+      await BlueApp.saveToDisk();
+      EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
       alert('Wallet updated.');
       this.props.navigation.goBack(null);
     });
@@ -187,6 +188,14 @@ export default class WalletDetails extends Component {
       return { useWithHardwareWallet: !!value, wallet };
     });
   }
+
+  onHideTransactionsInWalletsListSwitch = value => {
+    this.setState(state => {
+      const wallet = state.wallet;
+      wallet.setHideTransactionsInWalletsList(!value);
+      return { wallet };
+    });
+  };
 
   renderMarketplaceButton = () => {
     return Platform.select({
@@ -270,6 +279,16 @@ export default class WalletDetails extends Component {
                     <BlueText>{this.state.wallet.getBaseURI()}</BlueText>
                   </>
                 )}
+                <>
+                  <Text style={styles.textLabel2}>{loc.transactions.list.title.toLowerCase()}</Text>
+                  <View style={styles.hardware}>
+                    <BlueText>display in wallets list</BlueText>
+                    <Switch
+                      value={!this.state.wallet.getHideTransactionsInWalletsList()}
+                      onValueChange={this.onHideTransactionsInWalletsListSwitch}
+                    />
+                  </View>
+                </>
                 <View>
                   <BlueSpacing20 />
                   {this.state.wallet.type === WatchOnlyWallet.type && this.state.wallet.getSecret().startsWith('zpub') && (
