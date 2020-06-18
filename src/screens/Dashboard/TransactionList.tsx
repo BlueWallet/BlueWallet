@@ -54,7 +54,6 @@ export class TransactionList extends Component<Props, State> {
       .sort((a: any, b: any) => b.time - a.time);
 
     const filteredBySearch = props.search ? filterBySearch(dataToGroup, props.search) : dataToGroup;
-
     const uniqueValues = [...new Set(filteredBySearch.map((item: any) => item.day))].sort(
       (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime(),
     );
