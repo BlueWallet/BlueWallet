@@ -104,7 +104,7 @@
     "react": "16.11.0",
     "react-localization": "1.0.15",
     "react-native": "0.62.2",
-    "react-native-biometrics": "git+https://github.com/BlueWallet/react-native-biometrics.git#2.0.0",
+    "react-native-biometrics": "git+https://github.com/BlueWallet/react-native-biometrics.git#f62b0b193e10376d4a0e8195c700a364ed4e5aaa",
     "react-native-blue-crypto": "git+https://github.com/Overtorment/react-native-blue-crypto.git",
     "react-native-camera": "3.26.0",
     "react-native-default-preference": "1.4.3",
