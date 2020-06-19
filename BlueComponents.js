@@ -27,7 +27,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
 import { BitcoinUnit } from './models/bitcoinUnits';
-import NavigationService from './NavigationService';
+import * as NavigationService from './NavigationService';
 import WalletGradient from './class/wallet-gradient';
 import ToolTip from 'react-native-tooltip';
 import { BlurView } from '@react-native-community/blur';
