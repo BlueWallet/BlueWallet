@@ -72,10 +72,10 @@ export class InputItem extends PureComponent<Props, State> {
       this.setState({
         isActive: false,
       });
-      // @ts-ignore
       Animated.timing(this.state.isAnimatedFocused, {
         toValue: 0,
         duration: 200,
+        useNativeDriver: false,
       }).start();
     }
   }
