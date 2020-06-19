@@ -23,7 +23,7 @@ import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const A = require('../../analytics');

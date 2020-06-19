@@ -33,7 +33,7 @@ import WalletGradient from '../../class/wallet-gradient';
 import { Icon } from 'react-native-elements';
 import { LightningCustodianWallet, WatchOnlyWallet } from '../../class';
 import Modal from 'react-native-modal';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
 import ActionSheet from '../ActionSheet';
