@@ -68,7 +68,7 @@ export class InputItem extends PureComponent<Props, State> {
     if (this.props.value) {
       this.animateFocus();
     }
-    if (!this.props.value) {
+    if (!this.props.value && this.props.editable === false) {
       this.setState({
         isActive: false,
       });
