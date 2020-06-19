@@ -75,9 +75,9 @@ export const filterBySearch = (transactions: Transaction[], search: string) => {
       outputs.push(...output.addresses);
     });
     return (
-      transaction.note?.includes(search) ||
-      inputs.map(input => input.includes(search)).includes(true) ||
-      outputs.map(output => output.includes(search)).includes(true) ||
+      transaction.note?.toLowerCase().includes(search) ||
+      inputs.map(input => input.toLowerCase().includes(search)).includes(true) ||
+      outputs.map(output => output.toLowerCase().includes(search)).includes(true) ||
       i18n
         .formatBalanceWithoutSuffix(Math.abs(Number(transaction.value)), transaction.walletPreferredBalanceUnit)
         .includes(search)
