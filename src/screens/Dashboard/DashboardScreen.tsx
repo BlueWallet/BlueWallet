@@ -205,6 +205,7 @@ class DashboardScreen extends Component<Props, State> {
               transactions={isAllWallets(activeWallet) ? allTransactions : transactions[activeWallet.secret] || []}
               transactionNotes={this.props.transactionNotes}
               label={activeWallet.label}
+              headerHeight={this.state.contentdHeaderHeight}
             />
           </ScreenTemplate>
           {!!filters.isFilteringOn && (

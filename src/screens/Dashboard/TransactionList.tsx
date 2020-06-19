@@ -23,6 +23,7 @@ interface Props {
   filters: Filters;
   transactions: Transaction[];
   transactionNotes: Record<string, string>;
+  headerHeight: number;
 }
 
 interface State {
@@ -90,11 +91,13 @@ export class TransactionList extends Component<Props, State> {
   };
 
   render() {
+    const { transactions } = this.state;
+    const { headerHeight, search } = this.props;
     return (
       <View style={{ padding: 20 }}>
         <SectionList
-          ListFooterComponent={this.props.search ? <View style={styles.footer} /> : null}
-          sections={this.state.transactions}
+          ListFooterComponent={search ? <View style={{ height: transactions.length ? headerHeight / 2 : 0 }} /> : null}
+          sections={transactions}
           keyExtractor={(item, index) => `${item.txid}-${index}`}
           renderItem={item => <TransactionItem item={item.item} onPress={this.onTransactionItemPress} />}
           renderSectionHeader={this.renderSectionTitle}
@@ -109,7 +112,6 @@ const styles = StyleSheet.create({
   noTransactionsContainer: {
     alignItems: 'center',
   },
-  footer: { height: 500 },
   noTransactionsImage: { height: 167, width: 167, marginVertical: 30 },
   noTransactionsLabel: {
     ...typography.caption,
