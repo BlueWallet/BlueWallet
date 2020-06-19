@@ -1421,14 +1421,17 @@ export class NewWalletPanel extends Component {
   }
 }
 
-export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC, shouldRefresh }) => {
-  const [transactionTimeToReadable, setTransactionTimeToReadable] = useState('...');
+export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
 
+  // re-render component every one minute
+  const [tick, setTick] = useState(0);
   useEffect(() => {
-    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
-    return setTransactionTimeToReadable(transactionTimeToReadable);
-  }, [item, itemPriceUnit, shouldRefresh]);
+    const id = setInterval(() => setTick(tick + 1), 60000);
+    return () => clearInterval(id);
+  }, [tick]);
+
+  const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
 
   const txMemo = () => {
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
@@ -1604,7 +1607,7 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
       rightTitleStyle={rowTitleStyle()}
     />
   );
-};
+});
 
 export class BlueListTransactionItem extends Component {
   static propTypes = {

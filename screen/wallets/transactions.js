@@ -222,16 +222,12 @@ export default class WalletTransactions extends Component {
       dataSource: this.getTransactions(15),
       limit: 15,
       pageSize: 20,
-      timeElapsed: 0, // this is to force a re-render for FlatList items.
     };
   }
 
   componentDidMount() {
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     this.props.navigation.setParams({ isLoading: false });
-    this.interval = setInterval(() => {
-      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
-    }, 60000);
     HandoffSettings.isHandoffUseEnabled().then(enabled => this.setState({ isHandOffUseEnabled: enabled }));
     this.setState({ isLoading: false });
   }
@@ -541,7 +537,6 @@ export default class WalletTransactions extends Component {
   };
 
   componentWillUnmount() {
-    clearInterval(this.interval);
     this._unsubscribeFocus();
   }
 
@@ -557,11 +552,7 @@ export default class WalletTransactions extends Component {
   renderItem = item => {
     return (
       <View style={styles.item}>
-        <BlueTransactionListItem
-          item={item.item}
-          itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
-          shouldRefresh={this.state.timeElapsed}
-        />
+        <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()} />
       </View>
     );
   };
@@ -747,7 +738,6 @@ export default class WalletTransactions extends Component {
             refreshControl={
               <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
             }
-            extraData={this.state.dataSource}
             data={this.state.dataSource}
             keyExtractor={this._keyExtractor}
             renderItem={this.renderItem}
