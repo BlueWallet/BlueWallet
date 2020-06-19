@@ -12,6 +12,7 @@ import { CardGroup } from 'app/components/CardGroup';
 import { RowTemplate } from 'app/components/RowTemplate';
 import { CONST, Route } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
+import { AppStateManager } from 'app/services';
 
 const i18n = require('../../loc');
 
@@ -56,6 +57,7 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps<{ onFilter
   const renderCommonCardContent = () => (
     <>
       <View style={styles.spacing10}>
+        <AppStateManager handleAppComesToBackground={closeCalendar} />
         <RowTemplate
           items={[
             <View key={Index.From}>
