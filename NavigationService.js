@@ -1,16 +1,12 @@
-// import { CommonActions } from '@react-navigation/native';
+/* eslint-disable no-unused-expressions */
+import * as React from 'react';
 
-let _navigator;
+export const navigationRef = React.createRef();
 
-function setTopLevelNavigator(navigatorRef) {
-  _navigator = navigatorRef;
+export function navigate(name, params) {
+  navigationRef.current?.navigate(name, params);
 }
 
-function navigate(name, params) {
-  _navigator.navigate(name, params);
+export function dispatch(params) {
+  navigationRef.current?.dispatch(params);
 }
-
-export default {
-  navigate,
-  setTopLevelNavigator,
-};

@@ -6,7 +6,8 @@ import Modal from 'react-native-modal';
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
-import NavigationService from './NavigationService';
+import { navigationRef } from './NavigationService';
+import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
@@ -28,19 +29,17 @@ const loc = require('./loc');
 const BlueApp = require('./BlueApp');
 
 export default class App extends React.Component {
-  navigation = null;
-
   state = {
     appState: AppState.currentState,
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
+    isColdStart: true,
   };
 
   componentDidMount() {
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-    QuickActions.popInitialAction().then(this.popInitialAction);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
     this._handleAppStateChange(undefined);
   }
@@ -48,7 +47,7 @@ export default class App extends React.Component {
   popInitialAction = async data => {
     if (data) {
       const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-      this.navigation.dispatch(
+      NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
           key: `WalletTransactions-${wallet.getID()}`,
@@ -69,7 +68,7 @@ export default class App extends React.Component {
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
           const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
-            this.navigation.dispatch(
+            NavigationService.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
@@ -86,7 +85,7 @@ export default class App extends React.Component {
 
   walletQuickActions = data => {
     const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-    this.navigation.dispatch(
+    NavigationService.dispatch(
       CommonActions.navigate({
         name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
@@ -145,7 +144,7 @@ export default class App extends React.Component {
     const clipboardContent = this.state.clipboardContent;
     if (wallet.chain === Chain.ONCHAIN) {
       this.navigation &&
-        this.navigation.dispatch(
+        NavigationService.dispatch(
           CommonActions.navigate({
             name: 'SendDetails',
             params: {
@@ -156,7 +155,7 @@ export default class App extends React.Component {
         );
     } else if (wallet.chain === Chain.OFFCHAIN) {
       this.navigation &&
-        this.navigation.dispatch(
+        NavigationService.dispatch(
           CommonActions.navigate({
             name: 'ScanLndInvoice',
             params: {
@@ -169,11 +168,7 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    // dirty hack with timeout till we make a proper refactoring
-    // @see https://reactnavigation.org/docs/deep-linking/
-    setTimeout(() => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigation && this.navigation.navigate(...value));
-    }, 1000);
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value));
   };
 
   renderClipboardContentModal = () => {
@@ -215,19 +210,23 @@ export default class App extends React.Component {
     );
   };
 
+  getInitialURLAfterSettingNavigationRef = ref => {
+    if (this.state.isColdStart) {
+      this.setState({ isColdStart: false });
+      navigationRef.current = ref;
+      QuickActions.popInitialAction().then(this.popInitialAction);
+    } else {
+      navigationRef.current = ref;
+    }
+  };
+
   render() {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer
-            ref={nav => {
-              this.navigation = nav;
-              NavigationService.setTopLevelNavigator(nav);
-            }}
-          >
+          <NavigationContainer ref={this.getInitialURLAfterSettingNavigationRef}>
             <Navigation />
           </NavigationContainer>
-
           {this.renderClipboardContentModal()}
         </View>
       </SafeAreaProvider>
