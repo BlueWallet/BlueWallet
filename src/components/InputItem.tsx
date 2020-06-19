@@ -68,14 +68,14 @@ export class InputItem extends PureComponent<Props, State> {
     if (this.props.value) {
       this.animateFocus();
     }
-    if (!this.props.value && this.props.editable === false) {
+    if (!this.props.value) {
       this.setState({
         isActive: false,
       });
+      // @ts-ignore
       Animated.timing(this.state.isAnimatedFocused, {
         toValue: 0,
         duration: 200,
-        useNativeDriver: false,
       }).start();
     }
   }

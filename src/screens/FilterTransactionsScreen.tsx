@@ -51,6 +51,8 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps<{ onFilter
     setDateKey(index);
   };
 
+  const closeCalendar = () => setIsCalendarVisible(false);
+
   const renderCommonCardContent = () => (
     <>
       <View style={styles.spacing10}>
@@ -69,10 +71,20 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps<{ onFilter
                 onPress={() => showCalendar(Index.From)}
                 style={styles.buttonOverlay}
               />
+              {!!fromDate && (
+                <TouchableOpacity style={styles.clearButton} onPress={() => setFromDate('')}>
+                  <Image source={images.closeInverted} style={styles.clearImage} />
+                </TouchableOpacity>
+              )}
             </View>,
             <View key={Index.To}>
               <InputItem label={i18n.filterTransactions.toDate} value={toDate} editable={false} />
               <TouchableOpacity onPress={() => showCalendar(Index.To)} style={styles.buttonOverlay} />
+              {!!toDate && (
+                <TouchableOpacity style={styles.clearButton} onPress={() => setToDate('')}>
+                  <Image source={images.closeInverted} style={styles.clearImage} />
+                </TouchableOpacity>
+              )}
             </View>,
           ]}
         />
@@ -131,7 +143,7 @@ export const FilterTransactionsScreen = (props: NavigationScreenProps<{ onFilter
         </>
       }
     >
-      <Calendar isVisible={isCalendarVisible} onDateSelect={onDateSelect} />
+      <Calendar isVisible={isCalendarVisible} onDateSelect={onDateSelect} onClose={closeCalendar} />
       <CardGroup
         onCardPressAction={title => setTransactionType(title)}
         cards={[
@@ -162,4 +174,6 @@ const styles = StyleSheet.create({
     right: 10,
     position: 'absolute',
   },
+  clearButton: { padding: 10, alignSelf: 'flex-end', position: 'absolute' },
+  clearImage: { height: 25, width: 25 },
 });
