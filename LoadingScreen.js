@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import LottieView from 'lottie-react-native';
 import WalletMigrate from './screen/wallets/walletMigrate';
 import * as NavigationService from './NavigationService';
@@ -25,7 +25,10 @@ const LoadingScreen = () => {
     }
   };
 
-  walletMigrate.current.start();
+  useEffect(() => {
+    walletMigrate.current.start();
+  }, [walletMigrate]);
+
   return (
     <LottieView
       ref={loadingAnimation}
