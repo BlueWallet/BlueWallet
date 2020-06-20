@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../prompt');

@@ -23,7 +23,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 const currency = require('../../blue_modules/currency');

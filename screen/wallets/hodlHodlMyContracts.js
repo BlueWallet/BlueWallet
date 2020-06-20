@@ -24,7 +24,7 @@ import {
 import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 

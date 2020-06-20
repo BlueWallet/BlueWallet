@@ -22,7 +22,7 @@ import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 const EV = require('../../events');
 const A = require('../../analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
