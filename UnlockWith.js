@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
-import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as NavigationService from './NavigationService';
+import { StackActions } from '@react-navigation/native';
 /** @type {AppStorage} */
 
 const BlueApp = require('./BlueApp');
@@ -64,7 +65,7 @@ export default class UnlockWith extends Component {
   }
 
   successfullyAuthenticated = () => {
-    this.props.onSuccessfullyAuthenticated();
+    NavigationService.dispatch(StackActions.replace('WalletsRoot'));
   };
 
   unlockWithBiometrics = async () => {
@@ -75,7 +76,7 @@ export default class UnlockWith extends Component {
       if (await Biometric.unlockWithBiometrics()) {
         this.setState({ isAuthenticating: false });
         await BlueApp.startAndDecrypt();
-        return this.props.onSuccessfullyAuthenticated();
+        return this.successfullyAuthenticated();
       }
       this.setState({ isAuthenticating: false });
     });
@@ -84,7 +85,7 @@ export default class UnlockWith extends Component {
   unlockWithKey = () => {
     this.setState({ isAuthenticating: true }, async () => {
       await BlueApp.startAndDecrypt();
-      this.props.onSuccessfullyAuthenticated();
+      this.successfullyAuthenticated();
     });
   };
 
@@ -130,7 +131,3 @@ export default class UnlockWith extends Component {
     );
   }
 }
-
-UnlockWith.propTypes = {
-  onSuccessfullyAuthenticated: PropTypes.func,
-};
