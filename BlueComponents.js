@@ -1427,7 +1427,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   // re-render component every one minute
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    const id = setInterval(() => setTick(tick + 1), 60000);
+    const id = setInterval(() => setTick(tick + 1), 60000 + Math.random() * 5000);
     return () => clearInterval(id);
   }, [tick]);
 
