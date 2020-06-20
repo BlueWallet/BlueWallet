@@ -10,7 +10,6 @@
 		00E356F31AD99517003FC87E /* BlueWalletTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BlueWalletTests.m */; };
 		036397B3AA70DD314F31661C /* libPods-BlueWalletWatch Extension.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 154B05BEF3C3512F67A08374 /* libPods-BlueWalletWatch Extension.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
-		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		267263A381F944A9AAB0FA0A /* libRNSentry-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F11DD40F6E9A4F13B3410B94 /* libRNSentry-tvOS.a */; };
@@ -27,6 +26,7 @@
 		3271B0BB236E329400DA766F /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3271B0BA236E329400DA766F /* API.swift */; };
 		32B5A32A2334450100F8D608 /* Bridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A3292334450100F8D608 /* Bridge.swift */; };
 		32F0A29A2311DBB20095C559 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F0A2992311DBB20095C559 /* ComplicationController.swift */; };
+		6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */; };
 		764B49B1420D4AEB8109BF62 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B468CC34D5B41F3950078EF /* libsqlite3.0.tbd */; };
 		782F075B5DD048449E2DECE9 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B9D9B3A7B2CB4255876B67AF /* libz.tbd */; };
 		906451CAD44154C2950030EC /* libPods-BlueWallet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 731973BA0AC6EA78962CE5B6 /* libPods-BlueWallet.a */; };
@@ -141,7 +141,6 @@
 		13B07F961A680F5B00A75B9A /* BlueWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = BlueWallet/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = BlueWallet/AppDelegate.m; sourceTree = "<group>"; };
-		13B07FB21A68108700A75B9A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BlueWallet/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = BlueWallet/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = BlueWallet/main.m; sourceTree = "<group>"; };
@@ -179,6 +178,7 @@
 		50C1C9332FCD3F4DB88A0BB0 /* Pods-BlueWalletWatch.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWalletWatch.release.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWalletWatch/Pods-BlueWalletWatch.release.xcconfig"; sourceTree = "<group>"; };
 		5A8F67CF29564E41882ECEF8 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = FontAwesome5_Brands.ttf; path = "../node_modules/react-native-vector-icons/Fonts/FontAwesome5_Brands.ttf"; sourceTree = "<group>"; };
 		6A65D81712444D37BA152B06 /* libRNRandomBytes.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNRandomBytes.a; sourceTree = "<group>"; };
+		6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6EB3338E347F4AFAA8C85C04 /* libRNDeviceInfo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNDeviceInfo-tvOS.a"; sourceTree = "<group>"; };
 		70C9C17A3F52430B99582AF4 /* libRNCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCamera.a; sourceTree = "<group>"; };
 		71F73CBD557D8D7D24C51906 /* Pods-BlueWalletWatch Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BlueWalletWatch Extension.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BlueWalletWatch Extension/Pods-BlueWalletWatch Extension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -335,10 +335,10 @@
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				32B5A3292334450100F8D608 /* Bridge.swift */,
 				32B5A3282334450100F8D608 /* BlueWallet-Bridging-Header.h */,
+				6DF25A9E249DB97E001D06F5 /* LaunchScreen.storyboard */,
 			);
 			name = BlueWallet;
 			sourceTree = "<group>";
@@ -763,8 +763,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6DF25A9F249DB97E001D06F5 /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1068,15 +1068,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		13B07FB11A68108700A75B9A /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				13B07FB21A68108700A75B9A /* Base */,
-			);
-			name = LaunchScreen.xib;
-			path = BlueWallet;
-			sourceTree = "<group>";
-		};
 		3271B0AF236E2E0700DA766F /* MainInterface.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
