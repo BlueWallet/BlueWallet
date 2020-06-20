@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import LottieView from 'lottie-react-native';
 import WalletMigrate from './screen/wallets/walletMigrate';
 import * as NavigationService from './NavigationService';
@@ -11,7 +11,7 @@ const LoadingScreen = () => {
   const handleMigrationComplete = async () => {
     setIsMigratinData(false);
   };
-  const walletMigrate = new WalletMigrate(handleMigrationComplete);
+  const walletMigrate = useRef(new WalletMigrate(handleMigrationComplete));
 
   const replaceStackNavigation = () => {
     NavigationService.dispatch(StackActions.replace('UnlockWithScreenRoot'));
@@ -25,9 +25,7 @@ const LoadingScreen = () => {
     }
   };
 
-  useEffect(() => {
-    walletMigrate.start();
-  }, [walletMigrate]);
+  walletMigrate.current.start();
   return (
     <LottieView
       ref={loadingAnimation}
