@@ -37,6 +37,9 @@ EV.enum = {
   REMOTE_TRANSACTIONS_COUNT_CHANGED: 'REMOTE_TRANSACTIONS_COUNT_CHANGED',
 
   // RECEIVE_ADDRESS_CHANGED: 'RECEIVE_ADDRESS_CHANGED',
+
+  // when called, the deep linking listeners are set
+  WALLETS_INITIALIZED: 'WALLETS_INITIALIZED',
 };
 
 module.exports = EV;

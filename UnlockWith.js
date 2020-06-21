@@ -5,6 +5,7 @@ import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as NavigationService from './NavigationService';
 import { StackActions } from '@react-navigation/native';
+const EV = require('./events');
 /** @type {AppStorage} */
 
 const BlueApp = require('./BlueApp');
@@ -65,6 +66,7 @@ export default class UnlockWith extends Component {
   }
 
   successfullyAuthenticated = () => {
+    EV(EV.enum.WALLETS_INITIALIZED);
     NavigationService.dispatch(StackActions.replace('WalletsRoot'));
   };
 

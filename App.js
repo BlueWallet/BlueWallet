@@ -27,6 +27,7 @@ const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const loc = require('./loc');
 const BlueApp = require('./BlueApp');
+const EV = require('./events');
 
 export default class App extends React.Component {
   state = {
@@ -34,15 +35,19 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
-    isColdStart: true,
   };
 
   componentDidMount() {
+    EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+  }
+
+  addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
+    QuickActions.popInitialAction().then(this.popInitialAction);
     this._handleAppStateChange(undefined);
-  }
+  };
 
   popInitialAction = async data => {
     if (data) {
@@ -210,21 +215,11 @@ export default class App extends React.Component {
     );
   };
 
-  getInitialURLAfterSettingNavigationRef = ref => {
-    if (this.state.isColdStart) {
-      this.setState({ isColdStart: false });
-      navigationRef.current = ref;
-      QuickActions.popInitialAction().then(this.popInitialAction);
-    } else {
-      navigationRef.current = ref;
-    }
-  };
-
   render() {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={this.getInitialURLAfterSettingNavigationRef}>
+          <NavigationContainer ref={navigationRef}>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
