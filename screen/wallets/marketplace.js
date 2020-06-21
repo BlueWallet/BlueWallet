@@ -8,7 +8,6 @@ export default class Marketplace extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: 'Marketplace',
-    headerLeft: null,
   });
 
   webview = React.createRef();

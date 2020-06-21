@@ -32,7 +32,6 @@ export default class HodlHodlMyContracts extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: 'My contracts',
-    headerLeft: null,
   });
 
   constructor(props) {

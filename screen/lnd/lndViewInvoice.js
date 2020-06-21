@@ -118,7 +118,6 @@ export default class LNDViewInvoice extends Component {
       ? {
           ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
           title: 'Lightning Invoice',
-          headerLeft: null,
         }
       : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
 

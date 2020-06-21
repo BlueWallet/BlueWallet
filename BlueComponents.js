@@ -405,17 +405,13 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
         <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
       </TouchableOpacity>
     );
-  } else {
-    headerRight = null;
   }
 
   return {
     headerStyle: {
       backgroundColor: BlueApp.settings.brandingColor,
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOffset: { height: 0, width: 0 },
     },
+    headerHideShadow: true,
     headerTitleStyle: {
       fontWeight: '600',
       color: BlueApp.settings.foregroundColor,
@@ -435,16 +431,12 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
       </TouchableOpacity>
     );
-  } else {
-    headerRight = null;
   }
   return {
     headerStyle: {
       backgroundColor: BlueApp.settings.brandingColor,
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOffset: { height: 0, width: 0 },
     },
+    headerHideShadow: true,
     headerTitleStyle: {
       fontWeight: '600',
       color: BlueApp.settings.foregroundColor,

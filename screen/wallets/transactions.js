@@ -191,15 +191,13 @@ export default class WalletTransactions extends Component {
           <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
         </TouchableOpacity>
       ),
-      headerTitle: () => null,
       headerStyle: {
         backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
         borderBottomWidth: 0,
-        elevation: 0,
-        // shadowRadius: 0,
-        shadowOffset: { height: 0, width: 0 },
       },
+      headerHideShadow: true,
       headerTintColor: '#FFFFFF',
+      headerTitle: '',
       headerBackTitleVisible: false,
     };
   };
@@ -408,8 +406,11 @@ export default class WalletTransactions extends Component {
               component={TouchableOpacity}
               onPress={a => {
                 this.setState({ isManageFundsModalVisible: false }, () =>
-                  this.props.navigation.navigate('ReceiveDetails', {
-                    secret: this.state.wallet.getSecret(),
+                  this.props.navigation.navigate('ReceiveDetailsScreenRoot', {
+                    screen: 'ReceiveDetails',
+                    params: {
+                      secret: this.state.wallet.getSecret(),
+                    },
                   }),
                 );
               }}
@@ -422,7 +423,10 @@ export default class WalletTransactions extends Component {
               onPress={a => {
                 this.setState({ isManageFundsModalVisible: false }, async () => {
                   this.props.navigation.navigate('BuyBitcoin', {
-                    wallet: this.state.wallet,
+                    screen: 'BuyBitcoin',
+                    params: {
+                      wallet: this.state.wallet,
+                    },
                   });
                 });
               }}
@@ -450,7 +454,10 @@ export default class WalletTransactions extends Component {
         <TouchableOpacity
           onPress={() => {
             if (this.state.wallet.type === LightningCustodianWallet.type) {
-              this.props.navigation.navigate('LappBrowser', { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet });
+              this.props.navigation.navigate('LappBrowser', {
+                screen: 'LappBrowser',
+                params: { fromSecret: this.state.wallet.getSecret(), fromWallet: this.state.wallet },
+              });
             } else {
               this.props.navigation.navigate('Marketplace', { fromWallet: this.state.wallet });
             }
@@ -480,9 +487,12 @@ export default class WalletTransactions extends Component {
       <TouchableOpacity
         onPress={() => {
           this.props.navigation.navigate('LappBrowser', {
-            fromSecret: this.state.wallet.getSecret(),
-            fromWallet: this.state.wallet,
-            url: 'https://duckduckgo.com',
+            screen: 'LappBrowser',
+            params: {
+              fromSecret: this.state.wallet.getSecret(),
+              fromWallet: this.state.wallet,
+              url: 'https://duckduckgo.com',
+            },
           });
         }}
         style={styles.marketplaceButton2}
@@ -497,7 +507,8 @@ export default class WalletTransactions extends Component {
       <TouchableOpacity
         onPress={() =>
           this.props.navigation.navigate('BuyBitcoin', {
-            wallet: this.state.wallet,
+            screen: 'BuyBitcoin',
+            params: { wallet: this.state.wallet },
           })
         }
         style={styles.marketplaceButton2}
@@ -697,7 +708,10 @@ export default class WalletTransactions extends Component {
                 },
                 onFailure: () =>
                   this.props.navigation.navigate('WalletExport', {
-                    wallet: this.state.wallet,
+                    screen: 'WalletExport',
+                    params: {
+                      wallet: this.state.wallet,
+                    },
                   }),
               });
             }
@@ -734,7 +748,8 @@ export default class WalletTransactions extends Component {
                   <TouchableOpacity
                     onPress={() =>
                       this.props.navigation.navigate('BuyBitcoin', {
-                        wallet: this.state.wallet,
+                        screen: 'BuyBitcoin',
+                        params: { wallet: this.state.wallet },
                       })
                     }
                     style={styles.buyBitcoin}
@@ -764,7 +779,7 @@ export default class WalletTransactions extends Component {
                     if (this.state.wallet.chain === Chain.OFFCHAIN) {
                       navigate('LNDCreateInvoiceRoot', { screen: 'LNDCreateInvoice', params: { fromWallet: this.state.wallet } });
                     } else {
-                      navigate('ReceiveDetails', { secret: this.state.wallet.getSecret() });
+                      navigate('ReceiveDetailsScreenRoot', { screen: 'ReceiveDetails', params: { secret: this.state.wallet.getSecret() } });
                     }
                   }}
                 />

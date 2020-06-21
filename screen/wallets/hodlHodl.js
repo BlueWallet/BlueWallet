@@ -824,7 +824,7 @@ HodlHodl.propTypes = {
 
 HodlHodl.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: '',
+  headerTitle: '',
   headerLeft: () => {
     return route.params.displayLoginButton ? (
       <BlueButtonLink title="Login" onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />

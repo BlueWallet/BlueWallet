@@ -36,8 +36,6 @@ export default class SendCreate extends Component {
           <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       );
-    } else {
-      headerRight = null;
     }
 
     return {

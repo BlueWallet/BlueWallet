@@ -17,7 +17,7 @@ export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: '',
-    headerLeft: null,
+    headerHideBackButton: true,
   });
 
   constructor(props) {

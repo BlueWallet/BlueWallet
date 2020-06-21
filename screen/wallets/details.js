@@ -312,7 +312,10 @@ export default class WalletDetails extends Component {
                   <BlueButton
                     onPress={() =>
                       this.props.navigation.navigate('WalletExport', {
-                        wallet: this.state.wallet,
+                        screen: 'WalletExport',
+                        params: {
+                          wallet: this.state.wallet,
+                        },
                       })
                     }
                     title={loc.wallets.details.export_backup}
@@ -328,7 +331,10 @@ export default class WalletDetails extends Component {
                       <BlueButton
                         onPress={() =>
                           this.props.navigation.navigate('WalletXpub', {
-                            secret: this.state.wallet.getSecret(),
+                            screen: 'WalletXpub',
+                            params: {
+                              secret: this.state.wallet.getSecret(),
+                            },
                           })
                         }
                         title={loc.wallets.details.show_xpub}

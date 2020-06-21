@@ -100,7 +100,10 @@ const ReceiveDetails = () => {
           onFailure: () => {
             goBack();
             navigate('WalletExport', {
-              wallet: wallet,
+              screen: 'WalletExport',
+              params: {
+                wallet: wallet,
+              },
             });
           },
         });
@@ -281,7 +284,7 @@ const ReceiveDetails = () => {
 ReceiveDetails.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
   title: loc.receive.header,
-  headerLeft: null,
+  headerHideBackButton: true,
 });
 
 export default ReceiveDetails;

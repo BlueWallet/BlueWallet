@@ -109,7 +109,6 @@ export default class ScanLndInvoice extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.send.header,
-    headerLeft: null,
   });
 
   state = {

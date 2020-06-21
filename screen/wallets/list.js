@@ -157,11 +157,7 @@ export default class WalletsList extends Component {
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       ),
-      headerStyle: {
-        shadowColor: 'transparent',
-        elevation: 0,
-        shadowOpacity: 0,
-      },
+      headerHideShadow: true,
     };
   };
 

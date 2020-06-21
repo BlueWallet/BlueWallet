@@ -290,7 +290,6 @@ export default class Browser extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: 'Lapp Browser',
-    headerLeft: null,
   });
 
   constructor(props) {

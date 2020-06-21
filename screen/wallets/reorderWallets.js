@@ -73,7 +73,6 @@ export default class ReorderWallets extends Component {
       route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
     ),
     headerTitle: loc.wallets.reorder.title,
-    headerLeft: null,
     gestureEnabled: false,
   });
 

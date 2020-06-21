@@ -398,8 +398,7 @@ export default class WalletsAdd extends Component {
 
 WalletsAdd.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: loc.wallets.add.title,
-  headerLeft: null,
+  headerTitle: loc.wallets.add.title,
 });
 
 WalletsAdd.propTypes = {

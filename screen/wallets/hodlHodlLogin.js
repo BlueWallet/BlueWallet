@@ -19,7 +19,6 @@ export default class HodlHodlLogin extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: 'Login',
-    headerLeft: null,
   });
 
   constructor(props) {

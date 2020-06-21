@@ -124,10 +124,8 @@ const PleaseBackup = () => {
 PleaseBackup.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
   title: loc.pleasebackup.title,
-  headerLeft: null,
-  headerRight: null,
   gestureEnabled: false,
-  swipeEnabled: false,
+  headerHideBackButton: true,
 });
 
 export default PleaseBackup;

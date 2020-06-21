@@ -7,7 +7,6 @@ export default class HodlHodlWebview extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: '',
-    headerLeft: null,
   });
 
   constructor(props) {
