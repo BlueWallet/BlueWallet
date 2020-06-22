@@ -257,7 +257,7 @@ PODS:
     - React
   - react-native-document-picker (3.2.0):
     - React
-  - react-native-image-picker (1.1.0):
+  - react-native-image-picker (2.3.1):
     - React
   - react-native-randombytes (3.5.3):
     - React
@@ -361,20 +361,20 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.3.9):
+  - RNSentry (1.4.5):
     - React
-    - Sentry (~> 4.4.0)
-  - RNShare (3.3.3):
+    - Sentry (~> 5.1.4)
+  - RNShare (3.5.0):
     - React
-  - RNSVG (9.13.6):
+  - RNSVG (12.1.0):
     - React
   - RNVectorIcons (6.6.0):
     - React
-  - RNWatch (0.4.2):
+  - RNWatch (0.5.0):
     - React
-  - Sentry (4.4.3):
-    - Sentry/Core (= 4.4.3)
-  - Sentry/Core (4.4.3)
+  - Sentry (5.1.4):
+    - Sentry/Core (= 5.1.4)
+  - Sentry/Core (5.1.4)
   - swift_qrcodejs (1.1.2)
   - ToolTipMenu (5.2.0):
     - React
@@ -645,7 +645,7 @@ SPEC CHECKSUMS:
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-camera: 9e3d60336e221d62e5b72adf551ca31ff74a94b5
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
-  react-native-image-picker: 3637d63fef7e32a230141ab4660d3ceb773c824f
+  react-native-image-picker: 668e72d0277dc8c12ae90e835507c1eddd2e4f85
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
   react-native-safe-area-context: ce7e110923a56ba3e3c615d4920ebbe01324326e
   react-native-slider: 05f11678260cb27c3d00a2dd1558b623be3ec8d2
@@ -677,12 +677,12 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 9c9783b13fb5cba387fff55f085cc1da3854ce71
-  RNShare: f4ec422e27904e0dc9310038d1110460a59ad30d
-  RNSVG: 8ba35cbeb385a52fd960fd28db9d7d18b4c2974f
+  RNSentry: 0a70359ddacbfb9b1cbbb0971e54065b9f70ac57
+  RNShare: 9e0ab1939761051b074c8eb5e7d746f4d5a8ee0e
+  RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
-  RNWatch: a36ea17fac675b98b1d8cd41604af68cf1fa9a03
-  Sentry: 14bdd673870e8cf64932b149fad5bbbf39a9b390
+  RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
+  Sentry: 74f2ad93a20a5567a1badaedf5b3f60b142ad082
   swift_qrcodejs: 4d024fc98b0778b804ec6a5c810880fd092aec9d
   ToolTipMenu: 4d89d95ddffd7539230bdbe02ee51bbde362e37e
   Yoga: 3ebccbdd559724312790e7742142d062476b698e
