@@ -32,7 +32,7 @@ export default class SendCreate extends Component {
     let headerRight;
     if (route.params.exportTXN) {
       headerRight = () => (
-        <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+        <TouchableOpacity onPress={route.params.exportTXN}>
           <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       );
@@ -191,9 +191,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
-  },
-  export: {
-    marginRight: 16,
   },
   itemOf: {
     alignSelf: 'flex-end',

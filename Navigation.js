@@ -340,7 +340,7 @@ const Navigation = () => (
       options={{ headerShown: false, stackPresentation: 'modal' }}
     />
     <RootStack.Screen name="Marketplace" component={Marketplace} options={Marketplace.navigationOptions} />
-    <RootStack.Screen name="SelectWallet" component={SelectWallet} options={{ ...SelectWallet.navigationOptions, headerRight: null }} />
+    <RootStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <RootStack.Screen
       name="LappBrowser"
       component={LappBrowsercreenStackRoot}

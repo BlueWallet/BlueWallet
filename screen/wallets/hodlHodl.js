@@ -827,9 +827,9 @@ HodlHodl.navigationOptions = ({ navigation, route }) => ({
   headerTitle: '',
   headerLeft: () => {
     return route.params.displayLoginButton ? (
-      <BlueButtonLink title="Login" onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
+      <BlueButtonLink title="Login" onPress={route.params.handleLoginPress} />
     ) : (
-      <BlueButtonLink title="My contracts" onPress={route.params.handleMyContractsPress} style={styles.marginHorizontal20} />
+      <BlueButtonLink title="My contracts" onPress={route.params.handleMyContractsPress} />
     );
   },
 });

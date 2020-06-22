@@ -78,7 +78,6 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   walletDetails: {
-    marginHorizontal: 16,
     minWidth: 150,
     justifyContent: 'center',
     alignItems: 'flex-end',

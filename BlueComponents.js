@@ -392,7 +392,7 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
   if (withNavigationCloseButton) {
     headerRight = () => (
       <TouchableOpacity
-        style={{ width: 40, height: 40, padding: 14 }}
+        style={{ width: 40, height: 40, justifyContent: 'center' }}
         onPress={
           customCloseButtonFunction === undefined
             ? () => {
@@ -427,7 +427,7 @@ export const BlueCreateTxNavigationStyle = (navigation, withAdvancedOptionsMenuB
   let headerRight;
   if (withAdvancedOptionsMenuButton) {
     headerRight = () => (
-      <TouchableOpacity style={{ minWidth: 40, height: 40, padding: 14 }} onPress={advancedOptionsMenuButtonAction}>
+      <TouchableOpacity style={{ minWidth: 40, height: 40 }} onPress={advancedOptionsMenuButtonAction}>
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
       </TouchableOpacity>
     );

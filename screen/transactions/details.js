@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
     color: '#2f5fb3',
   },
   save: {
-    marginHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },

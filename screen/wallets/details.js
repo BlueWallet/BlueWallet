@@ -40,7 +40,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   save: {
-    marginHorizontal: 16,
     justifyContent: 'center',
     alignItems: 'center',
   },

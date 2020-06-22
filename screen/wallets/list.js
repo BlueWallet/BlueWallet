@@ -66,12 +66,6 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  headerTouch: {
-    height: 48,
-    paddingRight: 16,
-    paddingLeft: 32,
-    paddingVertical: 10,
-  },
   listHeaderText: {
     paddingLeft: 16,
     fontWeight: 'bold',
@@ -153,7 +147,7 @@ export default class WalletsList extends Component {
     return {
       title: '',
       headerRight: () => (
-        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
+        <TouchableOpacity testID="SettingsButton" onPress={() => NavigationService.navigate('Settings')}>
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       ),
