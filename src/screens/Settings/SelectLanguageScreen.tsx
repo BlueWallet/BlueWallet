@@ -46,7 +46,7 @@ export const SelectLanguageScreen = () => {
     { label: '日本語 (JP)', value: 'jp_jp' },
     { label: '한국어 (KO)', value: 'ko_kr' },
     { label: 'Português (PT)', value: 'pt_pt' },
-    { label: 'Tiếng Việt', value: 'vi_vn' },
+    { label: 'Tiếng (Việt)', value: 'vi_vn' },
     { label: 'Türkçe (TR)', value: 'tr_tr' },
   ];
 

@@ -52,7 +52,7 @@ const filterByToDate = (transactions: Transaction[], toDate: number) => {
 const fileterByFromAmount = (transactions: Transaction[], fromAmount: number) => {
   return transactions.filter(transaction => {
     return (
-      i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) > fromAmount
+      i18n.formatBalanceWithoutSuffix(Number(transaction.value), transaction.walletPreferredBalanceUnit) >= fromAmount
     );
   });
 };
