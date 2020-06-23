@@ -34,6 +34,8 @@ import { BlurView } from '@react-native-community/blur';
 import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
+import { encodeUR } from 'bc-ur/dist';
+import QRCode from 'react-native-qrcode-svg';
 const loc = require('./loc/');
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
@@ -2529,3 +2531,151 @@ export function BlueBigCheckmark({ style }) {
     </View>
   );
 }
+
+export class DynamicQRCode extends Component {
+  constructor() {
+    super();
+    const qrCodeHeight = height > width ? width - 40 : width / 3;
+    const qrCodeMaxHeight = 370;
+    this.state = {
+      index: 0,
+      total: 0,
+      qrCodeHeight: Math.min(qrCodeHeight, qrCodeMaxHeight),
+      intervalHandler: null,
+    };
+  }
+
+  fragments = [];
+
+  componentDidMount() {
+    const { value, capacity = 800 } = this.props;
+    this.fragments = encodeUR(value, capacity);
+    this.setState(
+      {
+        total: this.fragments.length,
+      },
+      () => {
+        this.startAutoMove();
+      },
+    );
+  }
+
+  moveToNextFragment = () => {
+    const { index, total } = this.state;
+    if (index === total - 1) {
+      this.setState({
+        index: 0,
+      });
+    } else {
+      this.setState(state => ({
+        index: state.index + 1,
+      }));
+    }
+  };
+
+  startAutoMove = () => {
+    if (!this.state.intervalHandler)
+      this.setState(() => ({
+        intervalHandler: setInterval(this.moveToNextFragment, 500),
+      }));
+  };
+
+  stopAutoMove = () => {
+    clearInterval(this.state.intervalHandler);
+    this.setState(() => ({
+      intervalHandler: null,
+    }));
+  };
+
+  moveToPreviousFragment = () => {
+    const { index, total } = this.state;
+    if (index > 0) {
+      this.setState(state => ({
+        index: state.index - 1,
+      }));
+    } else {
+      this.setState(state => ({
+        index: total - 1,
+      }));
+    }
+  };
+
+  render() {
+    const currentFragment = this.fragments[this.state.index];
+    return currentFragment ? (
+      <View style={animatedQRCodeStyle.container}>
+        <BlueSpacing20 />
+        <View style={[animatedQRCodeStyle.qrcodeContainer, { height: this.state.qrCodeHeight }]}>
+          <QRCode
+            value={currentFragment.toUpperCase()}
+            size={this.state.qrCodeHeight}
+            color={BlueApp.settings.foregroundColor}
+            logoBackgroundColor={BlueApp.settings.brandingColor}
+            ecl="L"
+          />
+        </View>
+        <BlueSpacing20 />
+        <View>
+          <Text style={animatedQRCodeStyle.text}>
+            {this.state.index + 1} of {this.state.total}
+          </Text>
+        </View>
+        <BlueSpacing20 />
+        <View style={animatedQRCodeStyle.controller}>
+          <TouchableOpacity
+            style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-start' }]}
+            onPress={this.moveToPreviousFragment}
+          >
+            <Text style={animatedQRCodeStyle.text}>Previous</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[animatedQRCodeStyle.button, { width: '50%' }]}
+            onPress={this.state.intervalHandler ? this.stopAutoMove : this.startAutoMove}
+          >
+            <Text style={animatedQRCodeStyle.text}>{this.state.intervalHandler ? 'Stop' : 'Start'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[animatedQRCodeStyle.button, { width: '25%', alignItems: 'flex-end' }]}
+            onPress={this.moveToNextFragment}
+          >
+            <Text style={animatedQRCodeStyle.text}>Next</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    ) : (
+      <View>
+        <Text>Initialing</Text>
+      </View>
+    );
+  }
+}
+
+const animatedQRCodeStyle = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  qrcodeContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  controller: {
+    width: '90%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#ccddf9',
+    borderRadius: 25,
+    height: 45,
+    paddingHorizontal: 18,
+  },
+  button: {
+    alignItems: 'center',
+    height: 45,
+    justifyContent: 'center',
+  },
+  text: {
+    fontSize: 16,
+  },
+});
