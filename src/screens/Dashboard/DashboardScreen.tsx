@@ -253,11 +253,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   clearFiltersButton: {
-    position: 'absolute',
-    zIndex: 1,
-    height: 50,
-    bottom: 50,
+    height: 59,
     alignSelf: 'center',
+    justifyContent: 'center',
   },
   contentContainer: {
     paddingHorizontal: 0,
