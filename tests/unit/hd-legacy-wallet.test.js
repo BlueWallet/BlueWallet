@@ -36,7 +36,7 @@ it('Legacy HD (BIP44) works', async () => {
   assert.strictEqual(hd._getDerivationPathByAddress(hd._getInternalAddressByIndex(0)), "m/84'/0'/0'/1/0"); // wrong, FIXME
 });
 
-it.only('Legacy HD (BIP44) can create TX', async () => {
+it('Legacy HD (BIP44) can create TX', async () => {
   if (!process.env.HD_MNEMONIC) {
     console.error('process.env.HD_MNEMONIC not set, skipped');
     return;

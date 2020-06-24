@@ -59,27 +59,51 @@ export class HDLegacyP2PKHWallet extends AbstractHDElectrumWallet {
   }
 
   _getExternalAddressByIndex(index) {
-    index = index * 1; // cast to int
-    if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
-
-    const node = bitcoin.bip32.fromBase58(this.getXpub());
-    const address = bitcoin.payments.p2pkh({
-      pubkey: node.derive(0).derive(index).publicKey,
-    }).address;
-
-    return (this.external_addresses_cache[index] = address);
+    return this._getNodeAddressByIndex(0, index);
   }
 
   _getInternalAddressByIndex(index) {
+    return this._getNodeAddressByIndex(1, index);
+  }
+
+  _getNodeAddressByIndex(node, index) {
     index = index * 1; // cast to int
-    if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
+    if (node === 0) {
+      if (this.external_addresses_cache[index]) return this.external_addresses_cache[index]; // cache hit
+    }
 
-    const node = bitcoin.bip32.fromBase58(this.getXpub());
-    const address = bitcoin.payments.p2pkh({
-      pubkey: node.derive(1).derive(index).publicKey,
-    }).address;
+    if (node === 1) {
+      if (this.internal_addresses_cache[index]) return this.internal_addresses_cache[index]; // cache hit
+    }
 
-    return (this.internal_addresses_cache[index] = address);
+    if (node === 0 && !this._node0) {
+      const xpub = this.getXpub();
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node0 = hdNode.derive(node);
+    }
+
+    if (node === 1 && !this._node1) {
+      const xpub = this.getXpub();
+      const hdNode = HDNode.fromBase58(xpub);
+      this._node1 = hdNode.derive(node);
+    }
+
+    let address;
+    if (node === 0) {
+      address = this.constructor._nodeToLegacyAddress(this._node0.derive(index));
+    }
+
+    if (node === 1) {
+      address = this.constructor._nodeToLegacyAddress(this._node1.derive(index));
+    }
+
+    if (node === 0) {
+      return (this.external_addresses_cache[index] = address);
+    }
+
+    if (node === 1) {
+      return (this.internal_addresses_cache[index] = address);
+    }
   }
 
   async fetchUtxo() {

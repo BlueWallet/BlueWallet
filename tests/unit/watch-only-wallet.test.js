@@ -103,6 +103,22 @@ describe('Watch only wallet', () => {
     );
   });
 
+  it('can import cobo vault JSON skeleton wallet', async () => {
+    const skeleton =
+      '{"ExtPubKey":"zpub6rcabYFcdr41zyUNRWRyHYs2Sm86E5XV8RjjRzTFYsiCngteeZnkwaF2xuhjmM6kpHjuNpFW42BMhzPmFwXt48e1FhddMB7xidZzN4SF24K","MasterFingerprint":"5271c071","CoboVaultFirmwareVersion":"1.2.4(BTC-Only)"}';
+    const w = new WatchOnlyWallet();
+    w.setSecret(skeleton);
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6rcabYFcdr41zyUNRWRyHYs2Sm86E5XV8RjjRzTFYsiCngteeZnkwaF2xuhjmM6kpHjuNpFW42BMhzPmFwXt48e1FhddMB7xidZzN4SF24K',
+    );
+    assert.strictEqual(w.getMasterFingerprint(), 1908437330);
+    assert.strictEqual(w.getMasterFingerprintHex(), '5271c071');
+    assert.strictEqual(w.getLabel(), 'Cobo Vault 5271c071');
+  });
+
   it('can combine signed PSBT and prepare it for broadcast', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
