@@ -416,6 +416,7 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
       backgroundColor: BlueApp.settings.brandingColor,
       borderBottomWidth: 0,
       elevation: 0,
+      shadowOpacity: 0,
       shadowOffset: { height: 0, width: 0 },
     },
     headerTitleStyle: {
