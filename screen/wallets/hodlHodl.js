@@ -16,6 +16,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
+  StatusBar,
 } from 'react-native';
 import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -794,6 +795,7 @@ export default class HodlHodl extends Component {
   render() {
     return (
       <SafeBlueArea>
+        <StatusBar barStyle="light-content" />
         <SectionList
           refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
           renderItem={this.renderItem}

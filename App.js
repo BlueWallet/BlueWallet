@@ -1,9 +1,9 @@
 import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
+import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
 import { navigationRef } from './NavigationService';
@@ -219,7 +219,7 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={navigationRef}>
+          <NavigationContainer ref={navigationRef} theme={Appearance.getColorScheme() === 'dark' ? { ...DarkTheme } : DefaultTheme} tr>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
