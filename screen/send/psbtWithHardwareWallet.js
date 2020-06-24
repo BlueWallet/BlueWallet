@@ -125,43 +125,47 @@ export default class PsbtWithHardwareWallet extends Component {
   cameraRef = null;
 
   _onReadUniformResource = ur => {
-    const [index, total] = extractSingleWorkload(ur);
-    const { animatedQRCodeData } = this.state;
-    if (animatedQRCodeData.length > 0) {
-      const currentTotal = animatedQRCodeData[0].total;
-      if (total !== currentTotal) {
-        alert('invalid dynamic QRCode');
-        this.setState({ renderScanner: false });
+    try {
+      const [index, total] = extractSingleWorkload(ur);
+      const { animatedQRCodeData } = this.state;
+      if (animatedQRCodeData.length > 0) {
+        const currentTotal = animatedQRCodeData[0].total;
+        if (total !== currentTotal) {
+          alert('invalid animated QRCode');
+          this.setState({ renderScanner: false });
+        }
       }
-    }
-    if (!animatedQRCodeData.find(i => i.index === index)) {
-      this.setState(
-        state => ({
-          animatedQRCodeData: [
-            ...state.animatedQRCodeData,
-            {
-              index,
-              total,
-              data: ur,
-            },
-          ],
-        }),
-        () => {
-          if (this.state.animatedQRCodeData.length === total) {
-            this.setState(
+      if (!animatedQRCodeData.find(i => i.index === index)) {
+        this.setState(
+          state => ({
+            animatedQRCodeData: [
+              ...state.animatedQRCodeData,
               {
-                renderScanner: false,
+                index,
+                total,
+                data: ur,
               },
-              () => {
-                const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
-                const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
-                const psbt = Psbt.fromBase64(psbtB64);
-                this.setState({ txhex: psbt.extractTransaction().toHex() });
-              },
-            );
-          }
-        },
-      );
+            ],
+          }),
+          () => {
+            if (this.state.animatedQRCodeData.length === total) {
+              this.setState(
+                {
+                  renderScanner: false,
+                },
+                () => {
+                  const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
+                  const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
+                  const psbt = Psbt.fromBase64(psbtB64);
+                  this.setState({ txhex: psbt.extractTransaction().toHex() });
+                },
+              );
+            }
+          },
+        );
+      }
+    } catch (Err) {
+      alert('invalid animated QRCode fragment, please try again');
     }
   };
 
