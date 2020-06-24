@@ -97,12 +97,16 @@ export default class ElectrumSettings extends Component {
     const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
     const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
     const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
+    const proxyHost = await AsyncStorage.getItem(AppStorage.ELECTRUM_PROXY_HOST);
+    const proxyPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_PROXY_PORT);
 
     this.setState({
       isLoading: false,
       host,
       port,
       sslPort,
+      proxyHost,
+      proxyPort,
     });
 
     const inverval = setInterval(async () => {
@@ -129,20 +133,39 @@ export default class ElectrumSettings extends Component {
     const host = this.state.host ? this.state.host : '';
     const port = this.state.port ? this.state.port : '';
     const sslPort = this.state.sslPort ? this.state.sslPort : '';
+    const proxyHost = this.state.proxyHost ? this.state.proxyHost : '';
+    const proxyPort = this.state.proxyPort ? this.state.proxyPort : '';
 
     this.setState({ isLoading: true }, async () => {
       try {
-        if (!host && !port && !sslPort) {
+        if (!host && !port && !sslPort && !proxyHost && ! proxyPort) {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, '');
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, '');
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_PROXY_HOST, '');
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_PROXY_PORT, '');
           alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
-        } else if (!(await BlueElectrum.testConnection(host, port, sslPort))) {
+        } else if (!(await BlueElectrum.testConnection(host, port, sslPort, {
+          proxy: {
+            host: proxyHost,
+            port: parseInt(proxyPort, 10),
+            type: 5
+          },
+
+          destination: {
+            host: host,
+            port: parseInt(port || sslPort, 10)
+          },
+
+          command: 'connect'
+        }))) {
           alert("Can't connect to provided Electrum server");
         } else {
           await AsyncStorage.setItem(AppStorage.ELECTRUM_HOST, host);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_TCP_PORT, port);
           await AsyncStorage.setItem(AppStorage.ELECTRUM_SSL_PORT, sslPort);
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_PROXY_HOST, proxyHost);
+          await AsyncStorage.setItem(AppStorage.ELECTRUM_PROXY_PORT, proxyPort);
           alert('Your changes have been saved successfully. Restart may be required for changes to take effect.');
         }
       } catch (error) {
@@ -206,6 +229,32 @@ export default class ElectrumSettings extends Component {
                 placeholder="SSL port, usually 50002"
                 value={this.state.sslPort}
                 onChangeText={text => this.setState({ sslPort: text })}
+                numberOfLines={1}
+                style={styles.inputText}
+                editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
+                underlineColorAndroid="transparent"
+              />
+            </View>
+            <BlueSpacing20 />
+            <View style={styles.inputWrap}>
+              <TextInput
+                placeholder="Proxy Host, usually localhost"
+                value={this.state.proxyHost}
+                onChangeText={text => this.setState({ proxyHost: text })}
+                numberOfLines={1}
+                style={styles.inputText}
+                editable={!this.state.isLoading}
+                placeholderTextColor="#81868e"
+                underlineColorAndroid="transparent"
+              />
+            </View>
+            <BlueSpacing20 />
+            <View style={styles.inputWrap}>
+              <TextInput
+                placeholder="Proxy Port, usually 9050"
+                value={this.state.proxyPort}
+                onChangeText={text => this.setState({ proxyPort: text })}
                 numberOfLines={1}
                 style={styles.inputText}
                 editable={!this.state.isLoading}

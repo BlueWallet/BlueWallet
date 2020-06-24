@@ -41,7 +41,20 @@ async function connectMain() {
 
   try {
     console.log('begin connection:', JSON.stringify(usingPeer));
-    mainClient = new ElectrumClient(usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp');
+    mainClient = new ElectrumClient(usingPeer.ssl || usingPeer.tcp, usingPeer.host, usingPeer.ssl ? 'tls' : 'tcp', {
+      proxy: {
+        host: usingPeer.proxyHost,
+        port: parseInt(usingPeer.proxyPort, 10),
+        type: 5
+      },
+
+      destination: {
+        host: usingPeer.host,
+        port: parseInt(usingPeer.tcp || usingPeer.tsl, 10)
+      },
+
+      command: 'connect'
+    });
     mainClient.onError = function (e) {
       if (Platform.OS === 'android' && mainConnected) {
         // android sockets are buggy and dont always issue CLOSE event, which actually makes the persistence code to reconnect.
@@ -95,7 +108,9 @@ async function getSavedPeer() {
   const host = await AsyncStorage.getItem(AppStorage.ELECTRUM_HOST);
   const port = await AsyncStorage.getItem(AppStorage.ELECTRUM_TCP_PORT);
   const sslPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_SSL_PORT);
-  return { host, tcp: port, ssl: sslPort };
+  const proxyHost = await AsyncStorage.getItem(AppStorage.ELECTRUM_PROXY_HOST);
+  const proxyPort = await AsyncStorage.getItem(AppStorage.ELECTRUM_PROXY_PORT);
+  return { host, tcp: port, ssl: sslPort, proxyHost, proxyPort };
 }
 
 /**
@@ -492,8 +507,8 @@ module.exports.calculateBlockTime = function (height) {
  * @param sslPort
  * @returns {Promise<boolean>} Whether provided host:port is a valid electrum server
  */
-module.exports.testConnection = async function (host, tcpPort, sslPort) {
-  const client = new ElectrumClient(sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp');
+module.exports.testConnection = async function (host, tcpPort, sslPort, options) {
+  const client = new ElectrumClient(sslPort || tcpPort, host, sslPort ? 'tls' : 'tcp', options);
   try {
     await client.connect();
     await client.server_version('2.7.11', '1.4');

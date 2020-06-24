@@ -26,6 +26,8 @@ export class AppStorage {
   static ELECTRUM_HOST = 'electrum_host';
   static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
   static ELECTRUM_SSL_PORT = 'electrum_ssl_port';
+  static ELECTRUM_PROXY_HOST = 'electrum_proxy_host';
+  static ELECTRUM_PROXY_PORT = 'electrum_proxy_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
   static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';
