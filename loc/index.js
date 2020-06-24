@@ -101,7 +101,6 @@ dayjs.extend(relativeTime);
       dayjs.locale(lang.split('_')[0]);
     }
   } else {
-    console.log(RNLocalize.getLocales());
     const locales = RNLocalize.getLocales();
     if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
       strings.saveLanguage(locales[0].languageCode);
