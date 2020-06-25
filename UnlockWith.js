@@ -36,6 +36,8 @@ const styles = StyleSheet.create({
   biometricRow: {
     justifyContent: 'center',
     flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
   },
   icon: {
     width: 64,
