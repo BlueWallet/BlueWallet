@@ -70,7 +70,6 @@
   },
   "version": "2.0.2",
   "react-native": {
-    "path": "path-browserify",
     "fs": "react-native-level-fs",
     "_stream_transform": "readable-stream/transform",
     "_stream_readable": "readable-stream/readable",
@@ -80,7 +79,6 @@
     "stream": "stream-browserify"
   },
   "browser": {
-    "path": "path-browserify",
     "fs": "react-native-level-fs",
     "_stream_transform": "readable-stream/transform",
     "_stream_readable": "readable-stream/readable",
