@@ -2276,6 +2276,10 @@ export class BlueBitcoinAmount extends Component {
     return BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] || false;
   }
 
+  static setCachedSatoshis(amount, sats) {
+    BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY] = sats;
+  }
+
   constructor(props) {
     super(props);
     this.state = { unit: props.unit || BitcoinUnit.BTC, previousUnit: BitcoinUnit.SATS };
