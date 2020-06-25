@@ -116,7 +116,7 @@ export default class UnlockWith extends Component {
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
                     <Image
                       source={
-                        Appearance.getColorScheme() === 'dark' ? require('./img/faceiddefaulttheme.png') : require('./img/faceid.png')
+                        Appearance.getColorScheme() === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')
                       }
                       style={styles.icon}
                     />
