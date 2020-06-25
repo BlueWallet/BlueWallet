@@ -69,9 +69,19 @@ export default class HodlHodlViewOffer extends Component {
     });
   }
 
+  doLogin = () => {
+    const handleLoginCallback = (hodlApiKey, hodlHodlSignatureKey) => {
+      BlueApp.setHodlHodlApiKey(hodlApiKey, hodlHodlSignatureKey);
+      const HodlApi = new HodlHodlApi(hodlApiKey);
+      this.setState({ HodlApi, hodlApiKey });
+    };
+    NavigationService.navigate('HodlHodlRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
+  };
+
   async _onAcceptOfferPress(offer) {
     if (!this.state.hodlApiKey) {
       alert('Please login to HodlHodl to accept offers');
+      this.doLogin();
       return;
     }
     const myself = await this.state.hodlApi.getMyself();
@@ -100,6 +110,13 @@ export default class HodlHodlViewOffer extends Component {
         cancelable: true,
       });
       return;
+    }
+
+    // lets refetch offer to avoid errors 'version mismatch'
+    const newOffer = await this.state.hodlApi.getOffer(offer.id);
+    if (newOffer.id && newOffer.version && offer.version !== newOffer.version) {
+      offer = newOffer;
+      this.setState({ offerToDisplay: newOffer });
     }
 
     let fiatValue;
