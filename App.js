@@ -3,7 +3,7 @@ import React from 'react';
 import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
 import { navigationRef } from './NavigationService';
@@ -15,6 +15,7 @@ import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
+import { BlueDefaultTheme, BlueDarkTheme } from './class/themes';
 const A = require('./analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -229,7 +230,7 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? DarkTheme : DefaultTheme}>
+          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}

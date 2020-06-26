@@ -36,6 +36,7 @@ import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/netw
 import Biometric from './class/biometrics';
 import { encodeUR } from 'bc-ur/dist';
 import QRCode from 'react-native-qrcode-svg';
+import { useTheme } from '@react-navigation/native';
 const loc = require('./loc/');
 /** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
@@ -356,23 +357,22 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export class BlueButtonLink extends Component {
-  render() {
-    return (
-      <TouchableOpacity
-        style={{
-          minHeight: 60,
-          minWidth: 100,
-          height: 60,
-          justifyContent: 'center',
-        }}
-        {...this.props}
-      >
-        <Text style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center', fontSize: 16 }}>{this.props.title}</Text>
-      </TouchableOpacity>
-    );
-  }
-}
+export const BlueButtonLink = ({ title, onPress }) => {
+  const { colors } = useTheme();
+  return (
+    <TouchableOpacity
+      style={{
+        minHeight: 60,
+        minWidth: 100,
+        height: 60,
+        justifyContent: 'center',
+      }}
+      onPress={onPress}
+    >
+      <Text style={{ color: colors.foregroundColor, textAlign: 'center', fontSize: 16 }}>{title}</Text>
+    </TouchableOpacity>
+  );
+};
 
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
@@ -425,6 +425,47 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
     },
     headerRight,
     headerTintColor: BlueApp.settings.foregroundColor,
+    // headerBackTitle: null,
+    headerBackTitleVisible: false,
+  };
+};
+
+export const BlueNavigationStyleHook = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => {
+  let headerRight;
+  const { colors } = useTheme();
+  if (withNavigationCloseButton) {
+    headerRight = () => (
+      <TouchableOpacity
+        style={{ width: 40, height: 40, padding: 14 }}
+        onPress={
+          customCloseButtonFunction === undefined
+            ? () => {
+                Keyboard.dismiss();
+                navigation.goBack(null);
+              }
+            : customCloseButtonFunction
+        }
+      >
+        <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+
+  return {
+    headerStyle: {
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerTitleStyle: {
+      fontWeight: '600',
+      color: colors.foregroundColor,
+    },
+    headerRight,
+    headerTintColor: colors.foregroundColor,
     // headerBackTitle: null,
     headerBackTitleVisible: false,
   };
@@ -960,17 +1001,16 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
   }
 }
 
-export class BlueLoading extends Component {
-  render() {
-    return (
-      <SafeBlueArea>
-        <View style={{ flex: 1, paddingTop: 200 }} {...this.props}>
-          <ActivityIndicator />
-        </View>
-      </SafeBlueArea>
-    );
-  }
-}
+export const BlueLoading = () => {
+  const { colors } = useTheme();
+  return (
+    <SafeBlueArea>
+      <View style={{ flex: 1, paddingTop: 200, backgroundColor: colors.background }} {...this.props}>
+        <ActivityIndicator />
+      </View>
+    </SafeBlueArea>
+  );
+};
 
 const stylesBlueIcon = StyleSheet.create({
   container: {

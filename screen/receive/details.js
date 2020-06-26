@@ -11,19 +11,18 @@ import {
   ScrollView,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
   BlueLoading,
-  SafeBlueArea,
   BlueCopyTextToClipboard,
   BlueButton,
   BlueButtonLink,
-  BlueNavigationStyle,
   is,
   BlueBitcoinAmount,
   BlueText,
   BlueSpacing20,
   BlueAlertWalletExportReminder,
+  BlueNavigationStyleHook,
 } from '../../BlueComponents';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
@@ -50,6 +49,7 @@ const ReceiveDetails = () => {
   const [isCustom, setIsCustom] = useState(false);
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
+  const { colors } = useTheme();
 
   const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
@@ -217,10 +217,23 @@ const ReceiveDetails = () => {
     }
     return customAmount + ' ' + customUnit;
   };
-
+  const stylesBlueTheme = {
+    root: {
+      ...styles.root,
+      backgroundColor: colors.background,
+    },
+    scroll: {
+      ...styles.scroll,
+      backgroundColor: colors.background,
+    },
+    scrollBody: {
+      ...styles.scrollBody,
+      backgroundColor: colors.background,
+    },
+  };
   return (
-    <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="light-content" />
+    <View style={stylesBlueTheme.root}>
+      <StatusBar barStyle="default" />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
@@ -228,8 +241,8 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
-        <View style={styles.scrollBody}>
+      <ScrollView style={stylesBlueTheme.root} contentContainerStyle={stylesBlueTheme.scroll} keyboardShouldPersistTaps="always">
+        <View style={stylesBlueTheme.scrollBody}>
           {isCustom && (
             <>
               <BlueText style={styles.amount} numberOfLines={1}>
@@ -250,8 +263,9 @@ const ReceiveDetails = () => {
               logo={require('../../img/qr-code.png')}
               size={(is.ipad() && 300) || 300}
               logoSize={90}
-              color={BlueApp.settings.foregroundColor}
-              logoBackgroundColor={BlueApp.settings.brandingColor}
+              color={colors.foregroundColor}
+              logoBackgroundColor={colors.brandingColor}
+              backgroundColor={colors.background}
               ecl="H"
               getRef={qrCodeSVG}
             />
@@ -265,21 +279,21 @@ const ReceiveDetails = () => {
               icon={{
                 name: 'share-alternative',
                 type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
+                color: colors.buttonTextColor,
               }}
               onPress={handleShareButtonPressed}
               title={loc.receive.details.share}
             />
           </View>
         </View>
-        {renderCustomAmountModal()}
       </ScrollView>
-    </SafeBlueArea>
+      {renderCustomAmountModal()}
+    </View>
   );
 };
 
 ReceiveDetails.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyle(navigation, true),
+  ...BlueNavigationStyleHook(navigation, true),
   title: loc.receive.header,
   headerLeft: null,
 });
