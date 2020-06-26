@@ -130,9 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginHorizontal: 8,
   },
-  item: {
-    marginHorizontal: 4,
-  },
   list: {
     backgroundColor: '#FFFFFF',
     flex: 1,
@@ -213,13 +210,18 @@ export default class WalletTransactions extends Component {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this), true);
     const wallet = props.route.params.wallet;
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
+    this.interval = setInterval(() => {
+      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
+    }, 60000);
     this.state = {
       isHandOffUseEnabled: false,
       isLoading: true,
       isManageFundsModalVisible: false,
       showShowFlatListRefreshControl: false,
       wallet: wallet,
+      itemPriceUnit: wallet.getPreferredBalanceUnit(),
       dataSource: this.getTransactions(15),
+      timeElapsed: 0, // this is to force a re-render for FlatList items.
       limit: 15,
       pageSize: 20,
     };
@@ -537,6 +539,7 @@ export default class WalletTransactions extends Component {
   };
 
   componentWillUnmount() {
+    clearInterval(this.interval);
     this._unsubscribeFocus();
   }
 
@@ -549,13 +552,9 @@ export default class WalletTransactions extends Component {
     });
   };
 
-  renderItem = item => {
-    return (
-      <View style={styles.item}>
-        <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()} />
-      </View>
-    );
-  };
+  renderItem = item => (
+    <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.itemPriceUnit} timeElapsed={this.state.timeElapsed} />
+  );
 
   onBarCodeRead = ret => {
     if (!this.state.isLoading) {
@@ -739,6 +738,7 @@ export default class WalletTransactions extends Component {
               <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
             }
             data={this.state.dataSource}
+            extraData={this.state.timeElapsed}
             keyExtractor={this._keyExtractor}
             renderItem={this.renderItem}
             contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
