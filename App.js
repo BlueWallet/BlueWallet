@@ -1,9 +1,9 @@
 import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
+import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
 import { navigationRef } from './NavigationService';
@@ -27,6 +27,7 @@ const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const loc = require('./loc');
 const BlueApp = require('./BlueApp');
+const EV = require('./events');
 
 export default class App extends React.Component {
   state = {
@@ -34,15 +35,19 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
-    isColdStart: true,
   };
 
   componentDidMount() {
+    EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+  }
+
+  addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
+    QuickActions.popInitialAction().then(this.popInitialAction);
     this._handleAppStateChange(undefined);
-  }
+  };
 
   popInitialAction = async data => {
     if (data) {
@@ -210,21 +215,11 @@ export default class App extends React.Component {
     );
   };
 
-  getInitialURLAfterSettingNavigationRef = ref => {
-    if (this.state.isColdStart) {
-      this.setState({ isColdStart: false });
-      navigationRef.current = ref;
-      QuickActions.popInitialAction().then(this.popInitialAction);
-    } else {
-      navigationRef.current = ref;
-    }
-  };
-
   render() {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={this.getInitialURLAfterSettingNavigationRef}>
+          <NavigationContainer ref={navigationRef} theme={Appearance.getColorScheme() === 'dark' ? { ...DarkTheme } : DefaultTheme} tr>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}

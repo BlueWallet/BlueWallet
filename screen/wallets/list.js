@@ -13,7 +13,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem } from '../../BlueComponents';
+import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -151,17 +151,13 @@ const styles = StyleSheet.create({
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation, route }) => {
     return {
+      ...BlueNavigationStyle(navigation, true),
       title: '',
       headerRight: () => (
         <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
           <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
         </TouchableOpacity>
       ),
-      headerStyle: {
-        shadowColor: 'transparent',
-        elevation: 0,
-        shadowOpacity: 0,
-      },
     };
   };
 

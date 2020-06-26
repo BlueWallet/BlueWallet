@@ -59,6 +59,8 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
+import LoadingScreen from './LoadingScreen';
+import UnlockWith from './UnlockWith';
 const BlueApp = require('./BlueApp');
 const loc = require('./loc');
 
@@ -69,6 +71,7 @@ const defaultScreenOptions =
         gestureEnabled: true,
         gestureResponseDistance: { vertical: SCREEN_HEIGHT, horizontal: 50 },
         cardOverlayEnabled: true,
+        cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: navigation.dangerouslyGetState().routes.indexOf(route) > 0 ? 10 : undefined,
         ...TransitionPresets.ModalPresentationIOS,
       })
@@ -78,6 +81,7 @@ const defaultStackScreenOptions =
     ? {
         gestureEnabled: true,
         cardOverlayEnabled: true,
+        cardStyle: { backgroundColor: '#FFFFFF' },
         headerStatusBarHeight: 10,
       }
     : undefined;
@@ -270,11 +274,31 @@ const ScanQRCodeRoot = () => (
   </ScanQRCodeStack.Navigator>
 );
 
+const LoadingScreenStack = createStackNavigator();
+const LoadingScreenRoot = () => (
+  <LoadingScreenStack.Navigator name="LoadingScreenRoot" mode="modal" screenOptions={{ headerShown: false }}>
+    <LoadingScreenStack.Screen name="LoadingScreen" component={LoadingScreen} />
+  </LoadingScreenStack.Navigator>
+);
+
+const UnlockWithScreenStack = createStackNavigator();
+const UnlockWithScreenRoot = () => (
+  <UnlockWithScreenStack.Navigator name="UnlockWithScreenRoot" screenOptions={{ headerShown: false }}>
+    <UnlockWithScreenStack.Screen name="UnlockWithScreen" component={UnlockWith} />
+  </UnlockWithScreenStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
-  <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions}>
+  <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
     {/* stacks */}
-    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="LoadingScreenRoot" component={LoadingScreenRoot} options={{ headerShown: false, animationEnabled: false }} />
+    <RootStack.Screen
+      name="UnlockWithScreenRoot"
+      component={UnlockWithScreenRoot}
+      options={{ headerShown: false, animationEnabled: false }}
+    />
+    <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, animationEnabled: false }} />
     <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
