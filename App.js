@@ -35,11 +35,20 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
+    theme: Appearance.getColorScheme(),
   };
 
   componentDidMount() {
     EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+    Appearance.addChangeListener(this.appearanceChanged);
   }
+
+  appearanceChanged = () => {
+    const appearance = Appearance.getColorScheme();
+    if (appearance) {
+      this.setState({ theme: appearance });
+    }
+  };
 
   addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
@@ -104,6 +113,7 @@ export default class App extends React.Component {
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this._handleAppStateChange);
+    Appearance.removeChangeListener(this.appearanceChanged);
   }
 
   _handleAppStateChange = async nextAppState => {
@@ -219,7 +229,7 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={Appearance.getColorScheme() === 'dark' ? { ...DarkTheme } : DefaultTheme} tr>
+          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? DarkTheme : DefaultTheme}>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}

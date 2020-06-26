@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet, Appearance } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, Appearance, StatusBar } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,9 +48,10 @@ const styles = StyleSheet.create({
 });
 
 export default class UnlockWith extends Component {
-  state = { biometricType: false, isStorageEncrypted: false, isAuthenticating: false };
+  state = { biometricType: false, isStorageEncrypted: false, isAuthenticating: false, appearance: Appearance.getColorScheme() };
 
   async componentDidMount() {
+    Appearance.addChangeListener(this.appearanceChanged);
     let biometricType = false;
     if (await Biometric.isBiometricUseCapableAndEnabled()) {
       biometricType = await Biometric.biometricType();
@@ -62,6 +63,17 @@ export default class UnlockWith extends Component {
       } else if (typeof biometricType === 'string') this.unlockWithBiometrics();
     });
   }
+
+  componentWillUnmount() {
+    Appearance.removeChangeListener();
+  }
+
+  appearanceChanged = () => {
+    const appearance = Appearance.getColorScheme();
+    if (appearance) {
+      this.setState({ appearance });
+    }
+  };
 
   successfullyAuthenticated = () => {
     EV(EV.enum.WALLETS_INITIALIZED);
@@ -94,9 +106,10 @@ export default class UnlockWith extends Component {
       return <View />;
     }
 
-    const color = Appearance.getColorScheme() === 'dark' ? '#FFFFFF' : '#000000';
+    const color = this.state.appearance === 'dark' ? '#FFFFFF' : '#000000';
     return (
       <SafeAreaView style={styles.root}>
+        <StatusBar barStyle="default" />
         <View style={styles.container}>
           <View style={styles.qrCode}>
             <Image source={require('./img/qr-code.png')} style={styles.qrCodeImage} />
@@ -115,9 +128,7 @@ export default class UnlockWith extends Component {
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
                     <Image
-                      source={
-                        Appearance.getColorScheme() === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')
-                      }
+                      source={this.state.appearance === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')}
                       style={styles.icon}
                     />
                   </TouchableOpacity>
