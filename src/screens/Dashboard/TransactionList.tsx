@@ -6,7 +6,6 @@ import { images } from 'app/assets';
 import { Image, TransactionItem } from 'app/components';
 import { Route, Transaction, Filters } from 'app/consts';
 import { filterTransaction, filterBySearch } from 'app/helpers/filters';
-import { i18n as i18nLocal } from 'app/locale';
 import { NavigationService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
@@ -37,7 +36,7 @@ export class TransactionList extends Component<Props, State> {
   };
 
   static getDerivedStateFromProps(props: Props) {
-    moment.locale(i18nLocal.language);
+    moment.locale(i18n._.languageCode);
     const groupedTransactions = [] as any;
     const fileteredTransactions = props.filters.isFilteringOn
       ? filterTransaction(props.transactions, props.filters)
