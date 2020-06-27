@@ -742,7 +742,6 @@ export default class WalletTransactions extends Component {
             keyExtractor={this._keyExtractor}
             renderItem={this.renderItem}
             contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
-            getItemLayout={(data, index) => ({ length: 66, offset: 66 * index, index })}
           />
           {this.renderManageFundsModal()}
         </View>
