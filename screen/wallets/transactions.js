@@ -210,9 +210,6 @@ export default class WalletTransactions extends Component {
     EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED, this.refreshTransactionsFunction.bind(this), true);
     const wallet = props.route.params.wallet;
     this.props.navigation.setParams({ wallet: wallet, isLoading: true });
-    this.interval = setInterval(() => {
-      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
-    }, 60000);
     this.state = {
       isHandOffUseEnabled: false,
       isLoading: true,
@@ -230,6 +227,9 @@ export default class WalletTransactions extends Component {
   componentDidMount() {
     this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     this.props.navigation.setParams({ isLoading: false });
+    this.interval = setInterval(() => {
+      this.setState(prev => ({ timeElapsed: prev.timeElapsed + 1 }));
+    }, 60000);
     HandoffSettings.isHandoffUseEnabled().then(enabled => this.setState({ isHandOffUseEnabled: enabled }));
     this.setState({ isLoading: false });
   }
@@ -742,6 +742,7 @@ export default class WalletTransactions extends Component {
             keyExtractor={this._keyExtractor}
             renderItem={this.renderItem}
             contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
+            getItemLayout={(data, index) => ({ length: 66, offset: 66 * index, index })}
           />
           {this.renderManageFundsModal()}
         </View>
