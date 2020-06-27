@@ -15,7 +15,7 @@ import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
-import { BlueDefaultTheme, BlueDarkTheme } from './class/themes';
+import { BlueDefaultTheme, BlueDarkTheme } from './themes';
 const A = require('./analytics');
 
 if (process.env.NODE_ENV !== 'development') {

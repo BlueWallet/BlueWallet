@@ -13,10 +13,10 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import {
-  BlueLoading,
+  BlueLoadingHook,
   BlueCopyTextToClipboard,
   BlueButton,
-  BlueButtonLink,
+  BlueButtonLinkHook,
   is,
   BlueBitcoinAmount,
   BlueText,
@@ -178,7 +178,7 @@ const ReceiveDetails = () => {
             <View>
               <BlueButton title={loc.receive.details.create} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
-              <BlueButtonLink title="Reset" onPress={clearCustomAmount} />
+              <BlueButtonLinkHook title="Reset" onPress={clearCustomAmount} />
             </View>
             <BlueSpacing20 />
           </View>
@@ -217,7 +217,7 @@ const ReceiveDetails = () => {
     }
     return customAmount + ' ' + customUnit;
   };
-  const stylesBlueTheme = {
+  const stylesWithThemeHook = {
     root: {
       ...styles.root,
       backgroundColor: colors.background,
@@ -232,8 +232,8 @@ const ReceiveDetails = () => {
     },
   };
   return (
-    <View style={stylesBlueTheme.root}>
-      <StatusBar barStyle="default" />
+    <View style={stylesWithThemeHook.root}>
+      <StatusBar barStyle="default" c />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
@@ -241,8 +241,8 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      <ScrollView style={stylesBlueTheme.root} contentContainerStyle={stylesBlueTheme.scroll} keyboardShouldPersistTaps="always">
-        <View style={stylesBlueTheme.scrollBody}>
+      <ScrollView style={stylesWithThemeHook.root} contentContainerStyle={stylesWithThemeHook.scroll} keyboardShouldPersistTaps="always">
+        <View style={stylesWithThemeHook.scrollBody}>
           {isCustom && (
             <>
               <BlueText style={styles.amount} numberOfLines={1}>
@@ -255,7 +255,7 @@ const ReceiveDetails = () => {
           )}
           {bip21encoded === undefined ? (
             <View style={styles.loading}>
-              <BlueLoading />
+              <BlueLoadingHook />
             </View>
           ) : (
             <QRCode
@@ -273,7 +273,7 @@ const ReceiveDetails = () => {
           <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
         </View>
         <View style={styles.share}>
-          <BlueButtonLink title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
+          <BlueButtonLinkHook title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
           <View>
             <BlueButton
               icon={{

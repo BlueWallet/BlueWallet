@@ -357,7 +357,7 @@ export class BlueWalletNavigationHeader extends Component {
   }
 }
 
-export const BlueButtonLink = ({ title, onPress }) => {
+export const BlueButtonLinkHook = ({ title, onPress }) => {
   const { colors } = useTheme();
   return (
     <TouchableOpacity
@@ -373,6 +373,24 @@ export const BlueButtonLink = ({ title, onPress }) => {
     </TouchableOpacity>
   );
 };
+
+export class BlueButtonLink extends Component {
+  render() {
+    return (
+      <TouchableOpacity
+        style={{
+          minHeight: 60,
+          minWidth: 100,
+          height: 60,
+          justifyContent: 'center',
+        }}
+        {...this.props}
+      >
+        <Text style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center', fontSize: 16 }}>{this.props.title}</Text>
+      </TouchableOpacity>
+    );
+  }
+}
 
 export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure }) => {
   Alert.alert(
@@ -432,7 +450,7 @@ export const BlueNavigationStyle = (navigation, withNavigationCloseButton = fals
 
 export const BlueNavigationStyleHook = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => {
   let headerRight;
-  const { colors } = useTheme();
+  const { colors, closeImage } = useTheme();
   if (withNavigationCloseButton) {
     headerRight = () => (
       <TouchableOpacity
@@ -446,7 +464,7 @@ export const BlueNavigationStyleHook = (navigation, withNavigationCloseButton = 
             : customCloseButtonFunction
         }
       >
-        <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
+        <Image style={{ alignSelf: 'center' }} source={closeImage} />
       </TouchableOpacity>
     );
   } else {
@@ -466,7 +484,6 @@ export const BlueNavigationStyleHook = (navigation, withNavigationCloseButton = 
     },
     headerRight,
     headerTintColor: colors.foregroundColor,
-    // headerBackTitle: null,
     headerBackTitleVisible: false,
   };
 };
@@ -1001,11 +1018,23 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
   }
 }
 
-export const BlueLoading = () => {
+export class BlueLoading extends Component {
+  render() {
+    return (
+      <SafeBlueArea>
+        <View style={{ flex: 1, paddingTop: 200 }} {...this.props}>
+          <ActivityIndicator />
+        </View>
+      </SafeBlueArea>
+    );
+  }
+}
+
+export const BlueLoadingHook = () => {
   const { colors } = useTheme();
   return (
     <SafeBlueArea>
-      <View style={{ flex: 1, paddingTop: 200, backgroundColor: colors.background }} {...this.props}>
+      <View style={{ flex: 1, paddingTop: 200, backgroundColor: colors.background }}>
         <ActivityIndicator />
       </View>
     </SafeBlueArea>

@@ -1,7 +1,8 @@
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 
 export const BlueDefaultTheme = {
-  dark: DefaultTheme.dark,
+  ...DefaultTheme,
+  closeImage: require('./img/close.png'),
   colors: {
     ...DefaultTheme.colors,
     brandingColor: '#ffffff',
@@ -28,13 +29,16 @@ export const BlueDefaultTheme = {
     hdbackgroundColor: '#ECF9FF',
     lnborderColor: '#F7C056',
     lnbackgroundColor: '#FFFAEF',
+    background: '#FFFFFF',
   },
 };
 
 export const BlueDarkTheme = {
-  dark: DarkTheme.dark,
-  colors: {...BlueDefaultTheme.colors,  ...DarkTheme.colors,
-
+  ...DarkTheme,
+  closeImage: require('./img/close-white.png'),
+  colors: {
+    ...BlueDefaultTheme.colors,
+    ...DarkTheme.colors,
     foregroundColor: '#ffffff',
-},
+  },
 };
