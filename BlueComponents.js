@@ -483,8 +483,8 @@ export const BlueNavigationStyleHook = (navigation, withNavigationCloseButton = 
       color: colors.foregroundColor,
     },
     headerRight,
-    headerTintColor: colors.foregroundColor,
     headerBackTitleVisible: false,
+    headerTintColor: colors.foregroundColor,
   };
 };
 
@@ -674,6 +674,32 @@ export class BlueListItem extends Component {
   }
 }
 
+export const BlueListItemHooks = props => {
+  const { colors } = useTheme();
+  return (
+    <ListItem
+      testID={props.testID}
+      bottomDivider
+      containerStyle={{
+        backgroundColor: 'transparent',
+        borderBottomColor: '#ededed',
+        paddingTop: 16,
+        paddingBottom: 16,
+      }}
+      titleStyle={{
+        color: props.disabled ? colors.buttonDisabledTextColor : colors.foregroundColor,
+        fontSize: 16,
+        fontWeight: '500',
+      }}
+      subtitleStyle={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
+      subtitleNumberOfLines={1}
+      titleNumberOfLines={0}
+      Component={TouchableOpacity}
+      {...props}
+    />
+  );
+};
+
 export class BlueFormLabel extends Component {
   render() {
     return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor, fontWeight: '400', marginLeft: 20 }} />;
@@ -792,6 +818,36 @@ export class BlueHeaderDefaultSub extends Component {
     );
   }
 }
+
+export const BlueHeaderDefaultSubHooks = props => {
+  const { colors } = useTheme();
+
+  return (
+    <SafeAreaView>
+      <Header
+        backgroundColor={colors.background}
+        leftContainerStyle={{ minWidth: '100%' }}
+        outerContainerStyles={{
+          borderBottomColor: 'transparent',
+          borderBottomWidth: 0,
+        }}
+        leftComponent={
+          <Text
+            adjustsFontSizeToFit
+            style={{
+              fontWeight: 'bold',
+              fontSize: 30,
+              color: colors.foregroundColor,
+            }}
+          >
+            {props.leftText}
+          </Text>
+        }
+        {...props}
+      />
+    </SafeAreaView>
+  );
+};
 
 export class BlueHeaderDefaultMain extends Component {
   render() {

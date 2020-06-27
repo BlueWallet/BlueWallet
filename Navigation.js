@@ -61,6 +61,7 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
+import { BlueNavigationStyleHook } from './BlueComponents';
 const BlueApp = require('./BlueApp');
 const loc = require('./loc');
 
@@ -102,15 +103,9 @@ const WalletsRoot = () => (
       name="Settings"
       component={Settings}
       options={{
-        headerStyle: {
-          backgroundColor: '#FFFFFF',
-          borderBottomWidth: 0,
-          elevation: 0,
-          shadowColor: 'transparent',
-        },
-        title: '',
-        headerBackTitleVisible: false,
-        headerTintColor: '#0c2550',
+        ...BlueNavigationStyleHook(undefined),
+
+        headerTitle: '',
       }}
     />
     <WalletsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
