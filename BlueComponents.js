@@ -641,6 +641,19 @@ export class BlueText extends Component {
     );
   }
 }
+
+export const BlueTextHooks = props => {
+  const { colors } = useTheme();
+  return (
+    <Text
+      style={{
+        color: colors.foregroundColor,
+        ...props.style,
+      }}
+      {...props}
+    />
+  );
+};
 export class BlueTextCentered extends Component {
   render() {
     return <Text {...this.props} style={{ color: BlueApp.settings.foregroundColor, textAlign: 'center' }} />;
