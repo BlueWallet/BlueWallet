@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
 import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItemHooks, BlueNavigationStyleHook, BlueCard } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { AppStorage } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
@@ -98,13 +97,5 @@ GeneralSettings.navigationOptions = () => ({
   ...BlueNavigationStyleHook(),
   title: 'General',
 });
-
-GeneralSettings.propTypes = {
-  navigation: PropTypes.shape({
-    navigate: PropTypes.func,
-    popToTop: PropTypes.func,
-    goBack: PropTypes.func,
-  }),
-};
 
 export default GeneralSettings;
