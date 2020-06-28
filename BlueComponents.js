@@ -614,9 +614,9 @@ export class SafeBlueArea extends Component {
   render() {
     return (
       <SafeAreaView
-        {...this.props}
         forceInset={{ horizontal: 'always' }}
         style={{ flex: 1, backgroundColor: BlueApp.settings.brandingColor }}
+        {...this.props}
       />
     );
   }
