@@ -16,6 +16,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
+  StatusBar,
 } from 'react-native';
 import { BlueButtonLink, BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
@@ -23,7 +24,7 @@ import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
 import { Icon } from 'react-native-elements';
 import { AppStorage } from '../../class';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 const A = require('../../analytics');
@@ -108,7 +109,10 @@ export default class HodlHodl extends Component {
 
     const sort = {
       [HodlHodlApi.SORT_BY]: HodlHodlApi.SORT_BY_VALUE_PRICE,
-      [HodlHodlApi.SORT_DIRECTION]: HodlHodlApi.SORT_DIRECTION_VALUE_ASC,
+      [HodlHodlApi.SORT_DIRECTION]:
+        this.state.side === HodlHodlApi.FILTERS_SIDE_VALUE_SELL
+          ? HodlHodlApi.SORT_DIRECTION_VALUE_ASC
+          : HodlHodlApi.SORT_DIRECTION_VALUE_DESC,
     };
     const offers = await this.state.HodlApi.getOffers(pagination, filters, sort);
 
@@ -155,8 +159,25 @@ export default class HodlHodl extends Component {
     this.setState({ methods });
   }
 
+  onFocus = async () => {
+    const hodlApiKey = await BlueApp.getHodlHodlApiKey();
+    const displayLoginButton = !hodlApiKey;
+
+    if (hodlApiKey && !this.state.hodlApiKey) {
+      // only if we had no key, and now we do, we update state
+      // (means user logged in)
+      this.setState({ hodlApiKey });
+      this.props.navigation.setParams({ displayLoginButton });
+    }
+  };
+
+  componentWillUnmount() {
+    this._unsubscribeFocus();
+  }
+
   async componentDidMount() {
     console.log('wallets/hodlHodl - componentDidMount');
+    this._unsubscribeFocus = this.props.navigation.addListener('focus', this.onFocus);
     A(A.ENUM.NAVIGATED_TO_WALLETS_HODLHODL);
 
     const hodlApiKey = await BlueApp.getHodlHodlApiKey();
@@ -794,6 +815,7 @@ export default class HodlHodl extends Component {
   render() {
     return (
       <SafeBlueArea>
+        <StatusBar barStyle="light-content" />
         <SectionList
           refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
           renderItem={this.renderItem}
@@ -817,6 +839,7 @@ export default class HodlHodl extends Component {
 
 HodlHodl.propTypes = {
   navigation: PropTypes.shape({
+    addListener: PropTypes.func,
     navigate: PropTypes.func,
     setParams: PropTypes.func,
   }),

@@ -516,6 +516,10 @@ export default class SendDetails extends Component {
       const value = parseInt(transaction.amountSats);
       if (value > 0) {
         targets.push({ address: transaction.address, value });
+      } else if (transaction.amount) {
+        if (currency.btcToSatoshi(transaction.amount) > 0) {
+          targets.push({ address: transaction.address, value: currency.btcToSatoshi(transaction.amount) });
+        }
       }
     }
 

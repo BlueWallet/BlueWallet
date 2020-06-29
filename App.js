@@ -1,12 +1,13 @@
 import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationContainer, CommonActions } from '@react-navigation/native';
+import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
-import NavigationService from './NavigationService';
+import { navigationRef } from './NavigationService';
+import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
@@ -26,10 +27,9 @@ const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const loc = require('./loc');
 const BlueApp = require('./BlueApp');
+const EV = require('./events');
 
 export default class App extends React.Component {
-  navigation = null;
-
   state = {
     appState: AppState.currentState,
     isClipboardContentModalVisible: false,
@@ -38,17 +38,21 @@ export default class App extends React.Component {
   };
 
   componentDidMount() {
+    EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+  }
+
+  addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-    QuickActions.popInitialAction().then(this.popInitialAction);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
+    QuickActions.popInitialAction().then(this.popInitialAction);
     this._handleAppStateChange(undefined);
-  }
+  };
 
   popInitialAction = async data => {
     if (data) {
       const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-      this.navigation.dispatch(
+      NavigationService.dispatch(
         CommonActions.navigate({
           name: 'WalletTransactions',
           key: `WalletTransactions-${wallet.getID()}`,
@@ -69,7 +73,7 @@ export default class App extends React.Component {
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
           const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
-            this.navigation.dispatch(
+            NavigationService.dispatch(
               CommonActions.navigate({
                 name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
@@ -86,7 +90,7 @@ export default class App extends React.Component {
 
   walletQuickActions = data => {
     const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-    this.navigation.dispatch(
+    NavigationService.dispatch(
       CommonActions.navigate({
         name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
@@ -145,7 +149,7 @@ export default class App extends React.Component {
     const clipboardContent = this.state.clipboardContent;
     if (wallet.chain === Chain.ONCHAIN) {
       this.navigation &&
-        this.navigation.dispatch(
+        NavigationService.dispatch(
           CommonActions.navigate({
             name: 'SendDetails',
             params: {
@@ -156,7 +160,7 @@ export default class App extends React.Component {
         );
     } else if (wallet.chain === Chain.OFFCHAIN) {
       this.navigation &&
-        this.navigation.dispatch(
+        NavigationService.dispatch(
           CommonActions.navigate({
             name: 'ScanLndInvoice',
             params: {
@@ -169,11 +173,7 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    // dirty hack with timeout till we make a proper refactoring
-    // @see https://reactnavigation.org/docs/deep-linking/
-    setTimeout(() => {
-      DeeplinkSchemaMatch.navigationRouteFor(event, value => this.navigation && this.navigation.navigate(...value));
-    }, 1000);
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value));
   };
 
   renderClipboardContentModal = () => {
@@ -219,15 +219,9 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer
-            ref={nav => {
-              this.navigation = nav;
-              NavigationService.setTopLevelNavigator(nav);
-            }}
-          >
+          <NavigationContainer ref={navigationRef} theme={Appearance.getColorScheme() === 'dark' ? { ...DarkTheme } : DefaultTheme} tr>
             <Navigation />
           </NavigationContainer>
-
           {this.renderClipboardContentModal()}
         </View>
       </SafeAreaProvider>

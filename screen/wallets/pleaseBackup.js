@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
@@ -102,6 +102,7 @@ const PleaseBackup = () => {
     </View>
   ) : (
     <SafeBlueArea style={styles.flex}>
+      <StatusBar barStyle="light-content" />
       <ScrollView contentContainerStyle={styles.scrollViewContent} testID="PleaseBackupScrollView">
         <View style={styles.please}>
           <BlueText style={styles.successText}>{loc.pleasebackup.success}</BlueText>

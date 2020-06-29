@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, Appearance } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
-import PropTypes from 'prop-types';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as NavigationService from './NavigationService';
+import { StackActions } from '@react-navigation/native';
+const EV = require('./events');
 /** @type {AppStorage} */
 
 const BlueApp = require('./BlueApp');
@@ -40,10 +42,8 @@ const styles = StyleSheet.create({
     height: 64,
   },
   encrypted: {
-    backgroundColor: 'gray',
     width: 0.5,
     height: 20,
-    marginHorizontal: 16,
   },
 });
 
@@ -64,7 +64,8 @@ export default class UnlockWith extends Component {
   }
 
   successfullyAuthenticated = () => {
-    this.props.onSuccessfullyAuthenticated();
+    EV(EV.enum.WALLETS_INITIALIZED);
+    NavigationService.dispatch(StackActions.replace('WalletsRoot'));
   };
 
   unlockWithBiometrics = async () => {
@@ -75,7 +76,7 @@ export default class UnlockWith extends Component {
       if (await Biometric.unlockWithBiometrics()) {
         this.setState({ isAuthenticating: false });
         await BlueApp.startAndDecrypt();
-        return this.props.onSuccessfullyAuthenticated();
+        return this.successfullyAuthenticated();
       }
       this.setState({ isAuthenticating: false });
     });
@@ -84,7 +85,7 @@ export default class UnlockWith extends Component {
   unlockWithKey = () => {
     this.setState({ isAuthenticating: true }, async () => {
       await BlueApp.startAndDecrypt();
-      this.props.onSuccessfullyAuthenticated();
+      this.successfullyAuthenticated();
     });
   };
 
@@ -92,6 +93,8 @@ export default class UnlockWith extends Component {
     if (!this.state.biometricType && !this.state.isStorageEncrypted) {
       return <View />;
     }
+
+    const color = Appearance.getColorScheme() === 'dark' ? '#FFFFFF' : '#000000';
     return (
       <SafeAreaView style={styles.root}>
         <View style={styles.container}>
@@ -104,22 +107,26 @@ export default class UnlockWith extends Component {
                 !this.state.isStorageEncrypted && (
                   <>
                     <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
-                      <Image source={require('./img/fingerprint.png')} style={styles.icon} />
+                      <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
                     </TouchableOpacity>
                   </>
                 )}
               {this.state.biometricType === Biometric.FaceID && !this.state.isStorageEncrypted && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
-                    <Image source={require('./img/faceid.png')} style={styles.icon} />
+                    <Image
+                      source={
+                        Appearance.getColorScheme() === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')
+                      }
+                      style={styles.icon}
+                    />
                   </TouchableOpacity>
                 </>
               )}
-              {this.state.biometricType !== false && this.state.isStorageEncrypted && <View style={styles.encrypted} />}
               {this.state.isStorageEncrypted && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithKey}>
-                    <Icon name="key" size={64} type="font-awesome" />
+                    <Icon name="lock" size={64} type="font-awesome5" color={color} />
                   </TouchableOpacity>
                 </>
               )}
@@ -130,7 +137,3 @@ export default class UnlockWith extends Component {
     );
   }
 }
-
-UnlockWith.propTypes = {
-  onSuccessfullyAuthenticated: PropTypes.func,
-};

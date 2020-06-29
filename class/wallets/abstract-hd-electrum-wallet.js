@@ -950,6 +950,12 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
     }).address;
   }
 
+  static _nodeToLegacyAddress(hdNode) {
+    return bitcoin.payments.p2pkh({
+      pubkey: hdNode.publicKey,
+    }).address;
+  }
+
   /**
    * Converts zpub to xpub
    *

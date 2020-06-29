@@ -23,7 +23,7 @@ import { LightningCustodianWallet } from '../../class/wallets/lightning-custodia
 import PropTypes from 'prop-types';
 import bech32 from 'bech32';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
-import NavigationService from '../../NavigationService';
+import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 const currency = require('../../blue_modules/currency');
@@ -292,6 +292,7 @@ export default class LNDCreateInvoice extends Component {
 
         // amount that comes from lnurl is always in sats
         let amount = (reply.maxWithdrawable / 1000).toString();
+        const sats = amount;
         switch (this.state.unit) {
           case BitcoinUnit.SATS:
             // nop
@@ -301,6 +302,7 @@ export default class LNDCreateInvoice extends Component {
             break;
           case BitcoinUnit.LOCAL_CURRENCY:
             amount = loc.formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
+            BlueBitcoinAmount.setCachedSatoshis(amount, sats);
             break;
         }
 
