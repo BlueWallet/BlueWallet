@@ -48,6 +48,10 @@ module.exports = {
       coming_soon: 'Скоро будет',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Сгенерировать энторию с помощью игральных костей',
+      entropy_generated: '{gen} байтов сгенерированной энтории',
+      entropy_remain:
+        '{gen} байтов сгенерированной энтории. Оставшиеся {rem} байт будут получены из системного генератора случайных чисел.',
     },
     details: {
       title: 'Информация о кошельке',
@@ -250,5 +254,10 @@ module.exports = {
     for: 'For:',
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node:',
+  },
+  entropy: {
+    title: 'Энтропия',
+    save: 'Сохранить',
+    undo: 'Отмена',
   },
 };

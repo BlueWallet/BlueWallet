@@ -47,6 +47,9 @@ module.exports = {
       coming_soon: 'เร็วๆนี้',
       lightning: 'ไลท์นิง',
       bitcoin: 'บิตคอยน์',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'กระเป๋าสตางค์',
@@ -245,5 +248,10 @@ module.exports = {
     for: 'For:',
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

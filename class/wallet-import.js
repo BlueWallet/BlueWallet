@@ -1,5 +1,6 @@
 /* global alert */
 import {
+  AppStorage,
   SegwitP2SHWallet,
   LegacyWallet,
   WatchOnlyWallet,
@@ -16,8 +17,7 @@ import {
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 const EV = require('../events');
 const A = require('../analytics');
-/** @type {AppStorage} */
-const BlueApp = require('../BlueApp');
+const BlueApp: AppStorage = require('../BlueApp');
 const loc = require('../loc');
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
@@ -38,8 +38,9 @@ export default class WalletImport {
         alert('This wallet has been previously imported.');
         WalletImport.removePlaceholderWallet();
       } else {
+        const emptyWalletLabel = new LegacyWallet().getLabel();
         ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
-        w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
+        if (w.getLabel() === emptyWalletLabel) w.setLabel(loc.wallets.import.imported + ' ' + w.typeReadable);
         w.setUserHasSavedExport(true);
         if (additionalProperties) {
           for (const [key, value] of Object.entries(additionalProperties)) {

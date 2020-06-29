@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet, Appearance } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -42,10 +42,8 @@ const styles = StyleSheet.create({
     height: 64,
   },
   encrypted: {
-    backgroundColor: 'gray',
     width: 0.5,
     height: 20,
-    marginHorizontal: 16,
   },
 });
 
@@ -95,6 +93,8 @@ export default class UnlockWith extends Component {
     if (!this.state.biometricType && !this.state.isStorageEncrypted) {
       return <View />;
     }
+
+    const color = Appearance.getColorScheme() === 'dark' ? '#FFFFFF' : '#000000';
     return (
       <SafeAreaView style={styles.root}>
         <View style={styles.container}>
@@ -107,22 +107,26 @@ export default class UnlockWith extends Component {
                 !this.state.isStorageEncrypted && (
                   <>
                     <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
-                      <Image source={require('./img/fingerprint.png')} style={styles.icon} />
+                      <Icon name="fingerprint" size={64} type="font-awesome5" color={color} />
                     </TouchableOpacity>
                   </>
                 )}
               {this.state.biometricType === Biometric.FaceID && !this.state.isStorageEncrypted && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithBiometrics}>
-                    <Image source={require('./img/faceid.png')} style={styles.icon} />
+                    <Image
+                      source={
+                        Appearance.getColorScheme() === 'dark' ? require('./img/faceid-default.png') : require('./img/faceid-dark.png')
+                      }
+                      style={styles.icon}
+                    />
                   </TouchableOpacity>
                 </>
               )}
-              {this.state.biometricType !== false && this.state.isStorageEncrypted && <View style={styles.encrypted} />}
               {this.state.isStorageEncrypted && (
                 <>
                   <TouchableOpacity disabled={this.state.isAuthenticating} onPress={this.unlockWithKey}>
-                    <Icon name="key" size={64} type="font-awesome" />
+                    <Icon name="lock" size={64} type="font-awesome5" color={color} />
                   </TouchableOpacity>
                 </>
               )}

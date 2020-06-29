@@ -1,0 +1,63 @@
+{
+  "_args": [
+    [
+      "bc-bech32@1.0.2",
+      "/home/user/BlueWallet"
+    ]
+  ],
+  "_from": "bc-bech32@1.0.2",
+  "_id": "bc-bech32@1.0.2",
+  "_inBundle": false,
+  "_integrity": "sha512-lwAn5R4LUhcnyrZgNx3YdDPr5+nseM4kARANcv8i0YOMtnPJRTF7B7TZzS3DYgC6tff/aR2W/3jGoY/SJMs6MA==",
+  "_location": "/bc-bech32",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "bc-bech32@1.0.2",
+    "name": "bc-bech32",
+    "escapedName": "bc-bech32",
+    "rawSpec": "1.0.2",
+    "saveSpec": null,
+    "fetchSpec": "1.0.2"
+  },
+  "_requiredBy": [
+    "/bc-ur"
+  ],
+  "_spec": "1.0.2",
+  "_where": "/home/user/BlueWallet",
+  "description": "this library is for implementing [BlockChain Commons bc-32](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-0004-bc32.md)",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "gitHead": "981882405f62b1268edcbda018662a369431bb62",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "name": "bc-bech32",
+  "scripts": {
+    "build": "npm run clean && npx tsc -p tsconfig.json -outDir ./dist",
+    "clean": "rm -rf ./dist"
+  },
+  "version": "1.0.2",
+  "react-native": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  },
+  "browser": {
+    "path": "path-browserify",
+    "fs": "react-native-level-fs",
+    "_stream_transform": "readable-stream/transform",
+    "_stream_readable": "readable-stream/readable",
+    "_stream_writable": "readable-stream/writable",
+    "_stream_duplex": "readable-stream/duplex",
+    "_stream_passthrough": "readable-stream/passthrough",
+    "stream": "stream-browserify"
+  }
+}

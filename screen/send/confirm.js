@@ -50,6 +50,7 @@ export default class Confirm extends Component {
   async componentDidMount() {
     console.log('send/confirm - componentDidMount');
     console.log('address = ', this.state.recipients);
+    if (!this.state.recipients || !this.state.recipients.length) alert('Internal error: recipients list empty (this should never happen)');
     this.isBiometricUseCapableAndEnabled = await Biometric.isBiometricUseCapableAndEnabled();
   }
 
