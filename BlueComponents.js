@@ -704,6 +704,7 @@ export const BlueListItemHooks = props => {
         fontSize: 16,
         fontWeight: '500',
       }}
+      rightTitleStyle={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
       subtitleStyle={{ flexWrap: 'wrap', color: colors.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
       subtitleNumberOfLines={1}
       titleNumberOfLines={0}
