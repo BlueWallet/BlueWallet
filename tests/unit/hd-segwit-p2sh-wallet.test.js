@@ -108,3 +108,31 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function () 
   assert.strictEqual(hd._getExternalAddressByIndex(1), '1QDCFcpnrZ4yrAQxmbvSgeUC9iZZ8ehcR5');
   assert.strictEqual(hd._getInternalAddressByIndex(1), '13CW9WWBsWpDUvLtbFqYziWBWTYUoQb4nU');
 });
+
+it('can consume user generated entropy', async () => {
+  const hd = new HDSegwitP2SHWallet();
+  const zeroes = [...Array(32)].map(() => 0);
+  await hd.generateFromEntropy(Buffer.from(zeroes));
+  assert.strictEqual(
+    hd.getSecret(),
+    'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art',
+  );
+});
+
+it('can fullfill user generated entropy if less than 32 bytes provided', async () => {
+  const hd = new HDSegwitP2SHWallet();
+  const zeroes = [...Array(16)].map(() => 0);
+  await hd.generateFromEntropy(Buffer.from(zeroes));
+  const secret = hd.getSecret();
+  assert.strictEqual(secret.startsWith('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'), true);
+
+  let secretWithoutChecksum = secret.split(' ');
+  secretWithoutChecksum.pop();
+  secretWithoutChecksum = secretWithoutChecksum.join(' ');
+  assert.strictEqual(
+    secretWithoutChecksum.endsWith('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon'),
+    false,
+  );
+
+  assert.ok(secret.split(' ').length === 12 || secret.split(' ').length === 24);
+});

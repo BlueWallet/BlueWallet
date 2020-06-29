@@ -47,6 +47,9 @@ module.exports = {
       coming_soon: '準備中',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'ウォレット',
@@ -247,5 +250,10 @@ module.exports = {
     for: 'メモ:',
     additional_info: '追加情報',
     open_direct_channel: 'このノードの直接チャネルを作成:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

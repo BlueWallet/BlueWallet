@@ -24,7 +24,6 @@
   "_requiredBy": [
     "/bc-ur"
   ],
-  "_resolved": "https://registry.npmjs.org/bc-bech32/-/bc-bech32-1.0.2.tgz",
   "_spec": "1.0.2",
   "_where": "/home/user/BlueWallet",
   "description": "this library is for implementing [BlockChain Commons bc-32](https://github.com/BlockchainCommons/Research/blob/master/papers/bcr-0004-bc32.md)",

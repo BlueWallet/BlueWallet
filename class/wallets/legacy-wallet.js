@@ -47,6 +47,21 @@ export class LegacyWallet extends AbstractWallet {
     this.secret = bitcoin.ECPair.makeRandom({ rng: () => buf }).toWIF();
   }
 
+  async generateFromEntropy(user) {
+    let i = 0;
+    do {
+      i += 1;
+      const random = await randomBytes(user.length < 32 ? 32 - user.length : 0);
+      const buf = Buffer.concat([user, random], 32);
+      try {
+        this.secret = bitcoin.ECPair.fromPrivateKey(buf).toWIF();
+        return;
+      } catch (e) {
+        if (i === 5) throw e;
+      }
+    } while (true);
+  }
+
   /**
    *
    * @returns {string}
