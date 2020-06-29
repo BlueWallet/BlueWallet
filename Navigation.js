@@ -134,18 +134,7 @@ const WalletsRoot = () => (
       component={LNDViewAdditionalInvoiceInformation}
       options={LNDViewAdditionalInvoiceInformation.navigationOptions}
     />
-    <WalletsStack.Screen
-      name="Broadcast"
-      component={Broadcast}
-      options={{
-        title: 'Broadcast',
-        headerStyle: {
-          backgroundColor: '#FFFFFF',
-          borderBottomWidth: 0,
-        },
-        headerTintColor: '#0c2550',
-      }}
-    />
+    <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions} />
   </WalletsStack.Navigator>
 );
 

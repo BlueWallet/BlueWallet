@@ -12,6 +12,7 @@ import {
   BlueFormLabel,
   BlueTextCentered,
   BlueBigCheckmark,
+  BlueNavigationStyleHook,
 } from '../../BlueComponents';
 import BlueElectrum from '../../BlueElectrum';
 const bitcoin = require('bitcoinjs-lib');
@@ -23,7 +24,7 @@ const BROADCAST_RESULT = Object.freeze({
   error: 'error',
 });
 
-export default function Broadcast() {
+const Broadcast = () => {
   const [tx, setTx] = useState('');
   const [txHex, setTxHex] = useState('');
   const [broadcastResult, setBroadcastResult] = useState(BROADCAST_RESULT.none);
@@ -80,7 +81,13 @@ export default function Broadcast() {
       </KeyboardAvoidingView>
     </SafeBlueArea>
   );
-}
+};
+
+export default Broadcast;
+Broadcast.navigationOptions = () => ({
+  ...BlueNavigationStyleHook(),
+  title: 'Broadcast',
+});
 
 const styles = StyleSheet.create({
   wrapper: {
