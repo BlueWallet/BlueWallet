@@ -186,7 +186,7 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
         // if we're here - nope, its not a valid WIF
 
         const hd2 = new HDSegwitP2SHWallet();
-        hd2.setSecret(text);
+        await hd2.setSecret(text);
         if (hd2.validateMnemonic()) {
           await hd2.fetchBalance();
           if (hd2.getBalance() > 0) {
@@ -196,7 +196,7 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
         }
 
         const hd4 = new HDSegwitBech32Wallet();
-        hd4.setSecret(text);
+        await hd4.setSecret(text);
         if (hd4.validateMnemonic()) {
           await hd4.fetchBalance();
           if (hd4.getBalance() > 0) {
@@ -206,7 +206,7 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
         }
 
         const hd3 = new HDLegacyP2PKHWallet();
-        hd3.setSecret(text);
+        await hd3.setSecret(text);
         if (hd3.validateMnemonic()) {
           await hd3.fetchBalance();
           if (hd3.getBalance() > 0) {
