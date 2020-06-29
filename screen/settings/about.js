@@ -137,7 +137,7 @@ const About = () => {
           leftIcon={{
             name: 'github',
             type: 'font-awesome',
-            color: 'black',
+            color: colors.foregroundColor,
           }}
           onPress={handleOnGithubPress}
           title="GitHub"
@@ -168,7 +168,7 @@ const About = () => {
           leftIcon={{
             name: 'law',
             type: 'octicon',
-            color: 'black',
+            color: colors.foregroundColor,
           }}
           chevron
           onPress={handleOnLicensingPress}
