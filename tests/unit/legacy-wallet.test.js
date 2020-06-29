@@ -61,6 +61,11 @@ describe('Legacy wallet', () => {
     const values = [...Array(16)].map(() => 1);
     await l.generateFromEntropy(Buffer.from(values));
     assert.strictEqual(l.getSecret().startsWith('KwFfNUhSDaASSAwtG7ssQM'), true);
-    assert.strictEqual(l.getSecret().startsWith('GHWnnLfhfiQDigjioWXHH'), false);
+    assert.strictEqual(l.getSecret().endsWith('GHWnnLfhfiQDigjioWXHH'), false);
+    const keyPair = bitcoin.ECPair.fromWIF(l.getSecret());
+    assert.strictEqual(keyPair.privateKey.toString('hex').startsWith('01010101'), true);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('01010101'), false);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('00000000'), false);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('ffffffff'), false);
   });
 });
