@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Lageret er krypteret. Indtast adgangskode for at dekryptere',
+    storage_is_encrypted:
+      'Lageret er krypteret. Indtast adgangskode for at dekryptere',
     enter_password: 'Indtast adgangskode',
     bad_password: 'Forkert adgangskode, prøv igen',
     never: 'aldrig',
@@ -10,11 +11,14 @@ module.exports = {
   wallets: {
     select_wallet: 'Vælg wallet',
     options: 'valgmuligheder',
-    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+    createBitcoinWallet:
+      'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
     list: {
       app_name: 'BlueWallet',
       title: 'wallets',
-      header: 'En wallet består af par af hemmelige (private nøgler) og en adresse' + 'som du kan dele med andre for at modtage coins.',
+      header:
+        'En wallet består af par af hemmelige (private nøgler) og en adresse' +
+        'som du kan dele med andre for at modtage coins.',
       add: 'Tilføj Wallet',
       create_a_wallet: 'Tilføj en tegnebog',
       create_a_wallet1: 'Det er helt gratis og du kan oprette',
@@ -25,7 +29,8 @@ module.exports = {
       empty_txs2: 'ingen endnu',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tryk her for at købe Bitcoin',
     },
     reorder: {
@@ -49,7 +54,8 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Wallet',
@@ -109,7 +115,8 @@ module.exports = {
     list: {
       tabBarLabel: 'Transaktioner',
       title: 'transaktioner',
-      description: 'En liste af indgåeende og udgående transaktioner i dine wallets',
+      description:
+        'En liste af indgåeende og udgående transaktioner i dine wallets',
       conf: 'conf',
     },
     details: {
@@ -128,8 +135,10 @@ module.exports = {
       amount_field_is_not_valid: 'Beløbsfeltet er ikke gyldigt',
       fee_field_is_not_valid: 'Gebyr feltet er ikke gyldigt',
       address_field_is_not_valid: 'Adresse felt er ikke gyldigt',
-      total_exceeds_balance: 'Beløbet du prøver at sende er større end din kontosaldo.',
-      create_tx_error: 'Der skete en fejl ved oprettelse af transaktionen. Check om addressen er gyldig.',
+      total_exceeds_balance:
+        'Beløbet du prøver at sende er større end din kontosaldo.',
+      create_tx_error:
+        'Der skete en fejl ved oprettelse af transaktionen. Check om addressen er gyldig.',
       address: 'adresse',
       amount_placeholder: 'beløb der skal sendes (i BTC)',
       fee_placeholder: 'plus transaktionsgebyr (i BTC)',
@@ -150,9 +159,11 @@ module.exports = {
     create: {
       details: 'Detaljer',
       title: 'opret transaktion',
-      error: 'Der skete en fejl ved oprettelse af transaktionen. Er addresssen og beløbet korrekt?',
+      error:
+        'Der skete en fejl ved oprettelse af transaktionen. Er addresssen og beløbet korrekt?',
       go_back: 'Tilbage',
-      this_is_hex: 'Dette er transaktion hex, klar til at sende ud til netværket.',
+      this_is_hex:
+        'Dette er transaktion hex, klar til at sende ud til netværket.',
       to: 'Til',
       amount: 'Beløb',
       fee: 'Gebyr',
@@ -173,7 +184,6 @@ module.exports = {
       create: 'Create',
       setAmount: 'Modtag med beløb',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Køb Bitcoin',
@@ -186,7 +196,8 @@ module.exports = {
     storage_not_encrypted: 'Lager: ikke krypteret',
     storage_encrypted: 'Lager: krypteret',
     password: 'Adgangskode',
-    password_explain: 'Indtast den adgangskode du vil bruge til at kryptere lageret',
+    password_explain:
+      'Indtast den adgangskode du vil bruge til at kryptere lageret',
     retype_password: 'Gentag adgangskoden',
     passwords_do_not_match: 'Adgangskoden er ikke den samme',
     encrypt_storage: 'Krypter lager',
@@ -214,12 +225,16 @@ module.exports = {
       'BlueWallet, vil brugeren se den alternative wallet. Det vil se helt' +
       'legitimt ud for andre, og dermed beskytte din originale wallet og ' +
       'dine coins.',
-    help2: 'Det nye lager vil være fuldt funktionsdygtigt, og du kan evt have nogle ' + 'småbeløb så det ser troværdigt ud.',
+    help2:
+      'Det nye lager vil være fuldt funktionsdygtigt, og du kan evt have nogle ' +
+      'småbeløb så det ser troværdigt ud.',
     create_fake_storage: 'Opret falsk kryopteret lager',
     go_back: 'tilbage',
     create_password: 'Opret adgangskode',
-    create_password_explanation: 'Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager',
-    password_should_not_match: 'Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager',
+    create_password_explanation:
+      'Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager',
+    password_should_not_match:
+      'Adgangskoden til det falske lager må ikke være den samme som den du bruger til det rigtige lager',
     retype_password: 'Indtast adgangskoden igen',
     passwords_do_not_match: 'Adgangskoden er ikke den samme, prøv igen',
     success: 'Succes',
@@ -233,7 +248,8 @@ module.exports = {
     exchange: 'Exchange',
     withdraw: 'Træk coins tilbage',
     expired: 'Expired',
-    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
+    sameWalletAsInvoiceError:
+      'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -255,4 +271,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

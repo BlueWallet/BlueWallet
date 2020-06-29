@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Vaše úložisko je zašifrované. Zadajte heslo k odomknutiu',
+    storage_is_encrypted:
+      'Vaše úložisko je zašifrované. Zadajte heslo k odomknutiu',
     enter_password: 'Zadajte heslo',
     bad_password: 'Zlé heslo, prosím skúste to znovu',
     never: 'nikdy',
@@ -15,7 +16,8 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'peňaženky',
-      header: 'Peňaženka reprezentuje dvojicu tajného (súkromného) kľúča a adresy, ktorú môžete zdieľať, aby ste získali Bitcoiny',
+      header:
+        'Peňaženka reprezentuje dvojicu tajného (súkromného) kľúča a adresy, ktorú môžete zdieľať, aby ste získali Bitcoiny',
       add: 'Pridať peňaženku',
       create_a_wallet: 'pridať peňaženku',
       create_a_wallet1: 'Je to zadarmo a môžete vytvoriť',
@@ -26,7 +28,8 @@ module.exports = {
       empty_txs2: 'zatiaľ žiadne',
       empty_txs1_lightning:
         'Lightning peňaženka by sa mala používať na denné transakcie. Sú bleskovo rýchle a poplatky sú neporovnateľne nižšie/žiadne.',
-      empty_txs2_lightning: '\nKliknite na "spravovať zostatok" a naplňte si peňaženku.',
+      empty_txs2_lightning:
+        '\nKliknite na "spravovať zostatok" a naplňte si peňaženku.',
       tap_here_to_buy: 'Kliknite sem pre nákup Bitcoinov',
     },
     reorder: {
@@ -50,7 +53,8 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Peňaženka',
@@ -85,7 +89,8 @@ module.exports = {
       explanation:
         'Zadajte svoj mnemonic seed, súkromný kľúč, WIF, alebo čokoľvek, čo máte. BlueWallet sa pokúsi uhádnuť správny formát a naimportovať vašu peňaženku',
       imported: 'Importovaná',
-      error: 'Chyba pri importe. Prosím uistite sa, že poskytnuté údaje sú správne.',
+      error:
+        'Chyba pri importe. Prosím uistite sa, že poskytnuté údaje sú správne.',
       success: 'Úspech',
       do_import: 'Importovať',
       scan_qr: 'alebo radšej naskenovať QR kód?',
@@ -129,8 +134,10 @@ module.exports = {
       amount_field_is_not_valid: 'Čiastka nie je správne vyplnená',
       fee_field_is_not_valid: 'Poplatok nie je správne vyplnený',
       address_field_is_not_valid: 'Adresa nie je správne vyplnená',
-      total_exceeds_balance: 'Čiastka, ktorú chcete poslať, presahuje dostupný zostatok.',
-      create_tx_error: 'Nastala chyba pri vytváraní transakcie. Prosím uistite sa, že adresa je platná.',
+      total_exceeds_balance:
+        'Čiastka, ktorú chcete poslať, presahuje dostupný zostatok.',
+      create_tx_error:
+        'Nastala chyba pri vytváraní transakcie. Prosím uistite sa, že adresa je platná.',
       address: 'adresa',
       amount_placeholder: 'čiastka k odoslaniu (v BTC)',
       fee_placeholder: 'plus transakčný poplatok (v BTC)',
@@ -153,7 +160,8 @@ module.exports = {
       title: 'vytvoriť transakciu',
       error: 'Chyba pri vytváraní transakcie. Nesprávna adresa alebo čiastka?',
       go_back: 'Spať',
-      this_is_hex: 'Toto je vaša transakcia, podpísaná a pripravená k odoslaniu.',
+      this_is_hex:
+        'Toto je vaša transakcia, podpísaná a pripravená k odoslaniu.',
       to: 'Cieľ',
       amount: 'Čiastka',
       fee: 'Poplatok',
@@ -174,7 +182,6 @@ module.exports = {
       create: 'Vytvoriť',
       setAmount: 'Prijať čiastku...',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Kúpiť Bitcoin',
@@ -214,12 +221,15 @@ module.exports = {
       'môžete toto heslo dať tretej strane. Pokiaľ bude zadané do BlueWallet, ' +
       'odomkne nové "falošné" úložisko. Toto bude vyzerať hodnoverne, ale ' +
       'udrží vaše pravé hlavné úložisko v bezpečí.',
-    help2: 'Nové úložisko bude plne funkčné, môžete naň uložiť minimálnu čiastku, aby vyzeralo uveriteľnejšie.',
+    help2:
+      'Nové úložisko bude plne funkčné, môžete naň uložiť minimálnu čiastku, aby vyzeralo uveriteľnejšie.',
     create_fake_storage: 'Vytvoriť falošné zašifrované úložisko',
     go_back: 'Späť',
     create_password: 'Vytvoriť heslo',
-    create_password_explanation: 'Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku',
-    password_should_not_match: 'Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku',
+    create_password_explanation:
+      'Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku',
+    password_should_not_match:
+      'Heslo k falošnému úložisku nesmie byť rovnaké ako heslo k hlavnému úložisku',
     retype_password: 'Heslo znovu',
     passwords_do_not_match: 'Hesla se nezhodujú, skúste znovu',
     success: 'Úspech',
@@ -233,11 +243,13 @@ module.exports = {
     withdraw: 'Vybrať',
     expired: 'Expirovaná',
     placeholder: 'Faktúra',
-    sameWalletAsInvoiceError: 'Faktúra sa nedá uhradiť s rovnakou peňaženkou ako tá, ktorá ju vytvorila.',
+    sameWalletAsInvoiceError:
+      'Faktúra sa nedá uhradiť s rovnakou peňaženkou ako tá, ktorá ju vytvorila.',
   },
   pleasebackup: {
     title: 'Vaša peňaženka je vytvorená...',
-    text: 'Prosím zapíšte si túto mnemonic frázu na papier. Slúži ako záloha na obnovu peňaženky na inom zariadení.',
+    text:
+      'Prosím zapíšte si túto mnemonic frázu na papier. Slúži ako záloha na obnovu peňaženky na inom zariadení.',
     ok: 'OK, zapísané!',
   },
   lndViewInvoice: {
@@ -254,4 +266,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

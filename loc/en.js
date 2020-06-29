@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
+    storage_is_encrypted:
+      'Your storage is encrypted. Password is required to decrypt it',
     enter_password: 'Enter password',
     bad_password: 'Wrong password, please try again.',
     never: 'never',
@@ -15,7 +16,9 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'wallets',
-      header: 'A wallet represents a pair of a secret (private key) and an address' + 'you can share to receive coins.',
+      header:
+        'A wallet represents a pair of a secret (private key) and an address' +
+        'you can share to receive coins.',
       add: 'Add Wallet',
       create_a_wallet: 'Add a wallet',
       create_a_wallet1: "It's free and you can create",
@@ -26,7 +29,8 @@ module.exports = {
       empty_txs2: 'Start with your wallet',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Buy Bitcoin',
     },
     reorder: {
@@ -50,7 +54,8 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Wallet',
@@ -85,7 +90,8 @@ module.exports = {
       explanation:
         "Write here your mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
       imported: 'Imported',
-      error: 'Failed to import. Please, make sure that the provided data is valid.',
+      error:
+        'Failed to import. Please, make sure that the provided data is valid.',
       success: 'Your wallet has been successfully imported.',
       do_import: 'Import',
       scan_qr: 'Scan or import a file',
@@ -129,8 +135,10 @@ module.exports = {
       amount_field_is_not_valid: 'Amount field is not valid',
       fee_field_is_not_valid: 'Fee field is not valid',
       address_field_is_not_valid: 'Address field is not valid',
-      total_exceeds_balance: 'The sending amount exceeds the available balance.',
-      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
+      total_exceeds_balance:
+        'The sending amount exceeds the available balance.',
+      create_tx_error:
+        'There was an error creating the transaction. Please, make sure the address is valid.',
       address: 'address',
       amount_placeholder: 'amount to send (in BTC)',
       fee_placeholder: 'plus transaction fee (in BTC)',
@@ -174,7 +182,6 @@ module.exports = {
       create: 'Create',
       setAmount: 'Receive with amount',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Buy Bitcoin',
@@ -214,12 +221,16 @@ module.exports = {
       "BlueWallet, it will unlock a new 'fake' storage. This will seem " +
       'legit to a 3rd party, but it will secretly keep your main storage ' +
       'with coins safe.',
-    help2: 'The new storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
+    help2:
+      'The new storage will be fully functional, and you can store some ' +
+      'minimum amounts there so it looks more believable.',
     create_fake_storage: 'Create Encrypted storage',
     go_back: 'Go Back',
     create_password: 'Create a password',
-    create_password_explanation: 'Password for fake storage should not match the password for your main storage',
-    password_should_not_match: 'Password is currently in use. Please, try a different password.',
+    create_password_explanation:
+      'Password for fake storage should not match the password for your main storage',
+    password_should_not_match:
+      'Password is currently in use. Please, try a different password.',
     retype_password: 'Retype password',
     passwords_do_not_match: 'Passwords do not match, try again',
     success: 'Success',
@@ -233,7 +244,8 @@ module.exports = {
     exchange: 'Exchange',
     expired: 'Expired',
     placeholder: 'Invoice',
-    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
+    sameWalletAsInvoiceError:
+      'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -255,4 +267,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'A Tárhely titkosítva. Jelszó szükséges a dekódoláshoz',
+    storage_is_encrypted:
+      'A Tárhely titkosítva. Jelszó szükséges a dekódoláshoz',
     enter_password: 'Írd be a jelszót',
     bad_password: 'Hibás jelszó, próbáld újra',
     never: 'soha',
@@ -15,7 +16,8 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'tárcák',
-      header: 'Egy tárca nem más, mint egy kulcspár, és egy cím. A cím nyilvános, és megoszhatod másokkal, ha szeretnél Bitcoint fogadni',
+      header:
+        'Egy tárca nem más, mint egy kulcspár, és egy cím. A cím nyilvános, és megoszhatod másokkal, ha szeretnél Bitcoint fogadni',
       add: 'Új Tárca',
       create_a_wallet: 'Új tárca',
       create_a_wallet1: 'Ingyenes, és annyit hozhatsz létre',
@@ -26,7 +28,8 @@ module.exports = {
       empty_txs2: 'de még nem volt tranzakciód!',
       empty_txs1_lightning:
         'A Lightning tárcát a mindennapi tranzakcióidhoz használhatod. A tranzakciók azonnal végrehajtódnak, minimális átutalási díjjal.',
-      empty_txs2_lightning: '\nA kezdéshez kattints a "Kezelés"-re, és töltsd fel az egyenleged.',
+      empty_txs2_lightning:
+        '\nA kezdéshez kattints a "Kezelés"-re, és töltsd fel az egyenleged.',
       tap_here_to_buy: 'Bitcoin vásárláshoz kattints ide',
     },
     reorder: {
@@ -50,7 +53,8 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Tárca',
@@ -85,7 +89,8 @@ module.exports = {
       explanation:
         'Írd be a kulcsszavaidat, a titkos kulcsodat, WIF-et, vagy bármi mást. A BlueWallet megpróbálja kitalálni a helyes formátumot, és importálja a tárcádat',
       imported: 'Importálva',
-      error: 'Importálás sikertelen. Ellenőrizd, hogy helyes adatokat adtál-e meg.',
+      error:
+        'Importálás sikertelen. Ellenőrizd, hogy helyes adatokat adtál-e meg.',
       success: 'Sikeres importálás!',
       do_import: 'Importálás',
       scan_qr: 'vagy QR-kód szkennelése?',
@@ -129,8 +134,10 @@ module.exports = {
       amount_field_is_not_valid: 'Érvénytelen összeg',
       fee_field_is_not_valid: 'Èrvénytelen tranzakciós díj',
       address_field_is_not_valid: 'Érvénytelen cím',
-      total_exceeds_balance: 'A megadott összeg nagyobb, mint a tárca elérhető egyenlege',
-      create_tx_error: 'Hiba történt a tranzakció létrehozásakor. Ellenőrizd a megadott cím érvényességét.',
+      total_exceeds_balance:
+        'A megadott összeg nagyobb, mint a tárca elérhető egyenlege',
+      create_tx_error:
+        'Hiba történt a tranzakció létrehozásakor. Ellenőrizd a megadott cím érvényességét.',
       address: 'cím',
       amount_placeholder: 'küldendő összeg (BTC)',
       fee_placeholder: 'tranzakciós díj (BTC)',
@@ -153,7 +160,8 @@ module.exports = {
       title: 'tranzakció létrehozása',
       error: 'Hiba történt a tranzakció létrehozásakor. Hibás cím vagy összeg?',
       go_back: 'Vissza',
-      this_is_hex: 'Tranzakció hexadecimális formátumban, aláírva és küldésre készen.',
+      this_is_hex:
+        'Tranzakció hexadecimális formátumban, aláírva és küldésre készen.',
       to: 'Címzett',
       amount: 'Összeg',
       fee: 'Díj',
@@ -174,7 +182,6 @@ module.exports = {
       create: 'Létrehoz',
       setAmount: 'Fogadandó összeg',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin vásárlása',
@@ -215,12 +222,15 @@ module.exports = {
       'tárhelyedet fogja megnyitni. Ez ugyanúgy fog kinézni, mint egy igazi tárhely, ' +
       'azzal a különbséggel, hogy a pénzed teljes biztonságban lesz az elsődleges ' +
       'tárhelyen.',
-    help2: 'Az alternatív tárhely teljesen működőképes, és akár egy kisebb összeget is elhelyezhetsz rajta, hogy hitelesebbnek tűnjön.',
+    help2:
+      'Az alternatív tárhely teljesen működőképes, és akár egy kisebb összeget is elhelyezhetsz rajta, hogy hitelesebbnek tűnjön.',
     create_fake_storage: 'Hamis tárhely létrehozása',
     go_back: 'Vissza',
     create_password: 'Jelszó létrehozása',
-    create_password_explanation: 'A hamis tárhely jelszava nem lehet ugyanaz, mint az igazi tárhelyé',
-    password_should_not_match: 'A hamis tárhely jelszava nem lehet ugyanaz, mint az igazi tárhelyé',
+    create_password_explanation:
+      'A hamis tárhely jelszava nem lehet ugyanaz, mint az igazi tárhelyé',
+    password_should_not_match:
+      'A hamis tárhely jelszava nem lehet ugyanaz, mint az igazi tárhelyé',
     retype_password: 'Jelszó megerősítése',
     passwords_do_not_match: 'A megadott jelszavak különböznek!',
     success: 'Hamis tárhely létrehozva!',
@@ -234,7 +244,8 @@ module.exports = {
     withdraw: 'Pénzkivétel',
     expired: 'Lejárt',
     placeholder: 'Számla',
-    sameWalletAsInvoiceError: 'Számlát nem fizethesz be ugyanarról a tárcáról, mint amellyel létrehoztad.',
+    sameWalletAsInvoiceError:
+      'Számlát nem fizethesz be ugyanarról a tárcáról, mint amellyel létrehoztad.',
   },
   pleasebackup: {
     title: 'A tárcád elkészült...',
@@ -257,4 +268,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

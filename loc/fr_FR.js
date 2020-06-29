@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: "L'espace de stockage est chiffré. Mot de passe requis pour le déchiffrer.",
+    storage_is_encrypted:
+      "L'espace de stockage est chiffré. Mot de passe requis pour le déchiffrer.",
     enter_password: 'Saisir mot de passe',
     bad_password: 'Mauvais mot de passe, ré-essayer',
     never: 'jamais',
@@ -10,7 +11,8 @@ module.exports = {
   wallets: {
     select_wallet: 'Choix du portefeuille',
     options: 'options',
-    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+    createBitcoinWallet:
+      'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
 
     list: {
       app_name: 'BlueWallet',
@@ -27,7 +29,8 @@ module.exports = {
       empty_txs2: 'Aucune pour le moment',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Cliquez ici pour acheter du Bitcoin',
     },
     reorder: {
@@ -51,7 +54,8 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Portefeuille',
@@ -86,7 +90,8 @@ module.exports = {
       explanation:
         "Write here your mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
       imported: 'Importé',
-      error: "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
+      error:
+        "Échec de l'import. Merci, de vérifier que les données saisies sont valides.",
       success: 'Succès',
       do_import: 'Importer',
       scan_qr: 'ou scaner un QR code',
@@ -111,7 +116,8 @@ module.exports = {
     list: {
       tabBarLabel: 'Transactions',
       title: 'transactions',
-      description: 'Une liste des transactions entrentes et sortantes de vos portefeuilles',
+      description:
+        'Une liste des transactions entrentes et sortantes de vos portefeuilles',
       conf: 'conf',
     },
     details: {
@@ -130,8 +136,10 @@ module.exports = {
       amount_field_is_not_valid: 'Champ montant invalide',
       fee_field_is_not_valid: 'Champ frais invalide',
       address_field_is_not_valid: 'Champ adresse invalide',
-      total_exceeds_balance: 'Le montant à envoyer excède le montant disponible.',
-      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
+      total_exceeds_balance:
+        'Le montant à envoyer excède le montant disponible.',
+      create_tx_error:
+        'There was an error creating the transaction. Please, make sure the address is valid.',
       address: 'adresse',
       amount_placeholder: 'montant à envoyer (en BTC)',
       fee_placeholder: 'plus frais de transaction (en BTC)',
@@ -175,7 +183,6 @@ module.exports = {
       create: 'Create',
       setAmount: 'Revevoir avec montant',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Acheter du Bitcoin',
@@ -188,7 +195,8 @@ module.exports = {
     storage_not_encrypted: 'Stockage: non chiffré',
     storage_encrypted: 'Stockage: chiffré',
     password: 'Mot de passe',
-    password_explain: "Créer le mot de passe utilisé pour déchiffrer l'espace de stockage principal",
+    password_explain:
+      "Créer le mot de passe utilisé pour déchiffrer l'espace de stockage principal",
     retype_password: 'Re-saisir votre mot de passe',
     passwords_do_not_match: 'Les mots de passe ne correspondent pas',
     encrypt_storage: 'Chiffrer le stockage',
@@ -216,14 +224,19 @@ module.exports = {
       "BlueWallet, débloquera se 'faux' espace de stockage. Le tiers pourra " +
       'confondre ces données avec des données légitimes, votre espace de stockage ' +
       "principal restera sécurisé et hors d'atteinte.",
-    help2: 'New storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
+    help2:
+      'New storage will be fully functional, and you can store some ' +
+      'minimum amounts there so it looks more believable.',
     create_fake_storage: 'Créer un faux espace de stockage chiffré',
     go_back: 'Retour',
     create_password: 'Créer un mot de passe',
-    create_password_explanation: 'Le mot de passe pour le faux espace de stockage ne doit pas être le même que celui du stockage principal',
-    password_should_not_match: 'Le mot de passe pour le faux espace de stockage ne doit pas être le même que celui du stockage principal',
+    create_password_explanation:
+      'Le mot de passe pour le faux espace de stockage ne doit pas être le même que celui du stockage principal',
+    password_should_not_match:
+      'Le mot de passe pour le faux espace de stockage ne doit pas être le même que celui du stockage principal',
     retype_password: 'Confirmation du mot de passe',
-    passwords_do_not_match: 'Vos mot de passe ne sont pas identiques, veillez ré-essayer',
+    passwords_do_not_match:
+      'Vos mot de passe ne sont pas identiques, veillez ré-essayer',
     success: 'Succès',
   },
   lnd: {
@@ -235,7 +248,8 @@ module.exports = {
     placeholder: 'Invoice',
     exchange: 'Exchange',
     expired: 'Expiré',
-    sameWalletAsInvoiceError: 'Vous ne pouvez pas payer une facture avec le même portefeuille utilisé pour la créer.',
+    sameWalletAsInvoiceError:
+      'Vous ne pouvez pas payer une facture avec le même portefeuille utilisé pour la créer.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -257,4 +271,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

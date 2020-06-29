@@ -1,6 +1,7 @@
 ﻿module.exports = {
   _: {
-    storage_is_encrypted: 'Ukugcinwa kwakho kubhaliwe. Inombolo yokuvula iyadingeka ukuba ichithwe',
+    storage_is_encrypted:
+      'Ukugcinwa kwakho kubhaliwe. Inombolo yokuvula iyadingeka ukuba ichithwe',
     enter_password: 'Faka inombolo yokuvula',
     bad_password: 'Iphasiwedi engalunganga, zama kwakhona',
     never: 'Ungalingi',
@@ -15,7 +16,8 @@
     list: {
       app_name: 'BlueWallet',
       title: 'Ingxowa',
-      header: 'Ingxowa imele ukuba nemfihlelo yokuyivula nekheli kwaye unokuyisebenzisa ukwamkela imali.',
+      header:
+        'Ingxowa imele ukuba nemfihlelo yokuyivula nekheli kwaye unokuyisebenzisa ukwamkela imali.',
       add: 'Yongeza Ingxowa',
       create_a_wallet: 'Yenza ingxowa',
       create_a_wallet1: 'Ayihlawulelwa kwaye ungayenza',
@@ -26,7 +28,8 @@
       empty_txs2: 'akuho nanye okwangoku',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Cofa apha ukuthenga ibitcoin',
     },
     reorder: {
@@ -50,7 +53,8 @@
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Ingxowa',
@@ -85,7 +89,8 @@
       explanation:
         'Bhale apha imnemonic yakho, ngundoqo, WIF , okanye nantoni na onayo. BlueWallet uya kwenza konke okusemandleni ukuqiqa ifomathi efanelekileyo kwaye ingenise ingxowa yakho',
       imported: 'Ngenisiwe',
-      error: 'Ayiphumelelanga ukungenisa. Nceda, uqiniseka ukuba idata ehlinzekiweyo iyasebenza.',
+      error:
+        'Ayiphumelelanga ukungenisa. Nceda, uqiniseka ukuba idata ehlinzekiweyo iyasebenza.',
       success: 'Iphumelele',
       do_import: 'Ngeniswe',
       scan_qr: 'okanye ukukhangela iQR code?',
@@ -130,7 +135,8 @@
       fee_field_is_not_valid: 'Intsimi yentlawulo ayivumelekanga ',
       address_field_is_not_valid: 'Intsimi yeedilesi ayivumelekanga',
       total_exceeds_balance: 'Imali yokuthumela idlula imali ekhoyo.',
-      create_tx_error: 'Kukho impazamo yokudala ukuthengiselana. Nceda, qinisekisa ukuba idilesi iyasebenza.',
+      create_tx_error:
+        'Kukho impazamo yokudala ukuthengiselana. Nceda, qinisekisa ukuba idilesi iyasebenza.',
       address: 'idilesi',
       amount_placeholder: 'inani lokuthumela (nge BTC)',
       fee_placeholder: 'kunye nentlawulo yokuthengiswa (nge BTC)',
@@ -151,9 +157,11 @@
     create: {
       details: 'Iinkcukacha',
       title: 'ukudala ukuthenga',
-      error: 'Impazamo yokudala ukuthengiselana. Idilesi engavumelekanga okanye imali yokuthumela?',
+      error:
+        'Impazamo yokudala ukuthengiselana. Idilesi engavumelekanga okanye imali yokuthumela?',
       go_back: 'Buya umva',
-      this_is_hex: 'Le yi ntengo hex, ityikityiwe ilungele ukukhutshelwa kumnatha.',
+      this_is_hex:
+        'Le yi ntengo hex, ityikityiwe ilungele ukukhutshelwa kumnatha.',
       to: 'Iya ku',
       amount: 'Isixa',
       fee: 'Ntlawulo',
@@ -174,7 +182,6 @@
       create: 'Yenza',
       setAmount: 'Fumana ngexabiso',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Thenga Ibitcoin',
@@ -187,7 +194,8 @@
     storage_not_encrypted: 'Ukugciwa: hayi ngekhodi',
     storage_encrypted: 'Ukugciwa: ngekhodi',
     password: 'Inombolo yokuvula',
-    password_explain: 'Ukudala iinombolo yokuvula oyisebenzisayo ukucima ukugcina',
+    password_explain:
+      'Ukudala iinombolo yokuvula oyisebenzisayo ukucima ukugcina',
     retype_password: 'Phina inombolo yokuvula',
     passwords_do_not_match: 'Inombolo yokuvula azifani',
     encrypt_storage: 'Kubhala u kubhala',
@@ -236,7 +244,8 @@
     withdraw: 'Khupha imali',
     expired: 'Iphelewe lixesha',
     placeholder: 'Invoyisi',
-    sameWalletAsInvoiceError: ': Awukwazi ukuhlawula i-invoyisi kunye ngengxowa oyisebenzisile ukudala  leyo invoyisi.',
+    sameWalletAsInvoiceError:
+      ': Awukwazi ukuhlawula i-invoyisi kunye ngengxowa oyisebenzisile ukudala  leyo invoyisi.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -258,4 +267,4 @@
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

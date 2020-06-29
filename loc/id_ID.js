@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Penyimpanan dienkripsi. Masukkan kata sandi untuk dekripsi:',
+    storage_is_encrypted:
+      'Penyimpanan dienkripsi. Masukkan kata sandi untuk dekripsi:',
     enter_password: 'Masukkan kata sandi',
     bad_password: 'kata sandi salah, coba lagi',
     never: 'tidak pernah',
@@ -15,7 +16,9 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'Dompet',
-      header: 'Sebuah dompet mewakili sepasang kunci rahasia dan sebuah alamat' + 'yang bisa dipilih untuk menerima koin.',
+      header:
+        'Sebuah dompet mewakili sepasang kunci rahasia dan sebuah alamat' +
+        'yang bisa dipilih untuk menerima koin.',
       add: 'Tambah dompet',
       create_a_wallet: 'Tambah dompet',
       create_a_wallet1: 'Gratis dan bisa buat',
@@ -26,7 +29,8 @@ module.exports = {
       empty_txs2: 'saat ini tidak ada transaksi',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap di sini untuk membeli bitcoin',
     },
     reorder: {
@@ -50,7 +54,8 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Dompet',
@@ -82,7 +87,8 @@ module.exports = {
     },
     import: {
       title: 'impor',
-      explanation: 'Ketik kata mnemonic, private key, WIF, atau apapun yang kamu punya. BlueWallet akan mencoba mengimpor dompet kamu.',
+      explanation:
+        'Ketik kata mnemonic, private key, WIF, atau apapun yang kamu punya. BlueWallet akan mencoba mengimpor dompet kamu.',
       imported: 'Diimpor',
       error: 'Gagal mengimpor. Pastikan data yang diketik benar.',
       success: 'Berhasil',
@@ -129,7 +135,8 @@ module.exports = {
       fee_field_is_not_valid: 'Tarif tidak valid',
       address_field_is_not_valid: 'Alamat tidak valid',
       total_exceeds_balance: 'Jumlah yang dikirim melebihi saldo.',
-      create_tx_error: 'Kesalahan dalam membuat transaksi. Cek kembali alamat tujuan.',
+      create_tx_error:
+        'Kesalahan dalam membuat transaksi. Cek kembali alamat tujuan.',
       address: 'alamat',
       amount_placeholder: 'jumlah (dalam BTC)',
       fee_placeholder: 'Tambahan biaya transaksi (dalam BTC)',
@@ -152,7 +159,8 @@ module.exports = {
       title: 'buat transaksi',
       error: 'Tidak bisa membuat transaksi. Cek alamat atau jumlah transfer.',
       go_back: 'Kembali',
-      this_is_hex: 'Ini adalah hex transaksi, siap untuk disiarkan ke jaringan.',
+      this_is_hex:
+        'Ini adalah hex transaksi, siap untuk disiarkan ke jaringan.',
       to: 'Ke',
       amount: 'Jumlah',
       fee: 'Tarif',
@@ -173,7 +181,6 @@ module.exports = {
       create: 'Buat',
       setAmount: 'Terima sejumlah',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Beli bitcoin',
@@ -213,12 +220,16 @@ module.exports = {
       "BlueWallet, it will unlock new 'fake' storage. This will seem " +
       'legit to a 3rd party, but will secretly keep your main storage ' +
       'with coins safe.',
-    help2: 'New storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
+    help2:
+      'New storage will be fully functional, and you can store some ' +
+      'minimum amounts there so it looks more believable.',
     create_fake_storage: 'Create fake encrypted storage',
     go_back: 'Go Back',
     create_password: 'Create a password',
-    create_password_explanation: 'Password for fake storage should not match password for your main storage',
-    password_should_not_match: 'Password for fake storage should not match password for your main storage',
+    create_password_explanation:
+      'Password for fake storage should not match password for your main storage',
+    password_should_not_match:
+      'Password for fake storage should not match password for your main storage',
     retype_password: 'Retype password',
     passwords_do_not_match: 'Passwords do not match, try again',
     success: 'Success',
@@ -232,7 +243,8 @@ module.exports = {
     withdraw: 'Tarik',
     placeholder: 'Invoice',
     expired: 'Kadaluarsa',
-    sameWalletAsInvoiceError: 'Kamu tidak bisa membayar invoice dengan dompet yang sama yang dipakai untuk membuat invoice.',
+    sameWalletAsInvoiceError:
+      'Kamu tidak bisa membayar invoice dengan dompet yang sama yang dipakai untuk membuat invoice.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -254,4 +266,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

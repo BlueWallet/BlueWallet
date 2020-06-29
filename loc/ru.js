@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Твоё хранилище зашифровано. Введи пароль для расшифровки',
+    storage_is_encrypted:
+      'Твоё хранилище зашифровано. Введи пароль для расшифровки',
     enter_password: 'Введи пароль',
     bad_password: 'Неверный пароль, попробуй еще раз',
     never: 'Никогда',
@@ -10,12 +11,14 @@ module.exports = {
   wallets: {
     options: 'Настройки',
     select_wallet: 'Выбрать кошелек',
-    createBitcoinWallet: 'Чтобы воспользоватья кошельком Lightning, нужно сначала пополнить его с помощью кошелька Bitcoin. Продолжить?',
+    createBitcoinWallet:
+      'Чтобы воспользоватья кошельком Lightning, нужно сначала пополнить его с помощью кошелька Bitcoin. Продолжить?',
 
     list: {
       app_name: 'BlueWallet',
       title: 'Кошельки',
-      header: 'Кошелек - это секретный (приватный) ключ и соответствующий ему адрес на который можно получать Bitcoin',
+      header:
+        'Кошелек - это секретный (приватный) ключ и соответствующий ему адрес на который можно получать Bitcoin',
       add: 'Добавить Кошелек',
       create_a_wallet: 'добавить кошелек',
       create_a_wallet1: 'Это бесплатно и ты можешь создать',
@@ -26,7 +29,8 @@ module.exports = {
       empty_txs2: ' ',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Купить Bitcoin',
     },
     reorder: {
@@ -83,7 +87,8 @@ module.exports = {
     },
     import: {
       title: 'Импорт',
-      explanation: 'Напиши тут свою мнемоническую фразу, приватный ключ, WIF - что угодно! BlueWallet постарается угадать верный формат',
+      explanation:
+        'Напиши тут свою мнемоническую фразу, приватный ключ, WIF - что угодно! BlueWallet постарается угадать верный формат',
       imported: 'Импорт завершен',
       error: 'Не удалось импортировать',
       success: 'Успех',
@@ -140,7 +145,8 @@ module.exports = {
       amount_placeholder: 'сколько отправить (в BTC)',
       fee_placeholder: 'плюс комиссия за перевод (в BTC)',
       note_placeholder: 'примечание платежа',
-      create_tx_error: 'Ошибка при создании транзакции. Пожалуйста, проверь правильность адреса.',
+      create_tx_error:
+        'Ошибка при создании транзакции. Пожалуйста, проверь правильность адреса.',
       cancel: 'Отмена',
       scan: 'Отсканировать QR',
       create: 'Создать',
@@ -152,9 +158,11 @@ module.exports = {
     create: {
       title: 'Создать Транзакцию',
       details: 'Детали',
-      error: 'Ошибка при создании транзакции. Неправильный адрес назначения или недостаточно средств?',
+      error:
+        'Ошибка при создании транзакции. Неправильный адрес назначения или недостаточно средств?',
       go_back: 'Назад',
-      this_is_hex: 'Это данные транзакции. Транзакция подписана и готова быть транслирована в сеть. Продолжить?',
+      this_is_hex:
+        'Это данные транзакции. Транзакция подписана и готова быть транслирована в сеть. Продолжить?',
       to: 'Куда',
       amount: 'Сколько',
       fee: 'Комиссия',
@@ -180,7 +188,6 @@ module.exports = {
       create: 'Создать',
       setAmount: 'Получить сумму',
     },
-    scan_lnurl: 'Scan to receive',
   },
   settings: {
     tabBarLabel: 'Настройки',
@@ -223,8 +230,10 @@ module.exports = {
     create_fake_storage: 'Создать фальшивое хранилище',
     go_back: 'Назад',
     create_password: 'Придумай пароль',
-    create_password_explanation: 'Пароль для фальшивого хранилища не должен быть таким же как основной пароль',
-    password_should_not_match: 'Пароль для фальшивого хранилища не должен быть таким же как основной пароль',
+    create_password_explanation:
+      'Пароль для фальшивого хранилища не должен быть таким же как основной пароль',
+    password_should_not_match:
+      'Пароль для фальшивого хранилища не должен быть таким же как основной пароль',
     retype_password: 'Набери пароль повторно',
     passwords_do_not_match: 'Пароли не совпадают, попробуй еще раз',
     success: 'Готово',
@@ -238,7 +247,8 @@ module.exports = {
     expired: 'Истекший',
     exchange: 'Exchange',
     placeholder: 'Invoice',
-    sameWalletAsInvoiceError: 'Ты не можешь оплатить счет тем же кошельком, который ты использовал для его создания.',
+    sameWalletAsInvoiceError:
+      'Ты не можешь оплатить счет тем же кошельком, который ты использовал для его создания.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -260,4 +270,4 @@ module.exports = {
     save: 'Сохранить',
     undo: 'Отмена',
   },
-};
+}

@@ -1,6 +1,7 @@
 module.exports = {
   _: {
-    storage_is_encrypted: 'Το αρχείο σου είναι κρυπτογραφημένο. Χρειάζεται ένας κωδικός για να αποκρυπτογραφηθεί.',
+    storage_is_encrypted:
+      'Το αρχείο σου είναι κρυπτογραφημένο. Χρειάζεται ένας κωδικός για να αποκρυπτογραφηθεί.',
     enter_password: 'Εισήγαγε κωδικό',
     bad_password: 'Λάθος κωδικός, δοκίμασε ξανά',
     never: 'ποτέ',
@@ -28,7 +29,8 @@ module.exports = {
       empty_txs2: 'καμία συναλλαγή',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Πάτησε εδώ για να αγοράσεις Bitcoin',
     },
     reorder: {
@@ -52,7 +54,8 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Πορτοφόλι',
@@ -87,7 +90,8 @@ module.exports = {
       explanation:
         'Γράψε εδώ το μνημονικό (φράση), το ιδιωτικό κλειδί, το WIF, ή ό,τι άλλο έχεις. Το BlueWallet θα προσπαθήσει να μαντέψει το σωστό format και να εισάγει το πορτοφόλι',
       imported: 'Εισήχθη',
-      error: 'Η εισαγωγή απέτυχε. Παρακαλούμε σιγουρευτείτε ότι τα δεδομένα που εισάγετε είναι σωστά.',
+      error:
+        'Η εισαγωγή απέτυχε. Παρακαλούμε σιγουρευτείτε ότι τα δεδομένα που εισάγετε είναι σωστά.',
       success: 'Επιτυχία',
       do_import: 'Εισήγαγε',
       scan_qr: 'ή θέλεις θα σκανάρεις ένα QR code;',
@@ -97,7 +101,8 @@ module.exports = {
       cancel: 'Ακύρωσε',
       decoding: 'Αποκωδικοποίηση',
       input_password: 'Βάλε τον κωδικό',
-      password_explain: 'Αυτό είναι ένα κρυπτογραφημένο ιδιωτικό κλειδί τύπου BIP38',
+      password_explain:
+        'Αυτό είναι ένα κρυπτογραφημένο ιδιωτικό κλειδί τύπου BIP38',
       bad_password: 'Λάθος κωδικός',
       wallet_already_exists: 'Αυτό το πορτοφόλι υπάρχει ήδη',
       bad_wif: 'Λάθος WIF',
@@ -112,7 +117,8 @@ module.exports = {
     list: {
       tabBarLabel: 'Συναλλαγές',
       title: 'συναλλαγές',
-      description: 'Λίστα των εισερχόμενων και εξερχόμενων συναλλαγών όλων των πορτοφολιών σου',
+      description:
+        'Λίστα των εισερχόμενων και εξερχόμενων συναλλαγών όλων των πορτοφολιών σου',
       conf: 'conf',
     },
     details: {
@@ -131,8 +137,10 @@ module.exports = {
       amount_field_is_not_valid: 'Το ποσό δεν είναι σωστό',
       fee_field_is_not_valid: 'Τα έξοδα συναλλαγής δεν είναι σωστά',
       address_field_is_not_valid: 'Η διεύθυνση δεν είναι σωστή',
-      total_exceeds_balance: 'Δεν έχετε αρκετό υπόλοιπο για να στείλετε αυτό το ποσό.',
-      create_tx_error: 'Σφάλμα στην δημιουργία της συναλλαγής. Σιγουρευτείτε ότι η διεύθυνση είναι σωστή.',
+      total_exceeds_balance:
+        'Δεν έχετε αρκετό υπόλοιπο για να στείλετε αυτό το ποσό.',
+      create_tx_error:
+        'Σφάλμα στην δημιουργία της συναλλαγής. Σιγουρευτείτε ότι η διεύθυνση είναι σωστή.',
       address: 'διεύθυνση',
       amount_placeholder: 'ποσό πληρωμής (σε BTC)',
       fee_placeholder: 'συν έξοδα συναλλαγής (σε BTC)',
@@ -153,9 +161,11 @@ module.exports = {
     create: {
       details: 'Λεπτομέρειες',
       title: 'δημιούργησε συναλλαγή',
-      error: 'Σφάλμα στη δημιουργία συναλλαγής. Λάθος διεύθυνση ή ποσό συναλλαγής;',
+      error:
+        'Σφάλμα στη δημιουργία συναλλαγής. Λάθος διεύθυνση ή ποσό συναλλαγής;',
       go_back: 'Πίσω',
-      this_is_hex: 'Αυτή είναι η υπογεγραμμένη συναλλαγή σε μορφή hex και είναι έτοιμη για αποστολή στο δίκτυο.',
+      this_is_hex:
+        'Αυτή είναι η υπογεγραμμένη συναλλαγή σε μορφή hex και είναι έτοιμη για αποστολή στο δίκτυο.',
       to: 'Προς',
       amount: 'Ποσό',
       fee: 'Έξοδα',
@@ -176,11 +186,11 @@ module.exports = {
       create: 'Δημιούργησε',
       setAmount: 'Λάβε με ποσό',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Αγόρασε Bitcoin',
-    tap_your_address: 'Πάτησε στην διεύθυνσή σου για να αντιγραφεί στο clipboard:',
+    tap_your_address:
+      'Πάτησε στην διεύθυνσή σου για να αντιγραφεί στο clipboard:',
     copied: 'Αντιγράφηκε στο Clipboard!',
   },
   settings: {
@@ -216,12 +226,16 @@ module.exports = {
       'βάλει στο BlueWallet θα δει ένα μόνο ένα ψεύτικο αρχείο που μοιάζει ' +
       'κανονικό, προστατεύοντας έτσι το κανονικό σας αρχείο και ' +
       'τα χρήματά σας.',
-    help2: 'Το νέο αρχείο θα είναι πλήρως λειτουργικό, και μπορείτε να βάλετε εκεί ' + 'κάποια ελάχιστα χρήματα για να μοιάζει αληθινό.',
+    help2:
+      'Το νέο αρχείο θα είναι πλήρως λειτουργικό, και μπορείτε να βάλετε εκεί ' +
+      'κάποια ελάχιστα χρήματα για να μοιάζει αληθινό.',
     create_fake_storage: 'Δημιούργησε ένα ψεύτικο κρυπτογραφημένο αρχείο',
     go_back: 'Πίσω',
     create_password: 'Δώσε έναν κωδικό',
-    create_password_explanation: 'Ο κωδικός του ψεύτικου αρχείου δεν πρέπει να είναι ίδιος με τον κωδικό του πραγματικού αρχείου',
-    password_should_not_match: 'Ο κωδικός του ψεύτικου αρχείου δεν πρέπει να είναι ίδιος με τον κωδικό του πραγματικού αρχείου',
+    create_password_explanation:
+      'Ο κωδικός του ψεύτικου αρχείου δεν πρέπει να είναι ίδιος με τον κωδικό του πραγματικού αρχείου',
+    password_should_not_match:
+      'Ο κωδικός του ψεύτικου αρχείου δεν πρέπει να είναι ίδιος με τον κωδικό του πραγματικού αρχείου',
     retype_password: 'Ξαναδώσε τον κωδικό',
     passwords_do_not_match: 'Οι κωδικοί δεν είναι ίδιοι, δοκίμασε ξανά',
     success: 'Επιτυχία',
@@ -235,7 +249,8 @@ module.exports = {
     expired: 'Έληξε',
     exchange: 'Exchange',
     placeholder: 'Τιμολόγιο',
-    sameWalletAsInvoiceError: 'Δεν μπορείς να εξοφλήσεις ένα τιμολόγιο από το ίδιο πορτοφόλι με το οποίο δημιουργήθηκε.',
+    sameWalletAsInvoiceError:
+      'Δεν μπορείς να εξοφλήσεις ένα τιμολόγιο από το ίδιο πορτοφόλι με το οποίο δημιουργήθηκε.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -257,4 +272,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-};
+}

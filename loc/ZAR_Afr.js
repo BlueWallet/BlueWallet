@@ -1,6 +1,7 @@
 ﻿module.exports = {
   _: {
-    storage_is_encrypted: 'U geheue spasie is nou ge-enkripteer. ‘n Wagwoord word benodig om toegang te verkry. ',
+    storage_is_encrypted:
+      'U geheue spasie is nou ge-enkripteer. ‘n Wagwoord word benodig om toegang te verkry. ',
     enter_password: 'Sleutel wagwoord in',
     bad_password: 'Verkeerde wagwoord, probeer weer',
     never: 'nooit',
@@ -28,7 +29,8 @@
       empty_txs2: 'huidiglik geen transaksies',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning:
+        '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Raak hier om Bitcoin te koop',
     },
     reorder: {
@@ -52,7 +54,8 @@
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain:
+        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Beursiet',
@@ -87,7 +90,8 @@
       explanation:
         'Sleutel mnemonic, privaat sleutel, WIF, of enige text verwysing. BlueWallet sal die korrekte formaat kies en u beursie importeer ',
       imported: 'Invoer suksesvol',
-      error: 'U invoer het misluk. Maak asseblief seker u data is korrek en geldig.',
+      error:
+        'U invoer het misluk. Maak asseblief seker u data is korrek en geldig.',
       success: 'Suksesvol',
       do_import: 'Invoer',
       scan_qr: 'of skandeer QR kode?',
@@ -132,7 +136,8 @@
       fee_field_is_not_valid: 'Fooi spasie is ongeldig',
       address_field_is_not_valid: 'Adres is ongeldig',
       total_exceeds_balance: 'Die bedrag is meer as die beskikbare balans.',
-      create_tx_error: 'Daar was ‘n probleem met die skepping van die transaksie. Bevestig asseblief die adres is geldig.',
+      create_tx_error:
+        'Daar was ‘n probleem met die skepping van die transaksie. Bevestig asseblief die adres is geldig.',
       address: 'adres',
       amount_placeholder: 'bedrag om te stuur (in BTC)',
       fee_placeholder: 'plus transaksie fooi (in BTC)',
@@ -153,9 +158,11 @@
     create: {
       details: 'Besonderhede',
       title: 'skep transaksie',
-      error: 'Daar is ‘n probleem met die transaksie. Ongeldige adres of bedrag?',
+      error:
+        'Daar is ‘n probleem met die transaksie. Ongeldige adres of bedrag?',
       go_back: 'Gaan Terug',
-      this_is_hex: 'Hierdie is die transaksie hex, geteken en gereed om na die netwerk uitgesaai te word.',
+      this_is_hex:
+        'Hierdie is die transaksie hex, geteken en gereed om na die netwerk uitgesaai te word.',
       to: 'Aan',
       amount: 'Bedrag',
       fee: 'Fooi',
@@ -176,7 +183,6 @@
       create: 'Skep',
       setAmount: 'Bedrag ontvang',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Koop Bitcoin',
@@ -189,7 +195,8 @@
     storage_not_encrypted: 'Berging: Nie-geenkripteer nie',
     storage_encrypted: 'Berging: Ge-enkripteer',
     password: 'Wagwoord',
-    password_explain: 'Skep die wagwoord wat u sal gebruik om u berging te de-enkripteer',
+    password_explain:
+      'Skep die wagwoord wat u sal gebruik om u berging te de-enkripteer',
     retype_password: 'Hervoer wagwoord',
     passwords_do_not_match: 'Wagwoorde stem nie oor een nie',
     encrypt_storage: 'Enkripteer Berging',
@@ -218,8 +225,10 @@
     create_fake_storage: 'Skep fantasie berging wagwoord',
     go_back: 'Gaan terug',
     create_password: 'Skep ‘n wagwoord',
-    create_password_explanation: 'Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging',
-    password_should_not_match: 'Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging.',
+    create_password_explanation:
+      'Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging',
+    password_should_not_match:
+      'Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging.',
     retype_password: 'Hervoer wagwoord',
     passwords_do_not_match: 'Wagwoorde vergelyk nie, probeer weer',
     success: 'Sukses',
@@ -233,7 +242,8 @@
     expired: 'Verval',
     placeholder: 'Faktuur',
     exchange: 'Exchange',
-    sameWalletAsInvoiceError: 'U kan nie ‘n faktuur betaal met die selfde beursie waarmee die faktuur geksep is nie.',
+    sameWalletAsInvoiceError:
+      'U kan nie ‘n faktuur betaal met die selfde beursie waarmee die faktuur geksep is nie.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -255,4 +265,4 @@
     save: 'Save',
     undo: 'Undo',
   },
-};
+}
