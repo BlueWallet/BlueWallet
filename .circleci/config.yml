@@ -21,3 +21,24 @@ jobs:
 
       # run tests!
       - run: npm t || npm t || npm t
+
+  run lint:
+    docker:
+      - image: circleci/node:10.16.3
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: node_modules-{{ checksum "package-lock.json" }}
+
+      - run: test -d node_modules || npm i
+
+      - save_cache:
+          key: node_modules-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+
+      - run: npm run lint
