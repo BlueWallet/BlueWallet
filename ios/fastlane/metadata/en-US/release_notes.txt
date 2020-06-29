@@ -1,3 +1,21 @@
+v5.4.4
+======
+
+* ADD: support for Cobo Vault hardware wallet (animated QR codes)
+* ADD: Provide entropy via dice rolls or coin flip
+* ADD: Option to exclude some wallet's transactions #248 (#1220)
+* ADD: Detect language and currency setting on first run
+* ADD: Launch screen dark mode
+* FIX: cant send onchain when scanning QR with address & amount
+* FIX: errors when fetching huge transactions from electrum server
+* FIX: lnurl withdrawal when currency is set to fiat (closes #1290)
+* FIX: local trader: when user is not logged in, clicking 'accept offer' should not just throw alert, but open login screen
+* FIX: local trader: before accepting offer, refetch it and use fresh id and version so there are no 'outdated' errors
+* FIX: local trader: when 'I am selling', sort order should be reversed
+* REF: Replace FaceID image
+* REF: optimize png images size
+* REF: speeded up legacy HD wallets (BIP44)
+
 v5.4.3
 ======
 
@@ -38,19 +56,3 @@ v5.4.0
 * FIX: Seed index number
 * FIX: scan button style for RU language
 * REF: Navigation updated
-
-v5.3.9
-======
-
-* ADD: camera on main screen
-* ADD: Shortcuts on Scan button long press
-* ADD: redeem Azte.co vouchers (#1118)
-* FIX: potential HD wallet crash when vout was not parsed correctly
-* FIX: for legacy-wallet fetch Transactions to not crash when vout for transaction is missing addresses
-* FIX: Bigger touch area on settings button
-* FIX: Change Delete wallet color button
-* FIX: Update de_DE locale
-* FIX: Change status bar color
-* FIX: Add chevrons on Settings and add wallets screens
-* FIX: Wallet Animation for press out
-* FIX: typo
