@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueCard, BlueNavigationStyleHook, BlueLoadingHook, BlueTextHooks } from '../BlueComponents';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
+import { useTheme } from '@react-navigation/native';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../encryption');
@@ -9,11 +10,13 @@ const BlueElectrum = require('../BlueElectrum');
 
 const Selftest = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isOk, setIsOk] = useState();
+  const [isOk, setIsOk] = useState(true);
   const [errorMessage, setErrorMessage] = useState();
+  const { colors } = useTheme();
   const styles = StyleSheet.create({
     root: {
       flex: 1,
+      backgroundColor: colors.background,
     },
     center: {
       alignItems: 'center',
