@@ -15,47 +15,48 @@ import { AppStorage } from '../../class';
 import { useNavigation, StackActions } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
+import { colors } from 'react-native-elements';
 const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../prompt');
 const loc = require('../../loc');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-});
 
 const EncryptStorage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [deleteWalletsAfterUninstall, setDeleteWalletsAfterUninstall] = useState(false);
   const [biometrics, setBiometrics] = useState({ isDeviceBiometricCapable: false, isBiometricsEnabled: false, biometricsType: '' });
-  const [advancedModeEnabled, setAdvancedModeEnabled] = useState(false);
   const [storageIsEncrypted, setStorageIsEncrypted] = useState(false);
-  const { navigate } = useNavigation();
+  const { navigate, dispatch } = useNavigation();
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+  });
 
   const initialState = useCallback(async () => {
     const isBiometricsEnabled = await Biometric.isBiometricUseEnabled();
     const isDeviceBiometricCapable = await Biometric.isDeviceBiometricCapable();
     const biometricsType = (await Biometric.biometricType()) || 'biometrics';
     const deleteWalletsAfterUninstall = await BlueApp.isDeleteWalletAfterUninstallEnabled();
+    const isStorageEncrypted = await BlueApp.storageIsEncrypted();
     setBiometrics(biometrics);
-    setAdvancedModeEnabled(advancedModeEnabled);
-    setStorageIsEncrypted(storageIsEncrypted);
+    setStorageIsEncrypted(isStorageEncrypted);
     setDeleteWalletsAfterUninstall(deleteWalletsAfterUninstall);
     setBiometrics({ isBiometricsEnabled, isDeviceBiometricCapable, biometricsType });
     setIsLoading(false);
-  }, [advancedModeEnabled, biometrics, storageIsEncrypted]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   useEffect(() => {
     initialState();
   }, [initialState]);
 
-  const decryptStorage = async () => {
+  const decryptStorage = useCallback(async () => {
     const password = await prompt(loc.settings.password, loc._.storage_is_encrypted).catch(() => {
       setIsLoading(false);
     });
     try {
       await BlueApp.decryptStorage(password);
-      StackActions.popToTop();
+      dispatch(StackActions.popToTop());
     } catch (e) {
       if (password) {
         alert(loc._.bad_password);
@@ -66,70 +67,86 @@ const EncryptStorage = () => {
       setStorageIsEncrypted(await BlueApp.storageIsEncrypted());
       setDeleteWalletsAfterUninstall(await BlueApp.isDeleteWalletAfterUninstallEnabled());
     }
-  };
+  }, [dispatch]);
 
-  const onDeleteWalletsAfterUninstallSwitch = async value => {
+  const onDeleteWalletsAfterUninstallSwitch = useCallback(async value => {
     await BlueApp.setResetOnAppUninstallTo(value);
     setDeleteWalletsAfterUninstall(value);
-  };
+  }, []);
 
-  const onEncryptStorageSwitch = async value => {
-    setIsLoading(true);
-    if (value === true) {
-      let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
-        setIsLoading(false);
-        p1 = undefined;
-      });
-      if (!p1) {
-        setIsLoading(false);
-        return;
-      }
-      const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
-        setIsLoading(false);
-      });
-      if (p1 === p2) {
-        await BlueApp.encryptStorage(p1);
-        setIsLoading(false);
-        setStorageIsEncrypted(await BlueApp.storageIsEncrypted());
+  const onEncryptStorageSwitch = useCallback(
+    async value => {
+      setIsLoading(true);
+      if (value === true) {
+        let p1 = await prompt(loc.settings.password, loc.settings.password_explain).catch(() => {
+          setIsLoading(false);
+          p1 = undefined;
+        });
+        if (!p1) {
+          setIsLoading(false);
+          return;
+        }
+        const p2 = await prompt(loc.settings.password, loc.settings.retype_password).catch(() => {
+          setIsLoading(false);
+        });
+        if (p1 === p2) {
+          await BlueApp.encryptStorage(p1);
+          setIsLoading(false);
+          setStorageIsEncrypted(await BlueApp.storageIsEncrypted());
+        } else {
+          setIsLoading(false);
+          alert(loc.settings.passwords_do_not_match);
+        }
       } else {
-        setIsLoading(false);
-        alert(loc.settings.passwords_do_not_match);
+        Alert.alert(
+          'Decrypt Storage',
+          'Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.',
+          [
+            {
+              text: loc.send.details.cancel,
+              style: 'cancel',
+              onPress: () => setIsLoading(false),
+            },
+            {
+              text: loc._.ok,
+              style: 'destructive',
+              onPress: decryptStorage,
+            },
+          ],
+          { cancelable: false },
+        );
       }
-    } else {
-      Alert.alert(
-        'Decrypt Storage',
-        'Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.',
-        [
-          {
-            text: loc.send.details.cancel,
-            style: 'cancel',
-            onPress: () => setIsLoading(false),
-          },
-          {
-            text: loc._.ok,
-            style: 'destructive',
-            onPress: decryptStorage,
-          },
-        ],
-        { cancelable: false },
-      );
-    }
-  };
+    },
+    [decryptStorage],
+  );
 
-  const onUseBiometricSwitch = async value => {
-    const isBiometricsEnabled = biometrics;
-    if (await Biometric.unlockWithBiometrics()) {
-      isBiometricsEnabled.isBiometricsEnabled = value;
-      await Biometric.setBiometricUseEnabled(value);
-      setBiometrics(isBiometricsEnabled);
-    }
+  const onUseBiometricSwitch = useCallback(
+    async value => {
+      const isBiometricsEnabled = {
+        isDeviceBiometricCapable: biometrics.isDeviceBiometricCapable,
+        isBiometricsEnabled: biometrics.isBiometricsEnabled,
+        biometricsType: biometrics.biometricsType,
+      };
+      if (await Biometric.unlockWithBiometrics()) {
+        isBiometricsEnabled.isBiometricsEnabled = value;
+        await Biometric.setBiometricUseEnabled(value);
+        setBiometrics(isBiometricsEnabled);
+      }
+    },
+    [biometrics],
+  );
+
+  const navigateToPlausibleDeniability = () => {
+    navigate('PlausibleDeniability');
   };
 
   return isLoading ? (
-    <BlueLoadingHook />
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+      <BlueLoadingHook />
+    </SafeBlueArea>
   ) : (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.root}>
         {biometrics.isDeviceBiometricCapable && (
           <>
             <BlueHeaderDefaultSubHooks leftText="biometrics" rightComponent={null} />
@@ -168,8 +185,7 @@ const EncryptStorage = () => {
         )}
         {storageIsEncrypted && (
           <BlueListItemHooks
-            onPress={() => navigate('PlausibleDeniability')}
-            disabled={!storageIsEncrypted}
+            onPress={navigateToPlausibleDeniability}
             title={loc.settings.plausible_deniability}
             chevron
             testID="PlausibleDeniabilityButton"
