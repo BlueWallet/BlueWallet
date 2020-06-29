@@ -1,18 +1,20 @@
 import React, { useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
+import BN from 'bignumber.js';
 import { Dimensions, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import BigInteger from 'bigi';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
-
 const loc = require('../../loc');
 const BlueApp = require('../../BlueApp');
 
 const ENTROPY_LIMIT = 256;
 
-const initialState = { entropy: BigInteger('0'), bits: 0, items: [] };
+const shiftLeft = (value, places) => value.multipliedBy(2 ** places);
+const shiftRight = (value, places) => value.div(2 ** places).dp(0, BN.ROUND_DOWN);
+
+const initialState = { entropy: BN(0), bits: 0, items: [] };
 export const eReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'push': {
@@ -20,22 +22,19 @@ export const eReducer = (state = initialState, action) => {
       if (value >= 2 ** bits) {
         throw new TypeError("Can't push value exceeding size in bits");
       }
-      let valueStr = typeof value === 'string' ? value : value.toString();
       if (state.bits === ENTROPY_LIMIT) return state;
       if (state.bits + bits > ENTROPY_LIMIT) {
-        valueStr = BigInteger(valueStr)
-          .shiftRight(bits + state.bits - ENTROPY_LIMIT)
-          .toString();
+        value = shiftRight(BN(value), bits + state.bits - ENTROPY_LIMIT);
         bits = ENTROPY_LIMIT - state.bits;
       }
-      const entropy = state.entropy.shiftLeft(bits).add(BigInteger(valueStr));
+      const entropy = shiftLeft(state.entropy, bits).plus(value);
       const items = [...state.items, bits];
       return { entropy, bits: state.bits + bits, items };
     }
     case 'pop': {
       if (state.bits === 0) return state;
       const bits = state.items.pop();
-      const entropy = state.entropy.shiftRight(bits);
+      const entropy = shiftRight(state.entropy, bits);
       return { entropy, bits: state.bits - bits, items: [...state.items] };
     }
     default:
@@ -74,7 +73,19 @@ export const getEntropy = (number, base) => {
 export const convertToBuffer = ({ entropy, bits }) => {
   if (bits < 8) return Buffer.from([]);
   const bytes = Math.floor(bits / 8);
-  let arr = entropy.toByteArray(); // split number into bytes
+
+  // convert to byte array
+  let arr = [];
+  const ent = entropy.toString(16).split('').reverse();
+  ent.forEach((v, index) => {
+    if (index % 2 === 1) {
+      arr[0] = v + arr[0];
+    } else {
+      arr.unshift(v);
+    }
+  });
+  arr = arr.map(i => parseInt(i, 16));
+
   if (arr.length > bytes) {
     arr.shift();
   } else if (arr.length < bytes) {
@@ -198,7 +209,7 @@ const Entropy = () => {
     <SafeBlueArea>
       <TouchableOpacity onPress={() => setShow(!show)}>
         <View style={styles.entropy}>
-          <Text style={styles.entropyText}>{show ? hex : `${bits} bits`}</Text>
+          <Text style={styles.entropyText}>{show ? hex : `${bits} of 256 bits`}</Text>
         </View>
       </TouchableOpacity>
 

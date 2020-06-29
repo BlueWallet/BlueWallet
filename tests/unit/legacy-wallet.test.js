@@ -51,15 +51,16 @@ describe('Legacy wallet', () => {
 
   it('can consume user generated entropy', async () => {
     const l = new LegacyWallet();
-    const zeroes = [...Array(32)].map(() => 1);
-    await l.generateFromEntropy(Buffer.from(zeroes));
+    const values = [...Array(32)].map(() => 1);
+    await l.generateFromEntropy(Buffer.from(values));
     assert.strictEqual(l.getSecret(), 'KwFfNUhSDaASSAwtG7ssQM1uVX8RgX5GHWnnLfhfiQDigjioWXHH');
   });
 
   it('can fullfill user generated entropy if less than 32 bytes provided', async () => {
     const l = new LegacyWallet();
-    const zeroes = [...Array(16)].map(() => 1);
-    await l.generateFromEntropy(Buffer.from(zeroes));
+    const values = [...Array(16)].map(() => 1);
+    await l.generateFromEntropy(Buffer.from(values));
     assert.strictEqual(l.getSecret().startsWith('KwFfNUhSDaASSAwtG7ssQM'), true);
+    assert.strictEqual(l.getSecret().startsWith('GHWnnLfhfiQDigjioWXHH'), false);
   });
 });
