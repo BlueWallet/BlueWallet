@@ -200,5 +200,5 @@ const EncryptStorage = () => {
 export default EncryptStorage;
 EncryptStorage.navigationOptions = () => ({
   ...BlueNavigationStyleHook(),
-  title: 'Security',
+  headerTitle: 'Security',
 });
