@@ -103,7 +103,7 @@ const WalletsRoot = () => (
       name="Settings"
       component={Settings}
       options={{
-        ...BlueNavigationStyleHook(undefined),
+        ...BlueNavigationStyleHook(),
 
         headerTitle: '',
       }}

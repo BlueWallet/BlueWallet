@@ -3,13 +3,13 @@ import { ScrollView, Linking, Dimensions, Image, View, Text, StyleSheet } from '
 import { useNavigation, useTheme } from '@react-navigation/native';
 import {
   BlueTextCentered,
-  BlueLoading,
   BlueSpacing20,
   BlueButton,
   SafeBlueArea,
   BlueCard,
   BlueListItemHooks,
   BlueNavigationStyleHook,
+  BlueLoadingHook,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
@@ -103,7 +103,7 @@ const About = () => {
   };
 
   return isLoading ? (
-    <BlueLoading />
+    <BlueLoadingHook />
   ) : (
     <SafeBlueArea style={styles.root}>
       <ScrollView testID="AboutScrollView">
