@@ -48,6 +48,9 @@ module.exports = {
       coming_soon: 'Hamarosan',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Tárca',
@@ -248,5 +251,10 @@ module.exports = {
     for: 'Cím:',
     additional_info: 'További információk',
     open_direct_channel: 'Közvetlen csatorna nyitása erre a csomópontra:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

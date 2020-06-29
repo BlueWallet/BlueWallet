@@ -39,4 +39,33 @@ describe('Legacy wallet', () => {
     assert.strictEqual(tx.outs.length, 1);
     assert.strictEqual('1GX36PGBUrF8XahZEGQqHqnJGW2vCZteoB', bitcoin.address.fromOutputScript(tx.outs[0].script)); // to address
   });
+
+  it("throws error if you can 't create wallet from this entropy", async () => {
+    const l = new LegacyWallet();
+    const zeroes = [...Array(32)].map(() => 0);
+    await assert.rejects(async () => await l.generateFromEntropy(Buffer.from(zeroes)), {
+      name: 'TypeError',
+      message: 'Private key not in range [1, n)',
+    });
+  });
+
+  it('can consume user generated entropy', async () => {
+    const l = new LegacyWallet();
+    const values = [...Array(32)].map(() => 1);
+    await l.generateFromEntropy(Buffer.from(values));
+    assert.strictEqual(l.getSecret(), 'KwFfNUhSDaASSAwtG7ssQM1uVX8RgX5GHWnnLfhfiQDigjioWXHH');
+  });
+
+  it('can fullfill user generated entropy if less than 32 bytes provided', async () => {
+    const l = new LegacyWallet();
+    const values = [...Array(16)].map(() => 1);
+    await l.generateFromEntropy(Buffer.from(values));
+    assert.strictEqual(l.getSecret().startsWith('KwFfNUhSDaASSAwtG7ssQM'), true);
+    assert.strictEqual(l.getSecret().endsWith('GHWnnLfhfiQDigjioWXHH'), false);
+    const keyPair = bitcoin.ECPair.fromWIF(l.getSecret());
+    assert.strictEqual(keyPair.privateKey.toString('hex').startsWith('01010101'), true);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('01010101'), false);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('00000000'), false);
+    assert.strictEqual(keyPair.privateKey.toString('hex').endsWith('ffffffff'), false);
+  });
 });
