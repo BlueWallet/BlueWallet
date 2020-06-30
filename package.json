@@ -76,7 +76,7 @@
     "bc-ur": "file:blue_modules/bc-ur",
     "bech32": "1.1.3",
     "bignumber.js": "9.0.0",
-    "bip21": "2.0.2",
+    "bip21": "2.0.3",
     "bip32": "2.0.5",
     "bip39": "2.6.0",
     "bitcoinjs-lib": "5.1.10",
