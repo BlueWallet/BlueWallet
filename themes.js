@@ -1,4 +1,11 @@
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { Appearance } from 'react-native';
+
+export class BlueCurrentTheme {
+  static colors = () => {
+    return Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
+  };
+}
 
 export const BlueDefaultTheme = {
   ...DefaultTheme,

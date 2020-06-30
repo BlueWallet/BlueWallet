@@ -1,29 +1,34 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { Component } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueNavigationStyleHook, BlueLoadingHook, BlueTextHooks } from '../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyleHook, BlueLoadingHook } from '../BlueComponents';
+import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
-import { useTheme } from '@react-navigation/native';
+import { BlueCurrentTheme } from '../themes';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../encryption');
 const BlueElectrum = require('../BlueElectrum');
+const { colors } = BlueCurrentTheme;
 
-const Selftest = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isOk, setIsOk] = useState(true);
-  const [errorMessage, setErrorMessage] = useState();
-  const { colors } = useTheme();
-  const styles = StyleSheet.create({
-    root: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    center: {
-      alignItems: 'center',
-    },
-  });
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: colors().background,
+  },
+  center: {
+    alignItems: 'center',
+  },
+});
 
-  const runTest = useCallback(async () => {
+export default class Selftest extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+    };
+  }
+
+  async componentDidMount() {
     let errorMessage = '';
     let isOk = true;
 
@@ -197,47 +202,49 @@ const Selftest = () => {
       isOk = false;
     }
 
-    setIsLoading(false);
-    setIsOk(isOk);
-    setErrorMessage(errorMessage);
-  }, []);
+    this.setState({
+      isLoading: false,
+      isOk,
+      errorMessage,
+    });
+  }
 
-  useEffect(() => {
-    runTest();
-  }, [runTest]);
+  render() {
+    if (this.state.isLoading) {
+      return <BlueLoadingHook />;
+    }
 
-  return isLoading ? (
-    <BlueLoadingHook />
-  ) : (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-      <BlueCard>
-        <ScrollView>
-          <BlueSpacing20 />
+    return (
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+        <BlueCard>
+          <ScrollView>
+            <BlueSpacing20 />
 
-          {(() => {
-            if (isOk) {
-              return (
-                <View style={styles.center}>
-                  <BlueTextHooks testID="SelfTestOk" h4>
-                    OK
-                  </BlueTextHooks>
-                </View>
-              );
-            } else {
-              return (
-                <View style={styles.center}>
-                  <BlueTextHooks h4 numberOfLines={0}>
-                    {errorMessage}
-                  </BlueTextHooks>
-                </View>
-              );
-            }
-          })()}
-        </ScrollView>
-      </BlueCard>
-    </SafeBlueArea>
-  );
-};
+            {(() => {
+              if (this.state.isOk) {
+                return (
+                  <View style={styles.center}>
+                    <BlueText testID="SelfTestOk" h4>
+                      OK
+                    </BlueText>
+                  </View>
+                );
+              } else {
+                return (
+                  <View style={styles.center}>
+                    <BlueText h4 numberOfLines={0}>
+                      {this.state.errorMessage}
+                    </BlueText>
+                  </View>
+                );
+              }
+            })()}
+          </ScrollView>
+        </BlueCard>
+      </SafeBlueArea>
+    );
+  }
+}
 
 function assertStrictEqual(actual, expected, message) {
   if (expected !== actual) {
@@ -246,8 +253,14 @@ function assertStrictEqual(actual, expected, message) {
   }
 }
 
+Selftest.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func,
+    goBack: PropTypes.func,
+  }),
+};
+
 Selftest.navigationOptions = () => ({
   ...BlueNavigationStyleHook(),
-  headerTitle: 'Self test',
+  title: 'Self test',
 });
-export default Selftest;
