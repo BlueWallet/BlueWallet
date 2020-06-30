@@ -1,5 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
-import React, { Component, useEffect, useState } from 'react';
+import React, { Component, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
 import { Icon, Input, Text, Header, ListItem } from 'react-native-elements';
@@ -660,32 +660,28 @@ export class BlueTextCentered extends Component {
   }
 }
 
-export class BlueListItem extends Component {
-  render() {
-    return (
-      <ListItem
-        testID={this.props.testID}
-        bottomDivider
-        containerStyle={{
-          backgroundColor: 'transparent',
-          borderBottomColor: '#ededed',
-          paddingTop: 16,
-          paddingBottom: 16,
-        }}
-        titleStyle={{
-          color: this.props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.foregroundColor,
-          fontSize: 16,
-          fontWeight: '500',
-        }}
-        subtitleStyle={{ flexWrap: 'wrap', color: BlueApp.settings.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
-        subtitleNumberOfLines={1}
-        titleNumberOfLines={0}
-        Component={TouchableOpacity}
-        {...this.props}
-      />
-    );
-  }
-}
+export const BlueListItem = React.memo(props => (
+  <ListItem
+    testID={props.testID}
+    bottomDivider
+    containerStyle={{
+      backgroundColor: 'transparent',
+      borderBottomColor: '#ededed',
+      paddingTop: 16,
+      paddingBottom: 16,
+    }}
+    titleStyle={{
+      color: props.disabled ? BlueApp.settings.buttonDisabledTextColor : BlueApp.settings.foregroundColor,
+      fontSize: 16,
+      fontWeight: '500',
+    }}
+    subtitleStyle={{ flexWrap: 'wrap', color: BlueApp.settings.alternativeTextColor, fontWeight: '400', fontSize: 14 }}
+    subtitleNumberOfLines={1}
+    titleNumberOfLines={0}
+    Component={TouchableOpacity}
+    {...props}
+  />
+));
 
 export const BlueListItemHooks = props => {
   const { colors } = useTheme();
@@ -1560,14 +1556,10 @@ export class NewWalletPanel extends Component {
   }
 }
 
-export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC, shouldRefresh }) => {
-  const [transactionTimeToReadable, setTransactionTimeToReadable] = useState('...');
+export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = BitcoinUnit.BTC, timeElapsed }) => {
   const [subtitleNumberOfLines, setSubtitleNumberOfLines] = useState(1);
 
-  useEffect(() => {
-    const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
-    return setTransactionTimeToReadable(transactionTimeToReadable);
-  }, [item, itemPriceUnit, shouldRefresh]);
+  const transactionTimeToReadable = loc.transactionTimeToReadable(item.received);
 
   const txMemo = () => {
     if (BlueApp.tx_metadata[item.hash] && BlueApp.tx_metadata[item.hash].memo) {
@@ -1729,21 +1721,23 @@ export const BlueTransactionListItem = ({ item, itemPriceUnit = BitcoinUnit.BTC,
   };
 
   return (
-    <BlueListItem
-      leftAvatar={avatar()}
-      title={transactionTimeToReadable}
-      titleNumberOfLines={subtitleNumberOfLines}
-      subtitle={subtitle()}
-      subtitleProps={{ numberOfLines: subtitleNumberOfLines }}
-      onPress={onPress}
-      onLongPress={onLongPress}
-      chevron={false}
-      Component={TouchableOpacity}
-      rightTitle={rowTitle()}
-      rightTitleStyle={rowTitleStyle()}
-    />
+    <View style={{ marginHorizontal: 4 }}>
+      <BlueListItem
+        leftAvatar={avatar()}
+        title={transactionTimeToReadable}
+        titleNumberOfLines={subtitleNumberOfLines}
+        subtitle={subtitle()}
+        subtitleProps={{ numberOfLines: subtitleNumberOfLines }}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        chevron={false}
+        Component={TouchableOpacity}
+        rightTitle={rowTitle()}
+        rightTitleStyle={rowTitleStyle()}
+      />
+    </View>
   );
-};
+});
 
 export class BlueListTransactionItem extends Component {
   static propTypes = {

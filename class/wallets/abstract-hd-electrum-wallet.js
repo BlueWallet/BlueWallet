@@ -401,6 +401,18 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
       txs = txs.concat(addressTxs);
     }
 
+    // its faster to pre-build hashmap of owned addresses than to query `this.weOwnAddress()`, which in turn
+    // iterates over all addresses in hierarchy
+    const ownedAddressesHashmap = {};
+    for (let c = 0; c < this.next_free_address_index + this.gap_limit; c++) {
+      ownedAddressesHashmap[this._getExternalAddressByIndex(c)] = true;
+    }
+    for (let c = 0; c < this.next_free_change_address_index + this.gap_limit; c++) {
+      ownedAddressesHashmap[this._getInternalAddressByIndex(c)] = true;
+    }
+    // hack: in case this code is called from LegacyWallet:
+    if (this.getAddress()) ownedAddressesHashmap[this.getAddress()] = true;
+
     const ret = [];
     for (const tx of txs) {
       tx.received = tx.blocktime * 1000;
@@ -411,14 +423,17 @@ export class AbstractHDElectrumWallet extends AbstractHDWallet {
 
       for (const vin of tx.inputs) {
         // if input (spending) goes from our address - we are loosing!
-        if ((vin.address && this.weOwnAddress(vin.address)) || (vin.addresses && vin.addresses[0] && this.weOwnAddress(vin.addresses[0]))) {
+        if (
+          (vin.address && ownedAddressesHashmap[vin.address]) ||
+          (vin.addresses && vin.addresses[0] && ownedAddressesHashmap[vin.addresses[0]])
+        ) {
           tx.value -= new BigNumber(vin.value).multipliedBy(100000000).toNumber();
         }
       }
 
       for (const vout of tx.outputs) {
         // when output goes to our address - this means we are gaining!
-        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses[0] && this.weOwnAddress(vout.scriptPubKey.addresses[0])) {
+        if (vout.scriptPubKey.addresses && vout.scriptPubKey.addresses[0] && ownedAddressesHashmap[vout.scriptPubKey.addresses[0]]) {
           tx.value += new BigNumber(vout.value).multipliedBy(100000000).toNumber();
         }
       }

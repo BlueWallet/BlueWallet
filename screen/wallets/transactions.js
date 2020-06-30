@@ -130,9 +130,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginHorizontal: 8,
   },
-  item: {
-    marginHorizontal: 4,
-  },
   list: {
     backgroundColor: '#FFFFFF',
     flex: 1,
@@ -219,10 +216,11 @@ export default class WalletTransactions extends Component {
       isManageFundsModalVisible: false,
       showShowFlatListRefreshControl: false,
       wallet: wallet,
+      itemPriceUnit: wallet.getPreferredBalanceUnit(),
       dataSource: this.getTransactions(15),
+      timeElapsed: 0, // this is to force a re-render for FlatList items.
       limit: 15,
       pageSize: 20,
-      timeElapsed: 0, // this is to force a re-render for FlatList items.
     };
   }
 
@@ -554,17 +552,9 @@ export default class WalletTransactions extends Component {
     });
   };
 
-  renderItem = item => {
-    return (
-      <View style={styles.item}>
-        <BlueTransactionListItem
-          item={item.item}
-          itemPriceUnit={this.state.wallet.getPreferredBalanceUnit()}
-          shouldRefresh={this.state.timeElapsed}
-        />
-      </View>
-    );
-  };
+  renderItem = item => (
+    <BlueTransactionListItem item={item.item} itemPriceUnit={this.state.itemPriceUnit} timeElapsed={this.state.timeElapsed} />
+  );
 
   onBarCodeRead = ret => {
     if (!this.state.isLoading) {
@@ -747,8 +737,8 @@ export default class WalletTransactions extends Component {
             refreshControl={
               <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
             }
-            extraData={this.state.dataSource}
             data={this.state.dataSource}
+            extraData={this.state.timeElapsed}
             keyExtractor={this._keyExtractor}
             renderItem={this.renderItem}
             contentInset={{ top: 0, left: 0, bottom: 90, right: 0 }}
