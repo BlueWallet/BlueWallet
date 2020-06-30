@@ -36,6 +36,7 @@ import HodlHodlMyContracts from './screen/wallets/hodlHodlMyContracts';
 import Marketplace from './screen/wallets/marketplace';
 import ReorderWallets from './screen/wallets/reorderWallets';
 import SelectWallet from './screen/wallets/selectWallet';
+import ProvideEntropy from './screen/wallets/provideEntropy';
 
 import TransactionDetails from './screen/transactions/details';
 import TransactionStatus from './screen/transactions/transactionStatus';
@@ -161,6 +162,7 @@ const AddWalletRoot = () => (
     <AddWalletStack.Screen name="ImportWallet" component={ImportWallet} options={ImportWallet.navigationOptions} />
     <AddWalletStack.Screen name="PleaseBackup" component={PleaseBackup} options={PleaseBackup.navigationOptions} />
     <AddWalletStack.Screen name="PleaseBackupLNDHub" component={PleaseBackupLNDHub} options={PleaseBackupLNDHub.navigationOptions} />
+    <AddWalletStack.Screen name="ProvideEntropy" component={ProvideEntropy} options={ProvideEntropy.navigationOptions} />
   </AddWalletStack.Navigator>
 );
 
@@ -299,7 +301,7 @@ const Navigation = () => (
       options={{ headerShown: false, animationEnabled: false }}
     />
     <RootStack.Screen name="WalletsRoot" component={WalletsRoot} options={{ headerShown: false, animationEnabled: false }} />
-    <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="AddWalletRoot" component={AddWalletRoot} options={{ headerShown: false, gestureEnabled: false }} />
     <RootStack.Screen name="SendDetailsRoot" component={SendDetailsRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
