@@ -115,8 +115,8 @@ class DeeplinkSchemaMatch {
             params.tag === 'withdrawRequest'
               ? { route: 'LNDCreateInvoiceRoot', screen: 'LNDCreateInvoice' }
               : params.tag === 'payRequest'
-              ? { route: 'ScanLndInvoiceRoot', screen: 'ScanLndInvoice' }
-              : false
+                ? { route: 'ScanLndInvoiceRoot', screen: 'ScanLndInvoice' }
+                : false
           if (!routeName) return
 
           completionHandler([
@@ -160,72 +160,72 @@ class DeeplinkSchemaMatch {
     } else {
       const urlObject = url.parse(event.url, true) // eslint-disable-line node/no-deprecated-api
       console.log('parsed', event.url, 'into', urlObject)
-      ;(async () => {
-        if (
-          urlObject.protocol === 'bluewallet:' ||
-          urlObject.protocol === 'lapp:' ||
-          urlObject.protocol === 'blue:'
-        ) {
-          switch (urlObject.host) {
-            case 'openlappbrowser': {
-              console.log('opening LAPP', urlObject.query.url)
-              // searching for LN wallet:
-              let haveLnWallet = false
-              for (const w of BlueApp.getWallets()) {
-                if (w.type === LightningCustodianWallet.type) {
-                  haveLnWallet = true
-                }
-              }
-
-              if (!haveLnWallet) {
-                // need to create one
-                const w = new LightningCustodianWallet()
-                w.setLabel(w.typeReadable)
-
-                try {
-                  const lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB)
-                  if (lndhub) {
-                    w.setBaseURI(lndhub)
-                    w.init()
+        ; (async () => {
+          if (
+            urlObject.protocol === 'bluewallet:' ||
+            urlObject.protocol === 'lapp:' ||
+            urlObject.protocol === 'blue:'
+          ) {
+            switch (urlObject.host) {
+              case 'openlappbrowser': {
+                console.log('opening LAPP', urlObject.query.url)
+                // searching for LN wallet:
+                let haveLnWallet = false
+                for (const w of BlueApp.getWallets()) {
+                  if (w.type === LightningCustodianWallet.type) {
+                    haveLnWallet = true
                   }
-                  await w.createAccount()
-                  await w.authorize()
-                } catch (Err) {
-                  // giving up, not doing anything
+                }
+
+                if (!haveLnWallet) {
+                  // need to create one
+                  const w = new LightningCustodianWallet()
+                  w.setLabel(w.typeReadable)
+
+                  try {
+                    const lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB)
+                    if (lndhub) {
+                      w.setBaseURI(lndhub)
+                      w.init()
+                    }
+                    await w.createAccount()
+                    await w.authorize()
+                  } catch (Err) {
+                    // giving up, not doing anything
+                    return
+                  }
+                  BlueApp.wallets.push(w)
+                  await BlueApp.saveToDisk()
+                }
+
+                // now, opening lapp browser and navigating it to URL.
+                // looking for a LN wallet:
+                let lnWallet
+                for (const w of BlueApp.getWallets()) {
+                  if (w.type === LightningCustodianWallet.type) {
+                    lnWallet = w
+                    break
+                  }
+                }
+
+                if (!lnWallet) {
+                  // something went wrong
                   return
                 }
-                BlueApp.wallets.push(w)
-                await BlueApp.saveToDisk()
-              }
 
-              // now, opening lapp browser and navigating it to URL.
-              // looking for a LN wallet:
-              let lnWallet
-              for (const w of BlueApp.getWallets()) {
-                if (w.type === LightningCustodianWallet.type) {
-                  lnWallet = w
-                  break
-                }
+                completionHandler([
+                  'LappBrowser',
+                  {
+                    fromSecret: lnWallet.getSecret(),
+                    fromWallet: lnWallet,
+                    url: urlObject.query.url,
+                  },
+                ])
+                break
               }
-
-              if (!lnWallet) {
-                // something went wrong
-                return
-              }
-
-              completionHandler([
-                'LappBrowser',
-                {
-                  fromSecret: lnWallet.getSecret(),
-                  fromWallet: lnWallet,
-                  url: urlObject.query.url,
-                },
-              ])
-              break
             }
           }
-        }
-      })()
+        })()
     }
   }
 

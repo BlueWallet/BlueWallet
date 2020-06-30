@@ -133,7 +133,7 @@ export default class App extends React.Component {
     if (BlueApp.getWallets().length > 0) {
       if (
         (this.state.appState.match(/background/) && nextAppState) ===
-          'active' ||
+        'active' ||
         nextAppState === undefined
       ) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000)
