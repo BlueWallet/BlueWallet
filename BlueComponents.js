@@ -625,7 +625,7 @@ export const BlueListItem = React.memo(props => (
     bottomDivider
     containerStyle={{
       backgroundColor: 'transparent',
-      borderBottomColor: '#ededed',
+      borderBottomColor: BlueCurrentTheme.colors.lightBorder,
       paddingTop: 16,
       paddingBottom: 16,
     }}
@@ -842,6 +842,8 @@ export class BlueHeaderDefaultMain extends Component {
             flexDirection: 'row',
             backgroundColor: BlueCurrentTheme.colors.background,
             borderBottomColor: BlueCurrentTheme.colors.background,
+            borderTopColor: 'red',
+
           }}
           rightComponent={
             this.props.onNewWalletPress && (
@@ -1086,13 +1088,13 @@ const stylesBlueIcon = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#ccddf9',
+    backgroundColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
   ballIncoming: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueCurrentTheme.colors.ballReceive,
     transform: [{ rotate: '-45deg' }],
     justifyContent: 'center',
   },
@@ -1100,20 +1102,20 @@ const stylesBlueIcon = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueCurrentTheme.colors.ballReceive,
   },
   ballReceive: {
     width: 30,
     height: 30,
     borderBottomLeftRadius: 15,
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueCurrentTheme.colors.ballReceive,
     transform: [{ rotate: '-45deg' }],
   },
   ballOutgoing: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#f8d2d2',
+    backgroundColor: BlueCurrentTheme.colors.ballOutgoing,
     transform: [{ rotate: '225deg' }],
     justifyContent: 'center',
   },
@@ -1121,13 +1123,13 @@ const stylesBlueIcon = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#f8d2d2',
+    backgroundColor: BlueCurrentTheme.colors.ballOutgoing,
   },
   ballOutgoingExpired: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#EEF0F4',
+    backgroundColor: BlueCurrentTheme.colors.ballOutgoingExpired,
     justifyContent: 'center',
   },
   ballTransparrent: {
@@ -1368,7 +1370,7 @@ export class BlueScanButton extends Component {
                 marginLeft: -8,
               }}
             >
-              <Image source={require('./img/scan.png')} />
+              <Image style={{}} source={BlueCurrentTheme.scanImage} />
             </View>
             <Text
               style={{

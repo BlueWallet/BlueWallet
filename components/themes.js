@@ -4,6 +4,7 @@ import { Appearance } from 'react-native';
 export const BlueDefaultTheme = {
   ...DefaultTheme,
   closeImage: require('../img/close.png'),
+  scanImage: require('../img/scan.png'),
   colors: {
     ...DefaultTheme.colors,
     brandingColor: '#ffffff',
@@ -32,22 +33,39 @@ export const BlueDefaultTheme = {
     lnborderColor: '#F7C056',
     lnbackgroundColor: '#FFFAEF',
     background: '#FFFFFF',
-    borderWidth: 0,
+    customHeader: 'rgba(0,0,0,0)',
+    lightButton: '#eef0f4',
+    ballReceive: '#d2f8d6',
+    ballOutgoing: '#f8d2d2',
+    lightBorder: '#ededed',
+    ballOutgoingExpired: '#EEF0F4',
   },
 };
 
 export const BlueDarkTheme = {
   ...DarkTheme,
-  closeImage: require('../img/close-white.png'),
+    closeImage: require('../img/close-white.png'),
+    scanImage: require('../img/scan-white.png'),
   colors: {
     ...BlueDefaultTheme.colors,
     ...DarkTheme.colors,
+    brandingColor: '#000000',
     borderTopColor: '#9aa0aa',
     foregroundColor: '#ffffff',
-    borderWidth: 1,
+    buttonDisabledBackgroundColor: '#3A3A3C',
+    buttonBackgroundColor: '#3A3A3C',
+    customHeader: '#000000',
+    buttonTextColor: '#ffffff',
+    lightButton: 'rgba(255,255,255,.1)',
+    buttonAlternativeTextColor: '#ffffff',
+    ballReceive: '#202020',
+    ballOutgoing: '#202020',
+    lightBorder: '#313030',
+    ballOutgoingExpired: '#202020',
   },
 };
 
 export class BlueCurrentTheme {}
 BlueCurrentTheme.colors = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
 BlueCurrentTheme.closeImage = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;
+BlueCurrentTheme.scanImage = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.scanImage : BlueDefaultTheme.scanImage;

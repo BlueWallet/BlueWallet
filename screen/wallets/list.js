@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     marginVertical: 16,
-    backgroundColor: '#eef0f4',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     padding: 16,
     borderRadius: 6,
   },
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   ltTextBig: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0C2550',
+    color: BlueCurrentTheme.colors.buttonTextColor,
   },
   ltTextSmall: {
     fontSize: 13,
@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
   scanButton: {
     flexDirection: 'row',
     alignSelf: 'center',
-    backgroundColor: 'transparent',
     position: 'absolute',
     bottom: 30,
     borderRadius: 30,
@@ -665,6 +664,11 @@ WalletsList.navigationOptions = ({ navigation, route }) => {
   return {
     ...BlueNavigationStyle(navigation, true),
     title: '',
+    
+      headerStyle: {
+        backgroundColor: BlueCurrentTheme.colors.customHeader,
+      },
+    
     headerRight: () => (
       <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
