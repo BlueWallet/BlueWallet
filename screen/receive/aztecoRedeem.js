@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { AppStorage, PlaceholderWallet } from '../../class';
 import Azteco from '../../class/azteco';
 
-const EV = require('../../events');
+const EV = require('../../blue_modules/events');
 const BlueApp: AppStorage = require('../../BlueApp');
 
 const styles = StyleSheet.create({

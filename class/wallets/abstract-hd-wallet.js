@@ -1,7 +1,7 @@
 import { LegacyWallet } from './legacy-wallet';
 import Frisbee from 'frisbee';
 const bip39 = require('bip39');
-const BlueElectrum = require('../../BlueElectrum');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 /**
  * @deprecated

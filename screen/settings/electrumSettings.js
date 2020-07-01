@@ -7,7 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const loc = require('../../loc');
-const BlueElectrum = require('../../BlueElectrum');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
   root: {

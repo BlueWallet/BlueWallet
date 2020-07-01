@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
-const encryption = require('../encryption');
-const BlueElectrum = require('../BlueElectrum');
+const encryption = require('../blue_modules/encryption');
+const BlueElectrum = require('../blue_modules/BlueElectrum');
 
 const styles = StyleSheet.create({
   root: {

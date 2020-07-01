@@ -23,11 +23,11 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
-const EV = require('../../events');
-const A = require('../../analytics');
+const EV = require('../../blue_modules/events');
+const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
 const loc = require('../../loc');
-const BlueElectrum = require('../../BlueElectrum');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
