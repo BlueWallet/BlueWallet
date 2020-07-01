@@ -14,6 +14,7 @@ export const BlueDefaultTheme = {
     ...DefaultTheme.colors,
     brandingColor: '#ffffff',
     foregroundColor: '#0c2550',
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
     buttonBackgroundColor: '#ccddf9',
     buttonTextColor: '#0c2550',
     buttonAlternativeTextColor: '#2f5fb3',
@@ -37,6 +38,7 @@ export const BlueDefaultTheme = {
     lnborderColor: '#F7C056',
     lnbackgroundColor: '#FFFAEF',
     background: '#FFFFFF',
+    borderWidth: 0,
   },
 };
 
@@ -46,6 +48,8 @@ export const BlueDarkTheme = {
   colors: {
     ...BlueDefaultTheme.colors,
     ...DarkTheme.colors,
+    borderTopColor: '#9aa0aa',
     foregroundColor: '#ffffff',
+    borderWidth: 1,
   },
 };

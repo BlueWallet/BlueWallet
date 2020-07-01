@@ -12,7 +12,7 @@ import {
   BlueFormLabel,
   BlueTextCentered,
   BlueBigCheckmark,
-  BlueNavigationStyleHook,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import BlueElectrum from '../../BlueElectrum';
 const bitcoin = require('bitcoinjs-lib');
@@ -85,7 +85,7 @@ const Broadcast = () => {
 
 export default Broadcast;
 Broadcast.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: 'Broadcast',
 });
 

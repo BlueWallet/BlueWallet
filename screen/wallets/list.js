@@ -150,18 +150,6 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletsList extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    return {
-      ...BlueNavigationStyle(navigation, true),
-      title: '',
-      headerRight: () => (
-        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueDefaultTheme.colors.foregroundColor} />
-        </TouchableOpacity>
-      ),
-    };
-  };
-
   walletsCarousel = React.createRef();
 
   constructor(props) {
@@ -644,7 +632,7 @@ export default class WalletsList extends Component {
   render() {
     return (
       <View style={styles.root}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="default" />
         <View style={styles.walletsListWrapper}>
           <SectionList
             refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={!this.state.isFlatListRefreshControlHidden} />}
@@ -676,4 +664,16 @@ WalletsList.propTypes = {
     name: PropTypes.string,
     params: PropTypes.object,
   }),
+};
+
+WalletsList.navigationOptions = ({ navigation, route }) => {
+  return {
+    ...BlueNavigationStyle(navigation, true),
+    title: '',
+    headerRight: () => (
+      <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueDefaultTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    ),
+  };
 };

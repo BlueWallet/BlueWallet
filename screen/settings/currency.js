@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, TouchableOpacity, ActivityIndicator, View, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueListItemHooks, BlueTextHooks, BlueCard, BlueNavigationStyleHook } from '../../BlueComponents';
+import { SafeBlueArea, BlueListItemHooks, BlueTextHooks, BlueCard, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { Icon } from 'react-native-elements';
 import { FiatUnit } from '../../models/fiatUnit';
@@ -91,7 +91,7 @@ Currency.propTypes = {
 };
 
 Currency.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: loc.settings.currency,
 });
 export default Currency;

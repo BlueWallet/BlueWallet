@@ -12,11 +12,6 @@ const BlueApp: AppStorage = require('../../BlueApp');
 const prompt = require('../../prompt');
 
 export default class HodlHodlViewOffer extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
-    title: '',
-  });
-
   constructor(props) {
     super(props);
 
@@ -365,4 +360,9 @@ const styles = StyleSheet.create({
   traderWrapper: { alignItems: 'center', marginTop: 8 },
   acceptOfferButtonWrapper: { width: '70%', alignItems: 'center' },
   acceptOfferButtonWrapperWrapper: { marginTop: 24, alignItems: 'center' },
+});
+
+HodlHodlViewOffer.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(),
+  title: '',
 });

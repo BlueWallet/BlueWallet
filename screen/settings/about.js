@@ -8,7 +8,7 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueListItemHooks,
-  BlueNavigationStyleHook,
+  BlueNavigationStyle,
   BlueLoadingHook,
 } from '../../BlueComponents';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
@@ -203,7 +203,7 @@ const About = () => {
 };
 
 About.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   headerTitle: loc.settings.about,
 });
 export default About;

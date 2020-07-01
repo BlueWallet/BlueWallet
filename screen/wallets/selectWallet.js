@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image, Text, TouchableOpacity, FlatList, StyleSheet, StatusBar } from 'react-native';
-import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance, BlueNavigationStyleHook } from '../../BlueComponents';
+import { SafeBlueArea, BlueText, BlueSpacing20, BluePrivateBalance, BlueNavigationStyle } from '../../BlueComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
@@ -161,7 +161,7 @@ const SelectWallet = ({ navigation }) => {
 };
 
 SelectWallet.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyleHook(navigation, true, () => navigation.goBack(null)),
+  ...BlueNavigationStyle(navigation, true, () => navigation.goBack(null)),
   title: loc.wallets.select_wallet,
   headerRight: null,
 });

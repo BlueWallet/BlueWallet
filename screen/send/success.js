@@ -61,11 +61,6 @@ const styles = StyleSheet.create({
 });
 
 export default class Success extends Component {
-  static navigationOptions = {
-    headerShown: false,
-    gesturesEnabled: false,
-  };
-
   constructor(props) {
     super(props);
     console.log('send/success constructor');
@@ -133,4 +128,9 @@ Success.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.object,
   }),
+};
+
+Success.navigationOptions = {
+  headerShown: false,
+  gesturesEnabled: false,
 };

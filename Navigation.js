@@ -62,7 +62,7 @@ import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
-import { BlueNavigationStyleHook } from './BlueComponents';
+import { BlueNavigationStyle } from './BlueComponents';
 import { BlueDefaultTheme } from './components/themes';
 const loc = require('./loc');
 
@@ -104,7 +104,7 @@ const WalletsRoot = () => (
       name="Settings"
       component={Settings}
       options={{
-        ...BlueNavigationStyleHook(),
+        ...BlueNavigationStyle(),
 
         headerTitle: '',
       }}

@@ -26,11 +26,6 @@ const Bignumber = require('bignumber.js');
 /** @type {AppStorage} */
 
 export default class Confirm extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: loc.send.confirm.header,
-  });
-
   constructor(props) {
     super(props);
 
@@ -301,3 +296,8 @@ Confirm.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+Confirm.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.send.confirm.header,
+});

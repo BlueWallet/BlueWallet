@@ -9,7 +9,7 @@ import {
   BlueListItemHooks,
   BlueHeaderDefaultSubHooks,
   BlueTextHooks,
-  BlueNavigationStyleHook,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { useNavigation, StackActions } from '@react-navigation/native';
@@ -199,6 +199,6 @@ const EncryptStorage = () => {
 
 export default EncryptStorage;
 EncryptStorage.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   headerTitle: 'Security',
 });

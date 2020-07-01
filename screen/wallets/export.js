@@ -40,12 +40,6 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletExport extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.wallets.export.title,
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
     const wallet = props.route.params.wallet;
@@ -148,3 +142,8 @@ WalletExport.propTypes = {
     }),
   }),
 };
+WalletExport.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.wallets.export.title,
+  headerLeft: null,
+});

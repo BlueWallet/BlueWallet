@@ -148,8 +148,8 @@ const WalletsImport = () => {
   );
 };
 
-WalletsImport.navigationOptions = {
+WalletsImport.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(),
   title: loc.wallets.import.title,
-};
+});
 export default WalletsImport;

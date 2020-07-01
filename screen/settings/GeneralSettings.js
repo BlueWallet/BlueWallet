@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, Platform, TouchableWithoutFeedback, TouchableOpacity, StyleSheet } from 'react-native';
-import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItemHooks, BlueNavigationStyleHook, BlueCard } from '../../BlueComponents';
+import { BlueLoading, BlueTextHooks, BlueSpacing20, BlueListItemHooks, BlueNavigationStyle, BlueCard } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import HandoffSettings from '../../class/handoff';
@@ -94,7 +94,7 @@ const GeneralSettings = () => {
 };
 
 GeneralSettings.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: 'General',
 });
 

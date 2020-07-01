@@ -410,47 +410,6 @@ export const BlueAlertWalletExportReminder = ({ onSuccess = () => {}, onFailure 
 
 export const BlueNavigationStyle = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => {
   let headerRight;
-  if (withNavigationCloseButton) {
-    headerRight = () => (
-      <TouchableOpacity
-        style={{ width: 40, height: 40, padding: 14 }}
-        onPress={
-          customCloseButtonFunction === undefined
-            ? () => {
-                Keyboard.dismiss();
-                navigation.goBack(null);
-              }
-            : customCloseButtonFunction
-        }
-      >
-        <Image style={{ alignSelf: 'center' }} source={require('./img/close.png')} />
-      </TouchableOpacity>
-    );
-  } else {
-    headerRight = null;
-  }
-
-  return {
-    headerStyle: {
-      backgroundColor: BlueDefaultTheme.colors.brandingColor,
-      borderBottomWidth: 0,
-      elevation: 0,
-      shadowOpacity: 0,
-      shadowOffset: { height: 0, width: 0 },
-    },
-    headerTitleStyle: {
-      fontWeight: '600',
-      color: BlueDefaultTheme.colors.foregroundColor,
-    },
-    headerRight,
-    headerTintColor: BlueDefaultTheme.colors.foregroundColor,
-    // headerBackTitle: null,
-    headerBackTitleVisible: false,
-  };
-};
-
-export const BlueNavigationStyleHook = (navigation, withNavigationCloseButton = false, customCloseButtonFunction = undefined) => {
-  let headerRight;
   const { colors, closeImage } = useTheme();
   if (withNavigationCloseButton) {
     headerRight = () => (

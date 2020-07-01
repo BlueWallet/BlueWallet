@@ -29,12 +29,6 @@ import * as NavigationService from '../../NavigationService';
 const BlueApp: AppStorage = require('../../BlueApp');
 
 export default class HodlHodlMyContracts extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'My contracts',
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
 
@@ -424,4 +418,10 @@ const styles = StyleSheet.create({
   openChatText: { color: '#1b02d0', fontSize: 15, paddingTop: 20, fontWeight: '500', textAlign: 'center' },
   flatList: { paddingTop: 30 },
   roleText: { fontSize: 14, color: 'gray', padding: 5 },
+});
+
+HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: 'My contracts',
+  headerLeft: null,
 });

@@ -113,15 +113,6 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDViewInvoice extends Component {
-  static navigationOptions = ({ navigation, route }) =>
-    route.params.isModal === true
-      ? {
-          ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
-          title: 'Lightning Invoice',
-          headerLeft: null,
-        }
-      : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
-
   constructor(props) {
     super(props);
     const invoice = props.route.params.invoice;
@@ -368,3 +359,12 @@ LNDViewInvoice.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+LNDViewInvoice.navigationOptions = ({ navigation, route }) =>
+  route.params.isModal === true
+    ? {
+        ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
+        title: 'Lightning Invoice',
+        headerLeft: null,
+      }
+    : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };

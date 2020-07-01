@@ -66,17 +66,6 @@ const styles = StyleSheet.create({
 });
 
 export default class ReorderWallets extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueNavigationStyle(
-      navigation,
-      true,
-      route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
-    ),
-    headerTitle: loc.wallets.reorder.title,
-    headerLeft: null,
-    gestureEnabled: false,
-  });
-
   constructor(props) {
     super(props);
     this.state = {
@@ -196,3 +185,14 @@ ReorderWallets.propTypes = {
     goBack: PropTypes.func,
   }),
 };
+
+ReorderWallets.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(
+    navigation,
+    true,
+    route.params && route.params.customCloseButtonFunction ? route.params.customCloseButtonFunction : undefined,
+  ),
+  headerTitle: loc.wallets.reorder.title,
+  headerLeft: null,
+  gestureEnabled: false,
+});

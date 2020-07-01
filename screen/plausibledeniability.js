@@ -17,10 +17,6 @@ const styles = StyleSheet.create({
 });
 
 export default class PlausibleDeniability extends Component {
-  static navigationOptions = {
-    ...BlueNavigationStyle(),
-    title: loc.plausibledeniability.title,
-  };
 
   constructor(props) {
     super(props);
@@ -92,3 +88,8 @@ PlausibleDeniability.propTypes = {
     popToTop: PropTypes.func,
   }),
 };
+
+PlausibleDeniability.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(),
+  title: loc.plausibledeniability.title,
+});

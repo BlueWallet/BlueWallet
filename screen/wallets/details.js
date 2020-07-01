@@ -102,24 +102,6 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletDetails extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueNavigationStyle(),
-    title: loc.wallets.details.title,
-    headerRight: () => (
-      <TouchableOpacity
-        disabled={route.params.isLoading === true}
-        style={styles.save}
-        onPress={() => {
-          if (route.params.saveAction) {
-            route.params.saveAction();
-          }
-        }}
-      >
-        <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
-      </TouchableOpacity>
-    ),
-  });
-
   constructor(props) {
     super(props);
 
@@ -396,6 +378,24 @@ export default class WalletDetails extends Component {
     );
   }
 }
+
+WalletDetails.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(),
+  title: loc.wallets.details.title,
+  headerRight: () => (
+    <TouchableOpacity
+      disabled={route.params.isLoading === true}
+      style={styles.save}
+      onPress={() => {
+        if (route.params.saveAction) {
+          route.params.saveAction();
+        }
+      }}
+    >
+      <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
+    </TouchableOpacity>
+  ),
+});
 
 WalletDetails.propTypes = {
   navigation: PropTypes.shape({

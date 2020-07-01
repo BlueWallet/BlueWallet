@@ -79,16 +79,6 @@ function arrDiff(a1, a2) {
 }
 
 export default class TransactionsDetails extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueNavigationStyle(),
-    title: '',
-    headerRight: () => (
-      <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
-        <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
-      </TouchableOpacity>
-    ),
-  });
-
   constructor(props) {
     super(props);
     const hash = props.route.params.hash;
@@ -276,3 +266,13 @@ TransactionsDetails.propTypes = {
     setParams: PropTypes.func,
   }),
 };
+
+TransactionsDetails.navigationOptions = ({ navigation, route }) => ({
+  ...BlueNavigationStyle(),
+  title: '',
+  headerRight: () => (
+    <TouchableOpacity disabled={route.params.isLoading === true} style={styles.save} onPress={route.params.handleOnSaveButtonTapped}>
+      <Text style={styles.saveText}>{loc.wallets.details.save}</Text>
+    </TouchableOpacity>
+  ),
+});

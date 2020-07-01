@@ -27,25 +27,6 @@ const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    let headerRight;
-    if (route.params.exportTXN) {
-      headerRight = () => (
-        <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-          <Icon size={22} name="share-alternative" type="entypo" color={BlueDefaultTheme.colors.foregroundColor} />
-        </TouchableOpacity>
-      );
-    } else {
-      headerRight = null;
-    }
-
-    return {
-      ...BlueNavigationStyle,
-      title: loc.send.create.details,
-      headerRight,
-    };
-  };
-
   constructor(props) {
     super(props);
     console.log('send/create constructor');
@@ -249,4 +230,23 @@ SendCreate.propTypes = {
   route: PropTypes.shape({
     params: PropTypes.object,
   }),
+};
+
+SendCreate.navigationOptions = ({ navigation, route }) => {
+  let headerRight;
+  if (route.params.exportTXN) {
+    headerRight = () => (
+      <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+        <Icon size={22} name="share-alternative" type="entypo" color={BlueDefaultTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    );
+  } else {
+    headerRight = null;
+  }
+
+  return {
+    ...BlueNavigationStyle,
+    title: loc.send.create.details,
+    headerRight,
+  };
 };

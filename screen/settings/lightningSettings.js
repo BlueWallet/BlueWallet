@@ -8,7 +8,7 @@ import {
   BlueButton,
   SafeBlueArea,
   BlueCard,
-  BlueNavigationStyleHook,
+  BlueNavigationStyle,
   BlueLoadingHook,
   BlueTextHooks,
 } from '../../BlueComponents';
@@ -118,7 +118,7 @@ const LightningSettings = () => {
 };
 
 LightningSettings.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: loc.settings.lightning_settings,
 });
 export default LightningSettings;

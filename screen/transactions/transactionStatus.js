@@ -132,11 +132,6 @@ const styles = StyleSheet.create({
 });
 
 export default class TransactionsStatus extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-    title: '',
-  });
-
   constructor(props) {
     super(props);
     const hash = props.route.params.hash;
@@ -436,3 +431,8 @@ TransactionsStatus.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+TransactionsStatus.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: '',
+});

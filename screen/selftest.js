@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
-import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyleHook, BlueLoadingHook } from '../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueLoadingHook } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
 import { BlueCurrentTheme } from '../components/themes';
@@ -261,6 +261,6 @@ Selftest.propTypes = {
 };
 
 Selftest.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: 'Self test',
 });

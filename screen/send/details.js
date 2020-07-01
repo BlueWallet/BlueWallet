@@ -221,11 +221,6 @@ const styles = StyleSheet.create({
 });
 
 export default class SendDetails extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueCreateTxNavigationStyle(navigation, route.params.withAdvancedOptionsMenuButton, route.params.advancedOptionsMenuButtonAction),
-    title: loc.send.header,
-  });
-
   state = { isLoading: true };
 
   constructor(props) {
@@ -1082,3 +1077,8 @@ SendDetails.propTypes = {
     }),
   }),
 };
+
+SendDetails.navigationOptions = ({ navigation, route }) => ({
+  ...BlueCreateTxNavigationStyle(navigation, route.params.withAdvancedOptionsMenuButton, route.params.advancedOptionsMenuButtonAction),
+  title: loc.send.header,
+});

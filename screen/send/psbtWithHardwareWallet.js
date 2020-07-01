@@ -118,11 +118,6 @@ const styles = StyleSheet.create({
 });
 
 export default class PsbtWithHardwareWallet extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: loc.send.header,
-  });
-
   cameraRef = null;
 
   _onReadUniformResource = ur => {
@@ -454,3 +449,8 @@ PsbtWithHardwareWallet.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+PsbtWithHardwareWallet.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: loc.send.header,
+});

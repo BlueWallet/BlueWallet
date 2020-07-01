@@ -16,12 +16,6 @@ const INJECTED_JAVASCRIPT = `(function() {
 })();`;
 
 export default class HodlHodlLogin extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: 'Login',
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
 
@@ -73,3 +67,9 @@ HodlHodlLogin.propTypes = {
     pop: PropTypes.func,
   }),
 };
+
+HodlHodlLogin.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: 'Login',
+  headerLeft: null,
+});

@@ -42,11 +42,6 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDViewAdditionalInvoiceInformation extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
-    title: 'Additional Information',
-  });
-
   state = { walletInfo: undefined };
 
   async componentDidMount() {
@@ -111,3 +106,8 @@ LNDViewAdditionalInvoiceInformation.propTypes = {
     params: PropTypes.object,
   }),
 };
+
+LNDViewAdditionalInvoiceInformation.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(),
+  title: 'Additional Information',
+});

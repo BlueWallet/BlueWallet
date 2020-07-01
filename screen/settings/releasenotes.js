@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueNavigationStyleHook, BlueLoadingHook, BlueTextHooks } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueNavigationStyle, BlueLoadingHook, BlueTextHooks } from '../../BlueComponents';
 import { useTheme } from '@react-navigation/native';
 /** @type {AppStorage} */
 
@@ -33,7 +33,7 @@ const ReleaseNotes = () => {
 };
 
 ReleaseNotes.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: 'Release notes',
 });
 

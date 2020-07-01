@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { SafeBlueArea, BlueCard, BlueTextHooks, BlueNavigationStyleHook, BlueSpacing20, BlueLoadingHook } from '../../BlueComponents';
+import { SafeBlueArea, BlueCard, BlueTextHooks, BlueNavigationStyle, BlueSpacing20, BlueLoadingHook } from '../../BlueComponents';
 /** @type {AppStorage} */
 
 const styles = StyleSheet.create({
@@ -52,7 +52,7 @@ const Licensing = () => {
 };
 
 Licensing.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: 'License',
 });
 

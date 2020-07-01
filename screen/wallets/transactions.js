@@ -174,34 +174,6 @@ const styles = StyleSheet.create({
 });
 
 export default class WalletTransactions extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    return {
-      headerRight: () => (
-        <TouchableOpacity
-          disabled={route.params.isLoading === true}
-          style={styles.walletDetails}
-          onPress={() =>
-            navigation.navigate('WalletDetails', {
-              wallet: route.params.wallet,
-            })
-          }
-        >
-          <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
-        </TouchableOpacity>
-      ),
-      headerTitle: () => null,
-      headerStyle: {
-        backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
-        borderBottomWidth: 0,
-        elevation: 0,
-        // shadowRadius: 0,
-        shadowOffset: { height: 0, width: 0 },
-      },
-      headerTintColor: '#FFFFFF',
-      headerBackTitleVisible: false,
-    };
-  };
-
   walletBalanceText = null;
 
   constructor(props) {
@@ -833,4 +805,32 @@ WalletTransactions.propTypes = {
     name: PropTypes.string,
     params: PropTypes.object,
   }),
+};
+
+WalletTransactions.navigationOptions = ({ navigation, route }) => {
+  return {
+    headerRight: () => (
+      <TouchableOpacity
+        disabled={route.params.isLoading === true}
+        style={styles.walletDetails}
+        onPress={() =>
+          navigation.navigate('WalletDetails', {
+            wallet: route.params.wallet,
+          })
+        }
+      >
+        <Icon name="kebab-horizontal" type="octicon" size={22} color="#FFFFFF" />
+      </TouchableOpacity>
+    ),
+    headerTitle: () => null,
+    headerStyle: {
+      backgroundColor: WalletGradient.headerColorFor(route.params.wallet.type),
+      borderBottomWidth: 0,
+      elevation: 0,
+      // shadowRadius: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerTintColor: '#FFFFFF',
+    headerBackTitleVisible: false,
+  };
 };

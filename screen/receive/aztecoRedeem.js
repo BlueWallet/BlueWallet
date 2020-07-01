@@ -51,11 +51,6 @@ const styles = StyleSheet.create({
 });
 
 export default class AztecoRedeem extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueCreateTxNavigationStyle(navigation),
-    title: 'Redeem Azte.co voucher',
-  });
-
   state = { isLoading: true };
 
   constructor(props) {
@@ -187,3 +182,8 @@ AztecoRedeem.propTypes = {
     }),
   }),
 };
+
+AztecoRedeem.navigationOptions = ({ navigation }) => ({
+  ...BlueCreateTxNavigationStyle(navigation),
+  title: 'Redeem Azte.co voucher',
+});

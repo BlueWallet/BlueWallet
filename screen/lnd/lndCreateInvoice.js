@@ -132,11 +132,6 @@ const styles = StyleSheet.create({
 });
 
 export default class LNDCreateInvoice extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.receive.header,
-  });
-
   constructor(props) {
     super(props);
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
@@ -479,3 +474,7 @@ LNDCreateInvoice.propTypes = {
     }),
   }),
 };
+LNDCreateInvoice.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.receive.header,
+});

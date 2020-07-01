@@ -22,7 +22,7 @@ import {
   BlueText,
   BlueSpacing20,
   BlueAlertWalletExportReminder,
-  BlueNavigationStyleHook,
+  BlueNavigationStyle,
 } from '../../BlueComponents';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
@@ -50,6 +50,81 @@ const ReceiveDetails = () => {
   const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
   const { navigate, goBack } = useNavigation();
   const { colors } = useTheme();
+  const styles = StyleSheet.create({
+    modalContent: {
+      backgroundColor: colors.background,
+      padding: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      borderTopColor: colors.foregroundColor,
+      borderWidth: colors.borderWidth,
+      minHeight: 350,
+      height: 350,
+    },
+    bottomModal: {
+      justifyContent: 'flex-end',
+      margin: 0,
+    },
+    customAmount: {
+      flexDirection: 'row',
+      borderColor: '#d2d2d2',
+      borderBottomColor: '#d2d2d2',
+      borderWidth: 1.0,
+      borderBottomWidth: 0.5,
+      backgroundColor: '#f5f5f5',
+      minHeight: 44,
+      height: 44,
+      marginHorizontal: 20,
+      alignItems: 'center',
+      marginVertical: 8,
+      borderRadius: 4,
+    },
+    customAmountText: {
+      flex: 1,
+      marginHorizontal: 8,
+      color: '#81868e',
+      minHeight: 33,
+    },
+    root: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scroll: {
+      justifyContent: 'space-between',
+      backgroundColor: colors.background,
+    },
+    scrollBody: {
+      marginTop: 32,
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      backgroundColor: colors.background,
+    },
+    amount: {
+      color: '#0c2550',
+      fontWeight: '600',
+      fontSize: 36,
+      textAlign: 'center',
+      paddingBottom: 24,
+    },
+    label: {
+      color: '#0c2550',
+      fontWeight: '600',
+      textAlign: 'center',
+      paddingBottom: 24,
+    },
+    loading: {
+      alignItems: 'center',
+      width: 300,
+      height: 300,
+    },
+    share: {
+      alignItems: 'center',
+      alignContent: 'flex-end',
+      marginBottom: 24,
+    },
+  });
 
   const renderReceiveDetails = useCallback(async () => {
     console.log('receive/details - componentDidMount');
@@ -217,22 +292,9 @@ const ReceiveDetails = () => {
     }
     return customAmount + ' ' + customUnit;
   };
-  const stylesWithThemeHook = {
-    root: {
-      ...styles.root,
-      backgroundColor: colors.background,
-    },
-    scroll: {
-      ...styles.scroll,
-      backgroundColor: colors.background,
-    },
-    scrollBody: {
-      ...styles.scrollBody,
-      backgroundColor: colors.background,
-    },
-  };
+
   return (
-    <View style={stylesWithThemeHook.root}>
+    <View style={styles.root}>
       <StatusBar barStyle="default" c />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
@@ -241,8 +303,8 @@ const ReceiveDetails = () => {
           url={`https://blockstream.info/address/${address}`}
         />
       )}
-      <ScrollView style={stylesWithThemeHook.root} contentContainerStyle={stylesWithThemeHook.scroll} keyboardShouldPersistTaps="always">
-        <View style={stylesWithThemeHook.scrollBody}>
+      <ScrollView style={styles.root} contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+        <View style={styles.scrollBody}>
           {isCustom && (
             <>
               <BlueText style={styles.amount} numberOfLines={1}>
@@ -293,81 +355,9 @@ const ReceiveDetails = () => {
 };
 
 ReceiveDetails.navigationOptions = ({ navigation }) => ({
-  ...BlueNavigationStyleHook(navigation, true),
+  ...BlueNavigationStyle(navigation, true),
   title: loc.receive.header,
   headerLeft: null,
 });
 
 export default ReceiveDetails;
-
-const styles = StyleSheet.create({
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
-    minHeight: 350,
-    height: 350,
-  },
-  bottomModal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-  },
-  customAmount: {
-    flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
-    borderWidth: 1.0,
-    borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
-    minHeight: 44,
-    height: 44,
-    marginHorizontal: 20,
-    alignItems: 'center',
-    marginVertical: 8,
-    borderRadius: 4,
-  },
-  customAmountText: {
-    flex: 1,
-    marginHorizontal: 8,
-    color: '#81868e',
-    minHeight: 33,
-  },
-  root: {
-    flex: 1,
-  },
-  scroll: {
-    justifyContent: 'space-between',
-  },
-  scrollBody: {
-    marginTop: 32,
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  amount: {
-    color: '#0c2550',
-    fontWeight: '600',
-    fontSize: 36,
-    textAlign: 'center',
-    paddingBottom: 24,
-  },
-  label: {
-    color: '#0c2550',
-    fontWeight: '600',
-    textAlign: 'center',
-    paddingBottom: 24,
-  },
-  loading: {
-    alignItems: 'center',
-    width: 300,
-    height: 300,
-  },
-  share: {
-    alignItems: 'center',
-    alignContent: 'flex-end',
-    marginBottom: 24,
-  },
-});

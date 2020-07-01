@@ -4,7 +4,7 @@ import { View, TextInput, StyleSheet } from 'react-native';
 import { AppStorage } from '../../class';
 import AsyncStorage from '@react-native-community/async-storage';
 import { ScrollView } from 'react-native-gesture-handler';
-import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyleHook } from '../../BlueComponents';
+import { BlueLoading, BlueSpacing20, BlueButton, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 const loc = require('../../loc');
 const BlueElectrum = require('../../BlueElectrum');
 
@@ -218,6 +218,6 @@ export default class ElectrumSettings extends Component {
 }
 
 ElectrumSettings.navigationOptions = () => ({
-  ...BlueNavigationStyleHook(),
+  ...BlueNavigationStyle(),
   title: loc.settings.electrum_settings,
 });
