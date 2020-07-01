@@ -63,7 +63,7 @@ import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalI
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import { BlueNavigationStyleHook } from './BlueComponents';
-const BlueApp = require('./BlueApp');
+import { BlueDefaultTheme } from './components/themes';
 const loc = require('./loc');
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -180,7 +180,7 @@ const SendDetailsRoot = () => (
         headerTitle: loc.wallets.select_wallet,
         headerRight: null,
         headerBackTitleVisible: false,
-        headerTintColor: BlueApp.settings.foregroundColor,
+        headerTintColor: BlueDefaultTheme.colors.foregroundColor,
       }}
     />
   </SendDetailsStack.Navigator>
@@ -197,7 +197,7 @@ const LNDCreateInvoiceRoot = () => (
         headerTitle: loc.wallets.select_wallet,
         headerRight: null,
         headerBackTitleVisible: false,
-        headerTintColor: BlueApp.settings.foregroundColor,
+        headerTintColor: BlueDefaultTheme.colors.foregroundColor,
       }}
     />
     <LNDCreateInvoiceStack.Screen
@@ -238,7 +238,7 @@ const ScanLndInvoiceRoot = () => (
         headerTitle: loc.wallets.select_wallet,
         headerRight: null,
         headerBackTitleVisible: false,
-        headerTintColor: BlueApp.settings.foregroundColor,
+        headerTintColor: BlueDefaultTheme.colors.foregroundColor,
       }}
     />
     <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />

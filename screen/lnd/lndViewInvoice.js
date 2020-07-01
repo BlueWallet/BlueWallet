@@ -16,7 +16,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueDefaultTheme } from '../../components/themes';
 const loc = require('../../loc');
 const EV = require('../../events');
 const { width, height } = Dimensions.get('window');
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   additionalInfo: {
-    backgroundColor: BlueApp.settings.brandingColor,
+    backgroundColor: BlueDefaultTheme.colors.brandingColor,
   },
 });
 
@@ -221,8 +221,8 @@ export default class LNDViewInvoice extends Component {
                 size={this.state.qrCodeHeight}
                 logoSize={90}
                 getRef={c => (this.qrCodeSVG = c)}
-                color={BlueApp.settings.foregroundColor}
-                logoBackgroundColor={BlueApp.settings.brandingColor}
+                color={BlueDefaultTheme.colors.foregroundColor}
+                logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
               />
               <BlueSpacing20 />
               <BlueCopyTextToClipboard
@@ -304,8 +304,8 @@ export default class LNDViewInvoice extends Component {
                 size={this.state.qrCodeHeight}
                 logoSize={90}
                 getRef={c => (this.qrCodeSVG = c)}
-                color={BlueApp.settings.foregroundColor}
-                logoBackgroundColor={BlueApp.settings.brandingColor}
+                color={BlueDefaultTheme.colors.foregroundColor}
+                logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
               />
             </View>
 
@@ -325,7 +325,7 @@ export default class LNDViewInvoice extends Component {
                 name: 'share-alternative',
                 type: 'entypo',
                 size: 10,
-                color: BlueApp.settings.buttonTextColor,
+                color: BlueDefaultTheme.colors.buttonTextColor,
               }}
               onPress={async () => {
                 if (this.qrCodeSVG === undefined) {

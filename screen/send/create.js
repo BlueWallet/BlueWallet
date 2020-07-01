@@ -22,8 +22,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueDefaultTheme } from '../../components/themes';
 const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 
@@ -33,7 +32,7 @@ export default class SendCreate extends Component {
     if (route.params.exportTXN) {
       headerRight = () => (
         <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-          <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
+          <Icon size={22} name="share-alternative" type="entypo" color={BlueDefaultTheme.colors.foregroundColor} />
         </TouchableOpacity>
       );
     } else {
@@ -201,7 +200,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   separator: {
-    backgroundColor: BlueApp.settings.inputBorderColor,
+    backgroundColor: BlueDefaultTheme.colors.inputBorderColor,
     height: 0.5,
     marginVertical: 16,
   },

@@ -17,13 +17,13 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
 } from '../../class';
+import { BlueDefaultTheme } from '../../components/themes';
 const loc = require('../../loc');
 const EV = require('../../events');
 const currency = require('../../blue_modules/currency');
 const BlueElectrum = require('../../BlueElectrum');
 const Bignumber = require('bignumber.js');
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
 
 export default class Confirm extends Component {
   static navigationOptions = () => ({
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   separator: {
-    backgroundColor: BlueApp.settings.inputBorderColor,
+    backgroundColor: BlueDefaultTheme.colors.inputBorderColor,
     height: 0.5,
     margin: 16,
   },

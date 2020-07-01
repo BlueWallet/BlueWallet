@@ -9,7 +9,7 @@ export class BlueCurrentTheme {
 
 export const BlueDefaultTheme = {
   ...DefaultTheme,
-  closeImage: require('./img/close.png'),
+  closeImage: require('../img/close.png'),
   colors: {
     ...DefaultTheme.colors,
     brandingColor: '#ffffff',
@@ -42,7 +42,7 @@ export const BlueDefaultTheme = {
 
 export const BlueDarkTheme = {
   ...DarkTheme,
-  closeImage: require('./img/close-white.png'),
+  closeImage: require('../img/close-white.png'),
   colors: {
     ...BlueDefaultTheme.colors,
     ...DarkTheme.colors,

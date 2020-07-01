@@ -26,6 +26,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
+import { BlueDefaultTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../events');
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
   },
   scanClick: {
     marginLeft: 4,
-    color: BlueApp.settings.inverseForegroundColor,
+    color: BlueDefaultTheme.colors.inverseForegroundColor,
   },
   walletRoot: {
     marginBottom: 16,
@@ -356,7 +357,7 @@ export default class LNDCreateInvoice extends Component {
         }}
         style={styles.scanRoot}
       >
-        <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
+        <Icon name="qrcode" size={22} type="font-awesome" color={BlueDefaultTheme.colors.inverseForegroundColor} />
         <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
     );

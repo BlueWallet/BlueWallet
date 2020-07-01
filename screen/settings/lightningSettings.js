@@ -14,8 +14,7 @@ import {
 } from '../../BlueComponents';
 import { Button } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
-/** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueDefaultTheme } from '../../components/themes';
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
@@ -83,15 +82,15 @@ const LightningSettings = () => {
         icon={{
           name: 'github',
           type: 'font-awesome',
-          color: BlueApp.settings.buttonTextColor,
+          color: BlueDefaultTheme.colors.buttonTextColor,
           backgroundColor: '#FFFFFF',
         }}
         onPress={() => {
           Linking.openURL('https://github.com/BlueWallet/LndHub');
         }}
-        titleStyle={{ color: BlueApp.settings.buttonAlternativeTextColor }}
+        titleStyle={{ color: BlueDefaultTheme.colors.buttonAlternativeTextColor }}
         title="github.com/BlueWallet/LndHub"
-        color={BlueApp.settings.buttonTextColor}
+        color={BlueDefaultTheme.colors.buttonTextColor}
         buttonStyle={styles.buttonStyle}
       />
 

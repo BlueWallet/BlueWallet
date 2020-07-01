@@ -13,7 +13,7 @@ import {
 import PropTypes from 'prop-types';
 import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
-const BlueApp = require('../../BlueApp');
+import { BlueDefaultTheme } from '../../components/themes';
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
@@ -78,8 +78,8 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               logo={require('../../img/qr-code.png')}
               size={300}
               logoSize={90}
-              color={BlueApp.settings.foregroundColor}
-              logoBackgroundColor={BlueApp.settings.brandingColor}
+              color={BlueDefaultTheme.colors.foregroundColor}
+              logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
             />
             <BlueSpacing20 />
             <BlueText>{loc.lndViewInvoice.open_direct_channel}</BlueText>
@@ -90,7 +90,7 @@ export default class LNDViewAdditionalInvoiceInformation extends Component {
               icon={{
                 name: 'share-alternative',
                 type: 'entypo',
-                color: BlueApp.settings.buttonTextColor,
+                color: BlueDefaultTheme.colors.buttonTextColor,
               }}
               onPress={async () => {
                 Share.share({

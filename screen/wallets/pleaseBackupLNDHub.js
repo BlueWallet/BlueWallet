@@ -13,8 +13,8 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
+import { BlueDefaultTheme } from '../../components/themes';
 const { height, width } = Dimensions.get('window');
-const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
@@ -67,8 +67,8 @@ const PleaseBackupLNDHub = () => {
             logo={require('../../img/qr-code.png')}
             logoSize={90}
             size={qrCodeHeight}
-            color={BlueApp.settings.foregroundColor}
-            logoBackgroundColor={BlueApp.settings.brandingColor}
+            color={BlueDefaultTheme.colors.foregroundColor}
+            logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
             ecl="H"
           />
 

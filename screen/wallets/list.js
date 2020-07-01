@@ -23,6 +23,7 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
+import { BlueDefaultTheme } from '../../components/themes';
 const EV = require('../../events');
 const A = require('../../analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 8,
-    color: BlueApp.settings.foregroundColor,
+    color: BlueDefaultTheme.colors.foregroundColor,
   },
   ltRoot: {
     flexDirection: 'row',
@@ -155,7 +156,7 @@ export default class WalletsList extends Component {
       title: '',
       headerRight: () => (
         <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
+          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueDefaultTheme.colors.foregroundColor} />
         </TouchableOpacity>
       ),
     };
