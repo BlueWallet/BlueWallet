@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
-const EV = require('../../events');
+const EV = require('../../blue_modules/events');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc/');

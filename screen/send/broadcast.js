@@ -13,7 +13,7 @@ import {
   BlueTextCentered,
   BlueBigCheckmark,
 } from '../../BlueComponents';
-import BlueElectrum from '../../BlueElectrum';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 const bitcoin = require('bitcoinjs-lib');
 
 const BROADCAST_RESULT = Object.freeze({

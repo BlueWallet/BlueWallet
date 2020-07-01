@@ -16,7 +16,7 @@ import { AppStorage } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 const BlueApp: AppStorage = require('../../BlueApp');
-const prompt = require('../../prompt');
+const prompt = require('../../blue_modules/prompt');
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({

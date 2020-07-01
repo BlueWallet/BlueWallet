@@ -15,13 +15,13 @@ import {
   HDSegwitElectrumSeedP2WPKHWallet,
 } from '.';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-const EV = require('../events');
-const A = require('../analytics');
+const EV = require('../blue_modules/events');
+const A = require('../blue_modules/analytics');
 const BlueApp: AppStorage = require('../BlueApp');
 const loc = require('../loc');
 const bip38 = require('../blue_modules/bip38');
 const wif = require('wif');
-const prompt = require('../prompt');
+const prompt = require('../blue_modules/prompt');
 
 export default class WalletImport {
   /**

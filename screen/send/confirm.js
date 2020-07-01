@@ -18,9 +18,9 @@ import {
   SegwitBech32Wallet,
 } from '../../class';
 const loc = require('../../loc');
-const EV = require('../../events');
+const EV = require('../../blue_modules/events');
 const currency = require('../../blue_modules/currency');
-const BlueElectrum = require('../../BlueElectrum');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const Bignumber = require('bignumber.js');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');

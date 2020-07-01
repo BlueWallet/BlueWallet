@@ -18,8 +18,8 @@ import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import { Text } from 'react-native-elements';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 /** @type {AppStorage} */
-const EV = require('../../events');
-const BlueElectrum = require('../../BlueElectrum');
+const EV = require('../../blue_modules/events');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const loc = require('../../loc');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');

@@ -28,7 +28,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
-const EV = require('../../events');
+const EV = require('../../blue_modules/events');
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({

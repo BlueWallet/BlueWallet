@@ -35,8 +35,8 @@ import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import { Psbt } from 'bitcoinjs-lib';
 const loc = require('../../loc');
-const EV = require('../../events');
-const BlueElectrum = require('../../BlueElectrum');
+const EV = require('../../blue_modules/events');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');

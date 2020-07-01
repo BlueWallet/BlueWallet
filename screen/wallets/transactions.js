@@ -40,8 +40,8 @@ import ActionSheet from '../ActionSheet';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
-const EV = require('../../events');
-const BlueElectrum = require('../../BlueElectrum');
+const EV = require('../../blue_modules/events');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const styles = StyleSheet.create({

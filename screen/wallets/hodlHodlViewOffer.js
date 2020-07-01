@@ -9,7 +9,7 @@ import { AppStorage } from '../../class';
 import * as NavigationService from '../../NavigationService';
 
 const BlueApp: AppStorage = require('../../BlueApp');
-const prompt = require('../../prompt');
+const prompt = require('../../blue_modules/prompt');
 
 export default class HodlHodlViewOffer extends Component {
   static navigationOptions = ({ navigation }) => ({
