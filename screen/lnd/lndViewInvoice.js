@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   additionalInfo: {
-    backgroundColor: BlueCurrentTheme.colors().brandingColor,
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
   },
 });
 
@@ -212,9 +212,9 @@ export default class LNDViewInvoice extends Component {
                 size={this.state.qrCodeHeight}
                 logoSize={90}
                 getRef={c => (this.qrCodeSVG = c)}
-                color={BlueCurrentTheme.colors().foregroundColor}
-                backgroundColor={BlueCurrentTheme.colors().background}
-                logoBackgroundColor={BlueCurrentTheme.colors().brandingColor}
+                color={BlueCurrentTheme.colors.foregroundColor}
+                backgroundColor={BlueCurrentTheme.colors.background}
+                logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
               />
               <BlueSpacing20 />
               <BlueCopyTextToClipboard
@@ -296,9 +296,9 @@ export default class LNDViewInvoice extends Component {
                 size={this.state.qrCodeHeight}
                 logoSize={90}
                 getRef={c => (this.qrCodeSVG = c)}
-                color={BlueCurrentTheme.colors().foregroundColor}
-                logoBackgroundColor={BlueCurrentTheme.colors().brandingColor}
-                backgroundColor={BlueCurrentTheme.colors().background}
+                color={BlueCurrentTheme.colors.foregroundColor}
+                logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+                backgroundColor={BlueCurrentTheme.colors.background}
               />
             </View>
 
@@ -318,7 +318,7 @@ export default class LNDViewInvoice extends Component {
                 name: 'share-alternative',
                 type: 'entypo',
                 size: 10,
-                color: BlueCurrentTheme.colors().buttonTextColor,
+                color: BlueCurrentTheme.colors.buttonTextColor,
               }}
               onPress={async () => {
                 if (this.qrCodeSVG === undefined) {

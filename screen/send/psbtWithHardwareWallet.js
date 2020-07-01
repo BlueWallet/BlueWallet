@@ -399,7 +399,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 icon={{
                   name: 'qrcode',
                   type: 'font-awesome',
-                  color: BlueCurrentTheme.colors().buttonTextColor,
+                  color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={() => this.setState({ renderScanner: true, animatedQRCodeData: [] })}
                 title="Scan Signed Transaction"
@@ -409,7 +409,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 icon={{
                   name: 'file-import',
                   type: 'material-community',
-                  color: BlueCurrentTheme.colors().buttonTextColor,
+                  color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={this.openSignedTransaction}
                 title="Open Signed Transaction"
@@ -419,7 +419,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 icon={{
                   name: 'share-alternative',
                   type: 'entypo',
-                  color: BlueCurrentTheme.colors().buttonTextColor,
+                  color: BlueCurrentTheme.colors.buttonTextColor,
                 }}
                 onPress={this.exportPSBT}
                 title="Export to file"

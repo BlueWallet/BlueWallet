@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 8,
-    color: BlueCurrentTheme.colors().foregroundColor,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   ltRoot: {
     flexDirection: 'row',
@@ -667,7 +667,7 @@ WalletsList.navigationOptions = ({ navigation, route }) => {
     title: '',
     headerRight: () => (
       <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors().foregroundColor} />
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
       </TouchableOpacity>
     ),
   };

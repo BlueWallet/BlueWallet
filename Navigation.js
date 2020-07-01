@@ -180,7 +180,7 @@ const SendDetailsRoot = () => (
         headerTitle: loc.wallets.select_wallet,
         headerRight: null,
         headerBackTitleVisible: false,
-        headerTintColor: BlueCurrentTheme.colors().foregroundColor,
+        headerTintColor: BlueCurrentTheme.colors.foregroundColor,
       }}
     />
   </SendDetailsStack.Navigator>
@@ -197,7 +197,7 @@ const LNDCreateInvoiceRoot = () => (
         headerTitle: loc.wallets.select_wallet,
         headerRight: null,
         headerBackTitleVisible: false,
-        headerTintColor: BlueCurrentTheme.colors().foregroundColor,
+        headerTintColor: BlueCurrentTheme.colors.foregroundColor,
       }}
     />
     <LNDCreateInvoiceStack.Screen
@@ -238,7 +238,7 @@ const ScanLndInvoiceRoot = () => (
         headerTitle: loc.wallets.select_wallet,
         headerRight: null,
         headerBackTitleVisible: false,
-        headerTintColor: BlueCurrentTheme.colors().foregroundColor,
+        headerTintColor: BlueCurrentTheme.colors.foregroundColor,
       }}
     />
     <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />

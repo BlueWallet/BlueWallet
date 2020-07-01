@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   separator: {
-    backgroundColor: BlueCurrentTheme.colors().inputBorderColor,
+    backgroundColor: BlueCurrentTheme.colors.inputBorderColor,
     height: 0.5,
     marginVertical: 16,
   },
@@ -237,7 +237,7 @@ SendCreate.navigationOptions = ({ navigation, route }) => {
   if (route.params.exportTXN) {
     headerRight = () => (
       <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-        <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors().foregroundColor} />
+        <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors.foregroundColor} />
       </TouchableOpacity>
     );
   } else {

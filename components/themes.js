@@ -1,16 +1,6 @@
 import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { Appearance } from 'react-native';
 
-export class BlueCurrentTheme {
-  static colors = () => {
-    return Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
-  };
-
-  static closeImage = () => {
-    return Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;
-  };
-}
-
 export const BlueDefaultTheme = {
   ...DefaultTheme,
   closeImage: require('../img/close.png'),
@@ -57,3 +47,7 @@ export const BlueDarkTheme = {
     borderWidth: 1,
   },
 };
+
+export class BlueCurrentTheme {}
+BlueCurrentTheme.colors = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
+BlueCurrentTheme.closeImage = Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;

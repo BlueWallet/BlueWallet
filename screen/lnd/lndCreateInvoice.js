@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   scanClick: {
     marginLeft: 4,
-    color: BlueCurrentTheme.colors().inverseForegroundColor,
+    color: BlueCurrentTheme.colors.inverseForegroundColor,
   },
   walletRoot: {
     marginBottom: 16,
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: BlueCurrentTheme.colors().background,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   amount: {
     flex: 1,
-    backgroundColor: BlueCurrentTheme.colors().background,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   fiat: {
     flexDirection: 'row',
@@ -351,7 +351,7 @@ export default class LNDCreateInvoice extends Component {
         }}
         style={styles.scanRoot}
       >
-        <Icon name="qrcode" size={22} type="font-awesome" color={BlueCurrentTheme.colors().inverseForegroundColor} />
+        <Icon name="qrcode" size={22} type="font-awesome" color={BlueCurrentTheme.colors.inverseForegroundColor} />
         <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
     );

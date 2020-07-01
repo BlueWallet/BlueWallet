@@ -113,9 +113,9 @@ export default class WalletExport extends Component {
             logo={require('../../img/qr-code.png')}
             size={this.state.qrCodeHeight}
             logoSize={70}
-            color={BlueCurrentTheme.colors().foregroundColor}
-            logoBackgroundColor={BlueCurrentTheme.colors().brandingColor}
-            backgroundColor={BlueCurrentTheme.colors().background}
+            color={BlueCurrentTheme.colors.foregroundColor}
+            logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
+            backgroundColor={BlueCurrentTheme.colors.background}
             ecl="H"
           />
 

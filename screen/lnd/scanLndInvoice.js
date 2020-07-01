@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
-    backgroundColor: BlueCurrentTheme.colors().background,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   scroll: {
     flex: 1,

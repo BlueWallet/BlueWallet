@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: 'bold',
     fontSize: 24,
-    color: BlueCurrentTheme.colors().foregroundColor,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   marketplaceButton1: {
     backgroundColor: '#f2f2f2',
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   list: {
-    backgroundColor: BlueCurrentTheme.colors().background,
+    backgroundColor: BlueCurrentTheme.colors.background,
     flex: 1,
   },
   emptyTxs: {

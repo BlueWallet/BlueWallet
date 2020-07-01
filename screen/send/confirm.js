@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   separator: {
-    backgroundColor: BlueCurrentTheme.colors().inputBorderColor,
+    backgroundColor: BlueCurrentTheme.colors.inputBorderColor,
     height: 0.5,
     margin: 16,
   },

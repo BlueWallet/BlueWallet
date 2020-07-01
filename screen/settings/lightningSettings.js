@@ -82,15 +82,15 @@ const LightningSettings = () => {
         icon={{
           name: 'github',
           type: 'font-awesome',
-          color: BlueCurrentTheme.colors().buttonTextColor,
+          color: BlueCurrentTheme.colors.buttonTextColor,
           backgroundColor: '#FFFFFF',
         }}
         onPress={() => {
           Linking.openURL('https://github.com/BlueWallet/LndHub');
         }}
-        titleStyle={{ color: BlueCurrentTheme.colors().buttonAlternativeTextColor }}
+        titleStyle={{ color: BlueCurrentTheme.colors.buttonAlternativeTextColor }}
         title="github.com/BlueWallet/LndHub"
-        color={BlueCurrentTheme.colors().buttonTextColor}
+        color={BlueCurrentTheme.colors.buttonTextColor}
         buttonStyle={styles.buttonStyle}
       />
 
