@@ -27,6 +27,7 @@
   },
   "scripts": {
     "clean": "cd android/; ./gradlew clean; cd ..; rm -r -f /tmp/metro-cache/; rm -r -f node_modules/; npm cache clean --force; npm i; npm start -- --reset-cache",
+    "clean:ios": "rm -fr node_modules && rm -fr ios/Pods && npm i && cd ios && pod update && cd ..; npm start -- --reset-cache",
     "releasenotes2json": "./scripts/release-notes.sh > release-notes.txt; node -e 'console.log(JSON.stringify(require(\"fs\").readFileSync(\"release-notes.txt\", \"utf8\")));' > release-notes.json",
     "podinstall": "./scripts/podinstall.sh",
     "start": "node node_modules/react-native/local-cli/cli.js start",
