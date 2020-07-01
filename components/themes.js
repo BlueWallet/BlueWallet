@@ -5,6 +5,10 @@ export class BlueCurrentTheme {
   static colors = () => {
     return Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.colors : BlueDefaultTheme.colors;
   };
+
+  static closeImage = () => {
+    return Appearance.getColorScheme() === 'dark' ? BlueDarkTheme.closeImage : BlueDefaultTheme.closeImage;
+  };
 }
 
 export const BlueDefaultTheme = {

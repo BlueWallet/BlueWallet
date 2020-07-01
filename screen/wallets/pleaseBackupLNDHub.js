@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { View, Dimensions, StyleSheet, BackHandler, StatusBar } from 'react-native';
 import {
   SafeBlueArea,
@@ -13,28 +13,28 @@ import {
 import QRCode from 'react-native-qrcode-svg';
 import Privacy from '../../Privacy';
 import { ScrollView } from 'react-native-gesture-handler';
-import { BlueDefaultTheme } from '../../components/themes';
 const { height, width } = Dimensions.get('window');
 const loc = require('../../loc');
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-  },
-});
 
 const PleaseBackupLNDHub = () => {
   const { wallet } = useRoute().params;
   const navigation = useNavigation();
+  const { colors } = useTheme();
   const [qrCodeHeight, setQrCodeHeight] = useState(height > width ? width - 40 : width / 2);
-
   const handleBackButton = useCallback(() => {
     navigation.dangerouslyGetParent().pop();
     return true;
   }, [navigation]);
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    scrollViewContent: {
+      flexGrow: 1,
+      backgroundColor: colors.background,
+    },
+  });
 
   useEffect(() => {
     Privacy.enableBlur();
@@ -67,8 +67,9 @@ const PleaseBackupLNDHub = () => {
             logo={require('../../img/qr-code.png')}
             logoSize={90}
             size={qrCodeHeight}
-            color={BlueDefaultTheme.colors.foregroundColor}
-            logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
+            color={colors.foregroundColor}
+            logoBackgroundColor={colors.brandingColor}
+            backgroundColor={colors.background}
             ecl="H"
           />
 

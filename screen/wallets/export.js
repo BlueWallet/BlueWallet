@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
 import { LegacyWallet, LightningCustodianWallet, SegwitBech32Wallet, SegwitP2SHWallet, WatchOnlyWallet } from '../../class';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -113,8 +113,9 @@ export default class WalletExport extends Component {
             logo={require('../../img/qr-code.png')}
             size={this.state.qrCodeHeight}
             logoSize={70}
-            color={BlueDefaultTheme.colors.foregroundColor}
-            logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
+            color={BlueCurrentTheme.colors().foregroundColor}
+            logoBackgroundColor={BlueCurrentTheme.colors().brandingColor}
+            backgroundColor={BlueCurrentTheme.colors().background}
             ecl="H"
           />
 

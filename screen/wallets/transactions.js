@@ -36,7 +36,7 @@ import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
 import HandoffSettings from '../../class/handoff';
 import Handoff from 'react-native-handoff';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 import ActionSheet from '../ActionSheet';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: 'bold',
     fontSize: 24,
-    color: BlueDefaultTheme.colors.foregroundColor,
+    color: BlueCurrentTheme.colors().foregroundColor,
   },
   marketplaceButton1: {
     backgroundColor: '#f2f2f2',
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   list: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors().background,
     flex: 1,
   },
   emptyTxs: {

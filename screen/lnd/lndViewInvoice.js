@@ -16,7 +16,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
 const EV = require('../../events');
 const { width, height } = Dimensions.get('window');
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   additionalInfo: {
-    backgroundColor: BlueDefaultTheme.colors.brandingColor,
+    backgroundColor: BlueCurrentTheme.colors().brandingColor,
   },
 });
 
@@ -212,8 +212,9 @@ export default class LNDViewInvoice extends Component {
                 size={this.state.qrCodeHeight}
                 logoSize={90}
                 getRef={c => (this.qrCodeSVG = c)}
-                color={BlueDefaultTheme.colors.foregroundColor}
-                logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
+                color={BlueCurrentTheme.colors().foregroundColor}
+                backgroundColor={BlueCurrentTheme.colors().background}
+                logoBackgroundColor={BlueCurrentTheme.colors().brandingColor}
               />
               <BlueSpacing20 />
               <BlueCopyTextToClipboard
@@ -295,8 +296,9 @@ export default class LNDViewInvoice extends Component {
                 size={this.state.qrCodeHeight}
                 logoSize={90}
                 getRef={c => (this.qrCodeSVG = c)}
-                color={BlueDefaultTheme.colors.foregroundColor}
-                logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
+                color={BlueCurrentTheme.colors().foregroundColor}
+                logoBackgroundColor={BlueCurrentTheme.colors().brandingColor}
+                backgroundColor={BlueCurrentTheme.colors().background}
               />
             </View>
 
@@ -316,7 +318,7 @@ export default class LNDViewInvoice extends Component {
                 name: 'share-alternative',
                 type: 'entypo',
                 size: 10,
-                color: BlueDefaultTheme.colors.buttonTextColor,
+                color: BlueCurrentTheme.colors().buttonTextColor,
               }}
               onPress={async () => {
                 if (this.qrCodeSVG === undefined) {

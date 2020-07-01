@@ -26,7 +26,7 @@ import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import * as NavigationService from '../../NavigationService';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 const currency = require('../../blue_modules/currency');
 const BlueApp = require('../../BlueApp');
 const EV = require('../../events');
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     marginVertical: 16,
     minHeight: 45,
     alignContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
   scanRoot: {
     height: 36,
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
   },
   scanClick: {
     marginLeft: 4,
-    color: BlueDefaultTheme.colors.inverseForegroundColor,
+    color: BlueCurrentTheme.colors().inverseForegroundColor,
   },
   walletRoot: {
     marginBottom: 16,
@@ -103,11 +102,11 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors().background,
   },
   amount: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors().background,
   },
   fiat: {
     flexDirection: 'row',
@@ -352,7 +351,7 @@ export default class LNDCreateInvoice extends Component {
         }}
         style={styles.scanRoot}
       >
-        <Icon name="qrcode" size={22} type="font-awesome" color={BlueDefaultTheme.colors.inverseForegroundColor} />
+        <Icon name="qrcode" size={22} type="font-awesome" color={BlueCurrentTheme.colors().inverseForegroundColor} />
         <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
     );
@@ -407,7 +406,7 @@ export default class LNDCreateInvoice extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root}>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <View style={styles.amount}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount
@@ -476,5 +475,6 @@ LNDCreateInvoice.propTypes = {
 };
 LNDCreateInvoice.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
-  title: loc.receive.header,
+  headerTitle: loc.receive.header,
+  headerLeft: null,
 });

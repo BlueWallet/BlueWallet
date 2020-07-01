@@ -17,7 +17,7 @@ import {
   SegwitP2SHWallet,
   SegwitBech32Wallet,
 } from '../../class';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
 const EV = require('../../events');
 const currency = require('../../blue_modules/currency');
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   separator: {
-    backgroundColor: BlueDefaultTheme.colors.inputBorderColor,
+    backgroundColor: BlueCurrentTheme.colors().inputBorderColor,
     height: 0.5,
     margin: 16,
   },

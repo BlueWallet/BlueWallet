@@ -6,78 +6,15 @@ import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useTheme } from '@react-navigation/native';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
-    paddingTop: 20,
-  },
-  itemRoot: {
-    backgroundColor: 'transparent',
-    padding: 10,
-    marginVertical: 17,
-  },
-  gradient: {
-    padding: 15,
-    borderRadius: 10,
-    minHeight: 164,
-    elevation: 5,
-  },
-  image: {
-    width: 99,
-    height: 94,
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-  },
-  transparentText: {
-    backgroundColor: 'transparent',
-  },
-  label: {
-    backgroundColor: 'transparent',
-    fontSize: 19,
-    color: '#fff',
-  },
-  balance: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 36,
-    color: '#fff',
-  },
-  latestTxLabel: {
-    backgroundColor: 'transparent',
-    fontSize: 13,
-    color: '#fff',
-  },
-  latestTxValue: {
-    backgroundColor: 'transparent',
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: '#fff',
-  },
-  noWallets: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 20,
-  },
-  center: {
-    textAlign: 'center',
-  },
-});
-
 const SelectWallet = ({ navigation }) => {
   const { chainType, onWalletSelect, availableWallets } = useRoute().params;
   const [isLoading, setIsLoading] = useState(true);
+  const { colors } = useTheme();
   let data = chainType
     ? BlueApp.getWallets().filter(item => item.chain === chainType && item.allowSend())
     : BlueApp.getWallets().filter(item => item.allowSend()) || [];
@@ -86,6 +23,70 @@ const SelectWallet = ({ navigation }) => {
     // availableWallets if provided, overrides chainType argument and `allowSend()` check
     data = availableWallets;
   }
+  const styles = StyleSheet.create({
+    root: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    loading: {
+      flex: 1,
+      justifyContent: 'center',
+      alignContent: 'center',
+      paddingTop: 20,
+    },
+    itemRoot: {
+      backgroundColor: 'transparent',
+      padding: 10,
+      marginVertical: 17,
+    },
+    gradient: {
+      padding: 15,
+      borderRadius: 10,
+      minHeight: 164,
+      elevation: 5,
+    },
+    image: {
+      width: 99,
+      height: 94,
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+    },
+    transparentText: {
+      backgroundColor: 'transparent',
+    },
+    label: {
+      backgroundColor: 'transparent',
+      fontSize: 19,
+      color: '#fff',
+    },
+    balance: {
+      backgroundColor: 'transparent',
+      fontWeight: 'bold',
+      fontSize: 36,
+      color: '#fff',
+    },
+    latestTxLabel: {
+      backgroundColor: 'transparent',
+      fontSize: 13,
+      color: '#fff',
+    },
+    latestTxValue: {
+      backgroundColor: 'transparent',
+      fontWeight: 'bold',
+      fontSize: 16,
+      color: '#fff',
+    },
+    noWallets: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingTop: 20,
+    },
+    center: {
+      textAlign: 'center',
+    },
+  });
 
   useEffect(() => {
     setIsLoading(false);

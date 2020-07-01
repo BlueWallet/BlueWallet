@@ -4,7 +4,7 @@ import BN from 'bignumber.js';
 import { Dimensions, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 import { SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
 const loc = require('../../loc');
 
@@ -157,7 +157,7 @@ const Buttons = ({ pop, save }) => (
       <View style={styles.buttonsBody}>
         <View style={styles.buttonsRow}>
           <View style={styles.buttonsIcon}>
-            <Icon name="undo" size={16} type="font-awesome" color={BlueDefaultTheme.colors.buttonAlternativeTextColor} />
+            <Icon name="undo" size={16} type="font-awesome" color={BlueCurrentTheme.colors().buttonAlternativeTextColor} />
           </View>
           <Text style={styles.buttonsLabel}>{loc.entropy.undo}</Text>
         </View>
@@ -167,7 +167,7 @@ const Buttons = ({ pop, save }) => (
       <View style={styles.buttonsBody}>
         <View style={styles.buttonsRow}>
           <View style={styles.buttonsIcon}>
-            <Icon name="arrow-down" size={16} type="font-awesome" color={BlueDefaultTheme.colors.buttonAlternativeTextColor} />
+            <Icon name="arrow-down" size={16} type="font-awesome" color={BlueCurrentTheme.colors().buttonAlternativeTextColor} />
           </View>
           <Text style={[styles.buttonsLabel, styles.buttonsLabelRight]}>{loc.entropy.save}</Text>
         </View>
@@ -216,21 +216,21 @@ const Entropy = () => {
             <Icon
               name="toll"
               type="material"
-              color={active ? BlueDefaultTheme.colors.buttonAlternativeTextColor : BlueDefaultTheme.colors.buttonBackgroundColor}
+              color={active ? BlueCurrentTheme.colors().buttonAlternativeTextColor : BlueCurrentTheme.colors().buttonBackgroundColor}
             />
           ),
           ({ active }) => (
             <Icon
               name="dice"
               type="font-awesome-5"
-              color={active ? BlueDefaultTheme.colors.buttonAlternativeTextColor : BlueDefaultTheme.colors.buttonBackgroundColor}
+              color={active ? BlueCurrentTheme.colors().buttonAlternativeTextColor : BlueCurrentTheme.colors().buttonBackgroundColor}
             />
           ),
           ({ active }) => (
             <Icon
               name="dice-d20"
               type="font-awesome-5"
-              color={active ? BlueDefaultTheme.colors.buttonAlternativeTextColor : BlueDefaultTheme.colors.buttonBackgroundColor}
+              color={active ? BlueCurrentTheme.colors().buttonAlternativeTextColor : BlueCurrentTheme.colors().buttonBackgroundColor}
             />
           ),
         ]}
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   buttonsBody: {
     flex: 1,
     minWidth: 130,
-    backgroundColor: BlueDefaultTheme.colors.buttonBackgroundColor,
+    backgroundColor: BlueCurrentTheme.colors().buttonBackgroundColor,
   },
   buttonsRow: {
     flex: 1,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
     marginBottom: -11,
   },
   buttonsLabel: {
-    color: BlueDefaultTheme.colors.buttonAlternativeTextColor,
+    color: BlueCurrentTheme.colors().buttonAlternativeTextColor,
     fontWeight: '500',
     left: 5,
     backgroundColor: 'transparent',

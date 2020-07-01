@@ -40,6 +40,7 @@ import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { BlueCurrentTheme } from '../../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 const BigNumber = require('bignumber.js');
@@ -53,34 +54,36 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     paddingTop: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors().background,
   },
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors().background,
   },
   scrollViewContent: {
     flexWrap: 'wrap',
     flexDirection: 'row',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors().background,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderTopColor: BlueCurrentTheme.colors().borderTopColor,
+    borderWidth: BlueCurrentTheme.colors().borderWidth,
     minHeight: 200,
     height: 200,
   },
   advancedTransactionOptionsModalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors().background,
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderTopColor: BlueCurrentTheme.colors().borderTopColor,
+    borderWidth: BlueCurrentTheme.colors().borderWidth,
     minHeight: 130,
   },
   bottomModal: {
@@ -137,7 +140,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 56,
     marginVertical: 16,
     alignContent: 'center',
-    backgroundColor: '#FFFFFF',
     minHeight: 44,
   },
   select: {

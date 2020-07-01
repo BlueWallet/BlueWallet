@@ -22,7 +22,7 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
 const currency = require('../../blue_modules/currency');
 
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   separator: {
-    backgroundColor: BlueDefaultTheme.colors.inputBorderColor,
+    backgroundColor: BlueCurrentTheme.colors().inputBorderColor,
     height: 0.5,
     marginVertical: 16,
   },
@@ -237,7 +237,7 @@ SendCreate.navigationOptions = ({ navigation, route }) => {
   if (route.params.exportTXN) {
     headerRight = () => (
       <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
-        <Icon size={22} name="share-alternative" type="entypo" color={BlueDefaultTheme.colors.foregroundColor} />
+        <Icon size={22} name="share-alternative" type="entypo" color={BlueCurrentTheme.colors().foregroundColor} />
       </TouchableOpacity>
     );
   } else {

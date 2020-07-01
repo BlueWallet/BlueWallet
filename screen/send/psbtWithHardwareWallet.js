@@ -34,7 +34,7 @@ import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
 import { Psbt } from 'bitcoinjs-lib';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
 const EV = require('../../events');
 const BlueElectrum = require('../../BlueElectrum');
@@ -399,7 +399,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 icon={{
                   name: 'qrcode',
                   type: 'font-awesome',
-                  color: BlueDefaultTheme.colors.buttonTextColor,
+                  color: BlueCurrentTheme.colors().buttonTextColor,
                 }}
                 onPress={() => this.setState({ renderScanner: true, animatedQRCodeData: [] })}
                 title="Scan Signed Transaction"
@@ -409,7 +409,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 icon={{
                   name: 'file-import',
                   type: 'material-community',
-                  color: BlueDefaultTheme.colors.buttonTextColor,
+                  color: BlueCurrentTheme.colors().buttonTextColor,
                 }}
                 onPress={this.openSignedTransaction}
                 title="Open Signed Transaction"
@@ -419,7 +419,7 @@ export default class PsbtWithHardwareWallet extends Component {
                 icon={{
                   name: 'share-alternative',
                   type: 'entypo',
-                  color: BlueDefaultTheme.colors.buttonTextColor,
+                  color: BlueCurrentTheme.colors().buttonTextColor,
                 }}
                 onPress={this.exportPSBT}
                 title="Export to file"

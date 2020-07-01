@@ -23,7 +23,7 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../events');
 const A = require('../../analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -44,12 +44,10 @@ const styles = StyleSheet.create({
     right: 0,
   },
   wrapper: {
-    backgroundColor: '#FFFFFF',
     flex: 1,
   },
   walletsListWrapper: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   headerStyle: {
     ...Platform.select({
@@ -78,7 +76,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 8,
-    color: BlueDefaultTheme.colors.foregroundColor,
+    color: BlueCurrentTheme.colors().foregroundColor,
   },
   ltRoot: {
     flexDirection: 'row',
@@ -140,9 +138,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     minHeight: 48,
     overflow: 'hidden',
-  },
-  listHeader: {
-    backgroundColor: '#FFFFFF',
   },
   transaction: {
     marginHorizontal: 4,
@@ -394,7 +389,7 @@ export default class WalletsList extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={styles.listHeader}>
+      <View>
         <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
       </View>
     );
@@ -672,7 +667,7 @@ WalletsList.navigationOptions = ({ navigation, route }) => {
     title: '',
     headerRight: () => (
       <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueDefaultTheme.colors.foregroundColor} />
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors().foregroundColor} />
       </TouchableOpacity>
     ),
   };

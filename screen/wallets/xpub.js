@@ -5,7 +5,7 @@ import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle, BlueCopyTex
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Biometric from '../../class/biometrics';
-import { BlueDefaultTheme } from '../../components/themes';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -93,8 +93,9 @@ export default class WalletXpub extends Component {
             logo={require('../../img/qr-code.png')}
             size={this.state.qrCodeHeight}
             logoSize={90}
-            color={BlueDefaultTheme.colors.foregroundColor}
-            logoBackgroundColor={BlueDefaultTheme.colors.brandingColor}
+            color={BlueCurrentTheme.colors().foregroundColor}
+            logoBackgroundColor={BlueCurrentTheme.colors().brandingColor}
+            backgroundColor={BlueCurrentTheme.colors().background}
             ecl="H"
           />
 
