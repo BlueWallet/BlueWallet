@@ -31,6 +31,7 @@ import Modal from 'react-native-modal';
 import HandoffSettings from '../../class/handoff';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
 import Handoff from 'react-native-handoff';
+import { BlueCurrentTheme } from '../../components/themes';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
@@ -52,7 +53,7 @@ const ReceiveDetails = () => {
   const { colors } = useTheme();
   const styles = StyleSheet.create({
     modalContent: {
-      backgroundColor: colors.background,
+      backgroundColor: BlueCurrentTheme.colors.modal,
       padding: 22,
       justifyContent: 'center',
       alignItems: 'center',
@@ -66,14 +67,15 @@ const ReceiveDetails = () => {
     bottomModal: {
       justifyContent: 'flex-end',
       margin: 0,
+
     },
     customAmount: {
       flexDirection: 'row',
-      borderColor: '#d2d2d2',
-      borderBottomColor: '#d2d2d2',
+      borderColor: BlueCurrentTheme.colors.formBorder,
+      borderBottomColor: BlueCurrentTheme.colors.formBorder,
       borderWidth: 1.0,
       borderBottomWidth: 0.5,
-      backgroundColor: '#f5f5f5',
+      backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
       minHeight: 44,
       height: 44,
       marginHorizontal: 20,
@@ -123,6 +125,14 @@ const ReceiveDetails = () => {
       alignItems: 'center',
       alignContent: 'flex-end',
       marginBottom: 24,
+    },
+    modalButton: {
+      backgroundColor: BlueCurrentTheme.colors.modalButton,
+      paddingVertical: 14,
+      paddingHorizontal: 70,
+      maxWidth: '80%',
+      borderRadius: 50,
+      fontWeight: '700', 
     },
   });
 
@@ -251,9 +261,8 @@ const ReceiveDetails = () => {
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton title={loc.receive.details.create} onPress={createCustomAmountAddress} />
+              <BlueButton style={styles.modalButton} title={loc.receive.details.create} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
-              <BlueButtonLinkHook title="Reset" onPress={clearCustomAmount} />
             </View>
             <BlueSpacing20 />
           </View>

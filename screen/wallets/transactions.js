@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.foregroundColor,
   },
   marketplaceButton1: {
-    backgroundColor: '#f2f2f2',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 9,
     minHeight: 49,
     flex: 1,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
   },
   marketplaceButton2: {
     marginLeft: 5,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: BlueCurrentTheme.colors.lightButton,
     borderRadius: 9,
     minHeight: 49,
     flex: 1,
@@ -123,11 +123,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   marketpalceText1: {
-    color: '#062453',
+    color: BlueCurrentTheme.colors.cta2,
     fontSize: 18,
   },
   marketpalceText2: {
-    color: '#062453',
+    color: BlueCurrentTheme.colors.cta2,
     fontSize: 18,
     marginHorizontal: 8,
   },

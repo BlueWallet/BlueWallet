@@ -39,6 +39,14 @@ export const BlueDefaultTheme = {
     ballOutgoing: '#f8d2d2',
     lightBorder: '#ededed',
     ballOutgoingExpired: '#EEF0F4',
+    modal: '#ffffff',
+    formBorder: '#d2d2d2',
+    modalButton: '#ccddf9',
+    darkGray: '#9AA0AA',
+    feeText: '#81868e',
+    feeLabel: '#d2f8d6',
+    feeValue: '#37c0a1',
+    cta2: '#062453',
   },
 };
 
@@ -62,6 +70,15 @@ export const BlueDarkTheme = {
     ballOutgoing: '#202020',
     lightBorder: '#313030',
     ballOutgoingExpired: '#202020',
+    modal: '#202020',
+    formBorder: '#202020',
+    inputBackgroundColor: '#0C0C0C',
+    modalButton: '#000000',
+    darkGray: '#3A3A3C',
+    feeText: '#81868e',
+    feeLabel: '#4AF1CB',
+    feeValue: '#000000',
+    cta2: '#ffffff',
   },
 };
 

@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   modalContent: {
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.modal,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   advancedTransactionOptionsModalContent: {
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.modal,
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   feeSliderInput: {
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     minWidth: 127,
     height: 60,
     borderRadius: 8,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   feeSliderText: {
     fontWeight: '600',
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     marginBottom: 0,
     marginRight: 4,
     textAlign: 'right',
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   },
   feeSliderUnit: {
     fontWeight: '600',
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     paddingRight: 4,
     textAlign: 'left',
     fontSize: 16,
@@ -161,21 +161,22 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   selectLabel: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonTextColor,
     fontSize: 14,
   },
   of: {
     alignSelf: 'flex-end',
     marginRight: 18,
     marginVertical: 8,
+    color: BlueCurrentTheme.colors.feeText,
   },
   memo: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -196,11 +197,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   feeLabel: {
-    color: '#81868e',
+    color: BlueCurrentTheme.colors.feeText,
     fontSize: 14,
   },
   feeRow: {
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     minWidth: 40,
     height: 25,
     borderRadius: 4,
@@ -210,13 +211,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   feeValue: {
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     marginBottom: 0,
     marginRight: 4,
     textAlign: 'right',
   },
   feeUnit: {
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     paddingRight: 4,
     textAlign: 'left',
   },

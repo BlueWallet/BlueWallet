@@ -2162,8 +2162,8 @@ export class BlueAddressInput extends Component {
       <View
         style={{
           flexDirection: 'row',
-          borderColor: BlueCurrentTheme.colors.inputBorderColor,
-          borderBottomColor: BlueCurrentTheme.colors.inputBorderColor,
+          borderColor: BlueCurrentTheme.colors.formBorder,
+          borderBottomColor: BlueCurrentTheme.colors.formBorder,
           borderWidth: 1.0,
           borderBottomWidth: 0.5,
           backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
@@ -2206,7 +2206,7 @@ export class BlueAddressInput extends Component {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            backgroundColor: '#9AA0AA',
+            backgroundColor: BlueCurrentTheme.colors.darkGray,
             borderRadius: 4,
             paddingVertical: 4,
             paddingHorizontal: 8,
