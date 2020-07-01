@@ -60,6 +60,10 @@ export const getEntropy = (number, base) => {
   let summ = 0;
   while (bits >= 1) {
     const block = 2 ** bits;
+    if (summ + block > base) {
+      bits -= 1;
+      continue;
+    }
     if (number < summ + block) {
       return { value: number - summ, bits };
     }
@@ -97,11 +101,15 @@ export const convertToBuffer = ({ entropy, bits }) => {
 
 const Coin = ({ push }) => (
   <View style={styles.coinRoot}>
-    <TouchableOpacity onPress={() => push(getEntropy(0, 2))} style={styles.coinBody}>
-      <Image style={styles.coinImage} source={require('../../img/coin1.png')} />
+    <TouchableOpacity onPress={() => push(getEntropy(0, 2))}>
+      <View style={styles.coinBody}>
+        <Image style={styles.coinImage} source={require('../../img/coin1.png')} />
+      </View>
     </TouchableOpacity>
-    <TouchableOpacity onPress={() => push(getEntropy(1, 2))} style={styles.coinBody}>
-      <Image style={styles.coinImage} source={require('../../img/coin2.png')} />
+    <TouchableOpacity onPress={() => push(getEntropy(1, 2))}>
+      <View style={styles.coinBody}>
+        <Image style={styles.coinImage} source={require('../../img/coin2.png')} />
+      </View>
     </TouchableOpacity>
   </View>
 );
@@ -291,13 +299,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     borderColor: 'grey',
     margin: 10,
-    padding: 10,
   },
   coinImage: {
+    flex: 0.9,
     aspectRatio: 1,
-    width: '100%',
-    height: '100%',
-    borderRadius: 75,
   },
   diceScroll: {
     backgroundColor: 'white',
