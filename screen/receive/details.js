@@ -230,14 +230,6 @@ const ReceiveDetails = () => {
     setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
   };
 
-  const clearCustomAmount = () => {
-    setIsCustom(false);
-    setIsCustomModalVisible(false);
-    setCustomAmount('');
-    setCustomLabel('');
-    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
-  };
-
   const renderCustomAmountModal = () => {
     return (
       <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
