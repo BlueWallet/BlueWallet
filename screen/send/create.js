@@ -163,13 +163,13 @@ export default class SendCreate extends Component {
 
 const styles = StyleSheet.create({
   transactionDetailsTitle: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 17,
     marginBottom: 2,
   },
   transactionDetailsSubtitle: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 15,
     marginBottom: 20,
@@ -188,13 +188,14 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 19,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   card: {
     alignItems: 'center',
     flex: 1,
   },
   cardText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
   },
   cardTx: {

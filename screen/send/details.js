@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scrollViewContent: {
     flexWrap: 'wrap',

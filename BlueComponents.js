@@ -70,7 +70,7 @@ export class BlueButton extends Component {
           flex: 1,
           borderWidth: 0.7,
           borderColor: 'transparent',
-          backgroundColor: backgroundColor,
+          backgroundColor: BlueCurrentTheme.colors.mainColor,
           minHeight: 45,
           height: 45,
           maxHeight: 45,
@@ -868,13 +868,13 @@ export class BlueHeaderDefaultMain extends Component {
 
 export class BlueSpacing extends Component {
   render() {
-    return <View {...this.props} style={{ height: 60, backgroundColor: BlueCurrentTheme.colors.brandingColor }} />;
+    return <View {...this.props} style={{ height: 60 }} />;
   }
 }
 
 export class BlueSpacing40 extends Component {
   render() {
-    return <View {...this.props} style={{ height: 50, backgroundColor: BlueCurrentTheme.colors.brandingColor }} />;
+    return <View {...this.props} style={{ height: 50 }} />;
   }
 }
 

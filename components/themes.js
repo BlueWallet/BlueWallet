@@ -47,7 +47,11 @@ export const BlueDefaultTheme = {
     feeLabel: '#d2f8d6',
     feeValue: '#37c0a1',
     cta2: '#062453',
-    outputValue: '#13244D'
+    outputValue: '#13244D',
+    elevated: '#ffffff',
+    mainColor: '#CFDCF6',
+    success: '#ccddf9',
+    successCheck: '#0f5cc0',
   },
 };
 
@@ -67,6 +71,8 @@ export const BlueDarkTheme = {
     buttonTextColor: '#ffffff',
     lightButton: 'rgba(255,255,255,.1)',
     buttonAlternativeTextColor: '#ffffff',
+    alternativeTextColor: '#9aa0aa',
+    alternativeTextColor2: '#0A84FF',
     ballReceive: '#202020',
     ballOutgoing: '#202020',
     lightBorder: '#313030',
@@ -77,10 +83,14 @@ export const BlueDarkTheme = {
     modalButton: '#000000',
     darkGray: '#3A3A3C',
     feeText: '#81868e',
-    feeLabel: '#4AF1CB',
+    feeLabel: '#8EFFE5',
     feeValue: '#000000',
     cta2: '#ffffff',
-    outputValue: '#ffffff'
+    outputValue: '#ffffff',
+    elevated: '#121212',
+    mainColor: '#0A84FF',
+    success: '#202020',
+    successCheck: '#0A84FF',
   },
 };
 

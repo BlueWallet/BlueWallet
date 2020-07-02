@@ -6,12 +6,14 @@ import { Text } from 'react-native-elements';
 import { BlueButton, SafeBlueArea, BlueCard } from '../../BlueComponents';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import PropTypes from 'prop-types';
+import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 19,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   amout: {
     alignItems: 'center',
@@ -24,12 +26,12 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   amountValue: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 36,
     fontWeight: '600',
   },
   amountUnit: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     marginHorizontal: 4,
     paddingBottom: 6,
@@ -98,7 +100,22 @@ export default class Success extends Component {
           )}
         </BlueCard>
         <View style={styles.ready}>
-          <LottieView style={styles.lottie} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+          <LottieView 
+            style={styles.lottie} 
+            source={require('../../img/bluenice.json')} 
+            autoPlay
+            loop={true} 
+            colorFilters={[{
+              keypath: "spark",
+              color: BlueCurrentTheme.colors.success,
+            },{
+              keypath: "circle",
+              color: BlueCurrentTheme.colors.success,
+            },{
+              keypath: "Oval",
+              color: BlueCurrentTheme.colors.successCheck,
+            }]}
+          />
         </View>
         <BlueCard>
           <BlueButton
