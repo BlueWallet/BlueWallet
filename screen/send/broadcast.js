@@ -15,6 +15,7 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import BlueElectrum from '../../BlueElectrum';
+import { BlueCurrentTheme } from '../../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 
 const BROADCAST_RESULT = Object.freeze({
@@ -73,7 +74,7 @@ const Broadcast = () => {
               />
 
               <BlueSpacing10 />
-              <BlueButton title="BROADCAST" onPress={handleBroadcast} disabled={broadcastResult === BROADCAST_RESULT.pending} />
+              <BlueButton title="Send" onPress={handleBroadcast} disabled={broadcastResult === BROADCAST_RESULT.pending} />
             </BlueCard>
           )}
           {BROADCAST_RESULT.success === broadcastResult && <SuccessScreen tx={tx} />}
@@ -106,9 +107,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%',
     width: '100%',
+
   },
   link: {
-    color: 'blue',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   mainCard: {
     padding: 0,
@@ -135,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#d2f8d6',
     borderRadius: 4,
     marginTop: 20,
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: '500',
     fontSize: 14,
     paddingHorizontal: 16,

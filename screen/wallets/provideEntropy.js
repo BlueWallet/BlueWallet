@@ -5,7 +5,7 @@ import { Dimensions, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet
 import { Icon } from 'react-native-elements';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { BlueCurrentTheme } from '../../components/themes';
-import { SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
 const loc = require('../../loc');
 
 const ENTROPY_LIMIT = 256;
@@ -128,7 +128,7 @@ const Dice = ({ push, sides }) => {
   };
 
   return (
-    <ScrollView style={styles.diceScroll} contentContainerStyle={styles.diceContainer}>
+    <ScrollView contentContainerStyle={styles.diceContainer}>
       {[...Array(sides)].map((_, i) => (
         <TouchableOpacity key={i} onPress={() => push(getEntropy(i, sides))}>
           <View style={styles.diceRoot}>
@@ -136,7 +136,7 @@ const Dice = ({ push, sides }) => {
               <Icon style={styles.diceIcon} name={diceIcon(i + 1)} size={70} color="grey" type="font-awesome-5" />
             ) : (
               <View style={styles.dice}>
-                <Text>{i + 1}</Text>
+                <Text style={styles.diceText}>{i + 1}</Text>
               </View>
             )}
           </View>
@@ -202,6 +202,7 @@ const Entropy = () => {
 
   return (
     <SafeBlueArea>
+      <BlueSpacing20 />
       <TouchableOpacity onPress={() => setShow(!show)}>
         <View style={styles.entropy}>
           <Text style={styles.entropyText}>{show ? hex : `${bits} of 256 bits`}</Text>
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     padding: 5,
     marginLeft: 10,
     marginRight: 10,
-    backgroundColor: '#f2f2f2',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     borderRadius: 9,
     minHeight: 49,
     paddingHorizontal: 8,
@@ -273,13 +274,13 @@ const styles = StyleSheet.create({
   entropyText: {
     fontSize: 15,
     fontFamily: 'Courier',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   coinRoot: {
     flex: 1,
     justifyContent: 'center',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    backgroundColor: 'white',
   },
   coinBody: {
     flex: 0.33,
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: 'grey',
+    borderColor: BlueCurrentTheme.colors.lightButton,
     margin: 10,
     padding: 10,
   },
@@ -298,28 +299,30 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 75,
   },
-  diceScroll: {
-    backgroundColor: 'white',
-  },
   diceContainer: {
     alignItems: 'flex-start',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     paddingBottom: 100,
+
   },
   diceRoot: {
     width: Dimensions.get('window').width / 4,
     aspectRatio: 1,
+
   },
   dice: {
     margin: 3,
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: 'grey',
     justifyContent: 'center',
     alignItems: 'center',
     aspectRatio: 1,
+    borderColor: BlueCurrentTheme.colors.buttonBackgroundColor, 
+  },
+  diceText: {
+    color: BlueCurrentTheme.colors.foregroundColor, 
   },
   diceIcon: {
     margin: 3,

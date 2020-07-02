@@ -26,6 +26,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, LegacyWallet, SegwitBech32Wallet, WatchOnlyWallet } from '../../class';
 import { ScrollView } from 'react-native-gesture-handler';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../events');
 const prompt = require('../../prompt');
 /** @type {AppStorage} */
@@ -45,36 +46,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.outputValue,
   },
   address: {
     alignItems: 'center',
     flex: 1,
   },
   textLabel1: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 14,
     marginVertical: 12,
   },
   textLabel2: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
     fontSize: 14,
     marginVertical: 16,
   },
   textValue: {
-    color: '#81868e',
+    color: BlueCurrentTheme.colors.outputValue,
     fontWeight: '500',
     fontSize: 14,
   },
   input: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',

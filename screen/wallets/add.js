@@ -29,7 +29,7 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Wallet, SegwitP2SHWallet, HDSegwitP2SHWallet, LightningCustodianWallet, AppStorage } from '../../class';
-
+import { BlueCurrentTheme } from '../../components/themes';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Icon } from 'react-native-elements';
 const EV = require('../../events');
@@ -44,11 +44,11 @@ const styles = StyleSheet.create({
   },
   label: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -86,16 +86,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   advancedText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.feeText,
     fontWeight: '500',
   },
   lndUri: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
   },
   noPadding: {
     paddingHorizontal: 0,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
 });
 
@@ -184,6 +185,7 @@ export default class WalletsAdd extends Component {
       <SafeBlueArea>
         <StatusBar barStyle="default" />
         <ScrollView>
+          <BlueSpacing20 />
           <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
             <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
             <View style={styles.label}>

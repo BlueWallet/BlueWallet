@@ -709,15 +709,18 @@ export class BlueFormMultiInput extends Component {
         underlineColorAndroid="transparent"
         numberOfLines={4}
         style={{
+          paddingHorizontal: 8,
+          paddingVertical: 16,
           flex: 1,
           marginTop: 5,
           marginHorizontal: 20,
-          borderColor: BlueCurrentTheme.colors.inputBorderColor,
-          borderBottomColor: BlueCurrentTheme.colors.inputBorderColor,
-          borderWidth: 0.5,
+          borderColor: BlueCurrentTheme.colors.formBorder,
+          borderBottomColor: BlueCurrentTheme.colors.formBorder,
+          borderWidth: 1,
           borderBottomWidth: 0.5,
+          borderRadius: 4,
           backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
-          color: BlueCurrentTheme.colors.background,
+          color: BlueCurrentTheme.colors.foregroundColor,
         }}
         autoCorrect={false}
         autoCapitalize="none"
@@ -929,7 +932,7 @@ export class BlueUseAllFundsButton extends Component {
           maxHeight: 44,
           justifyContent: 'space-between',
           alignItems: 'center',
-          backgroundColor: '#eef0f4',
+          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
         }}
       >
         <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
@@ -997,7 +1000,7 @@ export class BlueDismissKeyboardInputAccessory extends Component {
       <InputAccessoryView nativeID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}>
         <View
           style={{
-            backgroundColor: '#eef0f4',
+            backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
             height: 44,
             flex: 1,
             flexDirection: 'row',
@@ -1024,7 +1027,7 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
     const inputView = (
       <View
         style={{
-          backgroundColor: '#eef0f4',
+          backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
           flexDirection: 'row',
           justifyContent: 'flex-end',
           alignItems: 'center',

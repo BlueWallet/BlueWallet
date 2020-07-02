@@ -47,6 +47,7 @@ export const BlueDefaultTheme = {
     feeLabel: '#d2f8d6',
     feeValue: '#37c0a1',
     cta2: '#062453',
+    outputValue: '#13244D'
   },
 };
 
@@ -79,6 +80,7 @@ export const BlueDarkTheme = {
     feeLabel: '#4AF1CB',
     feeValue: '#000000',
     cta2: '#ffffff',
+    outputValue: '#ffffff'
   },
 };
 

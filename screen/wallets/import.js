@@ -15,6 +15,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
+import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
@@ -29,12 +30,12 @@ const WalletsImport = () => {
     root: {
       flex: 1,
       paddingTop: 40,
-      backgroundColor: colors.background,
+      backgroundColor: BlueCurrentTheme.colors.background,
     },
     center: {
       flex: 1,
       alignItems: 'center',
-      backgroundColor: colors.background,
+      backgroundColor: BlueCurrentTheme.colors.background,
     },
   });
 
@@ -95,7 +96,7 @@ const WalletsImport = () => {
   return (
     <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <StatusBar barStyle="light-content" />
-
+      <BlueSpacing20 />
       <BlueFormLabel>{loc.wallets.import.explanation}</BlueFormLabel>
       <BlueSpacing20 />
       <BlueFormMultiInput

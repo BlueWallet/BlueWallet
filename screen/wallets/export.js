@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   scrollViewContent: {
     alignItems: 'center',
@@ -28,13 +29,13 @@ const styles = StyleSheet.create({
   type: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   secret: {
     alignItems: 'center',
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#0C2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
     lineHeight: 24,
   },
 });
