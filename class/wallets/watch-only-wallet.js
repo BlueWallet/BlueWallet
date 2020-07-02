@@ -76,6 +76,13 @@ export class WatchOnlyWallet extends LegacyWallet {
     this._hdWalletInstance = hdWalletInstance;
   }
 
+  prepareForSerialization() {
+    if (this._hdWalletInstance) {
+      delete this._hdWalletInstance._node0;
+      delete this._hdWalletInstance._node1;
+    }
+  }
+
   getBalance() {
     if (this._hdWalletInstance) return this._hdWalletInstance.getBalance();
     return super.getBalance();

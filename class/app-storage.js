@@ -1,3 +1,4 @@
+/* global alert */
 import AsyncStorage from '@react-native-community/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import {
@@ -400,7 +401,11 @@ export class AppStorage {
     WatchConnectivity.shared.sendWalletsToWatch();
     DeviceQuickActions.setWallets(this.wallets);
     DeviceQuickActions.setQuickActions();
-    return this.setItem('data', JSON.stringify(data));
+    try {
+      return await this.setItem('data', JSON.stringify(data));
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   /**
