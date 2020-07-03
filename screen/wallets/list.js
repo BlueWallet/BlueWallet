@@ -667,11 +667,9 @@ WalletsList.navigationOptions = ({ navigation, route }) => {
   return {
     ...BlueNavigationStyle(navigation, true),
     title: '',
-    
-      headerStyle: {
-        backgroundColor: BlueCurrentTheme.colors.customHeader,
-      },
-    
+    headerStyle: {
+      backgroundColor: BlueCurrentTheme.colors.customHeader,
+    },
     headerRight: () => (
       <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
         <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
