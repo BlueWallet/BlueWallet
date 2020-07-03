@@ -4,7 +4,7 @@ import b58 from 'bs58check';
 import { randomBytes } from '../rng';
 import { AbstractHDWallet } from './abstract-hd-wallet';
 const bitcoin = require('bitcoinjs-lib');
-const BlueElectrum = require('../../BlueElectrum');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const HDNode = require('bip32');
 const coinSelectAccumulative = require('coinselect/accumulative');
 const coinSelectSplit = require('coinselect/split');

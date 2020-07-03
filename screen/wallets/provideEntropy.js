@@ -59,6 +59,10 @@ export const getEntropy = (number, base) => {
   let summ = 0;
   while (bits >= 1) {
     const block = 2 ** bits;
+    if (summ + block > base) {
+      bits -= 1;
+      continue;
+    }
     if (number < summ + block) {
       return { value: number - summ, bits };
     }

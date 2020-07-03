@@ -28,7 +28,7 @@ import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 
 const BlueApp: AppStorage = require('../../BlueApp');
-const A = require('../../analytics');
+const A = require('../../blue_modules/analytics');
 
 const CURRENCY_CODE_ANY = '_any';
 const METHOD_ANY = '_any';

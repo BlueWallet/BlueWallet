@@ -17,7 +17,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Biometric from '../../class/biometrics';
 import { colors } from 'react-native-elements';
 const BlueApp: AppStorage = require('../../BlueApp');
-const prompt = require('../../prompt');
+const prompt = require('../../blue_modules/prompt');
 const loc = require('../../loc');
 
 const EncryptStorage = () => {

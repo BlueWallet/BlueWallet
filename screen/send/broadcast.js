@@ -14,8 +14,8 @@ import {
   BlueBigCheckmark,
   BlueNavigationStyle,
 } from '../../BlueComponents';
-import BlueElectrum from '../../BlueElectrum';
 import { BlueCurrentTheme } from '../../components/themes';
+import BlueElectrum from '../../blue_modules/BlueElectrum';
 const bitcoin = require('bitcoinjs-lib');
 
 const BROADCAST_RESULT = Object.freeze({

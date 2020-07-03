@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { AppStorage } from '../class';
 const BlueApp: AppStorage = require('../BlueApp');
-const prompt = require('../prompt');
-const EV = require('../events');
+const prompt = require('../blue_modules/prompt');
+const EV = require('../blue_modules/events');
 const loc = require('../loc');
 
 const styles = StyleSheet.create({

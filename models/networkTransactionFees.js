@@ -1,4 +1,4 @@
-const BlueElectrum = require('../BlueElectrum');
+const BlueElectrum = require('../blue_modules/BlueElectrum');
 
 export const NetworkTransactionFeeType = Object.freeze({
   FAST: 'Fast',

@@ -10,7 +10,7 @@ import * as NavigationService from '../../NavigationService';
 import { BlueCurrentTheme } from '../../components/themes';
 
 const BlueApp: AppStorage = require('../../BlueApp');
-const prompt = require('../../prompt');
+const prompt = require('../../blue_modules/prompt');
 
 export default class HodlHodlViewOffer extends Component {
   constructor(props) {

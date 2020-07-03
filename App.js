@@ -18,7 +18,7 @@ import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
 import { BlueCurrentTheme } from './components/themes';
 
-const A = require('./analytics');
+const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -30,7 +30,7 @@ const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const loc = require('./loc');
 const BlueApp = require('./BlueApp');
-const EV = require('./events');
+const EV = require('./blue_modules/events');
 
 export default class App extends React.Component {
   state = {

@@ -86,6 +86,16 @@ describe('getEntropy function', () => {
     assert.deepEqual(getEntropy(5, 6), { value: 1, bits: 1 });
   });
 
+  it('handles 20 sides dice', () => {
+    assert.deepEqual(getEntropy(0, 20), { value: 0, bits: 4 });
+    assert.deepEqual(getEntropy(15, 20), { value: 15, bits: 4 });
+
+    assert.deepEqual(getEntropy(16, 20), { value: 0, bits: 2 });
+    assert.deepEqual(getEntropy(17, 20), { value: 1, bits: 2 });
+    assert.deepEqual(getEntropy(18, 20), { value: 2, bits: 2 });
+    assert.deepEqual(getEntropy(19, 20), { value: 3, bits: 2 });
+  });
+
   it('handles odd numbers', () => {
     assert.deepEqual(getEntropy(0, 3), { value: 0, bits: 1 });
     assert.deepEqual(getEntropy(1, 3), { value: 1, bits: 1 });

@@ -5,7 +5,7 @@ import Biometric from './class/biometrics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as NavigationService from './NavigationService';
 import { StackActions } from '@react-navigation/native';
-const EV = require('./events');
+const EV = require('./blue_modules/events');
 /** @type {AppStorage} */
 
 const BlueApp = require('./BlueApp');

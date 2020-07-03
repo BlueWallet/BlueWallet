@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import { Platform } from 'react-native';
-import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from './class';
+import { AppStorage, LegacyWallet, SegwitBech32Wallet, SegwitP2SHWallet } from '../class';
 const bitcoin = require('bitcoinjs-lib');
 const ElectrumClient = require('electrum-client');
 const reverse = require('buffer-reverse');
@@ -390,6 +390,7 @@ module.exports.multiGetTransactionByTxid = async function (txids, batchsize, ver
         txdata.result = await mainClient.blockchainTransaction_get(txdata.param, verbose);
       }
       ret[txdata.param] = txdata.result;
+      delete ret[txdata.param].hex; // compact
     }
   }
 

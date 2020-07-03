@@ -1,3 +1,9 @@
+v5.5.0
+======
+
+* FIX: provide entropy for D20
+* REF: speeded up transactions list
+
 v5.4.4
 ======
 

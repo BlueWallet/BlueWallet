@@ -19,7 +19,7 @@ import QRCode from 'react-native-qrcode-svg';
 /** @type {AppStorage} */
 import { BlueCurrentTheme } from '../../components/themes';
 const loc = require('../../loc');
-const EV = require('../../events');
+const EV = require('../../blue_modules/events');
 const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
