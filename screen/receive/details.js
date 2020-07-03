@@ -91,17 +91,15 @@ const ReceiveDetails = () => {
     },
     root: {
       flex: 1,
-      backgroundColor: colors.background,
+      backgroundColor: BlueCurrentTheme.colors.elevated,
     },
     scroll: {
       justifyContent: 'space-between',
-      backgroundColor: colors.background,
     },
     scrollBody: {
       marginTop: 32,
       alignItems: 'center',
       paddingHorizontal: 16,
-      backgroundColor: colors.background,
     },
     amount: {
       color: '#0c2550',
@@ -120,6 +118,7 @@ const ReceiveDetails = () => {
       alignItems: 'center',
       width: 300,
       height: 300,
+      backgroundColor: BlueCurrentTheme.colors.elevated,
     },
     share: {
       alignItems: 'center',
@@ -296,7 +295,7 @@ const ReceiveDetails = () => {
 
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="default" c />
+          <StatusBar barStyle="light-content" />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}

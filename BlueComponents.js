@@ -90,6 +90,44 @@ export class BlueButton extends Component {
   }
 }
 
+export class SecondButton extends Component {
+  render() {
+    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueCurrentTheme.colors.buttonBackgroundColor;
+    let fontColor = BlueCurrentTheme.colors.buttonTextColor;
+    if (this.props.disabled === true) {
+      backgroundColor = BlueCurrentTheme.colors.buttonDisabledBackgroundColor;
+      fontColor = BlueCurrentTheme.colors.buttonDisabledTextColor;
+    }
+    let buttonWidth = this.props.width ? this.props.width : width / 1.5;
+    if ('noMinWidth' in this.props) {
+      buttonWidth = 0;
+    }
+    return (
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          borderWidth: 0.7,
+          borderColor: 'transparent',
+          backgroundColor: BlueCurrentTheme.colors.buttonBlueBackgroundColor,
+          minHeight: 45,
+          height: 45,
+          maxHeight: 45,
+          borderRadius: 25,
+          minWidth: buttonWidth,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+        {...this.props}
+      >
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+          {this.props.icon && <Icon name={this.props.icon.name} type={this.props.icon.type} color={this.props.icon.color} />}
+          {this.props.title && <Text style={{ marginHorizontal: 8, fontSize: 16, color: fontColor }}>{this.props.title}</Text>}
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
+
 export class BitcoinButton extends Component {
   render() {
     return (
@@ -1064,7 +1102,7 @@ export const BlueLoadingHook = () => {
   const { colors } = useTheme();
   return (
     <SafeBlueArea>
-      <View style={{ flex: 1, paddingTop: 200, backgroundColor: colors.background }}>
+      <View style={{ flex: 1, paddingTop: 200 }}>
         <ActivityIndicator />
       </View>
     </SafeBlueArea>

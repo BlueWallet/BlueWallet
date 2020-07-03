@@ -91,6 +91,7 @@ export const BlueDarkTheme = {
     mainColor: '#0A84FF',
     success: '#202020',
     successCheck: '#0A84FF',
+    buttonBlueBackgroundColor: '#202020',
   },
 };
 

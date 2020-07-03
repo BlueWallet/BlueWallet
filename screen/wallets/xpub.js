@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     paddingTop: 20,
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   container: {
     alignItems: 'center',

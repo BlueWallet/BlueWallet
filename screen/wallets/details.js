@@ -16,7 +16,7 @@ import {
   StyleSheet,
   StatusBar,
 } from 'react-native';
-import { BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
+import { SecondButton, BlueButton, SafeBlueArea, BlueCard, BlueSpacing20, BlueNavigationStyle, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { HDLegacyBreadwalletWallet } from '../../class/wallets/hd-legacy-breadwallet-wallet';
@@ -183,7 +183,7 @@ export default class WalletDetails extends Component {
   renderMarketplaceButton = () => {
     return Platform.select({
       android: (
-        <BlueButton
+        <SecondButton
           onPress={() =>
             this.props.navigation.navigate('Marketplace', {
               fromWallet: this.state.wallet,
@@ -193,7 +193,7 @@ export default class WalletDetails extends Component {
         />
       ),
       ios: (
-        <BlueButton
+        <SecondButton
           onPress={async () => {
             Linking.openURL('https://bluewallet.io/marketplace-btc/');
           }}
@@ -213,7 +213,7 @@ export default class WalletDetails extends Component {
     }
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="default" />
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <KeyboardAvoidingView behavior="position">
             <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -292,7 +292,7 @@ export default class WalletDetails extends Component {
                     </>
                   )}
 
-                  <BlueButton
+                  <SecondButton
                     onPress={() =>
                       this.props.navigation.navigate('WalletExport', {
                         wallet: this.state.wallet,
@@ -308,7 +308,7 @@ export default class WalletDetails extends Component {
                     this.state.wallet.type === HDSegwitBech32Wallet.type ||
                     this.state.wallet.type === HDSegwitP2SHWallet.type) && (
                     <>
-                      <BlueButton
+                      <SecondButton
                         onPress={() =>
                           this.props.navigation.navigate('WalletXpub', {
                             secret: this.state.wallet.getSecret(),
@@ -324,7 +324,7 @@ export default class WalletDetails extends Component {
                   {this.state.wallet.type !== LightningCustodianWallet.type && (
                     <>
                       <BlueSpacing20 />
-                      <BlueButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
+                      <SecondButton onPress={() => this.props.navigation.navigate('Broadcast')} title="Broadcast transaction" />
                     </>
                   )}
                   <BlueSpacing20 />
