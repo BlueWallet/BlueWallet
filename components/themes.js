@@ -43,6 +43,7 @@ export const BlueDefaultTheme = {
     formBorder: '#d2d2d2',
     modalButton: '#ccddf9',
     darkGray: '#9AA0AA',
+    scanLabel: '#9AA0AA',
     feeText: '#81868e',
     feeLabel: '#d2f8d6',
     feeValue: '#37c0a1',
@@ -79,7 +80,7 @@ export const BlueDarkTheme = {
     ballOutgoingExpired: '#202020',
     modal: '#202020',
     formBorder: '#202020',
-    inputBackgroundColor: '#0C0C0C',
+    inputBackgroundColor: '#262626',
     modalButton: '#000000',
     darkGray: '#3A3A3C',
     feeText: '#81868e',
@@ -92,6 +93,7 @@ export const BlueDarkTheme = {
     success: '#202020',
     successCheck: '#0A84FF',
     buttonBlueBackgroundColor: '#202020',
+    scanLabel: 'rgba(255,255,255,.2)',
   },
 };
 

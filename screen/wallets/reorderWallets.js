@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import { PlaceholderWallet, LightningCustodianWallet } from '../../class';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import WalletGradient from '../../class/wallet-gradient';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../events');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -19,6 +20,7 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   itemRoot: {
     backgroundColor: 'transparent',

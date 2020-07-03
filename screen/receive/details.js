@@ -16,6 +16,7 @@ import {
   BlueLoadingHook,
   BlueCopyTextToClipboard,
   BlueButton,
+  SecondButton,
   BlueButtonLinkHook,
   is,
   BlueBitcoinAmount,
@@ -295,7 +296,7 @@ const ReceiveDetails = () => {
 
   return (
     <View style={styles.root}>
-          <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
@@ -337,12 +338,7 @@ const ReceiveDetails = () => {
         <View style={styles.share}>
           <BlueButtonLinkHook title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
           <View>
-            <BlueButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                color: colors.buttonTextColor,
-              }}
+            <SecondButton
               onPress={handleShareButtonPressed}
               title={loc.receive.details.share}
             />

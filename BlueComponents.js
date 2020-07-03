@@ -2247,14 +2247,14 @@ export class BlueAddressInput extends Component {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            backgroundColor: BlueCurrentTheme.colors.darkGray,
+            backgroundColor: BlueCurrentTheme.colors.scanLabel,
             borderRadius: 4,
             paddingVertical: 4,
             paddingHorizontal: 8,
             marginHorizontal: 4,
           }}
         >
-          <Icon name="qrcode" size={22} type="font-awesome" color={BlueCurrentTheme.colors.inverseForegroundColor} />
+          <Image style={{}} source={require('./img/scan-white.png')} />
           <Text style={{ marginLeft: 4, color: BlueCurrentTheme.colors.inverseForegroundColor }}>{loc.send.details.scan}</Text>
         </TouchableOpacity>
       </View>

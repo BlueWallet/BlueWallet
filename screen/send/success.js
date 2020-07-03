@@ -104,7 +104,7 @@ export default class Success extends Component {
             style={styles.lottie} 
             source={require('../../img/bluenice.json')} 
             autoPlay
-            loop={true} 
+            loop={false} 
             colorFilters={[{
               keypath: "spark",
               color: BlueCurrentTheme.colors.success,

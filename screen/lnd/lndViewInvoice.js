@@ -6,6 +6,7 @@ import {
   BlueText,
   SafeBlueArea,
   BlueButton,
+  SecondButton,
   BlueCopyTextToClipboard,
   BlueNavigationStyle,
   BlueSpacing20,
@@ -41,12 +42,12 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   valueText: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 32,
     fontWeight: '600',
   },
   valueSats: {
-    color: '#0f5cc0',
+    color: BlueCurrentTheme.colors.alternativeTextColor2,
     fontSize: 16,
     marginHorizontal: 4,
     paddingBottom: 3,
@@ -69,6 +70,7 @@ const styles = StyleSheet.create({
   paidMark: {
     marginTop: -100,
     marginBottom: 16,
+    backgroundColor: BlueCurrentTheme.colors.success,
   },
   detailsRoot: {
     flex: 1,
@@ -86,7 +88,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   expired: {
-    backgroundColor: '#ccddf9',
+    backgroundColor: BlueCurrentTheme.colors.success,
     width: 120,
     height: 120,
     borderRadius: 60,
@@ -252,7 +254,7 @@ export default class LNDViewInvoice extends Component {
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={() => this.setState({ showPreimageQr: true })}>
                   <Text style={styles.detailsText}>{loc.send.create.details}</Text>
-                  <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
+                  <Icon name="angle-right" size={18} type="font-awesome" color={BlueCurrentTheme.colors.successCheck} />
                 </TouchableOpacity>
               ) : (
                 <View />
@@ -266,7 +268,7 @@ export default class LNDViewInvoice extends Component {
           <SafeBlueArea style={styles.root}>
             <View style={styles.center}>
               <View style={styles.expired}>
-                <Icon name="times" size={50} type="font-awesome" color="#0f5cc0" />
+                <Icon name="times" size={50} type="font-awesome" color={BlueCurrentTheme.colors.successCheck} />
               </View>
               <BlueText>{loc.lndViewInvoice.wasnt_paid_and_expired}</BlueText>
             </View>
@@ -313,13 +315,7 @@ export default class LNDViewInvoice extends Component {
             )}
             <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
 
-            <BlueButton
-              icon={{
-                name: 'share-alternative',
-                type: 'entypo',
-                size: 10,
-                color: BlueCurrentTheme.colors.buttonTextColor,
-              }}
+            <SecondButton
               onPress={async () => {
                 if (this.qrCodeSVG === undefined) {
                   Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
@@ -368,5 +364,13 @@ LNDViewInvoice.navigationOptions = ({ navigation, route }) =>
         ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
         title: 'Lightning Invoice',
         headerLeft: null,
+        headerStyle: {
+          backgroundColor: BlueCurrentTheme.colors.customHeader,
+        },
       }
-    : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
+    : { ...BlueNavigationStyle(), 
+      title: 'Lightning Invoice',
+        headerStyle: {
+        backgroundColor: BlueCurrentTheme.colors.customHeader,
+      },
+      };

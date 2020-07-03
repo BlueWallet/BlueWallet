@@ -30,12 +30,12 @@ const WalletsImport = () => {
     root: {
       flex: 1,
       paddingTop: 40,
-      backgroundColor: BlueCurrentTheme.colors.background,
+      backgroundColor: BlueCurrentTheme.colors.elevated,
     },
     center: {
       flex: 1,
       alignItems: 'center',
-      backgroundColor: BlueCurrentTheme.colors.background,
+      backgroundColor: BlueCurrentTheme.colors.elevated,
     },
   });
 

@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     height: 200,
   },
   advancedTransactionOptionsModalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,

@@ -113,7 +113,10 @@ const styles = StyleSheet.create({
   },
   noPadding: {
     paddingHorizontal: 0,
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
+  },
+  root: {
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
 });
 
@@ -182,9 +185,8 @@ export default class WalletsAdd extends Component {
     }
 
     return (
-      <SafeBlueArea>
-        <StatusBar barStyle="default" />
-        <ScrollView>
+      <ScrollView style={styles.root}>
+        <StatusBar barStyle="light-content" />
           <BlueSpacing20 />
           <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'padding' : null} keyboardVerticalOffset={62}>
             <BlueFormLabel>{loc.wallets.add.wallet_name}</BlueFormLabel>
@@ -427,7 +429,6 @@ export default class WalletsAdd extends Component {
             </View>
           </KeyboardAvoidingView>
         </ScrollView>
-      </SafeBlueArea>
     );
   }
 }

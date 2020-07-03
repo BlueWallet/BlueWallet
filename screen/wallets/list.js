@@ -78,6 +78,9 @@ const styles = StyleSheet.create({
     marginVertical: 8,
     color: BlueCurrentTheme.colors.foregroundColor,
   },
+  listHeaderBack: {
+    backgroundColor: BlueCurrentTheme.colors.background,
+  },
   ltRoot: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -388,7 +391,7 @@ export default class WalletsList extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View>
+      <View style={styles.listHeaderBack}>
         <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
       </View>
     );

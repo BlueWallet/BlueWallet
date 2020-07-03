@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
+  Image,
 } from 'react-native';
 import {
   BlueNavigationStyle,
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#9AA0AA',
+    backgroundColor: BlueCurrentTheme.colors.scanLabel,
     borderRadius: 4,
     paddingVertical: 4,
     paddingHorizontal: 8,
@@ -78,18 +79,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   walletNameText: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
   },
   walletNameBalance: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 8,
     marginRight: 4,
   },
   walletNameSats: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 11,
     fontWeight: '600',
     textAlignVertical: 'bottom',
@@ -102,19 +103,19 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   amount: {
     flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   fiat: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1.0,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -351,7 +352,7 @@ export default class LNDCreateInvoice extends Component {
         }}
         style={styles.scanRoot}
       >
-        <Icon name="qrcode" size={22} type="font-awesome" color={BlueCurrentTheme.colors.inverseForegroundColor} />
+        <Image style={{}} source={require('../../img/scan-white.png')} />
         <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
     );
@@ -406,7 +407,7 @@ export default class LNDCreateInvoice extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root}>
-          <StatusBar barStyle="default" />
+          <StatusBar barStyle="light-content" />
           <View style={styles.amount}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount

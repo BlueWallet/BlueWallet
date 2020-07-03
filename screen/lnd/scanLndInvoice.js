@@ -59,18 +59,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   walletWrapLabel: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
   },
   walletWrapBalance: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 4,
     marginRight: 4,
   },
   walletWrapSats: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonAlternativeTextColor,
     fontSize: 11,
     fontWeight: '600',
     textAlignVertical: 'bottom',
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   },
   root: {
     flex: 1,
-    backgroundColor: BlueCurrentTheme.colors.background,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scroll: {
     flex: 1,
