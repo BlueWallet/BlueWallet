@@ -23,6 +23,7 @@ import WalletImport from '../../class/wallet-import';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
+import NFC from '../../class/nfc';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -214,6 +215,12 @@ export default class WalletsList extends Component {
     clearInterval(this.interval);
     this._unsubscribe();
   }
+
+  onNFCScanPressed = () => {
+    NFC.shared.onParsedText = value => this.onBarCodeRead(value);
+    NFC.readNFCData();
+  };
+
 
   /**
    * Forcefully fetches TXs and balance for lastSnappedTo (i.e. current) wallet.
@@ -583,6 +590,9 @@ export default class WalletsList extends Component {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
       const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      if (await NFC.isSupported()) {
+        options.push('Scan a Tag');
+      }
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
       }

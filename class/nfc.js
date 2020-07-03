@@ -1,8 +1,8 @@
 /* global alert */
 import NfcManager, { Ndef, NfcTech, NfcEvents } from 'react-native-nfc-manager';
 import { Platform } from 'react-native';
-const encryption = require('../encryption');
-const prompt = require('../prompt');
+const encryption = require('../blue_modules/encryption');
+const prompt = require('../blue_modules/prompt');
 const loc = require('../loc');
 
 export default class NFC {
@@ -26,6 +26,7 @@ export default class NFC {
   }
 
   static async isSupported() {
+    return true;
     if (Platform.OS === 'android') {
       // const isEnabled = await NfcManager.isEnabled();
       // const isSupported = await NfcManager.isSupported();

@@ -1,5 +1,5 @@
 /* global alert */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Image, View, TouchableOpacity, StatusBar, Platform, StyleSheet } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { Icon } from 'react-native-elements';
@@ -7,6 +7,7 @@ import ImagePicker from 'react-native-image-picker';
 import { useNavigation, useRoute, useIsFocused } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
+import NFC from '../../class/nfc';
 const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const createHash = require('create-hash');
 
@@ -51,6 +52,16 @@ const styles = StyleSheet.create({
     left: 96,
     bottom: 48,
   },
+  nfcTouch: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    left: 168,
+    bottom: 48,
+  },
 });
 
 const ScanQRCode = () => {
@@ -61,6 +72,11 @@ const ScanQRCode = () => {
   const { launchedBy, onBarScanned } = route.params;
   const scannedCache = {};
   const isFocused = useIsFocused();
+  const [isNFCSupported, setIsNFCSupported] = useState(false);
+
+  useEffect(() => {
+    NFC.isSupported().then(setIsNFCSupported);
+  }, []);
 
   const HashIt = function (s) {
     return createHash('sha256').update(s).digest().toString('hex');
@@ -90,6 +106,11 @@ const ScanQRCode = () => {
       }
     }
     setIsLoading(false);
+  };
+
+  const onNFCScanPressed = () => {
+    NFC.shared.onParsedText = value => onBarCodeRead({ data: value });
+    NFC.readNFCData();
   };
 
   const showFilePicker = async () => {
@@ -172,6 +193,11 @@ const ScanQRCode = () => {
       {showFileImportButton && (
         <TouchableOpacity style={styles.filePickerTouch} onPress={showFilePicker}>
           <Icon name="file-import" type="material-community" color="#ffffff" />
+        </TouchableOpacity>
+      )}
+      {isNFCSupported && (
+        <TouchableOpacity onPress={onNFCScanPressed} style={styles.nfcTouch}>
+          <Icon name="nfc" type="material-community" color="#ffffff" />
         </TouchableOpacity>
       )}
     </View>
