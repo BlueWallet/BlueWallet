@@ -2860,7 +2860,6 @@ const animatedQRCodeStyle = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#ccddf9',
     borderRadius: 25,
     height: 45,
     paddingHorizontal: 18,
@@ -2871,6 +2870,8 @@ const animatedQRCodeStyle = StyleSheet.create({
     justifyContent: 'center',
   },
   text: {
-    fontSize: 16,
+    fontSize: 14,
+    color: BlueCurrentTheme.colors.foregroundColor,
+    fontWeight: 'bold', 
   },
 });

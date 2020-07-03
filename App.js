@@ -8,7 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
-import { BlueTextCentered, BlueButton } from './BlueComponents';
+import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
@@ -16,6 +16,8 @@ import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
 import { BlueDefaultTheme, BlueDarkTheme } from './components/themes';
+import { BlueCurrentTheme } from './components/themes';
+
 const A = require('./analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -203,7 +205,7 @@ export default class App extends React.Component {
               You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
             </BlueTextCentered>
             <View style={styles.modelContentButtonLayout}>
-              <BlueButton
+              <SecondButton
                 noMinWidth
                 title={loc.send.details.cancel}
                 onPress={() => this.setState({ isClipboardContentModalVisible: false })}
@@ -248,7 +250,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',

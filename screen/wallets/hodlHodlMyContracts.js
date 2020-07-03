@@ -25,6 +25,7 @@ import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
 import Modal from 'react-native-modal';
 import * as NavigationService from '../../NavigationService';
+import { BlueCurrentTheme } from '../../components/themes';
 
 const BlueApp: AppStorage = require('../../BlueApp');
 
@@ -423,5 +424,8 @@ const styles = StyleSheet.create({
 HodlHodlMyContracts.navigationOptions = ({ navigation }) => ({
   ...BlueNavigationStyle(navigation, true),
   title: 'My contracts',
-  headerLeft: null,
+  headerStyle: {
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
+  headerRight: null,
 });
