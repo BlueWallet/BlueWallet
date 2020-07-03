@@ -74,7 +74,7 @@
     "assert": "1.5.0",
     "bc-bech32": "file:blue_modules/bc-bech32",
     "bc-ur": "file:blue_modules/bc-ur",
-    "bech32": "1.1.3",
+    "bech32": "1.1.4",
     "bignumber.js": "9.0.0",
     "bip21": "2.0.3",
     "bip32": "2.0.5",
