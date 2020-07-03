@@ -59,11 +59,25 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     
     
     if newPriceDoubleValue > cachedPriceNumberDoubleValue  {
-      self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
-      self.setLastPriceOutletsHidden(isHidden: false)
+      if #available(iOSApplicationExtension 13.0, *) {
+        self.setLastPriceOutletsHidden(isHidden: false)
+        self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
+      } else {
+        self.setLastPriceOutletsHidden(isHidden: true)
+        self.lastPriceFromLabel.text = "up from"
+        lastPriceFromLabel.isHidden = false
+        // Fallback on earlier versions
+      }
     }  else {
-      self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
-      self.setLastPriceOutletsHidden(isHidden: false)
+      if #available(iOSApplicationExtension 13.0, *) {
+        self.setLastPriceOutletsHidden(isHidden: false)
+        self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
+      } else {
+        self.setLastPriceOutletsHidden(isHidden: true)
+        lastPriceFromLabel.isHidden = false
+        self.lastPriceFromLabel.text = "down from"
+        // Fallback on earlier versions
+      }
     }
   }
   
@@ -78,6 +92,7 @@ class TodayViewController: UIViewController, NCWidgetProviding {
     API.fetchPrice(currency: userPreferredCurrency, completion: { (result, error) in
       DispatchQueue.main.async { [unowned self] in
         guard let result = result else {
+          self.lastUpdatedDate.text = error?.localizedDescription
           completionHandler(.failed)
           return
         }
@@ -85,6 +100,8 @@ class TodayViewController: UIViewController, NCWidgetProviding {
         guard let bpi = result["bpi"] as? Dictionary<String, Any>, let preferredCurrency = bpi[userPreferredCurrency] as? Dictionary<String, Any>, let rateString = preferredCurrency["rate"] as? String,
           let time = result["time"] as? Dictionary<String, Any>, let lastUpdatedString = time["updatedISO"] as? String
           else {
+            self.lastUpdatedDate.text = "Obtained unexpected information."
+            completionHandler(.failed)
             return
         }
         
@@ -108,10 +125,21 @@ class TodayViewController: UIViewController, NCWidgetProviding {
           if let latestRateDataStore = latestRateDataStore.rateDoubleValue, let lastStoredPriceNumber = priceRiceAndLastUpdate?.rateDoubleValue, API.getLastSelectedCurrency() == userPreferredCurrency {
             
             if latestRateDataStore > lastStoredPriceNumber  {
-              self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
+              if #available(iOSApplicationExtension 13.0, *) {
+                self.lastPriceArrowImage.image = UIImage(systemName: "arrow.up")
+              } else {
+                self.lastPriceFromLabel.isHidden = false
+                self.lastPriceFromLabel.text = "up from"
+              }
               self.setLastPriceOutletsHidden(isHidden: false)
             } else {
-              self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
+              if #available(iOSApplicationExtension 13.0, *) {
+                self.lastPriceArrowImage.image = UIImage(systemName: "arrow.down")
+              } else {
+                // Fallback on earlier versions
+                self.lastPriceFromLabel.isHidden = false
+                self.lastPriceFromLabel.text = "down from"
+              }
               self.setLastPriceOutletsHidden(isHidden: false)
             }
             self.lastPrice.text = priceRiceAndLastUpdate?.formattedRate

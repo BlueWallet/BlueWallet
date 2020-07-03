@@ -20,6 +20,7 @@ module.exports = {
       create_a_wallet: 'Új tárca',
       create_a_wallet1: 'Ingyenes, és annyit hozhatsz létre',
       create_a_wallet2: 'amennyit szeretnél',
+      create_a_button: 'add hozzá',
       latest_transaction: 'utolsó tranzakció',
       empty_txs1: 'A tranzakcióid itt fognak megjelenni',
       empty_txs2: 'de még nem volt tranzakciód!',
@@ -47,12 +48,17 @@ module.exports = {
       coming_soon: 'Hamarosan',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Tárca',
       address: 'Cím',
+      master_fingerprint: 'Master fingerprint',
       type: 'Típus',
       label: 'Cimke',
+      destination: 'destination',
       description: 'leírás',
       are_you_sure: 'Biztos vagy benne?',
       yes_delete: 'Igen, töröld',
@@ -63,6 +69,9 @@ module.exports = {
       export_backup: 'Exportálás / Biztonsági mentés',
       buy_bitcoin: 'Bitcoin vásáslás',
       show_xpub: 'Mutasd a tárca XPUB kulcsát',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'tárca exportálása',
@@ -187,6 +196,8 @@ module.exports = {
       'Saját LND-csomóponthoz való csatlakozáshoz telepítsd az LndHub-ot' +
       ' és írd be az URL-ét alul. Hagyd üresen, ha a BlueWallet saját LNDHub-jához (lndhub.io) szeretnél csatlakozni.' +
       ' A beállítások mentése után, minden újonnan létrehozott tárca a megadott LDNHubot fogja használni.',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'Ment',
     about: 'Egyéb',
     language: 'Nyelv',
@@ -219,6 +230,7 @@ module.exports = {
     choose_source_wallet: 'Válassz forrás tárcát',
     refill_lnd_balance: 'Lightning egyenleg feltöltése',
     refill: 'Feltölt',
+    exchange: 'Exchange',
     withdraw: 'Pénzkivétel',
     expired: 'Lejárt',
     placeholder: 'Számla',
@@ -239,5 +251,10 @@ module.exports = {
     for: 'Cím:',
     additional_info: 'További információk',
     open_direct_channel: 'Közvetlen csatorna nyitása erre a csomópontra:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

@@ -1,8 +1,20 @@
 /* global alert */
 import React, { Component } from 'react';
-import { ActivityIndicator, TouchableOpacity, View, Dimensions, Image, TextInput, Clipboard, Linking } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
-import { Icon, Text } from 'react-native-elements';
+import {
+  ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
+  View,
+  Dimensions,
+  Image,
+  TextInput,
+  Linking,
+  Platform,
+  Text,
+  PermissionsAndroid,
+  StyleSheet,
+} from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import {
   BlueButton,
   BlueText,
@@ -11,17 +23,98 @@ import {
   BlueNavigationStyle,
   BlueSpacing20,
   BlueCopyToClipboardButton,
+  BlueBigCheckmark,
+  DynamicQRCode,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
+import Share from 'react-native-share';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { RNCamera } from 'react-native-camera';
-let loc = require('../../loc');
-let EV = require('../../events');
-let BlueElectrum = require('../../BlueElectrum');
+import RNFS from 'react-native-fs';
+import DocumentPicker from 'react-native-document-picker';
+import { decodeUR, extractSingleWorkload } from 'bc-ur/dist';
+import { Psbt } from 'bitcoinjs-lib';
+const loc = require('../../loc');
+const EV = require('../../blue_modules/events');
+const BlueElectrum = require('../../blue_modules/BlueElectrum');
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const bitcoin = require('bitcoinjs-lib');
 const { height, width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+  },
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  rootCamera: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  rootPadding: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  closeCamera: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    borderRadius: 20,
+    position: 'absolute',
+    right: 16,
+    top: 64,
+  },
+  closeCameraImage: {
+    alignSelf: 'center',
+  },
+  blueBigCheckmark: {
+    marginTop: 143,
+    marginBottom: 53,
+  },
+  hexWrap: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  hexLabel: {
+    color: '#0c2550',
+    fontWeight: '500',
+  },
+  hexInput: {
+    borderColor: '#ebebeb',
+    backgroundColor: '#d2f8d6',
+    borderRadius: 4,
+    marginTop: 20,
+    color: '#37c0a1',
+    fontWeight: '500',
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 16,
+  },
+  hexTouch: {
+    marginVertical: 24,
+  },
+  hexText: {
+    color: '#9aa0aa',
+    fontSize: 15,
+    fontWeight: '500',
+    alignSelf: 'center',
+  },
+  copyToClipboard: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
 
 export default class PsbtWithHardwareWallet extends Component {
   static navigationOptions = () => ({
@@ -31,12 +124,72 @@ export default class PsbtWithHardwareWallet extends Component {
 
   cameraRef = null;
 
+  _onReadUniformResource = ur => {
+    try {
+      const [index, total] = extractSingleWorkload(ur);
+      const { animatedQRCodeData } = this.state;
+      if (animatedQRCodeData.length > 0) {
+        const currentTotal = animatedQRCodeData[0].total;
+        if (total !== currentTotal) {
+          alert('invalid animated QRCode');
+          this.setState({ renderScanner: false });
+        }
+      }
+      if (!animatedQRCodeData.find(i => i.index === index)) {
+        this.setState(
+          state => ({
+            animatedQRCodeData: [
+              ...state.animatedQRCodeData,
+              {
+                index,
+                total,
+                data: ur,
+              },
+            ],
+          }),
+          () => {
+            if (this.state.animatedQRCodeData.length === total) {
+              this.setState(
+                {
+                  renderScanner: false,
+                },
+                () => {
+                  const payload = decodeUR(this.state.animatedQRCodeData.map(i => i.data));
+                  const psbtB64 = Buffer.from(payload, 'hex').toString('base64');
+                  const psbt = Psbt.fromBase64(psbtB64);
+                  this.setState({ txhex: psbt.extractTransaction().toHex() });
+                },
+              );
+            }
+          },
+        );
+      }
+    } catch (Err) {
+      alert('invalid animated QRCode fragment, please try again');
+    }
+  };
+
+  _combinePSBT = receivedPSBT => {
+    return this.state.fromWallet.combinePsbt(
+      this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64(),
+      receivedPSBT,
+    );
+  };
+
   onBarCodeRead = ret => {
     if (RNCamera.Constants.CameraStatus === RNCamera.Constants.CameraStatus.READY) this.cameraRef.pausePreview();
+    if (ret.data.toUpperCase().startsWith('UR')) {
+      return this._onReadUniformResource(ret.data);
+    }
+    if (ret.data.indexOf('+') === -1 && ret.data.indexOf('=') === -1 && ret.data.indexOf('=') === -1) {
+      // this looks like NOT base64, so maybe its transaction's hex
+      this.setState({ renderScanner: false, txhex: ret.data });
+      return;
+    }
+
     this.setState({ renderScanner: false }, () => {
-      console.log(ret.data);
       try {
-        let Tx = this.state.fromWallet.combinePsbt(this.state.psbt.toBase64(), ret.data);
+        const Tx = this._combinePSBT(ret.data);
         this.setState({ txhex: Tx.toHex() });
       } catch (Err) {
         alert(Err);
@@ -46,18 +199,48 @@ export default class PsbtWithHardwareWallet extends Component {
 
   constructor(props) {
     super(props);
-
     this.state = {
       isLoading: false,
       renderScanner: false,
-      qrCodeHeight: height > width ? width - 40 : width / 2,
-      memo: props.navigation.getParam('memo'),
-      psbt: props.navigation.getParam('psbt'),
-      fromWallet: props.navigation.getParam('fromWallet'),
+      qrCodeHeight: height > width ? width - 40 : width / 3,
+      memo: props.route.params.memo,
+      psbt: props.route.params.psbt,
+      fromWallet: props.route.params.fromWallet,
+      isFirstPSBTAlreadyBase64: props.route.params.isFirstPSBTAlreadyBase64,
+      isSecondPSBTAlreadyBase64: false,
+      deepLinkPSBT: undefined,
+      txhex: props.route.params.txhex || undefined,
+      animatedQRCodeData: [],
     };
+    this.fileName = `${Date.now()}.psbt`;
   }
 
-  async componentDidMount() {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const deepLinkPSBT = nextProps.route.params.deepLinkPSBT;
+    const txhex = nextProps.route.params.txhex;
+    if (deepLinkPSBT) {
+      try {
+        const Tx = prevState.fromWallet.combinePsbt(
+          prevState.isFirstPSBTAlreadyBase64 ? prevState.psbt : prevState.psbt.toBase64(),
+          deepLinkPSBT,
+        );
+        return {
+          ...prevState,
+          txhex: Tx.toHex(),
+        };
+      } catch (Err) {
+        alert(Err);
+      }
+    } else if (txhex) {
+      return {
+        ...prevState,
+        txhex: txhex,
+      };
+    }
+    return prevState;
+  }
+
+  componentDidMount() {
     console.log('send/psbtWithHardwareWallet - componentDidMount');
   }
 
@@ -66,13 +249,12 @@ export default class PsbtWithHardwareWallet extends Component {
       try {
         await BlueElectrum.ping();
         await BlueElectrum.waitTillConnected();
-        let result = await this.state.fromWallet.broadcastTx(this.state.txhex);
+        const result = await this.state.fromWallet.broadcastTx(this.state.txhex);
         if (result) {
-          console.log('broadcast result = ', result);
           EV(EV.enum.REMOTE_TRANSACTIONS_COUNT_CHANGED); // someone should fetch txs
           this.setState({ success: true, isLoading: false });
           if (this.state.memo) {
-            let txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
+            const txDecoded = bitcoin.Transaction.fromHex(this.state.txhex);
             const txid = txDecoded.getId();
             BlueApp.tx_metadata[txid] = { memo: this.state.memo };
           }
@@ -91,7 +273,7 @@ export default class PsbtWithHardwareWallet extends Component {
 
   _renderScanner() {
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
+      <SafeBlueArea style={styles.root}>
         <RNCamera
           captureAudio={false}
           androidCameraPermissionOptions={{
@@ -101,24 +283,12 @@ export default class PsbtWithHardwareWallet extends Component {
             buttonNegative: 'Cancel',
           }}
           ref={ref => (this.cameraRef = ref)}
-          style={{ flex: 1, justifyContent: 'space-between' }}
+          style={styles.rootCamera}
           onBarCodeRead={this.onBarCodeRead}
           barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         />
-        <TouchableOpacity
-          style={{
-            width: 40,
-            height: 40,
-            backgroundColor: 'rgba(0,0,0,0.4)',
-            justifyContent: 'center',
-            borderRadius: 20,
-            position: 'absolute',
-            right: 16,
-            top: 64,
-          }}
-          onPress={() => this.setState({ renderScanner: false })}
-        >
-          <Image style={{ alignSelf: 'center' }} source={require('../../img/close-white.png')} />
+        <TouchableOpacity style={styles.closeCamera} onPress={() => this.setState({ renderScanner: false })}>
+          <Image style={styles.closeCameraImage} source={require('../../img/close-white.png')} />
         </TouchableOpacity>
       </SafeBlueArea>
     );
@@ -126,23 +296,10 @@ export default class PsbtWithHardwareWallet extends Component {
 
   _renderSuccess() {
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <View
-          style={{
-            backgroundColor: '#ccddf9',
-            width: 120,
-            height: 120,
-            borderRadius: 60,
-            alignSelf: 'center',
-            justifyContent: 'center',
-            marginTop: 143,
-            marginBottom: 53,
-          }}
-        >
-          <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-        </View>
+      <SafeBlueArea style={styles.root}>
+        <BlueBigCheckmark style={styles.blueBigCheckmark} />
         <BlueCard>
-          <BlueButton onPress={this.props.navigation.dismiss} title={loc.send.success.done} />
+          <BlueButton onPress={() => this.props.navigation.dangerouslyGetParent().pop()} title={loc.send.success.done} />
         </BlueCard>
       </SafeBlueArea>
     );
@@ -150,33 +307,16 @@ export default class PsbtWithHardwareWallet extends Component {
 
   _renderBroadcastHex() {
     return (
-      <View style={{ flex: 1, paddingTop: 20 }}>
-        <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-          <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
-          <TextInput
-            style={{
-              borderColor: '#ebebeb',
-              backgroundColor: '#d2f8d6',
-              borderRadius: 4,
-              marginTop: 20,
-              color: '#37c0a1',
-              fontWeight: '500',
-              fontSize: 14,
-              paddingHorizontal: 16,
-              paddingBottom: 16,
-              paddingTop: 16,
-            }}
-            height={112}
-            multiline
-            editable
-            value={this.state.txhex}
-          />
+      <View style={styles.rootPadding}>
+        <BlueCard style={styles.hexWrap}>
+          <BlueText style={styles.hexLabel}>{loc.send.create.this_is_hex}</BlueText>
+          <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
-          <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.txhex)}>
-            <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+          <TouchableOpacity style={styles.hexTouch} onPress={() => Clipboard.setString(this.state.txhex)}>
+            <Text style={styles.hexText}>Copy and broadcast later</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
-            <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Verify on coinb.in</Text>
+          <TouchableOpacity style={styles.hexTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.txhex)}>
+            <Text style={styles.hexText}>Verify on coinb.in</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
           <BlueButton onPress={this.broadcast} title={loc.send.confirm.sendNow} />
@@ -185,10 +325,60 @@ export default class PsbtWithHardwareWallet extends Component {
     );
   }
 
+  exportPSBT = async () => {
+    if (Platform.OS === 'ios') {
+      const filePath = RNFS.TemporaryDirectoryPath + `/${this.fileName}`;
+      await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
+      Share.open({
+        url: 'file://' + filePath,
+      })
+        .catch(error => console.log(error))
+        .finally(() => {
+          RNFS.unlink(filePath);
+        });
+    } else if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+        title: 'BlueWallet Storage Access Permission',
+        message: 'BlueWallet needs your permission to access your storage to save this transaction.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      });
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Storage Permission: Granted');
+        const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
+        await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
+        alert(`This transaction has been saved in ${filePath}`);
+      } else {
+        console.log('Storage Permission: Denied');
+      }
+    }
+  };
+
+  openSignedTransaction = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: Platform.OS === 'ios' ? ['io.bluewallet.psbt', 'io.bluewallt.psbt.txn'] : [DocumentPicker.types.allFiles],
+      });
+      const file = await RNFS.readFile(res.uri);
+      if (file) {
+        this.setState({ isSecondPSBTAlreadyBase64: true }, () => this.onBarCodeRead({ data: file }));
+      } else {
+        this.setState({ isSecondPSBTAlreadyBase64: false });
+        throw new Error();
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        alert('The selected file does not contain a signed transaction that can be imported.');
+      }
+    }
+  };
+
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.rootPadding}>
           <ActivityIndicator />
         </View>
       );
@@ -199,28 +389,55 @@ export default class PsbtWithHardwareWallet extends Component {
     if (this.state.txhex) return this._renderBroadcastHex();
 
     return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <View style={{ alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'center', paddingTop: 16, paddingBottom: 16 }}>
+      <SafeBlueArea style={styles.root}>
+        <ScrollView centerContent contentContainerStyle={styles.scrollViewContent}>
+          <View style={styles.container}>
             <BlueCard>
-              <BlueText>This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.</BlueText>
+              <BlueText testID="TextHelperForPSBT">
+                This is partially signed bitcoin transaction (PSBT). Please finish signing it with your hardware wallet.
+              </BlueText>
               <BlueSpacing20 />
-              <QRCode
-                value={this.state.psbt.toBase64()}
-                size={this.state.qrCodeHeight}
-                color={BlueApp.settings.foregroundColor}
-                logoBackgroundColor={BlueApp.settings.brandingColor}
-                ecl={'L'}
+              <DynamicQRCode value={this.state.psbt.toHex()} capacity={200} />
+              <BlueSpacing20 />
+              <BlueButton
+                icon={{
+                  name: 'qrcode',
+                  type: 'font-awesome',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={() => this.setState({ renderScanner: true, animatedQRCodeData: [] })}
+                title="Scan Signed Transaction"
               />
               <BlueSpacing20 />
-              <BlueButton onPress={() => this.setState({ renderScanner: true })} title={'Scan signed transaction'} />
+              <BlueButton
+                icon={{
+                  name: 'file-import',
+                  type: 'material-community',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={this.openSignedTransaction}
+                title="Open Signed Transaction"
+              />
               <BlueSpacing20 />
-              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <BlueCopyToClipboardButton stringToCopy={this.state.psbt.toBase64()} displayText={'Copy to Clipboard'} />
+              <BlueButton
+                icon={{
+                  name: 'share-alternative',
+                  type: 'entypo',
+                  color: BlueApp.settings.buttonTextColor,
+                }}
+                onPress={this.exportPSBT}
+                title="Export to file"
+              />
+              <BlueSpacing20 />
+              <View style={styles.copyToClipboard}>
+                <BlueCopyToClipboardButton
+                  stringToCopy={this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64()}
+                  displayText="Copy to Clipboard"
+                />
               </View>
             </BlueCard>
           </View>
-        </View>
+        </ScrollView>
       </SafeBlueArea>
     );
   }
@@ -229,17 +446,10 @@ export default class PsbtWithHardwareWallet extends Component {
 PsbtWithHardwareWallet.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
-    dismiss: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        memo: PropTypes.string,
-        fromWallet: PropTypes.shape({
-          fromAddress: PropTypes.string,
-          fromSecret: PropTypes.string,
-        }),
-      }),
-    }),
+    dangerouslyGetParent: PropTypes.func,
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

@@ -19,9 +19,10 @@ module.exports = {
         'Lompakko koostuu salaisesta avaimesta (private key) sekä julkisesta osoitteesta' +
         ',jonka voit jakaa vastaanottaaksesi kolikoita.',
       add: 'Lisää Lompakko',
-      create_a_wallet: 'Luo lompakko',
+      create_a_wallet: 'Lisää lompakko',
       create_a_wallet1: 'Se on ilmaista ja voit luoda',
       create_a_wallet2: 'niin monta kuin haluat',
+      create_a_button: 'Lisää nyt',
       latest_transaction: 'viimeisin siirto',
       empty_txs1: 'Siirtosi näkyvät tässä,',
       empty_txs2: 'ei siirtoja',
@@ -49,10 +50,14 @@ module.exports = {
       coming_soon: 'Tulossa',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Lompakko',
       address: 'Osoite',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tyyppi',
       label: 'Etiketti',
       destination: 'määränpää',
@@ -66,6 +71,9 @@ module.exports = {
       export_backup: 'Vie / varmuuskopioi',
       buy_bitcoin: 'Osta Bitcoinia',
       show_xpub: 'Näytä lompakon XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'lompakon vienti',
@@ -226,6 +234,7 @@ module.exports = {
     withdraw: 'Nosta',
     expired: 'Erääntynyt',
     placeholder: 'Lasku',
+    exchange: 'Exchange',
     sameWalletAsInvoiceError: 'Et voi maksaa laskua samalla lompakolla, jolla se on luotu.',
   },
   pleasebackup: {
@@ -242,5 +251,10 @@ module.exports = {
     for: 'For:',
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

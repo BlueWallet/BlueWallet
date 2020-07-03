@@ -1,22 +1,20 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   InteractionManager,
-  TouchableOpacity,
+  StatusBar,
   Platform,
   TextInput,
   KeyboardAvoidingView,
   Keyboard,
   StyleSheet,
   ScrollView,
-  Image,
 } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import bip21 from 'bip21';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import {
   BlueLoading,
   SafeBlueArea,
-  BlueNFCSelectionModal,
   BlueCopyTextToClipboard,
   BlueButton,
   BlueButtonLink,
@@ -27,199 +25,160 @@ import {
   BlueSpacing20,
   BlueAlertWalletExportReminder,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import Share from 'react-native-share';
 import { Chain, BitcoinUnit } from '../../models/bitcoinUnits';
 import Modal from 'react-native-modal';
-import NFC from '../../class/nfc';
+import HandoffSettings from '../../class/handoff';
+import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import Handoff from 'react-native-handoff';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
+const currency = require('../../blue_modules/currency');
 
-class ReceiveDetails extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: loc.receive.header,
-    headerLeft:
-      navigation.getParam('isNFCSupported') === true ? (
-        <TouchableOpacity
-          style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'flex-end' }}
-          onPress={navigation.state.params.onNFCScanPress}
-        >
-          <Image source={require('../../img/cellphone-nfc.png')} />
-        </TouchableOpacity>
-      ) : null,
-  });
+const ReceiveDetails = () => {
+  const { secret } = useRoute().params;
+  const wallet = BlueApp.getWallets().find(w => w.getSecret() === secret);
+  const [isHandOffUseEnabled, setIsHandOffUseEnabled] = useState(false);
+  const [address, setAddress] = useState('');
+  const [customLabel, setCustomLabel] = useState();
+  const [customAmount, setCustomAmount] = useState(0);
+  const [customUnit, setCustomUnit] = useState(BitcoinUnit.BTC);
+  const [bip21encoded, setBip21encoded] = useState();
+  const qrCodeSVG = useRef();
+  const [isCustom, setIsCustom] = useState(false);
+  const [isCustomModalVisible, setIsCustomModalVisible] = useState(false);
+  const { navigate, goBack } = useNavigation();
 
-  constructor(props) {
-    super(props);
-    let secret = props.navigation.state.params.secret || '';
-
-    this.state = {
-      secret: secret,
-      address: '',
-      customLabel: '',
-      customAmount: 0,
-      bip21encoded: undefined,
-      isCustom: false,
-      isNFCModalVisible: false,
-      isCustomModalVisible: false,
-    };
-  }
-
-  renderReceiveDetails = async () => {
-    this.wallet.setUserHasSavedExport(true);
+  const renderReceiveDetails = useCallback(async () => {
+    console.log('receive/details - componentDidMount');
+    wallet.setUserHasSavedExport(true);
     await BlueApp.saveToDisk();
     let address;
-    if (this.wallet.getAddressAsync) {
-      if (this.wallet.chain === Chain.ONCHAIN) {
+    if (wallet.getAddressAsync) {
+      if (wallet.chain === Chain.ONCHAIN) {
         try {
-          address = await Promise.race([this.wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = this.wallet._getExternalAddressByIndex(this.wallet.next_free_address_index);
+          address = wallet._getExternalAddressByIndex(wallet.next_free_address_index);
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
-        this.setState({
-          address: address,
-        });
-      } else if (this.wallet.chain === Chain.OFFCHAIN) {
+        setAddress(address);
+      } else if (wallet.chain === Chain.OFFCHAIN) {
         try {
-          await Promise.race([this.wallet.getAddressAsync(), BlueApp.sleep(1000)]);
-          address = this.wallet.getAddress();
+          await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(1000)]);
+          address = wallet.getAddress();
         } catch (_) {}
         if (!address) {
           // either sleep expired or getAddressAsync threw an exception
           console.warn('either sleep expired or getAddressAsync threw an exception');
-          address = this.wallet.getAddress();
+          address = wallet.getAddress();
         } else {
           BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
         }
       }
-      this.setState({
-        address: address,
-      });
-    } else if (this.wallet.getAddress) {
-      this.setState({
-        address: this.wallet.getAddress(),
-      });
+      setAddress(address);
+    } else if (wallet.getAddress) {
+      setAddress(wallet.getAddress());
     }
     InteractionManager.runAfterInteractions(async () => {
-      const bip21encoded = bip21.encode(this.state.address);
-      this.setState({ bip21encoded });
-      NFC.isSupported()
-        .then(value => {
-          if (value) {
-            NFC.start();
-            this.props.navigation.setParams({ isNFCSupported: true, onNFCScanPress: this.onNFCScanPress });
-          }
-        })
-        .catch(_error => this.props.navigation.setParams({ isNFCSupported: false }));
+      const bip21encoded = DeeplinkSchemaMatch.bip21encode(address);
+      setBip21encoded(bip21encoded);
     });
-  };
+  }, [wallet]);
 
-  componentDidMount() {
-    Privacy.enableBlur();
-    console.log('receive/details - componentDidMount');
-
-    for (let w of BlueApp.getWallets()) {
-      if (w.getSecret() === this.state.secret) {
-        // found our wallet
-        this.wallet = w;
-      }
-    }
-    if (this.wallet) {
-      if (!this.wallet.getUserHasSavedExport()) {
+  useEffect(() => {
+    if (wallet) {
+      if (!wallet.getUserHasSavedExport()) {
         BlueAlertWalletExportReminder({
-          onSuccess: this.renderReceiveDetails,
+          onSuccess: renderReceiveDetails,
           onFailure: () => {
-            this.props.navigation.goBack();
-            this.props.navigation.navigate('WalletExport', {
-              address: this.wallet.getAddress(),
-              secret: this.wallet.getSecret(),
+            goBack();
+            navigate('WalletExport', {
+              wallet: wallet,
             });
           },
         });
       } else {
-        this.renderReceiveDetails();
+        renderReceiveDetails();
       }
     }
-  }
+    HandoffSettings.isHandoffUseEnabled().then(setIsHandOffUseEnabled);
+    Privacy.enableBlur();
+    return () => Privacy.disableBlur();
+  }, [goBack, navigate, renderReceiveDetails, secret, wallet]);
 
-  componentWillUnmount() {
-    Privacy.disableBlur();
-  }
-
-  onNFCScanPress = () => {
-    this.setState({ isNFCModalVisible: true });
+  const dismissCustomAmountModal = () => {
+    Keyboard.dismiss();
+    setIsCustomModalVisible(false);
   };
 
-  renderCustomAmountModal = () => {
+  const showCustomAmountModal = () => {
+    setIsCustomModalVisible(true);
+  };
+
+  const createCustomAmountAddress = () => {
+    setIsCustom(true);
+    setIsCustomModalVisible(false);
+    let amount = customAmount;
+    switch (customUnit) {
+      case BitcoinUnit.BTC:
+        // nop
+        break;
+      case BitcoinUnit.SATS:
+        amount = currency.satoshiToBTC(customAmount);
+        break;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        if (BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]) {
+          // cache hit! we reuse old value that supposedly doesnt have rounding errors
+          amount = currency.satoshiToBTC(BlueBitcoinAmount.conversionCache[amount + BitcoinUnit.LOCAL_CURRENCY]);
+        } else {
+          amount = currency.fiatToBTC(customAmount);
+        }
+        break;
+    }
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address, { amount, label: customLabel }));
+  };
+
+  const clearCustomAmount = () => {
+    setIsCustom(false);
+    setIsCustomModalVisible(false);
+    setCustomAmount('');
+    setCustomLabel('');
+    setBip21encoded(DeeplinkSchemaMatch.bip21encode(address));
+  };
+
+  const renderCustomAmountModal = () => {
     return (
-      <Modal
-        isVisible={this.state.isCustomModalVisible}
-        style={styles.bottomModal}
-        onBackdropPress={() => {
-          Keyboard.dismiss();
-          this.setState({ isCustomModalVisible: false });
-        }}
-      >
+      <Modal isVisible={isCustomModalVisible} style={styles.bottomModal} onBackdropPress={dismissCustomAmountModal}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <BlueBitcoinAmount amount={this.state.customAmount || ''} onChangeText={text => this.setState({ customAmount: text })} />
-            <View
-              style={{
-                flexDirection: 'row',
-                borderColor: '#d2d2d2',
-                borderBottomColor: '#d2d2d2',
-                borderWidth: 1.0,
-                borderBottomWidth: 0.5,
-                backgroundColor: '#f5f5f5',
-                minHeight: 44,
-                height: 44,
-                marginHorizontal: 20,
-                alignItems: 'center',
-                marginVertical: 8,
-                borderRadius: 4,
-              }}
-            >
+            <BlueBitcoinAmount
+              unit={customUnit}
+              amount={customAmount || ''}
+              onChangeText={setCustomAmount}
+              onAmountUnitChange={setCustomUnit}
+            />
+            <View style={styles.customAmount}>
               <TextInput
-                onChangeText={text => this.setState({ customLabel: text })}
+                onChangeText={setCustomLabel}
+                placeholderTextColor="#81868e"
                 placeholder={loc.receive.details.label}
-                value={this.state.customLabel || ''}
+                value={customLabel || ''}
                 numberOfLines={1}
-                style={{ flex: 1, marginHorizontal: 8, minHeight: 33 }}
+                style={styles.customAmountText}
               />
             </View>
             <BlueSpacing20 />
             <View>
-              <BlueButton
-                title={loc.receive.details.create}
-                onPress={() => {
-                  this.setState({
-                    isCustom: true,
-                    isCustomModalVisible: false,
-                    bip21encoded: bip21.encode(this.state.address, { amount: this.state.customAmount, label: this.state.customLabel }),
-                  });
-                }}
-              />
+              <BlueButton title={loc.receive.details.create} onPress={createCustomAmountAddress} />
               <BlueSpacing20 />
-              <BlueButtonLink
-                title="Reset"
-                onPress={() => {
-                  this.setState({
-                    isCustom: false,
-                    isCustomModalVisible: false,
-                    customAmount: '',
-                    customLabel: '',
-                    bip21encoded: bip21.encode(this.state.addresss),
-                  });
-                }}
-              />
+              <BlueButtonLink title="Reset" onPress={clearCustomAmount} />
             </View>
             <BlueSpacing20 />
           </View>
@@ -228,90 +187,102 @@ class ReceiveDetails extends Component {
     );
   };
 
-  showCustomAmountModal = () => {
-    this.setState({ isCustomModalVisible: true });
+  const handleShareButtonPressed = () => {
+    if (qrCodeSVG === undefined) {
+      Share.open({ message: bip21encoded }).catch(error => console.log(error));
+    } else {
+      InteractionManager.runAfterInteractions(async () => {
+        qrCodeSVG.current.toDataURL(data => {
+          const shareImageBase64 = {
+            message: bip21encoded,
+            url: `data:image/png;base64,${data}`,
+          };
+          Share.open(shareImageBase64).catch(error => console.log(error));
+        });
+      });
+    }
   };
 
-  onNFCModalCancelPressed = () => {
-    this.setState({ isNFCModalVisible: false });
+  /**
+   * @returns {string} BTC amount, accounting for current `customUnit` and `customUnit`
+   */
+  const getDisplayAmount = () => {
+    switch (customUnit) {
+      case BitcoinUnit.BTC:
+        return customAmount + ' BTC';
+      case BitcoinUnit.SATS:
+        return currency.satoshiToBTC(customAmount) + ' BTC';
+      case BitcoinUnit.LOCAL_CURRENCY:
+        return currency.fiatToBTC(customAmount) + ' BTC';
+    }
+    return customAmount + ' ' + customUnit;
   };
 
-  render() {
-    return (
-      <SafeBlueArea style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ justifyContent: 'space-between' }}>
-          <View style={{ marginTop: 32, alignItems: 'center', paddingHorizontal: 16 }}>
-            {this.state.isCustom && (
-              <>
-                <BlueText
-                  style={{ color: '#0c2550', fontWeight: '600', fontSize: 36, textAlign: 'center', paddingBottom: 24 }}
-                  numberOfLines={1}
-                >
-                  {this.state.customAmount} {BitcoinUnit.BTC}
-                </BlueText>
-                <BlueText style={{ color: '#0c2550', fontWeight: '600', textAlign: 'center', paddingBottom: 24 }} numberOfLines={1}>
-                  {this.state.customLabel}
-                </BlueText>
-              </>
-            )}
-            {this.state.bip21encoded === undefined ? (
-              <View style={{ alignItems: 'center', width: 300, height: 300 }}>
-                <BlueLoading />
-              </View>
-            ) : (
-              <QRCode
-                value={this.state.bip21encoded}
-                logo={require('../../img/qr-code.png')}
-                size={(is.ipad() && 300) || 300}
-                logoSize={90}
-                color={BlueApp.settings.foregroundColor}
-                logoBackgroundColor={BlueApp.settings.brandingColor}
-                ecl={'H'}
-                getRef={c => (this.qrCodeSVG = c)}
-              />
-            )}
-            <BlueCopyTextToClipboard text={this.state.isCustom ? this.state.bip21encoded : this.state.address} />
-          </View>
-          <View style={{ alignItems: 'center', alignContent: 'flex-end', marginBottom: 24 }}>
-            <BlueButtonLink title={loc.receive.details.setAmount} onPress={this.showCustomAmountModal} />
-            <View>
-              <BlueButton
-                icon={{
-                  name: 'share-alternative',
-                  type: 'entypo',
-                  color: BlueApp.settings.buttonTextColor,
-                }}
-                onPress={async () => {
-                  if (this.qrCodeSVG === undefined) {
-                    Share.open({ message: this.state.bip21encoded }).catch(error => console.log(error));
-                  } else {
-                    InteractionManager.runAfterInteractions(async () => {
-                      this.qrCodeSVG.toDataURL(data => {
-                        let shareImageBase64 = {
-                          message: this.state.bip21encoded,
-                          url: `data:image/png;base64,${data}`,
-                        };
-                        Share.open(shareImageBase64).catch(error => console.log(error));
-                      });
-                    });
-                  }
-                }}
-                title={loc.receive.details.share}
-              />
+  return (
+    <SafeBlueArea style={styles.root}>
+      <StatusBar barStyle="light-content" />
+      {isHandOffUseEnabled && address !== undefined && (
+        <Handoff
+          title={`Bitcoin Transaction ${address}`}
+          type="io.bluewallet.bluewallet"
+          url={`https://blockstream.info/address/${address}`}
+        />
+      )}
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="always">
+        <View style={styles.scrollBody}>
+          {isCustom && (
+            <>
+              <BlueText style={styles.amount} numberOfLines={1}>
+                {getDisplayAmount()}
+              </BlueText>
+              <BlueText style={styles.label} numberOfLines={1}>
+                {customLabel}
+              </BlueText>
+            </>
+          )}
+          {bip21encoded === undefined ? (
+            <View style={styles.loading}>
+              <BlueLoading />
             </View>
+          ) : (
+            <QRCode
+              value={bip21encoded}
+              logo={require('../../img/qr-code.png')}
+              size={(is.ipad() && 300) || 300}
+              logoSize={90}
+              color={BlueApp.settings.foregroundColor}
+              logoBackgroundColor={BlueApp.settings.brandingColor}
+              ecl="H"
+              getRef={qrCodeSVG}
+            />
+          )}
+          <BlueCopyTextToClipboard text={isCustom ? bip21encoded : address} />
+        </View>
+        <View style={styles.share}>
+          <BlueButtonLink title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
+          <View>
+            <BlueButton
+              icon={{
+                name: 'share-alternative',
+                type: 'entypo',
+                color: BlueApp.settings.buttonTextColor,
+              }}
+              onPress={handleShareButtonPressed}
+              title={loc.receive.details.share}
+            />
           </View>
-          <BlueNFCSelectionModal
-            isVisible={this.state.isNFCModalVisible}
-            onCancelPressed={this.onNFCModalCancelPressed}
-            textToWrite={this.state.bip21encoded}
-            onWriteSucceed={this.onNFCModalCancelPressed}
-          />
-          {this.renderCustomAmountModal()}
-        </ScrollView>
-      </SafeBlueArea>
-    );
-  }
-}
+        </View>
+        {renderCustomAmountModal()}
+      </ScrollView>
+    </SafeBlueArea>
+  );
+};
+
+ReceiveDetails.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: loc.receive.header,
+  headerLeft: null,
+});
 
 export default ReceiveDetails;
 
@@ -331,17 +302,58 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     margin: 0,
   },
+  customAmount: {
+    flexDirection: 'row',
+    borderColor: '#d2d2d2',
+    borderBottomColor: '#d2d2d2',
+    borderWidth: 1.0,
+    borderBottomWidth: 0.5,
+    backgroundColor: '#f5f5f5',
+    minHeight: 44,
+    height: 44,
+    marginHorizontal: 20,
+    alignItems: 'center',
+    marginVertical: 8,
+    borderRadius: 4,
+  },
+  customAmountText: {
+    flex: 1,
+    marginHorizontal: 8,
+    color: '#81868e',
+    minHeight: 33,
+  },
+  root: {
+    flex: 1,
+  },
+  scroll: {
+    justifyContent: 'space-between',
+  },
+  scrollBody: {
+    marginTop: 32,
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  amount: {
+    color: '#0c2550',
+    fontWeight: '600',
+    fontSize: 36,
+    textAlign: 'center',
+    paddingBottom: 24,
+  },
+  label: {
+    color: '#0c2550',
+    fontWeight: '600',
+    textAlign: 'center',
+    paddingBottom: 24,
+  },
+  loading: {
+    alignItems: 'center',
+    width: 300,
+    height: 300,
+  },
+  share: {
+    alignItems: 'center',
+    alignContent: 'flex-end',
+    marginBottom: 24,
+  },
 });
-
-ReceiveDetails.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    navigate: PropTypes.func,
-    setParams: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        secret: PropTypes.string,
-      }),
-    }),
-  }),
-};

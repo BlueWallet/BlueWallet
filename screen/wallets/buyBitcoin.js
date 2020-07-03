@@ -1,61 +1,81 @@
 import React, { Component } from 'react';
-import { BlueNavigationStyle, BlueLoading } from '../../BlueComponents';
+import { StyleSheet, StatusBar } from 'react-native';
+import { BlueNavigationStyle, BlueLoading, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { WebView } from 'react-native-webview';
-/** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+import { AppStorage, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
+const currency = require('../../blue_modules/currency');
+const BlueApp: AppStorage = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 export default class BuyBitcoin extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
-    title: loc.buyBitcoin.header,
+    title: '',
     headerLeft: null,
   });
 
   constructor(props) {
     super(props);
-    let address = props.navigation.state.params.address;
-    let secret = props.navigation.state.params.secret;
+    const wallet = props.route.params.wallet;
+    if (!wallet) console.warn('wallet was not passed to buyBitcoin');
 
     this.state = {
       isLoading: true,
-      address: address,
-      secret: secret,
-      addressText: '',
+      wallet,
+      address: '',
     };
   }
 
   async componentDidMount() {
-    console.log('buyBitcoin/details - componentDidMount');
+    console.log('buyBitcoin - componentDidMount');
 
-    /**  @type {AbstractWallet}   */
-    let wallet;
-    let address = this.state.address;
-    for (let w of BlueApp.getWallets()) {
-      if ((address && w.getAddress() === this.state.address) || w.getSecret() === this.state.secret) {
-        // found our wallet
-        wallet = w;
-      }
-    }
+    let preferredCurrency = await currency.getPreferredCurrency();
+    preferredCurrency = preferredCurrency.endPointKey;
 
-    if (wallet && wallet.getAddressAsync) {
-      setTimeout(async () => {
-        address = await wallet.getAddressAsync();
-        BlueApp.saveToDisk(); // caching whatever getAddressAsync() generated internally
-        this.setState({
-          address: address,
-          addressText: address,
-          isLoading: false,
-        });
-      }, 1);
-    } else {
+    /**  @type {AbstractHDWallet|WatchOnlyWallet|LightningCustodianWallet}   */
+    const wallet = this.state.wallet;
+
+    let address = '';
+
+    if (WatchOnlyWallet.type === wallet.type && !wallet.isHd()) {
+      // plain watchonly - just get the address
+      address = wallet.getAddress();
       this.setState({
         isLoading: false,
         address,
-        addressText: address,
+        preferredCurrency,
       });
+      return;
     }
+
+    // otherwise, lets call widely-used getAddressAsync()
+
+    try {
+      address = await Promise.race([wallet.getAddressAsync(), BlueApp.sleep(2000)]);
+    } catch (_) {}
+
+    if (!address) {
+      // either sleep expired or getAddressAsync threw an exception
+      if (LightningCustodianWallet.type === wallet.type) {
+        // not much we can do, lets hope refill address was cached previously
+        address = wallet.getAddress() || '';
+      } else {
+        // plain hd wallet (either HD or watchonly-wrapped). trying next free address
+        address = wallet._getExternalAddressByIndex(wallet.getNextFreeAddressIndex());
+      }
+    }
+
+    this.setState({
+      isLoading: false,
+      address,
+      preferredCurrency,
+    });
   }
 
   render() {
@@ -63,7 +83,7 @@ export default class BuyBitcoin extends Component {
       return <BlueLoading />;
     }
 
-    const { safelloStateToken } = this.props.navigation.state.params;
+    const { safelloStateToken } = this.props.route.params;
 
     let uri = 'https://bluewallet.io/buy-bitcoin-redirect.html?address=' + this.state.address;
 
@@ -71,25 +91,29 @@ export default class BuyBitcoin extends Component {
       uri += '&safelloStateToken=' + safelloStateToken;
     }
 
+    if (this.state.preferredCurrency) {
+      uri += '&currency=' + this.state.preferredCurrency;
+    }
+
     return (
-      <WebView
-        source={{
-          uri,
-        }}
-      />
+      <SafeBlueArea style={styles.root}>
+        <StatusBar barStyle="light-content" />
+        <WebView
+          source={{
+            uri,
+          }}
+        />
+      </SafeBlueArea>
     );
   }
 }
 
 BuyBitcoin.propTypes = {
-  navigation: PropTypes.shape({
-    goBack: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        address: PropTypes.string,
-        secret: PropTypes.string,
-        safelloStateToken: PropTypes.string,
-      }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      wallet: PropTypes.object.isRequired,
+      safelloStateToken: PropTypes.string,
     }),
   }),
 };

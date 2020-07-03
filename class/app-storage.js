@@ -1,3 +1,4 @@
+/* global alert */
 import AsyncStorage from '@react-native-community/async-storage';
 import RNSecureKeyStore, { ACCESSIBLE } from 'react-native-secure-key-store';
 import {
@@ -11,10 +12,12 @@ import {
   HDSegwitBech32Wallet,
   PlaceholderWallet,
   LightningCustodianWallet,
+  HDLegacyElectrumSeedP2PKHWallet,
+  HDSegwitElectrumSeedP2WPKHWallet,
 } from './';
 import WatchConnectivity from '../WatchConnectivity';
-import DeviceQuickActions from './quickActions';
-const encryption = require('../encryption');
+import DeviceQuickActions from './quick-actions';
+const encryption = require('../blue_modules/encryption');
 
 export class AppStorage {
   static FLAG_ENCRYPTED = 'data_encrypted';
@@ -23,8 +26,13 @@ export class AppStorage {
   static LNDHUB = 'lndhub';
   static ELECTRUM_HOST = 'electrum_host';
   static ELECTRUM_TCP_PORT = 'electrum_tcp_port';
+  static ELECTRUM_SSL_PORT = 'electrum_ssl_port';
   static PREFERRED_CURRENCY = 'preferredCurrency';
   static ADVANCED_MODE_ENABLED = 'advancedmodeenabled';
+  static DELETE_WALLET_AFTER_UNINSTALL = 'deleteWalletAfterUninstall';
+  static HODL_HODL_API_KEY = 'HODL_HODL_API_KEY';
+  static HODL_HODL_SIGNATURE_KEY = 'HODL_HODL_SIGNATURE_KEY';
+  static HODL_HODL_CONTRACTS = 'HODL_HODL_CONTRACTS';
 
   constructor() {
     /** {Array.<AbstractWallet>} */
@@ -90,6 +98,15 @@ export class AppStorage {
     }
   }
 
+  async setResetOnAppUninstallTo(value) {
+    await this.setItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL, value ? '1' : '');
+    try {
+      RNSecureKeyStore.setResetOnAppUninstallTo(value);
+    } catch (Error) {
+      console.warn(Error);
+    }
+  }
+
   async storageIsEncrypted() {
     let data;
     try {
@@ -101,17 +118,28 @@ export class AppStorage {
     return !!data;
   }
 
+  async isPasswordInUse(password) {
+    try {
+      let data = await this.getItem('data');
+      data = this.decryptData(data, password);
+      return !!data;
+    } catch (_e) {
+      return false;
+    }
+  }
+
   /**
    * Iterates through all values of `data` trying to
    * decrypt each one, and returns first one successfully decrypted
    *
-   * @param data String (serialized array)
+   * @param data {string} Serialized array
    * @param password
+   * @returns {boolean|string} Either STRING of storage data (which is stringified JSON) or FALSE, which means failure
    */
   decryptData(data, password) {
     data = JSON.parse(data);
     let decrypted;
-    for (let value of data) {
+    for (const value of data) {
       try {
         decrypted = encryption.decrypt(value, password);
       } catch (e) {
@@ -126,13 +154,36 @@ export class AppStorage {
     return false;
   }
 
+  async decryptStorage(password) {
+    if (password === this.cachedPassword) {
+      this.cachedPassword = undefined;
+      await this.setResetOnAppUninstallTo(true);
+      await this.saveToDisk();
+      this.wallets = [];
+      this.tx_metadata = [];
+      return this.loadFromDisk();
+    } else {
+      throw new Error('Wrong password. Please, try again.');
+    }
+  }
+
+  async isDeleteWalletAfterUninstallEnabled() {
+    let deleteWalletsAfterUninstall;
+    try {
+      deleteWalletsAfterUninstall = await this.getItem(AppStorage.DELETE_WALLET_AFTER_UNINSTALL);
+    } catch (_e) {
+      deleteWalletsAfterUninstall = true;
+    }
+    return !!deleteWalletsAfterUninstall;
+  }
+
   async encryptStorage(password) {
     // assuming the storage is not yet encrypted
     await this.saveToDisk();
     let data = await this.getItem('data');
     // TODO: refactor ^^^ (should not save & load to fetch data)
 
-    let encrypted = encryption.encrypt(data, password);
+    const encrypted = encryption.encrypt(data, password);
     data = [];
     data.push(encrypted); // putting in array as we might have many buckets with storages
     data = JSON.stringify(data);
@@ -158,7 +209,7 @@ export class AppStorage {
     this.wallets = [];
     this.tx_metadata = {};
 
-    let data = {
+    const data = {
       wallets: [],
       tx_metadata: {},
     };
@@ -192,10 +243,10 @@ export class AppStorage {
       if (data !== null) {
         data = JSON.parse(data);
         if (!data.wallets) return false;
-        let wallets = data.wallets;
-        for (let key of wallets) {
+        const wallets = data.wallets;
+        for (const key of wallets) {
           // deciding which type is wallet and instatiating correct object
-          let tempObj = JSON.parse(key);
+          const tempObj = JSON.parse(key);
           let unserializedWallet;
           switch (tempObj.type) {
             case PlaceholderWallet.type:
@@ -222,7 +273,13 @@ export class AppStorage {
             case HDLegacyBreadwalletWallet.type:
               unserializedWallet = HDLegacyBreadwalletWallet.fromJson(key);
               break;
-            case LightningCustodianWallet.type:
+            case HDLegacyElectrumSeedP2PKHWallet.type:
+              unserializedWallet = HDLegacyElectrumSeedP2PKHWallet.fromJson(key);
+              break;
+            case HDSegwitElectrumSeedP2WPKHWallet.type:
+              unserializedWallet = HDSegwitElectrumSeedP2WPKHWallet.fromJson(key);
+              break;
+            case LightningCustodianWallet.type: {
               /** @type {LightningCustodianWallet} */
               unserializedWallet = LightningCustodianWallet.fromJson(key);
               let lndhub = false;
@@ -244,6 +301,7 @@ export class AppStorage {
               }
               unserializedWallet.init();
               break;
+            }
             case LegacyWallet.type:
             default:
               unserializedWallet = LegacyWallet.fromJson(key);
@@ -262,8 +320,15 @@ export class AppStorage {
           await this.saveToDisk();
         };
         await WatchConnectivity.shared.sendWalletsToWatch();
-        DeviceQuickActions.setWallets(this.wallets);
-        DeviceQuickActions.setQuickActions();
+
+        const isStorageEncrypted = await this.storageIsEncrypted();
+        if (isStorageEncrypted) {
+          DeviceQuickActions.clearShortcutItems();
+          DeviceQuickActions.removeAllWallets();
+        } else {
+          DeviceQuickActions.setWallets(this.wallets);
+          DeviceQuickActions.setQuickActions();
+        }
         return true;
       } else {
         return false; // failed loading data or loading/decryptin data
@@ -281,10 +346,10 @@ export class AppStorage {
    * @param wallet {AbstractWallet}
    */
   deleteWallet(wallet) {
-    let secret = wallet.getSecret();
-    let tempWallets = [];
+    const secret = wallet.getSecret();
+    const tempWallets = [];
 
-    for (let value of this.wallets) {
+    for (const value of this.wallets) {
       if (value.getSecret() === secret) {
         // the one we should delete
         // nop
@@ -304,13 +369,12 @@ export class AppStorage {
    * @returns {Promise} Result of storage save
    */
   async saveToDisk() {
-    let walletsToSave = [];
-    for (let key of this.wallets) {
+    const walletsToSave = [];
+    for (const key of this.wallets) {
       if (typeof key === 'boolean' || key.type === PlaceholderWallet.type) continue;
       if (key.prepareForSerialization) key.prepareForSerialization();
       walletsToSave.push(JSON.stringify({ ...key, type: key.type }));
     }
-
     let data = {
       wallets: walletsToSave,
       tx_metadata: this.tx_metadata,
@@ -320,9 +384,9 @@ export class AppStorage {
       // should find the correct bucket, encrypt and then save
       let buckets = await this.getItem('data');
       buckets = JSON.parse(buckets);
-      let newData = [];
-      for (let bucket of buckets) {
-        let decrypted = encryption.decrypt(bucket, this.cachedPassword);
+      const newData = [];
+      for (const bucket of buckets) {
+        const decrypted = encryption.decrypt(bucket, this.cachedPassword);
         if (!decrypted) {
           // no luck decrypting, its not our bucket
           newData.push(bucket);
@@ -342,7 +406,11 @@ export class AppStorage {
     WatchConnectivity.shared.sendWalletsToWatch();
     DeviceQuickActions.setWallets(this.wallets);
     DeviceQuickActions.setQuickActions();
-    return this.setItem('data', JSON.stringify(data));
+    try {
+      return await this.setItem('data', JSON.stringify(data));
+    } catch (error) {
+      alert(error.message);
+    }
   }
 
   /**
@@ -354,16 +422,16 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletBalances(index) {
-    console.log('fetchWalletBalances for wallet#', index);
+    console.log('fetchWalletBalances for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
-      for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
+      for (const wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
         if (c++ === index) {
           await wallet.fetchBalance();
         }
       }
     } else {
-      for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
+      for (const wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
         await wallet.fetchBalance();
       }
     }
@@ -380,10 +448,10 @@ export class AppStorage {
    * @return {Promise.<void>}
    */
   async fetchWalletTransactions(index) {
-    console.log('fetchWalletTransactions for wallet#', index);
+    console.log('fetchWalletTransactions for wallet#', typeof index === 'undefined' ? '(all)' : index);
     if (index || index === 0) {
       let c = 0;
-      for (let wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
+      for (const wallet of this.wallets.filter(wallet => wallet.type !== PlaceholderWallet.type)) {
         if (c++ === index) {
           await wallet.fetchTransactions();
           if (wallet.fetchPendingTransactions) {
@@ -395,7 +463,7 @@ export class AppStorage {
         }
       }
     } else {
-      for (let wallet of this.wallets) {
+      for (const wallet of this.wallets) {
         await wallet.fetchTransactions();
         if (wallet.fetchPendingTransactions) {
           await wallet.fetchPendingTransactions();
@@ -421,13 +489,14 @@ export class AppStorage {
    *
    * @param index {Integer|null} Wallet index in this.wallets. Empty (or null) for all wallets.
    * @param limit {Integer} How many txs return, starting from the earliest. Default: all of them.
+   * @param includeWalletsWithHideTransactionsEnabled {Boolean} Wallets' _hideTransactionsInWalletsList property determines wether the user wants this wallet's txs hidden from the main list view.
    * @return {Array}
    */
-  getTransactions(index, limit = Infinity) {
+  getTransactions(index, limit = Infinity, includeWalletsWithHideTransactionsEnabled = false) {
     if (index || index === 0) {
       let txs = [];
       let c = 0;
-      for (let wallet of this.wallets) {
+      for (const wallet of this.wallets) {
         if (c++ === index) {
           txs = txs.concat(wallet.getTransactions());
         }
@@ -436,20 +505,20 @@ export class AppStorage {
     }
 
     let txs = [];
-    for (let wallet of this.wallets) {
-      let walletTransactions = wallet.getTransactions();
-      for (let t of walletTransactions) {
+    for (const wallet of this.wallets.filter(w => includeWalletsWithHideTransactionsEnabled || !w.getHideTransactionsInWalletsList())) {
+      const walletTransactions = wallet.getTransactions();
+      for (const t of walletTransactions) {
         t.walletPreferredBalanceUnit = wallet.getPreferredBalanceUnit();
       }
       txs = txs.concat(walletTransactions);
     }
 
-    for (let t of txs) {
+    for (const t of txs) {
       t.sort_ts = +new Date(t.received);
     }
 
     return txs
-      .sort(function(a, b) {
+      .sort(function (a, b) {
         return b.sort_ts - a.sort_ts;
       })
       .slice(0, limit);
@@ -462,10 +531,66 @@ export class AppStorage {
    */
   getBalance() {
     let finalBalance = 0;
-    for (let wal of this.wallets) {
+    for (const wal of this.wallets) {
       finalBalance += wal.getBalance();
     }
     return finalBalance;
+  }
+
+  async getHodlHodlApiKey() {
+    try {
+      return await this.getItem(AppStorage.HODL_HODL_API_KEY);
+    } catch (_) {}
+    return false;
+  }
+
+  async getHodlHodlSignatureKey() {
+    try {
+      return await this.getItem(AppStorage.HODL_HODL_SIGNATURE_KEY);
+    } catch (_) {}
+    return false;
+  }
+
+  /**
+   * Since we cant fetch list of contracts from hodlhodl api yet, we have to keep track of it ourselves
+   *
+   * @returns {Promise<string[]>} String ids of contracts in an array
+   */
+  async getHodlHodlContracts() {
+    try {
+      const json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
+      return JSON.parse(json);
+    } catch (_) {}
+    return [];
+  }
+
+  async addHodlHodlContract(id) {
+    let json;
+    try {
+      json = await this.getItem(AppStorage.HODL_HODL_CONTRACTS);
+      json = JSON.parse(json);
+    } catch (_) {
+      json = [];
+    }
+
+    json.push(id);
+    return this.setItem(AppStorage.HODL_HODL_CONTRACTS, JSON.stringify(json));
+  }
+
+  async setHodlHodlApiKey(key, sigKey) {
+    if (sigKey) await this.setItem(AppStorage.HODL_HODL_SIGNATURE_KEY, sigKey);
+    return this.setItem(AppStorage.HODL_HODL_API_KEY, key);
+  }
+
+  async isAdancedModeEnabled() {
+    try {
+      return !!(await this.getItem(AppStorage.ADVANCED_MODE_ENABLED));
+    } catch (_) {}
+    return false;
+  }
+
+  async setIsAdancedModeEnabled(value) {
+    await this.setItem(AppStorage.ADVANCED_MODE_ENABLED, value ? '1' : '');
   }
 
   /**

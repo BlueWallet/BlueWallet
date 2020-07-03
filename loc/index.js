@@ -3,10 +3,11 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { AppStorage } from '../class';
 import { BitcoinUnit } from '../models/bitcoinUnits';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import * as RNLocalize from 'react-native-localize';
+import { AvailableLanguages } from './languages';
 const dayjs = require('dayjs');
-const currency = require('../currency');
+const currency = require('../blue_modules/currency');
 const BigNumber = require('bignumber.js');
-let strings;
 dayjs.extend(relativeTime);
 
 // first-time loading sequence
@@ -89,6 +90,9 @@ dayjs.extend(relativeTime);
       case 'vi_vn':
         require('dayjs/locale/vi');
         break;
+      case 'ca':
+        require('dayjs/locale/ca');
+        break;
       default:
         localeForDayJSAvailable = false;
         break;
@@ -96,10 +100,19 @@ dayjs.extend(relativeTime);
     if (localeForDayJSAvailable) {
       dayjs.locale(lang.split('_')[0]);
     }
+  } else {
+    const locales = RNLocalize.getLocales();
+    if (Object.keys(AvailableLanguages).some(language => language === locales[0])) {
+      strings.saveLanguage(locales[0].languageCode);
+      strings.setLanguage(locales[0].languageCode);
+    } else {
+      strings.saveLanguage('en');
+      strings.setLanguage('en');
+    }
   }
 })();
 
-strings = new Localization({
+const strings = new Localization({
   en: require('./en.js'),
   ru: require('./ru.js'),
   pt_br: require('./pt_BR.js'),
@@ -108,10 +121,12 @@ strings = new Localization({
   it: require('./it.js'),
   el: require('./el.js'),
   ua: require('./ua.js'),
+  ca: require('./ca.js'),
   jp_jp: require('./jp_JP.js'),
   de_de: require('./de_DE.js'),
   da_dk: require('./da_DK.js'),
   cs_cz: require('./cs_CZ.js'),
+  sk_sk: require('./sk_SK.js'),
   th_th: require('./th_TH.js'),
   nl_nl: require('./nl_NL.js'),
   fi_fi: require('./fi_FI.js'),
@@ -145,7 +160,7 @@ strings.transactionTimeToReadable = time => {
   return ret;
 };
 
-function removeTrailingZeros(value) {
+strings.removeTrailingZeros = value => {
   value = value.toString();
 
   if (value.indexOf('.') === -1) {
@@ -155,21 +170,22 @@ function removeTrailingZeros(value) {
     value = value.substr(0, value.length - 1);
   }
   return value;
-}
+};
 
 /**
  *
- * @param balance {Number} Float amount of bitcoins
+ * @param balance {number} Satoshis
  * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-strings.formatBalance = (balance, toUnit, withFormatting = false) => {
+function formatBalance(balance, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance + ' ' + BitcoinUnit.BTC;
   }
   if (toUnit === BitcoinUnit.BTC) {
     const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-    return removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
+    return strings.removeTrailingZeros(value) + ' ' + BitcoinUnit.BTC;
   } else if (toUnit === BitcoinUnit.SATS) {
     return (
       (balance < 0 ? '-' : '') +
@@ -180,22 +196,23 @@ strings.formatBalance = (balance, toUnit, withFormatting = false) => {
   } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
     return currency.satoshiToLocalCurrency(balance);
   }
-};
+}
 
 /**
  *
  * @param balance {Integer} Satoshis
- * @param toUnit {String} Value from models/bitcoinUnits.js
+ * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
  * @returns {string}
  */
-strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = false) => {
+function formatBalanceWithoutSuffix(balance = 0, toUnit, withFormatting = false) {
   if (toUnit === undefined) {
     return balance;
   }
   if (balance !== 0) {
     if (toUnit === BitcoinUnit.BTC) {
       const value = new BigNumber(balance).dividedBy(100000000).toFixed(8);
-      return removeTrailingZeros(value);
+      return strings.removeTrailingZeros(value);
     } else if (toUnit === BitcoinUnit.SATS) {
       return (balance < 0 ? '-' : '') + (withFormatting ? new Intl.NumberFormat().format(balance).replace(/[^0-9]/g, ' ') : balance);
     } else if (toUnit === BitcoinUnit.LOCAL_CURRENCY) {
@@ -203,6 +220,36 @@ strings.formatBalanceWithoutSuffix = (balance = 0, toUnit, withFormatting = fals
     }
   }
   return balance.toString();
-};
+}
+
+/**
+ * Should be used when we need a simple string to be put in text input, for example
+ *
+ * @param  balance {integer} Satoshis
+ * @param toUnit {String} Value from models/bitcoinUnits.js, for example `BitcoinUnit.SATS`
+ * @param withFormatting {boolean} Works only with `BitcoinUnit.SATS`, makes spaces wetween groups of 000
+ * @returns {string}
+ */
+function formatBalancePlain(balance = 0, toUnit, withFormatting = false) {
+  const newInputValue = formatBalanceWithoutSuffix(balance, toUnit, withFormatting);
+  return _leaveNumbersAndDots(newInputValue);
+}
+
+function _leaveNumbersAndDots(newInputValue) {
+  newInputValue = newInputValue.replace(/[^\d.,-]/g, ''); // filtering, leaving only numbers, dots & commas
+  if (newInputValue.endsWith('.00') || newInputValue.endsWith(',00')) newInputValue = newInputValue.substring(0, newInputValue.length - 3);
+
+  if (newInputValue[newInputValue.length - 3] === ',') {
+    // this is a fractional value, lets replace comma to dot so it represents actual fractional value for normal people
+    newInputValue = newInputValue.substring(0, newInputValue.length - 3) + '.' + newInputValue.substring(newInputValue.length - 2);
+  }
+  newInputValue = newInputValue.replace(/,/gi, '');
+
+  return newInputValue;
+}
 
 module.exports = strings;
+module.exports.formatBalanceWithoutSuffix = formatBalanceWithoutSuffix;
+module.exports.formatBalance = formatBalance;
+module.exports.formatBalancePlain = formatBalancePlain;
+module.exports._leaveNumbersAndDots = _leaveNumbersAndDots;

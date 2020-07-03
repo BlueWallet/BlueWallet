@@ -2,7 +2,7 @@ module.exports = {
   _: {
     storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
     enter_password: 'Enter password',
-    bad_password: 'Bad password, try again',
+    bad_password: 'Wrong password, please try again.',
     never: 'never',
     continue: 'Continue',
     ok: 'OK',
@@ -17,16 +17,17 @@ module.exports = {
       title: 'wallets',
       header: 'A wallet represents a pair of a secret (private key) and an address' + 'you can share to receive coins.',
       add: 'Add Wallet',
-      create_a_wallet: 'Create a wallet',
+      create_a_wallet: 'Add a wallet',
       create_a_wallet1: "It's free and you can create",
       create_a_wallet2: 'as many as you like',
+      create_a_button: 'Add now',
       latest_transaction: 'latest transaction',
-      empty_txs1: 'Your transactions will appear here,',
-      empty_txs2: 'none at the moment',
+      empty_txs1: 'Your transactions will appear here',
+      empty_txs2: 'Start with your wallet',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
       empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
-      tap_here_to_buy: 'Tap here to buy Bitcoin',
+      tap_here_to_buy: 'Buy Bitcoin',
     },
     reorder: {
       title: 'Reorder Wallets',
@@ -47,10 +48,14 @@ module.exports = {
       coming_soon: 'Coming soon',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Wallet',
       address: 'Address',
+      master_fingerprint: 'Master fingerprint',
       type: 'Type',
       label: 'Label',
       destination: 'destination',
@@ -64,6 +69,9 @@ module.exports = {
       export_backup: 'Export / backup',
       buy_bitcoin: 'Buy Bitcoin',
       show_xpub: 'Show wallet XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'wallet export',
@@ -78,9 +86,9 @@ module.exports = {
         "Write here your mnemonic, private key, WIF, or anything you've got. BlueWallet will do its best to guess the correct format and import your wallet",
       imported: 'Imported',
       error: 'Failed to import. Please, make sure that the provided data is valid.',
-      success: 'Success',
+      success: 'Your wallet has been successfully imported.',
       do_import: 'Import',
-      scan_qr: 'or scan QR code instead?',
+      scan_qr: 'Scan or import a file',
     },
     scanQrWif: {
       go_back: 'Go Back',
@@ -145,7 +153,7 @@ module.exports = {
       title: 'create transaction',
       error: 'Error creating transaction. Invalid address or send amount?',
       go_back: 'Go Back',
-      this_is_hex: 'This is transaction hex, signed and ready to be broadcast to the network.',
+      this_is_hex: `This is your transaction's hex, signed and ready to be broadcasted to the network.`,
       to: 'To',
       amount: 'Amount',
       fee: 'Fee',
@@ -175,7 +183,7 @@ module.exports = {
   },
   settings: {
     header: 'settings',
-    plausible_deniability: 'Plausible deniability...',
+    plausible_deniability: 'Plausible deniability',
     storage_not_encrypted: 'Storage: not encrypted',
     storage_encrypted: 'Storage: encrypted',
     password: 'Password',
@@ -194,7 +202,7 @@ module.exports = {
     language: 'Language',
     currency: 'Currency',
     advanced_options: 'Advanced Options',
-    enable_advanced_mode: 'Enable advanced mode',
+    enable_advanced_mode: 'Advanced mode',
   },
   plausibledeniability: {
     title: 'Plausible Deniability',
@@ -203,15 +211,15 @@ module.exports = {
       'password. To keep your coins safe, BlueWallet can create another ' +
       'encrypted storage, with a different password. Under pressure, ' +
       'you can disclose this password to a 3rd party. If entered in ' +
-      "BlueWallet, it will unlock new 'fake' storage. This will seem " +
-      'legit to a 3rd party, but will secretly keep your main storage ' +
+      "BlueWallet, it will unlock a new 'fake' storage. This will seem " +
+      'legit to a 3rd party, but it will secretly keep your main storage ' +
       'with coins safe.',
-    help2: 'New storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
-    create_fake_storage: 'Create fake encrypted storage',
+    help2: 'The new storage will be fully functional, and you can store some ' + 'minimum amounts there so it looks more believable.',
+    create_fake_storage: 'Create Encrypted storage',
     go_back: 'Go Back',
     create_password: 'Create a password',
-    create_password_explanation: 'Password for fake storage should not match password for your main storage',
-    password_should_not_match: 'Password for fake storage should not match password for your main storage',
+    create_password_explanation: 'Password for fake storage should not match the password for your main storage',
+    password_should_not_match: 'Password is currently in use. Please, try a different password.',
     retype_password: 'Retype password',
     passwords_do_not_match: 'Passwords do not match, try again',
     success: 'Success',
@@ -222,6 +230,7 @@ module.exports = {
     refill_lnd_balance: 'Refill Lightning wallet balance',
     refill: 'Refill',
     withdraw: 'Withdraw',
+    exchange: 'Exchange',
     expired: 'Expired',
     placeholder: 'Invoice',
     sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
@@ -240,5 +249,10 @@ module.exports = {
     for: 'For:',
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

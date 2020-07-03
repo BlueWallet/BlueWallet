@@ -2,6 +2,7 @@
 
 [![GitHub tag](https://img.shields.io/badge/dynamic/json.svg?url=https://raw.githubusercontent.com/BlueWallet/BlueWallet/master/package.json&query=$.version&label=Version)](https://github.com/BlueWallet/BlueWallet)
 [![CircleCI](https://circleci.com/gh/BlueWallet/BlueWallet.svg?style=svg)](https://circleci.com/gh/BlueWallet/BlueWallet)
+[![e2e on master](https://travis-ci.com/BlueWallet/BlueWallet.svg?branch=master)](https://travis-ci.com/BlueWallet/BlueWallet)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 ![](https://img.shields.io/github/license/BlueWallet/BlueWallet.svg)
 
@@ -25,10 +26,15 @@ Community: [telegram group](https://t.me/bluewallet)
 <img src="https://i.imgur.com/hHYJnMj.png" width="100%">
 
 
-
-
-
 ## BUILD & RUN IT
+
+Please refer to the engines field in package.json file for the minimum required versions of Node and npm. It is preferred that you use an even-numbered version of Node as these are LTS versions.
+
+To view the version of Node and npm in your environment, run the following in your console:
+
+```
+node --version && npm --version
+```
 
 * In your console:
 
@@ -37,6 +43,8 @@ git clone https://github.com/BlueWallet/BlueWallet.git
 cd BlueWallet
 npm install
 ``` 
+
+Please make sure that your console is running the most stable versions of npm and node (even-numbered versions).
 
 * To run on Android:
 
@@ -66,20 +74,17 @@ cd ..
 npm start ios
 ```
 
+In another terminal window within the BlueWallet folder
+```
+react-native run-ios
+```
+
 
 ## TESTS
 
 ```bash
 npm run test
 ```
-
-## QA
-
-Builds automated and tested with BrowserStack
-
-<a href="https://www.browserstack.com/"><img src="https://i.imgur.com/syscHCN.png" width="160px"></a>
-
-
 
 
 ## MOTIVATION TO BUILD IT
@@ -95,11 +100,10 @@ MIT
 
 ## WANT TO CONTRIBUTE?
 
-Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you.
+Grab an issue from [the backlog](https://github.com/BlueWallet/BlueWallet/projects/1), try to start or submit a PR, any doubts we will try to guide you. Contributors have a private telegram group, request access by email bluewallet@bluewallet.io
 
-Join us at our [telegram group](https://t.me/bluewallet) where we hangout :+1:
 
-## Responsible disclosure
+## RESPONSIBLE DISCLOSURE
 
 Found critical bugs/vulnerabilities? Please email them bluewallet@bluewallet.io
 Thanks!

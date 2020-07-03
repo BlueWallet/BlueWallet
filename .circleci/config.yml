@@ -1,25 +1,23 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
 version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/node:8-stretch
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
+      - image: circleci/node:10.16.3
 
     working_directory: ~/repo
 
     steps:
       - checkout
 
-      - run: npm i
+      - restore_cache:
+          key: node_modules-{{ checksum "package-lock.json" }}
+
+      - run: test -d node_modules || npm i
+
+      - save_cache:
+          key: node_modules-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
 
       # run tests!
-      - run: npm run test
+      - run: npm t || npm t || npm t

@@ -20,9 +20,13 @@
       create_a_wallet: 'Yenza ingxowa',
       create_a_wallet1: 'Ayihlawulelwa kwaye ungayenza',
       create_a_wallet2: 'Ungenza zibeninzi indlela zokuhlawula',
+      create_a_button: 'Add now',
       latest_transaction: 'Utshintsho olutsha',
       empty_txs1: 'Intengiso yakho iya kubonakala apha,',
       empty_txs2: 'akuho nanye okwangoku',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Cofa apha ukuthenga ibitcoin',
     },
     reorder: {
@@ -44,10 +48,14 @@
       coming_soon: 'Kuza ngokukhawuleza',
       lightning: 'Umbane',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Ingxowa',
       address: 'Ikheli',
+      master_fingerprint: 'Master fingerprint',
       type: 'Uhlobo',
       label: 'Igama',
       destination: 'ukuya kuyo',
@@ -61,6 +69,9 @@
       export_backup: 'Ukuthumela ngaphandle / yokugcina',
       buy_bitcoin: 'Thenga ibitcoin',
       show_xpub: 'Bonise ingxowa XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'ukuthunyelwa kweebhanki ',
@@ -163,6 +174,7 @@
       create: 'Yenza',
       setAmount: 'Fumana ngexabiso',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Thenga Ibitcoin',
@@ -183,10 +195,14 @@
     lightning_settings_explain:
       'Ukuxhuma kwi-node yakho ye-LND nceda ufake iLndHub' +
       ' kwaye ufake iURL apha izicwangciso. Shiya kungenanto yokusebenzisa iLndHub (Indhub.io)',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'ndoloza',
     about: 'Malunga',
     language: 'Ulwimi',
     currency: 'Lwemali',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Ukuphika',
@@ -216,6 +232,7 @@
     choose_source_wallet: 'Ukhethe ingxowa yomthombo',
     refill_lnd_balance: 'Gcwalisa ingxowa yakho yemali',
     refill: 'Gcwalisa',
+    exchange: 'Exchange',
     withdraw: 'Khupha imali',
     expired: 'Iphelewe lixesha',
     placeholder: 'Invoyisi',
@@ -235,5 +252,10 @@
     for: 'For:',
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

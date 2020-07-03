@@ -1,8 +1,4 @@
-import { BitcoinUnit } from './bitcoinUnits';
-import BigNumber from 'bignumber.js';
-let loc = require('../loc');
-
-const BlueElectrum = require('../BlueElectrum');
+const BlueElectrum = require('../blue_modules/BlueElectrum');
 
 export const NetworkTransactionFeeType = Object.freeze({
   FAST: 'Fast',
@@ -14,41 +10,21 @@ export const NetworkTransactionFeeType = Object.freeze({
 export class NetworkTransactionFee {
   static StorageKey = 'NetworkTransactionFee';
 
-  constructor(fastestFee = 1, halfHourFee = 1, hourFee = 1) {
+  constructor(fastestFee = 1, mediumFee = 1, slowFee = 1) {
     this.fastestFee = fastestFee;
-    this.halfHourFee = halfHourFee;
-    this.hourFee = hourFee;
+    this.mediumFee = mediumFee;
+    this.slowFee = slowFee;
   }
 }
 
 export default class NetworkTransactionFees {
   static recommendedFees() {
+    // eslint-disable-next-line no-async-promise-executor
     return new Promise(async (resolve, reject) => {
       try {
-        let response = await BlueElectrum.estimateFees();
+        const response = await BlueElectrum.estimateFees();
         if (typeof response === 'object') {
-          const fast = loc.formatBalanceWithoutSuffix(
-            new BigNumber(response.fast)
-              .multipliedBy(100000)
-              .toNumber()
-              .toFixed(0),
-            BitcoinUnit.SATS,
-          );
-          const medium = loc.formatBalanceWithoutSuffix(
-            new BigNumber(response.medium)
-              .multipliedBy(100000)
-              .toNumber()
-              .toFixed(0),
-            BitcoinUnit.SATS,
-          );
-          const slow = loc.formatBalanceWithoutSuffix(
-            new BigNumber(response.slow)
-              .multipliedBy(100000)
-              .toNumber()
-              .toFixed(0),
-            BitcoinUnit.SATS,
-          );
-          const networkFee = new NetworkTransactionFee(fast, medium, slow);
+          const networkFee = new NetworkTransactionFee(response.fast, response.medium, response.slow);
           resolve(networkFee);
         } else {
           const networkFee = new NetworkTransactionFee(1, 1, 1);

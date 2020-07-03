@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import { SafeBlueArea, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
-import OnAppLaunch from '../../class/onAppLaunch';
-import { useNavigation } from 'react-navigation-hooks';
+import { TouchableOpacity, View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueListItem } from '../../BlueComponents';
+import OnAppLaunch from '../../class/on-app-launch';
+import { useNavigation } from '@react-navigation/native';
 const BlueApp = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+});
 
 const DefaultView = () => {
   const [defaultWalletLabel, setDefaultWalletLabel] = useState('');
@@ -48,18 +54,22 @@ const DefaultView = () => {
   };
 
   return (
-    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.flex}>
       <View>
         <BlueListItem
           title="View All Wallets"
-          hideChevron
-          switchButton
-          swithchEnabled={BlueApp.getWallets().length > 0}
-          switched={viewAllWalletsEnabled}
-          onSwitch={onViewAllWalletsSwitchValueChanged}
+          Component={TouchableWithoutFeedback}
+          switch={{
+            onValueChange: onViewAllWalletsSwitchValueChanged,
+            value: viewAllWalletsEnabled,
+            disabled: BlueApp.getWallets().length <= 0,
+          }}
         />
+        <BlueCard>
+          <BlueText>When disabled, BlueWallet will immediately open the selected wallet at launch.</BlueText>
+        </BlueCard>
         {!viewAllWalletsEnabled && (
-          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} />
+          <BlueListItem title="Default into" component={TouchableOpacity} onPress={selectWallet} rightTitle={defaultWalletLabel} chevron />
         )}
       </View>
     </SafeBlueArea>

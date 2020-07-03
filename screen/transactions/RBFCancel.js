@@ -1,12 +1,19 @@
 /* global alert */
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, StyleSheet } from 'react-native';
 import { BlueSpacing20, SafeBlueArea, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
 import CPFP from './CPFP';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
+const BlueApp = require('../../BlueApp');
+
+const styles = StyleSheet.create({
+  common: {
+    flex: 1,
+    paddingTop: 20,
+  },
+});
 
 export default class RBFCancel extends CPFP {
   static navigationOptions = () => ({
@@ -29,14 +36,14 @@ export default class RBFCancel extends CPFP {
       return this.setState({ nonReplaceable: true, isLoading: false });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.txid, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
       (await tx.isSequenceReplaceable()) &&
       (await tx.canCancelTx())
     ) {
-      let info = await tx.getInfo();
+      const info = await tx.getInfo();
       console.log({ info });
       return this.setState({ nonReplaceable: false, feeRate: info.feeRate + 1, isLoading: false, tx });
       // 1 sat makes a lot of difference, since sometimes because of rounding created tx's fee might be insufficient
@@ -52,7 +59,7 @@ export default class RBFCancel extends CPFP {
       const tx = this.state.tx;
       this.setState({ isLoading: true });
       try {
-        let { tx: newTx } = await tx.createRBFcancelTx(newFeeRate);
+        const { tx: newTx } = await tx.createRBFcancelTx(newFeeRate);
         this.setState({ stage: 2, txhex: newTx.toHex(), newTxid: newTx.getId() });
         this.setState({ isLoading: false });
       } catch (_) {
@@ -67,17 +74,17 @@ export default class RBFCancel extends CPFP {
     BlueApp.tx_metadata[this.state.newTxid] = BlueApp.tx_metadata[this.state.txid] || {};
 
     // porting tx memo
-    if (BlueApp.tx_metadata[this.state.newTxid]['memo']) {
-      BlueApp.tx_metadata[this.state.newTxid]['memo'] = 'Cancelled: ' + BlueApp.tx_metadata[this.state.newTxid]['memo'];
+    if (BlueApp.tx_metadata[this.state.newTxid].memo) {
+      BlueApp.tx_metadata[this.state.newTxid].memo = 'Cancelled: ' + BlueApp.tx_metadata[this.state.newTxid].memo;
     } else {
-      BlueApp.tx_metadata[this.state.newTxid]['memo'] = 'Cancelled transaction';
+      BlueApp.tx_metadata[this.state.newTxid].memo = 'Cancelled transaction';
     }
   }
 
   render() {
     if (this.state.isLoading) {
       return (
-        <View style={{ flex: 1, paddingTop: 20 }}>
+        <View style={styles.root}>
           <ActivityIndicator />
         </View>
       );
@@ -93,7 +100,7 @@ export default class RBFCancel extends CPFP {
 
     if (this.state.nonReplaceable) {
       return (
-        <SafeBlueArea style={{ flex: 1, paddingTop: 20 }}>
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
           <BlueSpacing20 />
           <BlueSpacing20 />

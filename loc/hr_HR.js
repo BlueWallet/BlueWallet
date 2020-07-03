@@ -10,6 +10,8 @@ module.exports = {
   wallets: {
     select_wallet: 'Odaberi volet',
     options: 'opcije',
+    createBitcoinWallet:
+      'You currently do not have a Bitcoin wallet. In order to fund a Lightning wallet, a Bitcoin wallet needs to be created or imported. Would you like to continue anyway?',
     list: {
       app_name: 'BlueWallet',
       title: 'Voleti',
@@ -18,6 +20,7 @@ module.exports = {
       create_a_wallet: 'Stvori novi volet',
       create_a_wallet1: 'Ne košta ništa i možete',
       create_a_wallet2: 'ih stvoriti moliko želite',
+      create_a_button: 'dodaj sada',
       latest_transaction: 'posljednja transakcija',
       empty_txs1: 'Vaše transakcije će se pojaviti ovdje',
       empty_txs2: 'trenutno nema nijedne',
@@ -44,10 +47,14 @@ module.exports = {
       coming_soon: 'Dolazi uskoro',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Volet',
       address: 'Adresa',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tip',
       label: 'Oznaka',
       destination: 'odredište',
@@ -61,6 +68,9 @@ module.exports = {
       export_backup: 'Izvoz / bekap',
       buy_bitcoin: 'Kupovina Bitcoina',
       show_xpub: 'Prikaži voletov XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'izvoz voleta',
@@ -220,6 +230,7 @@ module.exports = {
     refill: 'Dopuni',
     withdraw: 'Isprazni',
     placeholder: 'Invoice',
+    exchange: 'Exchange',
     expired: 'Isteklo',
     sameWalletAsInvoiceError: 'Buraz! Ne možeš platiti račun s istim voletom s kojim si račun stvorio, ono.',
   },
@@ -237,5 +248,10 @@ module.exports = {
     for: 'For:',
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

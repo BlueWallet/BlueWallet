@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 import { BlueLoading, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../../BlueComponents';
 /** @type {AppStorage} */
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
 
 const ReleaseNotes = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -9,18 +15,18 @@ const ReleaseNotes = () => {
 
   useEffect(() => {
     setIsLoading(false);
-  });
+  }, []);
 
   return isLoading ? (
-    (<BlueLoading />)
+    <BlueLoading />
   ) : (
-    (<SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
+    <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
       <ScrollView>
         <BlueCard>
           <BlueText>{notes}</BlueText>
         </BlueCard>
       </ScrollView>
-    </SafeBlueArea>)
+    </SafeBlueArea>
   );
 };
 

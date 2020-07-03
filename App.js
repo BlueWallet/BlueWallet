@@ -1,20 +1,21 @@
+import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, DeviceEventEmitter, AppState, Clipboard, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationActions } from 'react-navigation';
-import MainBottomTabs from './MainBottomTabs';
-import NavigationService from './NavigationService';
+import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Navigation from './Navigation';
+import { navigationRef } from './NavigationService';
+import * as NavigationService from './NavigationService';
 import { BlueTextCentered, BlueButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import url from 'url';
-import { AppStorage, LightningCustodianWallet } from './class';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
-import OnAppLaunch from './class/onAppLaunch';
-import DeeplinkSchemaMatch from './class/deeplinkSchemaMatch';
-const A = require('./analytics');
+import OnAppLaunch from './class/on-app-launch';
+import DeeplinkSchemaMatch from './class/deeplink-schema-match';
+const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -25,12 +26,10 @@ if (process.env.NODE_ENV !== 'development') {
 const bitcoinModalString = 'Bitcoin address';
 const lightningModalString = 'Lightning Invoice';
 const loc = require('./loc');
-/** @type {AppStorage} */
 const BlueApp = require('./BlueApp');
+const EV = require('./blue_modules/events');
 
 export default class App extends React.Component {
-  navigator = null;
-
   state = {
     appState: AppState.currentState,
     isClipboardContentModalVisible: false,
@@ -39,21 +38,24 @@ export default class App extends React.Component {
   };
 
   componentDidMount() {
+    EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+  }
+
+  addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
     AppState.addEventListener('change', this._handleAppStateChange);
-    QuickActions.popInitialAction().then(this.popInitialAction);
     DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
-  }
+    QuickActions.popInitialAction().then(this.popInitialAction);
+    this._handleAppStateChange(undefined);
+  };
 
   popInitialAction = async data => {
     if (data) {
-      // eslint-disable-next-line no-unused-expressions
-      this.navigator.dismiss;
       const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-      this.navigator.dispatch(
-        NavigationActions.navigate({
+      NavigationService.dispatch(
+        CommonActions.navigate({
+          name: 'WalletTransactions',
           key: `WalletTransactions-${wallet.getID()}`,
-          routeName: 'WalletTransactions',
           params: {
             wallet,
           },
@@ -68,14 +70,12 @@ export default class App extends React.Component {
       } else {
         const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
         if (!isViewAllWalletsEnabled) {
-          // eslint-disable-next-line no-unused-expressions
-          this.navigator.dismiss;
           const selectedDefaultWallet = await OnAppLaunch.getSelectedDefaultWallet();
           const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === selectedDefaultWallet.getID());
           if (wallet) {
-            this.navigator.dispatch(
-              NavigationActions.navigate({
-                routeName: 'WalletTransactions',
+            NavigationService.dispatch(
+              CommonActions.navigate({
+                name: 'WalletTransactions',
                 key: `WalletTransactions-${wallet.getID()}`,
                 params: {
                   wallet,
@@ -90,11 +90,9 @@ export default class App extends React.Component {
 
   walletQuickActions = data => {
     const wallet = BlueApp.getWallets().find(wallet => wallet.getID() === data.userInfo.url.split('wallet/')[1]);
-    // eslint-disable-next-line no-unused-expressions
-    this.navigator.dismiss;
-    this.navigator.dispatch(
-      NavigationActions.navigate({
-        routeName: 'WalletTransactions',
+    NavigationService.dispatch(
+      CommonActions.navigate({
+        name: 'WalletTransactions',
         key: `WalletTransactions-${wallet.getID()}`,
         params: {
           wallet,
@@ -110,12 +108,17 @@ export default class App extends React.Component {
 
   _handleAppStateChange = async nextAppState => {
     if (BlueApp.getWallets().length > 0) {
-      if (this.state.appState.match(/background/) && nextAppState === 'active') {
+      if ((this.state.appState.match(/background/) && nextAppState) === 'active' || nextAppState === undefined) {
         setTimeout(() => A(A.ENUM.APP_UNSUSPENDED), 2000);
         const clipboard = await Clipboard.getString();
-        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet =>
-          wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
-        );
+        const isAddressFromStoredWallet = BlueApp.getWallets().some(wallet => {
+          if (wallet.chain === Chain.ONCHAIN) {
+            // checking address validity is faster than unwrapping hierarchy only to compare it to garbage
+            return wallet.isAddressValid && wallet.isAddressValid(clipboard) && wallet.weOwnAddress(clipboard);
+          } else {
+            return wallet.isInvoiceGeneratedByWallet(clipboard) || wallet.weOwnAddress(clipboard);
+          }
+        });
         const isBitcoinAddress = DeeplinkSchemaMatch.isBitcoinAddress(clipboard);
         const isLightningInvoice = DeeplinkSchemaMatch.isLightningInvoice(clipboard);
         const isLNURL = DeeplinkSchemaMatch.isLnUrl(clipboard);
@@ -136,17 +139,19 @@ export default class App extends React.Component {
         }
         this.setState({ clipboardContent: clipboard });
       }
-      this.setState({ appState: nextAppState });
+      if (nextAppState) {
+        this.setState({ appState: nextAppState });
+      }
     }
   };
 
   isBothBitcoinAndLightningWalletSelect = wallet => {
     const clipboardContent = this.state.clipboardContent;
     if (wallet.chain === Chain.ONCHAIN) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'SendDetails',
+      this.navigation &&
+        NavigationService.dispatch(
+          CommonActions.navigate({
+            name: 'SendDetails',
             params: {
               uri: clipboardContent.bitcoin,
               fromWallet: wallet,
@@ -154,10 +159,10 @@ export default class App extends React.Component {
           }),
         );
     } else if (wallet.chain === Chain.OFFCHAIN) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'ScanLndInvoice',
+      this.navigation &&
+        NavigationService.dispatch(
+          CommonActions.navigate({
+            name: 'ScanLndInvoice',
             params: {
               uri: clipboardContent.lndInvoice,
               fromSecret: wallet.getSecret(),
@@ -168,141 +173,7 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    if (event.url === null) {
-      return;
-    }
-    if (typeof event.url !== 'string') {
-      return;
-    }
-    let isBothBitcoinAndLightning;
-    try {
-      isBothBitcoinAndLightning = DeeplinkSchemaMatch.isBothBitcoinAndLightning(event.url);
-    } catch (e) {
-      console.log(e);
-    }
-    if (isBothBitcoinAndLightning) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'HandleOffchainAndOnChain',
-            params: {
-              onWalletSelect: this.isBothBitcoinAndLightningWalletSelect,
-            },
-          }),
-        );
-    } else if (DeeplinkSchemaMatch.isBitcoinAddress(event.url)) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'SendDetails',
-            params: {
-              uri: event.url,
-            },
-          }),
-        );
-    } else if (DeeplinkSchemaMatch.isLightningInvoice(event.url)) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'ScanLndInvoice',
-            params: {
-              uri: event.url,
-            },
-          }),
-        );
-    } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'LNDCreateInvoice',
-            params: {
-              uri: event.url,
-            },
-          }),
-        );
-    } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
-      let urlObject = url.parse(event.url, true) // eslint-disable-line
-
-      const safelloStateToken = urlObject.query['safello-state-token'];
-
-      this.navigator &&
-        this.navigator.dispatch(
-          NavigationActions.navigate({
-            routeName: 'BuyBitcoin',
-            params: {
-              uri: event.url,
-              safelloStateToken,
-            },
-          }),
-        );
-    } else {
-      let urlObject = url.parse(event.url, true); // eslint-disable-line
-      console.log('parsed', urlObject);
-      (async () => {
-        if (urlObject.protocol === 'bluewallet:' || urlObject.protocol === 'lapp:' || urlObject.protocol === 'blue:') {
-          switch (urlObject.host) {
-            case 'openlappbrowser':
-              console.log('opening LAPP', urlObject.query.url);
-              // searching for LN wallet:
-              let haveLnWallet = false;
-              for (let w of BlueApp.getWallets()) {
-                if (w.type === LightningCustodianWallet.type) {
-                  haveLnWallet = true;
-                }
-              }
-
-              if (!haveLnWallet) {
-                // need to create one
-                let w = new LightningCustodianWallet();
-                w.setLabel(this.state.label || w.typeReadable);
-
-                try {
-                  let lndhub = await AsyncStorage.getItem(AppStorage.LNDHUB);
-                  if (lndhub) {
-                    w.setBaseURI(lndhub);
-                    w.init();
-                  }
-                  await w.createAccount();
-                  await w.authorize();
-                } catch (Err) {
-                  // giving up, not doing anything
-                  return;
-                }
-                BlueApp.wallets.push(w);
-                await BlueApp.saveToDisk();
-              }
-
-              // now, opening lapp browser and navigating it to URL.
-              // looking for a LN wallet:
-              let lnWallet;
-              for (let w of BlueApp.getWallets()) {
-                if (w.type === LightningCustodianWallet.type) {
-                  lnWallet = w;
-                  break;
-                }
-              }
-
-              if (!lnWallet) {
-                // something went wrong
-                return;
-              }
-
-              this.navigator &&
-                this.navigator.dispatch(
-                  NavigationActions.navigate({
-                    routeName: 'LappBrowser',
-                    params: {
-                      fromSecret: lnWallet.getSecret(),
-                      fromWallet: lnWallet,
-                      url: urlObject.query.url,
-                    },
-                  }),
-                );
-              break;
-          }
-        }
-      })();
-    }
+    DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value));
   };
 
   renderClipboardContentModal = () => {
@@ -326,7 +197,7 @@ export default class App extends React.Component {
                 title={loc.send.details.cancel}
                 onPress={() => this.setState({ isClipboardContentModalVisible: false })}
               />
-              <View style={{ marginHorizontal: 8 }} />
+              <View style={styles.space} />
               <BlueButton
                 noMinWidth
                 title="OK"
@@ -346,20 +217,25 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <MainBottomTabs
-          ref={nav => {
-            this.navigator = nav;
-            NavigationService.setTopLevelNavigator(nav);
-          }}
-        />
-        {this.renderClipboardContentModal()}
-      </View>
+      <SafeAreaProvider>
+        <View style={styles.root}>
+          <NavigationContainer ref={navigationRef} theme={Appearance.getColorScheme() === 'dark' ? { ...DarkTheme } : DefaultTheme} tr>
+            <Navigation />
+          </NavigationContainer>
+          {this.renderClipboardContentModal()}
+        </View>
+      </SafeAreaProvider>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  space: {
+    marginHorizontal: 8,
+  },
   modalContent: {
     backgroundColor: '#FFFFFF',
     padding: 22,

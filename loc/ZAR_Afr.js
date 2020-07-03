@@ -22,9 +22,13 @@
       create_a_wallet: 'Skep ‘n beursie',
       create_a_wallet1: 'Dit is gratis so skep',
       create_a_wallet2: 'soveel as wat u benodig',
+      create_a_button: 'Add now',
       latest_transaction: 'laaste transaksie',
       empty_txs1: 'U transaksies is hier beskikbaar,',
       empty_txs2: 'huidiglik geen transaksies',
+      empty_txs1_lightning:
+        'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Raak hier om Bitcoin te koop',
     },
     reorder: {
@@ -46,10 +50,14 @@
       coming_soon: 'In die toekoms',
       lightning: 'Lightning',
       bitcoin: 'Bitcoin',
+      entropy_provide: 'Provide entropy via dice rolls',
+      entropy_generated: '{gen} bytes of generated entropy',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Beursiet',
       address: 'AdresAddress',
+      master_fingerprint: 'Master fingerprint',
       type: 'Tipe',
       label: 'Etiket',
       destination: 'bestemming',
@@ -63,6 +71,9 @@
       export_backup: 'voer uit / kopieer',
       buy_bitcoin: 'Koop Bitcoin',
       show_xpub: 'Wys beursie XPUB',
+      connected_to: 'Connected to',
+      advanced: 'Advanced',
+      use_with_hardware_wallet: 'Use with hardware wallet',
     },
     export: {
       title: 'beursie uitvoer',
@@ -165,6 +176,7 @@
       create: 'Skep',
       setAmount: 'Bedrag ontvang',
     },
+    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Koop Bitcoin',
@@ -186,10 +198,14 @@
       'Om u eie LND node te konnekteer, installeer asseblief LndHub' +
       ' and put its URL here in settings. Leave blank om die standaard LndHub' +
       '(lndhub.io) te gebruik',
+    electrum_settings: 'Electrum Settings',
+    electrum_settings_explain: 'Set to blank to use default',
     save: 'stoor',
     about: 'info',
     language: 'Taal',
     currency: 'Geldeenheid',
+    advanced_options: 'Advanced Options',
+    enable_advanced_mode: 'Enable advanced mode',
   },
   plausibledeniability: {
     title: 'Geloofwaardige Ontkenbaarheid',
@@ -216,6 +232,7 @@
     withdraw: 'Ontrek',
     expired: 'Verval',
     placeholder: 'Faktuur',
+    exchange: 'Exchange',
     sameWalletAsInvoiceError: 'U kan nie ‘n faktuur betaal met die selfde beursie waarmee die faktuur geksep is nie.',
   },
   pleasebackup: {
@@ -232,5 +249,10 @@
     for: 'For:',
     additional_info: 'Additional Information',
     open_direct_channel: 'Open direct channel with this node:',
+  },
+  entropy: {
+    title: 'Entropy',
+    save: 'Save',
+    undo: 'Undo',
   },
 };

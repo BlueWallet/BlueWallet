@@ -1,53 +1,64 @@
-v4.9.0
+v5.5.0
 ======
 
-* ADD: Native segwit (BIP84) are now default wallets
-* ADD: Toggle to turn off RBF when creating a transaction
-* ADD: Scroll to end of wallets list when adding a wallet
-* FIX: Default LN invoice expiry is now 24h instead of 1h
-* FIX: Speeded up lighnint wallets
-* FIX: Force Light theme mode even if system is in dark mode
-* FIX: Hide Manage Funds button if wallet doesn't allow onchain refill.
-* FIX: LN Scan to receive is more visible
-* FIX: Quick actions not appearing on non-3d touch devices.
-* FIX: Dont show clipboard modal when biometrics  is dismissed
+* FIX: provide entropy for D20
+* REF: speeded up transactions list
 
-v4.8.1
+v5.4.4
 ======
 
-* FIX: Updated biometrics
-* FIX: Import QR Code from screenshot not working
+* ADD: support for Cobo Vault hardware wallet (animated QR codes)
+* ADD: Provide entropy via dice rolls or coin flip
+* ADD: Option to exclude some wallet's transactions #248 (#1220)
+* ADD: Detect language and currency setting on first run
+* ADD: Launch screen dark mode
+* FIX: cant send onchain when scanning QR with address & amount
+* FIX: errors when fetching huge transactions from electrum server
+* FIX: lnurl withdrawal when currency is set to fiat (closes #1290)
+* FIX: local trader: when user is not logged in, clicking 'accept offer' should not just throw alert, but open login screen
+* FIX: local trader: before accepting offer, refetch it and use fresh id and version so there are no 'outdated' errors
+* FIX: local trader: when 'I am selling', sort order should be reversed
+* REF: Replace FaceID image
+* REF: optimize png images size
+* REF: speeded up legacy HD wallets (BIP44)
 
-v4.8.0
+v5.4.3
 ======
 
-* ADD: Today Extension and Quick Actions
-* ADD: Send max option on advanced menu
-* ADD: Add Onchain address view for Lightning
-* FIX: Allow textfield to be visible above keyboard
-* FIX: lapp browser when typing URL without https scheme it doesnt work
-* ADD: Value and memo to the success screen fix logic for both sent and receive
-* FIX: layout for small devices with flexbox
-* FIX: Dont allow zero invoices to enable create invoice button
-* FIX: Change create button on Receive LN payment should be create invoice
-* FIX: Update for watch
+* ADD: Login to Local Trader with HodlHodl
+* ADD: See full listing screen
+* ADD: See your contracts/offers
+* ADD: Accept offer (buy Bitcoin)
+* ADD: You can now modify on-chain transaction note to self
+* ADD: ILS Fiat
+* REF: improved electrum server connectivity
+* FIX: deeplinking for cold boot
+* FIX: lnurl withdrawal when default unit is not sat (closes #1234)
+* FIX: StatusBar wasn't visible when modals opened
+* FIX: Euro symbol for iOS Today extension
+* FIX: Change Withdraw to Exchange
+* DEL: support for BIP70
 
-
-v4.7.1
+v5.4.1
 ======
 
-* ADD: Lapp browser
-* FIX: White screen on boot
-* FIX: Lightning wallet was not shown on Watch app
-* FIX: crash on PSBT tx broadcast (when using with hardware wallet)
-* REF: mnemonic backup screen
-* DEL: Auto brightenss
+* ADD: fiat input for receive & send
+* ADD: Fee details to lighting invoice
+* FIX: Watch-only Wallets we're not being synced to Watch app
+* FIX: following onchain+offchain invoice
+* FIX: Reorder wallets not working
+* FIX: extend pull to close gesture area to full modal height
+* FIX: Don't allow navigating backwards on backup screens
+* FIX: round fiat currencies
 
-v4.7.0
+v5.4.0
 ======
 
-* ADD: external marketplace link
-* FIX: electrum connection
-* FIX: Now able to use biometrics with encrypted storage (not for unlocking)
-* FIX: LApp marketplace address is now editable
-* FIX: single address watch-only wallet Receive button crash
+* FIX: Set the first launch flag (issue with disappearing wallets)
+* ADD: Catalan translation
+* ADD: Slovak translation
+* ADD: custom success animation to onchain transactions
+* FIX: improved startup time
+* FIX: Seed index number
+* FIX: scan button style for RU language
+* REF: Navigation updated

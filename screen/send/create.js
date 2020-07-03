@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import {
   TextInput,
@@ -5,49 +6,100 @@ import {
   ScrollView,
   Linking,
   TouchableOpacity,
-  Clipboard,
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
   Text,
   View,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Privacy from '../../Privacy';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
+import { Icon } from 'react-native-elements';
+import Share from 'react-native-share';
+import RNFS from 'react-native-fs';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 const loc = require('../../loc');
-const currency = require('../../currency');
+const currency = require('../../blue_modules/currency');
 
 export default class SendCreate extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle,
-    title: loc.send.create.details,
-  });
+  static navigationOptions = ({ navigation, route }) => {
+    let headerRight;
+    if (route.params.exportTXN) {
+      headerRight = () => (
+        <TouchableOpacity style={styles.export} onPress={route.params.exportTXN}>
+          <Icon size={22} name="share-alternative" type="entypo" color={BlueApp.settings.foregroundColor} />
+        </TouchableOpacity>
+      );
+    } else {
+      headerRight = null;
+    }
+
+    return {
+      ...BlueNavigationStyle,
+      title: loc.send.create.details,
+      headerRight,
+    };
+  };
 
   constructor(props) {
     super(props);
     console.log('send/create constructor');
-
+    props.navigation.setParams({ exportTXN: this.exportTXN });
     this.state = {
       isLoading: false,
-      fee: props.navigation.getParam('fee'),
-      recipients: props.navigation.getParam('recipients'),
-      memo: props.navigation.getParam('memo') || '',
-      size: Math.round(props.navigation.getParam('tx').length / 2),
-      tx: props.navigation.getParam('tx'),
-      satoshiPerByte: props.navigation.getParam('satoshiPerByte'),
-      wallet: props.navigation.getParam('wallet'),
-      feeSatoshi: props.navigation.getParam('feeSatoshi'),
+      fee: props.route.params.fee,
+      recipients: props.route.params.recipients,
+      memo: props.route.params.memo || '',
+      size: Math.round(props.route.params.tx.length / 2),
+      tx: props.route.params.tx,
+      satoshiPerByte: props.route.params.satoshiPerByte,
+      wallet: props.route.params.wallet,
+      feeSatoshi: props.route.params.feeSatoshi,
     };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     Privacy.enableBlur();
     console.log('send/create - componentDidMount');
   }
+
+  exportTXN = async () => {
+    const fileName = `${Date.now()}.txn`;
+    if (Platform.OS === 'ios') {
+      const filePath = RNFS.TemporaryDirectoryPath + `/${fileName}`;
+      await RNFS.writeFile(filePath, this.state.tx);
+      Share.open({
+        url: 'file://' + filePath,
+      })
+        .catch(error => console.log(error))
+        .finally(() => {
+          RNFS.unlink(filePath);
+        });
+    } else if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE, {
+        title: 'BlueWallet Storage Access Permission',
+        message: 'BlueWallet needs your permission to access your storage to save this transaction.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      });
+
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Storage Permission: Granted');
+        const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
+        await RNFS.writeFile(filePath, this.state.tx);
+        alert(`This transaction has been saved in ${filePath}`);
+      } else {
+        console.log('Storage Permission: Denied');
+      }
+    }
+  };
 
   componentWillUnmount() {
     Privacy.disableBlur();
@@ -61,13 +113,13 @@ export default class SendCreate extends Component {
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
           <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
           <Text style={styles.transactionDetailsSubtitle}>
-            {item.amount === BitcoinUnit.MAX
+            {item.value === BitcoinUnit.MAX || !item.value
               ? currency.satoshiToBTC(this.state.wallet.getBalance()) - this.state.fee
-              : item.amount || currency.satoshiToBTC(item.value)}{' '}
+              : currency.satoshiToBTC(item.value)}{' '}
             {BitcoinUnit.BTC}
           </Text>
           {this.state.recipients.length > 1 && (
-            <BlueText style={{ alignSelf: 'flex-end' }}>
+            <BlueText style={styles.itemOf}>
               {index + 1} of {this.state.recipients.length}
             </BlueText>
           )}
@@ -77,40 +129,23 @@ export default class SendCreate extends Component {
   };
 
   renderSeparator = () => {
-    return <View style={{ backgroundColor: BlueApp.settings.inputBorderColor, height: 0.5, marginVertical: 16 }} />;
+    return <View style={styles.separator} />;
   };
 
   render() {
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+      <SafeBlueArea style={styles.root}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
-            <BlueCard style={{ alignItems: 'center', flex: 1 }}>
-              <BlueText style={{ color: '#0c2550', fontWeight: '500' }}>{loc.send.create.this_is_hex}</BlueText>
-              <TextInput
-                style={{
-                  borderColor: '#ebebeb',
-                  backgroundColor: '#d2f8d6',
-                  borderRadius: 4,
-                  marginTop: 20,
-                  color: '#37c0a1',
-                  fontWeight: '500',
-                  fontSize: 14,
-                  paddingHorizontal: 16,
-                  paddingBottom: 16,
-                  paddingTop: 16,
-                }}
-                height={72}
-                multiline
-                editable
-                value={this.state.tx}
-              />
+            <BlueCard style={styles.card}>
+              <BlueText style={styles.cardText}>{loc.send.create.this_is_hex}</BlueText>
+              <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
-              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Clipboard.setString(this.state.tx)}>
-                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Copy and broadcast later</Text>
+              <TouchableOpacity style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
+                <Text style={styles.actionText}>Copy and broadcast later</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={{ marginVertical: 24 }} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
-                <Text style={{ color: '#9aa0aa', fontSize: 15, fontWeight: '500', alignSelf: 'center' }}>Verify on coinb.in</Text>
+              <TouchableOpacity style={styles.actionTouch} onPress={() => Linking.openURL('https://coinb.in/?verify=' + this.state.tx)}>
+                <Text style={styles.actionText}>Verify on coinb.in</Text>
               </TouchableOpacity>
             </BlueCard>
             <BlueCard>
@@ -159,21 +194,60 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 20,
   },
+  export: {
+    marginRight: 16,
+  },
+  itemOf: {
+    alignSelf: 'flex-end',
+  },
+  separator: {
+    backgroundColor: BlueApp.settings.inputBorderColor,
+    height: 0.5,
+    marginVertical: 16,
+  },
+  root: {
+    flex: 1,
+    paddingTop: 19,
+  },
+  card: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  cardText: {
+    color: '#0c2550',
+    fontWeight: '500',
+  },
+  cardTx: {
+    borderColor: '#ebebeb',
+    backgroundColor: '#d2f8d6',
+    borderRadius: 4,
+    marginTop: 20,
+    color: '#37c0a1',
+    fontWeight: '500',
+    fontSize: 14,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 16,
+  },
+  actionTouch: {
+    marginVertical: 24,
+  },
+  actionText: {
+    color: '#9aa0aa',
+    fontSize: 15,
+    fontWeight: '500',
+    alignSelf: 'center',
+  },
 });
 
 SendCreate.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
+    setParams: PropTypes.func,
     navigate: PropTypes.func,
     dismiss: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        amount: PropTypes.string,
-        fee: PropTypes.number,
-        address: PropTypes.string,
-        memo: PropTypes.string,
-      }),
-    }),
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { View, ActivityIndicator, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import {
   BlueButton,
   SafeBlueArea,
@@ -13,13 +13,14 @@ import {
   BlueNavigationStyle,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
+import { HDSegwitBech32Transaction } from '../../class';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Handoff from 'react-native-handoff';
+import HandoffSettings from '../../class/handoff';
 /** @type {AppStorage} */
-let BlueApp = require('../../BlueApp');
-let loc = require('../../loc');
+const BlueApp = require('../../BlueApp');
+const loc = require('../../loc');
 
 const buttonStatus = Object.freeze({
   possible: 1,
@@ -27,24 +28,128 @@ const buttonStatus = Object.freeze({
   notPossible: 3,
 });
 
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  center: {
+    alignItems: 'center',
+  },
+  value: {
+    color: '#2f5fb3',
+    fontSize: 36,
+    fontWeight: '600',
+  },
+  valueUnit: {
+    color: '#2f5fb3',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  memo: {
+    alignItems: 'center',
+    marginVertical: 8,
+  },
+  memoText: {
+    color: '#9aa0aa',
+    fontSize: 14,
+  },
+  iconRoot: {
+    backgroundColor: '#ccddf9',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginTop: 43,
+    marginBottom: 53,
+  },
+  iconWrap: {
+    minWidth: 30,
+    minHeight: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'flex-end',
+    borderRadius: 15,
+  },
+  margin: {
+    marginBottom: -40,
+  },
+  icon: {
+    width: 25,
+  },
+  fee: {
+    marginTop: 15,
+    marginBottom: 13,
+  },
+  feeText: {
+    fontSize: 11,
+    fontWeight: '500',
+    marginBottom: 4,
+    color: '#00c49f',
+    alignSelf: 'center',
+  },
+  confirmations: {
+    borderRadius: 11,
+    backgroundColor: '#eef0f4',
+    width: 109,
+    height: 21,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  confirmationsText: {
+    color: '#9aa0aa',
+    fontSize: 11,
+  },
+  actions: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  cancel: {
+    marginVertical: 16,
+  },
+  cancelText: {
+    color: '#d0021b',
+    fontSize: 15,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  details: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  detailsText: {
+    color: '#9aa0aa',
+    fontSize: 14,
+    marginRight: 8,
+  },
+});
+
 export default class TransactionsStatus extends Component {
   static navigationOptions = () => ({
     ...BlueNavigationStyle(),
+    title: '',
   });
 
   constructor(props) {
     super(props);
-    let hash = props.navigation.state.params.hash;
+    const hash = props.route.params.hash;
     let foundTx = {};
     let from = [];
     let to = [];
-    for (let tx of BlueApp.getTransactions()) {
+    for (const tx of BlueApp.getTransactions()) {
       if (tx.hash === hash) {
         foundTx = tx;
-        for (let input of foundTx.inputs) {
+        for (const input of foundTx.inputs) {
           from = from.concat(input.addresses);
         }
-        for (let output of foundTx.outputs) {
+        for (const output of foundTx.outputs) {
           if (output.addresses) to = to.concat(output.addresses);
           if (output.scriptPubKey && output.scriptPubKey.addresses) to = to.concat(output.scriptPubKey.addresses);
         }
@@ -52,8 +157,8 @@ export default class TransactionsStatus extends Component {
     }
 
     let wallet = false;
-    for (let w of BlueApp.getWallets()) {
-      for (let t of w.getTransactions()) {
+    for (const w of BlueApp.getWallets()) {
+      for (const t of w.getTransactions()) {
         if (t.hash === hash) {
           console.log('tx', hash, 'belongs to', w.getLabel());
           wallet = w;
@@ -70,13 +175,16 @@ export default class TransactionsStatus extends Component {
       isCPFPpossible: buttonStatus.unknown,
       isRBFBumpFeePossible: buttonStatus.unknown,
       isRBFCancelPossible: buttonStatus.unknown,
+      isHandOffUseEnabled: false,
     };
   }
 
   async componentDidMount() {
     console.log('transactions/details - componentDidMount');
+    const isHandOffUseEnabled = await HandoffSettings.isHandoffUseEnabled();
     this.setState({
       isLoading: false,
+      isHandOffUseEnabled,
     });
 
     try {
@@ -93,11 +201,11 @@ export default class TransactionsStatus extends Component {
   }
 
   async checkPossibilityOfCPFP() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    if (!this.state.wallet.allowRBF()) {
       return this.setState({ isCPFPpossible: buttonStatus.notPossible });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if ((await tx.isToUsTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0) {
       return this.setState({ isCPFPpossible: buttonStatus.possible });
     } else {
@@ -106,11 +214,11 @@ export default class TransactionsStatus extends Component {
   }
 
   async checkPossibilityOfRBFBumpFee() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    if (!this.state.wallet.allowRBF()) {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.notPossible });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if ((await tx.isOurTransaction()) && (await tx.getRemoteConfirmationsNum()) === 0 && (await tx.isSequenceReplaceable())) {
       return this.setState({ isRBFBumpFeePossible: buttonStatus.possible });
     } else {
@@ -119,11 +227,11 @@ export default class TransactionsStatus extends Component {
   }
 
   async checkPossibilityOfRBFCancel() {
-    if (this.state.wallet.type !== HDSegwitBech32Wallet.type) {
+    if (!this.state.wallet.allowRBF()) {
       return this.setState({ isRBFCancelPossible: buttonStatus.notPossible });
     }
 
-    let tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
+    const tx = new HDSegwitBech32Transaction(null, this.state.tx.hash, this.state.wallet);
     if (
       (await tx.isOurTransaction()) &&
       (await tx.getRemoteConfirmationsNum()) === 0 &&
@@ -137,34 +245,37 @@ export default class TransactionsStatus extends Component {
   }
 
   render() {
-    if (this.state.isLoading || !this.state.hasOwnProperty('tx')) {
+    if (this.state.isLoading || !('tx' in this.state)) {
       return <BlueLoading />;
     }
 
     return (
-      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={{ flex: 1 }}>
-        <Handoff
-          title={`Bitcoin Transaction ${this.state.tx.hash}`}
-          type="io.bluewallet.bluewallet"
-          url={`https://blockstream.info/tx/${this.state.tx.hash}`}
-        />
-        <View style={{ flex: 1, justifyContent: 'space-between' }}>
+      <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
+        <StatusBar barStyle="dark-content" />
+        {this.state.isHandOffUseEnabled && (
+          <Handoff
+            title={`Bitcoin Transaction ${this.state.tx.hash}`}
+            type="io.bluewallet.bluewallet"
+            url={`https://blockstream.info/tx/${this.state.tx.hash}`}
+          />
+        )}
+        <View style={styles.container}>
           <BlueCard>
-            <View style={{ alignItems: 'center' }}>
-              <Text style={{ color: '#2f5fb3', fontSize: 36, fontWeight: '600' }}>
+            <View style={styles.center}>
+              <Text style={styles.value}>
                 {loc.formatBalanceWithoutSuffix(this.state.tx.value, this.state.wallet.preferredBalanceUnit, true)}{' '}
                 {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && (
-                  <Text style={{ color: '#2f5fb3', fontSize: 16, fontWeight: '600' }}>{this.state.wallet.preferredBalanceUnit}</Text>
+                  <Text style={styles.valueUnit}>{this.state.wallet.preferredBalanceUnit}</Text>
                 )}
               </Text>
             </View>
 
             {(() => {
               if (BlueApp.tx_metadata[this.state.tx.hash]) {
-                if (BlueApp.tx_metadata[this.state.tx.hash]['memo']) {
+                if (BlueApp.tx_metadata[this.state.tx.hash].memo) {
                   return (
-                    <View style={{ alignItems: 'center', marginVertical: 8 }}>
-                      <Text style={{ color: '#9aa0aa', fontSize: 14 }}>{BlueApp.tx_metadata[this.state.tx.hash]['memo']}</Text>
+                    <View style={styles.memo}>
+                      <Text style={styles.memoText}>{BlueApp.tx_metadata[this.state.tx.hash].memo}</Text>
                       <BlueSpacing20 />
                     </View>
                   );
@@ -172,48 +283,27 @@ export default class TransactionsStatus extends Component {
               }
             })()}
 
-            <View
-              style={{
-                backgroundColor: '#ccddf9',
-                width: 120,
-                height: 120,
-                borderRadius: 60,
-                alignSelf: 'center',
-                justifyContent: 'center',
-                marginTop: 43,
-                marginBottom: 53,
-              }}
-            >
+            <View style={styles.iconRoot}>
               <View>
                 <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
               </View>
-              <View
-                style={{
-                  marginBottom: -40,
-                  minWidth: 30,
-                  minHeight: 30,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  alignSelf: 'flex-end',
-                  borderRadius: 15,
-                }}
-              >
+              <View style={[styles.iconWrap, styles.margin]}>
                 {(() => {
                   if (!this.state.tx.confirmations) {
                     return (
-                      <View style={{ width: 25 }}>
+                      <View style={styles.icon}>
                         <BlueTransactionPendingIcon />
                       </View>
                     );
                   } else if (this.state.tx.value < 0) {
                     return (
-                      <View style={{ width: 25 }}>
+                      <View style={styles.icon}>
                         <BlueTransactionOutgoingIcon />
                       </View>
                     );
                   } else {
                     return (
-                      <View style={{ width: 25 }}>
+                      <View style={styles.icon}>
                         <BlueTransactionIncomingIcon />
                       </View>
                     );
@@ -222,9 +312,9 @@ export default class TransactionsStatus extends Component {
               </View>
             </View>
 
-            {this.state.tx.hasOwnProperty('fee') && (
-              <View style={{ marginTop: 15, marginBottom: 13 }}>
-                <BlueText style={{ fontSize: 11, fontWeight: '500', marginBottom: 4, color: '#00c49f', alignSelf: 'center' }}>
+            {'fee' in this.state.tx && (
+              <View style={styles.fee}>
+                <BlueText style={styles.feeText}>
                   {loc.send.create.fee.toLowerCase()}{' '}
                   {loc.formatBalanceWithoutSuffix(this.state.tx.fee, this.state.wallet.preferredBalanceUnit, true)}{' '}
                   {this.state.wallet.preferredBalanceUnit !== BitcoinUnit.LOCAL_CURRENCY && this.state.wallet.preferredBalanceUnit}
@@ -232,53 +322,25 @@ export default class TransactionsStatus extends Component {
               </View>
             )}
 
-            <View
-              style={{
-                borderRadius: 11,
-                backgroundColor: '#eef0f4',
-                width: 109,
-                height: 21,
-                alignSelf: 'center',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Text style={{ color: '#9aa0aa', fontSize: 11 }}>
+            <View style={styles.confirmations}>
+              <Text style={styles.confirmationsText}>
                 {this.state.tx.confirmations > 6 ? '6+' : this.state.tx.confirmations} confirmations
               </Text>
             </View>
           </BlueCard>
 
-          <View style={{ alignSelf: 'center', justifyContent: 'center' }}>
-            {(() => {
-              if (this.state.tx.confirmations === 0 && this.state.wallet && this.state.wallet.allowRBF()) {
-                return (
-                  <React.Fragment>
-                    <BlueButton
-                      onPress={() =>
-                        this.props.navigation.navigate('RBF', {
-                          txid: this.state.tx.hash,
-                        })
-                      }
-                      title="Replace-By-Fee (RBF)"
-                    />
-                    <BlueSpacing20 />
-                  </React.Fragment>
-                );
-              }
-            })()}
-
+          <View style={styles.actions}>
             {(() => {
               if (this.state.isCPFPpossible === buttonStatus.unknown) {
                 return (
-                  <React.Fragment>
+                  <>
                     <ActivityIndicator />
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 );
               } else if (this.state.isCPFPpossible === buttonStatus.possible) {
                 return (
-                  <React.Fragment>
+                  <>
                     <BlueButton
                       onPress={() =>
                         this.props.navigation.navigate('CPFP', {
@@ -289,7 +351,7 @@ export default class TransactionsStatus extends Component {
                       title="Bump Fee"
                     />
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 );
               }
             })()}
@@ -297,14 +359,14 @@ export default class TransactionsStatus extends Component {
             {(() => {
               if (this.state.isRBFBumpFeePossible === buttonStatus.unknown) {
                 return (
-                  <React.Fragment>
+                  <>
                     <ActivityIndicator />
                     <BlueSpacing20 />
-                  </React.Fragment>
+                  </>
                 );
               } else if (this.state.isRBFBumpFeePossible === buttonStatus.possible) {
                 return (
-                  <React.Fragment>
+                  <>
                     <BlueButton
                       onPress={() =>
                         this.props.navigation.navigate('RBFBumpFee', {
@@ -314,21 +376,21 @@ export default class TransactionsStatus extends Component {
                       }
                       title="Bump Fee"
                     />
-                  </React.Fragment>
+                  </>
                 );
               }
             })()}
             {(() => {
               if (this.state.isRBFCancelPossible === buttonStatus.unknown) {
                 return (
-                  <React.Fragment>
+                  <>
                     <ActivityIndicator />
-                  </React.Fragment>
+                  </>
                 );
               } else if (this.state.isRBFCancelPossible === buttonStatus.possible) {
                 return (
-                  <React.Fragment>
-                    <TouchableOpacity style={{ marginVertical: 16 }}>
+                  <>
+                    <TouchableOpacity style={styles.cancel}>
                       <Text
                         onPress={() =>
                           this.props.navigation.navigate('RBFCancel', {
@@ -336,21 +398,21 @@ export default class TransactionsStatus extends Component {
                             wallet: this.state.wallet,
                           })
                         }
-                        style={{ color: '#d0021b', fontSize: 15, fontWeight: '500', textAlign: 'center' }}
+                        style={styles.cancelText}
                       >
-                        {'Cancel Transaction'}
+                        Cancel Transaction
                       </Text>
                     </TouchableOpacity>
-                  </React.Fragment>
+                  </>
                 );
               }
             })()}
 
             <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}
+              style={styles.details}
               onPress={() => this.props.navigation.navigate('TransactionDetails', { hash: this.state.tx.hash })}
             >
-              <Text style={{ color: '#9aa0aa', fontSize: 14, marginRight: 8 }}>{loc.send.create.details.toLowerCase()}</Text>
+              <Text style={styles.detailsText}>{loc.send.create.details.toLowerCase()}</Text>
               <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
             </TouchableOpacity>
           </View>
@@ -369,5 +431,8 @@ TransactionsStatus.propTypes = {
         hash: PropTypes.string,
       }),
     }),
+  }),
+  route: PropTypes.shape({
+    params: PropTypes.object,
   }),
 };
