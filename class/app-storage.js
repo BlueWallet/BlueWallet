@@ -39,6 +39,7 @@ export class AppStorage {
     this.wallets = [];
     this.tx_metadata = {};
     this.cachedPassword = false;
+    this._max_keylength = 16000000;
     this.settings = {
       brandingColor: '#ffffff',
       foregroundColor: '#0c2550',
@@ -67,15 +68,47 @@ export class AppStorage {
     };
   }
 
+  static _chunkSubstr(str, size) {
+    const numChunks = Math.ceil(str.length / size);
+    const chunks = new Array(numChunks);
+
+    for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
+      chunks[i] = str.substr(o, size);
+    }
+
+    return chunks;
+  }
+
   /**
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
+   * Also splitting value in several chunks for `data` key if its too big
    *
    * @param key
    * @param value
    * @returns {Promise<any>|Promise<any> | Promise<void> | * | Promise | void}
    */
   setItem(key, value) {
+    if (key === 'data' && value.length > this._max_keylength) {
+      return (async () => {
+        let c = 1;
+        for (const part of AppStorage._chunkSubstr(value, this._max_keylength)) {
+          if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+            await RNSecureKeyStore.set('data_' + c, part, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+          } else {
+            await AsyncStorage.setItem('data_' + c, part);
+          }
+          c++;
+        }
+
+        if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+          return RNSecureKeyStore.set('data', 'totalparts_' + (c - 1), { accessible: ACCESSIBLE.WHEN_UNLOCKED });
+        } else {
+          return AsyncStorage.setItem('data', 'totalparts_' + (c - 1));
+        }
+      })();
+    }
+
     if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
       return RNSecureKeyStore.set(key, value, { accessible: ACCESSIBLE.WHEN_UNLOCKED });
     } else {
@@ -86,16 +119,36 @@ export class AppStorage {
   /**
    * Wrapper for storage call. Secure store works only in RN environment. AsyncStorage is
    * used for cli/tests
+   * Also handles if key `data` is split in several chunks
    *
    * @param key
    * @returns {Promise<any>|*}
    */
   getItem(key) {
-    if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
-      return RNSecureKeyStore.get(key);
-    } else {
-      return AsyncStorage.getItem(key);
-    }
+    return (async () => {
+      let ret;
+      if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+        ret = await RNSecureKeyStore.get(key);
+      } else {
+        ret = await AsyncStorage.getItem(key);
+      }
+
+      if (key === 'data' && ret.startsWith('totalparts_')) {
+        const totalParts = parseInt(ret.replace('totalparts_', ''));
+        ret = '';
+        for (let c = 1; c <= totalParts; c++) {
+          let part;
+          if (typeof navigator !== 'undefined' && navigator.product === 'ReactNative') {
+            part = await RNSecureKeyStore.get('data_' + c);
+          } else {
+            part = await AsyncStorage.getItem('data_' + c);
+          }
+          ret += part;
+        }
+      }
+
+      return ret;
+    })();
   }
 
   async setResetOnAppUninstallTo(value) {

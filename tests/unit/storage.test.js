@@ -30,6 +30,32 @@ it('Appstorage - loadFromDisk works', async () => {
   assert.ok(isEncrypted);
 });
 
+it('Appstorage - loadFromDisk works with data split in several keys', async () => {
+  /** @type {AppStorage} */
+  const Storage = new AppStorage();
+  Storage._max_keylength = 250;
+  const w = new SegwitP2SHWallet();
+  w.setLabel('testlabel');
+  await w.generate();
+  Storage.wallets.push(w);
+  await Storage.saveToDisk();
+
+  // checking parts:
+
+  assert.strictEqual(await AsyncStorage.getItem('data'), 'totalparts_2');
+  assert.ok(await AsyncStorage.getItem('data_1'));
+  assert.ok(await AsyncStorage.getItem('data_2'));
+
+  // now trying to load:
+
+  const Storage2 = new AppStorage();
+  await Storage2.loadFromDisk();
+  assert.strictEqual(Storage2.wallets.length, 1);
+  assert.strictEqual(Storage2.wallets[0].getLabel(), 'testlabel');
+  const isEncrypted = await Storage2.storageIsEncrypted();
+  assert.ok(!isEncrypted);
+});
+
 it('Appstorage - encryptStorage & load encrypted storage works', async () => {
   /** @type {AppStorage} */
   const Storage = new AppStorage();
