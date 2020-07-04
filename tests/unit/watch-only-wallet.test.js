@@ -119,6 +119,20 @@ describe('Watch only wallet', () => {
     assert.strictEqual(w.getLabel(), 'Cobo Vault 5271c071');
   });
 
+  it('can import zpub with master fingerprint', async () => {
+    const zpub = "[8cce63f8/84h/0h/0h]zpub6s2RJ9qAEBW8Abhojs6LyDzF7gttcDr6EsR3Umu2aptZBb45e734rGtt4KqsCMmNyR1EEzUU2ugdVYez2VywQvAbBjUSKn8ho4Zk2c5otkk";
+    const w = new WatchOnlyWallet();
+    w.setSecret(zpub);
+    w.init();
+    assert.ok(w.valid());
+    assert.strictEqual(
+      w.getSecret(),
+      'zpub6s2RJ9qAEBW8Abhojs6LyDzF7gttcDr6EsR3Umu2aptZBb45e734rGtt4KqsCMmNyR1EEzUU2ugdVYez2VywQvAbBjUSKn8ho4Zk2c5otkk',
+    );
+    assert.strictEqual(w.getMasterFingerprint(), 4167290508);
+    assert.strictEqual(w.getMasterFingerprintHex(), '8cce63f8');
+  });
+
   it('can combine signed PSBT and prepare it for broadcast', async () => {
     const w = new WatchOnlyWallet();
     w.setSecret('zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk');
