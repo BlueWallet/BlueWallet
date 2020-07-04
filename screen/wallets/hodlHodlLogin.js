@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { useRef } from 'react';
 import { WebView } from 'react-native-webview';
 import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
-import PropTypes from 'prop-types';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const url = 'https://accounts.hodlhodl.com/accounts/request_access?attributes=api_key,api_signature_key';
 
@@ -15,57 +15,38 @@ const INJECTED_JAVASCRIPT = `(function() {
     
 })();`;
 
-export default class HodlHodlLogin extends Component {
-  constructor(props) {
-    super(props);
+const HodlHodlLogin = props => {
+  const webView = useRef();
+  const route = useRoute();
+  const { dismiss } = useNavigation();
 
-    this.state = {
-      url: url,
-    };
-  }
+  return (
+    <SafeBlueArea>
+      <WebView
+        injectedJavaScript={INJECTED_JAVASCRIPT}
+        ref={webView}
+        source={{ uri: url }}
+        onMessage={e => {
+          // this is a handler which receives messages sent from within the browser
 
-  render() {
-    return (
-      <SafeBlueArea>
-        <WebView
-          injectedJavaScript={INJECTED_JAVASCRIPT}
-          ref={ref => (this.webview = ref)}
-          source={{ uri: this.state.url }}
-          onMessage={e => {
-            // this is a handler which receives messages sent from within the browser
+          if (lastTimeIvebeenHere && +new Date() - lastTimeIvebeenHere < 5000) return;
+          lastTimeIvebeenHere = +new Date();
+          // page can post messages several times, and that can confuse our react navigation, so we have protection
+          // against that
 
-            if (lastTimeIvebeenHere && +new Date() - lastTimeIvebeenHere < 5000) return;
-            lastTimeIvebeenHere = +new Date();
-            // page can post messages several times, and that can confuse our react navigation, so we have protection
-            // against that
+          let json = false;
+          try {
+            json = JSON.parse(e.nativeEvent.data);
+          } catch (_) {}
 
-            let json = false;
-            try {
-              json = JSON.parse(e.nativeEvent.data);
-            } catch (_) {}
-
-            if (json && json.allowed && json.data && json.data.api_key) {
-              this.props.route.params.cb(json.data.api_key, json.data.api_signature_key);
-              this.props.navigation.pop();
-            }
-          }}
-        />
-      </SafeBlueArea>
-    );
-  }
-}
-
-HodlHodlLogin.propTypes = {
-  route: PropTypes.shape({
-    params: PropTypes.shape({
-      cb: PropTypes.func.isRequired,
-    }),
-  }),
-  navigation: PropTypes.shape({
-    getParam: PropTypes.func,
-    navigate: PropTypes.func,
-    pop: PropTypes.func,
-  }),
+          if (json && json.allowed && json.data && json.data.api_key) {
+            route.params.cb(json.data.api_key, json.data.api_signature_key);
+            dismiss();
+          }
+        }}
+      />
+    </SafeBlueArea>
+  );
 };
 
 HodlHodlLogin.navigationOptions = ({ navigation }) => ({
@@ -73,3 +54,5 @@ HodlHodlLogin.navigationOptions = ({ navigation }) => ({
   title: 'Login',
   headerLeft: null,
 });
+
+export default HodlHodlLogin;

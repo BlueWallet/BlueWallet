@@ -73,7 +73,7 @@ export default class HodlHodl extends Component {
       this.setState({ HodlApi, hodlApiKey });
       this.props.navigation.setParams({ displayLoginButton });
     };
-    NavigationService.navigate('HodlHodlRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
+    NavigationService.navigate('HodlHodlLogin', { params: { cb: handleLoginCallback } });
   };
 
   handleMyContractsPress = () => {
@@ -205,16 +205,14 @@ export default class HodlHodl extends Component {
     this.fetchListOfMethods();
   }
 
-  _onPress(item) {
+  _onPress = item => {
     const offers = this.state.offers.filter(value => value.id === item.id);
     if (offers && offers[0]) {
-      NavigationService.navigate('HodlHodlViewOffer', {
-        offerToDisplay: offers[0],
-      });
+      this.props.navigation.navigate('HodlHodlViewOffer', { offerToDisplay: offers[0] });
     } else {
       Linking.openURL('https://hodlhodl.com/offers/' + item.id);
     }
-  }
+  };
 
   _onCountryPress(item) {
     this.setState(
@@ -862,9 +860,10 @@ HodlHodl.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(navigation, true),
   title: '',
   headerStyle: {
+    ...BlueNavigationStyle(navigation, true).headerStyle,
     backgroundColor: BlueCurrentTheme.colors.customHeader,
   },
-  headerLeft: () => {
+  headerRight: () => {
     return route.params.displayLoginButton ? (
       <BlueButtonLink title="Login" onPress={route.params.handleLoginPress} style={styles.marginHorizontal20} />
     ) : (

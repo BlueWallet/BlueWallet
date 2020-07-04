@@ -71,7 +71,7 @@ export default class HodlHodlViewOffer extends Component {
       const HodlApi = new HodlHodlApi(hodlApiKey);
       this.setState({ HodlApi, hodlApiKey });
     };
-    NavigationService.navigate('HodlHodlRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
+    NavigationService.navigate('HodlHodl', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
   };
 
   async _onAcceptOfferPress(offer) {
@@ -369,10 +369,11 @@ const styles = StyleSheet.create({
   acceptOfferButtonWrapperWrapper: { marginTop: 24, alignItems: 'center' },
 });
 
-HodlHodlViewOffer.navigationOptions = ({ navigation }) => ({
+HodlHodlViewOffer.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   title: '',
   headerStyle: {
+    ...BlueNavigationStyle().headerStyle,
     backgroundColor: BlueCurrentTheme.colors.customHeader,
   },
 });

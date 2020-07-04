@@ -135,6 +135,7 @@ const WalletsRoot = () => (
       component={LNDViewAdditionalInvoiceInformation}
       options={LNDViewAdditionalInvoiceInformation.navigationOptions}
     />
+    <WalletsStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
     <WalletsStack.Screen name="Broadcast" component={Broadcast} options={Broadcast.navigationOptions} />
   </WalletsStack.Navigator>
 );
@@ -215,17 +216,6 @@ const LNDCreateInvoiceRoot = () => (
   </LNDCreateInvoiceStack.Navigator>
 );
 
-const HodlHodlStack = createStackNavigator();
-const HodlHodlRoot = () => (
-  <HodlHodlStack.Navigator>
-    <HodlHodlStack.Screen name="HodlHodl" component={HodlHodl} options={HodlHodl.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlViewOffer" component={HodlHodlViewOffer} options={HodlHodlViewOffer.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
-    <HodlHodlStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
-  </HodlHodlStack.Navigator>
-);
-
 // LightningScanInvoiceStackNavigator === ScanLndInvoiceStack
 const ScanLndInvoiceStack = createStackNavigator();
 const ScanLndInvoiceRoot = () => (
@@ -274,6 +264,13 @@ const UnlockWithScreenRoot = () => (
   </UnlockWithScreenStack.Navigator>
 );
 
+const HodlHodlStack = createStackNavigator();
+const HodlHodlRoot = () => (
+  <HodlHodlStack.Navigator name="HodlHodlRoot" screenOptions={defaultStackScreenOptions}>
+    <HodlHodlStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
+  </HodlHodlStack.Navigator>
+);
+
 const RootStack = createStackNavigator();
 const Navigation = () => (
   <RootStack.Navigator mode="modal" screenOptions={defaultScreenOptions} initialRouteName="LoadingScreenRoot">
@@ -290,7 +287,9 @@ const Navigation = () => (
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
-    <RootStack.Screen name="HodlHodlRoot" component={HodlHodlRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="HodlHodlLogin" component={HodlHodlRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
+    <RootStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
     <RootStack.Screen
       name="ScanQRCodeRoot"
       component={ScanQRCodeRoot}
