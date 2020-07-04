@@ -407,7 +407,7 @@ export default class LNDCreateInvoice extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root}>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <View style={styles.amount}>
             <KeyboardAvoidingView behavior="position">
               <BlueBitcoinAmount

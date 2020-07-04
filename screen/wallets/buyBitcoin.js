@@ -91,7 +91,7 @@ export default class BuyBitcoin extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="default" />
         <WebView
           source={{
             uri,

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import BN from 'bignumber.js';
 import { Dimensions, View, ScrollView, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueCurrentTheme } from '../../components/themes';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueTabs } from '../../BlueComponents';
 const loc = require('../../loc');
@@ -191,6 +191,7 @@ const Entropy = () => {
   const navigation = useNavigation();
   const [tab, setTab] = useState(1);
   const [show, setShow] = useState(false);
+  const { colors } = useTheme();
 
   const push = v => v && dispatch({ type: 'push', value: v.value, bits: v.bits });
   const pop = () => dispatch({ type: 'pop' });
@@ -218,25 +219,13 @@ const Entropy = () => {
         onSwitch={setTab}
         tabs={[
           ({ active }) => (
-            <Icon
-              name="toll"
-              type="material"
-              color={active ? BlueCurrentTheme.colors.buttonAlternativeTextColor : BlueCurrentTheme.colors.buttonBackgroundColor}
-            />
+            <Icon name="toll" type="material" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
           ({ active }) => (
-            <Icon
-              name="dice"
-              type="font-awesome-5"
-              color={active ? BlueCurrentTheme.colors.buttonAlternativeTextColor : BlueCurrentTheme.colors.buttonBackgroundColor}
-            />
+            <Icon name="dice" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
           ({ active }) => (
-            <Icon
-              name="dice-d20"
-              type="font-awesome-5"
-              color={active ? BlueCurrentTheme.colors.buttonAlternativeTextColor : BlueCurrentTheme.colors.buttonBackgroundColor}
-            />
+            <Icon name="dice-d20" type="font-awesome-5" color={active ? colors.buttonAlternativeTextColor : colors.buttonBackgroundColor} />
           ),
         ]}
       />
@@ -309,12 +298,10 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'center',
     paddingBottom: 100,
-
   },
   diceRoot: {
     width: Dimensions.get('window').width / 4,
     aspectRatio: 1,
-
   },
   dice: {
     margin: 3,
@@ -323,10 +310,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     aspectRatio: 1,
-    borderColor: BlueCurrentTheme.colors.buttonBackgroundColor, 
+    borderColor: BlueCurrentTheme.colors.buttonBackgroundColor,
   },
   diceText: {
-    color: BlueCurrentTheme.colors.foregroundColor, 
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   diceIcon: {
     margin: 3,

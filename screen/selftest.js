@@ -12,7 +12,7 @@ const BlueElectrum = require('../blue_modules/BlueElectrum');
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   center: {
     alignItems: 'center',

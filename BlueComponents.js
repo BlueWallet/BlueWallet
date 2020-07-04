@@ -54,7 +54,7 @@ if (aspectRatio > 1.6) {
 
 export class BlueButton extends Component {
   render() {
-    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueCurrentTheme.colors.buttonBackgroundColor;
+    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueCurrentTheme.colors.mainColor;
     let fontColor = BlueCurrentTheme.colors.buttonTextColor;
     if (this.props.disabled === true) {
       backgroundColor = BlueCurrentTheme.colors.buttonDisabledBackgroundColor;
@@ -70,7 +70,7 @@ export class BlueButton extends Component {
           flex: 1,
           borderWidth: 0.7,
           borderColor: 'transparent',
-          backgroundColor: BlueCurrentTheme.colors.mainColor,
+          backgroundColor: backgroundColor,
           minHeight: 45,
           height: 45,
           maxHeight: 45,
@@ -92,7 +92,7 @@ export class BlueButton extends Component {
 
 export class SecondButton extends Component {
   render() {
-    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueCurrentTheme.colors.buttonBackgroundColor;
+    let backgroundColor = this.props.backgroundColor ? this.props.backgroundColor : BlueCurrentTheme.colors.buttonBlueBackgroundColor;
     let fontColor = BlueCurrentTheme.colors.buttonTextColor;
     if (this.props.disabled === true) {
       backgroundColor = BlueCurrentTheme.colors.buttonDisabledBackgroundColor;
@@ -108,7 +108,7 @@ export class SecondButton extends Component {
           flex: 1,
           borderWidth: 0.7,
           borderColor: 'transparent',
-          backgroundColor: BlueCurrentTheme.colors.buttonBlueBackgroundColor,
+          backgroundColor: backgroundColor,
           minHeight: 45,
           height: 45,
           maxHeight: 45,
@@ -878,13 +878,13 @@ export class BlueHeaderDefaultMain extends Component {
             height: 80,
           }}
           bottomDivider={false}
+          topDivider={false}
           containerStyle={{
             height: 44,
             flexDirection: 'row',
             backgroundColor: BlueCurrentTheme.colors.background,
+            borderTopColor: BlueCurrentTheme.colors.background,
             borderBottomColor: BlueCurrentTheme.colors.background,
-            borderTopColor: 'red',
-
           }}
           rightComponent={
             this.props.onNewWalletPress && (
@@ -1089,23 +1089,18 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
 export class BlueLoading extends Component {
   render() {
     return (
-      <SafeBlueArea>
-        <View style={{ flex: 1, paddingTop: 200 }} {...this.props}>
-          <ActivityIndicator />
-        </View>
-      </SafeBlueArea>
+      <View style={{ flex: 1, paddingTop: 200 }} {...this.props}>
+        <ActivityIndicator />
+      </View>
     );
   }
 }
 
 export const BlueLoadingHook = () => {
-  const { colors } = useTheme();
   return (
-    <SafeBlueArea>
-      <View style={{ flex: 1, paddingTop: 200 }}>
-        <ActivityIndicator />
-      </View>
-    </SafeBlueArea>
+    <View style={{ flex: 1, paddingTop: 200 }}>
+      <ActivityIndicator />
+    </View>
   );
 };
 
@@ -2872,6 +2867,6 @@ const animatedQRCodeStyle = StyleSheet.create({
   text: {
     fontSize: 14,
     color: BlueCurrentTheme.colors.foregroundColor,
-    fontWeight: 'bold', 
+    fontWeight: 'bold',
   },
 });

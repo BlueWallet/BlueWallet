@@ -429,7 +429,7 @@ export default class Browser extends Component {
     return (
       <SafeBlueArea>
         <View style={styles.safeRoot}>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <TouchableOpacity
             disabled={!this.state.canGoBack}
             onPress={() => {

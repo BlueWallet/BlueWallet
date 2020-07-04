@@ -717,7 +717,13 @@ export default class HodlHodl extends Component {
 
           <View style={styles.grayTextContainerContainer}>
             <View style={styles.grayTextContainer}>
-              <Icon name="place" type="material" size={20} color={BlueCurrentTheme.colors.foregroundColor} containerStyle={styles.paddingLeft10} />
+              <Icon
+                name="place"
+                type="material"
+                size={20}
+                color={BlueCurrentTheme.colors.foregroundColor}
+                containerStyle={styles.paddingLeft10}
+              />
               {this.state.isLoading ? (
                 <ActivityIndicator />
               ) : (
@@ -733,7 +739,13 @@ export default class HodlHodl extends Component {
               >
                 <Text style={styles.blueText}>Filters</Text>
 
-                <Icon name="filter-list" type="material" size={24} color={BlueCurrentTheme.colors.foregroundColor} containerStyle={styles.paddingLeft10} />
+                <Icon
+                  name="filter-list"
+                  type="material"
+                  size={24}
+                  color={BlueCurrentTheme.colors.foregroundColor}
+                  containerStyle={styles.paddingLeft10}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -816,7 +828,7 @@ export default class HodlHodl extends Component {
   render() {
     return (
       <SafeBlueArea>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="default" />
         <SectionList
           refreshControl={<RefreshControl onRefresh={this._onRefreshOffers} refreshing={this.state.showShowFlatListRefreshControl} />}
           renderItem={this.renderItem}
@@ -1007,12 +1019,12 @@ const styles = StyleSheet.create({
   itemNameWrapper: { backgroundColor: BlueCurrentTheme.colors.elevated, flex: 1, flexDirection: 'row', paddingTop: 20, paddingBottom: 20 },
   itemNameBold: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'bold' },
   itemNameNormal: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, fontWeight: 'normal' },
-  whiteBackground: { backgroundColor: BlueCurrentTheme.colors.background, },
-  filterCurrencyText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor, },
+  whiteBackground: { backgroundColor: BlueCurrentTheme.colors.background },
+  filterCurrencyText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor },
   filteCurrencyTextWrapper: { color: BlueCurrentTheme.colors.foregroundColor, right: 0, position: 'absolute' },
-  currencyNativeName: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor, },
+  currencyNativeName: { fontSize: 20, color: BlueCurrentTheme.colors.foregroundColor },
   currencyWrapper: { paddingLeft: 10, flex: 1, flexDirection: 'row' },
-  methodNameText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor, },
+  methodNameText: { fontSize: 16, color: BlueCurrentTheme.colors.foregroundColor },
   searchTextInput: { fontSize: 17, flex: 1, marginHorizontal: 8, minHeight: 33, paddingLeft: 6, paddingRight: 6, color: '#81868e' },
   iconWithOffset: { left: -10 },
   paddingLeft10: { paddingLeft: 10 },

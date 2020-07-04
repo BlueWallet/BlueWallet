@@ -361,7 +361,7 @@ export default class ScanLndInvoice extends React.Component {
     }
     return (
       <SafeBlueArea forceInset={{ horizontal: 'always' }} style={styles.root}>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle="default" />
         <View style={styles.root}>
           <ScrollView contentContainerStyle={styles.scroll}>
             <KeyboardAvoidingView enabled behavior="position" keyboardVerticalOffset={20}>

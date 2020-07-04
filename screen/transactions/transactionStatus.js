@@ -436,7 +436,7 @@ TransactionsStatus.propTypes = {
 TransactionsStatus.navigationOptions = () => ({
   ...BlueNavigationStyle(),
   title: '',
-     headerStyle: {
-        backgroundColor: BlueCurrentTheme.colors.customHeader,
-      },
+  headerStyle: {
+    backgroundColor: BlueCurrentTheme.colors.customHeader,
+  },
 });

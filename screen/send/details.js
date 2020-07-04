@@ -998,7 +998,7 @@ export default class SendDetails extends Component {
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root}>
-          <StatusBar barStyle="light-content" />
+          <StatusBar barStyle="default" />
           <View>
             <KeyboardAvoidingView behavior="position">
               <ScrollView

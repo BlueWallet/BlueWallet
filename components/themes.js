@@ -58,8 +58,8 @@ export const BlueDefaultTheme = {
 
 export const BlueDarkTheme = {
   ...DarkTheme,
-    closeImage: require('../img/close-white.png'),
-    scanImage: require('../img/scan-white.png'),
+  closeImage: require('../img/close-white.png'),
+  scanImage: require('../img/scan-white.png'),
   colors: {
     ...BlueDefaultTheme.colors,
     ...DarkTheme.colors,

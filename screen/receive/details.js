@@ -68,7 +68,6 @@ const ReceiveDetails = () => {
     bottomModal: {
       justifyContent: 'flex-end',
       margin: 0,
-
     },
     customAmount: {
       flexDirection: 'row',
@@ -132,7 +131,7 @@ const ReceiveDetails = () => {
       paddingHorizontal: 70,
       maxWidth: '80%',
       borderRadius: 50,
-      fontWeight: '700', 
+      fontWeight: '700',
     },
   });
 
@@ -296,7 +295,7 @@ const ReceiveDetails = () => {
 
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="default" />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
@@ -338,10 +337,7 @@ const ReceiveDetails = () => {
         <View style={styles.share}>
           <BlueButtonLinkHook title={loc.receive.details.setAmount} onPress={showCustomAmountModal} />
           <View>
-            <SecondButton
-              onPress={handleShareButtonPressed}
-              title={loc.receive.details.share}
-            />
+            <SecondButton onPress={handleShareButtonPressed} title={loc.receive.details.share} />
           </View>
         </View>
       </ScrollView>

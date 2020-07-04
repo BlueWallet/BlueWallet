@@ -52,7 +52,7 @@ const PleaseBackupLNDHub = () => {
 
   return (
     <SafeBlueArea style={styles.root}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="default" />
       <ScrollView centerContent contentContainerStyle={styles.scrollViewContent} onLayout={onLayout}>
         <BlueCard>
           <View>

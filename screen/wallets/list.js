@@ -669,6 +669,10 @@ WalletsList.navigationOptions = ({ navigation, route }) => {
     title: '',
     headerStyle: {
       backgroundColor: BlueCurrentTheme.colors.customHeader,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
     },
     headerRight: () => (
       <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>

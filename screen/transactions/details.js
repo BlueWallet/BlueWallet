@@ -5,7 +5,6 @@ import {
   SafeBlueArea,
   BlueCard,
   BlueText,
-  BlueHeaderDefaultSub,
   BlueLoading,
   BlueSpacing20,
   BlueCopyToClipboardButton,

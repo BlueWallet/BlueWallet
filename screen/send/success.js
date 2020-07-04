@@ -100,21 +100,25 @@ export default class Success extends Component {
           )}
         </BlueCard>
         <View style={styles.ready}>
-          <LottieView 
-            style={styles.lottie} 
-            source={require('../../img/bluenice.json')} 
+          <LottieView
+            style={styles.lottie}
+            source={require('../../img/bluenice.json')}
             autoPlay
-            loop={false} 
-            colorFilters={[{
-              keypath: "spark",
-              color: BlueCurrentTheme.colors.success,
-            },{
-              keypath: "circle",
-              color: BlueCurrentTheme.colors.success,
-            },{
-              keypath: "Oval",
-              color: BlueCurrentTheme.colors.successCheck,
-            }]}
+            loop={false}
+            colorFilters={[
+              {
+                keypath: 'spark',
+                color: BlueCurrentTheme.colors.success,
+              },
+              {
+                keypath: 'circle',
+                color: BlueCurrentTheme.colors.success,
+              },
+              {
+                keypath: 'Oval',
+                color: BlueCurrentTheme.colors.successCheck,
+              },
+            ]}
           />
         </View>
         <BlueCard>
