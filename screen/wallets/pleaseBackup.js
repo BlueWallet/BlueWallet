@@ -3,6 +3,7 @@ import { ActivityIndicator, View, BackHandler, Text, ScrollView, StyleSheet, Sta
 import { useNavigation, useRoute, useTheme } from '@react-navigation/native';
 import { BlueSpacing20, SafeBlueArea, BlueNavigationStyle, BlueText, BlueButton } from '../../BlueComponents';
 import Privacy from '../../Privacy';
+
 const loc = require('../../loc');
 
 const PleaseBackup = () => {
@@ -14,7 +15,7 @@ const PleaseBackup = () => {
   const styles = StyleSheet.create({
     flex: {
       flex: 1,
-      backgroundColor: colors.background,
+      backgroundColor: colors.elevated,
     },
     loading: {
       flex: 1,
@@ -24,7 +25,7 @@ const PleaseBackup = () => {
       width: 'auto',
       marginRight: 8,
       marginBottom: 8,
-      backgroundColor: '#f5f5f5',
+      backgroundColor: colors.inputBackgroundColor,
       paddingTop: 6,
       paddingBottom: 6,
       paddingLeft: 8,
@@ -32,7 +33,7 @@ const PleaseBackup = () => {
       borderRadius: 4,
     },
     wortText: {
-      color: '#81868E',
+      color: colors.labelText,
       fontWeight: 'bold',
     },
     scrollViewContent: {

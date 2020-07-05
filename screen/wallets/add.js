@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     paddingTop: 20,
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   label: {
     flexDirection: 'row',

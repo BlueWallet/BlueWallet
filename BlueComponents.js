@@ -688,7 +688,7 @@ export const BlueListItemHooks = props => {
       bottomDivider
       containerStyle={{
         backgroundColor: 'transparent',
-        borderBottomColor: '#ededed',
+        borderBottomColor: BlueCurrentTheme.colors.lightBorder,
         paddingTop: 16,
         paddingBottom: 16,
       }}

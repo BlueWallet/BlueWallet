@@ -15,6 +15,8 @@ import {
 import { Button } from 'react-native-elements';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { useTheme } from '@react-navigation/native';
+import { BlueCurrentTheme } from '../../components/themes';
+
 const loc = require('../../loc');
 
 const styles = StyleSheet.create({
@@ -23,11 +25,11 @@ const styles = StyleSheet.create({
   },
   uri: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     alignItems: 'center',
@@ -83,8 +85,7 @@ const LightningSettings = () => {
         icon={{
           name: 'github',
           type: 'font-awesome',
-          color: colors.buttonTextColor,
-          backgroundColor: '#FFFFFF',
+          color: colors.foregroundColor,
         }}
         onPress={() => {
           Linking.openURL('https://github.com/BlueWallet/LndHub');

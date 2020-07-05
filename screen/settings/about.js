@@ -51,7 +51,7 @@ const About = () => {
       fontWeight: '500',
     },
     buildWith: {
-      backgroundColor: '#f9f9f9',
+      backgroundColor: colors.inputBackgroundColor,
       padding: 16,
       paddingTop: 0,
       borderRadius: 8,

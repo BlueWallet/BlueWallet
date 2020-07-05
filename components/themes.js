@@ -47,6 +47,7 @@ export const BlueDefaultTheme = {
     feeText: '#81868e',
     feeLabel: '#d2f8d6',
     feeValue: '#37c0a1',
+    labelText: '#81868e',
     cta2: '#062453',
     outputValue: '#13244D',
     elevated: '#ffffff',
@@ -94,6 +95,7 @@ export const BlueDarkTheme = {
     successCheck: '#0A84FF',
     buttonBlueBackgroundColor: '#202020',
     scanLabel: 'rgba(255,255,255,.2)',
+    labelText: '#ffffff',
   },
 };
 

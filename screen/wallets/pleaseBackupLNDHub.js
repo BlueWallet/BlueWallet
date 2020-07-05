@@ -28,11 +28,11 @@ const PleaseBackupLNDHub = () => {
   const styles = StyleSheet.create({
     root: {
       flex: 1,
-      backgroundColor: colors.background,
+      backgroundColor: colors.elevated,
     },
     scrollViewContent: {
       flexGrow: 1,
-      backgroundColor: colors.background,
+      backgroundColor: colors.elevated,
     },
   });
 
