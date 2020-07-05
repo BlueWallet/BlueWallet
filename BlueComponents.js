@@ -688,7 +688,7 @@ export const BlueListItemHooks = props => {
       bottomDivider
       containerStyle={{
         backgroundColor: 'transparent',
-        borderBottomColor: BlueCurrentTheme.colors.lightBorder,
+        borderBottomColor: colors.lightBorder,
         paddingTop: 16,
         paddingBottom: 16,
       }}
@@ -1089,7 +1089,7 @@ export class BlueDoneAndDismissKeyboardInputAccessory extends Component {
 export class BlueLoading extends Component {
   render() {
     return (
-      <View style={{ flex: 1, paddingTop: 200 }} {...this.props}>
+      <View style={{ flex: 1, paddingTop: 200, backgroundColor: BlueCurrentTheme.colors.background }} {...this.props}>
         <ActivityIndicator />
       </View>
     );
@@ -1097,8 +1097,9 @@ export class BlueLoading extends Component {
 }
 
 export const BlueLoadingHook = () => {
+  const { colors } = useTheme();
   return (
-    <View style={{ flex: 1, paddingTop: 200 }}>
+    <View style={{ flex: 1, paddingTop: 200, backgroundColor: colors.background }}>
       <ActivityIndicator />
     </View>
   );
