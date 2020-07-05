@@ -143,11 +143,11 @@ export class AbstractWallet {
     if (this.secret.startsWith('BC1')) this.secret = this.secret.toLowerCase();
 
     // [fingerprint/derivation]zpub
-    let re = /\[([^\]]+)\](.*)/;
-    let m = this.secret.match(re);
-    if(m && m.length==3){
-      let hexFingerprint = m[1].split("/")[0];
-      if(hexFingerprint.length == 8){
+    const re = /\[([^\]]+)\](.*)/;
+    const m = this.secret.match(re);
+    if (m && m.length === 3) {
+      let hexFingerprint = m[1].split('/')[0];
+      if (hexFingerprint.length === 8) {
         hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
         this.masterFingerprint = parseInt(hexFingerprint, 16);
       }
