@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Dimensions, ScrollView, BackHandler, InteractionManager, TouchableOpacity, StyleSheet } from 'react-native';
+import { StatusBar, View, Text, Dimensions, ScrollView, BackHandler, InteractionManager, TouchableOpacity, StyleSheet } from 'react-native';
 import Share from 'react-native-share';
 import {
   BlueLoading,
@@ -205,6 +205,7 @@ export default class LNDViewInvoice extends Component {
       if (this.state.showPreimageQr) {
         return (
           <SafeBlueArea style={styles.root}>
+            <StatusBar barStyle="default" />
             <View style={styles.center}>
               <BlueText>Preimage:</BlueText>
               <BlueSpacing20 />
@@ -230,6 +231,7 @@ export default class LNDViewInvoice extends Component {
       if (invoice.ispaid || invoice.type === 'paid_invoice') {
         return (
           <SafeBlueArea style={styles.root}>
+            <StatusBar barStyle="default" />
             <View style={styles.valueRoot}>
               {invoice.type === 'paid_invoice' && invoice.value && (
                 <View style={styles.valueAmount}>
@@ -266,6 +268,7 @@ export default class LNDViewInvoice extends Component {
       if (invoiceExpiration < now && !invoice.ispaid) {
         return (
           <SafeBlueArea style={styles.root}>
+            <StatusBar barStyle="default" />
             <View style={styles.center}>
               <View style={styles.expired}>
                 <Icon name="times" size={50} type="font-awesome" color={BlueCurrentTheme.colors.successCheck} />
@@ -289,6 +292,7 @@ export default class LNDViewInvoice extends Component {
     // Invoice has not expired, nor has it been paid for.
     return (
       <SafeBlueArea>
+        <StatusBar barStyle="default" />
         <ScrollView>
           <View style={styles.activeRoot} onLayout={this.onLayout}>
             <View style={styles.activeQrcode}>

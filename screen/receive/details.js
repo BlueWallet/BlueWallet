@@ -295,7 +295,7 @@ const ReceiveDetails = () => {
 
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="default" />
+      <StatusBar barStyle="light-content" />
       {isHandOffUseEnabled && address !== undefined && (
         <Handoff
           title={`Bitcoin Transaction ${address}`}
