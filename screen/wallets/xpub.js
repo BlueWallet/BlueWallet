@@ -82,7 +82,7 @@ export default class WalletXpub extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="default" />
+        <StatusBar barStyle="light-content" />
         <View style={styles.container} onLayout={this.onLayout}>
           <View>
             <BlueText>{this.state.wallet.typeReadable}</BlueText>

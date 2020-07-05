@@ -153,7 +153,7 @@ export default class ReorderWallets extends Component {
 
     return (
       <SafeBlueArea>
-        <StatusBar barStyle="default" />
+        <StatusBar barStyle="light-content" />
         <ScrollView scrollEnabled={this.state.scrollEnabled}>
           <SortableList
             ref={this.sortableList}

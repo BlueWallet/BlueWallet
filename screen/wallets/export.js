@@ -92,7 +92,7 @@ export default class WalletExport extends Component {
 
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="default" />
+        <StatusBar barStyle="light-content" />
         <ScrollView contentContainerStyle={styles.scrollViewContent} onLayout={this.onLayout}>
           <View>
             <BlueText style={styles.type}>{this.state.wallet.typeReadable}</BlueText>

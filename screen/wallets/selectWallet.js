@@ -136,14 +136,14 @@ const SelectWallet = ({ navigation }) => {
   if (isLoading) {
     return (
       <View style={styles.loading}>
-        <StatusBar barStyle="default" />
+        <StatusBar barStyle="light-content" />
         <ActivityIndicator />
       </View>
     );
   } else if (data.length <= 0) {
     return (
       <SafeBlueArea style={styles.root}>
-        <StatusBar barStyle="default" />
+        <StatusBar barStyle="light-content" />
         <View style={styles.noWallets}>
           <BlueText style={styles.center}>There are currently no Bitcoin wallets available.</BlueText>
           <BlueSpacing20 />
