@@ -285,6 +285,7 @@ TransactionsDetails.navigationOptions = ({ navigation, route }) => ({
   ...BlueNavigationStyle(),
   title: loc.transactions.details.title,
   headerStyle: {
+    ...BlueNavigationStyle(),
     backgroundColor: BlueCurrentTheme.colors.customHeader,
   },
   headerRight: () => (
