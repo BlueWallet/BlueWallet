@@ -32,122 +32,6 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-  },
-  scrollContent: {
-    top: 0,
-    left: 0,
-    bottom: 60,
-    right: 0,
-  },
-  wrapper: {
-    backgroundColor: '#FFFFFF',
-    flex: 1,
-  },
-  walletsListWrapper: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  headerStyle: {
-    ...Platform.select({
-      ios: {
-        marginTop: 44,
-        height: 32,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-      android: {
-        marginTop: 8,
-        height: 44,
-        alignItems: 'flex-end',
-        justifyContent: 'center',
-      },
-    }),
-  },
-  headerTouch: {
-    height: 48,
-    paddingRight: 16,
-    paddingLeft: 32,
-    paddingVertical: 10,
-  },
-  listHeaderText: {
-    paddingLeft: 16,
-    fontWeight: 'bold',
-    fontSize: 24,
-    marginVertical: 8,
-    color: BlueApp.settings.foregroundColor,
-  },
-  ltRoot: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    marginVertical: 16,
-    backgroundColor: '#eef0f4',
-    padding: 16,
-    borderRadius: 6,
-  },
-  ltTextWrap: {
-    flexDirection: 'column',
-  },
-  ltTextBig: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0C2550',
-  },
-  ltTextSmall: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#9AA0AA',
-  },
-  ltButtonWrap: {
-    flexDirection: 'column',
-    backgroundColor: '#007AFF',
-    borderRadius: 16,
-  },
-  ltButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    fontSize: 13,
-    color: '#fff',
-    fontWeight: '600',
-  },
-  footerRoot: {
-    top: 80,
-    height: 160,
-    marginBottom: 80,
-  },
-  footerEmpty: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-  },
-  footerStart: {
-    fontSize: 18,
-    color: '#9aa0aa',
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  scanButton: {
-    flexDirection: 'row',
-    alignSelf: 'center',
-    backgroundColor: 'transparent',
-    position: 'absolute',
-    bottom: 30,
-    borderRadius: 30,
-    minHeight: 48,
-    overflow: 'hidden',
-  },
-  listHeader: {
-    backgroundColor: '#FFFFFF',
-  },
-  transaction: {
-    marginHorizontal: 4,
-  },
-});
-
 export default class WalletsList extends Component {
   static navigationOptions = ({ navigation, route }) => {
     return {
@@ -311,7 +195,7 @@ export default class WalletsList extends Component {
             {
               text: 'Try Again',
               onPress: () => {
-                this.props.navigation.navigate('ImportWallet', { label: wallet.getSecret() });
+                this.props.navigation.navigate('AddWalletRoot', { screen: 'ImportWallet', params: { label: wallet.getSecret() } });
                 WalletImport.removePlaceholderWallet();
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
               },
@@ -665,6 +549,122 @@ export default class WalletsList extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  scrollContent: {
+    top: 0,
+    left: 0,
+    bottom: 60,
+    right: 0,
+  },
+  wrapper: {
+    backgroundColor: '#FFFFFF',
+    flex: 1,
+  },
+  walletsListWrapper: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  headerStyle: {
+    ...Platform.select({
+      ios: {
+        marginTop: 44,
+        height: 32,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      },
+      android: {
+        marginTop: 8,
+        height: 44,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+      },
+    }),
+  },
+  headerTouch: {
+    height: 48,
+    paddingRight: 16,
+    paddingLeft: 32,
+    paddingVertical: 10,
+  },
+  listHeaderText: {
+    paddingLeft: 16,
+    fontWeight: 'bold',
+    fontSize: 24,
+    marginVertical: 8,
+    color: BlueApp.settings.foregroundColor,
+  },
+  ltRoot: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginVertical: 16,
+    backgroundColor: '#eef0f4',
+    padding: 16,
+    borderRadius: 6,
+  },
+  ltTextWrap: {
+    flexDirection: 'column',
+  },
+  ltTextBig: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0C2550',
+  },
+  ltTextSmall: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#9AA0AA',
+  },
+  ltButtonWrap: {
+    flexDirection: 'column',
+    backgroundColor: '#007AFF',
+    borderRadius: 16,
+  },
+  ltButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  footerRoot: {
+    top: 80,
+    height: 160,
+    marginBottom: 80,
+  },
+  footerEmpty: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+  },
+  footerStart: {
+    fontSize: 18,
+    color: '#9aa0aa',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  scanButton: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    bottom: 30,
+    borderRadius: 30,
+    minHeight: 48,
+    overflow: 'hidden',
+  },
+  listHeader: {
+    backgroundColor: '#FFFFFF',
+  },
+  transaction: {
+    marginHorizontal: 4,
+  },
+});
 
 WalletsList.propTypes = {
   navigation: PropTypes.shape({
