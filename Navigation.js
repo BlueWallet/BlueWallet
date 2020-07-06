@@ -63,8 +63,6 @@ import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalI
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 import { BlueNavigationStyle } from './BlueComponents';
-import { BlueCurrentTheme } from './components/themes';
-const loc = require('./loc');
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const defaultScreenOptions =
@@ -174,16 +172,7 @@ const SendDetailsRoot = () => (
       }}
     />
     <SendDetailsStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
-    <SendDetailsStack.Screen
-      name="SelectWallet"
-      component={SelectWallet}
-      options={{
-        headerTitle: loc.wallets.select_wallet,
-        headerRight: null,
-        headerBackTitleVisible: false,
-        headerTintColor: BlueCurrentTheme.colors.foregroundColor,
-      }}
-    />
+    <SendDetailsStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
   </SendDetailsStack.Navigator>
 );
 
@@ -191,16 +180,7 @@ const LNDCreateInvoiceStack = createStackNavigator();
 const LNDCreateInvoiceRoot = () => (
   <LNDCreateInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <LNDCreateInvoiceStack.Screen name="LNDCreateInvoice" component={LNDCreateInvoice} options={LNDCreateInvoice.navigationOptions} />
-    <LNDCreateInvoiceStack.Screen
-      name="SelectWallet"
-      component={SelectWallet}
-      options={{
-        headerTitle: loc.wallets.select_wallet,
-        headerRight: null,
-        headerBackTitleVisible: false,
-        headerTintColor: BlueCurrentTheme.colors.foregroundColor,
-      }}
-    />
+    <LNDCreateInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <LNDCreateInvoiceStack.Screen
       name="LNDViewInvoice"
       component={LNDViewInvoice}
@@ -221,16 +201,7 @@ const ScanLndInvoiceStack = createStackNavigator();
 const ScanLndInvoiceRoot = () => (
   <ScanLndInvoiceStack.Navigator screenOptions={defaultStackScreenOptions}>
     <ScanLndInvoiceStack.Screen name="ScanLndInvoice" component={ScanLndInvoice} options={ScanLndInvoice.navigationOptions} />
-    <ScanLndInvoiceStack.Screen
-      name="SelectWallet"
-      component={SelectWallet}
-      options={{
-        headerTitle: loc.wallets.select_wallet,
-        headerRight: null,
-        headerBackTitleVisible: false,
-        headerTintColor: BlueCurrentTheme.colors.foregroundColor,
-      }}
-    />
+    <ScanLndInvoiceStack.Screen name="SelectWallet" component={SelectWallet} options={SelectWallet.navigationOptions} />
     <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
   </ScanLndInvoiceStack.Navigator>
 );
