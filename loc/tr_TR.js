@@ -147,6 +147,7 @@ module.exports = {
     },
     success: {
       done: 'Tamam',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Detaylar',
@@ -174,7 +175,6 @@ module.exports = {
       create: 'Oluştur',
       setAmount: 'Miktar ile al',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Bitcoin Satın al',

@@ -2,6 +2,7 @@ import { AppStorage, LightningCustodianWallet } from './';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFS from 'react-native-fs';
 import url from 'url';
+import { getParams as getLNURLParams } from 'js-lnurl';
 import { Chain } from '../models/bitcoinUnits';
 import Azteco from './azteco';
 const bitcoin = require('bitcoinjs-lib');
@@ -96,15 +97,33 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
-      completionHandler([
-        'LNDCreateInvoiceRoot',
-        {
-          screen: 'LNDCreateInvoice',
-          params: {
-            uri: event.url,
-          },
-        },
-      ]);
+      console.log('START WITH LNURL', event.url)
+      getLNURLParams(event.url).then(params => {
+        console.log('PARAMS', params);
+        if (params.tag === 'withdrawRequest') {
+          completionHandler([
+            'LNDCreateInvoiceRoot',
+            {
+              screen: 'LNDCreateInvoice',
+              params: {
+                uri: event.url,
+                lnurlData: params,
+              },
+            },
+          ]);
+        } else if (params.tag === 'payRequest') {
+          completionHandler([
+            'ScanLndInvoiceRoot',
+            {
+              screen: 'ScanLndInvoice',
+              params: {
+                uri: event.url,
+                lnurlData: params,
+              },
+            },
+          ]);
+        }
+      })
     } else if (DeeplinkSchemaMatch.isSafelloRedirect(event)) {
       const urlObject = url.parse(event.url, true); // eslint-disable-line node/no-deprecated-api
 

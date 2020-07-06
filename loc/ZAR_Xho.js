@@ -147,6 +147,7 @@
     },
     success: {
       done: 'Kwenzekile',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Iinkcukacha',
@@ -174,7 +175,6 @@
       create: 'Yenza',
       setAmount: 'Fumana ngexabiso',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Thenga Ibitcoin',

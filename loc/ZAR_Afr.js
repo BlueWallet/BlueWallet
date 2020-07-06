@@ -149,6 +149,7 @@
     },
     success: {
       done: 'Klaar',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Besonderhede',
@@ -176,7 +177,6 @@
       create: 'Skep',
       setAmount: 'Bedrag ontvang',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Koop Bitcoin',

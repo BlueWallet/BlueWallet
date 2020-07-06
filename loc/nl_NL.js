@@ -147,6 +147,7 @@ module.exports = {
     },
     success: {
       done: 'Klaar',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Details',
@@ -174,7 +175,6 @@ module.exports = {
       create: 'Create',
       setAmount: 'Ontvang met bedrag',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Koop Bitcoin',

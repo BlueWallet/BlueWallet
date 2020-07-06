@@ -149,6 +149,7 @@ module.exports = {
     },
     success: {
       done: 'Valmis',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Tiedot',
@@ -176,7 +177,6 @@ module.exports = {
       create: 'Luo',
       setAmount: 'Vastaanotettava summa',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Osta Bitcoinia',

@@ -60,6 +60,7 @@ import LappBrowser from './screen/lnd/browser';
 import LNDCreateInvoice from './screen/lnd/lndCreateInvoice';
 import LNDViewInvoice from './screen/lnd/lndViewInvoice';
 import LNDViewAdditionalInvoiceInformation from './screen/lnd/lndViewAdditionalInvoiceInformation';
+import LnurlPaySuccess from './screen/lnd/lnurlPaySuccess';
 import LoadingScreen from './LoadingScreen';
 import UnlockWith from './UnlockWith';
 const BlueApp = require('./BlueApp');
@@ -140,6 +141,7 @@ const WalletsRoot = () => (
       component={LNDViewAdditionalInvoiceInformation}
       options={LNDViewAdditionalInvoiceInformation.navigationOptions}
     />
+    <WalletsStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
     <WalletsStack.Screen
       name="Broadcast"
       component={Broadcast}
@@ -258,6 +260,7 @@ const ScanLndInvoiceRoot = () => (
       }}
     />
     <ScanLndInvoiceStack.Screen name="Success" component={Success} options={Success.navigationOptions} />
+    <ScanLndInvoiceStack.Screen name="LnurlPaySuccess" component={LnurlPaySuccess} options={LnurlPaySuccess.navigationOptions} />
   </ScanLndInvoiceStack.Navigator>
 );
 

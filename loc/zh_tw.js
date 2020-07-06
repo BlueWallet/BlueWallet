@@ -144,6 +144,7 @@ module.exports = {
     },
     success: {
       done: '完成',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: '詳情',
@@ -171,7 +172,6 @@ module.exports = {
       create: '建立',
       setAmount: '收款金額',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: '購買比特幣',

@@ -146,6 +146,7 @@ module.exports = {
     },
     success: {
       done: 'Selesai',
+      lnurlpay_repeat: 'Repeat payment',
     },
     create: {
       details: 'Detail',
@@ -173,7 +174,6 @@ module.exports = {
       create: 'Buat',
       setAmount: 'Terima sejumlah',
     },
-    scan_lnurl: 'Scan to receive',
   },
   buyBitcoin: {
     header: 'Beli bitcoin',

@@ -130,6 +130,7 @@ module.exports = {
     },
     success: {
       done: 'Готово',
+      lnurlpay_repeat: 'Repeat payment',
     },
     details: {
       title: 'Создать Транзакцию',
@@ -180,7 +181,6 @@ module.exports = {
       create: 'Создать',
       setAmount: 'Получить сумму',
     },
-    scan_lnurl: 'Scan to receive',
   },
   settings: {
     tabBarLabel: 'Настройки',
