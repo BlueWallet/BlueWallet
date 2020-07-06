@@ -1,35 +1,21 @@
-import 'react-native-gesture-handler' // should be on top
-import React from 'react'
-import {
-  Linking,
-  Appearance,
-  DeviceEventEmitter,
-  AppState,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  View,
-} from 'react-native'
-import Clipboard from '@react-native-community/clipboard'
-import Modal from 'react-native-modal'
-import {
-  NavigationContainer,
-  CommonActions,
-  DefaultTheme,
-  DarkTheme,
-} from '@react-navigation/native'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import Navigation from './Navigation'
-import { navigationRef } from './NavigationService'
-import * as NavigationService from './NavigationService'
-import { BlueTextCentered, BlueButton } from './BlueComponents'
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback'
-import { Chain } from './models/bitcoinUnits'
-import QuickActions from 'react-native-quick-actions'
-import * as Sentry from '@sentry/react-native'
-import OnAppLaunch from './class/on-app-launch'
-import DeeplinkSchemaMatch from './class/deeplink-schema-match'
-const A = require('./analytics')
+import 'react-native-gesture-handler'; // should be on top
+import React from 'react';
+import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
+import Modal from 'react-native-modal';
+import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Navigation from './Navigation';
+import { navigationRef } from './NavigationService';
+import * as NavigationService from './NavigationService';
+import { BlueTextCentered, BlueButton } from './BlueComponents';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Chain } from './models/bitcoinUnits';
+import QuickActions from 'react-native-quick-actions';
+import * as Sentry from '@sentry/react-native';
+import OnAppLaunch from './class/on-app-launch';
+import DeeplinkSchemaMatch from './class/deeplink-schema-match';
+const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
   Sentry.init({
@@ -41,7 +27,7 @@ const bitcoinModalString = 'Bitcoin address'
 const lightningModalString = 'Lightning Invoice'
 const loc = require('./loc')
 const BlueApp = require('./BlueApp')
-const EV = require('./events')
+const EV = require('./blue_modules/events');
 
 export default class App extends React.Component {
   state = {
