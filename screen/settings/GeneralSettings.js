@@ -84,8 +84,8 @@ const GeneralSettings = () => {
       />
       <BlueCard>
         <BlueTextHooks>
-          When enabled, you will see advanced options such as different wallet types, the ability to specify the LNDHub instance you wish
-            to connect to and custom entropy during wallet creation.
+          When enabled, you will see advanced options such as different wallet types, the ability to specify the LNDHub instance you wish to
+          connect to and custom entropy during wallet creation.
         </BlueTextHooks>
       </BlueCard>
       <BlueSpacing20 />
