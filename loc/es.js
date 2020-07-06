@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'es',
     storage_is_encrypted: 'Su almacenamiento está cifrado. Se requiere contraseña para descifrarlo',
     enter_password: 'Escribir contraseña',
     bad_password: 'Contraseña incorrecta, inténtelo nuevamente',
@@ -330,5 +331,18 @@ module.exports = {
     permissionMessage: 'Necesitamos su permiso para usar su cámara',
     ok: 'Aceptar',
     cancel: 'Cancelar',
+  },
+  filterTransactions: {
+    header: 'filtrar transacciones',
+    receive: 'recibir',
+    send: 'enviar',
+    filter: 'filtrar',
+    to: 'para',
+    toAmount: 'monto máximo',
+    toDate: 'fecha de finalización',
+    from: 'de',
+    fromAmount: 'monto mínimo',
+    fromDate: 'fecha de inicio',
+    clearFilters: 'borrar filtros',
   },
 };

@@ -1,13 +1,15 @@
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import React, { Component } from 'react';
-import { SectionList, SectionListData, Text, View } from 'react-native';
-import { connect } from 'react-redux';
+import { SectionList, SectionListData, StyleSheet, Text, View } from 'react-native';
 
-import { TransactionItem } from 'app/components';
-import { Route, Transaction } from 'app/consts';
+import { images } from 'app/assets';
+import { Image, TransactionItem } from 'app/components';
+import { Route, Transaction, Filters } from 'app/consts';
+import { filterTransaction, filterBySearch } from 'app/helpers/filters';
 import { NavigationService } from 'app/services';
-import { ApplicationState } from 'app/state';
 import { palette, typography } from 'app/styles';
+
+const i18n = require('../../../loc');
 
 interface TransactionWithDay extends Transaction {
   day: moment.Moment;
@@ -16,30 +18,33 @@ interface TransactionWithDay extends Transaction {
 }
 
 interface Props {
-  data: any;
   label: string;
+  search: string;
+  filters: Filters;
   transactions: Transaction[];
+  transactionNotes: Record<string, string>;
+  headerHeight: number;
 }
 
 interface State {
   transactions: ReadonlyArray<SectionListData<TransactionWithDay>>;
 }
 
-class TransactionList extends Component<Props, State> {
+export class TransactionList extends Component<Props, State> {
   state: State = {
     transactions: [],
   };
 
   static getDerivedStateFromProps(props: Props) {
+    moment.locale(i18n._.languageCode);
     const groupedTransactions = [] as any;
-    const dataToGroup = props.data
-      .map((transaction: any) => {
-        const note = props.transactions.map(transactionWithNote => {
-          if (transactionWithNote.txid == transaction.txid) {
-            return transactionWithNote.note;
-          }
-          return '';
-        });
+    const fileteredTransactions = props.filters.isFilteringOn
+      ? filterTransaction(props.transactions, props.filters)
+      : props.transactions;
+
+    const dataToGroup = fileteredTransactions
+      .map((transaction: Transaction) => {
+        const note = props.transactionNotes[transaction.txid];
         return {
           ...transaction,
           day: moment(transaction.received).format('ll'),
@@ -49,14 +54,14 @@ class TransactionList extends Component<Props, State> {
       })
       .sort((a: any, b: any) => b.time - a.time);
 
-    const uniqueValues = [...new Set(dataToGroup.map((item: any) => item.day))].sort(
+    const filteredBySearch = props.search ? filterBySearch(dataToGroup, props.search.toLowerCase()) : dataToGroup;
+    const uniqueValues = [...new Set(filteredBySearch.map((item: any) => item.day))].sort(
       (a: any, b: any) => new Date(b).getTime() - new Date(a).getTime(),
     );
-
     uniqueValues.map(uniqueValue =>
       groupedTransactions.push({
         title: uniqueValue,
-        data: dataToGroup.filter((transaction: any) => transaction.day === uniqueValue),
+        data: filteredBySearch.filter((transaction: any) => transaction.day === uniqueValue),
       }),
     );
     return {
@@ -76,22 +81,40 @@ class TransactionList extends Component<Props, State> {
     NavigationService.navigate(Route.TransactionDetails, { transaction: item });
   };
 
+  renderListEmpty = () => {
+    return (
+      <View style={styles.noTransactionsContainer}>
+        <Image source={images.noTransactions} style={styles.noTransactionsImage} />
+        <Text style={styles.noTransactionsLabel}>{i18n.wallets.dashboard.noTransactions}</Text>
+      </View>
+    );
+  };
+
   render() {
+    const { transactions } = this.state;
+    const { headerHeight, search } = this.props;
     return (
       <View style={{ padding: 20 }}>
         <SectionList
-          sections={this.state.transactions}
+          ListFooterComponent={search ? <View style={{ height: transactions.length ? headerHeight / 2 : 0 }} /> : null}
+          sections={transactions}
           keyExtractor={(item, index) => `${item.txid}-${index}`}
           renderItem={item => <TransactionItem item={item.item} onPress={this.onTransactionItemPress} />}
           renderSectionHeader={this.renderSectionTitle}
+          ListEmptyComponent={this.renderListEmpty}
         />
       </View>
     );
   }
 }
 
-const mapStateToProps = (state: ApplicationState) => ({
-  transactions: Object.values(state.transactions.transactions),
+const styles = StyleSheet.create({
+  noTransactionsContainer: {
+    alignItems: 'center',
+  },
+  noTransactionsImage: { height: 167, width: 167, marginVertical: 30 },
+  noTransactionsLabel: {
+    ...typography.caption,
+    color: palette.textGrey,
+  },
 });
-
-export default connect(mapStateToProps)(TransactionList);

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import moment from 'moment';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, Linking, TouchableOpacity } from 'react-native';
@@ -10,7 +9,12 @@ import { Image, Header, StyledText, Chip, ScreenTemplate } from 'app/components'
 import { CopyButton } from 'app/components/CopyButton';
 import { Transaction, Route } from 'app/consts';
 import { ApplicationState } from 'app/state';
-import { createTransaction, createTransactionAction, updateTransaction } from 'app/state/transactions/actions';
+import {
+  createTransactionNote,
+  updateTransactionNote,
+  CreateTransactionNoteAction,
+  UpdateTransactionNoteAction,
+} from 'app/state/transactions/actions';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
@@ -32,8 +36,9 @@ function arrDiff(a1, a2) {
 }
 
 interface Props extends NavigationScreenProps<{ transaction: Transaction }> {
-  createTransaction: (transaction: Transaction) => createTransactionAction;
-  updateTransaction: (transaction: Transaction) => updateTransactionAction;
+  transactionNotes: Record<string, string>;
+  createTransactionNote: (transactionID: string, note: string) => CreateTransactionNoteAction;
+  updateTransactionNote: (transactionID: string, note: string) => UpdateTransactionNoteAction;
 }
 
 interface State {
@@ -46,7 +51,7 @@ interface State {
   note: string;
 }
 
-export class TransactionDetailsScreen extends Component<Props, State> {
+class TransactionDetailsScreen extends Component<Props, State> {
   static navigationOptions = (props: NavigationScreenProps<{ transaction: Transaction }>) => {
     const transaction = props.navigation.getParam('transaction');
     return {
@@ -57,12 +62,7 @@ export class TransactionDetailsScreen extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const { txid, hash } = props.navigation.getParam('transaction');
-    let note = '';
-    props.transactions.filter(transaction => {
-      if (transaction.txid === txid) {
-        note = transaction.note;
-      }
-    });
+    const note = props.transactionNotes[txid] || '';
 
     let foundTx = {};
     let from = [];
@@ -119,15 +119,9 @@ export class TransactionDetailsScreen extends Component<Props, State> {
   updateNote = (note: string) => {
     const { txid } = this.props.navigation.getParam('transaction');
     if (!this.state.note) {
-      this.props.createTransaction({
-        txid,
-        note,
-      });
+      this.props.createTransactionNote(txid, note);
     } else {
-      this.props.updateTransaction({
-        txid,
-        note,
-      });
+      this.props.updateTransactionNote(txid, note);
     }
 
     this.setState({
@@ -190,7 +184,7 @@ export class TransactionDetailsScreen extends Component<Props, State> {
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>
             <Text style={styles.contentRowTitle}>{i18n.transactions.details.from}</Text>
-            <CopyButton textToCopy={fromValue} />
+            <CopyButton textToCopy={fromValue.split(',')[0]} />
           </View>
           <Text style={styles.contentRowBody}>{fromValue}</Text>
           <StyledText title={i18n.transactions.details.sendCoins} onPress={this.sendCoins} />
@@ -198,7 +192,7 @@ export class TransactionDetailsScreen extends Component<Props, State> {
         <View style={styles.contentRowContainer}>
           <View style={styles.row}>
             <Text style={styles.contentRowTitle}>{i18n.transactions.details.to}</Text>
-            <CopyButton textToCopy={toValue} />
+            <CopyButton textToCopy={toValue.split(',')[0]} />
           </View>
           <Text style={styles.contentRowBody}>{toValue}</Text>
         </View>
@@ -234,12 +228,12 @@ export class TransactionDetailsScreen extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: ApplicationState) => ({
-  transactions: Object.values(state.transactions.transactions),
+  transactionNotes: state.transactions.transactionNotes,
 });
 
 const mapDispatchToProps = {
-  createTransaction,
-  updateTransaction,
+  createTransactionNote,
+  updateTransactionNote,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TransactionDetailsScreen);

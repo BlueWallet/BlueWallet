@@ -12,11 +12,12 @@ interface Props {
   onAddButtonPress?: () => void;
   children: React.ReactNode;
   onBackArrowPress?: () => void;
+  title?: string;
 }
 
 export class ContactListHeader extends React.PureComponent<Props> {
   render() {
-    const { onAddButtonPress, onBackArrowPress } = this.props;
+    const { onAddButtonPress, onBackArrowPress, title } = this.props;
     return (
       <GradientView variant={GradientView.Variant.Primary} style={styles.container}>
         <View style={styles.header}>
@@ -25,7 +26,7 @@ export class ContactListHeader extends React.PureComponent<Props> {
               <Image style={styles.backIcon} source={images.backArrow} />
             </TouchableOpacity>
           )}
-          <Text style={styles.title}>{i18n.contactList.screenTitle}</Text>
+          <Text style={styles.title}>{title ? title : i18n.contactList.screenTitle}</Text>
           {!!onAddButtonPress && (
             <TouchableOpacity style={styles.rightElement} onPress={onAddButtonPress}>
               <Image source={icons.addIcon} style={styles.addIcon} />

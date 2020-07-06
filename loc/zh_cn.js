@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'zh-cn',
     storage_is_encrypted: '储存空间已加密。需要输入密码进行解密',
     enter_password: '输入密码',
     bad_password: '密码错误，请重试',
@@ -310,5 +311,18 @@ module.exports = {
     permissionMessage: '我们需要获取相机使用权限',
     ok: '确认',
     cancel: '取消',
+  },
+  filterTransactions: {
+    header: '筛选交易',
+    receive: '收到',
+    send: '发送',
+    filter: '筛选设置',
+    to: '收款人',
+    toAmount: '最大金额',
+    toDate: '结束日期',
+    from: '汇款人',
+    fromAmount: '最小金额',
+    fromDate: '起始日期',
+    clearFilters: '清除筛选设置',
   },
 };

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import bip39 from 'bip39';
+import * as bip39 from 'bip39';
 
 import signer from '../models/signer';
 import { AbstractHDWallet } from './abstract-hd-wallet';
@@ -20,13 +20,13 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
     return true;
   }
 
-  getXpub() {
+  async getXpub() {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
     const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = bitcoin.bip32.fromSeed(seed);
+    this.seed = await bip39.mnemonicToSeed(mnemonic);
+    const root = bitcoin.bip32.fromSeed(this.seed);
 
     const path = "m/44'/440'/0'";
     const child = root.derivePath(path).neutered();
@@ -49,25 +49,26 @@ export class HDLegacyP2PKHWallet extends AbstractHDWallet {
    * @returns {*}
    * @private
    */
-  _getWIFByIndex(index) {
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
+  async _getWIFByIndex(index) {
+    if (!this.seed) {
+      this.seed = await bip39.mnemonicToSeed(this.secret);
+    }
 
-    const root = HDNode.fromSeed(seed);
+    const root = HDNode.fromSeed(this.seed);
     const path = `m/44'/440'/0'/0/${index}`;
     const child = root.derivePath(path);
 
     return child.toWIF();
   }
 
-  generateAddresses() {
-    const node = bitcoin.bip32.fromBase58(this.getXpub());
+  async generateAddresses() {
+    const node = bitcoin.bip32.fromBase58(await this.getXpub());
     for (let index = 0; index < this.num_addresses; index++) {
       const address = bitcoin.payments.p2pkh({
         pubkey: node.derive(0).derive(index).publicKey,
       }).address;
       this._address.push(address);
-      this._address_to_wif_cache[address] = this._getWIFByIndex(index);
+      this._address_to_wif_cache[address] = await this._getWIFByIndex(index);
       this._addr_balances[address] = {
         total: 0,
         c: 0,

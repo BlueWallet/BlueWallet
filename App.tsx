@@ -1,21 +1,17 @@
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
 import { I18nextProvider } from 'react-i18next';
-import { Linking, DeviceEventEmitter, Clipboard, View, StyleSheet, YellowBox } from 'react-native';
-import QuickActions from 'react-native-quick-actions';
-import { createAppContainer, NavigationActions } from 'react-navigation';
+import { View, YellowBox, StyleSheet } from 'react-native';
+import { createAppContainer } from 'react-navigation';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { Wallet } from 'app/consts';
+import { BlueApp } from 'app/legacy';
 import { i18n } from 'app/locale';
 import { RootNavigator } from 'app/navigators';
 import { UnlockScreen } from 'app/screens';
 import { NavigationService, SecureStorageService, AppStateManager } from 'app/services';
 import { persistor, store } from 'app/state/store';
-
-import OnAppLaunch from './class/onAppLaunch';
-import { Chain } from './models/bitcoinUnits';
 
 YellowBox.ignoreWarnings(['VirtualizedLists should never be nested inside', `\`-[RCTRootView cancelTouches]\``]);
 
@@ -25,28 +21,15 @@ if (process.env.NODE_ENV !== 'development') {
   });
 }
 
-const bitcoin = require('bitcoinjs-lib');
-
-const bitcoinModalString = 'Bitcoin address';
-const BlueApp = require('./BlueApp');
-
 const AppContainer = createAppContainer(RootNavigator);
 
 interface State {
-  isClipboardContentModalVisible: boolean;
-  clipboardContentModalAddressType: string;
-  clipboardContent: string;
   isPinSet: boolean;
   successfullyAuthenticated: boolean;
 }
 
 export default class App extends React.PureComponent<State> {
-  navigator: any = null;
-
-  state = {
-    isClipboardContentModalVisible: false,
-    clipboardContentModalAddressType: bitcoinModalString,
-    clipboardContent: '',
+  state: State = {
     isPinSet: false,
     successfullyAuthenticated: false,
   };
@@ -56,141 +39,12 @@ export default class App extends React.PureComponent<State> {
     if (isPinSet) {
       this.setState({ isPinSet });
     }
-
-    Linking.addEventListener('url', this.handleOpenURL);
-    QuickActions.popInitialAction().then(this.popInitialAction);
-    DeviceEventEmitter.addListener('quickActionShortcut', this.walletQuickActions);
-  }
-
-  popInitialAction = async (data: any) => {
-    if (data) {
-      // eslint-disable-next-line no-unused-expressions
-      this.navigator.dismiss;
-      const wallet = BlueApp.getWallets().find(
-        (wallet: Wallet) => wallet.getID() === data.userInfo.url.split('wallet/')[1],
-      );
-      this.navigator.dispatch(
-        NavigationActions.navigate({
-          key: `WalletTransactions-${wallet.getID()}`,
-          routeName: 'WalletTransactions',
-          params: {
-            wallet,
-          },
-        }),
-      );
-    } else {
-      const url = await Linking.getInitialURL();
-      if (url) {
-        if (this.hasSchema(url)) {
-          this.handleOpenURL({ url });
-        }
-      } else {
-        const isViewAllWalletsEnabled = await OnAppLaunch.isViewAllWalletsEnabled();
-        if (!isViewAllWalletsEnabled) {
-          // eslint-disable-next-line no-unused-expressions
-          this.navigator.dismiss;
-          const selectedDefaultWallet = (await OnAppLaunch.getSelectedDefaultWallet()) as any;
-          const wallet = BlueApp.getWallets().find(
-            (wallet: Wallet) => wallet.getID() === selectedDefaultWallet.getID(),
-          );
-          if (wallet) {
-            this.navigator.dispatch(
-              NavigationActions.navigate({
-                routeName: 'WalletTransactions',
-                key: `WalletTransactions-${wallet.getID()}`,
-                params: {
-                  wallet,
-                },
-              }),
-            );
-          }
-        }
-      }
-    }
-  };
-
-  walletQuickActions = (data: any) => {
-    const wallet = BlueApp.getWallets().find(
-      (wallet: Wallet) => wallet.getID() === data.userInfo.url.split('wallet/')[1],
-    );
-    // eslint-disable-next-line no-unused-expressions
-    this.navigator.dismiss;
-    this.navigator.dispatch(
-      NavigationActions.navigate({
-        routeName: 'WalletTransactions',
-        key: `WalletTransactions-${wallet.getID()}`,
-        params: {
-          wallet,
-        },
-      }),
-    );
-  };
-
-  componentWillUnmount() {
-    Linking.removeEventListener('url', this.handleOpenURL);
   }
 
   handleAppComesToForeground = async () => {
     this.setState({
       successfullyAuthenticated: false,
     });
-    const clipboard = await Clipboard.getString();
-    const isAddressFromStoredWallet = BlueApp.getWallets().some((wallet: Wallet) =>
-      wallet.chain === Chain.ONCHAIN ? wallet.weOwnAddress(clipboard) : wallet.isInvoiceGeneratedByWallet(clipboard),
-    );
-    if (!isAddressFromStoredWallet && this.state.clipboardContent !== clipboard && this.isBitcoinAddress(clipboard)) {
-      this.setState({ isClipboardContentModalVisible: true });
-    }
-    this.setState({ clipboardContent: clipboard });
-  };
-
-  hasSchema(schemaString: string) {
-    if (typeof schemaString !== 'string' || schemaString.length <= 0) return false;
-    const lowercaseString = schemaString.trim().toLowerCase();
-    return (
-      lowercaseString.startsWith('bitcoin:') ||
-      lowercaseString.startsWith('blue:') ||
-      lowercaseString.startsWith('bluewallet:') ||
-      lowercaseString.startsWith('lapp:')
-    );
-  }
-
-  isBitcoinAddress(address: any) {
-    let isValidBitcoinAddress: boolean;
-    try {
-      bitcoin.address.toOutputScript(address);
-      isValidBitcoinAddress = true;
-      this.setState({ clipboardContentModalAddressType: bitcoinModalString });
-    } catch (err) {
-      isValidBitcoinAddress = false;
-    }
-    if (!isValidBitcoinAddress) {
-      if (address.indexOf('bitcoin:') === 0 || address.indexOf('BITCOIN:') === 0) {
-        isValidBitcoinAddress = true;
-        this.setState({ clipboardContentModalAddressType: bitcoinModalString });
-      }
-    }
-    return isValidBitcoinAddress;
-  }
-
-  handleOpenURL = (event: any) => {
-    if (event.url === null) {
-      return;
-    }
-    if (typeof event.url !== 'string') {
-      return;
-    }
-    if (this.isBitcoinAddress(event.url)) {
-      this.navigator &&
-        this.navigator!.dispatch(
-          NavigationActions.navigate({
-            routeName: 'SendDetails',
-            params: {
-              uri: event.url,
-            },
-          }),
-        );
-    }
   };
 
   onSuccessfullyAuthenticated = () => {
@@ -199,8 +53,17 @@ export default class App extends React.PureComponent<State> {
     });
   };
 
-  render() {
+  get showUnlockScreen(): boolean {
+    if (__DEV__) {
+      // do not check PIN during development
+      BlueApp.startAndDecrypt();
+      return false;
+    }
     const { successfullyAuthenticated, isPinSet } = this.state;
+    return isPinSet && !successfullyAuthenticated;
+  }
+
+  render() {
     const isBiometricEnabledByUser = store.getState().appSettings.isBiometricsEnabled;
     return (
       <I18nextProvider i18n={i18n}>
@@ -208,13 +71,8 @@ export default class App extends React.PureComponent<State> {
           <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
           <PersistGate loading={null} persistor={persistor}>
             <View style={styles.wrapper}>
-              <AppContainer
-                ref={nav => {
-                  this.navigator = nav as any;
-                  NavigationService.setTopLevelNavigator(nav!);
-                }}
-              />
-              {isPinSet && !successfullyAuthenticated && (
+              <AppContainer ref={NavigationService.setTopLevelNavigator} />
+              {this.showUnlockScreen && (
                 <UnlockScreen
                   onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
                   isBiometricEnabledByUser={isBiometricEnabledByUser}

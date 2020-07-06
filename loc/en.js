@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'en',
     storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
     enter_password: 'Enter password',
     bad_password: 'Bad password, try again',
@@ -343,5 +344,18 @@ module.exports = {
     permissionMessage: 'We need your permission to use your camera',
     ok: 'Ok',
     cancel: 'Cancel',
+  },
+  filterTransactions: {
+    header: 'Filter transactions',
+    receive: 'Receive',
+    send: 'Send',
+    filter: 'Filter',
+    to: 'To',
+    toAmount: 'To amount',
+    toDate: 'To date',
+    from: 'From',
+    fromAmount: 'From amount',
+    fromDate: 'From date',
+    clearFilters: 'Clear filters',
   },
 };

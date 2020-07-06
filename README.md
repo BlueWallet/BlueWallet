@@ -13,7 +13,15 @@ The first ever Bitcoin Vault wallet.
 git clone https://github.com/bitcoinvault/GoldWallet.git
 cd GoldWallet
 npm install
-``` 
+```
+
+* Add files for firebase:
+
+For iOS:
+GoogleService-Info.plist into directory /ios/
+
+For android:
+google-services.json into directory /android/app/
 
 * To run on Android:
 

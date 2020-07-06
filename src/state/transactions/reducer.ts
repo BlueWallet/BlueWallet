@@ -3,37 +3,47 @@ import { Transaction } from 'app/consts';
 import { TransactionsAction, TransactionsActionType } from './actions';
 
 export interface TransactionsState {
-  transactions: Record<string, Transaction>;
+  transactions: Record<string, Transaction[]>;
+  transactionNotes: Record<string, string>;
 }
 
 const initialState: TransactionsState = {
   transactions: {},
+  transactionNotes: {},
 };
 
 export const transactionsReducer = (state = initialState, action: TransactionsActionType): TransactionsState => {
   switch (action.type) {
-    case TransactionsAction.CreateTransaction:
+    case TransactionsAction.LoadTransactionsSuccess:
       return {
         ...state,
         transactions: {
           ...state.transactions,
-          [action.transaction.txid]: action.transaction,
+          [action.walletAddress]: action.transactions,
         },
       };
-    case TransactionsAction.UpdateTransaction:
+    case TransactionsAction.CreateTransactionNote:
       return {
         ...state,
-        transactions: {
-          ...state.transactions,
-          [action.transaction.txid]: action.transaction,
+        transactionNotes: {
+          ...state.transactionNotes,
+          [action.transactionID]: action.note,
         },
       };
-    case TransactionsAction.DeleteTransaction:
+    case TransactionsAction.UpdateTransactionNote:
+      return {
+        ...state,
+        transactionNotes: {
+          ...state.transactionNotes,
+          [action.transactionID]: action.note,
+        },
+      };
+    case TransactionsAction.DeleteTransactionNote:
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [action.transaction.txid]: deleted, ...transactions } = state.transactions;
+      const { [action.transactionID]: deleted, ...transactionNotes } = state.transactionNotes;
       return {
         ...state,
-        transactions,
+        transactionNotes,
       };
     default:
       return state;

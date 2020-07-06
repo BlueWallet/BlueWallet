@@ -5,6 +5,7 @@ import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation
 import { images, icons } from 'app/assets';
 import { Header, ScreenTemplate, Button, InputItem, StyledText, Image } from 'app/components';
 import { Transaction, Route } from 'app/consts';
+import { processAddressData } from 'app/helpers/DataProcessing';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
@@ -13,7 +14,7 @@ import { HDLegacyP2PKHWallet, HDSegwitBech32Wallet, HDSegwitP2SHWallet, WatchOnl
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import { BitcoinUnit } from '../../models/bitcoinUnits';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
-import { DashboardHeader } from './Dashboard/DashboardHeader';
+import { DashboarContentdHeader } from './Dashboard/DashboarContentdHeader';
 
 const BigNumber = require('bignumber.js');
 const bitcoin = require('bitcoinjs-lib');
@@ -247,7 +248,12 @@ export class SendCoinsScreen extends Component<Props, State> {
       targets = [{ address: firstTransaction.address, amount: BitcoinUnit.MAX }];
     }
 
-    const { tx, fee, psbt } = wallet.createTransaction(wallet.getUtxo(), targets, requestedSatPerByte, changeAddress);
+    const { tx, fee, psbt } = await wallet.createTransaction(
+      wallet.getUtxo(),
+      targets,
+      requestedSatPerByte,
+      changeAddress,
+    );
 
     if (wallet.type === WatchOnlyWallet.type) {
       // watch-only wallets with enabled HW wallet support have different flow. we have to show PSBT to user as QR code
@@ -524,25 +530,7 @@ export class SendCoinsScreen extends Component<Props, State> {
    * @param data {String} Can be address or `bitcoin:xxxxxxx` uri scheme, or invalid garbage
    */
   processAddressData = (data: string) => {
-    const regex = /[?&]([^=#]+)=([^&#]*)/g;
-    const solvedData = regex.exec(data);
-    let address, amount;
-    if (!solvedData) {
-      address = data;
-      amount = this.state.addresses[0].amount;
-    } else {
-      address = data.split('?')[0].replace('bitcoin:', '');
-      const [param, paramName, value] = solvedData;
-      if (paramName === 'amount') {
-        amount = value;
-      } else {
-        amount = this.state.addresses[0].amount;
-      }
-    }
-    const newAddresses = {
-      address,
-      amount,
-    };
+    const newAddresses = processAddressData(data, this.state.addresses[0].amount);
     this.setState({
       addresses: [newAddresses],
     });
@@ -562,7 +550,7 @@ export class SendCoinsScreen extends Component<Props, State> {
           />
         }
       >
-        <DashboardHeader
+        <DashboarContentdHeader
           onSelectPress={this.showModal}
           balance={fromWallet.balance}
           label={fromWallet.label}

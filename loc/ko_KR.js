@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'ko',
     storage_is_encrypted: '저장 공간이 암호화되었습니다. 암호를 해독하려면 비밀번호가 필요합니다',
     enter_password: '비밀번호를 입력하십시오',
     bad_password: '잘못된 비밀번호입니다. 다시 시도하십시오',
@@ -319,5 +320,18 @@ module.exports = {
     permissionMessage: '귀하의 카메라 사용에 대한 허용이 필요합니다',
     ok: '확인',
     cancel: '취소',
+  },
+  filterTransactions: {
+    header: '거래 분류',
+    receive: '입금',
+    send: '송금',
+    filter: '필터 설정',
+    to: '수취인',
+    toAmount: '최대 금액',
+    toDate: '종료일',
+    from: '송금인',
+    fromAmount: '최소 금액',
+    fromDate: '시작일',
+    clearFilters: '필터 지우기',
   },
 };

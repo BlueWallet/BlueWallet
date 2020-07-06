@@ -1,18 +1,24 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
+import { NavigationInjectedProps } from 'react-navigation';
 import { useNavigationParam } from 'react-navigation-hooks';
+import { connect } from 'react-redux';
 
 import { Button, Header, ScreenTemplate } from 'app/components';
 import { Wallet, Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { BlueApp } from 'app/legacy';
 import { NavigationService } from 'app/services';
+import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
 
-export const DeleteWalletScreen = (props: NavigationScreenProps) => {
+interface Props extends NavigationInjectedProps {
+  loadWallets: () => Promise<WalletsActionType>;
+}
+
+export const DeleteWalletScreen: React.FunctionComponent<Props> = (props: Props) => {
   const wallet: Wallet = useNavigationParam('wallet');
 
   const onNoButtonPress = () => props.navigation.goBack();
@@ -20,6 +26,7 @@ export const DeleteWalletScreen = (props: NavigationScreenProps) => {
   const onYesButtonPress = async () => {
     BlueApp.deleteWallet(wallet);
     await BlueApp.saveToDisk();
+    props.loadWallets();
     CreateMessage({
       title: i18n.message.success,
       description: i18n.message.successfullWalletDelete,
@@ -54,9 +61,16 @@ export const DeleteWalletScreen = (props: NavigationScreenProps) => {
   );
 };
 
+// @ts-ignore
 DeleteWalletScreen.navigationOptions = () => ({
   header: <Header title={i18n.wallets.deleteWallet.header} />,
 });
+
+const mapDispatchToProps = {
+  loadWallets,
+};
+
+export default connect(null, mapDispatchToProps)(DeleteWalletScreen);
 
 const styles = StyleSheet.create({
   title: { ...typography.headline4, marginTop: 16, textAlign: 'center' },

@@ -1,94 +1,74 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { icons, images } from 'app/assets';
-import { Image } from 'app/components';
-import { typography, palette } from 'app/styles';
+import { GradientView, Image } from 'app/components';
+import { HEADER_HEIGHT } from 'app/components/Header';
+import { getStatusBarHeight, palette, typography } from 'app/styles';
 
 const i18n = require('../../../loc');
 
 interface Props {
-  balance: number;
-  unit: string;
-  label: string;
-  onSendPress?: () => void;
-  onReceivePress?: () => void;
-  onSelectPress: () => void;
+  onFilterPress: () => void;
+  children: React.ReactNode;
+  onAddPress: () => void;
 }
 
-export const DashboardHeader = ({ balance, unit, label, onSendPress, onReceivePress, onSelectPress }: Props) => {
-  return (
-    <View style={styles.header}>
-      <TouchableOpacity style={styles.chooseWalletButton} onPress={onSelectPress}>
-        <Text style={styles.chooseWalletButtonText}>{i18n.formatBalance(Number(balance), unit, true)}</Text>
-        <Image source={icons.iconDropdown} style={styles.icon} />
-      </TouchableOpacity>
-      <View style={styles.descriptionContainer}>
-        <Text style={styles.buttonDescription}>{label}</Text>
-        <Image source={images.coin} style={styles.coinIcon} />
-      </View>
-      {onReceivePress && onSelectPress && (
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.circleButton} onPress={onSendPress}>
-            <Image source={images.yellowMinus} style={styles.circleButtonImage} />
-            <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.send}</Text>
+export class DashboardHeader extends React.PureComponent<Props> {
+  render() {
+    const { onAddPress, onFilterPress } = this.props;
+    return (
+      <GradientView variant={GradientView.Variant.Primary} style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.leftElement} onPress={onFilterPress}>
+            <Image style={styles.icon} source={icons.filter} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.circleButton} onPress={onReceivePress}>
-            <Image source={images.yellowPlus} style={styles.circleButtonImage} />
-            <Text style={styles.circleButtonText}>{i18n.wallets.dashboard.receive}</Text>
+          <Text style={styles.title}>{i18n.wallets.dashboard.title}</Text>
+          <TouchableOpacity style={styles.rightElement} onPress={onAddPress}>
+            <Image source={icons.addIcon} style={styles.icon} />
           </TouchableOpacity>
         </View>
-      )}
-    </View>
-  );
-};
+        {this.props.children}
+      </GradientView>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: getStatusBarHeight(),
+    height: HEADER_HEIGHT + 60 + getStatusBarHeight(),
+    width: '100%',
+  },
   header: {
-    paddingVertical: 20,
-    justifyContent: 'center',
+    height: HEADER_HEIGHT,
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    ...typography.headline4,
+    color: palette.white,
   },
   icon: {
-    height: 16,
-    width: 16,
+    height: 20,
+    width: 20,
   },
-  coinIcon: {
-    width: 17,
-    height: 17,
-    margin: 4,
-  },
-  chooseWalletButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 5,
-    flexDirection: 'row',
+  rightElement: {
+    position: 'absolute',
+    height: HEADER_HEIGHT,
+    width: HEADER_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
+    right: 10,
+    top: 0,
   },
-  chooseWalletButtonText: {
-    ...typography.headline4,
-  },
-  descriptionContainer: {
-    flexDirection: 'row',
+  leftElement: {
+    position: 'absolute',
+    height: HEADER_HEIGHT,
+    width: HEADER_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  buttonDescription: {
-    ...typography.caption,
-    color: palette.textGrey,
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    marginVertical: 25,
-    width: '100%',
-    justifyContent: 'space-evenly',
-  },
-  circleButton: {
-    alignItems: 'center',
-  },
-  circleButtonImage: { height: 32, width: 32, margin: 5 },
-  circleButtonText: {
-    ...typography.headline6,
-    color: palette.textSecondary,
+    top: 0,
+    left: 10,
   },
 });

@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import {
   Button,
@@ -13,13 +14,17 @@ import {
   Text,
 } from 'app/components';
 import { Wallet, Route } from 'app/consts';
+import { BlueApp } from 'app/legacy';
+import { updateWallet, UpdateWalletAction } from 'app/state/wallets/actions';
 import { palette, typography } from 'app/styles';
 
 import { WatchOnlyWallet } from '../../class';
 
 const i18n = require('../../loc');
 
-type Props = NavigationInjectedProps<{ wallet: Wallet }>;
+interface Props extends NavigationInjectedProps<{ wallet: Wallet }> {
+  updateWallet: (wallet: Wallet) => UpdateWalletAction;
+}
 
 interface State {
   label: string;
@@ -38,6 +43,14 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
     };
   }
 
+  validationError = (value: string): string | undefined => {
+    const walletLabels = BlueApp.getWallets().map((wallet: Wallet) => wallet.label) || [];
+    const allOtherWalletLabels = walletLabels.filter((label: string) => label !== this.state.label);
+    if (allOtherWalletLabels.includes(value)) {
+      return i18n.wallets.importWallet.walletInUseValidationError;
+    }
+  };
+
   navigateToWalletExport = () => this.navigateWithWallet(Route.ExportWallet);
 
   navigateToWalletXpub = () => this.navigateWithWallet(Route.ExportWalletXpub);
@@ -54,6 +67,8 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
     this.props.navigation.setParams({ wallet });
     this.setState({ label });
     wallet.setLabel(label);
+    this.props.updateWallet(wallet);
+    BlueApp.saveToDisk();
   };
 
   render() {
@@ -88,6 +103,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
             label={i18n.wallets.details.nameLabel}
             value={label}
             onSave={this.setLabel}
+            validate={this.validationError}
           />
         </View>
         <View style={styles.typeContainer}>
@@ -99,7 +115,11 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
   }
 }
 
-export default WalletDetailsScreen;
+const mapDispatchToProps = {
+  updateWallet,
+};
+
+export default connect(null, mapDispatchToProps)(WalletDetailsScreen);
 
 const styles = StyleSheet.create({
   showWalletXPUBContainer: {

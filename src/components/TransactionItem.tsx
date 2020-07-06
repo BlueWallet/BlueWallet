@@ -2,7 +2,7 @@ import moment from 'moment';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { Transaction } from 'app/consts';
+import { CONST, Transaction } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
@@ -15,7 +15,7 @@ export const TransactionItem = ({ item, onPress }: { item: Transaction; onPress:
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
       <View style={styles.leftColumn}>
         <Text style={typography.headline5} numberOfLines={1}>
-          {item.walletLabel === 'All wallets' ? i18n.transactions.details.noLabel : item.walletLabel}
+          {item.walletLabel === CONST.allWallets ? i18n.transactions.details.noLabel : item.walletLabel}
         </Text>
         {!!item.note && <Text style={typography.caption}>{item.note}</Text>}
         <Text style={styles.label}>{confirmations()}</Text>

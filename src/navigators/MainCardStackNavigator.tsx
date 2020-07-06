@@ -28,6 +28,7 @@ import {
   CreatePinScreen,
   CurrentPinScreen,
   ConfirmPinScreen,
+  FilterTransactionsScreen,
 } from 'app/screens';
 
 export const MainCardStackNavigator = createStackNavigator(
@@ -63,6 +64,7 @@ export const MainCardStackNavigator = createStackNavigator(
     [Route.CreatePin]: CreatePinScreen,
     [Route.CurrentPin]: CurrentPinScreen,
     [Route.ConfirmPin]: ConfirmPinScreen,
+    [Route.FilterTransactions]: FilterTransactionsScreen,
   },
   {
     mode: 'card',

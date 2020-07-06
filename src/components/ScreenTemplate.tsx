@@ -35,6 +35,8 @@ export class ScreenTemplate extends React.PureComponent<Props> {
     statusBarStyle: StatusBarColor.Light,
   };
 
+  scrollRef = React.createRef<ScrollView>();
+
   render() {
     const {
       children,
@@ -50,6 +52,7 @@ export class ScreenTemplate extends React.PureComponent<Props> {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle={statusBarStyle} />
         <Container
+          ref={this.scrollRef}
           style={[noScroll && styles.contentContainer, noScroll && contentContainer]}
           contentContainerStyle={[styles.contentContainer, contentContainer]}
           refreshControl={refreshControl}

@@ -11,12 +11,14 @@ import {
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { NavigationInjectedProps } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Wallet, Route } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { sleep } from 'app/helpers/helpers';
 import { NavigationService } from 'app/services';
+import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 import { getStatusBarHeight } from 'app/styles';
 
 import {
@@ -29,7 +31,6 @@ import {
 } from '../../class';
 
 const BlueApp = require('../../BlueApp');
-const EV = require('../../events');
 const i18n = require('../../loc');
 
 const { width } = Dimensions.get('window');
@@ -40,14 +41,16 @@ interface BarCodeScanEvent {
   type: string;
 }
 
-type Props = NavigationInjectedProps;
+interface Props extends NavigationInjectedProps {
+  loadWallets: () => Promise<WalletsActionType>;
+}
 
 interface State {
   isLoading: boolean;
   message: string;
 }
 
-export default class ImportWalletQRCodeScreen extends React.Component<Props, State> {
+class ImportWalletQRCodeScreen extends React.Component<Props, State> {
   static navigationOptions = {
     header: null,
   };
@@ -99,7 +102,7 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
       w.setLabel(i18n.wallets.import.imported + ' ' + w.typeReadable);
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      this.props.loadWallets();
       this.props.navigation.popToTop();
 
       this.showSuccessImportMessageScreen();
@@ -151,7 +154,7 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
         // if we're here - nope, its not a valid WIF
 
         const hd2 = new HDSegwitP2SHWallet();
-        hd2.setSecret(text);
+        await hd2.setSecret(text);
         if (hd2.validateMnemonic()) {
           await hd2.fetchBalance();
           if (hd2.getBalance() > 0) {
@@ -161,7 +164,7 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
         }
 
         const hd4 = new HDSegwitBech32Wallet();
-        hd4.setSecret(text);
+        await hd4.setSecret(text);
         if (hd4.validateMnemonic()) {
           await hd4.fetchBalance();
           if (hd4.getBalance() > 0) {
@@ -171,7 +174,7 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
         }
 
         const hd3 = new HDLegacyP2PKHWallet();
-        hd3.setSecret(text);
+        await hd3.setSecret(text);
         if (hd3.validateMnemonic()) {
           await hd3.fetchBalance();
           if (hd3.getBalance() > 0) {
@@ -270,6 +273,11 @@ export default class ImportWalletQRCodeScreen extends React.Component<Props, Sta
     );
   }
 }
+const mapDispatchToProps = {
+  loadWallets,
+};
+
+export default connect(null, mapDispatchToProps)(ImportWalletQRCodeScreen);
 
 const styles = StyleSheet.create({
   activityIndicatorContainer: {

@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'tr',
     storage_is_encrypted: 'Kasanız şifrelidir. Açmak için parola gereklidir.',
     enter_password: 'Parolayı girin',
     bad_password: 'Yanlış parola, tekrar deneyin',
@@ -327,5 +328,18 @@ module.exports = {
     permissionMessage: 'Kameranızı kullanmak için izninize ihtiyacımız var.',
     ok: 'Tamam',
     cancel: 'İptal Et',
+  },
+  filterTransactions: {
+    header: 'işlemleri filtreleri',
+    receive: 'al',
+    send: 'gönder',
+    filter: 'filtrele',
+    to: 'alan',
+    toAmount: 'son tutar',
+    toDate: 'bitiş tarihi',
+    from: 'gönderen',
+    fromAmount: 'ilk tutar',
+    fromDate: 'başlangıç tarihi',
+    clearFilters: 'filtreleri sil',
   },
 };

@@ -2,7 +2,8 @@ import { PureComponent } from 'react';
 import { AppState } from 'react-native';
 
 interface Props {
-  handleAppComesToForeground: () => void;
+  handleAppComesToForeground?: () => void;
+  handleAppComesToBackground?: () => void;
 }
 
 interface State {
@@ -19,9 +20,14 @@ export class AppStateManager extends PureComponent<Props, State> {
   }
 
   handleAppStateChange = (nextAppState: string) => {
+    const { handleAppComesToBackground, handleAppComesToForeground } = this.props;
     const { appState } = this.state;
     if (appState === 'background' && nextAppState === 'active') {
-      this.props.handleAppComesToForeground();
+      !!handleAppComesToForeground && handleAppComesToForeground();
+    }
+
+    if (nextAppState !== 'active') {
+      !!handleAppComesToBackground && handleAppComesToBackground();
     }
 
     this.setState({ appState: nextAppState });

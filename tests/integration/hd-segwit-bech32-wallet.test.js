@@ -24,18 +24,19 @@ describe('Bech32 Segwit HD (BIP84)', () => {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30 * 1000;
     const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
     const hd = new HDSegwitBech32Wallet();
-    hd.setSecret(mnemonic);
+    await hd.setSecret(mnemonic);
 
     assert.strictEqual(true, hd.validateMnemonic());
+
     assert.strictEqual(
       'zpub6qV8gC8H2NR4zcdP5rvnTpY7xZw3H3Samf8XuoeJdKDvF4UCJzeaj7DjwSYdj5A6wdmt6qVHqbnonjQXZA56Ecs1QTe4ug6gPRBwYnMiW2s',
-      hd.getXpub(),
+      await hd.getXpub(),
     );
 
-    assert.strictEqual(hd._getWIFByIndex(0), 'KwLAKpr3t88u6E6CEQT6Qb2Q9ZJ6RJzoxc4Z2Gx6ALxwgAgaqfEn');
-    assert.strictEqual(hd._getWIFByIndex(1), 'L4CRAA2JrVuivLTLQc4A2g2Nnu7Xjhnnh8jCEzJaP739C9hWqXux');
-    assert.strictEqual(hd._getWIFByIndex(2), 'KxNUq8mMoo14fVGgG3EqyYjMMAPAvKZVTqhNFfS2AAeka8LRSPWr');
-    assert.ok(hd._getWIFByIndex(0) !== hd._getWIFByIndex(1));
+    assert.strictEqual(await hd._getWIFByIndex(0), 'KwLAKpr3t88u6E6CEQT6Qb2Q9ZJ6RJzoxc4Z2Gx6ALxwgAgaqfEn');
+    assert.strictEqual(await hd._getWIFByIndex(1), 'L4CRAA2JrVuivLTLQc4A2g2Nnu7Xjhnnh8jCEzJaP739C9hWqXux');
+    assert.strictEqual(await hd._getWIFByIndex(2), 'KxNUq8mMoo14fVGgG3EqyYjMMAPAvKZVTqhNFfS2AAeka8LRSPWr');
+    assert.ok((await hd._getWIFByIndex(0)) !== (await hd._getWIFByIndex(1)));
 
     assert.strictEqual(hd.getAddress()[0], 'royale1qs79r2xk6nhr8ce9ae6rexrtprms3cr7yggm3dt');
     assert.strictEqual(hd.getAddress()[1], 'royale1q6ur0znmd0ux9tj5h66h9jhpzjv7ahpjhxu8z7z');

@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { NavigationScreenProps } from 'react-navigation';
+import { NavigationInjectedProps } from 'react-navigation';
+import { connect } from 'react-redux';
 
 import { Header, TextAreaItem, FlatButton, ScreenTemplate } from 'app/components';
 import { Button } from 'app/components/Button';
-import { Route } from 'app/consts';
+import { Route, Wallet } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { NavigationService } from 'app/services';
+import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
@@ -19,11 +21,14 @@ import {
   HDLegacyP2PKHWallet,
   HDSegwitBech32Wallet,
 } from '../../class';
-import EV from '../../events';
 
 const i18n = require('../../loc');
 
-export const ImportWalletScreen = () => {
+interface Props extends NavigationInjectedProps {
+  loadWallets: () => Promise<WalletsActionType>;
+}
+
+export const ImportWalletScreen: React.FunctionComponent<Props> = (props: Props) => {
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [text, setText] = useState('');
   const [validationError, setValidationError] = useState('');
@@ -59,10 +64,10 @@ export const ImportWalletScreen = () => {
     });
   };
 
-  const onChangeText = (text: string) => {
-    setText(text);
+  const onChangeText = (mnemonic: string) => {
+    setText(mnemonic);
     setValidationError('');
-    if (isButtonDisabled !== (text.length === 0)) {
+    if (isButtonDisabled !== (mnemonic.length === 0)) {
       setIsButtonDisabled(!isButtonDisabled);
     }
   };
@@ -71,33 +76,33 @@ export const ImportWalletScreen = () => {
     NavigationService.navigate(Route.ImportWalletQRCode);
   };
 
-  const saveWallet = async (w: any) => {
-    if (BlueApp.getWallets().some(wallet => wallet.getSecret() === w.secret)) {
+  const saveWallet = async (newWallet: any) => {
+    if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === newWallet.secret)) {
       NavigationService.navigate(Route.ImportWallet);
       setValidationError(i18n.wallets.importWallet.walletInUseValidationError);
     } else {
       ReactNativeHapticFeedback.trigger('notificationSuccess', {
         ignoreAndroidSystemSettings: false,
       });
-      w.setLabel(i18n.wallets.import.imported + ' ' + w.typeReadable);
-      BlueApp.wallets.push(w);
+      newWallet.setLabel(i18n.wallets.import.imported + ' ' + newWallet.typeReadable);
+      BlueApp.wallets.push(newWallet);
       await BlueApp.saveToDisk();
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      props.loadWallets();
       showSuccessImportMessageScreen();
       // this.props.navigation.dismiss();
     }
   };
 
-  const importMnemonic = async (text: string) => {
+  const importMnemonic = async (mnemonic: string) => {
     try {
       // trying other wallet types
       const segwitWallet = new SegwitP2SHWallet();
-      segwitWallet.setSecret(text);
+      segwitWallet.setSecret(mnemonic);
       if (segwitWallet.getAddress()) {
         // ok its a valid WIF
 
         const legacyWallet = new LegacyWallet();
-        legacyWallet.setSecret(text);
+        legacyWallet.setSecret(mnemonic);
 
         await legacyWallet.fetchBalance();
         if (legacyWallet.getBalance() > 0) {
@@ -115,7 +120,7 @@ export const ImportWalletScreen = () => {
       // case - WIF is valid, just has uncompressed pubkey
 
       const legacyWallet = new LegacyWallet();
-      legacyWallet.setSecret(text);
+      legacyWallet.setSecret(mnemonic);
       if (legacyWallet.getAddress()) {
         await legacyWallet.fetchBalance();
         await legacyWallet.fetchTransactions();
@@ -125,7 +130,7 @@ export const ImportWalletScreen = () => {
       // if we're here - nope, its not a valid WIF
 
       const hd2 = new HDSegwitP2SHWallet();
-      hd2.setSecret(text);
+      await hd2.setSecret(mnemonic);
       if (hd2.validateMnemonic()) {
         await hd2.fetchBalance();
         if (hd2.getBalance() > 0) {
@@ -135,7 +140,7 @@ export const ImportWalletScreen = () => {
       }
 
       const hd4 = new HDSegwitBech32Wallet();
-      hd4.setSecret(text);
+      await hd4.setSecret(mnemonic);
       if (hd4.validateMnemonic()) {
         await hd4.fetchBalance();
         if (hd4.getBalance() > 0) {
@@ -145,7 +150,7 @@ export const ImportWalletScreen = () => {
       }
 
       const hd3 = new HDLegacyP2PKHWallet();
-      hd3.setSecret(text);
+      await hd3.setSecret(mnemonic);
       if (hd3.validateMnemonic()) {
         await hd3.fetchBalance();
         if (hd3.getBalance() > 0) {
@@ -178,7 +183,7 @@ export const ImportWalletScreen = () => {
       // not valid? maybe its a watch-only address?
 
       const watchOnly = new WatchOnlyWallet();
-      watchOnly.setSecret(text);
+      watchOnly.setSecret(mnemonic);
       if (watchOnly.valid()) {
         await watchOnly.fetchTransactions();
         await watchOnly.fetchBalance();
@@ -234,9 +239,16 @@ export const ImportWalletScreen = () => {
   );
 };
 
-ImportWalletScreen.navigationOptions = (props: NavigationScreenProps) => ({
+// @ts-ignore
+ImportWalletScreen.navigationOptions = (props: Props) => ({
   header: <Header navigation={props.navigation} isBackArrow={true} title={i18n.wallets.importWallet.header} />,
 });
+
+const mapDispatchToProps = {
+  loadWallets,
+};
+
+export default connect(null, mapDispatchToProps)(ImportWalletScreen);
 
 const styles = StyleSheet.create({
   inputItemContainer: {

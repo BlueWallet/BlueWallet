@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'vi',
     storage_is_encrypted: 'Ví lưu trữ của quý khách đã được mã hóa. Cần có mật khẩu để giải mã',
     enter_password: 'Nhập mật khẩu',
     bad_password: 'Mật khẩu kém, hãy thử lại',
@@ -330,5 +331,18 @@ module.exports = {
     permissionMessage: 'Chúng tôi cần quý khách cho phép để sử dụng máy ảnh của quý khách',
     ok: 'Ok',
     cancel: 'Hủy',
+  },
+  filterTransactions: {
+    header: 'lọc giao dịch',
+    receive: 'nhận',
+    send: 'gửi',
+    filter: 'lọc ',
+    to: 'đến',
+    toAmount: 'đến số tiền ',
+    toDate: 'đến ngày',
+    from: 'từ',
+    fromAmount: 'từ số tiền ',
+    fromDate: 'từ ngày',
+    clearFilters: 'xóa lọc ',
   },
 };

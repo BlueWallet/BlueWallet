@@ -1,6 +1,6 @@
-import { LegacyWallet } from './legacy-wallet';
+import * as bip39 from 'bip39';
 
-const bip39 = require('bip39');
+import { LegacyWallet } from './legacy-wallet';
 
 const BlueElectrum = require('../BlueElectrum');
 
@@ -35,11 +35,11 @@ export class AbstractHDWallet extends LegacyWallet {
     return super.getTransactions();
   }
 
-  setSecret(newSecret) {
+  async setSecret(newSecret) {
     this.secret = newSecret.trim().toLowerCase();
     this.secret = this.secret.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, ' ');
     this._address = [];
-    this.generateAddresses();
+    await this.generateAddresses();
     return this;
   }
 
@@ -50,8 +50,10 @@ export class AbstractHDWallet extends LegacyWallet {
     return bip39.validateMnemonic(this.secret);
   }
 
-  getMnemonicToSeedHex() {
-    return bip39.mnemonicToSeedHex(this.secret);
+  async getMnemonicToSeedHex() {
+    const seed = await bip39.mnemonicToSeed(this.secret);
+
+    return seed.toString('hex');
   }
 
   getAddressForTransaction() {

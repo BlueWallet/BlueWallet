@@ -6,7 +6,7 @@ import { NavigationScreenProps } from 'react-navigation';
 
 import { icons } from 'app/assets';
 import { ScreenTemplate, Header, Image } from 'app/components';
-import { typography, palette } from 'app/styles';
+import { typography } from 'app/styles';
 
 const i18n = require('../../../loc');
 
@@ -43,10 +43,10 @@ export const SelectLanguageScreen = () => {
     { label: '中文 (ZH)', value: 'zh_cn' },
     { label: 'Español (ES)', value: 'es' },
     { label: 'Indonesian (ID)', value: 'id_id' },
-    { label: '日本語 (JP)', value: 'jp_jp' },
+    { label: '日本語 (JP)', value: 'ja' },
     { label: '한국어 (KO)', value: 'ko_kr' },
     { label: 'Português (PT)', value: 'pt_pt' },
-    { label: 'Tiếng Việt', value: 'vi_vn' },
+    { label: 'Tiếng (Việt)', value: 'vi_vn' },
     { label: 'Türkçe (TR)', value: 'tr_tr' },
   ];
 
@@ -110,16 +110,6 @@ const styles = StyleSheet.create({
   langaugeItemContainer: {
     marginVertical: 8,
     flexDirection: 'row',
-  },
-  restartInfoContainer: {
-    height: 76,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-    backgroundColor: palette.white,
-  },
-  restartInfo: {
-    ...typography.subtitle4,
   },
   successImageContainer: {
     width: 21,

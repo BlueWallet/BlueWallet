@@ -1,5 +1,4 @@
-import BigNumber from 'bignumber.js';
-import bip39 from 'bip39';
+import * as bip39 from 'bip39';
 import b58 from 'bs58check';
 import { NativeModules } from 'react-native';
 
@@ -23,6 +22,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   static type = 'HDsegwitBech32';
   static typeReadable = 'HD SegWit';
   static defaultRBFSequence = 2147483648; // 1 << 31, minimum for replaceable transactions as per BIP68
+  static randomBytesSize = 32;
+  static basePath = "m/84'/440'/0'";
 
   constructor() {
     super();
@@ -53,27 +54,29 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   async generate() {
-    const that = this;
-    return new Promise(function(resolve) {
+    return new Promise(resolve => {
       if (typeof RNRandomBytes === 'undefined') {
         // CLI/CI environment
         // crypto should be provided globally by test launcher
-        return crypto.randomBytes(32, (err, buf) => {
-          // eslint-disable-line
+        return crypto.randomBytes(HDSegwitBech32Wallet.randomBytesSize, async (err, buf) => {
           if (err) throw err;
-          that.setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
+          await this.setSecret(bip39.entropyToMnemonic(buf.toString('hex')));
           resolve();
         });
       }
 
       // RN environment
-      RNRandomBytes.randomBytes(32, (err, bytes) => {
+      RNRandomBytes.randomBytes(HDSegwitBech32Wallet.randomBytesSize, async (err, bytes) => {
         if (err) throw new Error(err);
         const b = Buffer.from(bytes, 'base64').toString('hex');
-        that.setSecret(bip39.entropyToMnemonic(b));
+        await this.setSecret(bip39.entropyToMnemonic(b));
         resolve();
       });
     });
+  }
+
+  _getPath(path = '') {
+    return `${HDSegwitBech32Wallet.basePath}${path}`;
   }
 
   /**
@@ -83,14 +86,14 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * @returns {string|false} Either string WIF or FALSE if error happened
    * @private
    */
-  _getWIFByIndex(index) {
-    if (!this.secret) return false;
-    const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = HDNode.fromSeed(seed);
-    const path = `m/84'/440'/0'/0/${index}`;
-    const child = root.derivePath(path);
+  async _getWIFByIndex(index) {
+    if (!this.seed) {
+      this.seed = await bip39.mnemonicToSeed(this.secret);
+    }
 
+    const root = HDNode.fromSeed(this.seed);
+    const path = this._getPath(`/0/${index}`);
+    const child = root.derivePath(path);
     return child.toWIF();
   }
 
@@ -99,30 +102,29 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     return this._address[index];
   }
 
-  generateAddresses() {
+  async generateAddresses() {
     if (!this._node0) {
-      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const xpub = this.constructor._zpubToXpub(await this.getXpub());
       const hdNode = HDNode.fromBase58(xpub);
       this._node0 = hdNode.derive(0);
     }
     for (let index = 0; index < this.num_addresses; index++) {
       const address = this.constructor._nodeToBech32SegwitAddress(this._node0.derive(index));
       this._address.push(address);
-      this._address_to_wif_cache[address] = this._getWIFByIndex(index);
+      this._address_to_wif_cache[address] = await this._getWIFByIndex(index);
       this._addr_balances[address] = {
         total: 0,
         c: 0,
         u: 0,
       };
-      console.warn(this._addr_balances);
     }
   }
 
-  _getNodePubkeyByIndex(index) {
+  async _getNodePubkeyByIndex(index) {
     index = index * 1; // cast to int
 
     if (!this._node0) {
-      const xpub = this.constructor._zpubToXpub(this.getXpub());
+      const xpub = this.constructor._zpubToXpub(await this.getXpub());
       const hdNode = HDNode.fromBase58(xpub);
       this._node0 = hdNode.derive(0);
     }
@@ -137,16 +139,16 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    *
    * @return {String} zpub
    */
-  getXpub() {
+  async getXpub() {
     if (this._xpub) {
       return this._xpub; // cache hit
     }
     // first, getting xpub
     const mnemonic = this.secret;
-    const seed = bip39.mnemonicToSeed(mnemonic);
-    const root = HDNode.fromSeed(seed);
+    this.seed = await bip39.mnemonicToSeed(mnemonic);
+    const root = HDNode.fromSeed(this.seed);
 
-    const path = "m/84'/440'/0'";
+    const path = this._getPath();
     const child = root.derivePath(path).neutered();
     const xpub = child.toBase58();
 
@@ -160,7 +162,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
   }
 
   _getDerivationPathByAddress(address) {
-    const path = "m/84'/440'/0'/0/";
+    const path = this._getPath('/0/');
+
     const index = this._address.indexOf(address);
     if (index === -1) return false;
     return path + index;
@@ -189,7 +192,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
    * @param skipSigning {boolean} Whether we should skip signing, use returned `psbt` in that case
    * @returns {{outputs: Array, tx: Transaction, inputs: Array, fee: Number, psbt: Psbt}}
    */
-  createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false) {
+  async createTransaction(utxos, targets, feeRate, changeAddress, sequence, skipSigning = false) {
     if (!changeAddress) throw new Error('No change address provided');
     sequence = sequence || HDSegwitBech32Wallet.defaultRBFSequence;
     let algo = coinSelectAccumulative;
@@ -210,7 +213,8 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
     const keypairs = {};
     const values = {};
 
-    inputs.forEach(input => {
+    for (let i = 0; i < inputs.length; i++) {
+      const input = inputs[i];
       let keyPair;
       if (!skipSigning) {
         // skiping signing related stuff
@@ -224,7 +228,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
         if (!input.address || !this._getWifForAddress(input.address))
           throw new Error('Internal error: no address or WIF to sign input');
       }
-      const pubkey = this._getPubkeyByAddress(input.address);
+      const pubkey = await this._getPubkeyByAddress(input.address);
       const masterFingerprint = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       // this is not correct fingerprint, as we dont know real fingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
@@ -246,9 +250,10 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
           value: input.value,
         },
       });
-    });
+    }
 
-    outputs.forEach(output => {
+    for (let k = 0; k < outputs.length; k++) {
+      const output = outputs[k];
       // if output has no address - this is change output
       let change = false;
       if (!output.address) {
@@ -257,7 +262,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       }
 
       const path = this._getDerivationPathByAddress(output.address);
-      const pubkey = this._getPubkeyByAddress(output.address);
+      const pubkey = await this._getPubkeyByAddress(output.address);
       const masterFingerprint = Buffer.from([0x00, 0x00, 0x00, 0x00]);
       // this is not correct fingerprint, as we dont know realfingerprint - we got zpub with 84/0, but fingerpting
       // should be from root. basically, fingerprint should be provided from outside  by user when importing zpub
@@ -278,7 +283,7 @@ export class HDSegwitBech32Wallet extends AbstractHDWallet {
       }
 
       psbt.addOutput(outputData);
-    });
+    }
 
     if (!skipSigning) {
       // skiping signing related stuff

@@ -56,10 +56,10 @@ export class InputItem extends PureComponent<Props, State> {
       isActive: false,
     });
     if (!this.state.value) {
-      // @ts-ignore
       Animated.timing(this.state.isAnimatedFocused, {
         toValue: 0,
         duration: 200,
+        useNativeDriver: false,
       }).start();
     }
   };
@@ -67,6 +67,16 @@ export class InputItem extends PureComponent<Props, State> {
   componentDidUpdate() {
     if (this.props.value) {
       this.animateFocus();
+    }
+    if (!this.props.value && this.props.editable === false) {
+      this.setState({
+        isActive: false,
+      });
+      Animated.timing(this.state.isAnimatedFocused, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
     }
   }
 
@@ -84,10 +94,12 @@ export class InputItem extends PureComponent<Props, State> {
   render() {
     const { isAnimatedFocused, isActive } = this.state;
     const { label, suffix, error } = this.props;
+
     const top = this.state.isAnimatedFocused.interpolate({
       inputRange: [0, 1],
       outputRange: [12, -8],
     });
+
     const fontSize = isAnimatedFocused.interpolate({
       inputRange: [0, 1],
       outputRange: [14, 12],

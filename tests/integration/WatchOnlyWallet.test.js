@@ -87,11 +87,11 @@ describe('Watch only wallet', () => {
 
   it('can create PSBT base64 without signature for HW wallet', async () => {
     const w = new WatchOnlyWallet();
-    w.setSecret(
+    await w.setSecret(
       'zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk',
     );
     // zpub provided by Stepan @ CryptoAdvance
-    w.init();
+    await w.init();
     const changeAddress = 'royale1qtts2q4ysaegjd9alctcahsywpl7882xna36tnx';
     // hardcoding so we wont have to call w.getChangeAddressAsync()
     const utxos = [
@@ -120,10 +120,10 @@ describe('Watch only wallet', () => {
 
   it('can combine signed PSBT and prepare it for broadcast', async () => {
     const w = new WatchOnlyWallet();
-    w.setSecret(
+    await w.setSecret(
       'zpub6rjLjQVqVnj7crz9E4QWj4WgczmEseJq22u2B6k2HZr6NE2PQx3ZYg8BnbjN9kCfHymSeMd2EpwpM5iiz5Nrb3TzvddxW2RMcE3VXdVaXHk',
     );
-    w.init();
+    await w.init();
     const signedPsbt =
       'cHNidP8BAHECAAAAAYBbjCRXw4r66Ly1aI/SCvis+CDQsCdQej1BhCoDnjt/AAAAAAAAAACAAogTAAAAAAAAFgAUwM681sPTyox13F7GLr5VMw75EOK3OQAAAAAAABYAFOc6kh7rlKStRwwMvbaeu+oFvB4MAAAAAAAiAgNY4ds4TcPgqK6hHuQe2ZO0VnspdAH7zNvnVAAssnFPH0cwRAIgPR9zZzNTnfPqZJifyUwdM2cWW8PZqCnSCsfCePlZ2aoCIFbhr/5P/bS6eGQZtX3+6q+nUO6KaSKYgaaZrUZENF6BAQAAAA==';
     const unsignedPsbt =

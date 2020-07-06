@@ -6,9 +6,10 @@ import { connect } from 'react-redux';
 
 import { ScreenTemplate, Text, InputItem, Header, Button, FlatButton, RadioGroup, RadioButton } from 'app/components';
 import { Route, Wallet } from 'app/consts';
-import { AppStorage, HDSegwitBech32Wallet, HDSegwitP2SHWallet, SegwitP2SHWallet, BlueApp, EV } from 'app/legacy';
+import { AppStorage, HDSegwitBech32Wallet, HDSegwitP2SHWallet, SegwitP2SHWallet, BlueApp } from 'app/legacy';
 import { ApplicationState } from 'app/state';
 import { AppSettingsState } from 'app/state/appSettings/reducer';
+import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 import { palette, typography } from 'app/styles';
 
 import CreateWalletSuccessScreen from './CreateWalletSuccessScreen';
@@ -17,6 +18,7 @@ const i18n = require('../../loc');
 
 interface Props extends NavigationInjectedProps {
   appSettings: AppSettingsState;
+  loadWallets: () => Promise<WalletsActionType>;
 }
 
 interface State {
@@ -38,7 +40,7 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
     activeBitcoin: false,
     isAdvancedOptionsEnabled: false,
     walletBaseURI: '',
-    selectedIndex: 0,
+    selectedIndex: 1,
     secret: [],
   };
 
@@ -69,30 +71,33 @@ export class CreateWalletScreen extends React.PureComponent<Props, State> {
 
   navigateToImportWallet = () => this.props.navigation.navigate(Route.ImportWallet);
 
+  getWalletClassByIndex = (index: number) => {
+    switch (index) {
+      case 2:
+        return HDSegwitBech32Wallet;
+      case 0:
+        return SegwitP2SHWallet;
+      case 1:
+      default:
+        return HDSegwitP2SHWallet;
+    }
+  };
+
   createWallet = async () => {
+    const { selectedIndex, label } = this.state;
     this.setState({ isLoading: true });
 
-    let wallet;
-    if (this.state.selectedIndex === 2) {
-      // btc was selected
-      // index 2 radio - hd bip84
-      wallet = new HDSegwitBech32Wallet();
-      wallet.setLabel(this.state.label || i18n.wallets.details.title);
-    } else if (this.state.selectedIndex === 1) {
-      // btc was selected
-      // index 1 radio - segwit single address
-      wallet = new SegwitP2SHWallet();
-      wallet.setLabel(this.state.label || i18n.wallets.details.title);
-    } else {
-      // zero index radio - HD segwit
-      wallet = new HDSegwitP2SHWallet();
-      wallet.setLabel(this.state.label || i18n.wallets.details.title);
-    }
+    const WalletClass = this.getWalletClassByIndex(selectedIndex);
+
+    const wallet = new WalletClass();
+
+    wallet.setLabel(label || i18n.wallets.details.title);
+
     if (this.state.activeBitcoin) {
       await wallet.generate();
       BlueApp.wallets.push(wallet);
       await BlueApp.saveToDisk();
-      EV(EV.enum.WALLETS_COUNT_CHANGED);
+      this.props.loadWallets();
       this.setState({ isSuccess: true, secret: wallet.getSecret().split(' ') });
     }
     this.setState({ isLoading: false });
@@ -177,7 +182,11 @@ const mapStateToProps = (state: ApplicationState) => ({
   appSettings: state.appSettings,
 });
 
-export default connect(mapStateToProps)(CreateWalletScreen);
+const mapDispatchToProps = {
+  loadWallets,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(CreateWalletScreen);
 
 const styles = StyleSheet.create({
   subtitle: {

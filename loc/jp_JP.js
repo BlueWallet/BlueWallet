@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'ja',
     storage_is_encrypted: 'ストレージは暗号化されています。それを復号化するためにはパスワードが必要です。',
     enter_password: 'パスワードの入力',
     bad_password: 'パスワードが間違っています。再度お試しください',
@@ -319,5 +320,18 @@ module.exports = {
     permissionMessage: 'カメラを使用する許可が必要です',
     ok: 'Ok',
     cancel: 'キャンセル',
+  },
+  filterTransactions: {
+    header: 'トランザクション・フィルター',
+    receive: '入金',
+    send: '送金',
+    filter: 'フィルター設定',
+    to: '受領者',
+    toAmount: '最大金額',
+    toDate: '終了日',
+    from: '送金者',
+    fromAmount: '最小金額',
+    fromDate: '開始日',
+    clearFilters: 'フィルター解除',
   },
 };

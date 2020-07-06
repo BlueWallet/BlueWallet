@@ -46,7 +46,7 @@ it('can create a Segwit HD (BIP49)', async function() {
   const mnemonic =
     'fiber quiz produce chuckle sort crisp price direct speak recipe adult layer thumb lift tape start peace wave jungle fluid green interest cave learn';
   const hd = new HDSegwitP2SHWallet();
-  hd.setSecret(mnemonic);
+  await hd.setSecret(mnemonic);
   assert.strictEqual(hd.getAddress()[0], 'RVUYxQnej5m99PEr5qKrMS128czSCSPz4W');
   assert.strictEqual(hd.getAddress()[1], 'RA4DhjMkk67nBYbNhPh8q3Zh3mDeGZzCdX');
   assert.strictEqual(hd.getAddress()[2], 'RKBm1Wz1tPBefb92d3hEXYMZqZTsxEcPJe');
@@ -60,9 +60,9 @@ it('can create a Segwit HD (BIP49)', async function() {
   assert.ok(hd._lastTxFetch > 0);
   assert.strictEqual(hd.transactions.length, 2);
 
-  assert.strictEqual(hd._getWIFByIndex(0), 'L5KcrwqMGgEtVnsM4ZGS6XdRoBDinfb1hfFW61RhsY9QuumePh8b');
+  assert.strictEqual(await hd._getWIFByIndex(0), 'L5KcrwqMGgEtVnsM4ZGS6XdRoBDinfb1hfFW61RhsY9QuumePh8b');
   assert.strictEqual(
-    hd.getXpub(),
+    await hd.getXpub(),
     'ypub6Wj9dHZAtSM3DQB6kG37aK5i1yJbBoM2d1W57aMkyLx4cNyGqWYpGvL194zA4HSxWpQyoPrsXE2PP4pNUqu5cvvHUK2ZpfUeHFmuK4THAD3',
   );
 });
@@ -253,17 +253,17 @@ it('Segwit HD (BIP49) can fetch balance with many used addresses in hierarchy', 
   assert.strictEqual(hd.getTransactions().length, 107);
 });
 
-it('can work with malformed mnemonic', () => {
+it('can work with malformed mnemonic', async () => {
   let mnemonic =
     'honey risk juice trip orient galaxy win situate shoot anchor bounce remind horse traffic exotic since escape mimic ramp skin judge owner topple erode';
   let hd = new HDSegwitP2SHWallet();
-  hd.setSecret(mnemonic);
-  const seed1 = hd.getMnemonicToSeedHex();
+  await hd.setSecret(mnemonic);
+  const seed1 = await hd.getMnemonicToSeedHex();
   assert.ok(hd.validateMnemonic());
 
   mnemonic = 'hell';
   hd = new HDSegwitP2SHWallet();
-  hd.setSecret(mnemonic);
+  await hd.setSecret(mnemonic);
   assert.ok(!hd.validateMnemonic());
 
   // now, malformed mnemonic
@@ -271,8 +271,8 @@ it('can work with malformed mnemonic', () => {
   mnemonic =
     '    honey  risk   juice    trip     orient      galaxy win !situate ;; shoot   ;;;   anchor Bounce remind\nhorse \n traffic exotic since escape mimic ramp skin judge owner topple erode ';
   hd = new HDSegwitP2SHWallet();
-  hd.setSecret(mnemonic);
-  const seed2 = hd.getMnemonicToSeedHex();
+  await hd.setSecret(mnemonic);
+  const seed2 = await hd.getMnemonicToSeedHex();
   assert.strictEqual(seed1, seed2);
   assert.ok(hd.validateMnemonic());
 });
@@ -323,7 +323,7 @@ it('Legacy HD (BIP44) can generate addressess based on xpub', async function() {
     'xpub6CQdfC3v9gU86eaSn7AhUFcBVxiGhdtYxdC5Cw2vLmFkfth2KXCMmYcPpvZviA89X6DXDs4PJDk5QVL2G2xaVjv7SM4roWHr1gR4xB3Z7Ps';
   const hd = new HDLegacyP2PKHWallet();
   hd._xpub = xpub;
-  hd.generateAddresses();
+  await hd.generateAddresses();
   assert.strictEqual(hd.getAddress()[0], 'YR1SxEKM4F5oEDg8SUQ216vZcYyKHjoubG');
   assert.strictEqual(hd.getAddress()[1], 'YnaF465GEdDKdyHigKuJWRhZF4f8bdodUy');
   assert.strictEqual(hd.getAddress()[2], 'Ybybns4oH3xN5asG274kRRSjhK8AoQgC2D');

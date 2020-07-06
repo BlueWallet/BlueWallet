@@ -16,7 +16,8 @@ const i18n = require('../../loc');
 export const ExportWalletXpubScreen = () => {
   const wallet: Wallet = useNavigationParam('wallet');
   const isWatchOnlyWallet = wallet.type === WatchOnlyWallet.type;
-  const xpub = isWatchOnlyWallet ? wallet.secret : wallet.getXpub();
+
+  const xpub = isWatchOnlyWallet ? wallet.secret : wallet._xpub;
 
   return (
     <ScreenTemplate>

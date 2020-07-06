@@ -1,5 +1,6 @@
 module.exports = {
   _: {
+    languageCode: 'id',
     storage_is_encrypted: 'Penyimpanan Anda dienkripsi. Perlu kata sandi untuk mendekripsinya',
     enter_password: 'Masukkan kata sandi',
     bad_password: 'Kata sandi buruk, coba lagi',
@@ -328,5 +329,18 @@ module.exports = {
     permissionMessage: 'Kami membutuhkan izin Anda untuk menggunakan kamera',
     ok: 'Ok',
     cancel: 'Batal',
+  },
+  filterTransactions: {
+    header: 'filter transaksi',
+    receive: 'terima',
+    send: 'kirim',
+    filter: 'filter ',
+    to: 'ke',
+    toAmount: 'ke jumlah',
+    toDate: 'ke tanggal',
+    from: 'dari',
+    fromAmount: 'monto mínimo',
+    fromDate: 'dari tanggal',
+    clearFilters: 'bersihkan filter',
   },
 };

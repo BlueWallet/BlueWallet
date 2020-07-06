@@ -1,8 +1,10 @@
-export enum CONST {
-  pinCodeLength = 4,
-  transactionMinPasswordLength = 8,
-  allWallets = 'All wallets',
-}
+export const CONST = {
+  pinCodeLength: 4,
+  transactionMinPasswordLength: 8,
+  allWallets: 'All wallets',
+  receive: 'receive',
+  send: 'send',
+};
 
 export enum FlowType {
   password = 'password',
@@ -47,28 +49,36 @@ export enum Route {
   ConfirmTransactionPassword = 'ConfirmTransactionPassword',
   AdvancedOptions = 'AdvancedOptions',
   UnlockTransaction = 'UnlockTransaction',
+  FilterTransactions = 'FilterTransactions',
 }
 
 export interface Wallet {
   balance: number;
+  hideBalance: boolean;
   preferredBalanceUnit: string;
   label: string;
-  transactions: any[];
+  chain: string;
+  num_addresses: number;
+  transactions: Transaction[];
   getBalance: () => void;
   getLatestTransactionTime: () => void;
   getLabel: () => string;
   setLabel: (label: string) => void;
   getAddress: () => string;
   getSecret: () => string;
-  getXpub: () => string;
+  getXpub: () => Promise<string>;
   address: string;
   secret: string;
   type: string;
   typeReadable: string;
+  unconfirmed_balance: number;
+  unconfirmed_transactions: Transaction[];
+  utxo: any[];
+  _xpub: string;
   getID: () => string;
-  chain: string;
   weOwnAddress: (clipboard: string) => void;
   isInvoiceGeneratedByWallet: (clipboard: string) => void;
+  getPreferredBalanceUnit: () => string;
 }
 
 export interface Contact {
@@ -93,4 +103,16 @@ export interface Transaction {
 
 export interface AppSettings {
   isPinSetup: boolean;
+}
+
+export interface Filters {
+  isFilteringOn: boolean;
+  dateKey?: number;
+  isCalendarVisible?: boolean;
+  address?: string;
+  fromDate?: string;
+  toDate?: string;
+  fromAmount?: number;
+  toAmount?: number;
+  transactionType?: string;
 }

@@ -58,6 +58,7 @@ export class ContactListScreen extends PureComponent<Props, State> {
     const { navigation, contacts } = this.props;
 
     const onContactPress = navigation.getParam('onContactPress');
+    const title = navigation.getParam('title');
 
     return (
       <>
@@ -65,6 +66,7 @@ export class ContactListScreen extends PureComponent<Props, State> {
         <ContactListHeader
           onAddButtonPress={!onContactPress ? this.navigateToAddContact : undefined}
           onBackArrowPress={onContactPress && this.goBack}
+          title={title}
         >
           <SearchBar query={this.state.query} setQuery={this.setQuery} />
         </ContactListHeader>

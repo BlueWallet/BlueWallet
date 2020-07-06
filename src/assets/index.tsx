@@ -10,6 +10,7 @@ export const images = {
   addressBookNoContacts: require('./images/addressBookNoContacts.png'),
   addressBookNotFound: require('./images/bvAppIconsSearchx2.png'),
   backArrow: require('./images/navigationBarBackArrow.png'),
+  nextBlackArrow: require('./images/navigationBarBackArrowCopy.png'),
   successBadge: require('./images/groupCopy2.png'),
   processingState: require('./images/processingState.png'),
   errorState: require('./images/errorState.png'),
@@ -20,6 +21,7 @@ export const images = {
   coinLogoInCircle: require('./images/coinLogoInCircle.png'),
   qrCode: require('./images/qr-code.png'),
   close: require('./images/close.png'),
+  closeInverted: require('./images/closeInverted.png'),
   scanQRcrosshair: require('./images/scanQRcrosshair.png'),
   goldWalletLogoBlack: require('./images/bv017LogoGoldWalletRgbV3HorizontalBlack.png'),
   bigMinus: require('./images/bigMinus.png'),
@@ -45,4 +47,5 @@ export const icons = {
   visibilityOn: require('./images/visibilityOn.png'),
   visibilityOff: require('./images/visibilityOff.png'),
   delete: require('./images/icon_delete.png'),
+  filter: require('./images/filter.png'),
 };
