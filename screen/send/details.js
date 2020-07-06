@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     margin: 0,
   },
-  feeSliderInput: {
+  feeInput: {
     backgroundColor: '#d2f8d6',
     minWidth: 127,
     height: 60,
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 8,
   },
-  feeSliderText: {
+  feeInputText: {
     fontWeight: '600',
     color: '#37c0a1',
     marginBottom: 0,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontSize: 36,
   },
-  feeSliderUnit: {
+  feeInputUnit: {
     fontWeight: '600',
     color: '#37c0a1',
     paddingRight: 4,
@@ -259,8 +259,7 @@ export default class SendDetails extends Component {
         units: [],
         memo: '',
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
-        fee: 1,
-        feeSliderValue: 1,
+        fee: '1',
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         renderWalletSelectionButtonHidden: false,
       };
@@ -362,11 +361,10 @@ export default class SendDetails extends Component {
     try {
       const cachedNetworkTransactionFees = JSON.parse(await AsyncStorage.getItem(NetworkTransactionFee.StorageKey));
 
-      if (cachedNetworkTransactionFees && 'mediumFee' in cachedNetworkTransactionFees) {
+      if (cachedNetworkTransactionFees && 'fastestFee' in cachedNetworkTransactionFees) {
         this.setState({
-          fee: cachedNetworkTransactionFees.fastestFee,
+          fee: cachedNetworkTransactionFees.fastestFee.toString(),
           networkTransactionFees: cachedNetworkTransactionFees,
-          feeSliderValue: cachedNetworkTransactionFees.fastestFee,
         });
       }
     } catch (_) {}
@@ -376,25 +374,23 @@ export default class SendDetails extends Component {
       if (recommendedFees && 'fastestFee' in recommendedFees) {
         await AsyncStorage.setItem(NetworkTransactionFee.StorageKey, JSON.stringify(recommendedFees));
         this.setState({
-          fee: recommendedFees.fastestFee,
+          fee: recommendedFees.fastestFee.toString(),
           networkTransactionFees: recommendedFees,
-          feeSliderValue: recommendedFees.fastestFee,
         });
-
-        if (this.props.route.params.uri) {
-          try {
-            const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
-            this.setState({ address, amount, memo, isLoading: false });
-          } catch (error) {
-            console.log(error);
-            this.setState({ isLoading: false });
-            alert('Error: Unable to decode Bitcoin address');
-          }
-        }
-      } else {
-        this.setState({ isLoading: false });
       }
-    } catch (_e) {}
+    } catch (_) {}
+
+    if (this.props.route.params.uri) {
+      try {
+        const { address, amount, memo } = this.decodeBitcoinUri(this.props.route.params.uri);
+        this.setState({ address, amount, memo });
+      } catch (error) {
+        console.log(error);
+        alert('Error: Unable to decode Bitcoin address');
+      }
+    }
+
+    this.setState({ isLoading: false });
   }
 
   componentWillUnmount() {
@@ -434,13 +430,13 @@ export default class SendDetails extends Component {
   async createTransaction() {
     Keyboard.dismiss();
     this.setState({ isLoading: true });
-    let error = false;
-    const requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
+    const requestedSatPerByte = this.state.fee;
     for (const [index, transaction] of this.state.addresses.entries()) {
+      let error;
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
         error = loc.send.details.amount_field_is_not_valid;
         console.log('validation error');
-      } else if (!this.state.fee || !requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
+      } else if (!requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
         error = loc.send.details.fee_field_is_not_valid;
         console.log('validation error');
       } else if (!transaction.address) {
@@ -484,10 +480,6 @@ export default class SendDetails extends Component {
       }
     }
 
-    if (error) {
-      return;
-    }
-
     try {
       await this.createPsbtTransaction();
     } catch (Err) {
@@ -503,7 +495,7 @@ export default class SendDetails extends Component {
     const wallet = this.state.fromWallet;
     await wallet.fetchUtxo();
     const changeAddress = await wallet.getChangeAddressAsync();
-    const requestedSatPerByte = +this.state.fee.toString().replace(/\D/g, '');
+    const requestedSatPerByte = Number(this.state.fee);
     console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
 
     let targets = [];
@@ -623,8 +615,8 @@ export default class SendDetails extends Component {
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
         onBackdropPress={() => {
-          if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-            this.setState({ fee: Number(1), feeSliderValue: Number(1) });
+          if (this.state.fee < 1) {
+            this.setState({ fee: '1' });
           }
           Keyboard.dismiss();
           this.setState({ isFeeSelectionModalVisible: false });
@@ -632,38 +624,35 @@ export default class SendDetails extends Component {
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.feeSliderInput} onPress={() => this.textInput.focus()}>
+            <TouchableOpacity style={styles.feeInput} onPress={() => this.textInput.focus()}>
               <TextInput
                 keyboardType="numeric"
-                ref={ref => {
-                  this.textInput = ref;
-                }}
-                value={this.state.fee.toString()}
+                ref={ref => (this.textInput = ref)}
+                value={this.state.fee}
                 onEndEditing={() => {
-                  if (this.state.fee < 1 || this.state.feeSliderValue < 1) {
-                    this.setState({ fee: Number(1), feeSliderValue: Number(1) });
-                  }
+                  let fee = this.state.fee;
+                  if (fee < 1) fee = '1';
+                  fee = Number(fee).toString(); // this will remove leading zeros if any
+                  this.setState({ fee });
                 }}
                 onChangeText={value => {
-                  const newValue = value.replace(/\D/g, '');
-                  this.setState({ fee: newValue, feeSliderValue: Number(newValue) });
+                  const newValue = value.replace(/[^0-9]/g, '');
+                  this.setState({ fee: newValue });
                 }}
                 maxLength={9}
                 editable={!this.state.isLoading}
-                placeholderTextColor="#37c0a1"
-                placeholder={this.state.networkTransactionFees.mediumFee.toString()}
-                style={styles.feeSliderText}
+                style={styles.feeInputText}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
-              <Text style={styles.feeSliderUnit}>sat/b</Text>
+              <Text style={styles.feeInputUnit}>sat/b asd</Text>
             </TouchableOpacity>
             {this.state.networkTransactionFees.fastestFee > 1 && (
               <View style={styles.sliderContainer}>
                 <Slider
-                  onValueChange={value => this.setState({ feeSliderValue: value.toFixed(0), fee: value.toFixed(0) })}
+                  onValueChange={value => this.setState({ fee: value.toFixed(0) })}
                   minimumValue={1}
-                  maximumValue={Number(this.state.networkTransactionFees.fastestFee)}
-                  value={Number(this.state.feeSliderValue)}
+                  maximumValue={this.state.networkTransactionFees.fastestFee}
+                  value={Number(this.state.fee)}
                   maximumTrackTintColor="#d8d8d8"
                   minimumTrackTintColor="#37c0a1"
                   style={styles.slider}
