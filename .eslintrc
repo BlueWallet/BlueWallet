@@ -15,7 +15,6 @@
   "rules": {
     "react/jsx-handler-names": "off", // activated by standard-react config
     "react-native/no-inline-styles": "error",
-    "semi": "always",
     "prettier/prettier": [
       "warn",
       {

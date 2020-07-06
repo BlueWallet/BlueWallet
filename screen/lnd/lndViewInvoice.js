@@ -1,3 +1,4 @@
+/* global alert */
 import React, { Component } from 'react';
 import { View, Text, Dimensions, ScrollView, BackHandler, InteractionManager, TouchableOpacity, StyleSheet } from 'react-native';
 import Share from 'react-native-share';
@@ -139,19 +140,19 @@ export default class LNDViewInvoice extends Component {
     BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     if (this.state.invoice && this.state.invoice.payment_hash) {
       // fetch lnurl-pay stuff if exists
-      let paymentHash = Buffer.from(this.state.invoice.payment_hash).toString('hex');
-      let data = await AsyncStorage.getItem(`lp:${paymentHash}`);
+      const paymentHash = Buffer.from(this.state.invoice.payment_hash).toString('hex');
+      const data = await AsyncStorage.getItem(`lp:${paymentHash}`);
       if (data) {
-        let lnurlPay = JSON.parse(data);
+        const lnurlPay = JSON.parse(data);
 
         var image = null;
         var description = '';
-        let res = await AsyncStorage.getItem(`lp:${lnurlPay.description_hash}`)
+        const res = await AsyncStorage.getItem(`lp:${lnurlPay.description_hash}`)
         if (res) {
-          let {metadata} = JSON.parse(res);
+          const {metadata} = JSON.parse(res);
           image = metadata.image;
           description = metadata.description;
         }
@@ -208,7 +209,7 @@ export default class LNDViewInvoice extends Component {
           console.log(error);
           this.setState({ isLoading: false });
           ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-          alert(Err.message);
+          alert(error.message);
         }
       }
     }, 3000);
@@ -290,34 +291,31 @@ export default class LNDViewInvoice extends Component {
             </View>
             <View style={styles.detailsRoot}>
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
-                {lnurlPay && (
-                  <TouchableOpacity
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginRight: 4
-                    }}
-                    onPress={() => {
-                      this.props.navigation.navigate('LnurlPaySuccess', {
-                        domain: lnurlPay.domain,
-                        image: lnurlPay.image,
-                        description: lnurlPay.description,
-                        successAction: lnurlPay.successAction,
-                        preimage: invoice.payment_preimage,
-                        lnurl: lnurlPay.lnurl,
-                        fromWallet: this.state.fromWallet,
-                      })
-                    }}
-                  >
-                    <Icon name="film" size={18} type="font-awesome" color="#9aa0aa" />
-                    <Text style={{ color: '#9aa0aa', fontSize: 14, marginLeft: 8 }}>metadata</Text>
+                <>
+                  {lnurlPay ? (
+                    <TouchableOpacity
+                      style={styles.detailsTouch}
+                      onPress={() => {
+                        this.props.navigation.navigate('LnurlPaySuccess', {
+                          domain: lnurlPay.domain,
+                          image: lnurlPay.image,
+                          description: lnurlPay.description,
+                          successAction: lnurlPay.successAction,
+                          preimage: invoice.payment_preimage,
+                          lnurl: lnurlPay.lnurl,
+                          fromWallet: this.state.fromWallet,
+                        })
+                      }}
+                    >
+                      <Icon name="film" size={18} type="font-awesome" color="#9aa0aa" />
+                      <Text style={styles.detailsText}>metadata</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                  <TouchableOpacity style={styles.detailsTouch} onPress={() => this.setState({ showPreimageQr: true })}>
+                    <Text style={styles.detailsText}>{loc.send.create.details}</Text>
+                    <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
                   </TouchableOpacity>
-                )}
-
-                <TouchableOpacity style={styles.detailsTouch} onPress={() => this.setState({ showPreimageQr: true })}>
-                  <Text style={styles.detailsText}>{loc.send.create.details}</Text>
-                  <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
-                </TouchableOpacity>
+                </>
               ) : (
                 <View />
               )}

@@ -170,7 +170,7 @@ export default class LNDCreateInvoice extends Component {
   renderReceiveDetails = async () => {
     this.state.fromWallet.setUserHasSavedExport(true);
     await BlueApp.saveToDisk();
-    if (this.props.navigation.state.params.lnurlData) {
+    if (this.props.navigation.getParam('lnurlData')) {
       this.processLnurlWithdraw(
         this.props.navigation.getParam('uri'),
         this.props.navigation.getParam('lnurlData')
@@ -277,11 +277,11 @@ export default class LNDCreateInvoice extends Component {
 
         // calling the url
         try {
-          let resp = await fetch(url, { method: 'GET' });
+          const resp = await fetch(url, { method: 'GET' });
           if (resp.status >= 300) {
             throw new Error('Bad response from server');
           }
-          let reply = await resp.json();
+          const reply = await resp.json();
           if (reply.status === 'ERROR') {
             throw new Error('Reply from server: ' + reply.reason);
           }
@@ -395,7 +395,7 @@ export default class LNDCreateInvoice extends Component {
 
     var constrainAmount = () => {}
     if (this.state.lnurlParams) {
-      let { min, max } = this.state.lnurlParams;
+      const { min, max } = this.state.lnurlParams;
 
       constrainAmount = debounce(() => {
         var amount = parseInt(this.state.amount)
@@ -457,6 +457,7 @@ LNDCreateInvoice.propTypes = {
     dangerouslyGetParent: PropTypes.func,
     navigate: PropTypes.func,
     pop: PropTypes.func,
+    getParam: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,

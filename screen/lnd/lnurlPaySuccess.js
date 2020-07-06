@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { View, Text, Image, ScrollView, Linking } from 'react-native';
+import { View, Text, Image, ScrollView, Linking, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { decipherAES } from 'js-lnurl'
 import {
@@ -11,7 +11,48 @@ import {
   BlueCard,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
-let loc = require('../../loc');
+const loc = require('../../loc');
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingTop: 19,
+  },
+  descriptionScroll: {
+    maxHeight: 120,
+  },
+  descriptionText: {
+    color: '#81868e',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+  imageContainer: {
+    backgroundColor: '#ccddf9',
+    width: 120,
+    height: 120,
+    maxWidth: 120,
+    maxHeight: 120,
+    padding: 0,
+    borderRadius: 60,
+    alignSelf: 'center',
+    justifyContent: 'center',
+    marginVertical: 13,
+    textAlign: 'center',
+    flex: 1,
+    alignItems: 'center',
+  },
+  image: {
+    width: 80,
+    height: 80,
+  },
+  successText: {
+    margin: 3
+  },
+  successValue: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+})
 
 export default class Success extends Component {
   static navigationOptions = ({ navigation }) =>
@@ -42,11 +83,12 @@ export default class Success extends Component {
     if (!successAction) return
 
     switch (successAction.tag) {
-      case 'aes':
+      case 'aes': {
         const preimage = this.props.navigation.getParam('preimage');
-        let message = decipherAES(successAction, preimage);
+        const message = decipherAES(successAction, preimage);
         this.setState({message, preamble: successAction.description});
         break;
+      }
       case 'url':
         this.setState({url: successAction.url, preamble: successAction.description});
         break;
@@ -63,49 +105,31 @@ export default class Success extends Component {
     const {preamble, message, url} = this.state;
 
     return (
-      <SafeBlueArea style={{ flex: 1, paddingTop: 19 }}>
+      <SafeBlueArea style={styles.root}>
         <BlueCard>
-          <ScrollView contentContainerStyle={{maxHeight: 120}}>
-            <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
+          <ScrollView contentContainerStyle={styles.descriptionScroll}>
+            <Text numberOfLines={0} style={styles.descriptionText}>
               {description}
             </Text>
           </ScrollView>
         </BlueCard>
 
-        <View
-          style={{
-            backgroundColor: '#ccddf9',
-            width: 120,
-            height: 120,
-            maxWidth: 120,
-            maxHeight: 120,
-            padding: 0,
-            borderRadius: 60,
-            alignSelf: 'center',
-            justifyContent: 'center',
-            marginVertical: 13,
-            textAlign: 'center',
-            flex: 1,
-            alignItems: 'center',
-          }}
-          >
+        <View style={styles.imageContainer}>
           {image
-            ? <Image style={{ width: 80, height: 80 }} source={{uri: image}} />
+            ? <Image style={styles.image} source={{uri: image}} />
             : <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
           }
         </View>
 
         {(preamble || url || message) && (
           <BlueCard>
-            <Text style={{ margin: 3 }}>{preamble}</Text>
+            <Text style={styles.successText}>{preamble}</Text>
             {url
               ? <BlueButtonLink title={url} onPress={() => {
                   Linking.openURL(url)
                 }} />
               : (
-                <Text
-                  selectable
-                  style={{ margin: 3, textAlign: 'center', fontWeight: 'bold' }}>
+                <Text selectable style={{...styles.successText, ...styles.successValue}}>
                   {message}
                 </Text>
               )

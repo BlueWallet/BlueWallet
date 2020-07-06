@@ -11,8 +11,8 @@ import {
   TouchableOpacity,
   StatusBar,
   Keyboard,
-  ScrollView,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -41,6 +41,7 @@ const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const loc = require('../../loc');
 const { width, height } = Dimensions.get('window');
+const imageSize = (height < width ? height : width) / 4;
 const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
@@ -112,6 +113,33 @@ const styles = StyleSheet.create({
     fontSize: 12,
     left: 20,
     top: 10,
+  },
+  lnurlPayPrompt: {
+    marginTop: 5,
+    marginBottom: 0,
+    marginHorizontal: 20,
+  },
+  lnurlPayDomain: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  lnurlPayMetadataWrap: {
+    flexDirection: 'row',
+    marginHorizontal: 10,
+    alignItems: 'center',
+    marginVertical: 10,
+    borderRadius: 4,
+    height: Math.min(height / 5, imageSize * 2),
+  },
+  lnurlPayImage: {
+    width: imageSize,
+    height: imageSize,
+    marginRight: 5,
+  },
+  lnurlPayDescription: {
+    color: '#81868e',
+    fontWeight: '500',
+    fontSize: 14,
   },
 });
 
@@ -245,15 +273,15 @@ export default class ScanLndInvoice extends React.Component {
           uri = findlnurl(uri);
 
           // decoding
-          let decoded = bech32.decode(uri, 1500);
-          let url = Buffer.from(bech32.fromWords(decoded.words)).toString();
+          const decoded = bech32.decode(uri, 1500);
+          const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
 
           // calling the url
-          let resp = await fetch(url, { method: 'GET' });
+          const resp = await fetch(url, { method: 'GET' });
           if (resp.status >= 300) {
             throw new Error('Bad response from server');
           }
-          let reply = await resp.json();
+          const reply = await resp.json();
           if (reply.status === 'ERROR') {
             throw new Error('Reply from server: ' + reply.reason);
           }
@@ -267,9 +295,9 @@ export default class ScanLndInvoice extends React.Component {
         // parse metadata and extract things from it
         var image
         var description
-        let kvs = JSON.parse(data.metadata)
+        const kvs = JSON.parse(data.metadata)
         for (let i = 0; i < kvs.length; i++) {
-          let [k, v] = kvs[i];
+          const [k, v] = kvs[i];
           switch (k) {
             case 'text/plain':
               description = v;
@@ -282,8 +310,8 @@ export default class ScanLndInvoice extends React.Component {
         }
 
         // setting the payment screen with the parameters
-        let min = Math.ceil((data.minSendable || 0) / 1000);
-        let max = Math.floor(data.maxSendable / 1000);
+        const min = Math.ceil((data.minSendable || 0) / 1000);
+        const max = Math.floor(data.maxSendable / 1000);
 
         this.setState({
           isLoading: false,
@@ -310,7 +338,7 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   payLnurl = async () => {
-    if (!this.state.hasOwnProperty('lnurlParams')) {
+    if (!this.state.lnurlParams) {
       return null;
     }
 
@@ -326,7 +354,7 @@ export default class ScanLndInvoice extends React.Component {
         isLoading: true,
       },
       async () => {
-        let {
+        const {
           amount,
           min,
           max,
@@ -344,33 +372,33 @@ export default class ScanLndInvoice extends React.Component {
           }
 
           // append amount to callback
-          let url = callback + (
+          const url = callback + (
               callback.indexOf('?') !== -1
                 ? '&'
                 : '?' + 'amount=' + amount * 1000
           );
 
           // send amount and get invoice
-          let resp = await fetch(url, { method: 'GET' });
+          const resp = await fetch(url, { method: 'GET' });
           if (resp.status >= 300) {
             throw new Error('Bad response from server');
           }
-          let reply = await resp.json();
+          const reply = await resp.json();
           if (reply.status === 'ERROR') {
             throw new Error('Reply from server: ' + reply.reason);
           }
 
-          let {pr, successAction} = reply;
+          const {pr, successAction} = reply;
 
           /**
            * @type {LightningCustodianWallet}
            */
-          let w = this.state.fromWallet;
+          const w = this.state.fromWallet;
 
           // check pr description_hash
-          let decoded = w.decodeInvoice(pr);
+          const decoded = w.decodeInvoice(pr);
 
-          let metadataHash = createHash('sha256').update(metadata).digest('hex');
+          const metadataHash = createHash('sha256').update(metadata).digest('hex');
           if (metadataHash !== decoded.description_hash) {
             throw new Error(`Invoice description_hash doesn't match metadata.`);
           }
@@ -382,9 +410,9 @@ export default class ScanLndInvoice extends React.Component {
           AsyncStorage.getAllKeys(async (err, keys) => {
             if (err) return;
             for (let i = 0; i < keys.length; i++) {
-              let key = keys[i];
+              const key = keys[i];
               if (!key.startsWith('lp:')) continue;
-              let val = await AsyncStorage.getItem(key);
+              const val = await AsyncStorage.getItem(key);
               if (val && JSON.parse(val).time < Date.now() - 2592000000 /* 1 month */) {
                 AsyncStorage.removeItem(key);
               }
@@ -571,20 +599,26 @@ export default class ScanLndInvoice extends React.Component {
   async componentDidMount() {
     console.log('scanLndInvoice did mount');
 
-    if (this.props.navigation.state.params.lnurlData) {
+    if (this.props.navigation.getParam('lnurlData')) {
       this.processLnurlPay(
         this.props.navigation.getParam('uri'),
         this.props.navigation.getParam('lnurlData')
       );
-    } else if (this.props.navigation.state.params.uri) {
+    } else if (this.props.navigation.getParam('uri')) {
       this.processTextForInvoice(this.props.navigation.getParam('uri'));
     }
   }
 
   renderLnurlPayPrompt = () => {
-    let {fixed, min, max, domain, description, image, amount} = this.state.lnurlParams
-
-    const imageSize = (height < width ? height : width) / 4
+    const {
+      fixed,
+      min,
+      max,
+      domain,
+      description,
+      image,
+      amount,
+    } = this.state.lnurlParams;
 
     const constrainAmount = debounce(() => {
       var amount = this.state.lnurlParams.amount
@@ -598,19 +632,24 @@ export default class ScanLndInvoice extends React.Component {
 
     return (
       <KeyboardAvoidingView enabled behavior={Platform.OS === 'ios' ? 'position' : null} keyboardVerticalOffset={20}>
-        <View style={{ marginTop: 5, marginBottom: 0, marginHorizontal: 20 }}>
-          {!fixed && <BlueText style={{textAlign: 'center'}}>
-            Choose an amount ({min} - {max}):
-          </BlueText>}
+        <View style={styles.lnurlPayPrompt}>
+          {!fixed && (
+            <BlueText>
+              Choose an amount ({min} - {max}):
+            </BlueText>
+          )}
           <BlueBitcoinAmount
             isLoading={this.state.isLoading}
             pointerEvents={fixed ? 'none' : 'auto'}
             disabled={fixed}
             amount={amount.toString() || ''}
             onChangeText={text => {
-              this.setState(
-                { lnurlParams: {...this.state.lnurlParams, amount: parseInt(text || 0)} },
-                constrainAmount
+              const {lnurlParams} = this.state;
+
+              this.setState({
+                  lnurlParams: {...lnurlParams, amount: parseInt(text || 0)},
+                },
+                constrainAmount,
               );
             }}
             unit={BitcoinUnit.SATS}
@@ -618,26 +657,16 @@ export default class ScanLndInvoice extends React.Component {
           />
         </View>
 
-        <View style={{marginHorizontal: 20, marginTop: 5, marginBottom: 0}}>
-          <BlueText style={{fontWeight: 'bold', textAlign: 'center'}}>{domain}</BlueText>
+        <View style={styles.lnurlPayPrompt}>
+          <BlueText style={styles.lnurlPayDomain}>{domain}</BlueText>
 
           <ScrollView
-            contentContainerStyle={{
-              flexDirection: 'row',
-              marginHorizontal: 10,
-              alignItems: 'center',
-              marginVertical: 10,
-              borderRadius: 4,
-              height: Math.min(height / 5, imageSize * 2)
-            }}
+            contentContainerStyle={styles.lnurlPayMetadataWrap}
           >
             {image && (
-              <Image
-                style={{width: imageSize, height: imageSize, marginRight: 5}}
-                source={{uri: image}}
-              />
+              <Image style={styles.lnurlPayImage} source={{uri: image}} />
             )}
-            <Text numberOfLines={0} style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}>
+            <Text numberOfLines={0} style={styles.lnurlPayDescription}>
               {description}
             </Text>
           </ScrollView>
@@ -650,7 +679,7 @@ export default class ScanLndInvoice extends React.Component {
             </View>
           ) : (
             <BlueButton
-              title={'Pay'}
+              title="Pay"
               onPress={() => {
                 this.payLnurl();
               }}
@@ -767,6 +796,7 @@ ScanLndInvoice.propTypes = {
     pop: PropTypes.func,
     setParams: PropTypes.func,
     dangerouslyGetParent: PropTypes.func,
+    getParam: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
