@@ -1,5 +1,5 @@
 /* global alert */
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import {
   ActivityIndicator,
   View,
@@ -11,27 +11,27 @@ import {
   TouchableOpacity,
   Text,
   StyleSheet,
-} from 'react-native'
+} from 'react-native';
 import {
   BlueNavigationStyle,
   BlueButton,
   BlueBitcoinAmount,
   BlueDismissKeyboardInputAccessory,
   BlueAlertWalletExportReminder,
-} from '../../BlueComponents'
-import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet'
-import PropTypes from 'prop-types'
-import bech32 from 'bech32'
-import { BitcoinUnit, Chain } from '../../models/bitcoinUnits'
-import * as NavigationService from '../../NavigationService'
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback'
-import { Icon } from 'react-native-elements'
-import debounce from 'debounce'
-import { findlnurl } from 'js-lnurl'
-const currency = require('../../blue_modules/currency')
-const BlueApp = require('../../BlueApp')
+} from '../../BlueComponents';
+import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
+import PropTypes from 'prop-types';
+import bech32 from 'bech32';
+import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
+import * as NavigationService from '../../NavigationService';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import { Icon } from 'react-native-elements';
+import debounce from 'debounce';
+import { findlnurl } from 'js-lnurl';
+const currency = require('../../blue_modules/currency');
+const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
-const loc = require('../../loc')
+const loc = require('../../loc');
 
 const styles = StyleSheet.create({
   createButton: {
@@ -130,37 +130,28 @@ const styles = StyleSheet.create({
     minHeight: 33,
     color: '#81868e',
   },
-})
+});
 
 export default class LNDCreateInvoice extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
     title: loc.receive.header,
-  })
+  });
 
   constructor(props) {
-    super(props)
-    this.keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      this._keyboardDidShow
-    )
-    this.keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      this._keyboardDidHide
-    )
+    super(props);
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     /** @type LightningCustodianWallet */
-    let fromWallet
-    if (props.route.params.fromWallet)
-      fromWallet = props.route.params.fromWallet
+    let fromWallet;
+    if (props.route.params.fromWallet) fromWallet = props.route.params.fromWallet;
 
     // fallback to first wallet if it exists
     if (!fromWallet) {
-      const lightningWallets = BlueApp.getWallets().filter(
-        item => item.type === LightningCustodianWallet.type
-      )
+      const lightningWallets = BlueApp.getWallets().filter(item => item.type === LightningCustodianWallet.type);
       if (lightningWallets.length > 0) {
-        fromWallet = lightningWallets[0]
-        console.warn('warning: using ln wallet index 0')
+        fromWallet = lightningWallets[0];
+        console.warn('warning: using ln wallet index 0');
       }
     }
 
@@ -173,114 +164,100 @@ export default class LNDCreateInvoice extends Component {
       lnurlParams: null,
       isLoading: true,
       renderWalletSelectionButtonHidden: false,
-    }
+    };
   }
 
   renderReceiveDetails = async () => {
-    this.state.fromWallet.setUserHasSavedExport(true)
-    await BlueApp.saveToDisk()
+    this.state.fromWallet.setUserHasSavedExport(true);
+    await BlueApp.saveToDisk();
     if (this.props.navigation.state.params.lnurlData) {
-      this.processLnurlWithdraw(
-        this.props.navigation.getParam('uri'),
-        this.props.navigation.getParam('lnurlData')
-      )
+      this.processLnurlWithdraw(this.props.navigation.getParam('uri'), this.props.navigation.getParam('lnurlData'));
     }
-    this.setState({ isLoading: false })
-  }
+    this.setState({ isLoading: false });
+  };
 
   componentDidMount() {
-    console.log('lnd/lndCreateInvoice mounted')
+    console.log('lnd/lndCreateInvoice mounted');
     if (this.state.fromWallet.getUserHasSavedExport()) {
-      this.renderReceiveDetails()
+      this.renderReceiveDetails();
     } else {
       BlueAlertWalletExportReminder({
         onSuccess: this.renderReceiveDetails,
         onFailure: () => {
-          this.props.navigation.dangerouslyGetParent().pop()
+          this.props.navigation.dangerouslyGetParent().pop();
           this.props.navigation.navigate('WalletExport', {
             wallet: this.state.fromWallet,
-          })
+          });
         },
-      })
+      });
     }
   }
 
   componentWillUnmount() {
-    this.keyboardDidShowListener.remove()
-    this.keyboardDidHideListener.remove()
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
   }
 
   _keyboardDidShow = () => {
-    this.setState({ renderWalletSelectionButtonHidden: true })
-  }
+    this.setState({ renderWalletSelectionButtonHidden: true });
+  };
 
   _keyboardDidHide = () => {
-    this.setState({ renderWalletSelectionButtonHidden: false })
-  }
+    this.setState({ renderWalletSelectionButtonHidden: false });
+  };
 
   async createInvoice() {
     this.setState({ isLoading: true }, async () => {
       try {
-        this.setState({ isLoading: false })
-        let amount = this.state.amount
+        this.setState({ isLoading: false });
+        let amount = this.state.amount;
         switch (this.state.unit) {
           case BitcoinUnit.SATS:
-            amount = parseInt(amount) // basically nop
-            break
+            amount = parseInt(amount); // basically nop
+            break;
           case BitcoinUnit.BTC:
-            amount = currency.btcToSatoshi(amount)
-            break
+            amount = currency.btcToSatoshi(amount);
+            break;
           case BitcoinUnit.LOCAL_CURRENCY:
             // trying to fetch cached sat equivalent for this fiat amount
-            amount =
-              BlueBitcoinAmount.getCachedSatoshis(amount) ||
-              currency.btcToSatoshi(currency.fiatToBTC(amount))
-            break
+            amount = BlueBitcoinAmount.getCachedSatoshis(amount) || currency.btcToSatoshi(currency.fiatToBTC(amount));
+            break;
         }
 
-        const invoiceRequest = await this.state.fromWallet.addInvoice(
-          amount,
-          this.state.description
-        )
-        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED)
+        const invoiceRequest = await this.state.fromWallet.addInvoice(amount, this.state.description);
+        EV(EV.enum.TRANSACTIONS_COUNT_CHANGED);
         ReactNativeHapticFeedback.trigger('notificationSuccess', {
           ignoreAndroidSystemSettings: false,
-        })
+        });
 
         // send to lnurl-withdraw callback url if that exists
         if (this.state.lnurlParams) {
-          const { callback, k1 } = this.state.lnurlParams
-          const callbackUrl =
-            callback +
-            (callback.indexOf('?') !== -1 ? '&' : '?') +
-            'k1=' +
-            k1 +
-            '&pr=' +
-            invoiceRequest
-          const resp = await fetch(callbackUrl, { method: 'GET' })
+          const { callback, k1 } = this.state.lnurlParams;
+          const callbackUrl = callback + (callback.indexOf('?') !== -1 ? '&' : '?') + 'k1=' + k1 + '&pr=' + invoiceRequest;
+          const resp = await fetch(callbackUrl, { method: 'GET' });
           if (resp.status >= 300) {
-            const text = await resp.text()
-            throw new Error(text)
+            const text = await resp.text();
+            throw new Error(text);
           }
-          const reply = await resp.json()
+          const reply = await resp.json();
           if (reply.status === 'ERROR') {
-            throw new Error('Reply from server: ' + reply.reason)
+            throw new Error('Reply from server: ' + reply.reason);
           }
         }
-        await BlueApp.saveToDisk()
+        await BlueApp.saveToDisk();
         this.props.navigation.navigate('LNDViewInvoice', {
           invoice: invoiceRequest,
           fromWallet: this.state.fromWallet,
           isModal: true,
-        })
+        });
       } catch (Err) {
         ReactNativeHapticFeedback.trigger('notificationError', {
           ignoreAndroidSystemSettings: false,
-        })
-        this.setState({ isLoading: false })
-        alert(Err.message)
+        });
+        this.setState({ isLoading: false });
+        alert(Err.message);
       }
-    })
+    });
   }
 
   processLnurlWithdraw = (uri, data) => {
@@ -288,58 +265,56 @@ export default class LNDCreateInvoice extends Component {
       if (!this.state.fromWallet) {
         ReactNativeHapticFeedback.trigger('notificationError', {
           ignoreAndroidSystemSettings: false,
-        })
-        alert(
-          'Before paying a Lightning invoice, you must first add a Lightning wallet.'
-        )
-        return this.props.navigation.goBack()
+        });
+        alert('Before paying a Lightning invoice, you must first add a Lightning wallet.');
+        return this.props.navigation.goBack();
       }
 
       if (!data) {
         try {
           // extracting just the lnurl
-          uri = findlnurl(uri)
+          uri = findlnurl(uri);
 
           // decoding the lnurl
-          let decoded = bech32.decode(uri, 1500)
-          let url = Buffer.from(bech32.fromWords(decoded.words)).toString()
+          const decoded = bech32.decode(uri, 1500);
+          const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
 
           // calling the url
-          let resp = await fetch(url, { method: 'GET' })
+          const resp = await fetch(url, { method: 'GET' });
           if (resp.status >= 300) {
-            throw new Error('Bad response from server')
+            throw new Error('Bad response from server');
           }
-          let reply = await resp.json()
+          const reply = await resp.json();
           if (reply.status === 'ERROR') {
-            throw new Error('Reply from server: ' + reply.reason)
+            throw new Error('Reply from server: ' + reply.reason);
           }
           if (reply.tag !== 'withdrawRequest') {
-            throw new Error('lnurl-withdraw expected, found tag ' + reply.tag)
+            throw new Error('lnurl-withdraw expected, found tag ' + reply.tag);
           }
 
-          data = reply
+          data = reply;
         } catch (Err) {
-          Keyboard.dismiss()
-          this.setState({ isLoading: false })
+          Keyboard.dismiss();
+          this.setState({ isLoading: false });
           ReactNativeHapticFeedback.trigger('notificationError', {
             ignoreAndroidSystemSettings: false,
-          })
-          alert(Err.message)
+          });
+          alert(Err.message);
         }
         // amount that comes from lnurl is always in sats
-        let amount = (reply.maxWithdrawable / 1000).toString()
-        const sats = amount
+        let amount = (reply.maxWithdrawable / 1000).toString();
+        const sats = amount;
         switch (this.state.unit) {
           case BitcoinUnit.SATS:
             // nop
-            break
+            break;
           case BitcoinUnit.BTC:
-            amount = currency.satoshiToBTC(amount)
-            break
+            amount = currency.satoshiToBTC(amount);
+            break;
           case BitcoinUnit.LOCAL_CURRENCY:
-            amount = loc.formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY)
-            BlueBitcoinAmount.setCachedSatoshis(amount, sats)
-            break
+            amount = loc.formatBalancePlain(amount, BitcoinUnit.LOCAL_CURRENCY);
+            BlueBitcoinAmount.setCachedSatoshis(amount, sats);
+            break;
         }
 
         this.setState({
@@ -353,10 +328,10 @@ export default class LNDCreateInvoice extends Component {
           },
           amount: (data.maxWithdrawable / 1000).toString(),
           description: data.defaultDescription,
-        })
+        });
       }
-    })
-  }
+    });
+  };
 
   renderCreateButton = () => {
     return (
@@ -364,15 +339,11 @@ export default class LNDCreateInvoice extends Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-            <BlueButton
-              disabled={!(this.state.amount > 0)}
-              onPress={() => this.createInvoice()}
-              title={loc.send.details.create}
-            />
+            <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details.create} />
           )}
       </View>
-    )
-  }
+    );
+  };
 
   renderScanClickable = () => {
     return (
@@ -385,24 +356,19 @@ export default class LNDCreateInvoice extends Component {
               onBarScanned: this.processLnurlWithdraw,
               launchedBy: this.props.route.name,
             },
-          })
-          Keyboard.dismiss()
+          });
+          Keyboard.dismiss();
         }}
         style={styles.scanRoot}
       >
-        <Icon
-          name="qrcode"
-          size={22}
-          type="font-awesome"
-          color={BlueApp.settings.inverseForegroundColor}
-        />
+        <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
         <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
-    )
-  }
+    );
+  };
 
   renderWalletSelectionButton = () => {
-    if (this.state.renderWalletSelectionButtonHidden) return
+    if (this.state.renderWalletSelectionButtonHidden) return;
     return (
       <View style={styles.walletRoot}>
         {!this.state.isLoading && (
@@ -415,15 +381,8 @@ export default class LNDCreateInvoice extends Component {
               })
             }
           >
-            <Text style={styles.walletChooseText}>
-              {loc.wallets.select_wallet.toLowerCase()}
-            </Text>
-            <Icon
-              name="angle-right"
-              size={18}
-              type="font-awesome"
-              color="#9aa0aa"
-            />
+            <Text style={styles.walletChooseText}>{loc.wallets.select_wallet.toLowerCase()}</Text>
+            <Icon name="angle-right" size={18} type="font-awesome" color="#9aa0aa" />
           </TouchableOpacity>
         )}
         <View style={styles.walletNameWrap}>
@@ -436,50 +395,42 @@ export default class LNDCreateInvoice extends Component {
               })
             }
           >
-            <Text style={styles.walletNameText}>
-              {this.state.fromWallet.getLabel()}
-            </Text>
+            <Text style={styles.walletNameText}>{this.state.fromWallet.getLabel()}</Text>
             <Text style={styles.walletNameBalance}>
-              {loc.formatBalanceWithoutSuffix(
-                this.state.fromWallet.getBalance(),
-                BitcoinUnit.SATS,
-                false
-              )}
+              {loc.formatBalanceWithoutSuffix(this.state.fromWallet.getBalance(), BitcoinUnit.SATS, false)}
             </Text>
             <Text style={styles.walletNameSats}>{BitcoinUnit.SATS}</Text>
           </TouchableOpacity>
         </View>
       </View>
-    )
-  }
+    );
+  };
 
   onWalletSelect = wallet => {
-    this.setState({ fromWallet: wallet }, () => this.props.navigation.pop())
-  }
+    this.setState({ fromWallet: wallet }, () => this.props.navigation.pop());
+  };
 
   render() {
     if (!this.state.fromWallet) {
       return (
         <View style={styles.error}>
-          <Text>
-            System error: Source wallet not found (this should never happen)
-          </Text>
+          <Text>System error: Source wallet not found (this should never happen)</Text>
         </View>
-      )
+      );
     }
 
-    let constrainAmount = () => { }
+    let constrainAmount = () => { };
     if (this.state.lnurlParams) {
-      let { min, max } = this.state.lnurlParams
+      const { min, max } = this.state.lnurlParams;
 
       constrainAmount = debounce(() => {
-        let amount = parseInt(this.state.amount)
+        const amount = parseInt(this.state.amount);
         if (amount < min) {
-          this.setState({ amount: min.toString() })
+          this.setState({ amount: min.toString() });
         } else if (amount > max) {
-          this.setState({ amount: max.toString() })
+          this.setState({ amount: max.toString() });
         }
-      }, 2000)
+      }, 2000);
     }
 
     return (
@@ -492,19 +443,12 @@ export default class LNDCreateInvoice extends Component {
                 isLoading={this.state.isLoading}
                 amount={this.state.amount}
                 onAmountUnitChange={unit => {
-                  this.setState({ unit })
+                  this.setState({ unit });
                 }}
-                onChangeText={text =>
-                  this.setState({ amount: text }, constrainAmount)
-                }
-                disabled={
-                  this.state.isLoading ||
-                  (this.state.lnurlParams && this.state.lnurlParams.fixed)
-                }
+                onChangeText={text => this.setState({ amount: text }, constrainAmount)}
+                disabled={this.state.isLoading || (this.state.lnurlParams && this.state.lnurlParams.fixed)}
                 unit={this.state.unit}
-                inputAccessoryViewID={
-                  BlueDismissKeyboardInputAccessory.InputAccessoryViewID
-                }
+                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <View style={styles.fiat}>
                 <TextInput
@@ -516,9 +460,7 @@ export default class LNDCreateInvoice extends Component {
                   style={styles.fiat2}
                   editable={!this.state.isLoading}
                   onSubmitEditing={Keyboard.dismiss}
-                  inputAccessoryViewID={
-                    BlueDismissKeyboardInputAccessory.InputAccessoryViewID
-                  }
+                  inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
                 />
                 {this.state.lnurlParams ? null : this.renderScanClickable()}
               </View>
@@ -529,7 +471,7 @@ export default class LNDCreateInvoice extends Component {
           {this.renderWalletSelectionButton()}
         </View>
       </TouchableWithoutFeedback>
-    )
+    );
   }
 }
 
@@ -547,4 +489,4 @@ LNDCreateInvoice.propTypes = {
       fromWallet: PropTypes.shape({}),
     }),
   }),
-}
+};
