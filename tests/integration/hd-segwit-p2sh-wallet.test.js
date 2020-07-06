@@ -76,12 +76,12 @@ it('HD (BIP49) can create TX', async () => {
   let tx = bitcoin.Transaction.fromHex(txNew.tx.toHex());
   assert.strictEqual(
     txNew.tx.toHex(),
-    '0200000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad150000008002f40100000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87bb6200000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd87024830450221008506675a240c6a49fc5daf0332e44245991a1dfa4c8742d56e81687097e5b98b0220042e4bd3f69a842c7ac4013c2fd01151b098cc9bf889d53959475d6c8b47a32101210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
+    '0200000000010187c9acd9d5714845343b18abaa26cb83299be2487c22da9c0e270f241b4d9cfe0000000017160014a239b6a0cbc7aadc2e77643de36306a6167fad150000008002f40100000000000017a914a3a65daca3064280ae072b9d6773c027b30abace87ba6200000000000017a9140acff2c37ed45110baece4bb9d4dcc0c6309dbbd8702483045022100a14eb345f26933b29ba2a68075994ecf10f16286611c1d34ccd5850d977c25620220050e80c62ba64d99101253d94f756791f881bdb92100885fbe5ea3e29964573001210202ac3bd159e54dc31e65842ad5f9a10b4eb024e83864a319b27de65ee08b2a3900000000',
   );
   assert.strictEqual(tx.ins.length, 1);
   assert.strictEqual(tx.outs.length, 2);
   assert.strictEqual(tx.outs[0].value, 500);
-  assert.strictEqual(tx.outs[1].value, 25275);
+  assert.strictEqual(tx.outs[1].value, 25274);
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
