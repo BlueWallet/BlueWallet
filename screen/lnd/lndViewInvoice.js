@@ -28,7 +28,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp')
 const loc = require('../../loc')
-const EV = require('../../events')
+const EV = require('../../blue_modules/events');
 const { width, height } = Dimensions.get('window')
 
 const styles = StyleSheet.create({
@@ -126,12 +126,12 @@ export default class LNDViewInvoice extends Component {
   static navigationOptions = ({ navigation, route }) =>
     route.params.isModal === true
       ? {
-          ...BlueNavigationStyle(navigation, true, () =>
-            navigation.dangerouslyGetParent().pop()
-          ),
-          title: 'Lightning Invoice',
-          headerLeft: null,
-        }
+        ...BlueNavigationStyle(navigation, true, () =>
+          navigation.dangerouslyGetParent().pop()
+        ),
+        title: 'Lightning Invoice',
+        headerLeft: null,
+      }
       : { ...BlueNavigationStyle(), title: 'Lightning Invoice' }
 
   constructor(props) {
@@ -275,7 +275,7 @@ export default class LNDViewInvoice extends Component {
               <QRCode
                 value={
                   invoice.payment_preimage &&
-                  typeof invoice.payment_preimage === 'string'
+                    typeof invoice.payment_preimage === 'string'
                     ? invoice.payment_preimage
                     : 'none'
                 }
@@ -290,7 +290,7 @@ export default class LNDViewInvoice extends Component {
               <BlueCopyTextToClipboard
                 text={
                   invoice.payment_preimage &&
-                  typeof invoice.payment_preimage === 'string'
+                    typeof invoice.payment_preimage === 'string'
                     ? invoice.payment_preimage
                     : 'none'
                 }

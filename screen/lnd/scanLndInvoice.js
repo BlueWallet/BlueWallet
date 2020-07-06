@@ -37,7 +37,7 @@ import { findlnurl } from 'js-lnurl'
 import debounce from 'debounce'
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp')
-const EV = require('../../events')
+const EV = require('../../blue_modules/events');
 const loc = require('../../loc')
 const currency = require('../../blue_modules/currency')
 const { width, height } = Dimensions.get('window')
@@ -736,13 +736,13 @@ export default class ScanLndInvoice extends React.Component {
               <ActivityIndicator />
             </View>
           ) : (
-            <BlueButton
-              title={'Pay'}
-              onPress={() => {
-                this.payLnurl()
-              }}
-            />
-          )}
+              <BlueButton
+                title={'Pay'}
+                onPress={() => {
+                  this.payLnurl()
+                }}
+              />
+            )}
         </BlueCard>
       </KeyboardAvoidingView>
     )
@@ -810,7 +810,7 @@ export default class ScanLndInvoice extends React.Component {
               style={{ color: '#81868e', fontWeight: '500', fontSize: 14 }}
             >
               {this.state.hasOwnProperty('decoded') &&
-              this.state.decoded !== undefined
+                this.state.decoded !== undefined
                 ? this.state.decoded.description
                 : ''}
             </Text>
@@ -827,14 +827,14 @@ export default class ScanLndInvoice extends React.Component {
                 <ActivityIndicator />
               </View>
             ) : (
-              <BlueButton
-                title={'Pay'}
-                onPress={() => {
-                  this.pay()
-                }}
-                disabled={this.shouldDisablePayButton()}
-              />
-            )}
+                <BlueButton
+                  title={'Pay'}
+                  onPress={() => {
+                    this.pay()
+                  }}
+                  disabled={this.shouldDisablePayButton()}
+                />
+              )}
           </BlueCard>
         </BlueCard>
       </KeyboardAvoidingView>

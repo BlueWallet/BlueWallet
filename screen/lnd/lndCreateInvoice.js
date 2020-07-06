@@ -22,15 +22,15 @@ import {
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet'
 import PropTypes from 'prop-types'
 import bech32 from 'bech32'
-import debounce from 'debounce'
-import { findlnurl } from 'js-lnurl'
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits'
 import * as NavigationService from '../../NavigationService'
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback'
 import { Icon } from 'react-native-elements'
+import debounce from 'debounce'
+import { findlnurl } from 'js-lnurl'
 const currency = require('../../blue_modules/currency')
 const BlueApp = require('../../BlueApp')
-const EV = require('../../events')
+const EV = require('../../blue_modules/events');
 const loc = require('../../loc')
 
 const styles = StyleSheet.create({
@@ -364,12 +364,12 @@ export default class LNDCreateInvoice extends Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton
-            disabled={!(this.state.amount > 0)}
-            onPress={() => this.createInvoice()}
-            title={loc.send.details.create}
-          />
-        )}
+            <BlueButton
+              disabled={!(this.state.amount > 0)}
+              onPress={() => this.createInvoice()}
+              title={loc.send.details.create}
+            />
+          )}
       </View>
     )
   }
@@ -468,7 +468,7 @@ export default class LNDCreateInvoice extends Component {
       )
     }
 
-    let constrainAmount = () => {}
+    let constrainAmount = () => { }
     if (this.state.lnurlParams) {
       let { min, max } = this.state.lnurlParams
 
