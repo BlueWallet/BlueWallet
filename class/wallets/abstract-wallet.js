@@ -142,6 +142,18 @@ export class AbstractWallet {
 
     if (this.secret.startsWith('BC1')) this.secret = this.secret.toLowerCase();
 
+    // [fingerprint/derivation]zpub
+    const re = /\[([^\]]+)\](.*)/;
+    const m = this.secret.match(re);
+    if (m && m.length === 3) {
+      let hexFingerprint = m[1].split('/')[0];
+      if (hexFingerprint.length === 8) {
+        hexFingerprint = Buffer.from(hexFingerprint, 'hex').reverse().toString('hex');
+        this.masterFingerprint = parseInt(hexFingerprint, 16);
+      }
+      this.secret = m[2];
+    }
+
     try {
       const parsedSecret = JSON.parse(this.secret);
       if (parsedSecret && parsedSecret.keystore && parsedSecret.keystore.xpub) {
