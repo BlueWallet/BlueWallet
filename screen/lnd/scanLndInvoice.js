@@ -193,55 +193,6 @@ export default class ScanLndInvoice extends React.Component {
     }
   }
 
-  static getDerivedStateFromProps(props, state) {
-    if (props.route.params.uri) {
-      let data = props.route.params.uri;
-      // handling BIP21 w/BOLT11 support
-      const ind = data.indexOf('lightning=');
-      if (ind !== -1) {
-        data = data.substring(ind + 10).split('&')[0];
-      }
-
-      data = data.replace('LIGHTNING:', '').replace('lightning:', '');
-      console.log(data);
-
-      /**
-       * @type {LightningCustodianWallet}
-       */
-      const w = state.fromWallet;
-      let decoded;
-      try {
-        decoded = w.decodeInvoice(data);
-
-        let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
-        if (+new Date() > expiresIn) {
-          expiresIn = 'expired';
-        } else {
-          expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
-        }
-        Keyboard.dismiss();
-        props.navigation.setParams({ uri: undefined });
-        return {
-          invoice: data,
-          decoded,
-          unit: state.unit,
-          amount: decoded.num_satoshis,
-          expiresIn,
-          destination: data,
-          isAmountInitiallyEmpty: decoded.num_satoshis === '0',
-          isLoading: false,
-        };
-      } catch (Err) {
-        ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
-        Keyboard.dismiss();
-        props.navigation.setParams({ uri: undefined });
-        setTimeout(() => alert(Err.message), 10);
-        return { ...state, isLoading: false };
-      }
-    }
-    return state;
-  }
-
   componentWillUnmount() {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
@@ -256,7 +207,37 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   processInvoice = data => {
-    this.props.navigation.setParams({ uri: data });
+    const {state, props} = this;
+    const w = state.fromWallet;
+    let decoded;
+    try {
+      decoded = w.decodeInvoice(data);
+
+      let expiresIn = (decoded.timestamp * 1 + decoded.expiry * 1) * 1000; // ms
+      if (+new Date() > expiresIn) {
+        expiresIn = 'expired';
+      } else {
+        expiresIn = Math.round((expiresIn - +new Date()) / (60 * 1000)) + ' min';
+      }
+      Keyboard.dismiss();
+
+      return {
+        invoice: data,
+        decoded,
+        unit: state.unit,
+        amount: decoded.num_satoshis,
+        expiresIn,
+        destination: data,
+        isAmountInitiallyEmpty: decoded.num_satoshis === '0',
+        isLoading: false,
+      };
+    } catch (Err) {
+      ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
+      Keyboard.dismiss();
+      props.navigation.setParams({ uri: undefined });
+      setTimeout(() => alert(Err.message), 10);
+      this.setState({ ...state, isLoading: false });
+    }
   };
 
   processLnurlPay = async (uri, data) => {
@@ -527,12 +508,20 @@ export default class ScanLndInvoice extends React.Component {
     );
   }
 
-  processTextForInvoice = text => {
+  processText = text => {
     text = text.toLowerCase()
 
-    if (text.startsWith('lnb') || text.startsWith('lightning:lnb')) {
+    // handling BIP21 w/BOLT11 support
+    const ind = text.indexOf('lightning=');
+    if (ind !== -1) {
+      text = text.substring(ind + 10).split('&')[0];
+    }
+
+    text = text.replace('lightning:', '').trim();
+
+    if (text.startsWith('lnb')) {
       this.processInvoice(text);
-    } else if (text.startsWith('lnurl1') || text.match('lightning=lnurl1')) {
+    } else if (text.startsWith('lnurl1')) {
       this.processLnurlPay(text);
     } else {
       this.setState({ decoded: undefined, expiresIn: undefined, destination: text });
@@ -599,13 +588,15 @@ export default class ScanLndInvoice extends React.Component {
   async componentDidMount() {
     console.log('scanLndInvoice did mount');
 
-    if (this.props.navigation.getParam('lnurlData')) {
+    if (this.props.route.params.lnurlData) {
       this.processLnurlPay(
-        this.props.navigation.getParam('uri'),
-        this.props.navigation.getParam('lnurlData')
+        this.props.route.params.uri,
+        this.props.route.params.lnurlData
       );
-    } else if (this.props.navigation.getParam('uri')) {
-      this.processTextForInvoice(this.props.navigation.getParam('uri'));
+      this.props.navigation.setParams({ uri: undefined });
+    } else if (this.props.route.params.uri) {
+      this.processText(this.props.route.params.uri);
+      this.props.navigation.setParams({ uri: undefined });
     }
   }
 
@@ -726,9 +717,9 @@ export default class ScanLndInvoice extends React.Component {
           <BlueAddressInput
             onChangeText={text => {
               text = text.trim();
-              this.processTextForInvoice(text);
+              this.processText(text);
             }}
-            onBarScanned={this.processInvoice}
+            onBarScanned={this.processText}
             address={this.state.destination}
             isLoading={this.state.isLoading}
             placeholder={loc.lnd.placeholder}
@@ -796,7 +787,6 @@ ScanLndInvoice.propTypes = {
     pop: PropTypes.func,
     setParams: PropTypes.func,
     dangerouslyGetParent: PropTypes.func,
-    getParam: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,

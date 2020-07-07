@@ -55,14 +55,14 @@ const styles = StyleSheet.create({
 })
 
 export default class Success extends Component {
-  static navigationOptions = ({ navigation }) =>
-    navigation.getParam('lnurl')
+  static navigationOptions = ({ navigation, route }) =>
+    route.params.lnurl
       ? {
           ...BlueNavigationStyle(navigation, true, () => navigation.goBack()),
-          title: navigation.getParam('domain') + ' message',
+          title: route.params.domain + ' message',
         }
       : { ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
-          title: navigation.getParam('domain') + ' message',
+          title: route.params.domain + ' message',
           headerLeft: null,
         }
 
@@ -79,12 +79,12 @@ export default class Success extends Component {
   async componentDidMount() {
     ReactNativeHapticFeedback.trigger('notificationSuccess', { ignoreAndroidSystemSettings: false });
 
-    const successAction = this.props.navigation.getParam('successAction');
+    const successAction = this.props.route.params.successAction;
     if (!successAction) return
 
     switch (successAction.tag) {
       case 'aes': {
-        const preimage = this.props.navigation.getParam('preimage');
+        const preimage = this.props.route.params.preimage;
         const message = decipherAES(successAction, preimage);
         this.setState({message, preamble: successAction.description});
         break;
@@ -99,9 +99,9 @@ export default class Success extends Component {
   }
 
   render() {
-    const image = this.props.navigation.getParam('image');
-    const description = this.props.navigation.getParam('description');
-    const lnurlString = this.props.navigation.getParam('lnurl');
+    const image = this.props.route.params.image;
+    const description = this.props.route.params.description;
+    const lnurlString = this.props.route.params.lnurl;
     const {preamble, message, url} = this.state;
 
     return (
@@ -144,7 +144,7 @@ export default class Success extends Component {
                 onPress={() => {
                   this.props.navigation.navigate('ScanLndInvoice', {
                     uri: lnurlString,
-                    fromWallet: this.props.navigation.getParam('fromWallet')
+                    fromWallet: this.props.route.params.fromWallet
                   });
                 }}
                 title={loc.send.success.lnurlpay_repeat}
@@ -169,21 +169,26 @@ export default class Success extends Component {
 Success.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func,
-    getParam: PropTypes.func,
     navigate: PropTypes.func,
     dismiss: PropTypes.func,
-    state: PropTypes.shape({
-      params: PropTypes.shape({
-        image: PropTypes.string,
+  }),
+  route: PropTypes.shape({
+    name: PropTypes.string,
+    params: PropTypes.shape({
+      image: PropTypes.string,
+      description: PropTypes.string,
+      domain: PropTypes.string,
+      successAction: PropTypes.shape({
+        tag: PropTypes.string,
         description: PropTypes.string,
-        domain: PropTypes.string,
-        successAction: PropTypes.shape({}),
-        preimage: PropTypes.string,
-
-        // not present immediatelly after a success payment
-        lnurl: PropTypes.string,
-        fromWallet: PropTypes.shape({}),
+        url: PropTypes.string,
+        message: PropTypes.string,
       }),
+      preimage: PropTypes.string,
+
+      // not present immediatelly after a success payment
+      lnurl: PropTypes.string,
+      fromWallet: PropTypes.shape({}),
     }),
   }),
 };

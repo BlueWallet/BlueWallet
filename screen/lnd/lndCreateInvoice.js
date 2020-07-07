@@ -170,10 +170,10 @@ export default class LNDCreateInvoice extends Component {
   renderReceiveDetails = async () => {
     this.state.fromWallet.setUserHasSavedExport(true);
     await BlueApp.saveToDisk();
-    if (this.props.navigation.getParam('lnurlData')) {
+    if (this.props.route.params.lnurlData) {
       this.processLnurlWithdraw(
-        this.props.navigation.getParam('uri'),
-        this.props.navigation.getParam('lnurlData')
+        this.props.route.params.uri,
+        this.props.route.params.lnurlData
       );
     }
     this.setState({ isLoading: false });
@@ -457,7 +457,6 @@ LNDCreateInvoice.propTypes = {
     dangerouslyGetParent: PropTypes.func,
     navigate: PropTypes.func,
     pop: PropTypes.func,
-    getParam: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
