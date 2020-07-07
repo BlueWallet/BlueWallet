@@ -1,15 +1,18 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, BackHandler, NativeEventSubscription } from 'react-native';
-import { NavigationScreenProps, NavigationInjectedProps, NavigationEvents } from 'react-navigation';
 
 import { icons } from 'app/assets';
 import { Header, InputItem, Image, ScreenTemplate, Button } from 'app/components';
-import { Route, CONST } from 'app/consts';
+import { Route, CONST, PasswordNavigatorParams } from 'app/consts';
+import { noop } from 'app/helpers/helpers';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../../loc');
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: StackNavigationProp<PasswordNavigatorParams, Route.CreateTransactionPassword>;
+
   appSettings: {
     isPinSet: boolean;
   };
@@ -21,16 +24,13 @@ interface State {
 }
 
 export class CreateTransactionPassword extends PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} title={i18n.onboarding.onboarding} />,
-  });
-
   state = {
     password: '',
     isVisible: false,
   };
   backHandler?: NativeEventSubscription;
   inputRef = React.createRef<InputItem>();
+  focusListener: Function = noop;
 
   updatePassword = (password: string) => {
     this.setState({ password });
@@ -38,10 +38,12 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
 
   componentDidMount() {
     this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.backAction);
+    this.focusListener = this.props.navigation.addListener('focus', this.openKeyboard);
   }
 
   componentWillUnmount() {
     this.backHandler && this.backHandler.remove();
+    this.focusListener();
   }
 
   backAction = () => {
@@ -51,7 +53,7 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
 
   onSave = () => {
     this.props.navigation.navigate(Route.ConfirmTransactionPassword, {
-      password: this.state.password,
+      setPassword: this.state.password,
     });
     this.setState({ password: '' });
   };
@@ -78,8 +80,8 @@ export class CreateTransactionPassword extends PureComponent<Props, State> {
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
         }
+        header={<Header navigation={this.props.navigation} title={i18n.onboarding.onboarding} />}
       >
-        <NavigationEvents onDidFocus={this.openKeyboard} />
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>{i18n.onboarding.createPassword}</Text>
           <Text style={styles.pinDescription}>{i18n.onboarding.createPasswordDescription}</Text>

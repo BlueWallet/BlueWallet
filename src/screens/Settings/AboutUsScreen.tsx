@@ -1,17 +1,21 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Text, StyleSheet, View, Linking, Dimensions } from 'react-native';
 import { getApplicationName, getVersion, getBundleId, getBuildNumber } from 'react-native-device-info';
 import Rate, { AndroidMarket } from 'react-native-rate';
-import { NavigationScreenProps } from 'react-navigation';
 
 import { icons } from 'app/assets';
 import { ScreenTemplate, Button, Header } from 'app/components';
-import { Route } from 'app/consts';
+import { Route, MainCardStackNavigatorParams } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
 
-export const AboutUsScreen = (props: NavigationScreenProps) => {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.AboutUs>;
+}
+
+export const AboutUsScreen = (props: Props) => {
   const libraries = [
     'React Native',
     'React Native Elements',
@@ -46,14 +50,12 @@ export const AboutUsScreen = (props: NavigationScreenProps) => {
     });
   };
 
-  const navigateToReleaseNotes = () => props.navigation.navigate(Route.ReleaseNotes);
-
   const goToGithub = () => {
     Linking.openURL('https://github.com/bitcoinvault/GoldWallet');
   };
 
   return (
-    <ScreenTemplate>
+    <ScreenTemplate header={<Header isBackArrow={true} navigation={props.navigation} title={i18n.aboutUs.header} />}>
       <Text style={styles.title}>{i18n.aboutUs.title}</Text>
       <Text style={styles.description}>{i18n.aboutUs.alwaysBackupYourKeys}</Text>
       <Button
@@ -80,10 +82,6 @@ export const AboutUsScreen = (props: NavigationScreenProps) => {
     </ScreenTemplate>
   );
 };
-
-AboutUsScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: <Header isBackArrow={true} navigation={props.navigation} title={i18n.aboutUs.header} />,
-});
 
 const styles = StyleSheet.create({
   buttonContainer: {

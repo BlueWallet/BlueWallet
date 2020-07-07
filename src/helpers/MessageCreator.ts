@@ -30,7 +30,6 @@ export const CreateMessage = (message: Message) => {
     width: 161,
     marginVertical: 36,
   };
-
   return NavigationService.navigate(Route.Message, {
     title: message.title,
     description: message.description,

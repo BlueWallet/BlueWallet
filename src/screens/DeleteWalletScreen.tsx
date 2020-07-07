@@ -1,25 +1,29 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { NavigationInjectedProps } from 'react-navigation';
-import { useNavigationParam } from 'react-navigation-hooks';
 import { connect } from 'react-redux';
 
 import { Button, Header, ScreenTemplate } from 'app/components';
-import { Wallet, Route } from 'app/consts';
+import { Route, RootStackParams, MainTabNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { BlueApp } from 'app/legacy';
-import { NavigationService } from 'app/services';
 import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
+    StackNavigationProp<RootStackParams, Route.DeleteWallet>
+  >;
+  route: RouteProp<RootStackParams, Route.DeleteWallet>;
   loadWallets: () => Promise<WalletsActionType>;
 }
 
-export const DeleteWalletScreen: React.FunctionComponent<Props> = (props: Props) => {
-  const wallet: Wallet = useNavigationParam('wallet');
+export const DeleteWalletScreen = (props: Props) => {
+  const { wallet } = props.route.params;
 
   const onNoButtonPress = () => props.navigation.goBack();
 
@@ -33,7 +37,7 @@ export const DeleteWalletScreen: React.FunctionComponent<Props> = (props: Props)
       type: MessageType.success,
       buttonProps: {
         title: i18n.message.returnToDashboard,
-        onPress: () => NavigationService.navigateWithReset(Route.MainCardStackNavigator),
+        onPress: () => props.navigation.navigate(Route.Dashboard),
       },
     });
   };
@@ -51,6 +55,7 @@ export const DeleteWalletScreen: React.FunctionComponent<Props> = (props: Props)
           <Button title={i18n.wallets.deleteWallet.yes} onPress={onYesButtonPress} containerStyle={styles.yesButton} />
         </View>
       }
+      header={<Header title={i18n.wallets.deleteWallet.header} />}
     >
       <Text style={styles.title}>{i18n.wallets.deleteWallet.title}</Text>
       <Text style={styles.description}>
@@ -60,11 +65,6 @@ export const DeleteWalletScreen: React.FunctionComponent<Props> = (props: Props)
     </ScreenTemplate>
   );
 };
-
-// @ts-ignore
-DeleteWalletScreen.navigationOptions = () => ({
-  header: <Header title={i18n.wallets.deleteWallet.header} />,
-});
 
 const mapDispatchToProps = {
   loadWallets,

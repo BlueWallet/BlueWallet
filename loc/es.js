@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: 'Panel',
     settings: 'Configuración',
+    addressBook: 'Libreta de direcciones',
   },
   message: {
     somethingWentWrong: 'Algo salió mal',
@@ -286,7 +287,6 @@ module.exports = {
   contactList: {
     cancel: 'Cancelar',
     search: 'Buscar',
-    bottomNavigationLabel: 'Libreta de direcciones',
     screenTitle: 'Libreta de direcciones',
     noContacts: 'No hay contactos',
     noContactsDesc1: 'No hay contactos para mostrar.\nHaga clic',

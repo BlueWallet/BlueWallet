@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 
 import { images, icons } from 'app/assets';
+import { NavigationProp } from 'app/consts';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
 
 import { FlatButton } from './FlatButton';
@@ -16,7 +16,8 @@ export const HEADER_HEIGHT = Platform.select({
   android: 38,
 }) as number;
 
-interface Props extends Partial<NavigationScreenProps> {
+interface Props {
+  navigation?: NavigationProp<any, any>;
   title: string;
   isBackArrow?: boolean;
   onBackArrow?: () => void;

@@ -1,6 +1,7 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import {
@@ -13,13 +14,18 @@ import {
   ContactAvatar,
 } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Contact, Route } from 'app/consts';
+import { Contact, Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { UpdateContactAction, updateContact } from 'app/state/contacts/actions';
 
 const i18n = require('../../loc');
 
-interface Props extends NavigationScreenProps<{ contact: Contact }> {
+interface Props {
   updateContact: (contact: Contact) => UpdateContactAction;
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.ContactDetails>
+  >;
+  route: RouteProp<MainCardStackNavigatorParams, Route.ContactDetails>;
 }
 
 interface State {
@@ -28,13 +34,9 @@ interface State {
 }
 
 export class ContactDetailsScreen extends React.PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps<{ contact: Contact }>) => ({
-    header: <Header navigation={props.navigation} isBackArrow title={props.navigation.getParam('contact').name} />,
-  });
-
   constructor(props: Props) {
     super(props);
-    const contact = props.navigation.getParam('contact');
+    const { contact } = props.route.params;
     this.state = {
       name: contact.name,
       address: contact.address,
@@ -52,7 +54,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
   };
 
   saveChanges = (changes: Partial<Contact>) => {
-    const contact = this.props.navigation.getParam('contact');
+    const { contact } = this.props.route.params;
     const updatedContact = { ...contact, ...changes };
     this.props.navigation.setParams({ contact: updatedContact });
     this.props.updateContact(updatedContact);
@@ -65,17 +67,19 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
   };
 
   navigateToContactQRCode = () => {
-    const contact = this.props.navigation.getParam('contact');
+    const { contact } = this.props.route.params;
     this.props.navigation.navigate(Route.ContactQRCode, { contact });
   };
 
   deleteContact = () => {
-    const contact = this.props.navigation.getParam('contact');
+    const { contact } = this.props.route.params;
     this.props.navigation.navigate(Route.DeleteContact, { contact });
   };
 
   render() {
     const { name, address } = this.state;
+    const { contact } = this.props.route.params;
+
     return (
       <ScreenTemplate
         footer={
@@ -94,6 +98,7 @@ export class ContactDetailsScreen extends React.PureComponent<Props, State> {
             />
           </>
         }
+        header={<Header isBackArrow navigation={this.props.navigation} title={contact.name} />}
       >
         <ContactAvatar name={name} />
         <View style={styles.nameInputContainer}>

@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: 'Bảng điều khiển',
     settings: 'Cài đặt',
+    addressBook: 'Sổ địa chỉ',
   },
   message: {
     somethingWentWrong: 'Đã xảy ra lỗi',
@@ -286,7 +287,6 @@ module.exports = {
   contactList: {
     cancel: 'Hủy',
     search: 'Tìm kiếm',
-    bottomNavigationLabel: 'Sổ địa chỉ',
     screenTitle: 'Sổ địa chỉ',
     noContacts: 'Không có thông tin liên lạc',
     noContactsDesc1: 'Không có thông tin liên lạc nào. \nNhấp vào',

@@ -1,6 +1,7 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import {
@@ -13,7 +14,7 @@ import {
   ButtonType,
   Text,
 } from 'app/components';
-import { Wallet, Route } from 'app/consts';
+import { Wallet, Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { BlueApp } from 'app/legacy';
 import { updateWallet, UpdateWalletAction } from 'app/state/wallets/actions';
 import { palette, typography } from 'app/styles';
@@ -22,8 +23,14 @@ import { WatchOnlyWallet } from '../../class';
 
 const i18n = require('../../loc');
 
-interface Props extends NavigationInjectedProps<{ wallet: Wallet }> {
+interface Props {
   updateWallet: (wallet: Wallet) => UpdateWalletAction;
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.WalletDetails>
+  >;
+
+  route: RouteProp<MainCardStackNavigatorParams, Route.WalletDetails>;
 }
 
 interface State {
@@ -31,13 +38,9 @@ interface State {
 }
 
 export class WalletDetailsScreen extends React.PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps<{ wallet: Wallet }>) => ({
-    header: <Header navigation={props.navigation} isBackArrow title={props.navigation.getParam('wallet').label} />,
-  });
-
   constructor(props: Props) {
     super(props);
-    const wallet = props.navigation.getParam('wallet');
+    const { wallet } = props.route.params;
     this.state = {
       label: wallet.getLabel(),
     };
@@ -58,12 +61,12 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
   navigateToDeleteWallet = () => this.navigateWithWallet(Route.DeleteWallet);
 
   navigateWithWallet = (route: Route) =>
-    this.props.navigation.navigate(route, {
-      wallet: this.props.navigation.getParam('wallet'),
+    this.props.navigation.navigate(route as any, {
+      wallet: this.props.route.params.wallet,
     });
 
   setLabel = (label: string) => {
-    const wallet = this.props.navigation.getParam('wallet');
+    const { wallet } = this.props.route.params;
     this.props.navigation.setParams({ wallet });
     this.setState({ label });
     wallet.setLabel(label);
@@ -72,7 +75,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const wallet = this.props.navigation.getParam('wallet');
+    const { wallet } = this.props.route.params;
     const isWatchOnly = wallet.type === WatchOnlyWallet.type;
     const { label } = this.state;
     return (
@@ -93,6 +96,7 @@ export class WalletDetailsScreen extends React.PureComponent<Props, State> {
             />
           </>
         }
+        header={<Header navigation={this.props.navigation} isBackArrow title={wallet.label} />}
       >
         <View style={styles.walletContainer}>
           <WalletCard wallet={wallet} containerStyle={styles.walletContainerInner} />

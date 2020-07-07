@@ -1,31 +1,28 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 
 import { Button, Header, ScreenTemplate, Text, Chip } from 'app/components';
+import { MainCardStackNavigatorParams, Route } from 'app/consts';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.CreateWallet>;
   secret: string[];
 }
 
 export class CreateWalletSuccessScreen extends React.PureComponent<Props> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} title={i18n.wallets.add.title} />,
-  });
-
-  navigateBack = () => this.props.navigation.goBack();
+  navigateBack = () => {
+    this.props.navigation.popToTop();
+  };
 
   render() {
     return (
       <ScreenTemplate
-        footer={
-          <>
-            <Button onPress={this.navigateBack} title={i18n.wallets.addSuccess.okButton} />
-          </>
-        }
+        footer={<Button onPress={this.navigateBack} title={i18n.wallets.addSuccess.okButton} />}
+        header={<Header isBackArrow navigation={this.props.navigation} title={i18n.wallets.add.title} />}
       >
         <Text style={styles.subtitle}>{i18n.wallets.addSuccess.subtitle}</Text>
         <Text style={styles.description}>{i18n.wallets.addSuccess.description}</Text>

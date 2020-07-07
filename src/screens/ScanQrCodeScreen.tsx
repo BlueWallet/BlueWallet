@@ -1,29 +1,28 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Image, View, TouchableOpacity, StatusBar, StyleSheet, Dimensions } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { images } from 'app/assets';
+import { MainCardStackNavigatorParams, Route } from 'app/consts';
 import { getStatusBarHeight } from 'app/styles';
 
 const { width } = Dimensions.get('window');
 const i18n = require('../../loc');
 
-export interface ScanQrCodeProps extends NavigationInjectedProps {
-  onBarCodeScan: (code: string) => void;
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ScanQrCode>;
+  route: RouteProp<MainCardStackNavigatorParams, Route.ScanQrCode>;
 }
-
-type Props = NavigationScreenProps<ScanQrCodeProps>;
-
 export default class ScanQrCodeScreen extends React.PureComponent<Props> {
   static navigationOptions = {
     header: null,
   };
 
   onBarCodeScanned = async (scannedQr: any) => {
-    const { navigation } = this.props;
-    const onBarCodeScan = navigation.getParam('onBarCodeScan');
-
+    const { route, navigation } = this.props;
+    const { onBarCodeScan } = route.params;
     if (scannedQr.data) {
       onBarCodeScan(scannedQr.data);
       navigation.goBack();

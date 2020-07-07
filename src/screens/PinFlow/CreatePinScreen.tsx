@@ -1,14 +1,18 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { Text, StyleSheet, BackHandler, View, NativeEventSubscription } from 'react-native';
-import { NavigationScreenProps, NavigationEvents, NavigationInjectedProps } from 'react-navigation';
 
 import { Header, PinInput, ScreenTemplate } from 'app/components';
-import { Route, CONST, FlowType } from 'app/consts';
+import { Route, CONST, FlowType, MainCardStackNavigatorParams } from 'app/consts';
+import { noop } from 'app/helpers/helpers';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.CreatePin>;
+  route: RouteProp<MainCardStackNavigatorParams, Route.CreatePin>;
   appSettings: {
     isPinSet: boolean;
   };
@@ -21,22 +25,6 @@ interface State {
 }
 
 export class CreatePinScreen extends PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: (
-      <Header
-        navigation={props.navigation}
-        isBackArrow={props.navigation.getParam('flowType') === FlowType.newPin}
-        onBackArrow={() => props.navigation.navigate(Route.Settings)}
-        title={
-          props.navigation.getParam('flowType') === FlowType.newPin
-            ? i18n.onboarding.changePin
-            : i18n.onboarding.onboarding
-        }
-      />
-    ),
-    gesturesEnabled: false,
-  });
-
   state = {
     pin: '',
     focused: false,
@@ -45,16 +33,22 @@ export class CreatePinScreen extends PureComponent<Props, State> {
 
   pinInputRef = React.createRef<PinInput>();
   backHandler?: NativeEventSubscription;
+  focusListener: Function = noop;
 
   componentDidMount() {
+    this.props.navigation.setOptions({
+      gestureEnabled: false,
+    });
     this.setState({
-      flowType: this.props.navigation.getParam('flowType'),
+      flowType: this.props.route.params?.flowType || '',
     });
     this.backHandler = BackHandler.addEventListener('hardwareBackPress', this.backAction);
+    this.focusListener = this.props.navigation.addListener('focus', this.openKeyboard);
   }
 
   componentWillUnmount() {
     this.backHandler && this.backHandler.remove();
+    this.focusListener();
   }
 
   backAction = () => {
@@ -78,13 +72,28 @@ export class CreatePinScreen extends PureComponent<Props, State> {
 
   openKeyboard = () => {
     this.pinInputRef.current?.focus();
+    this.pinInputRef.current?.focus();
   };
 
   render() {
     const { flowType, pin } = this.state;
+
     return (
-      <ScreenTemplate noScroll>
-        <NavigationEvents onDidFocus={this.openKeyboard} />
+      <ScreenTemplate
+        header={
+          <Header
+            navigation={this.props.navigation}
+            isBackArrow={this.props.route.params?.flowType === FlowType.newPin}
+            onBackArrow={() => this.props.navigation.navigate(Route.Settings)}
+            title={
+              this.props.route.params?.flowType === FlowType.newPin
+                ? i18n.onboarding.changePin
+                : i18n.onboarding.onboarding
+            }
+          />
+        }
+        noScroll
+      >
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
             {flowType === FlowType.newPin ? i18n.onboarding.createNewPin : i18n.onboarding.createPin}

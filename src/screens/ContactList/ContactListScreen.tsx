@@ -1,10 +1,11 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { StatusBar } from 'react-native';
-import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
-import { ListEmptyState, SearchBar } from 'app/components';
-import { Route, Contact } from 'app/consts';
+import { ListEmptyState, SearchBar, ScreenTemplate } from 'app/components';
+import { Route, Contact, MainCardStackNavigatorParams } from 'app/consts';
 import { ApplicationState } from 'app/state';
 
 import { ContactList } from './ContactList';
@@ -12,7 +13,9 @@ import { ContactListHeader } from './ContactListHeader';
 
 const i18n = require('../../../loc');
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ChooseContactList>;
+  route: RouteProp<MainCardStackNavigatorParams, Route.ChooseContactList>;
   contacts: Contact[];
 }
 
@@ -35,10 +38,9 @@ export class ContactListScreen extends PureComponent<Props, State> {
   navigateToAddContact = () => this.props.navigation.navigate(Route.CreateContact);
 
   navigateToContactDetails = (contact: Contact) => {
-    const { navigation } = this.props;
-    const onContactPress = navigation.getParam('onContactPress');
-    if (onContactPress) {
-      onContactPress(contact.address);
+    const { navigation, route } = this.props;
+    if (route.params?.onContactPress) {
+      route.params?.onContactPress(contact.address);
       return navigation.goBack();
     }
     navigation.navigate(Route.ContactDetails, { contact });
@@ -55,21 +57,23 @@ export class ContactListScreen extends PureComponent<Props, State> {
   };
 
   render() {
-    const { navigation, contacts } = this.props;
-
-    const onContactPress = navigation.getParam('onContactPress');
-    const title = navigation.getParam('title');
-
+    const {
+      contacts,
+      route: { params },
+    } = this.props;
     return (
-      <>
+      <ScreenTemplate
+        header={
+          <ContactListHeader
+            onAddButtonPress={!params?.onContactPress ? this.navigateToAddContact : undefined}
+            onBackArrowPress={params?.onContactPress && this.goBack}
+            title={params?.title}
+          >
+            <SearchBar query={this.state.query} setQuery={this.setQuery} />
+          </ContactListHeader>
+        }
+      >
         <StatusBar barStyle="light-content" />
-        <ContactListHeader
-          onAddButtonPress={!onContactPress ? this.navigateToAddContact : undefined}
-          onBackArrowPress={onContactPress && this.goBack}
-          title={title}
-        >
-          <SearchBar query={this.state.query} setQuery={this.setQuery} />
-        </ContactListHeader>
         {contacts && contacts.length ? (
           <ContactList
             query={this.state.query}
@@ -79,7 +83,7 @@ export class ContactListScreen extends PureComponent<Props, State> {
         ) : (
           <ListEmptyState variant={ListEmptyState.Variant.ContactList} onPress={this.navigateToAddContact} />
         )}
-      </>
+      </ScreenTemplate>
     );
   }
 }

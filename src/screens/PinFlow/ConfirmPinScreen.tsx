@@ -1,16 +1,15 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { Header, PinInput, ScreenTemplate } from 'app/components';
-import { Route, CONST, FlowType } from 'app/consts';
+import { Route, CONST, FlowType, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { SecureStorageService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../../loc');
-
-type Props = NavigationInjectedProps;
 
 type State = {
   pin: string;
@@ -18,21 +17,16 @@ type State = {
   flowType: string;
 };
 
-export class ConfirmPinScreen extends PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: (
-      <Header
-        navigation={props.navigation}
-        isBackArrow
-        title={
-          props.navigation.getParam('flowType') === FlowType.newPin
-            ? i18n.onboarding.changePin
-            : i18n.onboarding.onboarding
-        }
-      />
-    ),
-  });
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.ConfirmPin>
+  >;
 
+  route: RouteProp<MainCardStackNavigatorParams, Route.ConfirmPin>;
+}
+
+export class ConfirmPinScreen extends PureComponent<Props, State> {
   state = {
     pin: '',
     error: '',
@@ -41,14 +35,14 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
 
   componentDidMount() {
     this.setState({
-      flowType: this.props.navigation.getParam('flowType'),
+      flowType: this.props.route.params?.flowType,
     });
   }
 
   updatePin = (pin: string) => {
     this.setState({ pin }, async () => {
       if (this.state.pin.length === CONST.pinCodeLength) {
-        const setPin = this.props.navigation.getParam('pin');
+        const setPin = this.props.route.params.pin;
         if (setPin === this.state.pin) {
           await SecureStorageService.setSecuredValue('pin', this.state.pin);
           if (this.state.flowType === FlowType.newPin) {
@@ -59,12 +53,12 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
               buttonProps: {
                 title: i18n.onboarding.successButtonChangedPin,
                 onPress: () => {
-                  this.props.navigation.navigate(Route.Settings);
+                  this.props.navigation.navigate(Route.MainCardStackNavigator);
                 },
               },
             });
           } else {
-            this.props.navigation.navigate(Route.CreateTransactionPassword);
+            this.props.navigation.navigate(Route.PasswordNavigator);
           }
         } else {
           this.setState({
@@ -79,7 +73,20 @@ export class ConfirmPinScreen extends PureComponent<Props, State> {
   render() {
     const { error } = this.state;
     return (
-      <ScreenTemplate noScroll>
+      <ScreenTemplate
+        noScroll
+        header={
+          <Header
+            navigation={this.props.navigation}
+            isBackArrow
+            title={
+              this.props.route.params?.flowType === FlowType.newPin
+                ? i18n.onboarding.changePin
+                : i18n.onboarding.onboarding
+            }
+          />
+        }
+      >
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>
             {this.state.flowType === FlowType.newPin ? i18n.onboarding.confirmNewPin : i18n.onboarding.confirmPin}

@@ -1,30 +1,32 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { Button, Header, ScreenTemplate } from 'app/components';
-import { Contact, Route } from 'app/consts';
+import { Contact, Route, RootStackParams, MainTabNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { deleteContact, DeleteContactAction } from 'app/state/contacts/actions';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../loc');
 
-interface Props extends NavigationInjectedProps<{ contact: Contact }> {
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
+    StackNavigationProp<RootStackParams, Route.DeleteContact>
+  >;
+  route: RouteProp<RootStackParams, Route.DeleteContact>;
   deleteContact: (contact: Contact) => DeleteContactAction;
 }
 
 export class DeleteContactScreen extends React.PureComponent<Props> {
-  static navigationOptions = () => ({
-    header: <Header title={i18n.contactDelete.header} />,
-  });
-
   navigateBack = () => this.props.navigation.goBack();
 
   deleteContact = () => {
-    const contact = this.props.navigation.getParam('contact');
-    this.props.deleteContact(contact);
+    const { contact } = this.props.route.params;
+    this.props.deleteContact(contact as Contact);
     CreateMessage({
       title: i18n.contactDelete.success,
       description: i18n.contactDelete.successDescription,
@@ -37,7 +39,7 @@ export class DeleteContactScreen extends React.PureComponent<Props> {
   };
 
   render() {
-    const contact = this.props.navigation.getParam('contact');
+    const { contact } = this.props.route.params;
     return (
       <ScreenTemplate
         footer={
@@ -51,10 +53,11 @@ export class DeleteContactScreen extends React.PureComponent<Props> {
             <Button title={i18n.contactDelete.yes} onPress={this.deleteContact} containerStyle={styles.yesButton} />
           </View>
         }
+        header={<Header navigation={this.props.navigation} title={i18n.contactDelete.header} />}
       >
         <Text style={styles.title}>{i18n.contactDelete.title}</Text>
         <Text style={styles.description}>
-          {i18n.contactDelete.description1} {contact.name}
+          {i18n.contactDelete.description1} {contact?.name}
           {i18n.contactDelete.description2}
         </Text>
       </ScreenTemplate>

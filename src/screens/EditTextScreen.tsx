@@ -1,28 +1,24 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useState } from 'react';
 import { View, StyleSheet, KeyboardType } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
-import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Header, InputItem, Button, ScreenTemplate } from 'app/components';
+import { RootStackParams, Route } from 'app/consts';
 
 const i18n = require('../../loc');
 
-export interface EditTextProps {
-  title: string;
-  onSave: (value: string) => void;
-  label: string;
-  value?: string;
-  validate?: (value: string) => string | undefined;
-  keyboardType?: KeyboardType;
+interface Props {
+  navigation: StackNavigationProp<RootStackParams, Route.EditText>;
+  route: RouteProp<RootStackParams, Route.EditText>;
 }
 
-export const EditTextScreen = (props: NavigationScreenProps) => {
-  const label: string = useNavigationParam('label');
-  const keyboardType: string = useNavigationParam('keyboardType') || 'default';
-  const header: React.ReactNode = useNavigationParam('header');
-  const onSave: (value: string) => void = useNavigationParam('onSave');
-  const validate: (value: string) => string | undefined = useNavigationParam('validate') || null;
-  const [value, setValue] = useState(useNavigationParam('value') || '');
+export const EditTextScreen = (props: Props) => {
+  const { params } = props.route;
+  const { label, header, onSave, title } = params;
+  const keyboardType = params.keyboardType || 'default';
+  const validate = params.validate || null;
+  const [value, setValue] = useState(params.value || '');
 
   const handlePressOnSaveButton = () => {
     onSave(value);
@@ -38,6 +34,7 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
           disabled={!value || (!!validate && !!validate(value))}
         />
       }
+      header={<Header navigation={props.navigation} isBackArrow={true} title={title} />}
     >
       {header}
       <View style={styles.inputItemContainer}>
@@ -53,14 +50,6 @@ export const EditTextScreen = (props: NavigationScreenProps) => {
     </ScreenTemplate>
   );
 };
-
-EditTextScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: (
-    <View>
-      <Header navigation={props.navigation} isBackArrow={true} title={props.navigation.getParam('title')} />
-    </View>
-  ),
-});
 
 const styles = StyleSheet.create({
   inputItemContainer: {

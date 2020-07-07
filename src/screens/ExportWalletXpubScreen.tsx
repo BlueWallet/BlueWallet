@@ -1,26 +1,33 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { NavigationScreenProps } from 'react-navigation';
-import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Header, ScreenTemplate } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Wallet } from 'app/consts';
+import { RootStackParams, Route } from 'app/consts';
 import { typography } from 'app/styles';
 
 import { WatchOnlyWallet } from '../../class';
 
 const i18n = require('../../loc');
 
-export const ExportWalletXpubScreen = () => {
-  const wallet: Wallet = useNavigationParam('wallet');
+interface Props {
+  navigation: StackNavigationProp<RootStackParams, Route.ExportWalletXpub>;
+  route: RouteProp<RootStackParams, Route.ExportWalletXpub>;
+}
+
+export const ExportWalletXpubScreen = ({ navigation, route }: Props) => {
+  const { wallet } = route.params;
   const isWatchOnlyWallet = wallet.type === WatchOnlyWallet.type;
 
   const xpub = isWatchOnlyWallet ? wallet.secret : wallet._xpub;
 
   return (
-    <ScreenTemplate>
+    <ScreenTemplate
+      header={<Header title={i18n.wallets.exportWalletXpub.header} isCancelButton={true} navigation={navigation} />}
+    >
       <Text style={styles.title}>{wallet.label}</Text>
       <View style={styles.qrCodeContainer}>
         <QRCode quietZone={10} value={xpub} size={140} ecl={'H'} />
@@ -30,10 +37,6 @@ export const ExportWalletXpubScreen = () => {
     </ScreenTemplate>
   );
 };
-
-ExportWalletXpubScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: <Header title={i18n.wallets.exportWalletXpub.header} isCancelButton={true} navigation={props.navigation} />,
-});
 
 const styles = StyleSheet.create({
   qrCodeContainer: {

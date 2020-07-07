@@ -288,6 +288,8 @@ PODS:
     - React
   - react-native-restart (0.0.15):
     - React
+  - react-native-safe-area-context (3.0.6):
+    - React
   - react-native-slider (2.0.0-rc.1):
     - React
   - react-native-splash-screen (3.2.0):
@@ -335,6 +337,8 @@ PODS:
     - React
   - RNCClipboard (1.2.2):
     - React
+  - RNCMaskedView (0.1.10):
+    - React
   - RNDefaultPreference (1.4.1):
     - React
   - RNDeviceInfo (5.5.6):
@@ -357,7 +361,7 @@ PODS:
     - RNFBApp
   - RNFS (2.13.3):
     - React
-  - RNGestureHandler (1.5.6):
+  - RNGestureHandler (1.6.1):
     - React
   - RNHandoff (0.0.3):
     - React
@@ -366,6 +370,10 @@ PODS:
   - RNQuickAction (0.3.12):
     - React
   - RNRate (1.0.1):
+    - React
+  - RNReanimated (1.9.0):
+    - React
+  - RNScreens (2.9.0):
     - React
   - RNSecureKeyStore (1.0.0):
     - React
@@ -421,6 +429,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-restart (from `../node_modules/react-native-restart`)
+  - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -438,6 +447,7 @@ DEPENDENCIES:
   - "RemobileReactNativeQrcodeLocalImage (from `../node_modules/@remobile/react-native-qrcode-local-image`)"
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
+  - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - RNDefaultPreference (from `../node_modules/react-native-default-preference`)
   - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
@@ -450,6 +460,8 @@ DEPENDENCIES:
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNQuickAction (from `../node_modules/react-native-quick-actions`)
   - RNRate (from `../node_modules/react-native-rate/ios`)
+  - RNReanimated (from `../node_modules/react-native-reanimated`)
+  - RNScreens (from `../node_modules/react-native-screens`)
   - RNSecureKeyStore (from `../node_modules/react-native-secure-key-store/ios`)
   - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - RNShare (from `../node_modules/react-native-share`)
@@ -530,6 +542,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-randombytes"
   react-native-restart:
     :path: "../node_modules/react-native-restart"
+  react-native-safe-area-context:
+    :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
   react-native-splash-screen:
@@ -562,6 +576,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-community/clipboard"
+  RNCMaskedView:
+    :path: "../node_modules/@react-native-community/masked-view"
   RNDefaultPreference:
     :path: "../node_modules/react-native-default-preference"
   RNDeviceInfo:
@@ -586,6 +602,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-quick-actions"
   RNRate:
     :path: "../node_modules/react-native-rate/ios"
+  RNReanimated:
+    :path: "../node_modules/react-native-reanimated"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
   RNSecureKeyStore:
     :path: "../node_modules/react-native-secure-key-store/ios"
   RNSentry:
@@ -646,6 +666,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 7a85cf7b0a53845f03ae52fb4592a2748ded069b
   react-native-randombytes: 3638d24759d67c68f6ccba60c52a7a8a8faa6a23
   react-native-restart: fff228304625f55de2ebd4de43938110f4c888ed
+  react-native-safe-area-context: e22a8ca00f758273d2408953965cb8db67da7925
   react-native-slider: 884693dd50f84745baa511ecdcde4c16f32182fb
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   React-RCTActionSheet: 600b4d10e3aea0913b5a92256d2719c0cdd26d76
@@ -662,6 +683,7 @@ SPEC CHECKSUMS:
   RemobileReactNativeQrcodeLocalImage: 57aadc12896b148fb5e04bc7c6805f3565f5c3fa
   RNCAsyncStorage: 453cd7c335ec9ba3b877e27d02238956b76f3268
   RNCClipboard: 8148e21ac347c51fd6cd4b683389094c216bb543
+  RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
   RNDefaultPreference: 628cb35719f2fe4111c000ccfa7e186400bbc47e
   RNDeviceInfo: 722dc13c269b9dbf305aa4b790d36731602e99b7
   RNFastImage: 35ae972d6727c84ee3f5c6897e07f84d0a3445e9
@@ -669,11 +691,13 @@ SPEC CHECKSUMS:
   RNFBApp: 25a6476dfd7aac2bcbe984f569875bcea122895b
   RNFBCrashlytics: e5c49721cac180f72c89ea67cc13a614b9fcecc4
   RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
-  RNGestureHandler: 911d3b110a7a233a34c4f800e7188a84b75319c6
+  RNGestureHandler: 8f09cd560f8d533eb36da5a6c5a843af9f056b38
   RNHandoff: d3b0754cca3a6bcd9b25f544f733f7f033ccf5fa
   RNLocalize: b6df30cc25ae736d37874f9bce13351db2f56796
   RNQuickAction: eca9a5dd04b5cdf8a0dd32d8be8844dc33aba2bd
   RNRate: 29be49c24b314c4e8ec09d848c3965f61cb0be47
+  RNReanimated: b5ccb50650ba06f6e749c7c329a1bc3ae0c88b43
+  RNScreens: c526239bbe0e957b988dacc8d75ac94ec9cb19da
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
   RNSentry: 2803ba8c8129dcf26b79e9b4d8c80168be6e4390
   RNShare: 8b171d4b43c1d886917fdd303bf7a4b87167b05c
@@ -689,4 +713,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 10567d1e173aae9ab5e898db3c41267100a01a22
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.9.2

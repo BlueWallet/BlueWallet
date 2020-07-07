@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: 'Dasbor',
     settings: 'Pengaturan',
+    addressBook: 'Buku alamat',
   },
   message: {
     somethingWentWrong: 'Terjadi kesalahan',
@@ -285,7 +286,6 @@ module.exports = {
   contactList: {
     cancel: 'Batal',
     search: 'Cari',
-    bottomNavigationLabel: 'Buku alamat',
     screenTitle: 'Buku alamat',
     noContacts: 'Tidak ada kontak',
     noContactsDesc1: 'Tidak ada kontak untuk ditampilkan. \nKlik',

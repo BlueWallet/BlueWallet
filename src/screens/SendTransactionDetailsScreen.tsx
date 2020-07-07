@@ -1,9 +1,10 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { Text, View, StyleSheet, Linking, Clipboard } from 'react-native';
-import { NavigationInjectedProps } from 'react-navigation';
 
 import { Header, Chip, ScreenTemplate, Button } from 'app/components';
-import { Wallet } from 'app/consts';
+import { RootStackParams, Route } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 import { BitcoinUnit } from '../../models/bitcoinUnits';
@@ -11,33 +12,34 @@ import { BitcoinUnit } from '../../models/bitcoinUnits';
 const currency = require('../../currency');
 const i18n = require('../../loc');
 
-type Props = NavigationInjectedProps<{
-  fee: number;
-  recipients: any;
-  tx: any;
-  satoshiPerByte: any;
-  wallet: Wallet;
-}>;
+interface Props {
+  navigation: StackNavigationProp<RootStackParams, Route.SendTransactionDetails>;
+  route: RouteProp<RootStackParams, Route.SendTransactionDetails>;
+}
 
 export class SendTransactionDetailsScreen extends PureComponent<Props> {
-  static navigationOptions = (props: Props) => ({
-    header: <Header title={i18n.transactions.details.details} isCancelButton={true} navigation={props.navigation} />,
-  });
   render() {
-    const { navigation } = this.props;
-    const fee = navigation.getParam('fee');
-    const recipient = navigation.getParam('recipients')[0];
-    const txSize = Math.round(navigation.getParam('tx').length / 2);
-    const tx = navigation.getParam('tx');
-    const satoshiPerByte = navigation.getParam('satoshiPerByte');
-    const wallet = navigation.getParam('wallet');
+    const {
+      navigation,
+      route: { params },
+    } = this.props;
+    const {
+      fee,
+      tx,
+      satoshiPerByte,
+      wallet,
+      recipients: [recipient],
+    } = params;
+    const txSize = Math.round(tx.length / 2);
     const amount =
       recipient.amount === BitcoinUnit.MAX
         ? currency.satoshiToBTC(wallet.getBalance()) - fee
         : recipient.amount || currency.satoshiToBTC(recipient.value);
 
     return (
-      <ScreenTemplate>
+      <ScreenTemplate
+        header={<Header title={i18n.transactions.details.details} isCancelButton={true} navigation={navigation} />}
+      >
         <View style={styles.upperContainer}>
           <Text style={styles.title}>{i18n.transactions.details.transactionHex}</Text>
           <Text style={styles.description}>{i18n.transactions.details.transactionHexDescription}</Text>

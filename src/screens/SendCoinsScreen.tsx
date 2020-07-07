@@ -1,10 +1,11 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert, AsyncStorage } from 'react-native';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { images, icons } from 'app/assets';
 import { Header, ScreenTemplate, Button, InputItem, StyledText, Image } from 'app/components';
-import { Transaction, Route } from 'app/consts';
+import { MainCardStackNavigatorParams, Route, RootStackParams } from 'app/consts';
 import { processAddressData } from 'app/helpers/DataProcessing';
 import { typography, palette } from 'app/styles';
 
@@ -21,7 +22,14 @@ const bitcoin = require('bitcoinjs-lib');
 
 const i18n = require('../../loc');
 
-type Props = NavigationInjectedProps<{ fromSecret: string; fromAddress: string; fromWallet: any; toAddress?: string }>;
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.SendCoins>
+  >;
+
+  route: RouteProp<MainCardStackNavigatorParams, Route.SendCoins>;
+}
 
 interface State {
   isLoading: boolean;
@@ -44,27 +52,18 @@ interface State {
 }
 
 export class SendCoinsScreen extends Component<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps<{ transaction: Transaction }>) => {
-    return {
-      header: <Header navigation={props.navigation} isBackArrow title={i18n.send.header} />,
-    };
-  };
-
   constructor(props: Props) {
     super(props);
 
-    const { navigation } = props;
-    let fromAddress = navigation.getParam('fromAddress');
-    let fromSecret = navigation.getParam('fromSecret');
-    let fromWallet = navigation.getParam('fromWallet');
-    const toAddress = navigation.getParam('toAddress');
+    const { route } = props;
+    let { fromAddress, fromSecret, fromWallet } = route.params;
+    const { toAddress } = route.params;
     const wallets = BlueApp.getWallets();
 
     const addresses = toAddress ? [{ address: toAddress }] : [];
-
     if (wallets.length === 0) {
       Alert.alert('Before creating a transaction, you must first add a Bitcoin wallet.');
-      props.navigation.goBack(null);
+      props.navigation.goBack();
     } else {
       if (!fromWallet && wallets.length > 0) {
         fromWallet = wallets[0];
@@ -94,7 +93,7 @@ export class SendCoinsScreen extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    const toAddress = this.props.navigation.getParam('toAddress');
+    const { toAddress } = this.props.route.params;
     const addresses = toAddress ? [{ address: toAddress }] : [new BitcoinTransaction()];
     this.setState({
       addresses,
@@ -230,7 +229,6 @@ export class SendCoinsScreen extends Component<Props, State> {
     const changeAddress = await wallet.getAddressForTransaction();
     const satoshis = new BigNumber(firstTransaction.amount).multipliedBy(100000000).toNumber();
     const requestedSatPerByte: string | number = +this.state.fee.toString().replace(/\D/g, '');
-    console.log({ satoshis, requestedSatPerByte, utxo: wallet.getUtxo() });
 
     let targets: any[] = [];
     for (const transaction of this.state.addresses) {
@@ -549,6 +547,7 @@ export class SendCoinsScreen extends Component<Props, State> {
             disabled={isLoading}
           />
         }
+        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.send.header} />}
       >
         <DashboarContentdHeader
           onSelectPress={this.showModal}
@@ -573,7 +572,7 @@ export class SendCoinsScreen extends Component<Props, State> {
                 })
               }
             >
-              <Image style={styles.icon} source={images.addressBook} />
+              <Image style={styles.icon} source={images.ContactList} />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.qrCodeIcon}

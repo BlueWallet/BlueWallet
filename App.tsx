@@ -1,7 +1,8 @@
+import { NavigationContainer } from '@react-navigation/native';
 import * as Sentry from '@sentry/react-native';
 import React from 'react';
-import { View } from 'react-native';
-import { createAppContainer } from 'react-navigation';
+import { I18nextProvider } from 'react-i18next';
+import { View, YellowBox, StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
@@ -9,7 +10,7 @@ import { BlueApp } from 'app/legacy';
 import { i18n } from 'app/locale';
 import { RootNavigator } from 'app/navigators';
 import { UnlockScreen } from 'app/screens';
-import { NavigationService, SecureStorageService, AppStateManager } from 'app/services';
+import { SecureStorageService, AppStateManager, navigationRef } from 'app/services';
 import { persistor, store } from 'app/state/store';
 
 if (process.env.NODE_ENV !== 'development') {
@@ -17,8 +18,6 @@ if (process.env.NODE_ENV !== 'development') {
     dsn: 'https://23377936131848ca8003448a893cb622@sentry.io/1295736',
   });
 }
-
-const AppContainer = createAppContainer(RootNavigator);
 
 interface State {
   isPinSet: boolean;
@@ -68,13 +67,15 @@ export default class App extends React.PureComponent<State> {
           <AppStateManager handleAppComesToForeground={this.handleAppComesToForeground} />
           <PersistGate loading={null} persistor={persistor}>
             <View style={styles.wrapper}>
-              <AppContainer ref={NavigationService.setTopLevelNavigator} />
-              {this.showUnlockScreen && (
-                <UnlockScreen
-                  onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
-                  isBiometricEnabledByUser={isBiometricEnabledByUser}
-                />
-              )}
+              <NavigationContainer ref={navigationRef as any}>
+                <RootNavigator />
+                {this.showUnlockScreen && (
+                  <UnlockScreen
+                    onSuccessfullyAuthenticated={this.onSuccessfullyAuthenticated}
+                    isBiometricEnabledByUser={isBiometricEnabledByUser}
+                  />
+                )}
+              </NavigationContainer>
             </View>
           </PersistGate>
         </Provider>

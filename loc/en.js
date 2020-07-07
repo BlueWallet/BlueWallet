@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: 'Dashboard',
     settings: 'Settings',
+    addressBook: 'Address book',
   },
   message: {
     somethingWentWrong: 'Something went wrong',
@@ -300,7 +301,6 @@ module.exports = {
   contactList: {
     cancel: 'Cancel',
     search: 'Search',
-    bottomNavigationLabel: 'Address book',
     screenTitle: 'Address book',
     noContacts: 'No contacts',
     noContactsDesc1: 'No contacts to show. \n Click',

@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: 'ダッシュボード',
     settings: '設定',
+    addressBook: 'アドレス帳',
   },
   message: {
     somethingWentWrong: '問題が発生しました',
@@ -276,7 +277,6 @@ module.exports = {
   contactList: {
     cancel: 'キャンセル',
     search: '検索',
-    bottomNavigationLabel: 'アドレス帳',
     screenTitle: 'アドレス帳',
     noContacts: '連絡先がありません',
     noContactsDesc1: '表示する連絡先がありません。 \nクリックして、',

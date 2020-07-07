@@ -1,24 +1,23 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Text, StyleSheet, View, ScrollView, Dimensions } from 'react-native';
-import { NavigationInjectedProps } from 'react-navigation';
 
-import { WalletItemProps, WalletItem, GradientView } from 'app/components';
-import { Wallet } from 'app/consts';
+import { WalletItem, GradientView } from 'app/components';
+import { Wallet, RootStackParams, Route } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 const SCREEN_HEIGHT = Dimensions.get('screen').height;
 const i18n = require('../../../loc');
 
-interface Props extends NavigationInjectedProps {
-  isVisible?: boolean;
-  walletItems: WalletItemProps[];
+interface Props {
+  navigation: StackNavigationProp<RootStackParams, Route.ActionSheet>;
+  route: RouteProp<RootStackParams, Route.ActionSheet>;
 }
 
 export const ActionSheet = (props: Props) => {
   const renderWalletItems = () => {
-    const wallets = props.navigation.getParam('wallets');
-    const selectedIndex = props.navigation.getParam('selectedIndex');
-    const onPress = props.navigation.getParam('onPress');
+    const { wallets, selectedIndex, onPress } = props.route.params;
     return wallets.map((wallet: Wallet, index: number) => (
       <WalletItem
         variant={wallet.label === 'All wallets' ? GradientView.Variant.Secondary : GradientView.Variant.Primary}

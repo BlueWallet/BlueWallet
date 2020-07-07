@@ -1,17 +1,25 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { icons } from 'app/assets';
 import { Header, InputItem, Image, ScreenTemplate, Button } from 'app/components';
-import { Route, CONST } from 'app/consts';
+import { Route, CONST, PasswordNavigatorParams, MainTabNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { SecureStorageService } from 'app/services';
 import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
 
-type Props = NavigationInjectedProps;
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
+    StackNavigationProp<PasswordNavigatorParams, Route.ConfirmTransactionPassword>
+  >;
+
+  route: RouteProp<PasswordNavigatorParams, Route.ConfirmTransactionPassword>;
+}
 
 type State = {
   password: string;
@@ -20,10 +28,6 @@ type State = {
 };
 
 export class ConfirmTransactionPassword extends PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} isBackArrow title={i18n.onboarding.confirmPassword} />,
-  });
-
   state = {
     password: '',
     error: '',
@@ -31,7 +35,7 @@ export class ConfirmTransactionPassword extends PureComponent<Props, State> {
   };
 
   onSave = async () => {
-    const setPassword = this.props.navigation.getParam('password');
+    const { setPassword } = this.props.route.params;
     if (setPassword === this.state.password) {
       await SecureStorageService.setSecuredValue('transactionPassword', this.state.password, true);
       CreateMessage({
@@ -75,6 +79,7 @@ export class ConfirmTransactionPassword extends PureComponent<Props, State> {
             disabled={password.length < CONST.transactionMinPasswordLength}
           />
         }
+        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.onboarding.confirmPassword} />}
       >
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>{i18n.onboarding.createPassword}</Text>

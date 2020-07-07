@@ -1,37 +1,40 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { NavigationScreenProps } from 'react-navigation';
-import { useNavigationParam } from 'react-navigation-hooks';
 
 import { Header, Chip, ScreenTemplate } from 'app/components';
-import { Wallet } from 'app/consts';
+import { RootStackParams, Route } from 'app/consts';
 import { typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
-export const ExportWalletScreen = () => {
-  const wallet: Wallet = useNavigationParam('wallet');
+interface Props {
+  navigation: StackNavigationProp<RootStackParams, Route.ExportWallet>;
+  route: RouteProp<RootStackParams, Route.ExportWallet>;
+}
+
+export const ExportWalletScreen = ({ route, navigation }: Props) => {
+  const { wallet } = route.params;
   const secret = wallet.getSecret();
 
   return (
-    <ScreenTemplate>
+    <ScreenTemplate
+      header={<Header title={i18n.wallets.exportWallet.header} isCancelButton={true} navigation={navigation} />}
+    >
       <Text style={styles.title}>{i18n.wallets.exportWallet.title}</Text>
       <View style={styles.qrCodeContainer}>
         {secret && <QRCode quietZone={10} value={secret} size={140} ecl={'H'} />}
       </View>
       <View style={styles.mnemonicPhraseContainer}>
-        {secret.split(' ').map((secret, index) => (
-          <Chip key={index.toString()} label={`${index + 1}. ${secret}`} />
+        {secret.split(' ').map((singleSecret, index) => (
+          <Chip key={index.toString()} label={`${index + 1}. ${singleSecret}`} />
         ))}
       </View>
     </ScreenTemplate>
   );
 };
-
-ExportWalletScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: <Header title={i18n.wallets.exportWallet.header} isCancelButton={true} navigation={props.navigation} />,
-});
 
 const styles = StyleSheet.create({
   qrCodeContainer: {

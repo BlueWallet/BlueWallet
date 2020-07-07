@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
 import { StatusBar, StyleSheet, Text, View } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 
 import { images } from 'app/assets';
-import { Header, Image, PinView, PinInputView } from 'app/components';
+import { Image, PinView, PinInputView } from 'app/components';
 import { CONST } from 'app/consts';
 import { BiometricService, SecureStorageService } from 'app/services';
 import { getStatusBarHeight, palette, typography } from 'app/styles';
@@ -22,10 +21,6 @@ interface State {
 }
 
 export class UnlockScreen extends PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} title={i18n.unlock.title} />,
-  });
-
   state: State = {
     pin: '',
     error: '',

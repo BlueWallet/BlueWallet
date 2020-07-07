@@ -1,15 +1,16 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { Header, PinInput, ScreenTemplate } from 'app/components';
-import { Route, CONST, FlowType } from 'app/consts';
+import { Route, CONST, FlowType, MainCardStackNavigatorParams } from 'app/consts';
 import { SecureStorageService } from 'app/services';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../../loc');
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.CurrentPin>;
   appSettings: {
     isPinSet: boolean;
   };
@@ -21,10 +22,6 @@ interface State {
 }
 
 export class CurrentPinScreen extends PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} isBackArrow title={i18n.onboarding.changePin} />,
-  });
-
   state = {
     pin: '',
     error: '',
@@ -51,7 +48,10 @@ export class CurrentPinScreen extends PureComponent<Props, State> {
   render() {
     const { error } = this.state;
     return (
-      <ScreenTemplate noScroll>
+      <ScreenTemplate
+        noScroll
+        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.onboarding.changePin} />}
+      >
         <View style={styles.infoContainer}>
           <Text style={typography.headline4}>{i18n.onboarding.currentPin}</Text>
         </View>

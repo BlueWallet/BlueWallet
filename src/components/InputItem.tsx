@@ -6,7 +6,7 @@ import { palette, typography, fonts } from 'app/styles';
 interface Props extends TextInputProps {
   label?: string;
   suffix?: string;
-  error?: string;
+  error?: string | boolean;
   value?: string;
   onFocus?: () => void;
   autoFocus?: boolean;

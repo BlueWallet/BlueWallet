@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: 'Menu Principal',
     settings: 'Definições',
+    addressBook: 'Lista de endereços',
   },
   message: {
     somethingWentWrong: 'Alguma coisa correu mal',
@@ -287,7 +288,6 @@ module.exports = {
   contactList: {
     cancel: 'Cancelar',
     search: 'Pesquisar',
-    bottomNavigationLabel: 'Lista de endereços',
     screenTitle: 'Lista de endereços',
     noContacts: 'Sem contactos',
     noContactsDesc1: 'Sem contactos para apresentar. \nClicar',

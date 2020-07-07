@@ -1,4 +1,4 @@
-import bip21 from 'bip21';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import {
   ActivityIndicator,
@@ -11,14 +11,12 @@ import {
   Alert,
 } from 'react-native';
 import { RNCamera } from 'react-native-camera';
-import { NavigationInjectedProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
-import { Wallet, Route } from 'app/consts';
+import { Wallet, Route, RootStackParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
 import { sleep } from 'app/helpers/helpers';
-import { NavigationService } from 'app/services';
 import { loadWallets, WalletsActionType } from 'app/state/wallets/actions';
 import { getStatusBarHeight } from 'app/styles';
 
@@ -48,7 +46,8 @@ interface BarCodeScanEvent {
   type: string;
 }
 
-interface Props extends NavigationInjectedProps {
+interface Props {
+  navigation: StackNavigationProp<RootStackParams, Route.ImportWalletQRCode>;
   loadWallets: () => Promise<WalletsActionType>;
 }
 
@@ -70,46 +69,38 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
     message: '',
   };
 
-  onBarCodeScanned = async (event: BarCodeScanEvent) => {
-    if (now() - this.lastTimeIveBeenHere < SCAN_CODE_AFTER_MS) {
-      this.lastTimeIveBeenHere = now();
-      return;
-    }
-    this.lastTimeIveBeenHere = now();
-    this.setState({ isLoading: true });
-    if (event.data[0] === '6') {
-      // password-encrypted, need to ask for password and decrypt
-      console.log('trying to decrypt...');
+  showErrorMessageScreen = () => {
+    this.setState({ isLoading: false });
+    CreateMessage({
+      title: i18n.message.somethingWentWrong,
+      description: i18n.message.somethingWentWrongWhileCreatingWallet,
+      type: MessageType.error,
+      buttonProps: {
+        title: i18n.message.returnToDashboard,
+        onPress: () => this.props.navigation.popToTop(),
+      },
+    });
+  };
 
-      this.setState({
-        message: loc.wallets.scanQrWif.decoding,
-      });
-      // shold_stop_bip38 = undefined; // eslint-disable-line
-      const password = await prompt(loc.wallets.scanQrWif.input_password, loc.wallets.scanQrWif.password_explain);
-      if (!password) {
-        return;
-      }
-      try {
-        const decryptedKey = await bip38.decrypt(event.data, password, (status: any) => {
-          this.setState({
-            message: loc.wallets.scanQrWif.decoding + '... ' + status.percent.toString().substr(0, 4) + ' %',
-          });
-        });
-        event.data = wif.encode(0x80, decryptedKey.privateKey, decryptedKey.compressed);
-      } catch (e) {
-        this.setState({ message: '', isLoading: false });
-        return Alert.alert(loc.wallets.scanQrWif.bad_password);
-      }
-      this.setState({ message: '', isLoading: false });
-    }
+  showSuccessImportMessageScreen = () =>
+    CreateMessage({
+      title: i18n.message.success,
+      description: i18n.message.successfullWalletImport,
+      type: MessageType.success,
+      buttonProps: {
+        title: i18n.message.returnToDashboard,
+        onPress: () => this.props.navigation.popToTop(),
+      },
+    });
 
-    for (const w of BlueApp.wallets) {
-      if (w.getSecret() === event.data) {
-        // lookig for duplicates
-        this.setState({ isLoading: false });
-        return Alert.alert(loc.wallets.scanQrWif.wallet_already_exists); // duplicate, not adding
-      }
-    }
+  onBarCodeScanned = (event: BarCodeScanEvent) => {
+    CreateMessage({
+      title: i18n.message.creatingWallet,
+      description: i18n.message.creatingWalletDescription,
+      type: MessageType.processingState,
+      asyncTask: () => this.importMnemonic(event.data),
+    });
+  };
 
   saveWallet = async (w: any) => {
     if (BlueApp.getWallets().some((wallet: Wallet) => wallet.getSecret() === w.secret)) {
@@ -119,7 +110,7 @@ class ImportWalletQRCodeScreen extends React.Component<Props, State> {
       BlueApp.wallets.push(w);
       await BlueApp.saveToDisk();
       this.props.loadWallets();
-      this.props.navigation.popToTop();
+      this.props.navigation.goBack();
 
     // Or is it a bare address?
     // TODO: remove these hardcodes

@@ -1,9 +1,10 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { PureComponent } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
-import { Header, ListItem } from 'app/components';
+import { Header, ListItem, ScreenTemplate } from 'app/components';
+import { MainCardStackNavigatorParams, Route } from 'app/consts';
 import { ApplicationState } from 'app/state';
 import { updateAdvancedOptions, UpdateAdvancedOptionsAction } from 'app/state/appSettings/actions';
 import { AppSettingsState } from 'app/state/appSettings/reducer';
@@ -11,23 +12,22 @@ import { typography, palette } from 'app/styles';
 
 const i18n = require('../../../loc');
 
-interface Props extends NavigationScreenProps {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.AdvancedOptions>;
   appSettings: AppSettingsState;
   updateAdvancedOptions: (value: boolean) => UpdateAdvancedOptionsAction;
 }
 
 class AdvancedOptionsScreen extends PureComponent<Props> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header isBackArrow={true} navigation={props.navigation} title={i18n.settings.advancedOptions} />,
-  });
-
   onSwitch = (value: boolean) => {
     this.props.updateAdvancedOptions(value);
   };
 
   render() {
     return (
-      <View>
+      <ScreenTemplate
+        header={<Header isBackArrow={true} navigation={this.props.navigation} title={i18n.settings.advancedOptions} />}
+      >
         <Text style={styles.title}>{i18n.advancedOptions.title}</Text>
         <Text style={styles.description}>{i18n.advancedOptions.description}</Text>
         <View style={styles.divider} />
@@ -38,7 +38,7 @@ class AdvancedOptionsScreen extends PureComponent<Props> {
           switchValue={this.props.appSettings.isAdvancedOptionsEnabled}
         />
         <View style={styles.divider} />
-      </View>
+      </ScreenTemplate>
     );
   }
 }

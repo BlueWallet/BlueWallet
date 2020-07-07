@@ -51,6 +51,7 @@ export const Button = (props: Props) => {
 const styles = StyleSheet.create({
   containerStyle: {
     width: '100%',
+    justifyContent: 'center',
   },
   buttonStyle: {
     borderRadius: 32.5,

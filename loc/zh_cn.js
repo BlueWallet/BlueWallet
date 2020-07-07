@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: '仪表盘',
     settings: '设置',
+    addressBook: '地址簿',
   },
   message: {
     somethingWentWrong: '出问题了',
@@ -267,7 +268,6 @@ module.exports = {
   contactList: {
     cancel: '取消',
     search: '查询',
-    bottomNavigationLabel: '地址簿',
     screenTitle: '地址簿',
     noContacts: '无联系人',
     noContactsDesc1: '无联系人可展示。 \n点击',

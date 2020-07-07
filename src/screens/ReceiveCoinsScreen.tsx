@@ -1,13 +1,14 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import bip21 from 'bip21';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, InteractionManager } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
-import { NavigationScreenProps, NavigationInjectedProps } from 'react-navigation';
 
 import { Header, ScreenTemplate, Button } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Transaction, Route } from 'app/consts';
+import { Route, MainCardStackNavigatorParams, RootStackParams } from 'app/consts';
 import { typography, palette } from 'app/styles';
 
 import BlueApp from '../../BlueApp';
@@ -16,8 +17,13 @@ import { DashboarContentdHeader } from './Dashboard/DashboarContentdHeader';
 
 const i18n = require('../../loc');
 
-type Props = NavigationInjectedProps<{ secret: string }>;
-
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParams, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.ReceiveCoins>
+  >;
+  route: RouteProp<MainCardStackNavigatorParams, Route.ReceiveCoins>;
+}
 interface State {
   secret: string;
   bip21encoded: string;
@@ -26,15 +32,9 @@ interface State {
   wallet: any;
 }
 export class ReceiveCoinsScreen extends Component<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps<{ transaction: Transaction }>) => {
-    return {
-      header: <Header navigation={props.navigation} isBackArrow title={i18n.receive.header} />,
-    };
-  };
-
   constructor(props: Props) {
     super(props);
-    const secret = props.navigation.getParam('secret') || '';
+    const secret = props.route.params?.secret || '';
     this.state = {
       secret,
       bip21encoded: '',
@@ -159,7 +159,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
   showModal = () => {
     const wallets = BlueApp.getWallets();
     const selectedIndex = wallets.findIndex(wallet => wallet.label === this.state.wallet.label);
-    this.props.navigation.navigate('ActionSheet', {
+    this.props.navigation.navigate(Route.ActionSheet, {
       wallets,
       selectedIndex,
       onPress: this.chooseItemFromModal,
@@ -173,6 +173,7 @@ export class ReceiveCoinsScreen extends Component<Props, State> {
         footer={
           <Button title={i18n.receive.details.share} onPress={this.share} containerStyle={styles.buttonContainer} />
         }
+        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.receive.header} />}
       >
         <DashboarContentdHeader
           onSelectPress={this.showModal}

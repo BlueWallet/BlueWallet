@@ -1,26 +1,26 @@
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Share from 'react-native-share';
-import { NavigationInjectedProps, NavigationScreenProps } from 'react-navigation';
 
 import { Button, ContactAvatar, Header, ScreenTemplate } from 'app/components';
-import { Contact } from 'app/consts';
+import { Route, MainCardStackNavigatorParams } from 'app/consts';
 import { typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
-type Props = NavigationInjectedProps<{ contact: Contact }>;
+type Props = {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ContactQRCode>;
+  route: RouteProp<MainCardStackNavigatorParams, Route.ContactQRCode>;
+};
 
 export class ContactQRCodeScreen extends React.PureComponent<Props> {
   qrCodeSVG: any;
 
-  static navigationOptions = (props: NavigationScreenProps<{ contact: Contact }>) => ({
-    header: <Header navigation={props.navigation} isBackArrow title={props.navigation.getParam('contact').name} />,
-  });
-
   openShareDialog = () => {
-    const contact = this.props.navigation.getParam('contact');
+    const { contact } = this.props.route.params;
     this.qrCodeSVG.toDataURL((data: string) => {
       const shareImageBase64 = {
         message: contact.address,
@@ -31,9 +31,12 @@ export class ContactQRCodeScreen extends React.PureComponent<Props> {
   };
 
   render() {
-    const contact = this.props.navigation.getParam('contact');
+    const { contact } = this.props.route.params;
     return (
-      <ScreenTemplate footer={<Button onPress={this.openShareDialog} title={i18n.contactDetails.share} />}>
+      <ScreenTemplate
+        footer={<Button onPress={this.openShareDialog} title={i18n.contactDetails.share} />}
+        header={<Header navigation={this.props.navigation} isBackArrow title={contact.name} />}
+      >
         <ContactAvatar name={contact.name} />
         <View style={styles.qrCodeContainer}>
           <QRCode quietZone={10} value={contact.address} size={140} ecl={'H'} getRef={ref => (this.qrCodeSVG = ref)} />

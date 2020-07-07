@@ -1,49 +1,53 @@
-import { Easing, Animated } from 'react-native';
-import { createStackNavigator, NavigationSceneRendererProps } from 'react-navigation';
+import { createStackNavigator, StackNavigationOptions } from '@react-navigation/stack';
+import React from 'react';
 
-import { Route } from 'app/consts';
-import { ActionSheet, ImportWalletQRCodeScreen } from 'app/screens';
+import { Route, RootStackParams } from 'app/consts';
+import {
+  ActionSheet,
+  ImportWalletQRCodeScreen,
+  ExportWalletScreen,
+  ExportWalletXpubScreen,
+  DeleteWalletScreen,
+  DeleteContactScreen,
+  SendTransactionDetailsScreen,
+  MessageScreen,
+  EditTextScreen,
+  UnlockTransaction,
+} from 'app/screens';
 
-import { EditTextNavigator } from './EditTextNavigator';
 import { MainCardStackNavigator } from './MainCardStackNavigator';
-import { MessageNavigator } from './MessageNavigator';
 import { PasswordNavigator } from './PasswordNavigator';
-import { UnlockTransactionNavaigator } from './UnlockTransactionNavaigator';
 
-export const RootNavigator = createStackNavigator(
-  {
-    MainCardStackNavigator,
-    [Route.ImportWalletQRCode]: ImportWalletQRCodeScreen,
-    [Route.ActionSheet]: ActionSheet,
-    UnlockTransactionNavaigator,
-    PasswordNavigator,
-    EditTextNavigator,
-    MessageNavigator,
-  },
-  {
-    headerMode: 'none',
-    mode: 'modal',
-    transparentCard: true,
-    navigationOptions: {
-      gesturesEnabled: false,
-    },
-    transitionConfig: () => ({
-      transitionSpec: {
-        duration: 100,
-        easing: Easing.inOut(Easing.quad),
-        timing: Animated.timing,
-      },
-      screenInterpolator: (sceneProps: NavigationSceneRendererProps) => {
-        const { position, scene } = sceneProps;
-        const { index } = scene;
+const Stack = createStackNavigator<RootStackParams>();
 
-        const opacity = position.interpolate({
-          inputRange: [index - 1, index],
-          outputRange: [0, 1],
-        });
-
-        return { opacity };
-      },
-    }),
-  },
+export const RootNavigator = () => (
+  <Stack.Navigator initialRouteName={Route.MainCardStackNavigator} headerMode="none" mode="modal">
+    <Stack.Screen name={Route.MainCardStackNavigator} component={MainCardStackNavigator} />
+    <Stack.Screen name={Route.ImportWalletQRCode} component={ImportWalletQRCodeScreen} />
+    <Stack.Screen name={Route.ActionSheet} component={ActionSheet} options={modalOptions} />
+    <Stack.Screen name={Route.UnlockTransaction} component={UnlockTransaction} />
+    <Stack.Screen name={Route.PasswordNavigator} component={PasswordNavigator} />
+    <Stack.Screen name={Route.EditText} component={EditTextScreen} />
+    <Stack.Screen name={Route.Message} component={MessageScreen} />
+    <Stack.Screen name={Route.ExportWallet} component={ExportWalletScreen} />
+    <Stack.Screen name={Route.ExportWalletXpub} component={ExportWalletXpubScreen} />
+    <Stack.Screen name={Route.DeleteWallet} component={DeleteWalletScreen} />
+    <Stack.Screen name={Route.DeleteContact} component={DeleteContactScreen} />
+    <Stack.Screen name={Route.SendTransactionDetails} component={SendTransactionDetailsScreen} />
+  </Stack.Navigator>
 );
+
+const modalOptions = {
+  headerShown: false,
+  cardStyle: { backgroundColor: 'transparent' },
+  cardOverlayEnabled: true,
+  cardStyleInterpolator: ({ current: { progress } }) => ({
+    overlayStyle: {
+      opacity: progress.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 0.6],
+        extrapolate: 'clamp',
+      }),
+    },
+  }),
+} as StackNavigationOptions;

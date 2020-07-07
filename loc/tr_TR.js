@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: 'Pano',
     settings: 'Ayarlar',
+    addressBook: 'Adres Defteri',
   },
   message: {
     somethingWentWrong: 'Bir sorun meydana geldi',
@@ -284,7 +285,6 @@ module.exports = {
   contactList: {
     cancel: 'İptal Et',
     search: 'Ara',
-    bottomNavigationLabel: 'Adres Defteri',
     screenTitle: 'Adres Defteri',
     noContacts: 'Kişi yok',
     noContactsDesc1: 'Gösterilecek kişi yok. \nTıkla',

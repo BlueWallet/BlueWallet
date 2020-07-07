@@ -1,16 +1,21 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Alert, Text } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 
 import { ScreenTemplate, Button, FlatButton, InputItem, Header } from 'app/components';
+import { MainCardStackNavigatorParams, Route } from 'app/consts';
 import { AppStorage, defaultPeer } from 'app/legacy';
 import { typography, palette } from 'app/styles';
 
 const BlueElectrum = require('../../../BlueElectrum');
 const i18n = require('../../../loc');
 
-export const ElectrumServerScreen = () => {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.ElectrumServer>;
+}
+
+export const ElectrumServerScreen = (props: Props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [host, setHost] = useState('');
   const [port, setPort] = useState('');
@@ -59,6 +64,7 @@ export const ElectrumServerScreen = () => {
           <FlatButton title={i18n.electrumServer.useDefault} onPress={onUseDefaultPress} />
         </>
       }
+      header={<Header isBackArrow={true} navigation={props.navigation} title={i18n.electrumServer.header} />}
     >
       <Text style={styles.title}>{i18n.electrumServer.title}</Text>
       <Text style={styles.description}>{i18n.electrumServer.description}</Text>
@@ -79,10 +85,6 @@ export const ElectrumServerScreen = () => {
     </ScreenTemplate>
   );
 };
-
-ElectrumServerScreen.navigationOptions = (props: NavigationScreenProps) => ({
-  header: <Header isBackArrow={true} navigation={props.navigation} title={i18n.electrumServer.header} />,
-});
 
 const styles = StyleSheet.create({
   saveButton: { paddingBottom: 10 },

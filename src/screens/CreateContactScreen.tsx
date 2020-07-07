@@ -1,20 +1,24 @@
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 
 import { icons } from 'app/assets';
 import { Button, Header, InputItem, ScreenTemplate, Text, Image } from 'app/components';
-import { Contact, Route } from 'app/consts';
+import { Contact, Route, MainTabNavigatorParams, MainCardStackNavigatorParams } from 'app/consts';
 import { CreateMessage, MessageType } from 'app/helpers/MessageCreator';
-import { NavigationService } from 'app/services';
 import { createContact, CreateContactAction } from 'app/state/contacts/actions';
 import { palette, typography } from 'app/styles';
 
 const i18n = require('../../loc');
 
-interface Props extends NavigationScreenProps {
+interface Props {
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<MainTabNavigatorParams, Route.ContactList>,
+    StackNavigationProp<MainCardStackNavigatorParams, Route.CreateContact>
+  >;
   createContact: (contact: Contact) => CreateContactAction;
 }
 
@@ -24,10 +28,6 @@ interface State {
 }
 
 export class CreateContactScreen extends React.PureComponent<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps) => ({
-    header: <Header navigation={props.navigation} isBackArrow title={i18n.contactCreate.screenTitle} />,
-  });
-
   state: State = {
     name: '',
     address: '',
@@ -59,7 +59,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
   };
 
   onScanQrCodePress = () => {
-    NavigationService.navigate(Route.ScanQrCode, {
+    this.props.navigation.navigate(Route.ScanQrCode, {
       onBarCodeScan: this.onBarCodeScan,
     });
   };
@@ -71,7 +71,9 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
       type: MessageType.success,
       buttonProps: {
         title: i18n.contactCreate.successButton,
-        onPress: () => this.props.navigation.navigate(Route.ContactList),
+        onPress: () => {
+          this.props.navigation.navigate(Route.ContactList);
+        },
       },
     });
 
@@ -86,6 +88,7 @@ export class CreateContactScreen extends React.PureComponent<Props, State> {
             title={i18n.contactCreate.buttonLabel}
           />
         }
+        header={<Header navigation={this.props.navigation} isBackArrow title={i18n.contactCreate.screenTitle} />}
       >
         <Text style={styles.subtitle}>{i18n.contactCreate.subtitle}</Text>
         <Text style={styles.description}>{i18n.contactCreate.description}</Text>

@@ -1,13 +1,14 @@
+import { RouteProp, CompositeNavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import moment from 'moment';
 import React, { Component } from 'react';
 import { View, StyleSheet, Text, Linking, TouchableOpacity } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 import { connect } from 'react-redux';
 
 import { images } from 'app/assets';
 import { Image, Header, StyledText, Chip, ScreenTemplate } from 'app/components';
 import { CopyButton } from 'app/components/CopyButton';
-import { Transaction, Route } from 'app/consts';
+import { Route, MainCardStackNavigatorParamList, RootStackParamList } from 'app/consts';
 import { ApplicationState } from 'app/state';
 import {
   createTransactionNote,
@@ -21,11 +22,11 @@ import BlueApp from '../../BlueApp';
 
 const i18n = require('../../loc');
 
-function onlyUnique(value, index, self) {
+function onlyUnique(value: number, index: number, self: any[]) {
   return self.indexOf(value) === index;
 }
 
-function arrDiff(a1, a2) {
+function arrDiff(a1: any[], a2: any[]) {
   const ret = [];
   for (const v of a2) {
     if (a1.indexOf(v) === -1) {
@@ -35,10 +36,16 @@ function arrDiff(a1, a2) {
   return ret;
 }
 
-interface Props extends NavigationScreenProps<{ transaction: Transaction }> {
+interface Props {
   transactionNotes: Record<string, string>;
   createTransactionNote: (transactionID: string, note: string) => CreateTransactionNoteAction;
   updateTransactionNote: (transactionID: string, note: string) => UpdateTransactionNoteAction;
+  navigation: CompositeNavigationProp<
+    StackNavigationProp<RootStackParamList, Route.MainCardStackNavigator>,
+    StackNavigationProp<MainCardStackNavigatorParamList, Route.TransactionDetails>
+  >;
+
+  route: RouteProp<MainCardStackNavigatorParamList, Route.TransactionDetails>;
 }
 
 interface State {
@@ -52,17 +59,13 @@ interface State {
 }
 
 class TransactionDetailsScreen extends Component<Props, State> {
-  static navigationOptions = (props: NavigationScreenProps<{ transaction: Transaction }>) => {
-    const transaction = props.navigation.getParam('transaction');
-    return {
-      header: <Header navigation={props.navigation} isBackArrow title={moment.unix(transaction.time).format('lll')} />,
-    };
-  };
-
   constructor(props: Props) {
     super(props);
-    const { hash } = props.navigation.getParam('transaction');
-    const note = props.transactionNotes[hash] || '';
+    const {
+      transaction: { txid, hash },
+    } = props.route.params;
+
+    const note = props.transactionNotes[txid] || '';
 
     let foundTx = {};
     let from = [];
@@ -117,7 +120,9 @@ class TransactionDetailsScreen extends Component<Props, State> {
   };
 
   updateNote = (note: string) => {
-    const { txid } = this.props.navigation.getParam('transaction');
+    const {
+      transaction: { txid },
+    } = this.props.route.params;
     if (!this.state.note) {
       this.props.createTransactionNote(this.state.hash, note);
     } else {
@@ -130,7 +135,7 @@ class TransactionDetailsScreen extends Component<Props, State> {
   };
 
   renderHeader = () => {
-    const transaction: Transaction = this.props.navigation.getParam('transaction');
+    const { transaction } = this.props.route.params;
     const valuePreffix = transaction.value < 0 ? '' : '+';
     return (
       <View style={styles.headerContainer}>
@@ -153,7 +158,7 @@ class TransactionDetailsScreen extends Component<Props, State> {
   };
 
   editNote = () => {
-    const transaction: Transaction = this.props.navigation.getParam('transaction');
+    const { transaction } = this.props.route.params;
     this.props.navigation.navigate(Route.EditText, {
       title: moment.unix(transaction.time).format('lll'),
       label: i18n.transactions.details.note,
@@ -164,11 +169,15 @@ class TransactionDetailsScreen extends Component<Props, State> {
   };
 
   render() {
-    const transaction: Transaction = this.props.navigation.getParam('transaction');
+    const { transaction } = this.props.route.params;
     const fromValue = this.state.from.filter(onlyUnique).join(', ');
     const toValue = arrDiff(this.state.from, this.state.to.filter(onlyUnique)).join(', ');
     return (
-      <ScreenTemplate>
+      <ScreenTemplate
+        header={
+          <Header navigation={this.props.navigation} isBackArrow title={moment.unix(transaction.time).format('lll')} />
+        }
+      >
         {this.renderHeader()}
 
         {this.state.note ? (

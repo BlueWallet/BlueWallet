@@ -1,11 +1,11 @@
+import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { NavigationScreenProps } from 'react-navigation';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { images, icons } from 'app/assets';
 import { Image, ScreenTemplate, Header, ListItem } from 'app/components';
-import { Route } from 'app/consts';
+import { Route, MainCardStackNavigatorParams } from 'app/consts';
 import { BiometricService } from 'app/services';
 import { ApplicationState } from 'app/state';
 import { updateBiometricSetting } from 'app/state/appSettings/actions';
@@ -14,7 +14,11 @@ import { LabeledSettingsRow } from './LabeledSettingsRow';
 
 const i18n = require('../../../loc');
 
-export const SettingsScreen = (props: NavigationScreenProps) => {
+interface Props {
+  navigation: StackNavigationProp<MainCardStackNavigatorParams, Route.Settings>;
+}
+
+export const SettingsScreen = (props: Props) => {
   const { navigation } = props;
   const { isBiometricsEnabled } = useSelector((state: ApplicationState) => ({
     isBiometricsEnabled: state.appSettings.isBiometricsEnabled,
@@ -87,11 +91,6 @@ export const SettingsScreen = (props: NavigationScreenProps) => {
     </>
   );
 };
-
-SettingsScreen.navigationOptions = () => ({
-  // must be dynamic, as function as language switch stops to work
-  tabBarLabel: i18n.tabNavigator.settings,
-});
 
 const styles = StyleSheet.create({
   logo: {

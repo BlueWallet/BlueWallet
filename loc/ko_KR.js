@@ -17,6 +17,7 @@ module.exports = {
   tabNavigator: {
     dashboard: '대시보드',
     settings: '설정',
+    addressBook: '주소록',
   },
   message: {
     somethingWentWrong: '문제가 발생했습니다',
@@ -276,7 +277,6 @@ module.exports = {
   contactList: {
     cancel: '취소',
     search: '검색하기',
-    bottomNavigationLabel: '주소록',
     screenTitle: '주소록',
     noContacts: '연락처 없음',
     noContactsDesc1: '표시할 연락처가 없습니다. \n클릭해서',

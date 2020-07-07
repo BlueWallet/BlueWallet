@@ -9,9 +9,10 @@ import {
   ViewStyle,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-navigation';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { getStatusBarHeight, palette } from 'app/styles';
+import { palette } from 'app/styles';
+import { ifIphoneX } from 'app/styles/helpers';
 
 enum StatusBarColor {
   Light = 'light-content',
@@ -20,6 +21,7 @@ enum StatusBarColor {
 
 interface Props {
   children: React.ReactNode;
+  header?: React.ReactNode;
   footer?: React.ReactNode;
   statusBarStyle: StatusBarColor;
   contentContainer?: StyleProp<ViewStyle>;
@@ -40,6 +42,7 @@ export class ScreenTemplate extends React.PureComponent<Props> {
   render() {
     const {
       children,
+      header,
       footer,
       statusBarStyle,
       contentContainer,
@@ -49,8 +52,9 @@ export class ScreenTemplate extends React.PureComponent<Props> {
     } = this.props;
     const Container = noScroll ? View : ScrollView;
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaProvider style={styles.container}>
         <StatusBar barStyle={statusBarStyle} />
+        {header}
         <Container
           ref={this.scrollRef}
           style={[noScroll && styles.contentContainer, noScroll && contentContainer]}
@@ -61,15 +65,11 @@ export class ScreenTemplate extends React.PureComponent<Props> {
           {children}
         </Container>
         {!!footer && (
-          <KeyboardAvoidingView
-            keyboardVerticalOffset={getStatusBarHeight() + 52}
-            behavior={Platform.OS == 'ios' ? 'padding' : undefined}
-            style={styles.footer}
-          >
+          <KeyboardAvoidingView behavior={Platform.OS == 'ios' ? 'padding' : undefined} style={styles.footer}>
             {footer}
           </KeyboardAvoidingView>
         )}
-      </SafeAreaView>
+      </SafeAreaProvider>
     );
   }
 }
@@ -77,6 +77,8 @@ export class ScreenTemplate extends React.PureComponent<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: palette.white,
+    paddingBottom: ifIphoneX(34, 0),
   },
   contentContainer: {
     flexGrow: 1,
