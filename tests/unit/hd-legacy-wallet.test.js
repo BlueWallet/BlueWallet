@@ -110,7 +110,7 @@ it('Legacy HD (BIP44) can create TX', async () => {
   assert.strictEqual(tx.ins.length, 4);
   assert.strictEqual(tx.outs.length, 2);
   assert.strictEqual(tx.outs[0].value, 80000); // payee
-  assert.strictEqual(tx.outs[1].value, 19334); // change
+  assert.strictEqual(tx.outs[1].value, 19330); // change
   let toAddress = bitcoin.address.fromOutputScript(tx.outs[0].script);
   const changeAddress = bitcoin.address.fromOutputScript(tx.outs[1].script);
   assert.strictEqual('3GcKN7q7gZuZ8eHygAhHrvPa5zZbG5Q1rK', toAddress);
