@@ -175,6 +175,7 @@ export default class LNDCreateInvoice extends Component {
         this.props.route.params.uri,
         this.props.route.params.lnurlData
       );
+      this.props.navigation.setParams({ uri: undefined });
     }
     this.setState({ isLoading: false });
   };
@@ -272,7 +273,7 @@ export default class LNDCreateInvoice extends Component {
         uri = findlnurl(uri);
 
         // decoding the lnurl
-        const decoded = bech32.decode(data, 1500);
+        const decoded = bech32.decode(uri, 10000);
         const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
 
         // calling the url
@@ -423,7 +424,8 @@ export default class LNDCreateInvoice extends Component {
                   this.setState({ amount: text }, constrainAmount);
                 }}
                 disabled={this.state.isLoading || (this.state.lnurlParams && this.state.lnurlParams.fixed)}
-                unit={this.state.unit}
+                unit={BitcoinUnit.SATS}
+                unitChangeDisabled={!!this.state.lnurlParams}
                 inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
               />
               <View style={styles.fiat}>
@@ -457,6 +459,7 @@ LNDCreateInvoice.propTypes = {
     dangerouslyGetParent: PropTypes.func,
     navigate: PropTypes.func,
     pop: PropTypes.func,
+    setParams: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,

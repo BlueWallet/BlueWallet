@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
   },
   detailsRoot: {
     flex: 1,
-    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
     marginBottom: 24,
     alignItems: 'center',
   },
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
   detailsText: {
     color: '#9aa0aa',
     fontSize: 14,
-    marginRight: 8,
+    marginHorizontal: 8,
   },
   expired: {
     backgroundColor: '#ccddf9',

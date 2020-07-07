@@ -2257,6 +2257,7 @@ export class BlueBitcoinAmount extends Component {
      * callback thats fired to notify of currently selected denomination, returns <BitcoinUnit.*>
      */
     onAmountUnitChange: PropTypes.func,
+    unitChangeDisabled: PropTypes.bool,
     disabled: PropTypes.bool,
   };
 
@@ -2491,7 +2492,7 @@ export class BlueBitcoinAmount extends Component {
               </Text>
             </View>
           </View>
-          {!this.props.disabled && (
+          {!(this.props.disabled || this.props.unitChangeDisabled) && (
             <TouchableOpacity
               style={{ alignSelf: 'center', marginRight: 16, paddingLeft: 16, paddingVertical: 16 }}
               onPress={this.changeAmountUnit}

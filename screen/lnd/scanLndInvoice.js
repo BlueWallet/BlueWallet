@@ -118,18 +118,18 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 0,
     marginHorizontal: 20,
+    height: Math.min(height / 4, imageSize * 2),
   },
   lnurlPayDomain: {
     fontWeight: 'bold',
     textAlign: 'center',
   },
   lnurlPayMetadataWrap: {
-    flexDirection: 'row',
-    marginHorizontal: 10,
-    alignItems: 'center',
     marginVertical: 10,
+    marginHorizontal: 10,
     borderRadius: 4,
-    height: Math.min(height / 5, imageSize * 2),
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
   lnurlPayImage: {
     width: imageSize,
@@ -207,7 +207,7 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   processInvoice = data => {
-    const {state, props} = this;
+    const {state} = this;
     const w = state.fromWallet;
     let decoded;
     try {
@@ -234,7 +234,6 @@ export default class ScanLndInvoice extends React.Component {
     } catch (Err) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       Keyboard.dismiss();
-      props.navigation.setParams({ uri: undefined });
       setTimeout(() => alert(Err.message), 10);
       this.setState({ ...state, isLoading: false });
     }
@@ -254,7 +253,7 @@ export default class ScanLndInvoice extends React.Component {
           uri = findlnurl(uri);
 
           // decoding
-          const decoded = bech32.decode(uri, 1500);
+          const decoded = bech32.decode(uri, 10000);
           const url = Buffer.from(bech32.fromWords(decoded.words)).toString();
 
           // calling the url
@@ -586,8 +585,6 @@ export default class ScanLndInvoice extends React.Component {
   };
 
   async componentDidMount() {
-    console.log('scanLndInvoice did mount');
-
     if (this.props.route.params.lnurlData) {
       this.processLnurlPay(
         this.props.route.params.uri,
@@ -644,6 +641,7 @@ export default class ScanLndInvoice extends React.Component {
               );
             }}
             unit={BitcoinUnit.SATS}
+            unitChangeDisabled
             inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
           />
         </View>
@@ -657,7 +655,7 @@ export default class ScanLndInvoice extends React.Component {
             {image && (
               <Image style={styles.lnurlPayImage} source={{uri: image}} />
             )}
-            <Text numberOfLines={0} style={styles.lnurlPayDescription}>
+            <Text style={styles.lnurlPayDescription}>
               {description}
             </Text>
           </ScrollView>

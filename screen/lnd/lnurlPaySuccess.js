@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     paddingTop: 19,
   },
   descriptionScroll: {
-    maxHeight: 120,
+    height: 120,
   },
   descriptionText: {
     color: '#81868e',
@@ -54,17 +54,21 @@ const styles = StyleSheet.create({
   },
 })
 
-export default class Success extends Component {
-  static navigationOptions = ({ navigation, route }) =>
-    route.params.lnurl
-      ? {
-          ...BlueNavigationStyle(navigation, true, () => navigation.goBack()),
-          title: route.params.domain + ' message',
-        }
-      : { ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
-          title: route.params.domain + ' message',
-          headerLeft: null,
-        }
+export default class LnurlPaySuccess extends Component {
+  static navigationOptions = ({ navigation, route }) => {
+    const base = {
+      ...BlueNavigationStyle(
+        navigation,
+        true,
+        () => route.params.justPaid ? navigation.dismiss() : navigation.pop(),
+      ),
+      title: route.params.domain + ' message',
+    }
+
+    return route.params.lnurl
+      ? base
+      : {...base, headerLeft: null}
+  }
 
   constructor(props) {
     super(props);
@@ -107,11 +111,13 @@ export default class Success extends Component {
     return (
       <SafeBlueArea style={styles.root}>
         <BlueCard>
-          <ScrollView contentContainerStyle={styles.descriptionScroll}>
-            <Text numberOfLines={0} style={styles.descriptionText}>
-              {description}
-            </Text>
-          </ScrollView>
+          <View style={styles.descriptionScroll}>
+            <ScrollView>
+              <Text style={styles.descriptionText}>
+                {description}
+              </Text>
+            </ScrollView>
+          </View>
         </BlueCard>
 
         <View style={styles.imageContainer}>
@@ -154,7 +160,9 @@ export default class Success extends Component {
             : (
               <BlueButton
                 onPress={() => {
-                  this.props.navigation.dismiss();
+                  this.props.route.params.justPaid
+                    ? this.props.navigation.dismiss()
+                    : this.props.navigation.pop();
                 }}
                 title={loc.send.success.done}
               />
@@ -166,11 +174,12 @@ export default class Success extends Component {
   }
 }
 
-Success.propTypes = {
+LnurlPaySuccess.propTypes = {
   navigation: PropTypes.shape({
-    goBack: PropTypes.func,
     navigate: PropTypes.func,
+    pop: PropTypes.func,
     dismiss: PropTypes.func,
+    dangerouslyGetParent: PropTypes.func,
   }),
   route: PropTypes.shape({
     name: PropTypes.string,
@@ -189,6 +198,9 @@ Success.propTypes = {
       // not present immediatelly after a success payment
       lnurl: PropTypes.string,
       fromWallet: PropTypes.shape({}),
+
+      // only present after a success payment
+      justPaid: PropTypes.boolean,
     }),
   }),
 };
