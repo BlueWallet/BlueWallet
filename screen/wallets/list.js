@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 8,
-    color: BlueApp.settings.foregroundColor,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   ltRoot: {
     flexDirection: 'row',
