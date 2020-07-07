@@ -29,7 +29,6 @@ import {
   BlueListItem,
   BlueText,
 } from '../../BlueComponents';
-import Slider from '@react-native-community/slider';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
@@ -46,6 +45,7 @@ const BigNumber = require('bignumber.js');
 const { width } = Dimensions.get('window');
 const BlueApp: AppStorage = require('../../BlueApp');
 const loc = require('../../loc');
+const prompt = require('../../blue_modules/prompt');
 
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
@@ -66,14 +66,11 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
-    padding: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 24,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     borderColor: 'rgba(0, 0, 0, 0.1)',
     minHeight: 200,
-    height: 200,
   },
   advancedTransactionOptionsModalContent: {
     backgroundColor: '#FFFFFF',
@@ -87,51 +84,26 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     margin: 0,
   },
-  feeInput: {
-    backgroundColor: '#d2f8d6',
-    minWidth: 127,
+  feeModalItem: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 10,
+  },
+  feeModalItemActive: { borderRadius: 8, backgroundColor: BlueApp.settings.incomingBackgroundColor },
+  feeModalRow: { justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' },
+  feeModalLabel: { fontSize: 22, color: BlueApp.settings.successColor, fontWeight: '600' },
+  feeModalTime: { backgroundColor: BlueApp.settings.successColor, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 3 },
+  feeModalTimeText: { color: 'white' },
+  feeModalValue: { color: BlueApp.settings.successColor },
+  feeModalCustom: {
     height: 60,
-    borderRadius: 8,
-    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 8,
   },
-  feeInputText: {
+  feeModalCustomText: {
+    color: BlueApp.settings.buttonAlternativeTextColor,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#37c0a1',
-    marginBottom: 0,
-    marginRight: 4,
-    textAlign: 'right',
-    fontSize: 36,
-  },
-  feeInputUnit: {
-    fontWeight: '600',
-    color: '#37c0a1',
-    paddingRight: 4,
-    textAlign: 'left',
-    fontSize: 16,
-    alignSelf: 'flex-end',
-    marginBottom: 14,
-  },
-  sliderContainer: {
-    flex: 1,
-    marginTop: 32,
-    minWidth: 240,
-    width: 240,
-  },
-  slider: {
-    flex: 1,
-  },
-  sliderLabels: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 14,
-  },
-  sliderLabel: {
-    fontWeight: '500',
-    fontSize: 13,
-    color: '#37c0a1',
   },
   createButton: {
     marginHorizontal: 56,
@@ -198,7 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   feeRow: {
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueApp.settings.incomingBackgroundColor,
     minWidth: 40,
     height: 25,
     borderRadius: 4,
@@ -208,15 +180,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   feeValue: {
-    color: '#37c0a1',
-    marginBottom: 0,
-    marginRight: 4,
-    textAlign: 'right',
-  },
-  feeUnit: {
-    color: '#37c0a1',
-    paddingRight: 4,
-    textAlign: 'left',
+    color: BlueApp.settings.successColor,
   },
 });
 
@@ -260,6 +224,13 @@ export default class SendDetails extends Component {
         memo: '',
         networkTransactionFees: new NetworkTransactionFee(1, 1, 1),
         fee: '1',
+        feePrecalc: {
+          current: null,
+          slowFee: null,
+          mediumFee: null,
+          fastestFee: null,
+        },
+        feeUnit: fromWallet.getPreferredBalanceUnit(),
         amountUnit: fromWallet.preferredBalanceUnit, // default for whole screen
         renderWalletSelectionButtonHidden: false,
       };
@@ -369,6 +340,8 @@ export default class SendDetails extends Component {
       }
     } catch (_) {}
 
+    await this.reCalcTx();
+
     try {
       const recommendedFees = await NetworkTransactionFees.recommendedFees();
       if (recommendedFees && 'fastestFee' in recommendedFees) {
@@ -390,7 +363,9 @@ export default class SendDetails extends Component {
       }
     }
 
+    await this.state.fromWallet.fetchUtxo();
     this.setState({ isLoading: false });
+    await this.reCalcTx();
   }
 
   componentWillUnmount() {
@@ -490,10 +465,82 @@ export default class SendDetails extends Component {
     }
   }
 
+  reCalcTx = async (all = false) => {
+    const wallet = this.state.fromWallet;
+    const fees = this.state.networkTransactionFees;
+    const changeAddress = await wallet.getChangeAddressAsync();
+    const requestedSatPerByte = Number(this.state.fee);
+    const feePrecalc = { ...this.state.feePrecalc };
+
+    const options = all
+      ? [
+          { key: 'current', fee: requestedSatPerByte },
+          { key: 'slowFee', fee: fees.slowFee },
+          { key: 'mediumFee', fee: fees.mediumFee },
+          { key: 'fastestFee', fee: fees.fastestFee },
+        ]
+      : [{ key: 'current', fee: requestedSatPerByte }];
+
+    for (const opt of options) {
+      let targets = [];
+      for (const transaction of this.state.addresses) {
+        if (transaction.amount === BitcoinUnit.MAX) {
+          // single output with MAX
+          targets = [{ address: transaction.address }];
+          break;
+        }
+        const value = parseInt(transaction.amountSats);
+        if (value > 0) {
+          targets.push({ address: transaction.address, value });
+        } else if (transaction.amount) {
+          if (currency.btcToSatoshi(transaction.amount) > 0) {
+            targets.push({ address: transaction.address, value: currency.btcToSatoshi(transaction.amount) });
+          }
+        }
+      }
+
+      // replace wrong addresses with dump
+      targets = targets.map(t => {
+        try {
+          bitcoin.address.toOutputScript(t.address);
+          return t;
+        } catch (e) {
+          return { ...t, address: '36JxaUrpDzkEerkTf1FzwHNE1Hb7cCjgJV' };
+        }
+      });
+
+      let flag = false;
+      while (true) {
+        try {
+          const { fee } = wallet.createTransaction(
+            wallet.getUtxo(),
+            targets,
+            opt.fee,
+            changeAddress,
+            this.state.isTransactionReplaceable ? HDSegwitBech32Wallet.defaultRBFSequence : HDSegwitBech32Wallet.finalRBFSequence,
+          );
+
+          feePrecalc[opt.key] = fee;
+          break;
+        } catch (e) {
+          if (e.message === 'Not enough balance. Try sending smaller amount' && !flag) {
+            flag = true;
+            // if the outputs are too big, replace them with dust
+            targets = targets.map(t => ({ ...t, value: 546 }));
+            continue;
+          }
+
+          feePrecalc[opt.key] = null;
+        }
+      }
+    }
+
+    this.setState({ feePrecalc });
+  };
+
   async createPsbtTransaction() {
     /** @type {HDSegwitBech32Wallet} */
     const wallet = this.state.fromWallet;
-    await wallet.fetchUtxo();
     const changeAddress = await wallet.getChangeAddressAsync();
     const requestedSatPerByte = Number(this.state.fee);
     console.log({ requestedSatPerByte, utxo: wallet.getUtxo() });
@@ -610,59 +657,89 @@ export default class SendDetails extends Component {
   };
 
   renderFeeSelectionModal = () => {
+    const { feePrecalc, fee, networkTransactionFees: nf } = this.state;
+    const options = [
+      {
+        label: 'Fast',
+        time: '10m',
+        fee: feePrecalc.fastestFee,
+        rate: nf.fastestFee,
+        active: Number(fee) === nf.fastestFee,
+      },
+      {
+        label: 'Medium',
+        time: '3h',
+        fee: feePrecalc.mediumFee,
+        rate: nf.mediumFee,
+        active: Number(fee) === nf.mediumFee,
+      },
+      {
+        label: 'Slow',
+        time: '1d',
+        fee: feePrecalc.slowFee,
+        rate: nf.slowFee,
+        active: Number(fee) === nf.slowFee,
+      },
+    ];
+
     return (
       <Modal
         isVisible={this.state.isFeeSelectionModalVisible}
         style={styles.bottomModal}
-        onBackdropPress={() => {
-          if (this.state.fee < 1) {
-            this.setState({ fee: '1' });
-          }
-          Keyboard.dismiss();
-          this.setState({ isFeeSelectionModalVisible: false });
-        }}
+        onBackdropPress={() => this.setState({ isFeeSelectionModalVisible: false })}
       >
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'position' : null}>
           <View style={styles.modalContent}>
-            <TouchableOpacity style={styles.feeInput} onPress={() => this.textInput.focus()}>
-              <TextInput
-                keyboardType="numeric"
-                ref={ref => (this.textInput = ref)}
-                value={this.state.fee}
-                onEndEditing={() => {
-                  let fee = this.state.fee;
+            {options.map(({ label, time, fee, rate, active }, index) => (
+              <TouchableOpacity
+                key={label}
+                onPress={() =>
+                  this.setState(({ feePrecalc }) => {
+                    feePrecalc.current = fee;
+                    return { isFeeSelectionModalVisible: false, fee: rate.toString(), feePrecalc };
+                  })
+                }
+                style={[styles.feeModalItem, active && styles.feeModalItemActive]}
+              >
+                <View style={styles.feeModalRow}>
+                  <Text style={styles.feeModalLabel}>{label}</Text>
+                  <View style={styles.feeModalTime}>
+                    <Text style={styles.feeModalTimeText}>~{time}</Text>
+                  </View>
+                </View>
+                <View style={styles.feeModalRow}>
+                  <Text style={styles.feeModalValue}>{this.formatFee(fee)}</Text>
+                  <Text style={styles.feeModalValue}>{rate} sat/byte</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={styles.feeModalCustom}
+              onPress={async () => {
+                let error = 'in sat/byte';
+                while (true) {
+                  let fee;
+
+                  try {
+                    fee = await prompt('Fee', error, true, 'numeric');
+                  } catch (_) {
+                    return;
+                  }
+
+                  if (!/^\d+$/.test(fee)) {
+                    error = loc.send.details.fee_field_is_not_valid;
+                    continue;
+                  }
+
                   if (fee < 1) fee = '1';
                   fee = Number(fee).toString(); // this will remove leading zeros if any
-                  this.setState({ fee });
-                }}
-                onChangeText={value => {
-                  const newValue = value.replace(/[^0-9]/g, '');
-                  this.setState({ fee: newValue });
-                }}
-                maxLength={9}
-                editable={!this.state.isLoading}
-                style={styles.feeInputText}
-                inputAccessoryViewID={BlueDismissKeyboardInputAccessory.InputAccessoryViewID}
-              />
-              <Text style={styles.feeInputUnit}>sat/b asd</Text>
+                  this.setState({ fee, isFeeSelectionModalVisible: false });
+                  return;
+                }
+              }}
+            >
+              <Text style={styles.feeModalCustomText}>Custom</Text>
             </TouchableOpacity>
-            {this.state.networkTransactionFees.fastestFee > 1 && (
-              <View style={styles.sliderContainer}>
-                <Slider
-                  onValueChange={value => this.setState({ fee: value.toFixed(0) })}
-                  minimumValue={1}
-                  maximumValue={this.state.networkTransactionFees.fastestFee}
-                  value={Number(this.state.fee)}
-                  maximumTrackTintColor="#d8d8d8"
-                  minimumTrackTintColor="#37c0a1"
-                  style={styles.slider}
-                />
-                <View style={styles.sliderLabels}>
-                  <Text style={styles.sliderLabel}>slow</Text>
-                  <Text style={styles.sliderLabel}>fast</Text>
-                </View>
-              </View>
-            )}
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -846,7 +923,7 @@ export default class SendDetails extends Component {
 
   handlePageChange = e => {
     Keyboard.dismiss();
-    var offset = e.nativeEvent.contentOffset;
+    const offset = e.nativeEvent.contentOffset;
     if (offset) {
       const page = Math.round(offset.x / width);
       if (this.state.recipientsScrollIndex !== page) {
@@ -857,7 +934,7 @@ export default class SendDetails extends Component {
 
   scrollViewCurrentIndex = () => {
     Keyboard.dismiss();
-    var offset = this.scrollView.contentOffset;
+    const offset = this.scrollView.contentOffset;
     if (offset) {
       const page = Math.round(offset.x / width);
       return page;
@@ -913,7 +990,7 @@ export default class SendDetails extends Component {
               }
               const addresses = this.state.addresses;
               addresses[index] = item;
-              this.setState({ addresses });
+              this.setState({ addresses }, this.reCalcTx);
             }}
             unit={this.state.units[index] || this.state.amountUnit}
             inputAccessoryViewID={this.state.fromWallet.allowSendMax() ? BlueUseAllFundsButton.InputAccessoryViewID : null}
@@ -931,6 +1008,7 @@ export default class SendDetails extends Component {
                 memo: memo || this.state.memo,
                 isLoading: false,
               });
+              this.reCalcTx();
             }}
             onBarScanned={this.processAddressData}
             address={item.address}
@@ -978,6 +1056,17 @@ export default class SendDetails extends Component {
     );
   };
 
+  formatFee = fee => {
+    switch (this.state.feeUnit) {
+      case BitcoinUnit.SATS:
+        return fee + ' ' + BitcoinUnit.SATS;
+      case BitcoinUnit.BTC:
+        return currency.satoshiToBTC(fee) + ' ' + BitcoinUnit.BTC;
+      case BitcoinUnit.LOCAL_CURRENCY:
+        return currency.satoshiToLocalCurrency(fee);
+    }
+  };
+
   render() {
     if (this.state.isLoading || typeof this.state.fromWallet === 'undefined') {
       return (
@@ -986,6 +1075,7 @@ export default class SendDetails extends Component {
         </View>
       );
     }
+
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={styles.root}>
@@ -1020,14 +1110,13 @@ export default class SendDetails extends Component {
                 />
               </View>
               <TouchableOpacity
-                onPress={() => this.setState({ isFeeSelectionModalVisible: true })}
+                onPress={() => this.setState({ isFeeSelectionModalVisible: true }, () => this.reCalcTx(true))}
                 disabled={this.state.isLoading}
                 style={styles.fee}
               >
                 <Text style={styles.feeLabel}>Fee</Text>
                 <View style={styles.feeRow}>
-                  <Text style={styles.feeValue}>{this.state.fee}</Text>
-                  <Text style={styles.feeUnit}>sat/b</Text>
+                  <Text style={styles.feeValue}>{this.formatFee(this.state.feePrecalc.current)}</Text>
                 </View>
               </TouchableOpacity>
               {this.renderCreateButton()}
