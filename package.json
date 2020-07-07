@@ -86,7 +86,7 @@
     "coinselect": "3.1.12",
     "crypto-js": "3.1.9-1",
     "dayjs": "1.8.28",
-    "detox": "16.7.1",
+    "detox": "16.8.1",
     "ecurve": "1.0.6",
     "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git#cc018effafd2256272f348953500c4d27cef0d2f",
     "electrum-mnemonic": "2.0.0",

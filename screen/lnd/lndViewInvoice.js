@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StatusBar, View, Text, Dimensions, ScrollView, BackHandler, InteractionManager, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Dimensions, StatusBar, ScrollView, BackHandler, TouchableOpacity, StyleSheet } from 'react-native';
 import Share from 'react-native-share';
 import {
   BlueLoading,
@@ -214,7 +214,6 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
-                getRef={c => (this.qrCodeSVG = c)}
                 color={BlueCurrentTheme.colors.foregroundColor}
                 backgroundColor={BlueCurrentTheme.colors.background}
                 logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
@@ -301,7 +300,6 @@ export default class LNDViewInvoice extends Component {
                 logo={require('../../img/qr-code.png')}
                 size={this.state.qrCodeHeight}
                 logoSize={90}
-                getRef={c => (this.qrCodeSVG = c)}
                 color={BlueCurrentTheme.colors.foregroundColor}
                 logoBackgroundColor={BlueCurrentTheme.colors.brandingColor}
                 backgroundColor={BlueCurrentTheme.colors.background}
@@ -320,20 +318,8 @@ export default class LNDViewInvoice extends Component {
             <BlueCopyTextToClipboard text={this.state.invoice.payment_request} />
 
             <SecondButton
-              onPress={async () => {
-                if (this.qrCodeSVG === undefined) {
-                  Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
-                } else {
-                  InteractionManager.runAfterInteractions(async () => {
-                    this.qrCodeSVG.toDataURL(data => {
-                      const shareImageBase64 = {
-                        message: `lightning:${invoice.payment_request}`,
-                        url: `data:image/png;base64,${data}`,
-                      };
-                      Share.open(shareImageBase64).catch(error => console.log(error));
-                    });
-                  });
-                }
+              onPress={() => {
+                Share.open({ message: `lightning:${invoice.payment_request}` }).catch(error => console.log(error));
               }}
               title={loc.receive.details.share}
             />
