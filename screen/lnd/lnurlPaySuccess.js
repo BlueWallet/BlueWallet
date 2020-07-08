@@ -144,13 +144,16 @@ export default class LnurlPaySuccess extends Component {
         )}
 
         <BlueCard>
-          {lnurlString
+          {(lnurl && repeatable)
             ? (
               <BlueButton
                 onPress={() => {
-                  this.props.navigation.navigate('ScanLndInvoice', {
-                    uri: lnurlString,
-                    fromWallet: this.props.route.params.fromWallet
+                  this.props.navigation.navigate('ScanLndInvoiceRoot', {
+                    screen: 'ScanLndInvoice',
+                    params: {
+                      uri: lnurl,
+                      fromSecret: this.props.route.params.fromSecret
+                    }
                   });
                 }}
                 title={loc.send.success.lnurlpay_repeat}
@@ -197,7 +200,7 @@ LnurlPaySuccess.propTypes = {
 
       // not present immediatelly after a success payment
       lnurl: PropTypes.string,
-      fromWallet: PropTypes.shape({}),
+      fromSecret: PropTypes.string,
 
       // only present after a success payment
       justPaid: PropTypes.boolean,

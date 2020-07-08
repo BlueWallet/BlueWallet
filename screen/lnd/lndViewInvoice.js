@@ -303,7 +303,7 @@ export default class LNDViewInvoice extends Component {
                           successAction: lnurlPay.successAction,
                           preimage: invoice.payment_preimage,
                           lnurl: lnurlPay.lnurl,
-                          fromWallet: this.state.fromWallet,
+                          fromSecret: this.state.fromWallet.getSecret(),
                         })
                       }}
                     >
