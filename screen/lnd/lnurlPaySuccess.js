@@ -105,10 +105,8 @@ export default class LnurlPaySuccess extends Component {
   }
 
   render() {
-    const image = this.props.route.params.image;
-    const description = this.props.route.params.description;
-    const lnurlString = this.props.route.params.lnurl;
-    const {preamble, message, url} = this.state;
+    const { image, description, repeatable, lnurl } = this.props.route.params;
+    const { preamble, message, url } = this.state;
 
     return (
       <SafeBlueArea style={styles.root}>
@@ -202,6 +200,7 @@ LnurlPaySuccess.propTypes = {
       // not present immediatelly after a success payment
       lnurl: PropTypes.string,
       fromSecret: PropTypes.string,
+      repeatable: PropTypes.bool,
 
       // only present after a success payment
       justPaid: PropTypes.boolean,

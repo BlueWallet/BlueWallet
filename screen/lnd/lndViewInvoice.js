@@ -163,6 +163,7 @@ export default class LNDViewInvoice extends Component {
             domain: lnurlPay.domain,
             successAction: lnurlPay.successAction,
             lnurl: lnurlPay.lnurl,
+            repeatable: lnurlPay.repeatable,
             image,
             description,
           }
@@ -302,6 +303,7 @@ export default class LNDViewInvoice extends Component {
                           description: lnurlPay.description,
                           successAction: lnurlPay.successAction,
                           preimage: invoice.payment_preimage,
+                          repeatable: lnurlPay.repeatable,
                           lnurl: lnurlPay.lnurl,
                           fromSecret: this.state.fromWallet.getSecret(),
                         })

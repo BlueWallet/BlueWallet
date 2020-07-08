@@ -368,7 +368,7 @@ export default class ScanLndInvoice extends React.Component {
             throw new Error('Reply from server: ' + reply.reason);
           }
 
-          const {pr, successAction} = reply;
+          const {pr, successAction, disposable} = reply;
 
           /**
            * @type {LightningCustodianWallet}
@@ -405,7 +405,8 @@ export default class ScanLndInvoice extends React.Component {
             description_hash: decoded.description_hash,
             domain,
             lnurl,
-            time: Date.now()
+            time: Date.now(),
+            repeatable: disposable === false,
           }));
           await AsyncStorage.setItem(`lp:${decoded.description_hash}`, JSON.stringify({
             metadata: { image, description },
