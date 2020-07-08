@@ -97,9 +97,7 @@ class DeeplinkSchemaMatch {
         },
       ]);
     } else if (DeeplinkSchemaMatch.isLnUrl(event.url)) {
-      console.log('START WITH LNURL', event.url)
       getLNURLParams(event.url).then(params => {
-        console.log('PARAMS', params);
         if (params.tag === 'withdrawRequest') {
           completionHandler([
             'LNDCreateInvoiceRoot',

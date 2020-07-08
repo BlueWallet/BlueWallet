@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
 
 export default class LNDViewAdditionalInvoiceInformation extends Component {
   static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(),
+    ...BlueNavigationStyle(navigation, true, () => navigation.pop()),
     title: 'Additional Information',
   });
 

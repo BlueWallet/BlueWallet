@@ -60,7 +60,9 @@ export default class LnurlPaySuccess extends Component {
       ...BlueNavigationStyle(
         navigation,
         true,
-        () => route.params.justPaid ? navigation.dismiss() : navigation.pop(),
+        () => route.params.justPaid
+          ? navigation.dangerouslyGetParent().pop()
+          : navigation.pop(),
       ),
       title: route.params.domain + ' message',
     }
@@ -164,7 +166,7 @@ export default class LnurlPaySuccess extends Component {
               <BlueButton
                 onPress={() => {
                   this.props.route.params.justPaid
-                    ? this.props.navigation.dismiss()
+                    ? this.props.navigation.dangerouslyGetParent().pop()
                     : this.props.navigation.pop();
                 }}
                 title={loc.send.success.done}
@@ -181,7 +183,6 @@ LnurlPaySuccess.propTypes = {
   navigation: PropTypes.shape({
     navigate: PropTypes.func,
     pop: PropTypes.func,
-    dismiss: PropTypes.func,
     dangerouslyGetParent: PropTypes.func,
   }),
   route: PropTypes.shape({
