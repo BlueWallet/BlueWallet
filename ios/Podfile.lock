@@ -264,7 +264,7 @@ PODS:
     - React
   - react-native-randombytes (3.5.3):
     - React
-  - react-native-safe-area-context (2.0.3):
+  - react-native-safe-area-context (3.0.7):
     - React
   - react-native-slider (3.0.0):
     - React
@@ -365,10 +365,10 @@ PODS:
     - React
   - RNSecureKeyStore (1.0.0):
     - React
-  - RNSentry (1.4.5):
+  - RNSentry (1.6.1):
     - React
-    - Sentry (~> 5.1.4)
-  - RNShare (3.5.0):
+    - Sentry (~> 5.1.8)
+  - RNShare (3.7.0):
     - React
   - RNSVG (12.1.0):
     - React
@@ -654,7 +654,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: e3516aff0dcf65ee0785d9bcf190eb10e2261154
   react-native-image-picker: 668e72d0277dc8c12ae90e835507c1eddd2e4f85
   react-native-randombytes: 991545e6eaaf700b4ee384c291ef3d572e0b2ca8
-  react-native-safe-area-context: ce7e110923a56ba3e3c615d4920ebbe01324326e
+  react-native-safe-area-context: c39fc20a20cd66ebf1d56c6f8b8711142fbfee98
   react-native-slider: 05f11678260cb27c3d00a2dd1558b623be3ec8d2
   react-native-tcp-socket: 96a4f104cdcc9c6621aafe92937f163d88447c5b
   react-native-webview: 838be111a7805977e5fc4fa6b66ae293f6c17384
@@ -684,8 +684,8 @@ SPEC CHECKSUMS:
   RNReactNativeHapticFeedback: 22c5ecf474428766c6b148f96f2ff6155cd7225e
   RNScreens: 62211832af51e0aebcf6e8c36bcf7dd65592f244
   RNSecureKeyStore: f1ad870e53806453039f650720d2845c678d89c8
-  RNSentry: 0a70359ddacbfb9b1cbbb0971e54065b9f70ac57
-  RNShare: 9e0ab1939761051b074c8eb5e7d746f4d5a8ee0e
+  RNSentry: 57824da1293d03966605d682d5868b11aa1b6e5a
+  RNShare: a1d5064df7a0ebe778d001869b3f0a124bf0a491
   RNSVG: ce9d996113475209013317e48b05c21ee988d42e
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   RNWatch: 4de37878bbf071847e438b089c01d4ad8d4eddae
