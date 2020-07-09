@@ -17,6 +17,7 @@ import {
   Image,
   Keyboard,
   SafeAreaView,
+  ScrollView,
   InputAccessoryView,
   Platform,
   FlatList,
@@ -2715,3 +2716,61 @@ const animatedQRCodeStyle = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+export class LnurlPayMetadata extends Component {
+  static propTypes = {
+    domain: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    image: PropTypes.string,
+  };
+
+  render () {
+    const {domain, image, description} = this.props;
+
+    return (
+      <View style={lnurlPayMetadataStyles.root}>
+        <BlueText style={lnurlPayMetadataStyles.domain}>{domain}</BlueText>
+
+        <View style={lnurlPayMetadataStyles.metadata}>
+          {image && (
+            <Image style={lnurlPayMetadataStyles.image} source={{uri: image}} />
+          )}
+          <ScrollView>
+            <Text style={lnurlPayMetadataStyles.description}>{description}</Text>
+          </ScrollView>
+        </View>
+      </View>
+    );
+  }
+}
+
+const lnurlPayImageSize = (height < width ? height : width) / 4;
+const lnurlPayMetadataStyles = StyleSheet.create({
+  root: {
+    marginVertical: 10,
+    borderRadius: 4,
+    marginTop: 5,
+    marginBottom: 0,
+    marginHorizontal: 20,
+    height: Math.min(height / 4, lnurlPayImageSize * 2),
+    alignItems: 'center',
+  },
+  domain: {
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  metadata: {
+    flexDirection: 'row',
+  },
+  image: {
+    width: lnurlPayImageSize,
+    height: lnurlPayImageSize,
+    marginRight: 11,
+  },
+  description: {
+    color: '#81868e',
+    fontWeight: '500',
+    fontSize: 14,
+  },
+})

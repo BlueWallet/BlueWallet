@@ -2,8 +2,6 @@
 import React from 'react';
 import {
   Text,
-  Image,
-  Dimensions,
   ScrollView,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -30,6 +28,7 @@ import {
   BlueBitcoinAmount,
   BlueLoading,
   BlueText,
+  LnurlPayMetadata,
 } from '../../BlueComponents';
 import { LightningCustodianWallet } from '../../class/wallets/lightning-custodian-wallet';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
@@ -40,8 +39,6 @@ import Biometric from '../../class/biometrics';
 const BlueApp = require('../../BlueApp');
 const EV = require('../../blue_modules/events');
 const loc = require('../../loc');
-const { width, height } = Dimensions.get('window');
-const imageSize = (height < width ? height : width) / 4;
 const currency = require('../../blue_modules/currency');
 
 const styles = StyleSheet.create({
@@ -118,28 +115,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 0,
     marginHorizontal: 20,
-    height: Math.min(height / 4, imageSize * 2),
-  },
-  lnurlPayDomain: {
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  lnurlPayMetadataWrap: {
-    marginVertical: 10,
-    marginHorizontal: 10,
-    borderRadius: 4,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  lnurlPayImage: {
-    width: imageSize,
-    height: imageSize,
-    marginRight: 5,
-  },
-  lnurlPayDescription: {
-    color: '#81868e',
-    fontWeight: '500',
-    fontSize: 14,
   },
 });
 
@@ -647,20 +622,7 @@ export default class ScanLndInvoice extends React.Component {
           />
         </View>
 
-        <View style={styles.lnurlPayPrompt}>
-          <BlueText style={styles.lnurlPayDomain}>{domain}</BlueText>
-
-          <ScrollView
-            contentContainerStyle={styles.lnurlPayMetadataWrap}
-          >
-            {image && (
-              <Image style={styles.lnurlPayImage} source={{uri: image}} />
-            )}
-            <Text style={styles.lnurlPayDescription}>
-              {description}
-            </Text>
-          </ScrollView>
-        </View>
+        <LnurlPayMetadata domain={domain} description={description} image={image} />
 
         <BlueCard>
           {this.state.isLoading ? (

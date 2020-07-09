@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-import { View, Text, Image, ScrollView, Linking, StyleSheet } from 'react-native';
+import LottieView from 'lottie-react-native';
+import { View, Text, Linking, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { decipherAES } from 'js-lnurl'
 import {
@@ -9,6 +10,7 @@ import {
   BlueNavigationStyle,
   SafeBlueArea,
   BlueCard,
+  LnurlPayMetadata,
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 const loc = require('../../loc');
@@ -18,15 +20,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 19,
   },
-  descriptionScroll: {
-    height: 120,
-  },
-  descriptionText: {
-    color: '#81868e',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  imageContainer: {
+  iconContainer: {
     backgroundColor: '#ccddf9',
     width: 120,
     height: 120,
@@ -36,20 +30,20 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     alignSelf: 'center',
     justifyContent: 'center',
-    marginVertical: 13,
-    textAlign: 'center',
-    flex: 1,
     alignItems: 'center',
   },
-  image: {
-    width: 80,
-    height: 80,
+  icon: {
+    width: 400,
+    height: 400,
+  },
+  successContainer: {
+    marginTop: 10,
   },
   successText: {
-    margin: 3
+    textAlign: 'center',
+    margin: 4,
   },
   successValue: {
-    textAlign: 'center',
     fontWeight: 'bold',
   },
 })
@@ -64,7 +58,7 @@ export default class LnurlPaySuccess extends Component {
           ? navigation.dangerouslyGetParent().pop()
           : navigation.pop(),
       ),
-      title: route.params.domain + ' message',
+      title: route.params.domain + ' success',
     }
 
     return route.params.lnurl
@@ -105,41 +99,41 @@ export default class LnurlPaySuccess extends Component {
   }
 
   render() {
-    const { image, description, repeatable, lnurl } = this.props.route.params;
-    const { preamble, message, url } = this.state;
+    const {image, description, domain, repeatable, lnurl, justPaid} = this.props.route.params;
+    const {preamble, message, url} = this.state;
 
     return (
       <SafeBlueArea style={styles.root}>
-        <BlueCard>
-          <View style={styles.descriptionScroll}>
-            <ScrollView>
-              <Text style={styles.descriptionText}>
-                {description}
-              </Text>
-            </ScrollView>
-          </View>
-        </BlueCard>
+        <LnurlPayMetadata domain={domain} description={description} image={image} />
 
-        <View style={styles.imageContainer}>
-          {image
-            ? <Image style={styles.image} source={{uri: image}} />
-            : <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-          }
-        </View>
+        {justPaid
+          ? (
+            <View style={styles.iconContainer}>
+              <LottieView style={styles.icon} source={require('../../img/bluenice.json')} autoPlay loop={false} />
+            </View>
+          )
+          : (
+            <View style={styles.iconContainer}>
+              <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
+            </View>
+          )
+        }
 
         {(preamble || url || message) && (
           <BlueCard>
-            <Text style={styles.successText}>{preamble}</Text>
-            {url
-              ? <BlueButtonLink title={url} onPress={() => {
-                  Linking.openURL(url)
-                }} />
-              : (
-                <Text selectable style={{...styles.successText, ...styles.successValue}}>
-                  {message}
-                </Text>
-              )
-            }
+            <View style={styles.successContainer}>
+              <Text style={styles.successText}>{preamble}</Text>
+              {url
+                ? <BlueButtonLink title={url} onPress={() => {
+                    Linking.openURL(url)
+                  }} />
+                : (
+                  <Text selectable style={{...styles.successText, ...styles.successValue}}>
+                    {message}
+                  </Text>
+                )
+              }
+            </View>
           </BlueCard>
         )}
 
