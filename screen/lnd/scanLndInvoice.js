@@ -221,7 +221,7 @@ export default class ScanLndInvoice extends React.Component {
       }
       Keyboard.dismiss();
 
-      return {
+      this.setState({
         invoice: data,
         decoded,
         unit: state.unit,
@@ -230,7 +230,7 @@ export default class ScanLndInvoice extends React.Component {
         destination: data,
         isAmountInitiallyEmpty: decoded.num_satoshis === '0',
         isLoading: false,
-      };
+      });
     } catch (Err) {
       ReactNativeHapticFeedback.trigger('notificationError', { ignoreAndroidSystemSettings: false });
       Keyboard.dismiss();
