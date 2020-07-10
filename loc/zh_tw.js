@@ -10,8 +10,7 @@ module.exports = {
   wallets: {
     select_wallet: '選擇錢包',
     options: '選項',
-    createBitcoinWallet:
-      '您當前沒有bitcoin錢包. 為了支援閃電錢包, 我們需要建立或者匯入一個比特幣錢包. 是否需要繼續?',
+    createBitcoinWallet: '您當前沒有bitcoin錢包. 為了支援閃電錢包, 我們需要建立或者匯入一個比特幣錢包. 是否需要繼續?',
     list: {
       app_name: 'BlueWallet',
       title: '錢包',
@@ -26,8 +25,7 @@ module.exports = {
       empty_txs2: '當前無資訊',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: '點選購買比特幣',
     },
     reorder: {
@@ -35,8 +33,7 @@ module.exports = {
     },
     add: {
       title: '新增錢包',
-      description:
-        '你可以掃描你的紙質備份錢包 (WIF格式), 或者建立一個新錢包. 預設支援隔離見證錢包',
+      description: '你可以掃描你的紙質備份錢包 (WIF格式), 或者建立一個新錢包. 預設支援隔離見證錢包',
       scan: '掃描',
       create: '建立',
       label_new_segwit: '新隔離見證(Segwit)',
@@ -51,8 +48,7 @@ module.exports = {
       bitcoin: '比特幣',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: '錢包',
@@ -84,8 +80,7 @@ module.exports = {
     },
     import: {
       title: '匯入',
-      explanation:
-        '輸入你的助記詞，私鑰或者WIF, 或者其他格式的資料. BlueWallet將盡可能的自動識別資料格式並匯入錢包',
+      explanation: '輸入你的助記詞，私鑰或者WIF, 或者其他格式的資料. BlueWallet將盡可能的自動識別資料格式並匯入錢包',
       imported: '已經匯入',
       error: '匯入失敗，請確認你提供的資訊是有效的',
       success: '成功',
@@ -193,9 +188,7 @@ module.exports = {
     passwords_do_not_match: '兩次輸入密碼不同',
     encrypt_storage: '加密儲存',
     lightning_settings: '閃電網路設定',
-    lightning_settings_explain:
-      '如要要連線你自己的閃電節點請安裝LndHub' +
-      ' 並把url地址輸入到下面. 空白將使用預設的LndHub (lndhub.io)',
+    lightning_settings_explain: '如要要連線你自己的閃電節點請安裝LndHub' + ' 並把url地址輸入到下面. 空白將使用預設的LndHub (lndhub.io)',
     electrum_settings: 'Electrum Settings',
     electrum_settings_explain: 'Set to blank to use default',
     save: '儲存',
@@ -256,4 +249,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

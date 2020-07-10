@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Lagringen din er kryptert. Passord er nødvendig for å dekryptere det',
+    storage_is_encrypted: 'Lagringen din er kryptert. Passord er nødvendig for å dekryptere det',
     enter_password: 'Oppgi passord',
     bad_password: 'Feil passord, prøv igjen',
     never: 'aldri',
@@ -16,9 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'lommebøker',
-      header:
-        'En lommebok representerer en hemmelighet (privat nøkkel) og en adresse ' +
-        ' du kan dele for å motta kryptovaluta.',
+      header: 'En lommebok representerer en hemmelighet (privat nøkkel) og en adresse ' + ' du kan dele for å motta kryptovaluta.',
       add: 'Legg til lommebok',
       create_a_wallet: 'Legg til en lommebok',
       create_a_wallet1: 'Det er gratis, og du kan lage',
@@ -29,8 +26,7 @@ module.exports = {
       empty_txs2: 'ingen for øyeblikket',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Trykk her for å kjøpe Bitcoin',
     },
     reorder: {
@@ -54,8 +50,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Lommebok',
@@ -90,8 +85,7 @@ module.exports = {
       explanation:
         'Skriv her din mnemonic, private nøkkel, WIF, eller hva som helst annet. BlueWallet vil gjøre sitt beste for å gjette riktig format og importere lommeboken din',
       imported: 'importert',
-      error:
-        'Kunne ikke importere. Vennligst vær sikker på at de oppgitte dataene er gyldige.',
+      error: 'Kunne ikke importere. Vennligst vær sikker på at de oppgitte dataene er gyldige.',
       success: 'Suksess',
       do_import: 'Importer',
       scan_qr: 'eller skann QR-kode i stedet?',
@@ -116,8 +110,7 @@ module.exports = {
     list: {
       tabBarLabel: 'Transaksjoner',
       title: 'transaksjoner',
-      description:
-        'En liste over inngående eller utgående transaksjoner fra lommebokene dine',
+      description: 'En liste over inngående eller utgående transaksjoner fra lommebokene dine',
       conf: 'conf',
     },
     details: {
@@ -136,10 +129,8 @@ module.exports = {
       amount_field_is_not_valid: 'Beløp feltet er ikke gyldig',
       fee_field_is_not_valid: 'Avgiftsfeltet er ikke gyldig',
       address_field_is_not_valid: 'Adressefeltet er ikke gyldig',
-      total_exceeds_balance:
-        'Sendingsbeløpet overstiger den tilgjengelige saldoen.',
-      create_tx_error:
-        'Det oppsto en feil under opprettelse av transaksjonen. Vennligst vær sikker på at adressen er gyldig.',
+      total_exceeds_balance: 'Sendingsbeløpet overstiger den tilgjengelige saldoen.',
+      create_tx_error: 'Det oppsto en feil under opprettelse av transaksjonen. Vennligst vær sikker på at adressen er gyldig.',
       address: 'adresse',
       amount_placeholder: 'mengde å sende (i BTC)',
       fee_placeholder: 'pluss transaksjonsgebyr (i BTC)',
@@ -160,11 +151,9 @@ module.exports = {
     create: {
       details: 'Detaljer',
       title: 'opprett transaksjon',
-      error:
-        'Feil ved å opprette transaksjon. Ugyldig adresse eller send beløp?',
+      error: 'Feil ved å opprette transaksjon. Ugyldig adresse eller send beløp?',
       go_back: 'Gå tilbake',
-      this_is_hex:
-        'Dette er transaksjonsheks, signert og klar til å sendes til nettverket.',
+      this_is_hex: 'Dette er transaksjonsheks, signert og klar til å sendes til nettverket.',
       to: 'Til',
       amount: 'Beløp',
       fee: 'Avgift',
@@ -188,8 +177,7 @@ module.exports = {
   },
   buyBitcoin: {
     header: 'Kjøp Bitcoin',
-    tap_your_address:
-      'Trykk på adressen din for å kopiere den til utklippstavlen:',
+    tap_your_address: 'Trykk på adressen din for å kopiere den til utklippstavlen:',
     copied: 'Kopiert til utklippstavlen!',
   },
   settings: {
@@ -198,8 +186,7 @@ module.exports = {
     storage_not_encrypted: 'Lagring: ikke kryptert',
     storage_encrypted: 'Lagring: kryptert',
     password: 'Passord',
-    password_explain:
-      'Opprett passordet du vil bruke til å dekryptere lagringen',
+    password_explain: 'Opprett passordet du vil bruke til å dekryptere lagringen',
     retype_password: 'Skriv inn passordet på nytt',
     passwords_do_not_match: 'passordene er ikke like',
     encrypt_storage: 'Krypter lagring',
@@ -226,16 +213,12 @@ module.exports = {
       'BlueWallet, det vil låse opp ny "falsk" lagring. Dette vil virke' +
       'troverdig overfor en tredje part, men vil i hemmelighet beholde ' +
       'hovedlageret trygt.',
-    help2:
-      'Ny lagring vil være fullt funksjonell, og du kan lagre en mindre sum der' +
-      ' , slik at det ser mer troverdig ut.',
+    help2: 'Ny lagring vil være fullt funksjonell, og du kan lagre en mindre sum der' + ' , slik at det ser mer troverdig ut.',
     create_fake_storage: 'Lag falsk kryptert lagring',
     go_back: 'Gå tilbake',
     create_password: 'Lag et passord',
-    create_password_explanation:
-      'Passord for falsk lagring må ikke matche passord for hovedlager',
-    password_should_not_match:
-      'Passord for falsk lagring må ikke matche passord for hovedlager',
+    create_password_explanation: 'Passord for falsk lagring må ikke matche passord for hovedlager',
+    password_should_not_match: 'Passord for falsk lagring må ikke matche passord for hovedlager',
     retype_password: 'Skriv inn passordet på nytt',
     passwords_do_not_match: 'Passordene stemmer ikke overens, prøv igjen',
     success: 'Vellykket',
@@ -249,8 +232,7 @@ module.exports = {
     expired: 'Utløpt',
     exchange: 'Exchange',
     placeholder: 'Faktura',
-    sameWalletAsInvoiceError:
-      'Du kan ikke betale en faktura med samme lommebok som brukes til å lage den.',
+    sameWalletAsInvoiceError: 'Du kan ikke betale en faktura med samme lommebok som brukes til å lage den.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -272,4 +254,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

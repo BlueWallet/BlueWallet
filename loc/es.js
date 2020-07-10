@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Su almacenamiento está cifrado. Se requiere contraseña para descifrarla.',
+    storage_is_encrypted: 'Su almacenamiento está cifrado. Se requiere contraseña para descifrarla.',
     enter_password: 'Inserte contraseña',
     bad_password: 'Contraseña incorrecta. Intente nuevamente.',
     never: 'nunca',
@@ -16,9 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'billeteras',
-      header:
-        'Un Monedero esta representado con secreto (clave privada) y una dirección' +
-        'que puedes compartir para recibir monedas.',
+      header: 'Un Monedero esta representado con secreto (clave privada) y una dirección' + 'que puedes compartir para recibir monedas.',
       add: 'Añadir Carterqa',
       create_a_wallet: 'Agrega una billetera',
       create_a_wallet1: 'Es gratis y puedes crear',
@@ -29,8 +26,7 @@ module.exports = {
       empty_txs2: 'ninguno por el momento.',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
     reorder: {
@@ -54,8 +50,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Detalles de la billetera',
@@ -115,8 +110,7 @@ module.exports = {
     list: {
       tabBarLabel: 'Transacciónes',
       title: 'transacciónes',
-      description:
-        'Una lista de las transacciones entrantes o salientes de sus billeteras',
+      description: 'Una lista de las transacciones entrantes o salientes de sus billeteras',
       conf: 'conf',
     },
     details: {
@@ -146,8 +140,7 @@ module.exports = {
       amount_placeholder: 'cantidad para enviar (in BTC)',
       fee_placeholder: 'más tasa de transaccion (in BTC)',
       note_placeholder: 'comentario (para ti mismo)',
-      create_tx_error:
-        'Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.',
+      create_tx_error: 'Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.',
       cancel: 'Cancelar',
       scan: 'Escaniar',
       address: 'Direccion',
@@ -159,11 +152,9 @@ module.exports = {
     create: {
       title: 'Crear una Transaccion',
       details: 'Detalles',
-      error:
-        'Error al crear una transacción. ¿Dirección o cantidad estan invalidas?',
+      error: 'Error al crear una transacción. ¿Dirección o cantidad estan invalidas?',
       go_back: 'Regresar',
-      this_is_hex:
-        'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',
+      this_is_hex: 'Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?',
       to: 'A',
       amount: 'Cantidad',
       fee: 'Tasa',
@@ -197,8 +188,7 @@ module.exports = {
     storage_not_encrypted: 'Almacenamiento: no esta cifrado',
     storage_encrypted: 'Almacenamiento: cifrado',
     password: 'Contraseña',
-    password_explain:
-      'Crea la contraseña que usarás para descifrar el almacenamiento',
+    password_explain: 'Crea la contraseña que usarás para descifrar el almacenamiento',
     retype_password: 'Ingresa la contraseña nuevamente',
     passwords_do_not_match: 'Contraseñas deben ser iguales',
     encrypt_storage: 'Cifrar almacenamiento',
@@ -226,16 +216,12 @@ module.exports = {
       'BlueWallet, desbloqueará un nuevo almacenamiento `falso`. Esto parecerá ' +
       'legítimo para un tercero, pero en secreto mantendrá su almacenamiento principal ' +
       'con monedas seguras.',
-    help2:
-      'El nuevo almacen sera completamente funcional, y puedes almacenar ' +
-      'cantidades minimas para que sea mas creible.',
+    help2: 'El nuevo almacen sera completamente funcional, y puedes almacenar ' + 'cantidades minimas para que sea mas creible.',
     create_fake_storage: 'Crear un almacen cifrado falso',
     go_back: 'Regresar',
     create_password: 'Crear una contraseña',
-    create_password_explanation:
-      'La contraseña para el almacen falso no puede ser el mismo para su almacen principal.',
-    password_should_not_match:
-      'La contraseña para el almacen falso no puede ser el mismo para su almacen principal.',
+    create_password_explanation: 'La contraseña para el almacen falso no puede ser el mismo para su almacen principal.',
+    password_should_not_match: 'La contraseña para el almacen falso no puede ser el mismo para su almacen principal.',
     retype_password: 'Volver a escribir contraseña',
     passwords_do_not_match: 'Las contraseñas no coinciden, intente nuevamente',
     success: 'Exitoso',
@@ -249,8 +235,7 @@ module.exports = {
     withdraw: 'Retirar',
     placeholder: 'Invoice',
     expired: 'Expirado',
-    sameWalletAsInvoiceError:
-      'You can not pay an invoice with the same wallet used to create it.',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -272,4 +257,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

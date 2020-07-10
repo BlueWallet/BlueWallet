@@ -658,13 +658,13 @@ export default class ScanLndInvoice extends React.Component {
               <ActivityIndicator />
             </View>
           ) : (
-              <BlueButton
-                title="Pay"
-                onPress={() => {
-                  this.payLnurl();
-                }}
-              />
-            )}
+            <BlueButton
+              title="Pay"
+              onPress={() => {
+                this.payLnurl();
+              }}
+            />
+          )}
         </BlueCard>
       </KeyboardAvoidingView>
     );
@@ -727,14 +727,14 @@ export default class ScanLndInvoice extends React.Component {
                 <ActivityIndicator />
               </View>
             ) : (
-                <BlueButton
-                  title="Pay"
-                  onPress={() => {
-                    this.pay();
-                  }}
-                  disabled={this.shouldDisablePayButton()}
-                />
-              )}
+              <BlueButton
+                title="Pay"
+                onPress={() => {
+                  this.pay();
+                }}
+                disabled={this.shouldDisablePayButton()}
+              />
+            )}
           </BlueCard>
         </BlueCard>
       </KeyboardAvoidingView>

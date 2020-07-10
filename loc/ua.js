@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Ваше сховище зашифроване. Введіть пароль для розшифровки',
+    storage_is_encrypted: 'Ваше сховище зашифроване. Введіть пароль для розшифровки',
     enter_password: 'Введіть пароль',
     bad_password: 'Невірний пароль, спробуйте ще раз',
     never: 'ніколи',
@@ -11,14 +10,12 @@ module.exports = {
   wallets: {
     options: 'options',
     select_wallet: 'Select Wallet',
-    createBitcoinWallet:
-      'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
 
     list: {
       app_name: 'BlueWallet',
       title: 'гаманці',
-      header:
-        'Гаманець це секретний (приватний) ключ, і відповідна йому адреса на яку можна отримувати біткоїни',
+      header: 'Гаманець це секретний (приватний) ключ, і відповідна йому адреса на яку можна отримувати біткоїни',
       add: 'Додати Гаманець',
       create_a_wallet: 'додати гаманець',
       create_a_wallet1: 'Це безкоштовно і можно',
@@ -29,8 +26,7 @@ module.exports = {
       empty_txs2: 'поки що жодноі',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Tap here to buy Bitcoin',
     },
     reorder: {
@@ -54,8 +50,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Інформація про Гаманець',
@@ -87,8 +82,7 @@ module.exports = {
     },
     import: {
       title: 'імпорт',
-      explanation:
-        'Мнемоніка, приватний ключ, чи будь що. BlueWallet спробуе вгадати вірний формат',
+      explanation: 'Мнемоніка, приватний ключ, чи будь що. BlueWallet спробуе вгадати вірний формат',
       imported: 'імпортовано',
       error: 'Невдача. Це взашалі валідно?',
       success: 'Успіх',
@@ -137,8 +131,7 @@ module.exports = {
       receiver_placeholder: 'Адреса одержувача',
       amount_placeholder: 'скільки відправити (в BTC)',
       fee_placeholder: 'плюс комісія за переказ (в BTC)',
-      create_tx_error:
-        'There was an error creating the transaction. Please, make sure the address is valid.',
+      create_tx_error: 'There was an error creating the transaction. Please, make sure the address is valid.',
       note_placeholder: 'примітка платежу',
       cancel: 'Відміна',
       scan: 'Скан QR',
@@ -158,11 +151,9 @@ module.exports = {
     create: {
       title: 'Створити Транзакцію',
       details: 'Details',
-      error:
-        'Помилка при створенні транзакції. Невiрна адреса призначення або недостатньо коштiв?',
+      error: 'Помилка при створенні транзакції. Невiрна адреса призначення або недостатньо коштiв?',
       go_back: 'Назад',
-      this_is_hex:
-        'Це дані транзакції. Транзакція підписана і готова бути трансльована в мережу. Продовжити?',
+      this_is_hex: 'Це дані транзакції. Транзакція підписана і готова бути трансльована в мережу. Продовжити?',
       to: 'Куди',
       amount: 'Скільки',
       fee: 'Комісія',
@@ -230,10 +221,8 @@ module.exports = {
     create_fake_storage: 'Створити фальшиве сховище',
     go_back: 'Назад',
     create_password: 'Придумайте пароль',
-    create_password_explanation:
-      'Пароль для фальшивого сховіща не має буті таким же як основній пароль',
-    password_should_not_match:
-      'Пароль для фальшивого сховища не має бути таким же як основний пароль',
+    create_password_explanation: 'Пароль для фальшивого сховіща не має буті таким же як основній пароль',
+    password_should_not_match: 'Пароль для фальшивого сховища не має бути таким же як основний пароль',
     retype_password: 'Наберіть пароль ще раз',
     passwords_do_not_match: 'Паролі не збігаються, спробуйте ще раз',
     success: 'Операція успішна',
@@ -247,8 +236,7 @@ module.exports = {
     withdraw: 'Вивести',
     exchange: 'Exchange',
     expired: 'Expired',
-    sameWalletAsInvoiceError:
-      'You can not pay an invoice with the same wallet used to create it.',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -270,4 +258,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

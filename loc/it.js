@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Il tuo archivio è criptato. È necessaria una password per decriptarlo',
+    storage_is_encrypted: 'Il tuo archivio è criptato. È necessaria una password per decriptarlo',
     enter_password: 'Inserisci password',
     bad_password: 'Password errata, riprova',
     never: 'mai',
@@ -29,8 +28,7 @@ module.exports = {
       empty_txs2: 'Nessuna transazione',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Clicca qui per comprare Bitcoin',
     },
     reorder: {
@@ -54,8 +52,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Portafoglio',
@@ -90,8 +87,7 @@ module.exports = {
       explanation:
         'Scrivi qui la tua frase mnemonica, chiave privata, WIF, o qualunque altra cosa tu abbia. BlueWallet tenterà di indovinare il formato corretto e importerà il tuo portafoglio',
       imported: 'Importato',
-      error:
-        'Importazione fallita. Assicurati che le informazioni fornite siano valide.',
+      error: 'Importazione fallita. Assicurati che le informazioni fornite siano valide.',
       success: 'Fatto',
       do_import: 'Importa',
       scan_qr: 'o scansionare un codice QR?',
@@ -116,8 +112,7 @@ module.exports = {
     list: {
       tabBarLabel: 'Transazioni',
       title: 'Transazioni',
-      description:
-        'Una lista delle transazioni in entrata e in uscita dei tuoi portafogli',
+      description: 'Una lista delle transazioni in entrata e in uscita dei tuoi portafogli',
       conf: 'conf',
     },
     details: {
@@ -137,8 +132,7 @@ module.exports = {
       fee_field_is_not_valid: 'Commissione non valida',
       address_field_is_not_valid: 'Indirizzo non valido',
       total_exceeds_balance: "L'importo da inviare eccede i fondi disponibili.",
-      create_tx_error:
-        "Si è verificato un errore nella creazione della transazione. Assicurati che l'indirizzo sia valido",
+      create_tx_error: "Si è verificato un errore nella creazione della transazione. Assicurati che l'indirizzo sia valido",
       address: 'Indirizzo',
       amount_placeholder: 'Importo da inviare (in BTC)',
       fee_placeholder: 'Più commissione (in BTC)',
@@ -159,11 +153,9 @@ module.exports = {
     create: {
       details: 'Dettagli',
       title: 'Crea transazione',
-      error:
-        'Errore nella creazione della transazione. Indirizzo o importo invalido',
+      error: 'Errore nella creazione della transazione. Indirizzo o importo invalido',
       go_back: 'Indietro',
-      this_is_hex:
-        "Questo è l'hex della transazione, firmato e pronto per essere trasmesso sulla rete.",
+      this_is_hex: "Questo è l'hex della transazione, firmato e pronto per essere trasmesso sulla rete.",
       to: 'A',
       amount: 'Importo',
       fee: 'Commissione',
@@ -223,16 +215,12 @@ module.exports = {
       'BlueWallet, questa sbloccherà un "falso" archivio. Esso sembrerà ' +
       'autentico alle terze parti, ma manterrà segretamente il tuo archivio principale ' +
       'con i Bitcoin al sicuro.',
-    help2:
-      'Il nuovo archivio sarà completamente funzionante, e puoi conservarci ' +
-      'piccole quantità così sembrerà più credibile.',
+    help2: 'Il nuovo archivio sarà completamente funzionante, e puoi conservarci ' + 'piccole quantità così sembrerà più credibile.',
     create_fake_storage: 'Crea archivio falso criptato',
     go_back: 'Indietro',
     create_password: 'Crea una password',
-    create_password_explanation:
-      "La password per l'archivio falso non deve corrispondere a quella dell'archivio principale",
-    password_should_not_match:
-      "La password per l'archivio falso non deve corrispondere a quella dell'archivio principale",
+    create_password_explanation: "La password per l'archivio falso non deve corrispondere a quella dell'archivio principale",
+    password_should_not_match: "La password per l'archivio falso non deve corrispondere a quella dell'archivio principale",
     retype_password: 'Reinserisci password',
     passwords_do_not_match: 'Le password non corrispondono, riprova',
     success: 'Fatto',
@@ -246,8 +234,7 @@ module.exports = {
     withdraw: 'Preleva',
     expired: 'Scaduto',
     placeholder: 'Fattura',
-    sameWalletAsInvoiceError:
-      'Non puoi pagare una fattura con lo stesso portafoglio utilizzato per crearla.',
+    sameWalletAsInvoiceError: 'Non puoi pagare una fattura con lo stesso portafoglio utilizzato per crearla.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -269,4 +256,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

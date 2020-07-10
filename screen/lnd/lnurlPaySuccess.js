@@ -11,14 +11,14 @@ export default class Success extends Component {
   static navigationOptions = ({ navigation }) =>
     navigation.getParam('lnurl')
       ? {
-        ...BlueNavigationStyle(navigation, true, () => navigation.goBack()),
-        title: navigation.getParam('domain') + ' message',
-      }
+          ...BlueNavigationStyle(navigation, true, () => navigation.goBack()),
+          title: navigation.getParam('domain') + ' message',
+        }
       : {
-        ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
-        title: navigation.getParam('domain') + ' message',
-        headerLeft: null,
-      };
+          ...BlueNavigationStyle(navigation, true, () => navigation.dismiss()),
+          title: navigation.getParam('domain') + ' message',
+          headerLeft: null,
+        };
 
   constructor(props) {
     super(props);
@@ -92,8 +92,8 @@ export default class Success extends Component {
           {image ? (
             <Image style={{ width: 80, height: 80 }} source={{ uri: image }} />
           ) : (
-              <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
-            )}
+            <Icon name="check" size={50} type="font-awesome" color="#0f5cc0" />
+          )}
         </View>
 
         {(preamble || url || message) && (
@@ -107,10 +107,10 @@ export default class Success extends Component {
                 }}
               />
             ) : (
-                <Text selectable style={{ margin: 3, textAlign: 'center', fontWeight: 'bold' }}>
-                  {message}
-                </Text>
-              )}
+              <Text selectable style={{ margin: 3, textAlign: 'center', fontWeight: 'bold' }}>
+                {message}
+              </Text>
+            )}
           </BlueCard>
         )}
 
@@ -127,13 +127,13 @@ export default class Success extends Component {
               icon={{ name: 'refresh', type: 'font-awesome', color: '#9aa0aa' }}
             />
           ) : (
-              <BlueButton
-                onPress={() => {
-                  this.props.navigation.dismiss();
-                }}
-                title={loc.send.success.done}
-              />
-            )}
+            <BlueButton
+              onPress={() => {
+                this.props.navigation.dismiss();
+              }}
+              title={loc.send.success.done}
+            />
+          )}
         </BlueCard>
       </SafeBlueArea>
     );

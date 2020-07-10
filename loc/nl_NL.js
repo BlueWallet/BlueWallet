@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Uw opslag is versleuteld. Wachtwoord is vereist om het te ontcijferen',
+    storage_is_encrypted: 'Uw opslag is versleuteld. Wachtwoord is vereist om het te ontcijferen',
     enter_password: 'Voer wachtwoord in',
     bad_password: 'Verkeerd wachtwoord, probeer opnieuw',
     never: 'nooit',
@@ -16,9 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'portemonnees',
-      header:
-        'Een portemonnee vertegenwoordigt een geheime (privésleutel) en een adres' +
-        'dat u kunt delen om munten te ontvangen.',
+      header: 'Een portemonnee vertegenwoordigt een geheime (privésleutel) en een adres' + 'dat u kunt delen om munten te ontvangen.',
       add: 'Portemonnee toevoegen',
       create_a_wallet: 'Portemonnee aanmaken',
       create_a_wallet1: 'Het is gratis en u kunt er',
@@ -29,8 +26,7 @@ module.exports = {
       empty_txs2: 'geen transacties op dit moment',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Klik hier om Bitcoin te kopen',
     },
     reorder: {
@@ -54,8 +50,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Portemonnee',
@@ -90,8 +85,7 @@ module.exports = {
       explanation:
         'Schrijf hier uw ezelsbruggetje, privésleutel, WIF, of een ander formaat. BlueWallet zal zijn best doen om het juiste formaat te raden en uw portemonnee te importeren',
       imported: 'Geïmporteerd',
-      error:
-        'Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.',
+      error: 'Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.',
       success: 'Succes',
       do_import: 'Importeren',
       scan_qr: 'of QR-code scannen?',
@@ -116,8 +110,7 @@ module.exports = {
     list: {
       tabBarLabel: 'Transacties',
       title: 'transacties',
-      description:
-        'Een lijst met ingaande of uitgaande transacties van uw portemonnee',
+      description: 'Een lijst met ingaande of uitgaande transacties van uw portemonnee',
       conf: 'conf',
     },
     details: {
@@ -136,10 +129,8 @@ module.exports = {
       amount_field_is_not_valid: 'Bedrag veld is niet geldig',
       fee_field_is_not_valid: 'Tarief is niet geldig',
       address_field_is_not_valid: 'Adresveld is niet geldig',
-      total_exceeds_balance:
-        'Het verzendingsbedrag overschrijdt het beschikbare saldo.',
-      create_tx_error:
-        'Er is een fout opgetreden bij het maken van de transactie. Zorg ervoor dat het adres geldig is.',
+      total_exceeds_balance: 'Het verzendingsbedrag overschrijdt het beschikbare saldo.',
+      create_tx_error: 'Er is een fout opgetreden bij het maken van de transactie. Zorg ervoor dat het adres geldig is.',
       address: 'adres',
       amount_placeholder: 'te verzenden bedrag (in BTC)',
       fee_placeholder: 'plus transactie vergoeding (in BTC)',
@@ -162,8 +153,7 @@ module.exports = {
       title: 'transactie aanmaken',
       error: 'Fout bij het maken van transactie. Ongeldig adres of bedrag?',
       go_back: 'Ga terug',
-      this_is_hex:
-        'Dit is de transactie-hex, ondertekend en klaar om op het netwerk te worden uitgezonden.',
+      this_is_hex: 'Dit is de transactie-hex, ondertekend en klaar om op het netwerk te worden uitgezonden.',
       to: 'Naar',
       amount: 'Bedrag',
       fee: 'Vergoeding',
@@ -196,8 +186,7 @@ module.exports = {
     storage_not_encrypted: 'Opslag: niet versleuteld',
     storage_encrypted: 'Opslag: versleuteld',
     password: 'Wachtwoord',
-    password_explain:
-      'Maak een wachtwoord aan dat u wilt gebruiken om de opslag te versleutelen',
+    password_explain: 'Maak een wachtwoord aan dat u wilt gebruiken om de opslag te versleutelen',
     retype_password: 'Geef nogmaals het wachtwoord',
     passwords_do_not_match: 'Wachtwoorden komen niet overeen',
     encrypt_storage: 'Versleutel opslag',
@@ -227,18 +216,14 @@ module.exports = {
       'derde partij, maar zal uw hoofdopslag met munten niet bekend maken ' +
       'aan de derde partij',
     help2:
-      'De nieuwe opslag zal volledig functioneel zijn en u kunt er ' +
-      'een minimum aantal munten opslaan zodat het geloofwaardig lijkt.',
+      'De nieuwe opslag zal volledig functioneel zijn en u kunt er ' + 'een minimum aantal munten opslaan zodat het geloofwaardig lijkt.',
     create_fake_storage: 'Nep versleutelde opslag aanmaken',
     go_back: 'Ga terug',
     create_password: 'Wachtwoord aanmaken',
-    create_password_explanation:
-      'Wachtwoord voor nep-opslag hoort niet overeen te komen met wachtwoord voor uw hoofdopslag',
-    password_should_not_match:
-      'Wachtwoord voor nep-opslag hoort niet overeen te komen met wachtwoord voor uw hoofdopslag',
+    create_password_explanation: 'Wachtwoord voor nep-opslag hoort niet overeen te komen met wachtwoord voor uw hoofdopslag',
+    password_should_not_match: 'Wachtwoord voor nep-opslag hoort niet overeen te komen met wachtwoord voor uw hoofdopslag',
     retype_password: 'Herhaal wachtwoord',
-    passwords_do_not_match:
-      'Wachtwoorden komen niet overeen, probeer het opnieuw',
+    passwords_do_not_match: 'Wachtwoorden komen niet overeen, probeer het opnieuw',
     success: 'Succes',
   },
   lnd: {
@@ -250,8 +235,7 @@ module.exports = {
     exchange: 'Exchange',
     expired: 'Verlopen',
     placeholder: 'Invoice',
-    sameWalletAsInvoiceError:
-      'U kunt geen factuur betalen met dezelfde portemonnee die is gebruikt om de factuur te maken.',
+    sameWalletAsInvoiceError: 'U kunt geen factuur betalen met dezelfde portemonnee die is gebruikt om de factuur te maken.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -273,4 +257,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Vaše úložiště je zašifrované. Zadejte heslo k odemčení',
+    storage_is_encrypted: 'Vaše úložiště je zašifrované. Zadejte heslo k odemčení',
     enter_password: 'Zadejte heslo',
     bad_password: 'Špatné heslo, prosím zkuste to znovu',
     never: 'nikdy',
@@ -11,14 +10,11 @@ module.exports = {
   wallets: {
     select_wallet: 'Vyberte peněženku',
     options: 'možnosti',
-    createBitcoinWallet:
-      'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
+    createBitcoinWallet: 'In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?',
     list: {
       app_name: 'BlueWallet',
       title: 'peněženky',
-      header:
-        'Peněženka reprezentuje pár tajného (privátního) klíče a adresy' +
-        'kterou můžete sdílet, abyste získali mince',
+      header: 'Peněženka reprezentuje pár tajného (privátního) klíče a adresy' + 'kterou můžete sdílet, abyste získali mince',
       add: 'Přidat peněženku',
       create_a_wallet: 'přidat peněženku',
       create_a_wallet1: 'Je to zdarma a můžete vytvořit',
@@ -29,8 +25,7 @@ module.exports = {
       empty_txs2: 'zatím žádné',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Klikněte zde pro zakoupení Bitcoinu',
     },
     reorder: {
@@ -54,8 +49,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Peněženka',
@@ -90,8 +84,7 @@ module.exports = {
       explanation:
         'Zadejte zde svůj mnemonic seed, privátní klíč, WIF, nebo cokoliv co máte. BlueWallet se pokusí uhodnout správný formát a naimportovat vaší peněženku',
       imported: 'Importováno',
-      error:
-        'Chyba při importu. Prosím ujistěte se, že poskytnutá data jsou správná.',
+      error: 'Chyba při importu. Prosím ujistěte se, že poskytnutá data jsou správná.',
       success: 'Úspěch',
       do_import: 'Importovat',
       scan_qr: 'nebo raději naskenovat QR kód?',
@@ -135,10 +128,8 @@ module.exports = {
       amount_field_is_not_valid: 'Čáskta není správně vyplněna',
       fee_field_is_not_valid: 'Poplatek není správně vyplněn',
       address_field_is_not_valid: 'Adresa není správně vyplněna',
-      total_exceeds_balance:
-        'Částka, kterou se snažíte poslat, přesahuje dostupný zůstatek.',
-      create_tx_error:
-        'Nastala chyba při vytváření transakce. Prosím ujistěte se, že adresa je platná.',
+      total_exceeds_balance: 'Částka, kterou se snažíte poslat, přesahuje dostupný zůstatek.',
+      create_tx_error: 'Nastala chyba při vytváření transakce. Prosím ujistěte se, že adresa je platná.',
       address: 'adresa',
       amount_placeholder: 'částka k odeslání (v BTC)',
       fee_placeholder: 'plus transakční poplatek (v BTC)',
@@ -162,8 +153,7 @@ module.exports = {
       title: 'vytvořit transakci',
       error: 'Chyba při vytváření transakce. Nesprávná adresa nebo částka?',
       go_back: 'Zpět',
-      this_is_hex:
-        'Toto je vaše transakce, podepsána a připravena k odeslání do sítě.',
+      this_is_hex: 'Toto je vaše transakce, podepsána a připravena k odeslání do sítě.',
       to: 'To',
       amount: 'Částka',
       fee: 'Poplatek',
@@ -223,15 +213,12 @@ module.exports = {
       'můžete toto heslo dát třetí straně. Pokud bude zadáno do BlueWallet,' +
       'odemkne nové "falešné" úložiště. Toto bude vypadat legitimně, ale' +
       'udrží vaše pravé hlavní úložiště v bezpečí.',
-    help2:
-      'Nové úložiště bude plně funkční, můžete na něj uložit minimální částku, aby vypadalo více uvěřitelně.',
+    help2: 'Nové úložiště bude plně funkční, můžete na něj uložit minimální částku, aby vypadalo více uvěřitelně.',
     create_fake_storage: 'Vytvořit falešné zašifrované úložiště',
     go_back: 'Zpět',
     create_password: 'Vytvořit heslo',
-    create_password_explanation:
-      'Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti',
-    password_should_not_match:
-      'Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti',
+    create_password_explanation: 'Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti',
+    password_should_not_match: 'Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti',
     retype_password: 'Heslo znovu',
     passwords_do_not_match: 'Hesla se neshodují, zkuste to znovu',
     success: 'Úspěch',
@@ -245,8 +232,7 @@ module.exports = {
     expired: 'Expirováno',
     placeholder: 'Invoice',
     exchange: 'Exchange',
-    sameWalletAsInvoiceError:
-      'You can not pay an invoice with the same wallet used to create it.',
+    sameWalletAsInvoiceError: 'You can not pay an invoice with the same wallet used to create it.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -268,4 +254,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

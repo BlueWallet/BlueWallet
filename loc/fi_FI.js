@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Tallennustilasi on salattu. Salasana vaaditaan sen purkamiseksi',
+    storage_is_encrypted: 'Tallennustilasi on salattu. Salasana vaaditaan sen purkamiseksi',
     enter_password: 'Anna salasana',
     bad_password: 'Väärä salasana, yritä uudelleen',
     never: 'ei koskaan',
@@ -29,8 +28,7 @@ module.exports = {
       empty_txs2: 'ei siirtoja',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Napsauta tästä ostaaksesi Bitcoinia',
     },
     reorder: {
@@ -54,8 +52,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Lompakko',
@@ -135,8 +132,7 @@ module.exports = {
       fee_field_is_not_valid: 'Siirtokulu ei kelpaa',
       address_field_is_not_valid: 'Osoite ei kelpaa',
       total_exceeds_balance: 'Lähetettävä summa ylittää katteen',
-      create_tx_error:
-        'Virhe siirron luonnissa. Varmista, että osoite on oikein.',
+      create_tx_error: 'Virhe siirron luonnissa. Varmista, että osoite on oikein.',
       address: 'osoite',
       amount_placeholder: 'lähetettävä summa (BTC)',
       fee_placeholder: 'plus siirtokulu (BTC)',
@@ -159,8 +155,7 @@ module.exports = {
       title: 'luo siirto',
       error: 'Virhe siirron luonnissa. Väärä osoite tai lähetettävä summa?',
       go_back: 'Mene Takaisin',
-      this_is_hex:
-        'Tämä on siirron hex, allekirjoitettu ja valmis kuulutettavaksi verkkoon.',
+      this_is_hex: 'Tämä on siirron hex, allekirjoitettu ja valmis kuulutettavaksi verkkoon.',
       to: 'Vastaanottaja',
       amount: 'Summa',
       fee: 'Kulu',
@@ -193,8 +188,7 @@ module.exports = {
     storage_not_encrypted: 'Tallennustila: salaamaton',
     storage_encrypted: 'Tallennustila: salattu',
     password: 'Salasana',
-    password_explain:
-      'Luo salasana, jota käytät tallennustilan salauksen purkamiseen',
+    password_explain: 'Luo salasana, jota käytät tallennustilan salauksen purkamiseen',
     retype_password: 'Salasana uudelleen',
     passwords_do_not_match: 'Salasanat eivät täsmää',
     encrypt_storage: 'Salaa tallennustila',
@@ -221,16 +215,12 @@ module.exports = {
       'BlueWalletiin, se avaa uuden väärennetyn tallennustilan. Se näyttää ' +
       'oikealta kolmannelle osapuolelle, mutta pitää oikean tallennustilasi ' +
       'kolikkoineen turvassa.',
-    help2:
-      'Uusi tallennustila näyttää täysin toimivalta, ja voit säilyttää ' +
-      'pieniä summia siellä, jotta se näyttää uskottavalta.',
+    help2: 'Uusi tallennustila näyttää täysin toimivalta, ja voit säilyttää ' + 'pieniä summia siellä, jotta se näyttää uskottavalta.',
     create_fake_storage: 'Luo väärennetty tallennustila',
     go_back: 'Mene Takaisin',
     create_password: 'Luo salasana',
-    create_password_explanation:
-      'Väärennetyn tallennustilan salasanan ei tule täsmätä oikean tallennustilan salasanan kanssa',
-    password_should_not_match:
-      'Väärennetyn tallennustilan salasanan ei tule täsmätä oikean tallennustilan salasanan kanssa',
+    create_password_explanation: 'Väärennetyn tallennustilan salasanan ei tule täsmätä oikean tallennustilan salasanan kanssa',
+    password_should_not_match: 'Väärennetyn tallennustilan salasanan ei tule täsmätä oikean tallennustilan salasanan kanssa',
     retype_password: 'Salasana uudelleen',
     passwords_do_not_match: 'Salasanat eivät täsmää, yritä uudelleen',
     success: 'Onnistui',
@@ -244,8 +234,7 @@ module.exports = {
     expired: 'Erääntynyt',
     placeholder: 'Lasku',
     exchange: 'Exchange',
-    sameWalletAsInvoiceError:
-      'Et voi maksaa laskua samalla lompakolla, jolla se on luotu.',
+    sameWalletAsInvoiceError: 'Et voi maksaa laskua samalla lompakolla, jolla se on luotu.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -267,4 +256,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

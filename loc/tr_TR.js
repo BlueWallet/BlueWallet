@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Your storage is encrypted. Password is required to decrypt it',
+    storage_is_encrypted: 'Your storage is encrypted. Password is required to decrypt it',
     enter_password: 'Şifre gir',
     bad_password: 'Hatalı şifre, tekrar deneyin',
     never: 'asla',
@@ -16,9 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'cüzdanlar',
-      header:
-        'Cüzdan biri gizli, biri halka açık olan bir çift anahtar ve koin almak için' +
-        ' paylaşabileceğiniz bir adrestir.',
+      header: 'Cüzdan biri gizli, biri halka açık olan bir çift anahtar ve koin almak için' + ' paylaşabileceğiniz bir adrestir.',
       add: 'Cüzdan Ekle',
       create_a_wallet: 'Cüzdan oluştur',
       create_a_wallet1: 'Oluşturması bedava ve',
@@ -29,8 +26,7 @@ module.exports = {
       empty_txs2: 'şu anda hiç yok',
       empty_txs1_lightning:
         'Lightning wallet should be used for your daily transactions. Fees are unfairly cheap and speed is blazing fast.',
-      empty_txs2_lightning:
-        '\nTo start using it tap on "manage funds" and topup your balance.',
+      empty_txs2_lightning: '\nTo start using it tap on "manage funds" and topup your balance.',
       tap_here_to_buy: 'Bitcoin almak için buraya dokunun',
     },
     reorder: {
@@ -54,8 +50,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Cüzdan',
@@ -90,8 +85,7 @@ module.exports = {
       explanation:
         'Buraya cüzdan yedek cümlenizi, gizli anahtarınızı, WIF veya diğer bilginizi yazın. BlueWallet elinden gelen en iyi tahmini yaparak cüzdanınızı içeri aktarmaya çalışacak.',
       imported: 'İçeri aktarıldı',
-      error:
-        'İçeri aktarma başarısız oldu. Lütfen girilen bilginin doğru olduğundan emin olun.',
+      error: 'İçeri aktarma başarısız oldu. Lütfen girilen bilginin doğru olduğundan emin olun.',
       success: 'Başarılı',
       do_import: 'İçe Aktar',
       scan_qr: 'veya QR kod tara?',
@@ -136,8 +130,7 @@ module.exports = {
       fee_field_is_not_valid: 'Ücret alanı geçerli değil',
       address_field_is_not_valid: 'Adres alanı geçerli değil',
       total_exceeds_balance: 'Gönderme miktarı mevcut bakiyeyi aşıyor.',
-      create_tx_error:
-        'İşlem oluşturulurken bir hata oluştu. Lütfen adresin geçerli olduğundan emin olun.',
+      create_tx_error: 'İşlem oluşturulurken bir hata oluştu. Lütfen adresin geçerli olduğundan emin olun.',
       address: 'adres',
       amount_placeholder: 'gönderilecek miktar (BTC cinsinden)',
       fee_placeholder: 'artı işlem ücreti (BTC cinsinden)',
@@ -193,8 +186,7 @@ module.exports = {
     storage_not_encrypted: 'Depolama: şifreli değil',
     storage_encrypted: 'Depolama: şifreli',
     password: 'Şifre',
-    password_explain:
-      'Depolamanın şifresini çözmek için kullanacağınız şifreyi oluşturun',
+    password_explain: 'Depolamanın şifresini çözmek için kullanacağınız şifreyi oluşturun',
     retype_password: 'Şifrenizi yeniden girin',
     passwords_do_not_match: 'Şifreler eşleşmedi',
     encrypt_storage: 'Depolamayı şifrele',
@@ -221,16 +213,12 @@ module.exports = {
       "BlueWallet, yeni 'sahte' bir depolamanın kilidini açacaktır. Bu 3. şahıslara " +
       'normal görünecektir, ancak paraların olduğu ana depolama alanınızı gizlice saklamaya ' +
       'devam edecektir.',
-    help2:
-      'Yeni depolama alanı tamamen işlevsel olacak ve ufak ' +
-      'bir miktar tutarsanız daha inanılır görünecektir.',
+    help2: 'Yeni depolama alanı tamamen işlevsel olacak ve ufak ' + 'bir miktar tutarsanız daha inanılır görünecektir.',
     create_fake_storage: 'Sahte şifreli depolama oluşturun',
     go_back: 'Geri Dön',
     create_password: 'Şifre oluştur',
-    create_password_explanation:
-      'Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır.',
-    password_should_not_match:
-      'Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır',
+    create_password_explanation: 'Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır.',
+    password_should_not_match: 'Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır',
     retype_password: 'Şifrenizi yeniden yazın',
     passwords_do_not_match: 'Şifreler eşleşmedi, tekrar dene',
     success: 'Başarılı',
@@ -244,8 +232,7 @@ module.exports = {
     exchange: 'Exchange',
     expired: 'Süresi doldu',
     placeholder: 'Fatura',
-    sameWalletAsInvoiceError:
-      'Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.',
+    sameWalletAsInvoiceError: 'Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.',
   },
   pleasebackup: {
     title: 'Your wallet is created...',
@@ -267,4 +254,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

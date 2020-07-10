@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'ウォレットは暗号化されています。復号にはパスワードが必要です。',
+    storage_is_encrypted: 'ウォレットは暗号化されています。復号にはパスワードが必要です。',
     enter_password: 'パスワードを入力',
     bad_password: 'パスワードが間違っています。',
     never: 'データなし',
@@ -16,9 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'ウォレット',
-      header:
-        'ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。' +
-        'コインを受信するために共有できます。',
+      header: 'ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。' + 'コインを受信するために共有できます。',
       add: 'ウォレットの追加',
       create_a_wallet: 'ウォレットを追加',
       create_a_wallet1: 'ウォレット作成は無料で',
@@ -27,10 +24,8 @@ module.exports = {
       latest_transaction: '最新の取引',
       empty_txs1: 'ここに取引が表示されます',
       empty_txs2: '現在は何もありません',
-      empty_txs1_lightning:
-        'Lightning ウォレットを日常の取引にご利用ください。手数料は安く、送金はあっという間に完了します。',
-      empty_txs2_lightning:
-        '\n利用を開始するには"資金の管理"をタップしてウォレットへ送金してください。',
+      empty_txs1_lightning: 'Lightning ウォレットを日常の取引にご利用ください。手数料は安く、送金はあっという間に完了します。',
+      empty_txs2_lightning: '\n利用を開始するには"資金の管理"をタップしてウォレットへ送金してください。',
       tap_here_to_buy: 'Bitcoin を購入するにはここをタップ',
     },
     reorder: {
@@ -54,8 +49,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'ウォレット',
@@ -90,8 +84,7 @@ module.exports = {
       explanation:
         'ここにニモニック、秘密鍵(プライベートキー）、WIFなどを入力してください。BlueWallet が正しい形式を推測しウォレットをインポートします。',
       imported: 'インポート完了',
-      error:
-        'インポートに失敗しました。入力したデータが有効か確認してください。',
+      error: 'インポートに失敗しました。入力したデータが有効か確認してください。',
       success: '成功',
       do_import: 'インポート',
       scan_qr: 'QR コードの読み取り',
@@ -136,8 +129,7 @@ module.exports = {
       fee_field_is_not_valid: '手数料欄が正しくありません',
       address_field_is_not_valid: 'アドレス欄が正しくありません',
       total_exceeds_balance: '送金額が利用可能残額を超えています。',
-      create_tx_error:
-        '取引作成中にエラーが発生しました。有効な送金アドレスか確認してください。',
+      create_tx_error: '取引作成中にエラーが発生しました。有効な送金アドレスか確認してください。',
       address: 'アドレス',
       amount_placeholder: '送金額 (BTC)',
       fee_placeholder: '取引手数料 (BTC)',
@@ -158,8 +150,7 @@ module.exports = {
     create: {
       details: '詳細',
       title: '取引の作成',
-      error:
-        '取引作成でエラーが発生しました。アドレスまたは送金額を確認してください。',
+      error: '取引作成でエラーが発生しました。アドレスまたは送金額を確認してください。',
       go_back: '戻る',
       this_is_hex: '署名されネットワークへ送信される 16 進数取引コードです',
       to: '送金先',
@@ -227,10 +218,8 @@ module.exports = {
     create_fake_storage: 'ダミーの暗号化ウォレットの作成',
     go_back: '戻る',
     create_password: 'パスワードの作成',
-    create_password_explanation:
-      'ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。',
-    password_should_not_match:
-      'ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。',
+    create_password_explanation: 'ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。',
+    password_should_not_match: 'ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。',
     retype_password: 'パスワードの再入力',
     passwords_do_not_match: 'パスワードが一致しません',
     success: '成功',
@@ -244,8 +233,7 @@ module.exports = {
     exchange: 'Exchange',
     placeholder: '入金依頼',
     expired: '失効',
-    sameWalletAsInvoiceError:
-      '以前作成したウォレットと同じウォレットへの支払いはできません。',
+    sameWalletAsInvoiceError: '以前作成したウォレットと同じウォレットへの支払いはできません。',
   },
   pleasebackup: {
     title: 'ウォレットを作成しています...',
@@ -254,8 +242,7 @@ module.exports = {
     ok: 'すべてのニモニックを書きとめました',
   },
   lndViewInvoice: {
-    wasnt_paid_and_expired:
-      'この請求書は支払いが行われなかったため無効になりました',
+    wasnt_paid_and_expired: 'この請求書は支払いが行われなかったため無効になりました',
     has_been_paid: 'この請求書は支払い完了しました',
     please_pay: '支払う額',
     sats: 'sats',
@@ -268,4 +255,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};

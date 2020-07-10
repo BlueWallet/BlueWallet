@@ -117,10 +117,10 @@ export default class LNDViewInvoice extends Component {
   static navigationOptions = ({ navigation, route }) =>
     route.params.isModal === true
       ? {
-        ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
-        title: 'Lightning Invoice',
-        headerLeft: null,
-      }
+          ...BlueNavigationStyle(navigation, true, () => navigation.dangerouslyGetParent().pop()),
+          title: 'Lightning Invoice',
+          headerLeft: null,
+        }
       : { ...BlueNavigationStyle(), title: 'Lightning Invoice' };
 
   constructor(props) {

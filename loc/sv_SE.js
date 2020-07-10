@@ -1,7 +1,6 @@
 module.exports = {
   _: {
-    storage_is_encrypted:
-      'Lagringen är krypterad. Lösenords krävs för att dekryptera',
+    storage_is_encrypted: 'Lagringen är krypterad. Lösenords krävs för att dekryptera',
     enter_password: 'Ange lösenord',
     bad_password: 'Felaktigt lösenord, försök igen',
     never: 'aldrig',
@@ -16,9 +15,7 @@ module.exports = {
     list: {
       app_name: 'BlueWallet',
       title: 'plånböcker',
-      header:
-        'En plånbok representerar ett par av en privat nyckel samt en adress' +
-        'som du kan dela med andra för att ta emot coins',
+      header: 'En plånbok representerar ett par av en privat nyckel samt en adress' + 'som du kan dela med andra för att ta emot coins',
       add: 'Ny Plånbok',
       create_a_wallet: 'Ny plånbok',
       create_a_wallet1: 'Det är gratis och du kan skapa',
@@ -29,8 +26,7 @@ module.exports = {
       empty_txs2: 'men än så länge finns inga!',
       empty_txs1_lightning:
         'Lightningplånboken ska användas för dagliga småtransaktioner. Avgifterna är minimala och transaktioner sker direkt.',
-      empty_txs2_lightning:
-        '\nFör att komma igång klicka på "sätt in / ta ut" ovan och sätt in dina första bitcoin.',
+      empty_txs2_lightning: '\nFör att komma igång klicka på "sätt in / ta ut" ovan och sätt in dina första bitcoin.',
       tap_here_to_buy: 'Tryck här för att köpa bitcoin',
     },
     reorder: {
@@ -54,8 +50,7 @@ module.exports = {
       bitcoin: 'Bitcoin',
       entropy_provide: 'Provide entropy via dice rolls',
       entropy_generated: '{gen} bytes of generated entropy',
-      entropy_remain:
-        '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
+      entropy_remain: '{gen} bytes of generated entropy. Remaining {rem} bytes will be obtained from the System random number generator.',
     },
     details: {
       title: 'Plånbok',
@@ -90,8 +85,7 @@ module.exports = {
       explanation:
         'Skriv in dina ord, din privata nyckel, WIF, eller vad du kan tänkas ha. BlueWallet kommer att göra sitt bästa för att gissa formatet och importera plånboken',
       imported: 'Importerad',
-      error:
-        'Import misslyckades. Kontrollera att informationen du matade in är korrekt.',
+      error: 'Import misslyckades. Kontrollera att informationen du matade in är korrekt.',
       success: 'Import lyckad!',
       do_import: 'Importera',
       scan_qr: 'eller skanna QR-kod istället?',
@@ -116,8 +110,7 @@ module.exports = {
     list: {
       tabBarLabel: 'Transaktioner',
       title: 'transaktioner',
-      description:
-        'Lista över dina plånböckers inkommande och utgående transaktioner',
+      description: 'Lista över dina plånböckers inkommande och utgående transaktioner',
       conf: 'konf',
     },
     details: {
@@ -136,10 +129,8 @@ module.exports = {
       amount_field_is_not_valid: 'Angivet belopp är inte giltigt',
       fee_field_is_not_valid: 'Angiven avgift är inte giltig',
       address_field_is_not_valid: 'Angiven adress är inte giltig',
-      total_exceeds_balance:
-        'Beloppet överstiger plånbokens tillgängliga belopp',
-      create_tx_error:
-        'Något gick fel när transaktionen skulle skapas. Kontrollera att adressen är giltig.',
+      total_exceeds_balance: 'Beloppet överstiger plånbokens tillgängliga belopp',
+      create_tx_error: 'Något gick fel när transaktionen skulle skapas. Kontrollera att adressen är giltig.',
       address: 'adress',
       amount_placeholder: 'belopp att skicka (i BTC)',
       fee_placeholder: 'plus avgift (i BTC)',
@@ -160,11 +151,9 @@ module.exports = {
     create: {
       details: 'Detaljer',
       title: 'skapa transaktion',
-      error:
-        'Något gick fel när transaktionen skulle skapas. Felaktig adress eller belopp?',
+      error: 'Något gick fel när transaktionen skulle skapas. Felaktig adress eller belopp?',
       go_back: 'Tillbaka',
-      this_is_hex:
-        'Detta är transaktionens hex, signerad och redo att skickas ut på nätverket.',
+      this_is_hex: 'Detta är transaktionens hex, signerad och redo att skickas ut på nätverket.',
       to: 'Till',
       amount: 'Belopp',
       fee: 'Avgift',
@@ -197,8 +186,7 @@ module.exports = {
     storage_not_encrypted: 'Lagring: ej krypterad',
     storage_encrypted: 'Lagring: krypterad',
     password: 'Lösenord',
-    password_explain:
-      'Skapa ett lösenord som du kommer att använda vid dekryptering',
+    password_explain: 'Skapa ett lösenord som du kommer att använda vid dekryptering',
     retype_password: 'Ange lösenord igen',
     passwords_do_not_match: 'Lösenorden är olika!',
     encrypt_storage: 'Kryptera lagring',
@@ -230,10 +218,8 @@ module.exports = {
     create_fake_storage: 'Skapa fejkad lagringsyta',
     go_back: 'Tillbaka',
     create_password: 'Skapa ett lösenord',
-    create_password_explanation:
-      'Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord',
-    password_should_not_match:
-      'Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord',
+    create_password_explanation: 'Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord',
+    password_should_not_match: 'Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord',
     retype_password: 'Ange lösenord igen',
     passwords_do_not_match: 'Lösenorden är olika!',
     success: 'Fejkad lagringsyta skapad!',
@@ -247,8 +233,7 @@ module.exports = {
     exchange: 'Exchange',
     expired: 'Förfallen',
     placeholder: 'Faktura',
-    sameWalletAsInvoiceError:
-      'Du kan inte betala en faktura från samma plånbok som användes för att skapa den.',
+    sameWalletAsInvoiceError: 'Du kan inte betala en faktura från samma plånbok som användes för att skapa den.',
   },
   pleasebackup: {
     title: 'Din plånbok har skapats...',
@@ -270,4 +255,4 @@ module.exports = {
     save: 'Save',
     undo: 'Undo',
   },
-}
+};
