@@ -90,12 +90,32 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginBottom: 10,
   },
-  feeModalItemActive: { borderRadius: 8, backgroundColor: BlueApp.settings.incomingBackgroundColor },
-  feeModalRow: { justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' },
-  feeModalLabel: { fontSize: 22, color: BlueApp.settings.successColor, fontWeight: '600' },
-  feeModalTime: { backgroundColor: BlueApp.settings.successColor, borderRadius: 5, paddingHorizontal: 6, paddingVertical: 3 },
-  feeModalTimeText: { color: 'white' },
-  feeModalValue: { color: BlueApp.settings.successColor },
+  feeModalItemActive: {
+    borderRadius: 8,
+    backgroundColor: BlueApp.settings.incomingBackgroundColor,
+  },
+  feeModalRow: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  feeModalLabel: {
+    fontSize: 22,
+    color: BlueApp.settings.successColor,
+    fontWeight: '600',
+  },
+  feeModalTime: {
+    backgroundColor: BlueApp.settings.successColor,
+    borderRadius: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+  },
+  feeModalTimeText: {
+    color: 'white',
+  },
+  feeModalValue: {
+    color: BlueApp.settings.successColor,
+  },
   feeModalCustom: {
     height: 60,
     alignItems: 'center',

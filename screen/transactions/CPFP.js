@@ -1,7 +1,11 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { ActivityIndicator, View, TextInput, TouchableOpacity, Linking, ScrollView, StyleSheet } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
+import { Text } from 'react-native-elements';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+
 import {
   BlueSpacing20,
   BlueReplaceFeeSuggestions,
@@ -13,15 +17,10 @@ import {
   BlueNavigationStyle,
   BlueBigCheckmark,
 } from '../../BlueComponents';
-import PropTypes from 'prop-types';
 import { HDSegwitBech32Transaction, HDSegwitBech32Wallet } from '../../class';
-import { Text } from 'react-native-elements';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
-/** @type {AppStorage} */
 const EV = require('../../blue_modules/events');
 const BlueElectrum = require('../../blue_modules/BlueElectrum');
 const loc = require('../../loc');
-/** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
 
 const styles = StyleSheet.create({
@@ -168,44 +167,17 @@ export default class CPFP extends Component {
     }
   }
 
-  render() {
-    if (this.state.isLoading) {
-      return (
-        <View style={styles.root}>
-          <ActivityIndicator />
-        </View>
-      );
-    }
-
-    if (this.state.stage === 3) {
-      return this.renderStage3();
-    }
-
-    if (this.state.stage === 2) {
-      return this.renderStage2();
-    }
-
-    if (this.state.nonReplaceable) {
-      return (
-        <SafeBlueArea style={styles.root}>
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-          <BlueSpacing20 />
-
-          <BlueText h4>This transaction is not bumpable</BlueText>
-        </SafeBlueArea>
-      );
-    }
-
+  renderStage1(text) {
     return (
-      <SafeBlueArea style={styles.explain}>
-        <ScrollView>
-          {this.renderStage1(
-            'We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.',
-          )}
-        </ScrollView>
+      <SafeBlueArea style={styles.root}>
+        <BlueSpacing />
+        <BlueCard style={styles.center}>
+          <BlueText>{text}</BlueText>
+          <BlueSpacing20 />
+          <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
+          <BlueSpacing />
+          <BlueButton disabled={this.state.newFeeRate <= this.state.feeRate} onPress={() => this.createTransaction()} title="Create" />
+        </BlueCard>
       </SafeBlueArea>
     );
   }
@@ -248,17 +220,44 @@ export default class CPFP extends Component {
     );
   }
 
-  renderStage1(text) {
-    return (
-      <SafeBlueArea style={styles.root}>
-        <BlueSpacing />
-        <BlueCard style={styles.center}>
-          <BlueText>{text}</BlueText>
+  render() {
+    if (this.state.isLoading) {
+      return (
+        <View style={styles.root}>
+          <ActivityIndicator />
+        </View>
+      );
+    }
+
+    if (this.state.stage === 3) {
+      return this.renderStage3();
+    }
+
+    if (this.state.stage === 2) {
+      return this.renderStage2();
+    }
+
+    if (this.state.nonReplaceable) {
+      return (
+        <SafeBlueArea style={styles.root}>
           <BlueSpacing20 />
-          <BlueReplaceFeeSuggestions onFeeSelected={fee => this.setState({ newFeeRate: fee })} transactionMinimum={this.state.feeRate} />
-          <BlueSpacing />
-          <BlueButton disabled={this.state.newFeeRate <= this.state.feeRate} onPress={() => this.createTransaction()} title="Create" />
-        </BlueCard>
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+          <BlueSpacing20 />
+
+          <BlueText h4>This transaction is not bumpable</BlueText>
+        </SafeBlueArea>
+      );
+    }
+
+    return (
+      <SafeBlueArea style={styles.explain}>
+        <ScrollView>
+          {this.renderStage1(
+            'We will create another transaction that spends your unconfirmed transaction. The total fee will be higher than the original transaction fee, so it should be mined faster. This is called CPFP - Child Pays For Parent.',
+          )}
+        </ScrollView>
       </SafeBlueArea>
     );
   }
