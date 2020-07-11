@@ -31,22 +31,23 @@ import {
 } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 import Modal from 'react-native-modal';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import BigNumber from 'bignumber.js';
+import RNFS from 'react-native-fs';
+import * as bitcoin from 'bitcoinjs-lib';
+
 import NetworkTransactionFees, { NetworkTransactionFee } from '../../models/networkTransactionFees';
 import { BitcoinUnit, Chain } from '../../models/bitcoinUnits';
 import { AppStorage, HDSegwitBech32Wallet, LightningCustodianWallet, WatchOnlyWallet } from '../../class';
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
-import RNFS from 'react-native-fs';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
-const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
-const BigNumber = require('bignumber.js');
-const { width } = Dimensions.get('window');
 const BlueApp: AppStorage = require('../../BlueApp');
 const loc = require('../../loc');
 const prompt = require('../../blue_modules/prompt');
 
+const { width } = Dimensions.get('window');
 const btcAddressRx = /^[a-zA-Z0-9]{26,35}$/;
 
 const styles = StyleSheet.create({
@@ -531,6 +532,7 @@ export default class SendDetails extends Component {
           }
 
           feePrecalc[opt.key] = null;
+          break;
         }
       }
     }
@@ -708,7 +710,7 @@ export default class SendDetails extends Component {
                   </View>
                 </View>
                 <View style={styles.feeModalRow}>
-                  <Text style={styles.feeModalValue}>{this.formatFee(fee)}</Text>
+                  <Text style={styles.feeModalValue}>{fee && this.formatFee(fee)}</Text>
                   <Text style={styles.feeModalValue}>{rate} sat/byte</Text>
                 </View>
               </TouchableOpacity>
@@ -1116,7 +1118,9 @@ export default class SendDetails extends Component {
               >
                 <Text style={styles.feeLabel}>Fee</Text>
                 <View style={styles.feeRow}>
-                  <Text style={styles.feeValue}>{this.formatFee(this.state.feePrecalc.current)}</Text>
+                  <Text style={styles.feeValue}>
+                    {this.state.feePrecalc.current ? this.formatFee(this.state.feePrecalc.current) : this.state.fee + ' sat/byte'}
+                  </Text>
                 </View>
               </TouchableOpacity>
               {this.renderCreateButton()}
