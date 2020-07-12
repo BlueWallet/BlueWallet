@@ -15,6 +15,10 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import Privacy from '../../Privacy';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import WalletImport from '../../class/wallet-import';
+import Clipboard from '@react-native-community/clipboard';
+import ActionSheet from '../ActionSheet';
+import ImagePicker from 'react-native-image-picker';
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const loc = require('../../loc');
 const { width } = Dimensions.get('window');
 
@@ -80,14 +84,77 @@ const WalletsImport = () => {
   };
 
   const importScan = () => {
-    navigation.navigate('ScanQRCodeRoot', {
-      screen: 'ScanQRCode',
-      params: {
-        launchedBy: route.name,
-        onBarScanned: onBarScanned,
-        showFileImportButton: true,
+    showActionSheet();
+  };
+
+  const choosePhoto = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
       },
-    });
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              onBarScanned(result);
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
+  const takePhoto = () => {
+    ImagePicker.launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              onBarScanned(result);
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
+  const copyFromClipbard = async () => {
+    onBarScanned(await Clipboard.getString());
+  };
+
+  const showActionSheet = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    let copyFromClipboardIndex;
+    if (Platform.OS === 'ios') {
+      const options = [loc.send.details.cancel, 'Take Photo', 'Choose Photo'];
+      if (!isClipboardEmpty) {
+        options.push('Copy from Clipboard');
+        copyFromClipboardIndex = options.length - 1;
+      }
+
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          takePhoto();
+        } else if (buttonIndex === 2) {
+          choosePhoto();
+        } else if (buttonIndex === copyFromClipboardIndex) {
+          copyFromClipbard();
+        }
+      });
+    }
   };
 
   return (
