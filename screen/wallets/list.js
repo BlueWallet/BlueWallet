@@ -403,7 +403,7 @@ export default class WalletsList extends Component {
     if (BlueApp.getWallets().length > 0 && !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)) {
       return (
         <View style={styles.scanButton}>
-          <BlueScanButton onPress={this.onScanButtonPressed} onLongPress={this.sendButtonLongPress} />
+          <BlueScanButton onPress={this.sendButtonLongPress} />
         </View>
       );
     } else {
@@ -459,30 +459,47 @@ export default class WalletsList extends Component {
     );
   };
 
+  takePhoto = () => {
+    ImagePicker.launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.onBarScanned(result);
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
   copyFromClipbard = async () => {
     this.onBarScanned(await Clipboard.getString());
   };
 
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    let copyFromClipboardIndex;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc.send.details.cancel, 'Take Photo', 'Choose Photo'];
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
+        copyFromClipboardIndex = options.length - 1;
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
-          this.choosePhoto();
+          this.takePhoto();
         } else if (buttonIndex === 2) {
-          this.props.navigation.navigate('ScanQRCodeRoot', {
-            screen: 'ScanQRCode',
-            params: {
-              launchedBy: this.props.route.name,
-              onBarScanned: this.onBarScanned,
-              showFileImportButton: false,
-            },
-          });
-        } else if (buttonIndex === 3) {
+          this.choosePhoto();
+        } else if (buttonIndex === copyFromClipboardIndex) {
           this.copyFromClipbard();
         }
       });

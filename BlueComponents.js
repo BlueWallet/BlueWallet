@@ -1,4 +1,5 @@
 /* eslint react/prop-types: "off", react-native/no-inline-styles: "off" */
+/* global alert */
 import React, { Component, useState } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
@@ -23,6 +24,7 @@ import {
   TextInput,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
+import ActionSheet from './screen/ActionSheet';
 import LinearGradient from 'react-native-linear-gradient';
 import { LightningCustodianWallet, PlaceholderWallet } from './class';
 import Carousel from 'react-native-snap-carousel';
@@ -35,6 +37,7 @@ import showPopupMenu from 'react-native-popup-menu-android';
 import NetworkTransactionFees, { NetworkTransactionFeeType } from './models/networkTransactionFees';
 import Biometric from './class/biometrics';
 import { encodeUR } from 'bc-ur/dist';
+import ImagePicker from 'react-native-image-picker';
 import QRCode from 'react-native-qrcode-svg';
 const loc = require('./loc/');
 /** @type {AppStorage} */
@@ -43,6 +46,7 @@ const { height, width } = Dimensions.get('window');
 const aspectRatio = height / width;
 const BigNumber = require('bignumber.js');
 const currency = require('./blue_modules/currency');
+const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 let isIpad;
 if (aspectRatio > 1.6) {
   isIpad = false;
@@ -973,7 +977,7 @@ const stylesBlueIcon = StyleSheet.create({
     flex: 1,
   },
   box1: {
-    position: 'relative',
+    alignContent: 'center',
     top: 15,
   },
   box: {
@@ -987,6 +991,7 @@ const stylesBlueIcon = StyleSheet.create({
   ball: {
     width: 30,
     height: 30,
+    alignItems: 'center',
     borderRadius: 15,
     backgroundColor: '#ccddf9',
   },
@@ -1058,8 +1063,6 @@ export class BluePlusIcon extends Component {
               style={{
                 color: BlueApp.settings.foregroundColor,
                 backgroundColor: 'transparent',
-                left: 8,
-                top: 1,
               }}
             />
           </View>
@@ -2045,6 +2048,76 @@ export class BlueAddressInput extends Component {
     placeholder: loc.send.details.address,
   };
 
+  choosePhoto = () => {
+    ImagePicker.launchImageLibrary(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.props.onBarScanned(result);
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
+  takePhoto = () => {
+    ImagePicker.launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.props.onBarScanned(result);
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
+  copyFromClipbard = async () => {
+    this.props.onBarScanned(await Clipboard.getString());
+  };
+
+  showActionSheet = async () => {
+    const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
+    let copyFromClipboardIndex;
+    if (Platform.OS === 'ios') {
+      const options = [loc.send.details.cancel, 'Take Photo', 'Choose Photo'];
+      if (!isClipboardEmpty) {
+        options.push('Copy from Clipboard');
+        copyFromClipboardIndex = options.length - 1;
+      }
+
+      ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
+        if (buttonIndex === 1) {
+          this.takePhoto();
+        } else if (buttonIndex === 2) {
+          this.choosePhoto();
+        } else if (buttonIndex === copyFromClipboardIndex) {
+          this.copyFromClipbard();
+        }
+      });
+    }
+  };
+
   render() {
     return (
       <View
@@ -2080,14 +2153,8 @@ export class BlueAddressInput extends Component {
         <TouchableOpacity
           disabled={this.props.isLoading}
           onPress={() => {
-            NavigationService.navigate('ScanQRCodeRoot', {
-              screen: 'ScanQRCode',
-              params: {
-                launchedBy: this.props.launchedBy,
-                onBarScanned: this.props.onBarScanned,
-              },
-            });
             Keyboard.dismiss();
+            this.showActionSheet();
           }}
           style={{
             height: 36,

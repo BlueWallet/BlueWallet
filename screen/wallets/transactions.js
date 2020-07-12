@@ -601,23 +601,43 @@ export default class WalletTransactions extends Component {
     this.onBarCodeRead({ data: await Clipboard.getString() });
   };
 
+  takePhoto = () => {
+    ImagePicker.launchCamera(
+      {
+        title: null,
+        mediaType: 'photo',
+        takePhotoButtonTitle: null,
+      },
+      response => {
+        if (response.uri) {
+          const uri = Platform.OS === 'ios' ? response.uri.toString().replace('file://', '') : response.path.toString();
+          LocalQRCode.decode(uri, (error, result) => {
+            if (!error) {
+              this.onBarScanned(result);
+            } else {
+              alert('The selected image does not contain a QR Code.');
+            }
+          });
+        }
+      },
+    );
+  };
+
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
+      let copyFromClipboardIndex;
+      const options = [loc.send.details.cancel, 'Take Photo', 'Choose Photo'];
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
+        copyFromClipboardIndex = options.length - 1;
       }
       ActionSheet.showActionSheetWithOptions({ options, cancelButtonIndex: 0 }, buttonIndex => {
         if (buttonIndex === 1) {
-          this.choosePhoto();
+          this.takePhoto();
         } else if (buttonIndex === 2) {
-          this.props.navigation.navigate('ScanQRCode', {
-            launchedBy: this.props.route.name,
-            onBarScanned: this.onBarCodeRead,
-            showFileImportButton: false,
-          });
-        } else if (buttonIndex === 3) {
+          this.choosePhoto();
+        } else if (buttonIndex === copyFromClipboardIndex) {
           this.copyFromClipbard();
         }
       });
