@@ -9,6 +9,7 @@ import { PlaceholderWallet } from './wallets/placeholder-wallet';
 import { SegwitBech32Wallet } from './wallets/segwit-bech32-wallet';
 import { HDLegacyElectrumSeedP2PKHWallet } from './wallets/hd-legacy-electrum-seed-p2pkh-wallet';
 import { HDSegwitElectrumSeedP2WPKHWallet } from './wallets/hd-segwit-electrum-seed-p2wpkh-wallet';
+import { BlueCurrentTheme } from '../components/themes';
 
 export default class WalletGradient {
   static hdSegwitP2SHWallet = ['#65ceef', '#68bbe1'];
@@ -20,7 +21,7 @@ export default class WalletGradient {
   static hdLegacyBreadWallet = ['#fe6381', '#f99c42'];
   static defaultGradients = ['#c65afb', '#9053fe'];
   static lightningCustodianWallet = ['#f1be07', '#f79056'];
-  static createWallet = '#eef0f4';
+  static createWallet = BlueCurrentTheme.colors.lightButton;
 
   static gradientsFor(type) {
     let gradient;

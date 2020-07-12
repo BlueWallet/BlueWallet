@@ -40,6 +40,7 @@ import { BitcoinTransaction } from '../../models/bitcoinTransactionInfo';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
+import { BlueCurrentTheme } from '../../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const currency = require('../../blue_modules/currency');
 const BigNumber = require('bignumber.js');
@@ -53,34 +54,36 @@ const styles = StyleSheet.create({
   loading: {
     flex: 1,
     paddingTop: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   root: {
     flex: 1,
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
   },
   scrollViewContent: {
     flexWrap: 'wrap',
     flexDirection: 'row',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.modal,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderTopColor: BlueCurrentTheme.colors.borderTopColor,
+    borderWidth: BlueCurrentTheme.colors.borderWidth,
     minHeight: 200,
     height: 200,
   },
   advancedTransactionOptionsModalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.modal,
     padding: 22,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
-    borderColor: 'rgba(0, 0, 0, 0.1)',
+    borderTopColor: BlueCurrentTheme.colors.borderTopColor,
+    borderWidth: BlueCurrentTheme.colors.borderWidth,
     minHeight: 130,
   },
   bottomModal: {
@@ -88,7 +91,7 @@ const styles = StyleSheet.create({
     margin: 0,
   },
   feeSliderInput: {
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     minWidth: 127,
     height: 60,
     borderRadius: 8,
@@ -98,7 +101,7 @@ const styles = StyleSheet.create({
   },
   feeSliderText: {
     fontWeight: '600',
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     marginBottom: 0,
     marginRight: 4,
     textAlign: 'right',
@@ -106,7 +109,7 @@ const styles = StyleSheet.create({
   },
   feeSliderUnit: {
     fontWeight: '600',
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     paddingRight: 4,
     textAlign: 'left',
     fontSize: 16,
@@ -137,7 +140,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 56,
     marginVertical: 16,
     alignContent: 'center',
-    backgroundColor: '#FFFFFF',
     minHeight: 44,
   },
   select: {
@@ -159,21 +161,22 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   selectLabel: {
-    color: '#0c2550',
+    color: BlueCurrentTheme.colors.buttonTextColor,
     fontSize: 14,
   },
   of: {
     alignSelf: 'flex-end',
     marginRight: 18,
     marginVertical: 8,
+    color: BlueCurrentTheme.colors.feeText,
   },
   memo: {
     flexDirection: 'row',
-    borderColor: '#d2d2d2',
-    borderBottomColor: '#d2d2d2',
+    borderColor: BlueCurrentTheme.colors.formBorder,
+    borderBottomColor: BlueCurrentTheme.colors.formBorder,
     borderWidth: 1,
     borderBottomWidth: 0.5,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
     minHeight: 44,
     height: 44,
     marginHorizontal: 20,
@@ -194,11 +197,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   feeLabel: {
-    color: '#81868e',
+    color: BlueCurrentTheme.colors.feeText,
     fontSize: 14,
   },
   feeRow: {
-    backgroundColor: '#d2f8d6',
+    backgroundColor: BlueCurrentTheme.colors.feeLabel,
     minWidth: 40,
     height: 25,
     borderRadius: 4,
@@ -208,24 +211,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   feeValue: {
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     marginBottom: 0,
     marginRight: 4,
     textAlign: 'right',
   },
   feeUnit: {
-    color: '#37c0a1',
+    color: BlueCurrentTheme.colors.feeValue,
     paddingRight: 4,
     textAlign: 'left',
   },
 });
 
 export default class SendDetails extends Component {
-  static navigationOptions = ({ navigation, route }) => ({
-    ...BlueCreateTxNavigationStyle(navigation, route.params.withAdvancedOptionsMenuButton, route.params.advancedOptionsMenuButtonAction),
-    title: loc.send.header,
-  });
-
   state = { isLoading: true };
 
   constructor(props) {
@@ -1082,3 +1080,8 @@ SendDetails.propTypes = {
     }),
   }),
 };
+
+SendDetails.navigationOptions = ({ navigation, route }) => ({
+  ...BlueCreateTxNavigationStyle(navigation, route.params.withAdvancedOptionsMenuButton, route.params.advancedOptionsMenuButtonAction),
+  title: loc.send.header,
+});

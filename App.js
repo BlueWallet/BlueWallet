@@ -3,18 +3,20 @@ import React from 'react';
 import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
-import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './Navigation';
 import { navigationRef } from './NavigationService';
 import * as NavigationService from './NavigationService';
-import { BlueTextCentered, BlueButton } from './BlueComponents';
+import { BlueTextCentered, BlueButton, SecondButton } from './BlueComponents';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { Chain } from './models/bitcoinUnits';
 import QuickActions from 'react-native-quick-actions';
 import * as Sentry from '@sentry/react-native';
 import OnAppLaunch from './class/on-app-launch';
 import DeeplinkSchemaMatch from './class/deeplink-schema-match';
+import { BlueDefaultTheme, BlueDarkTheme, BlueCurrentTheme } from './components/themes';
+
 const A = require('./blue_modules/analytics');
 
 if (process.env.NODE_ENV !== 'development') {
@@ -35,11 +37,20 @@ export default class App extends React.Component {
     isClipboardContentModalVisible: false,
     clipboardContentModalAddressType: bitcoinModalString,
     clipboardContent: '',
+    theme: Appearance.getColorScheme(),
   };
 
   componentDidMount() {
     EV(EV.enum.WALLETS_INITIALIZED, this.addListeners);
+    Appearance.addChangeListener(this.appearanceChanged);
   }
+
+  appearanceChanged = () => {
+    const appearance = Appearance.getColorScheme();
+    if (appearance) {
+      this.setState({ theme: appearance });
+    }
+  };
 
   addListeners = () => {
     Linking.addEventListener('url', this.handleOpenURL);
@@ -104,6 +115,7 @@ export default class App extends React.Component {
   componentWillUnmount() {
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this._handleAppStateChange);
+    Appearance.removeChangeListener(this.appearanceChanged);
   }
 
   _handleAppStateChange = async nextAppState => {
@@ -192,7 +204,7 @@ export default class App extends React.Component {
               You have a {this.state.clipboardContentModalAddressType} on your clipboard. Would you like to use it for a transaction?
             </BlueTextCentered>
             <View style={styles.modelContentButtonLayout}>
-              <BlueButton
+              <SecondButton
                 noMinWidth
                 title={loc.send.details.cancel}
                 onPress={() => this.setState({ isClipboardContentModalVisible: false })}
@@ -219,7 +231,7 @@ export default class App extends React.Component {
     return (
       <SafeAreaProvider>
         <View style={styles.root}>
-          <NavigationContainer ref={navigationRef} theme={Appearance.getColorScheme() === 'dark' ? { ...DarkTheme } : DefaultTheme} tr>
+          <NavigationContainer ref={navigationRef} theme={this.state.theme === 'dark' ? BlueDarkTheme : BlueDefaultTheme}>
             <Navigation />
           </NavigationContainer>
           {this.renderClipboardContentModal()}
@@ -237,7 +249,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.elevated,
     padding: 22,
     justifyContent: 'center',
     alignItems: 'center',

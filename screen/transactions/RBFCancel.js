@@ -16,11 +16,6 @@ const styles = StyleSheet.create({
 });
 
 export default class RBFCancel extends CPFP {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(null, false),
-    title: 'Cancel this transaction (RBF)',
-  });
-
   async componentDidMount() {
     console.log('transactions/RBFCancel - componentDidMount');
     this.setState({
@@ -130,3 +125,8 @@ RBFCancel.propTypes = {
     }),
   }),
 };
+
+RBFCancel.navigationOptions = () => ({
+  ...BlueNavigationStyle(null, false),
+  title: 'Cancel this transaction (RBF)',
+});

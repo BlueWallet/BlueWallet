@@ -12,6 +12,7 @@ import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
+import { BlueCurrentTheme } from '../../components/themes';
 const EV = require('../../blue_modules/events');
 const A = require('../../blue_modules/analytics');
 const BlueApp: AppStorage = require('../../BlueApp');
@@ -22,18 +23,6 @@ const LocalQRCode = require('@remobile/react-native-qrcode-local-image');
 const WalletsListSections = { CAROUSEL: 'CAROUSEL', LOCALTRADER: 'LOCALTRADER', TRANSACTIONS: 'TRANSACTIONS' };
 
 export default class WalletsList extends Component {
-  static navigationOptions = ({ navigation, route }) => {
-    return {
-      ...BlueNavigationStyle(navigation, true),
-      title: '',
-      headerRight: () => (
-        <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
-          <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueApp.settings.foregroundColor} />
-        </TouchableOpacity>
-      ),
-    };
-  };
-
   walletsCarousel = React.createRef();
 
   constructor(props) {
@@ -278,7 +267,7 @@ export default class WalletsList extends Component {
 
   renderListHeaderComponent = () => {
     return (
-      <View style={styles.listHeader}>
+      <View style={styles.listHeaderBack}>
         <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
       </View>
     );
@@ -305,7 +294,7 @@ export default class WalletsList extends Component {
       return (
         <TouchableOpacity
           onPress={() => {
-            this.props.navigation.navigate('HodlHodlRoot', { params: { wallet: this.state.wallet }, screen: 'HodlHodl' });
+            this.props.navigation.navigate('HodlHodl', { params: { wallet: this.state.wallet }, screen: 'HodlHodl' });
           }}
           style={styles.ltRoot}
         >
@@ -533,7 +522,7 @@ export default class WalletsList extends Component {
   render() {
     return (
       <View style={styles.root}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="default" />
         <View style={styles.walletsListWrapper}>
           <SectionList
             onRefresh={this.refreshTransactions}
@@ -568,12 +557,12 @@ const styles = StyleSheet.create({
     right: 0,
   },
   wrapper: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
     flex: 1,
   },
   walletsListWrapper: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
   },
   headerStyle: {
     ...Platform.select({
@@ -602,7 +591,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 24,
     marginVertical: 8,
-    color: BlueApp.settings.foregroundColor,
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   ltRoot: {
     flexDirection: 'row',
@@ -610,7 +599,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     marginVertical: 16,
-    backgroundColor: '#eef0f4',
+    backgroundColor: BlueCurrentTheme.colors.ballOutgoingExpired,
     padding: 16,
     borderRadius: 6,
   },
@@ -620,12 +609,12 @@ const styles = StyleSheet.create({
   ltTextBig: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0C2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#9AA0AA',
+    color: BlueCurrentTheme.colors.alternativeTextColor,
   },
   ltButtonWrap: {
     flexDirection: 'column',
@@ -682,4 +671,23 @@ WalletsList.propTypes = {
     name: PropTypes.string,
     params: PropTypes.object,
   }),
+};
+
+WalletsList.navigationOptions = ({ navigation, route }) => {
+  return {
+    ...BlueNavigationStyle(navigation, true),
+    title: '',
+    headerStyle: {
+      backgroundColor: BlueCurrentTheme.colors.customHeader,
+      borderBottomWidth: 0,
+      elevation: 0,
+      shadowOpacity: 0,
+      shadowOffset: { height: 0, width: 0 },
+    },
+    headerRight: () => (
+      <TouchableOpacity testID="SettingsButton" style={styles.headerTouch} onPress={() => NavigationService.navigate('Settings')}>
+        <Icon size={22} name="kebab-horizontal" type="octicon" color={BlueCurrentTheme.colors.foregroundColor} />
+      </TouchableOpacity>
+    ),
+  };
 };

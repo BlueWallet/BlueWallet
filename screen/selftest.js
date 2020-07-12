@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { ScrollView, View, StyleSheet } from 'react-native';
-import { BlueLoading, BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle } from '../BlueComponents';
+import { BlueSpacing20, SafeBlueArea, BlueCard, BlueText, BlueNavigationStyle, BlueLoadingHook } from '../BlueComponents';
 import PropTypes from 'prop-types';
 import { SegwitP2SHWallet, LegacyWallet, HDSegwitP2SHWallet, HDSegwitBech32Wallet } from '../class';
+import { BlueCurrentTheme } from '../components/themes';
 const bitcoin = require('bitcoinjs-lib');
 const BlueCrypto = require('react-native-blue-crypto');
 const encryption = require('../blue_modules/encryption');
@@ -11,6 +12,7 @@ const BlueElectrum = require('../blue_modules/BlueElectrum');
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+    backgroundColor: BlueCurrentTheme.colors.background,
   },
   center: {
     alignItems: 'center',
@@ -18,11 +20,6 @@ const styles = StyleSheet.create({
 });
 
 export default class Selftest extends Component {
-  static navigationOptions = () => ({
-    ...BlueNavigationStyle(),
-    title: 'Self test',
-  });
-
   constructor(props) {
     super(props);
     this.state = {
@@ -213,7 +210,7 @@ export default class Selftest extends Component {
 
   render() {
     if (this.state.isLoading) {
-      return <BlueLoading />;
+      return <BlueLoadingHook />;
     }
 
     return (
@@ -261,3 +258,8 @@ Selftest.propTypes = {
     goBack: PropTypes.func,
   }),
 };
+
+Selftest.navigationOptions = () => ({
+  ...BlueNavigationStyle(),
+  title: 'Self test',
+});

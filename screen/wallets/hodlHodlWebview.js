@@ -4,12 +4,6 @@ import { BlueNavigationStyle, SafeBlueArea } from '../../BlueComponents';
 import PropTypes from 'prop-types';
 
 export default class HodlHodlWebview extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    ...BlueNavigationStyle(navigation, true),
-    title: '',
-    headerLeft: null,
-  });
-
   constructor(props) {
     super(props);
 
@@ -36,3 +30,9 @@ HodlHodlWebview.propTypes = {
     }),
   }),
 };
+
+HodlHodlWebview.navigationOptions = ({ navigation }) => ({
+  ...BlueNavigationStyle(navigation, true),
+  title: '',
+  headerLeft: null,
+});
