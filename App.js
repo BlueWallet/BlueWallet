@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler'; // should be on top
 import React from 'react';
-import { Linking, Alert, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
+import { Linking, Appearance, DeviceEventEmitter, AppState, StyleSheet, KeyboardAvoidingView, Platform, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import Modal from 'react-native-modal';
 import { NavigationContainer, CommonActions, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -173,7 +173,6 @@ export default class App extends React.Component {
   };
 
   handleOpenURL = event => {
-    Alert.alert(event.url);
     DeeplinkSchemaMatch.navigationRouteFor(event, value => NavigationService.navigate(...value));
   };
 
