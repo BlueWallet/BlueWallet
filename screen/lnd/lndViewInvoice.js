@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailsText: {
-    color: '#9aa0aa',
+    color: BlueCurrentTheme.colors.alternativeTextColor,
     fontSize: 14,
     marginRight: 8,
   },
@@ -255,7 +255,7 @@ export default class LNDViewInvoice extends Component {
               {invoice.payment_preimage && typeof invoice.payment_preimage === 'string' ? (
                 <TouchableOpacity style={styles.detailsTouch} onPress={() => this.setState({ showPreimageQr: true })}>
                   <Text style={styles.detailsText}>{loc.send.create.details}</Text>
-                  <Icon name="angle-right" size={18} type="font-awesome" color={BlueCurrentTheme.colors.successCheck} />
+                  <Icon name="angle-right" size={18} type="font-awesome" color={BlueCurrentTheme.colors.alternativeTextColor} />
                 </TouchableOpacity>
               ) : (
                 <View />

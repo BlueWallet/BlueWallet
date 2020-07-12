@@ -85,7 +85,7 @@ const ReceiveDetails = () => {
     customAmountText: {
       flex: 1,
       marginHorizontal: 8,
-      color: '#81868e',
+      color: BlueCurrentTheme.colors.foregroundColor,
       minHeight: 33,
     },
     root: {
@@ -101,14 +101,14 @@ const ReceiveDetails = () => {
       paddingHorizontal: 16,
     },
     amount: {
-      color: '#0c2550',
+      color: BlueCurrentTheme.colors.foregroundColor,
       fontWeight: '600',
       fontSize: 36,
       textAlign: 'center',
       paddingBottom: 24,
     },
     label: {
-      color: '#0c2550',
+      color: BlueCurrentTheme.colors.foregroundColor,
       fontWeight: '600',
       textAlign: 'center',
       paddingBottom: 24,

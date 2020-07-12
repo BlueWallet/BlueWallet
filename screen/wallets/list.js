@@ -550,12 +550,12 @@ const styles = StyleSheet.create({
     right: 0,
   },
   wrapper: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
     flex: 1,
   },
   walletsListWrapper: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: BlueCurrentTheme.colors.brandingColor,
   },
   headerStyle: {
     ...Platform.select({
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     marginVertical: 16,
-    backgroundColor: '#eef0f4',
+    backgroundColor: BlueCurrentTheme.colors.ballOutgoingExpired,
     padding: 16,
     borderRadius: 6,
   },
@@ -602,12 +602,12 @@ const styles = StyleSheet.create({
   ltTextBig: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#0C2550',
+    color: BlueCurrentTheme.colors.foregroundColor,
   },
   ltTextSmall: {
     fontSize: 13,
     fontWeight: '500',
-    color: '#9AA0AA',
+    color: BlueCurrentTheme.colors.alternativeTextColor,
   },
   ltButtonWrap: {
     flexDirection: 'column',

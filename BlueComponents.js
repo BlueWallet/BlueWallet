@@ -2306,35 +2306,35 @@ export class BlueReplaceFeeSuggestions extends Component {
             <BlueText>Suggestions</BlueText>
             <BlueListItem
               onPress={() => this.onFeeSelected(NetworkTransactionFeeType.FAST)}
-              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0, backgroundColor: BlueCurrentTheme.colors.transparent }}
               bottomDivider={false}
               title="Fast"
               rightTitle={`${this.state.networkFees.fastestFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueCurrentTheme.colors.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.FAST
-                ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
+                ? { rightIcon: <Icon name="check" type="octaicon" color={BlueCurrentTheme.colors.successCheck} /> }
                 : { hideChevron: true })}
             />
             <BlueListItem
               onPress={() => this.onFeeSelected(NetworkTransactionFeeType.MEDIUM)}
-              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0, backgroundColor: BlueCurrentTheme.colors.transparent }}
               bottomDivider={false}
               title="Medium"
               rightTitle={`${this.state.networkFees.mediumFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueCurrentTheme.colors.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.MEDIUM
-                ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
+                ? { rightIcon: <Icon name="check" type="octaicon" color={BlueCurrentTheme.colors.successCheck} /> }
                 : { hideChevron: true })}
             />
             <BlueListItem
               onPress={() => this.onFeeSelected(NetworkTransactionFeeType.SLOW)}
-              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0 }}
+              containerStyle={{ paddingHorizontal: 0, marginHorizontal: 0, backgroundColor: BlueCurrentTheme.colors.transparent }}
               bottomDivider={false}
               title="Slow"
               rightTitle={`${this.state.networkFees.slowFee} sat/b`}
               rightTitleStyle={{ fontSize: 13, color: BlueCurrentTheme.colors.alternativeTextColor }}
               {...(this.state.selectedFeeType === NetworkTransactionFeeType.SLOW
-                ? { rightIcon: <Icon name="check" type="octaicon" color="#0070FF" /> }
+                ? { rightIcon: <Icon name="check" type="octaicon" color={BlueCurrentTheme.colors.successCheck} /> }
                 : { hideChevron: true })}
             />
           </>
@@ -2360,15 +2360,15 @@ export class BlueReplaceFeeSuggestions extends Component {
                 ref={ref => (this.customTextInput = ref)}
                 maxLength={9}
                 style={{
-                  borderColor: '#d2d2d2',
-                  borderBottomColor: '#d2d2d2',
+                  borderColor: BlueCurrentTheme.colors.formBorder,
+                  borderBottomColor: BlueCurrentTheme.colors.formBorder,
                   borderWidth: 1.0,
                   borderBottomWidth: 0.5,
                   borderRadius: 4,
                   minHeight: 33,
                   maxWidth: 100,
                   minWidth: 44,
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: BlueCurrentTheme.colors.inputBackgroundColor,
                   textAlign: 'right',
                 }}
                 onFocus={() => this.onCustomFeeTextChange(this.state.customFeeValue)}
