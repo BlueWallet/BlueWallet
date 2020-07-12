@@ -20,7 +20,7 @@ Community: [telegram group](https://t.me/bluewallet)
 * Lightning Network supported
 * SegWit-first. Replace-By-Fee support
 * Encryption. Plausible deniability
-* And many more [features...](https://bluewallet.io/features.html)
+* And many more [features...](https://bluewallet.io/features)
 
 
 <img src="https://i.imgur.com/hHYJnMj.png" width="100%">
