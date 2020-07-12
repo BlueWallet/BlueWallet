@@ -11,14 +11,13 @@ import {
   InteractionManager,
   FlatList,
   ScrollView,
-  RefreshControl,
   TouchableOpacity,
   StatusBar,
   Linking,
   KeyboardAvoidingView,
   Alert,
-  Clipboard,
 } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import PropTypes from 'prop-types';
 import ImagePicker from 'react-native-image-picker';
 import {
@@ -734,9 +733,8 @@ export default class WalletTransactions extends Component {
                 )}
               </ScrollView>
             }
-            refreshControl={
-              <RefreshControl onRefresh={() => this.refreshTransactions()} refreshing={this.state.showShowFlatListRefreshControl} />
-            }
+            onRefresh={() => this.refreshTransactions()}
+            refreshing={this.state.showShowFlatListRefreshControl}
             data={this.state.dataSource}
             extraData={this.state.timeElapsed}
             keyExtractor={this._keyExtractor}

@@ -1,18 +1,7 @@
 /* global alert */
 import React, { Component } from 'react';
-import {
-  StatusBar,
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  InteractionManager,
-  Clipboard,
-  RefreshControl,
-  SectionList,
-  Alert,
-  Platform,
-} from 'react-native';
+import { StatusBar, View, TouchableOpacity, Text, StyleSheet, InteractionManager, SectionList, Alert, Platform } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
 import { BlueScanButton, WalletsCarousel, BlueHeaderDefaultMain, BlueTransactionListItem, BlueNavigationStyle } from '../../BlueComponents';
 import { Icon } from 'react-native-elements';
 import DeeplinkSchemaMatch from '../../class/deeplink-schema-match';
@@ -530,7 +519,8 @@ export default class WalletsList extends Component {
         <StatusBar barStyle="dark-content" />
         <View style={styles.walletsListWrapper}>
           <SectionList
-            refreshControl={<RefreshControl onRefresh={this.refreshTransactions} refreshing={!this.state.isFlatListRefreshControlHidden} />}
+            onRefresh={this.refreshTransactions}
+            refreshing={!this.state.isFlatListRefreshControlHidden}
             renderItem={this.renderSectionItem}
             keyExtractor={this.sectionListKeyExtractor}
             renderSectionHeader={this.renderSectionHeader}
