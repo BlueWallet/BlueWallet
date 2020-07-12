@@ -17,10 +17,10 @@ import {
   Linking,
   KeyboardAvoidingView,
   Alert,
-  Clipboard,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import ImagePicker from 'react-native-image-picker';
+import Clipboard from '@react-native-community/clipboard';
 import {
   BlueSendButtonIcon,
   BlueListItem,

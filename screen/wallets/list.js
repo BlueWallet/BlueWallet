@@ -7,7 +7,6 @@ import {
   Text,
   StyleSheet,
   InteractionManager,
-  Clipboard,
   RefreshControl,
   SectionList,
   Alert,
@@ -20,6 +19,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import PropTypes from 'prop-types';
 import { AppStorage, PlaceholderWallet } from '../../class';
 import WalletImport from '../../class/wallet-import';
+import Clipboard from '@react-native-community/clipboard';
 import ActionSheet from '../ActionSheet';
 import ImagePicker from 'react-native-image-picker';
 import * as NavigationService from '../../NavigationService';
