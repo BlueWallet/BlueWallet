@@ -106,7 +106,7 @@ const tryToObtainPermissions = async function () {
           onPress: () => {
             resolve(false);
           },
-          style: 'cancel',
+          style: 'default',
         },
       ],
       { cancelable: false },
