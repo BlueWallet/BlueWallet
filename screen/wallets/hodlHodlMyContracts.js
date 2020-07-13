@@ -19,7 +19,6 @@ import {
   BlueNavigationStyle,
   BlueSpacing10,
   BlueSpacing20,
-  SafeBlueArea,
 } from '../../BlueComponents';
 import { AppStorage } from '../../class';
 import { HodlHodlApi } from '../../class/hodl-hodl-api';
