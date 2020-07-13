@@ -15,9 +15,9 @@ const INJECTED_JAVASCRIPT = `(function() {
     
 })();`;
 
-const HodlHodlLogin = props => {
+const HodlHodlLogin = () => {
   const webView = useRef();
-  const route = useRoute();
+  const { cb } = useRoute().params;
   const { dismiss } = useNavigation();
 
   return (
@@ -40,7 +40,7 @@ const HodlHodlLogin = props => {
           } catch (_) {}
 
           if (json && json.allowed && json.data && json.data.api_key) {
-            route.params.cb(json.data.api_key, json.data.api_signature_key);
+            cb(json.data.api_key, json.data.api_signature_key);
             dismiss();
           }
         }}

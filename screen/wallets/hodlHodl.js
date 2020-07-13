@@ -39,11 +39,6 @@ export default class HodlHodl extends Component {
   constructor(props) {
     super(props);
 
-    props.navigation.setParams({
-      handleLoginPress: this.handleLoginPress,
-      displayLoginButton: true,
-      handleMyContractsPress: this.handleMyContractsPress,
-    });
     this.state = {
       HodlApi: false,
       isLoading: true,
@@ -73,7 +68,7 @@ export default class HodlHodl extends Component {
       this.setState({ HodlApi, hodlApiKey });
       this.props.navigation.setParams({ displayLoginButton });
     };
-    NavigationService.navigate('HodlHodlLogin', { params: { cb: handleLoginCallback } });
+    NavigationService.navigate('HodlHodlLoginRoot', { params: { cb: handleLoginCallback }, screen: 'HodlHodlLogin' });
   };
 
   handleMyContractsPress = () => {
@@ -186,7 +181,11 @@ export default class HodlHodl extends Component {
 
     const HodlApi = new HodlHodlApi(hodlApiKey);
     this.setState({ HodlApi, hodlApiKey });
-    this.props.navigation.setParams({ displayLoginButton });
+    this.props.navigation.setParams({
+      handleLoginPress: this.handleLoginPress,
+      displayLoginButton: displayLoginButton,
+      handleMyContractsPress: this.handleMyContractsPress,
+    });
 
     try {
       await this.fetchMyCountry();
@@ -1041,7 +1040,7 @@ const styles = StyleSheet.create({
     color: BlueCurrentTheme.colors.foregroundColor,
     fontWeight: 'normal',
   },
-   currencyText: {
+  currencyText: {
     fontSize: 20,
     color: BlueCurrentTheme.colors.foregroundColor,
   },

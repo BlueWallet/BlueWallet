@@ -235,11 +235,11 @@ const UnlockWithScreenRoot = () => (
   </UnlockWithScreenStack.Navigator>
 );
 
-const HodlHodlStack = createStackNavigator();
-const HodlHodlRoot = () => (
-  <HodlHodlStack.Navigator name="HodlHodlRoot" screenOptions={defaultStackScreenOptions}>
-    <HodlHodlStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
-  </HodlHodlStack.Navigator>
+const HodlHodlLoginStack = createStackNavigator();
+const HodlHodlLoginRoot = () => (
+  <HodlHodlLoginStack.Navigator name="HodlHodlLoginRoot" screenOptions={defaultStackScreenOptions}>
+    <HodlHodlLoginStack.Screen name="HodlHodlLogin" component={HodlHodlLogin} options={HodlHodlLogin.navigationOptions} />
+  </HodlHodlLoginStack.Navigator>
 );
 
 const RootStack = createStackNavigator();
@@ -258,7 +258,7 @@ const Navigation = () => (
     <RootStack.Screen name="LNDCreateInvoiceRoot" component={LNDCreateInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="ScanLndInvoiceRoot" component={ScanLndInvoiceRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="AztecoRedeemRoot" component={AztecoRedeemRoot} options={{ headerShown: false }} />
-    <RootStack.Screen name="HodlHodlLogin" component={HodlHodlRoot} options={{ headerShown: false }} />
+    <RootStack.Screen name="HodlHodlLoginRoot" component={HodlHodlLoginRoot} options={{ headerShown: false }} />
     <RootStack.Screen name="HodlHodlMyContracts" component={HodlHodlMyContracts} options={HodlHodlMyContracts.navigationOptions} />
     <RootStack.Screen name="HodlHodlWebview" component={HodlHodlWebview} options={HodlHodlWebview.navigationOptions} />
     <RootStack.Screen
