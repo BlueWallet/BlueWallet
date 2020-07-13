@@ -18,7 +18,7 @@ const INJECTED_JAVASCRIPT = `(function() {
 const HodlHodlLogin = () => {
   const webView = useRef();
   const { cb } = useRoute().params;
-  const { dismiss } = useNavigation();
+  const navigation = useNavigation();
 
   return (
     <SafeBlueArea>
@@ -41,7 +41,7 @@ const HodlHodlLogin = () => {
 
           if (json && json.allowed && json.data && json.data.api_key) {
             cb(json.data.api_key, json.data.api_signature_key);
-            dismiss();
+            navigation.dangerouslyGetParent().pop();
           }
         }}
       />
