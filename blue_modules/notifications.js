@@ -175,5 +175,8 @@ if (Platform.OS === 'android') {
   configureNotifications();
 }
 
+// every launch should clear badges:
+PushNotificationIOS.setApplicationIconBadgeNumber(0);
+
 module.exports.tryToObtainPermissions = tryToObtainPermissions;
 module.exports.majorTomToGroundControl = majorTomToGroundControl;
