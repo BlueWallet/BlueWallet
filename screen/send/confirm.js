@@ -137,7 +137,7 @@ export default class Confirm extends Component {
         </BlueCard>
         {this.state.recipients.length > 1 && (
           <BlueText style={styles.valueOf}>
-            {index + 1} of {this.state.recipients.length}
+            {loc.formatString(loc._.of, { number: index + 1, total: this.state.recipients.length })}
           </BlueText>
         )}
       </>

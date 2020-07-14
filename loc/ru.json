@@ -4,6 +4,7 @@
     "continue": "Продолжить",
     "enter_password": "Введи пароль",
     "never": "Никогда",
+    "of": "{number} из {total}",
     "ok": "OK",
     "storage_is_encrypted": "Твоё хранилище зашифровано. Введи пароль для расшифровки"
   },
