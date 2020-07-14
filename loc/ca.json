@@ -1,0 +1,229 @@
+{
+  "_": {
+    "bad_password": "Contrasenya incorrecta. Torna-ho a provar.",
+    "continue": "Continuar",
+    "enter_password": "Introduïu la contrasenya",
+    "never": "mai",
+    "ok": "OK",
+    "storage_is_encrypted": "L'informació està xifrada. Es requereix la contrasenya per a desxifrar-la."
+  },
+  "buyBitcoin": {
+    "copied": "Adreça copiada!",
+    "header": "Comprar Bitcoin",
+    "tap_your_address": "Clica a la teva adreça per copiar-la al porta-retalls:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Seleccioni un moneder font",
+    "expired": "Caducat",
+    "placeholder": "Factura",
+    "refill": "Recarregar",
+    "refill_lnd_balance": "Recarregar el balanç del moneder Lightning",
+    "sameWalletAsInvoiceError": "No pots pagar una factura amb el mateix moneder que l'ha creat.",
+    "title": "gestionar fons",
+    "withdraw": "Retirar"
+  },
+  "lndViewInvoice": {
+    "additional_info": "Informació addicional",
+    "for": "Per:",
+    "has_been_paid": "Aquesta factura ha estat pagada",
+    "open_direct_channel": "Obrir un canal directe amb aquest node:",
+    "please_pay": "Si us plau, pagui",
+    "wasnt_paid_and_expired": "Aquesta factura no ha estat pagada i ha caducat"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Crear informació xifrada falsa",
+    "create_password": "Crear una contrasenya",
+    "create_password_explanation": "La contrasenya no pot ser la mateixa que la del seu moneder principal.",
+    "go_back": "Tornar enrere",
+    "help": "Sota certes circumstàncies, vostè podria ser obligat a revelar la contrasenya del seu moneder. Per a mantenir les seves monedes segures, BlueWallet pot crear un altre moneder xifrat, amb una altra contrasenya. Si es veu obligat, pot revelar la contrasenya per al fals moneder a un tercer de manera que ells creuran que és el seu moneder principal",
+    "help2": "El moneder \"false\" és completament funcional. Pot dipositar una quantitat mínima perquè sigui més creïble.",
+    "password_should_not_match": "La contrasenya no pot ser la mateixa que la del seu moneder principal.",
+    "passwords_do_not_match": "Les contrasenyes no coincideixin. Torni-ho a intentar",
+    "retype_password": "Tornar a escriure la contrasenya",
+    "success": "Exit",
+    "title": "Negació plausible"
+  },
+  "pleasebackup": {
+    "ok": "OK, ja he assegurat una còpia en paper!",
+    "text": "Si us plau, apunteu en un paper el mnemotècnic. Aquesta 'frase' et permetrà regenerar el teu moneder en altres dispositius.",
+    "title": "El teu moneder ha estat creat..."
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Copiat al porta-retalls.",
+      "create": "Crear",
+      "label": "Descripció",
+      "setAmount": "Rebre quantitat",
+      "share": "Compartir",
+      "title": "Compartir aquesta adreça amb el pagador"
+    },
+    "header": "Rebre",
+    "scan_lnurl": "Escanejar per rebre"
+  },
+  "send": {
+    "confirm": {
+      "header": "Confirmar",
+      "sendNow": "Enviar ara"
+    },
+    "create": {
+      "amount": "Quantitat",
+      "broadcast": "Transmetre",
+      "details": "Detalls",
+      "error": "Error en crear una transacció. Són l'adreça i la quantitat valides?",
+      "fee": "Comissió",
+      "go_back": "Tornar enrere",
+      "memo": "Comentari",
+      "not_enough_fee": "Comissió insuficient. Incrementi el valor de la comissió",
+      "satoshi_per_byte": "satoshiPerByte",
+      "this_is_hex": "Això és la representació en hexadecimal (hex) de la transacció, firmada i llesta per ser enviada a la xarxa. ¿Continuar?",
+      "title": "Crear una transacció",
+      "to": "A",
+      "tx_size": "Mida de TX"
+    },
+    "details": {
+      "address": "Adreça",
+      "address_field_is_not_valid": "Adreça invalida",
+      "amount_field_is_not_valid": "Quantitat invalida",
+      "amount_placeholder": "quantitat a enviar (en BTC)",
+      "cancel": "Cancel·lar",
+      "create": "Crear",
+      "create_tx_error": "S'ha produït un error en crear la transacció. Si us plau, asseguris que l'adreça es valida.",
+      "fee_field_is_not_valid": "Comissió invalida",
+      "fee_placeholder": "més la comissió per la transacció (en BTC)",
+      "note_placeholder": "comentari (útil per tu)",
+      "remaining_balance": "Balanç disponible",
+      "scan": "Escanejar",
+      "send": "Enviar",
+      "title": "Crear Transacció",
+      "total_exceeds_balance": "La quantitat excedeix el balanç disponible."
+    },
+    "header": "enviar",
+    "success": {
+      "done": "Fet"
+    }
+  },
+  "settings": {
+    "about": "Sobre nosaltres",
+    "advanced_options": "Configuracions avançades",
+    "currency": "Moneda",
+    "electrum_settings": "Configuració d'Electrum",
+    "electrum_settings_explain": "Deixa-ho buit per usar el valor per defecte",
+    "enable_advanced_mode": "Habilitar el mode avançat",
+    "encrypt_storage": "Xifrar l'informacio del moneder",
+    "header": "Configuració",
+    "language": "Idioma",
+    "lightning_settings": "Configuració Lightning",
+    "lightning_settings_explain": "Per connectar-te al teu propi node LND node instala LndHub i posa la seva URL aquí. Deixa el camp buit per utilitzar el LndHub per defecte \n (lndhub.io)",
+    "password": "Contrasenya",
+    "password_explain": "Crear la contrasenya que usaràs per desxifrar l'informació dels moneders",
+    "passwords_do_not_match": "La contrasenya no coincideix",
+    "plausible_deniability": "Negació plausible...",
+    "retype_password": "Introdueix de nou la contrasenya contrasenya",
+    "save": "guardar",
+    "storage_encrypted": "Informació: xifrada",
+    "storage_not_encrypted": "Informació: NO xifrada (es recomana xifrar-la)"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Copiar",
+      "from": "De",
+      "show_in_block_explorer": "Mostrar en l'explorador de blocs",
+      "title": "Transacció",
+      "to": "A",
+      "transaction_details": "Detalls de la transacció"
+    },
+    "list": {
+      "description": "Una llista de transaccions, entrades i sortides del seu moneder",
+      "tabBarLabel": "Transaccions",
+      "title": "transaccions"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Pròximament",
+      "create": "Crear",
+      "description": "Pots escanejar moneders de paper (en format WIF) o crear un nou moneder. Els moneders SegWit són compatibles per defecte.",
+      "import_wallet": "Importar moneder",
+      "imported": "Importat",
+      "label_new_lightning": "Nou Lightning",
+      "label_new_segwit": "Nou SegWit",
+      "or": "o",
+      "scan": "Escanejar",
+      "title": "Afegir moneder",
+      "wallet_name": "nom del moneder",
+      "wallet_type": "tipus de moneder"
+    },
+    "createBitcoinWallet": "Per poder utilitzar un moneder Lightning és necessari un moneder Bitcoin per finançar la primera operació. Vols continuar?",
+    "details": {
+      "address": "Direcció",
+      "advanced": "Avançat",
+      "are_you_sure": "¿Estàs segur?",
+      "buy_bitcoin": "Comprar Bitcoin",
+      "connected_to": "Connectat a",
+      "delete": "Eliminar",
+      "delete_this_wallet": "Eliminar aquest moneder",
+      "description": "descripció",
+      "destination": "destí",
+      "export_backup": "Exportar / Guardar",
+      "label": "Etiqueta",
+      "master_fingerprint": "Petjada digital mestre",
+      "no_cancel": "No, cancel·lar",
+      "save": "Guardar",
+      "show_xpub": "Mostrar wallet XPUB",
+      "title": "Detalls del moneder",
+      "type": "Tipus",
+      "use_with_hardware_wallet": "Usar amb un moneder hardware",
+      "yes_delete": "Si, eliminar"
+    },
+    "export": {
+      "title": "Exportació de moneder"
+    },
+    "import": {
+      "do_import": "Importar",
+      "error": "No s'ha pogut importar. ¿És vàlid?",
+      "explanation": "Escrigui aquí el mnemotècnic, clau privada, WIF, o quelcom que tingui. BlueWallet fara tot el posible per encertar el formato correcte e importar el moneder.",
+      "imported": "Importat",
+      "scan_qr": "o escanejar codi QR?",
+      "success": "Èxit",
+      "title": "importar"
+    },
+    "list": {
+      "add": "Afegir moneder",
+      "create_a_button": "Afegir ara",
+      "create_a_wallet": "Afegeix un moneder",
+      "create_a_wallet1": "És gratuït i pots crear",
+      "create_a_wallet2": "tants com vulguis",
+      "empty_txs1": "Les seves transaccions apareixeran aquí,",
+      "empty_txs1_lightning": "Els moneders Lightning poden ser usats per les seves transaccions diàries. Les comissions són baixes i els pagaments ràpids.",
+      "empty_txs2": "encara no té cap transacció.",
+      "empty_txs2_lightning": "",
+      "header": "Un moneder està representat per un secret (clau privada) i una direcció que pots compartir per rebre utxo (monedes*).",
+      "latest_transaction": "última transacció",
+      "tap_here_to_buy": "Prem aquí per comprar Bitcoin",
+      "title": "moneders"
+    },
+    "options": "opcions",
+    "reorder": {
+      "title": "Reorganitzar moneder"
+    },
+    "scanQrWif": {
+      "bad_password": "Contrasenya invalida",
+      "bad_wif": "WIF incorrecte",
+      "cancel": "Cancel·lar",
+      "decoding": "Descodificació",
+      "go_back": "Tornar enrere",
+      "imported_legacy": "Legacy importat",
+      "imported_segwit": "SegWit importat",
+      "imported_watchonly": "Watch-only importat",
+      "imported_wif": "WIF importat ",
+      "input_password": "Ingressi la seva contrasenya",
+      "password_explain": "Això és una BIP38 clau privada encriptada",
+      "wallet_already_exists": "El moneder ja existeix",
+      "with_address": " amb adreça "
+    },
+    "select_wallet": "Seleccioni moneder",
+    "xpub": {
+      "copiedToClipboard": "Copiat al porta-retalls."
+    }
+  }
+}

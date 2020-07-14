@@ -1,0 +1,190 @@
+{
+  "_": {
+    "bad_password": "Contraseña incorrecta. Intente nuevamente.",
+    "continue": "Continua",
+    "enter_password": "Inserte contraseña",
+    "never": "nunca",
+    "ok": "OK",
+    "storage_is_encrypted": "Su almacenamiento está cifrado. Se requiere contraseña para descifrarla."
+  },
+  "lnd": {
+    "choose_source_wallet": "Elija una billetera de fuente",
+    "expired": "Expirado",
+    "refill": "Rellenar",
+    "refill_lnd_balance": "Rellenar el balance de la billetera Lightning",
+    "title": "manejar fondos",
+    "withdraw": "Retirar"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Crear un almacen cifrado falso",
+    "create_password": "Crear una contraseña",
+    "create_password_explanation": "La contraseña para el almacen falso no puede ser el mismo para su almacen principal.",
+    "go_back": "Regresar",
+    "help": "Bajo ciertas circunstancias, usted podría verse obligado a revelar un contraseña. Para mantener sus monedas seguras, BlueWallet puede crear otro almacenamiento cifrado, con una contraseña diferente. Bajo la presiónpuede revelar esta contraseña a un tercero. Si se ingresa en BlueWallet, desbloqueará un nuevo almacenamiento `falso`. Esto parecerá legítimo para un tercero, pero en secreto mantendrá su almacenamiento principal con monedas seguras.",
+    "help2": "El nuevo almacen sera completamente funcional, y puedes almacenar cantidades minimas para que sea mas creible.",
+    "password_should_not_match": "La contraseña para el almacen falso no puede ser el mismo para su almacen principal.",
+    "passwords_do_not_match": "Las contraseñas no coinciden, intente nuevamente",
+    "retype_password": "Volver a escribir contraseña",
+    "success": "Exitoso",
+    "title": "Negación plausible"
+  },
+  "pleasebackup": {
+    "ok": "OK, I wrote this down!"
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Copiado a portapapeles.",
+      "share": "Compartir",
+      "title": "Comparte esta dirección con el pagador"
+    },
+    "header": "Recibir"
+  },
+  "send": {
+    "create": {
+      "amount": "Cantidad",
+      "broadcast": "Transmitir",
+      "details": "Detalles",
+      "error": "Error al crear una transacción. ¿Dirección o cantidad estan invalidas?",
+      "fee": "Tasa",
+      "go_back": "Regresar",
+      "memo": "Comentario",
+      "not_enough_fee": "Tasa no es suficiente. Incremente la tasa",
+      "satoshi_per_byte": "satoshiPorByte",
+      "this_is_hex": "Este es representacion hex de transacción, firmado y listo para ser transmitido a la red. ¿Continuar?",
+      "title": "Crear una Transaccion",
+      "to": "A",
+      "tx_size": "tamaño de TX"
+    },
+    "details": {
+      "address": "Direccion",
+      "address_field_is_not_valid": "La dirección no es válida",
+      "amount_field_is_not_valid": "La cantidad no es válida",
+      "amount_placeholder": "cantidad para enviar (in BTC)",
+      "cancel": "Cancelar",
+      "create": "Crear",
+      "create_tx_error": "Se ha producido un error al crear la transacción. Por favor, asegúrese de que la dirección es válida.",
+      "fee_field_is_not_valid": "La tasa no es válida",
+      "fee_placeholder": "más tasa de transaccion (in BTC)",
+      "note_placeholder": "comentario (para ti mismo)",
+      "remaining_balance": "Balance disponible",
+      "scan": "Escaniar",
+      "send": "Envíar",
+      "title": "Crear Transaccion",
+      "total_exceeds_balance": "El monto excede el balance disponible."
+    },
+    "header": "enviar"
+  },
+  "settings": {
+    "about": "Sobre nosotros",
+    "currency": "Moneda",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "Cifrar almacenamiento",
+    "header": "Ajustes",
+    "language": "Idioma",
+    "lightning_settings": "Lightning settings",
+    "lightning_settings_explain": "To connect to your own LND node please install LndHub and put its URL here in settings. Leave blank to use default ndHub\n (lndhub.io)",
+    "password": "Contraseña",
+    "password_explain": "Crea la contraseña que usarás para descifrar el almacenamiento",
+    "passwords_do_not_match": "Contraseñas deben ser iguales",
+    "plausible_deniability": "Negación plausible...",
+    "retype_password": "Ingresa la contraseña nuevamente",
+    "save": "save",
+    "storage_encrypted": "Almacenamiento: cifrado",
+    "storage_not_encrypted": "Almacenamiento: no esta cifrado"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Copiar",
+      "from": "De",
+      "show_in_block_explorer": "Mostrar en explorador de bloques",
+      "title": "Transaccion",
+      "to": "A",
+      "transaction_details": "Detalles de la transacción"
+    },
+    "list": {
+      "description": "Una lista de las transacciones entrantes o salientes de sus billeteras",
+      "tabBarLabel": "Transacciónes",
+      "title": "transacciónes"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Viene pronto",
+      "create": "Crear",
+      "description": "Puedes escanear la billetera de papel (en WIF - Formato de importación de billeteras) o crear una nueva billetera. Las billeteras SegWit estan compatibles por defecto.",
+      "import_wallet": "Importar billetera",
+      "imported": "Importado",
+      "label_new_lightning": "Nuevo Lightning",
+      "label_new_segwit": "Nuevo SegWit",
+      "or": "o",
+      "scan": "Escanear",
+      "title": "Añadir billetera",
+      "wallet_name": "nombre de billetera",
+      "wallet_type": "tipo de billetera"
+    },
+    "createBitcoinWallet": "In order to use a Lightning wallet, a Bitcoin wallet is needed in order to fund it. Would you like to continue anyway?",
+    "details": {
+      "address": "Dirección",
+      "are_you_sure": "¿Estás seguro?",
+      "delete": "Eliminar",
+      "delete_this_wallet": "Eliminar esta carterqa",
+      "description": "descripcion",
+      "destination": "destino",
+      "export_backup": "Exportar / Guardar",
+      "label": "Etiqueta",
+      "no_cancel": "No, cancelar",
+      "save": "Guardar",
+      "title": "Detalles de la billetera",
+      "type": "Tipo",
+      "yes_delete": "Si, eliminar"
+    },
+    "export": {
+      "title": "Exportacion de billetera"
+    },
+    "import": {
+      "do_import": "Importar",
+      "error": "No se pudo importar. ¿Es valido?",
+      "explanation": "Escriba aquí mnemotécnica, clave privada, WIF o cualquier cosa que tenga. BlueWallet hará todo lo posible para adivinar el formato correcto e importar su billetera.",
+      "imported": "Importado",
+      "scan_qr": "o escanear codigo QR?",
+      "success": "Exito",
+      "title": "importar"
+    },
+    "list": {
+      "add": "Añadir Carterqa",
+      "create_a_button": "Agrega ahora",
+      "create_a_wallet": "Agrega una billetera",
+      "create_a_wallet1": "Es gratis y puedes crear",
+      "create_a_wallet2": "cuantas usted quiera",
+      "empty_txs1": "Sus transacciones aparecerán aquí,",
+      "empty_txs2": "ninguno por el momento.",
+      "header": "Un Monedero esta representado con secreto (clave privada) y una direcciónque puedes compartir para recibir monedas.",
+      "latest_transaction": "última transacción",
+      "tap_here_to_buy": "Tap here to buy Bitcoin",
+      "title": "billeteras"
+    },
+    "options": "opciones",
+    "reorder": {
+      "title": "Reorganizar Billetera"
+    },
+    "scanQrWif": {
+      "bad_password": "Contraseña equivocada",
+      "bad_wif": "WIF equivocado",
+      "cancel": "Cancelar",
+      "decoding": "Descodificación",
+      "go_back": "Regresar",
+      "imported_legacy": "Legado importado",
+      "imported_segwit": "SegWit importado",
+      "imported_watchonly": "Watch-only importado",
+      "imported_wif": "WIF importado ",
+      "input_password": "Ingrese su contraseña",
+      "password_explain": "Eso es BIP38 clave privada encriptada",
+      "wallet_already_exists": "Esa billetera ya existe",
+      "with_address": " con dirección "
+    },
+    "select_wallet": "Selecciona billetera",
+    "xpub": {
+      "copiedToClipboard": "Copiado a portapapeles."
+    }
+  }
+}

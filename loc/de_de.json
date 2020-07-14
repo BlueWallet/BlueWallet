@@ -1,0 +1,227 @@
+{
+  "_": {
+    "bad_password": "Fasches Passwort, nächster Versuch",
+    "continue": "Weiter",
+    "enter_password": "Gib das Passwort ein",
+    "never": "nie",
+    "ok": "OK",
+    "storage_is_encrypted": "Dein Speicher ist verschlüsselt. Zum Entschlüsseln wird ein Passwort benötigt."
+  },
+  "buyBitcoin": {
+    "copied": "In die Zwischenablage kopiert!",
+    "header": "Kaufe Bitcoin",
+    "tap_your_address": "Adresse antippen, um sie in die Zwischenablage zu kopieren:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Wähle eine Wallet als Zahlungsquelle",
+    "expired": "Abgelaufen",
+    "placeholder": "Rechnung",
+    "refill": "Aufladen",
+    "refill_lnd_balance": "Lade deine Lightning Wallet auf",
+    "sameWalletAsInvoiceError": "Du kannst nicht die Rechnung mit der Wallet begleichen, die du für die Erstellung dieser Rechnung verwendet hast.",
+    "title": "Beträge verwalten",
+    "withdraw": "Abheben"
+  },
+  "lndViewInvoice": {
+    "for": "für:",
+    "has_been_paid": "Diese Rechnung wurde bezahlt.",
+    "open_direct_channel": "Direkten Kanal zu diesem Knoten eröffnen:",
+    "please_pay": "Bitte zahle",
+    "wasnt_paid_and_expired": "Diese Rechnung ist unbezahlt und abgelaufen."
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Erstelle verschlüsselten Speicher zur Täuschung",
+    "create_password": "Erstelle ein Passwort",
+    "create_password_explanation": "Das Passwort für den täuschenden Speicher darf nicht mit dem deines Hauptspeichers übereinstimmen",
+    "go_back": "Zurück",
+    "help": "Unter bestimmten Umständen könntest du dazu gezwungen werden, dein Passwort preiszugeben. Um deine Bitcoins zu sichern, kann BlueWallet einen weiteren verschlüsselten Speicher mit einem anderen Passwort erstellen. Unter Druck kannst du das zweite Passwort an Fremde weitergeben. Wenn eingegeben, öffnet BlueWallet einen anderen Speicher zur Täuschung. Dies wirkt auf Fremde täuschend echt und dein Hauptspeicher bleibt geheim und sicher.",
+    "help2": "Der andere Speicher ist voll funktional und man kann einen Minimalbetrag für die Glaubhaftigkeit hinterlegen.",
+    "password_should_not_match": "Das Passwort für den täuschenden Speicher darf nicht mit dem deines Hauptspeichers übereinstimmen",
+    "passwords_do_not_match": "Passwörter stimmen nicht überein. Neuer Versuch",
+    "retype_password": "Passwort wiederholen",
+    "success": "Erfolg!",
+    "title": "Glaubhafte Täuschung"
+  },
+  "pleasebackup": {
+    "ok": "Ja, mein Geld ist sicher!",
+    "text": "Nimm Dir Zeit die mnemonischen Wörter zur späteren Wiederherstellung des Wallets aufzuschreiben. Die Wörter sind dein einziges Backup im Fall eines Geräteverlustes.",
+    "title": "Ihr Wallet wird erstellt..."
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "In die Zwischenablage kopiert.",
+      "create": "Erstelle",
+      "label": "Beschreibung",
+      "setAmount": "Zu erhaltender Betrag",
+      "share": "Teilen",
+      "title": "Teile diese Adresse mit dem Zahlenden"
+    },
+    "header": "Erhalten",
+    "scan_lnurl": "Scannen, zum Erhalten"
+  },
+  "send": {
+    "confirm": {
+      "header": "Bestätigen",
+      "sendNow": "Jetzt senden"
+    },
+    "create": {
+      "amount": "Betrag",
+      "broadcast": "Übertragen",
+      "error": "Fehler beim Erstellen der Transaktion. Falsche Adresse oder Betrag?",
+      "fee": "Gebühr",
+      "go_back": "Zurück",
+      "not_enough_fee": "Gebühr zu gering. Erhöhe die Gebühr",
+      "satoshi_per_byte": "Satoshi pro Byte",
+      "this_is_hex": "Das ist die hexadezimale Darstellung der signierten Transaktion und bereit zum Übertragen an das Netzwerk",
+      "title": "Transaktion erstellen",
+      "to": "An",
+      "tx_size": "Größe"
+    },
+    "details": {
+      "address": "Adresse",
+      "address_field_is_not_valid": "Adresseingabe ist nicht korrekt",
+      "amount_field_is_not_valid": "Betrageingabe ist nicht korrekt",
+      "amount_placeholder": "Betrag (in BTC)",
+      "cancel": "Abbrechen",
+      "create": "Erstellen",
+      "create_tx_error": "Fehler beim Erstellen der Transaktion. Bitte stelle sicher, dass die Adresse korrekt ist.",
+      "fee_field_is_not_valid": "Gebühreingabe ist nicht korrekt",
+      "fee_placeholder": "plus Gebühr (in BTC)",
+      "note_placeholder": "Notiz",
+      "remaining_balance": "Verfügbarer Betrag",
+      "scan": "Scannen",
+      "send": "Senden",
+      "title": "Transaktion erstellen",
+      "total_exceeds_balance": "Der zu sendende Betrag ist größer als der verfügbare Betrag."
+    },
+    "header": "Senden",
+    "success": {
+      "done": "Fertig"
+    }
+  },
+  "settings": {
+    "about": "Über",
+    "advanced_options": "Erweiterte Optionen",
+    "currency": "Währung",
+    "electrum_settings": "Electrum Einstellungen",
+    "electrum_settings_explain": "Leer lassen, um den Standard zu verwenden.",
+    "enable_advanced_mode": "Erweiterter Modus verwenden",
+    "encrypt_storage": "Speicher verschlüsseln",
+    "header": "Einstellungen",
+    "language": "Sprache",
+    "lightning_settings": "Lightning Einstellungen",
+    "lightning_settings_explain": "Bitte installier Lndhub, um mit deiner eigenen LND Node zu verbinden und setz seine URL hier in den Einstellungen. Lass das Feld leer, um Standard- LndHub\n (lndhub.io) zu verwenden",
+    "password": "Passwort",
+    "password_explain": "Erstelle das Passwort zum Entschlüsseln des Speichers",
+    "passwords_do_not_match": "Passwörter stimmen nicht überein",
+    "plausible_deniability": "Glaubhafte Täuschung...",
+    "retype_password": "Passwort wiederholen",
+    "save": "Speichern",
+    "storage_encrypted": "Speicher verschlüsselt",
+    "storage_not_encrypted": "Speicher nicht verschlüsselt"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Kopieren",
+      "from": "Eingehend",
+      "show_in_block_explorer": "Im Block-Explorer zeigen",
+      "title": "Transaktionen",
+      "to": "Ausgehend",
+      "transaction_details": "Details"
+    },
+    "list": {
+      "conf": "Konf",
+      "description": "Eine Liste eingehender oder ausgehender Transaktionen deiner Wallets",
+      "tabBarLabel": "Transaktionen",
+      "title": "Transaktionen"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Demnächst verfügbar",
+      "create": "Erstellen",
+      "description": "Du kannst entweder ein Backup einer Paper-Wallet einscannen (im WIF - Wallet Import Format) oder eine neue Wallet erstellen. SegWit Wallets werden standardmäßig unterstützt.",
+      "import_wallet": "Wallet importieren",
+      "imported": "Importiert",
+      "label_new_lightning": "Neue Lightning Wallet",
+      "label_new_segwit": "Neue SegWit Wallet",
+      "or": "oder",
+      "scan": "Scannen",
+      "title": "Wallet hinzufügen",
+      "wallet_name": "Wallet Name",
+      "wallet_type": "Typ"
+    },
+    "createBitcoinWallet": "Um eine Lightning wallet zu verwenden, muss erstmal eine Bitcoin Wallet eingerichtet werden. Bitte erstell oder importier eine Bitcoin Wallet.",
+    "details": {
+      "address": "Adresse",
+      "advanced": "Fortgeschritten",
+      "are_you_sure": "Bist du dir sicher??",
+      "buy_bitcoin": "Bitcoin kaufen",
+      "connected_to": "Verbunden mit",
+      "delete": "Löschen",
+      "delete_this_wallet": "Lösche diese Wallet",
+      "description": "Beschreibung",
+      "destination": "Zieladresse",
+      "export_backup": "Exportieren / Backup",
+      "label": "Bezeichnung",
+      "master_fingerprint": "Fingerabdruckerkennung",
+      "no_cancel": "Nein, abbrechnen",
+      "save": "Sichern",
+      "show_xpub": "Wallet XPUB zeigen",
+      "type": "Typ",
+      "use_with_hardware_wallet": "Hardware Wallet nutzen",
+      "yes_delete": "Ja, löschen"
+    },
+    "export": {
+      "title": "Wallet exportieren"
+    },
+    "import": {
+      "do_import": "Importieren",
+      "error": "Fehler beim Import. Ist die Eingabe korrekt?",
+      "explanation": "Gib hier deine mnemonische Phrase, deinen privaten Schlüssel, WIF oder worüber du auch immer verfügst ein. BlueWallet wird bestmöglich dein Format interpretieren und die Wallet importieren",
+      "imported": "Importiert",
+      "scan_qr": "oder QR-Code scannen?",
+      "success": "Erfolg",
+      "title": "Importieren"
+    },
+    "list": {
+      "add": "Wallet hinzufügen",
+      "create_a_button": "Jetzt hinzufügen",
+      "create_a_wallet": "Wallet erstellen",
+      "create_a_wallet1": "Es ist kostenlos und du kannst",
+      "create_a_wallet2": "so viele Wallets erstellen, wie du möchtest",
+      "empty_txs1": "Deine Transaktionen erscheinen hier",
+      "empty_txs1_lightning": "Verwende das Lightning Wallet für Deine täglichen Bezahlungen. Lightning Transaktionen sind konkurrenzlos günstig und verblüffend schnell.",
+      "empty_txs2": "Noch keine Transaktionen",
+      "empty_txs2_lightning": "\nDrücke zum Starten «Beträge verwalten», um das Wallet zu laden.",
+      "header": "Eine Wallet spiegelt ein Paar kryptographische Schlüssel wider. Einen geheimen Schlüseel und eine Adresse als öffentlichen Schlüssel. Den öffentlichen Schlüssel kann man zum Empfang von Bitcoin teilen.",
+      "latest_transaction": "Lezte Transaktion",
+      "tap_here_to_buy": "Klicke hier, um Bitcoin zu kaufen",
+      "title": "Wallets"
+    },
+    "options": "Einstellungen",
+    "reorder": {
+      "title": "Wallets neu ordnen"
+    },
+    "scanQrWif": {
+      "bad_password": "Falsches Passwort",
+      "bad_wif": "Falsches WIF",
+      "cancel": "Abbrechen",
+      "decoding": "Entschlüsseln",
+      "go_back": "Zurück",
+      "imported_legacy": "Legacy importiert",
+      "imported_segwit": "SegWit importiert",
+      "imported_watchonly": "Watch-Only importiert",
+      "imported_wif": "WIF importiert",
+      "input_password": "Passwort eingeben",
+      "password_explain": "Das ist ein mit BIP38 verschlüsselter geheimer Schlüssel",
+      "wallet_already_exists": "Diese Wallet existiert bereits",
+      "with_address": " mit Adresse "
+    },
+    "select_wallet": "Wähle eine Wallet",
+    "xpub": {
+      "copiedToClipboard": "In die Zwischenablage kopiert.",
+      "title": "Wallet XPUB"
+    }
+  }
+}

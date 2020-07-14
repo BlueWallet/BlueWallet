@@ -1,0 +1,207 @@
+{
+  "_": {
+    "bad_password": "Väärä salasana, yritä uudelleen",
+    "continue": "Jatka",
+    "enter_password": "Anna salasana",
+    "never": "ei koskaan",
+    "ok": "OK",
+    "storage_is_encrypted": "Tallennustilasi on salattu. Salasana vaaditaan sen purkamiseksi"
+  },
+  "buyBitcoin": {
+    "copied": "Kopioitu leikepöydälle!",
+    "header": "Osta Bitcoinia",
+    "tap_your_address": "Napsauta osoitettasi kopioidaksesi sen leikepöydälle:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Valitse lähdelompakko",
+    "expired": "Erääntynyt",
+    "placeholder": "Lasku",
+    "refill": "Täytä",
+    "refill_lnd_balance": "Täytä Lightning lompakon katetta",
+    "sameWalletAsInvoiceError": "Et voi maksaa laskua samalla lompakolla, jolla se on luotu.",
+    "title": "hallinnoi varoja",
+    "withdraw": "Nosta"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Luo väärennetty tallennustila",
+    "create_password": "Luo salasana",
+    "create_password_explanation": "Väärennetyn tallennustilan salasanan ei tule täsmätä oikean tallennustilan salasanan kanssa",
+    "go_back": "Mene Takaisin",
+    "help": "Joissain tilanteissa, saatat olla pakotettu kertomaan salasanasi. Pitääksesi kolikkosi turvassa, BlueWallet voi luoda toisen salatun tallennustilan, toisella salasanalla. Paineen alla, voit kertoa tämän salasanan kolmannelle osapuolelle. Annettaessa BlueWalletiin, se avaa uuden väärennetyn tallennustilan. Se näyttää oikealta kolmannelle osapuolelle, mutta pitää oikean tallennustilasi kolikkoineen turvassa.",
+    "help2": "Uusi tallennustila näyttää täysin toimivalta, ja voit säilyttää pieniä summia siellä, jotta se näyttää uskottavalta.",
+    "password_should_not_match": "Väärennetyn tallennustilan salasanan ei tule täsmätä oikean tallennustilan salasanan kanssa",
+    "passwords_do_not_match": "Salasanat eivät täsmää, yritä uudelleen",
+    "retype_password": "Salasana uudelleen",
+    "success": "Onnistui",
+    "title": "Uskottava Kiistettävyys"
+  },
+  "pleasebackup": {
+    "ok": "OK, I wrote this down!"
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Kopioitu leikepöydälle.",
+      "create": "Luo",
+      "label": "Selite",
+      "setAmount": "Vastaanotettava summa",
+      "share": "jaa",
+      "title": "Jaa tämä osoite maksajalle"
+    },
+    "header": "Vastaanota"
+  },
+  "send": {
+    "confirm": {
+      "header": "Vahvista",
+      "sendNow": "Lähetä nyt"
+    },
+    "create": {
+      "amount": "Summa",
+      "broadcast": "Kuuluta",
+      "details": "Tiedot",
+      "error": "Virhe siirron luonnissa. Väärä osoite tai lähetettävä summa?",
+      "fee": "Kulu",
+      "go_back": "Mene Takaisin",
+      "not_enough_fee": "Kulu ei riitä. Korota kulua.",
+      "satoshi_per_byte": "Satoshia per tavu",
+      "this_is_hex": "Tämä on siirron hex, allekirjoitettu ja valmis kuulutettavaksi verkkoon.",
+      "title": "luo siirto",
+      "to": "Vastaanottaja",
+      "tx_size": "TX koko"
+    },
+    "details": {
+      "address": "osoite",
+      "address_field_is_not_valid": "Osoite ei kelpaa",
+      "amount_field_is_not_valid": "Määrä ei kelpaa",
+      "amount_placeholder": "lähetettävä summa (BTC)",
+      "cancel": "Peruuta",
+      "create": "Luo",
+      "create_tx_error": "Virhe siirron luonnissa. Varmista, että osoite on oikein.",
+      "fee_field_is_not_valid": "Siirtokulu ei kelpaa",
+      "fee_placeholder": "plus siirtokulu (BTC)",
+      "note_placeholder": "muistiinpano",
+      "remaining_balance": "Jäljellä oleva kate",
+      "scan": "Skannaa",
+      "send": "Lähetä",
+      "title": "luo siirto",
+      "total_exceeds_balance": "Lähetettävä summa ylittää katteen"
+    },
+    "header": "Lähetä",
+    "success": {
+      "done": "Valmis"
+    }
+  },
+  "settings": {
+    "about": "Tietoa",
+    "currency": "Valuutta",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "Salaa tallennustila",
+    "header": "asetukset",
+    "language": "Kieli",
+    "lightning_settings": "Lightning asetukset",
+    "lightning_settings_explain": "Yhdistääksesi omaan LND noodiin, asenna LndHub ja laita sen URL tänne. Jätä tyhjäksi käyttääksesi BlueWalletin LNDHubia (lndhub.io). Muutosten tallentamisen jälkeen luodut lompakot yhdistävät annettuun LNDHubiin.",
+    "password": "Salasana",
+    "password_explain": "Luo salasana, jota käytät tallennustilan salauksen purkamiseen",
+    "passwords_do_not_match": "Salasanat eivät täsmää",
+    "plausible_deniability": "Uskottava kiistettävyys...",
+    "retype_password": "Salasana uudelleen",
+    "save": "Tallenna",
+    "storage_encrypted": "Tallennustila: salattu",
+    "storage_not_encrypted": "Tallennustila: salaamaton"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Kopioi",
+      "show_in_block_explorer": "Näytä lohkoketjuselaimessa",
+      "title": "Siirto",
+      "transaction_details": "Siirron tiedot"
+    },
+    "list": {
+      "description": "Lompakkojesi saapuvat ja lähtevät siirrot",
+      "tabBarLabel": "Siirrot",
+      "title": "siirrot"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Tulossa",
+      "create": "Luo",
+      "description": "Voit joko skannata paperisen lompakon (WIF - Wallet Import Format), tai luoda uuden. Segwit lompakkoja tuetaan oletuksena.",
+      "import_wallet": "Tuo lompakko",
+      "imported": "Tuotu",
+      "label_new_lightning": "Uusi Lightning",
+      "label_new_segwit": "Uusi SegWit",
+      "or": "tai",
+      "scan": "Skannaa",
+      "title": "lisää lompakko",
+      "wallet_name": "nimi",
+      "wallet_type": "tyyppi"
+    },
+    "createBitcoinWallet": "Sinulla ei tällä hetkellä ole Bitcoin lompakkoa. Rahoittaaksesi Lightning lompakkoa, Bitcoin lompakko tulee tuoda tai luoda. Haluatko kuitenkin jatkaa?",
+    "details": {
+      "address": "Osoite",
+      "are_you_sure": "Oletko varma?",
+      "buy_bitcoin": "Osta Bitcoinia",
+      "delete": "Poista",
+      "delete_this_wallet": "Poista tämä lompakko",
+      "description": "kuvaus",
+      "destination": "määränpää",
+      "export_backup": "Vie / varmuuskopioi",
+      "label": "Etiketti",
+      "no_cancel": "En, peruuta",
+      "save": "Tallenna",
+      "show_xpub": "Näytä lompakon XPUB",
+      "title": "Lompakko",
+      "type": "Tyyppi",
+      "yes_delete": "Kyllä, poista"
+    },
+    "export": {
+      "title": "lompakon vienti"
+    },
+    "import": {
+      "do_import": "Tuo",
+      "error": "Tuonti epäonnistui. Varmista, että annettu tieto on oikein",
+      "explanation": "Kirjoita tähän muistisanasi, private key, WIF tai jotain mitä sinulla on. BlueWallet tekee parhaansa arvatakseen oikean muodon ja tuo lompakkosi",
+      "imported": "Tuotu",
+      "scan_qr": "tai skannaa QR-koodi?",
+      "success": "Onnistui",
+      "title": "tuo"
+    },
+    "list": {
+      "add": "Lisää Lompakko",
+      "create_a_button": "Lisää nyt",
+      "create_a_wallet": "Lisää lompakko",
+      "create_a_wallet1": "Se on ilmaista ja voit luoda",
+      "create_a_wallet2": "niin monta kuin haluat",
+      "empty_txs1": "Siirtosi näkyvät tässä,",
+      "empty_txs2": "ei siirtoja",
+      "header": "Lompakko koostuu salaisesta avaimesta (private key) sekä julkisesta osoitteesta,jonka voit jakaa vastaanottaaksesi kolikoita.",
+      "latest_transaction": "viimeisin siirto",
+      "tap_here_to_buy": "Napsauta tästä ostaaksesi Bitcoinia",
+      "title": "lompakot"
+    },
+    "options": "valinnat",
+    "reorder": {
+      "title": "Järjestele Lompakot"
+    },
+    "scanQrWif": {
+      "bad_password": "Väärä salasana",
+      "bad_wif": "Väärä WIF",
+      "cancel": "Peruuta",
+      "decoding": "Dekoodataan",
+      "go_back": "Mene Takaisin",
+      "imported_legacy": "Legacy tuotu",
+      "imported_segwit": "SegWit tuotu",
+      "imported_watchonly": "Watch-only tuotu",
+      "imported_wif": "WIF tuotu ",
+      "input_password": "Anna salasana",
+      "password_explain": "Tämä on BIP38 salattu private key",
+      "wallet_already_exists": "Lompakko on jo olemassa",
+      "with_address": " osoitteella "
+    },
+    "select_wallet": "Valitse Lompakko",
+    "xpub": {
+      "copiedToClipboard": "Kopioitu leikepöydälle.",
+      "title": "lompakon XPUB"
+    }
+  }
+}

@@ -1,0 +1,210 @@
+{
+  "_": {
+    "bad_password": "Hatalı şifre, tekrar deneyin",
+    "continue": "Devam et",
+    "enter_password": "Şifre gir",
+    "never": "asla",
+    "ok": "Tamam"
+  },
+  "buyBitcoin": {
+    "copied": "Panoya kopyalandı!",
+    "header": "Bitcoin Satın al",
+    "tap_your_address": "Panoya kopyalamak için adresinize dokunun:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Kaynak bir cüzdan seçin",
+    "expired": "Süresi doldu",
+    "placeholder": "Fatura",
+    "refill": "Yükle",
+    "refill_lnd_balance": "Lightning cüzdana bakiye yükle",
+    "sameWalletAsInvoiceError": "Bir faturayı, oluştururken kullandığınız cüzdan ile ödeyemezsiniz.",
+    "title": "paraları yönet",
+    "withdraw": "Çek"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Sahte şifreli depolama oluşturun",
+    "create_password": "Şifre oluştur",
+    "create_password_explanation": "Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır.",
+    "go_back": "Geri Dön",
+    "help": "Bazı koşullar altında, şifrenizi açıklamanız gerekebilir. Paralarınızı güvende tutmak için, BlueWallet başka bir şifre ile şifreli depolama alanı yaratabilir. Baskı altında, Bu şifreyi 3. bir tarafa söyleyebilirsiniz. Girilirse BlueWallet, yeni 'sahte' bir depolamanın kilidini açacaktır. Bu 3. şahıslara normal görünecektir, ancak paraların olduğu ana depolama alanınızı gizlice saklamaya devam edecektir.",
+    "help2": "Yeni depolama alanı tamamen işlevsel olacak ve ufak bir miktar tutarsanız daha inanılır görünecektir.",
+    "password_should_not_match": "Sahte depolama şifreniz, ana depolama şifrenizle aynı olmamalıdır",
+    "passwords_do_not_match": "Şifreler eşleşmedi, tekrar dene",
+    "retype_password": "Şifrenizi yeniden yazın",
+    "success": "Başarılı",
+    "title": "Makul Ret"
+  },
+  "pleasebackup": {
+    "ok": "OK, I wrote this down!"
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Panoya kopyalandı.",
+      "create": "Oluştur",
+      "label": "Açıklama",
+      "setAmount": "Miktar ile al",
+      "share": "paylaş",
+      "title": "Bu adresi ödeyenle paylaş"
+    },
+    "header": "Al"
+  },
+  "send": {
+    "confirm": {
+      "header": "Onayla",
+      "sendNow": "Şimdi gönder"
+    },
+    "create": {
+      "amount": "Miktar",
+      "broadcast": "Yayınla",
+      "details": "Detaylar",
+      "error": "İşlem yaratma hatası. Geçersiz adres veya gönderim miktarı?",
+      "fee": "Ücret",
+      "go_back": "Geri dön",
+      "memo": "Not",
+      "not_enough_fee": "Yetersiz ücret. Ücreti arttırın",
+      "satoshi_per_byte": "Bayt başına Satoshi",
+      "this_is_hex": "Bu işlemin hexi, imzalanmış ve ağa yayınlanmaya hazır.",
+      "title": "işlem oluştur",
+      "to": "Kime",
+      "tx_size": "TX boyutu"
+    },
+    "details": {
+      "address": "adres",
+      "address_field_is_not_valid": "Adres alanı geçerli değil",
+      "amount_field_is_not_valid": "Miktar alanı geçerli değil",
+      "amount_placeholder": "gönderilecek miktar (BTC cinsinden)",
+      "cancel": "Vazgeç",
+      "create": "Oluştur",
+      "create_tx_error": "İşlem oluşturulurken bir hata oluştu. Lütfen adresin geçerli olduğundan emin olun.",
+      "fee_field_is_not_valid": "Ücret alanı geçerli değil",
+      "fee_placeholder": "artı işlem ücreti (BTC cinsinden)",
+      "note_placeholder": "kendime not",
+      "remaining_balance": "Kalan bakiye",
+      "scan": "Tara",
+      "send": "Gönder",
+      "title": "işlem oluştur",
+      "total_exceeds_balance": "Gönderme miktarı mevcut bakiyeyi aşıyor."
+    },
+    "header": "Gönder",
+    "success": {
+      "done": "Tamam"
+    }
+  },
+  "settings": {
+    "about": "Hakkında",
+    "currency": "Para Birimi",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "Depolamayı şifrele",
+    "header": "ayarlar",
+    "language": "Dil",
+    "lightning_settings": "Lightning Ayarları",
+    "lightning_settings_explain": "Kendi LND düğümünüze bağlanmak için lütfen LndHubı yükleyin. ve URL’sini buraya, ayarlara yazın. BlueWallet'in LNDHub (lndhub.io) programını kullanmak için boş bırakın. Değişiklikleri kaydettikten sonra oluşturulan cüzdanlar belirtilen LNDHub'a bağlanacaktır.",
+    "password": "Şifre",
+    "password_explain": "Depolamanın şifresini çözmek için kullanacağınız şifreyi oluşturun",
+    "passwords_do_not_match": "Şifreler eşleşmedi",
+    "plausible_deniability": "Makul ret...",
+    "retype_password": "Şifrenizi yeniden girin",
+    "save": "Kaydet",
+    "storage_encrypted": "Depolama: şifreli",
+    "storage_not_encrypted": "Depolama: şifreli değil"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Kopya",
+      "from": "Girdi",
+      "show_in_block_explorer": "Blok gezgininde göster",
+      "title": "İşlem",
+      "to": "Çıktı",
+      "transaction_details": "İşlem detayları"
+    },
+    "list": {
+      "conf": "onay",
+      "description": "Cüzdanlarınıza gelen ve giden işlemlerin bir listesi",
+      "tabBarLabel": "İşlemler",
+      "title": "işlemler"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Yakında",
+      "create": "Oluştur",
+      "description": "Kağıt cüzdan (WIF - Wallet Import Format olarak) tarayarak içeri yükleyebilirsiniz veya cüzdan oluşturabilirsiniz. Segwit cüzdanlar standard olarak desteklenir.",
+      "import_wallet": "Cüzdan İçeri Yükle",
+      "imported": "Yüklendi",
+      "label_new_lightning": "Yeni Lightning",
+      "label_new_segwit": "Yeni SegWit",
+      "or": "veya",
+      "scan": "Tara",
+      "title": "cüzdan ekle",
+      "wallet_name": "isim",
+      "wallet_type": "tip"
+    },
+    "createBitcoinWallet": "Şu anda Bitcoin cüzdanınız yok. Lightning cüzdanına yükleme yapmak için Bitcoin cüzdanı oluşturmak veya içeri yüklemek gerekir. Yine de devam etmek istiyor musunuz?",
+    "details": {
+      "address": "Adres",
+      "are_you_sure": "Emin misiniz?",
+      "buy_bitcoin": "Bitcoin satın al",
+      "delete": "Sil",
+      "delete_this_wallet": "Bu cüzdanı sil",
+      "description": "tanım",
+      "destination": "hedef",
+      "export_backup": "Dışa yükle / yedekle",
+      "label": "Etiket",
+      "no_cancel": "Hayır, vazgeç",
+      "save": "Kaydet",
+      "show_xpub": "Cüzdan XPUB göster",
+      "title": "Cüzdan",
+      "type": "Tip",
+      "yes_delete": "Evet, sil"
+    },
+    "export": {
+      "title": "cüzdan yedekle"
+    },
+    "import": {
+      "do_import": "İçe Aktar",
+      "error": "İçeri aktarma başarısız oldu. Lütfen girilen bilginin doğru olduğundan emin olun.",
+      "explanation": "Buraya cüzdan yedek cümlenizi, gizli anahtarınızı, WIF veya diğer bilginizi yazın. BlueWallet elinden gelen en iyi tahmini yaparak cüzdanınızı içeri aktarmaya çalışacak.",
+      "imported": "İçeri aktarıldı",
+      "scan_qr": "veya QR kod tara?",
+      "success": "Başarılı",
+      "title": "içeri yükle"
+    },
+    "list": {
+      "add": "Cüzdan Ekle",
+      "create_a_button": "şimdi ekle",
+      "create_a_wallet": "Cüzdan oluştur",
+      "create_a_wallet1": "Oluşturması bedava ve",
+      "create_a_wallet2": "istediğiniz kadar oluşturabilirsiniz",
+      "empty_txs1": "İşlemleriniz burada görünür,",
+      "empty_txs2": "şu anda hiç yok",
+      "header": "Cüzdan biri gizli, biri halka açık olan bir çift anahtar ve koin almak için paylaşabileceğiniz bir adrestir.",
+      "latest_transaction": "en son işlem",
+      "tap_here_to_buy": "Bitcoin almak için buraya dokunun",
+      "title": "cüzdanlar"
+    },
+    "options": "seçenekler",
+    "reorder": {
+      "title": "Cüzdanları Sırala"
+    },
+    "scanQrWif": {
+      "bad_password": "Hatalı şifre",
+      "bad_wif": "Hatalı WIF",
+      "cancel": "Vazgeç",
+      "decoding": "Deşifre ediliyor",
+      "go_back": "Geri Git",
+      "imported_legacy": "İçeri Aktarılmış Eski Tip",
+      "imported_segwit": "İçeri Aktarılmış SegWit",
+      "imported_watchonly": "İçeri Aktarılmış Sadece-izleme",
+      "imported_wif": "İçeri aktarılmış WIF ",
+      "input_password": "Şifre gir",
+      "password_explain": "Bu BIP38 şifreli gizli anahtar",
+      "wallet_already_exists": "Böyle bir cüzdan zaten var",
+      "with_address": " adres ile "
+    },
+    "select_wallet": "Cüzdan Seç",
+    "xpub": {
+      "copiedToClipboard": "Panoya kopyalandı",
+      "title": "cüzdan XPUB"
+    }
+  }
+}

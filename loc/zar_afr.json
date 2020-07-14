@@ -1,0 +1,206 @@
+{
+  "_": {
+    "bad_password": "Verkeerde wagwoord, probeer weer",
+    "continue": "Gaan voort",
+    "enter_password": "Sleutel wagwoord in",
+    "never": "nooit",
+    "ok": "OK",
+    "storage_is_encrypted": "U geheue spasie is nou ge-enkripteer. ‘n Wagwoord word benodig om toegang te verkry. "
+  },
+  "buyBitcoin": {
+    "copied": "Gekopieer na klipbord!",
+    "header": "Koop Bitcoin",
+    "tap_your_address": "Raak aan die adres om dit na die klipbord the stuur:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Kies ‘n bron beursie",
+    "expired": "Verval",
+    "placeholder": "Faktuur",
+    "refill": "Herlaai",
+    "refill_lnd_balance": "Herlaai Lightning beursie",
+    "sameWalletAsInvoiceError": "U kan nie ‘n faktuur betaal met die selfde beursie waarmee die faktuur geksep is nie.",
+    "title": "bestuur fondse",
+    "withdraw": "Ontrek"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Skep fantasie berging wagwoord",
+    "create_password": "Skep ‘n wagwoord",
+    "create_password_explanation": "Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging",
+    "go_back": "Gaan terug",
+    "help": "Onder sekere omstandighede mag u dalk geforseer word om u wagwoord te deel teen u wil. Om u te beskerm kan Bluewallet ‘n tweede “fantasie” beursie skep wat as skerm kan dien. Indien u hierdie wagwoord deel sal die 3de party nie toegang tot u hoof fondse kry nie.",
+    "help2": "Fantasie berging is heeltemal funksioneel",
+    "password_should_not_match": "Die wagwoord vir fantasie berging moet verskil van die wagwoord vir hoof berging.",
+    "passwords_do_not_match": "Wagwoorde vergelyk nie, probeer weer",
+    "retype_password": "Hervoer wagwoord",
+    "success": "Sukses",
+    "title": "Geloofwaardige Ontkenbaarheid"
+  },
+  "pleasebackup": {
+    "ok": "OK, I wrote this down!"
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Gekopieer na klipbord.",
+      "create": "Skep",
+      "label": "Beskrywing",
+      "setAmount": "Bedrag ontvang",
+      "share": "deel",
+      "title": "Deel adres met krediteur"
+    },
+    "header": "Ontvang"
+  },
+  "send": {
+    "confirm": {
+      "header": "Bevestig",
+      "sendNow": "Stuur nou"
+    },
+    "create": {
+      "amount": "Bedrag",
+      "broadcast": "Saai uit",
+      "details": "Besonderhede",
+      "error": "Daar is ‘n probleem met die transaksie. Ongeldige adres of bedrag?",
+      "fee": "Fooi",
+      "go_back": "Gaan Terug",
+      "not_enough_fee": "Fooi te laag. Vermeerder die fooi",
+      "this_is_hex": "Hierdie is die transaksie hex, geteken en gereed om na die netwerk uitgesaai te word.",
+      "title": "skep transaksie",
+      "to": "Aan",
+      "tx_size": "TX groote"
+    },
+    "details": {
+      "address": "adres",
+      "address_field_is_not_valid": "Adres is ongeldig",
+      "amount_field_is_not_valid": "Bedrag is ongeldig",
+      "amount_placeholder": "bedrag om te stuur (in BTC)",
+      "cancel": "Kanselleer",
+      "create": "Skep",
+      "create_tx_error": "Daar was ‘n probleem met die skepping van die transaksie. Bevestig asseblief die adres is geldig.",
+      "fee_field_is_not_valid": "Fooi spasie is ongeldig",
+      "fee_placeholder": "plus transaksie fooi (in BTC)",
+      "note_placeholder": "persoonlike notas",
+      "remaining_balance": "Oorblywende balans",
+      "scan": "Skandeer",
+      "send": "Stuur",
+      "title": "skep transaksie",
+      "total_exceeds_balance": "Die bedrag is meer as die beskikbare balans."
+    },
+    "header": "Stuur",
+    "success": {
+      "done": "Klaar"
+    }
+  },
+  "settings": {
+    "about": "info",
+    "currency": "Geldeenheid",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "Enkripteer Berging",
+    "header": "instellings",
+    "language": "Taal",
+    "lightning_settings": "Lightning Instellings",
+    "lightning_settings_explain": "Om u eie LND node te konnekteer, installeer asseblief LndHub and put its URL here in settings. Leave blank om die standaard LndHub(lndhub.io) te gebruik",
+    "password": "Wagwoord",
+    "password_explain": "Skep die wagwoord wat u sal gebruik om u berging te de-enkripteer",
+    "passwords_do_not_match": "Wagwoorde stem nie oor een nie",
+    "plausible_deniability": "Geloofwaardige ontkenbaarheid...",
+    "retype_password": "Hervoer wagwoord",
+    "save": "stoor",
+    "storage_encrypted": "Berging: Ge-enkripteer",
+    "storage_not_encrypted": "Berging: Nie-geenkripteer nie"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Kopieer",
+      "from": "Inset",
+      "show_in_block_explorer": "Wys in blok verkenner",
+      "title": "Transaksie",
+      "to": "Resultaat",
+      "transaction_details": "Transaksie besonderhede"
+    },
+    "list": {
+      "conf": "bev.",
+      "description": "Lys met inkomende en uitgaande transaksies van u beursies",
+      "tabBarLabel": "Transaksies",
+      "title": "transaksies"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "In die toekoms",
+      "create": "Skep",
+      "description": "U kan ‘n beursie invoer (in WIF - Wallet Import Format), of ‘n nuwe beursie skep. Beursies ondersteun Segwit as standaard.",
+      "import_wallet": "Beursie Invoer",
+      "imported": "Ingevoer",
+      "label_new_lightning": "Nuwe Lightning",
+      "label_new_segwit": "Nuwe SegWit",
+      "or": "of",
+      "scan": "Skandeer",
+      "title": "skep beursie",
+      "wallet_name": "beursie naam",
+      "wallet_type": "tipe"
+    },
+    "createBitcoinWallet": "U het nie huidiglik `n geldige Bitcoin Beursie nie. Skep of voer eers ‘n Bitcoin Beursie in, sodat ‘n Bitcoin Lightning Beursie geskep en bevonds mag word. Wil U voortgaan?",
+    "details": {
+      "address": "AdresAddress",
+      "are_you_sure": "Is u Seker?",
+      "buy_bitcoin": "Koop Bitcoin",
+      "delete": "Vernietig",
+      "delete_this_wallet": "Vernietig hierdie beursie",
+      "description": "beskrywing",
+      "destination": "bestemming",
+      "export_backup": "voer uit / kopieer",
+      "label": "Etiket",
+      "no_cancel": "Nee, kanseleerl",
+      "save": "Berg",
+      "show_xpub": "Wys beursie XPUB",
+      "title": "Beursiet",
+      "type": "Tipe",
+      "yes_delete": "Ja, vernietig"
+    },
+    "export": {
+      "title": "beursie uitvoer"
+    },
+    "import": {
+      "do_import": "Invoer",
+      "error": "U invoer het misluk. Maak asseblief seker u data is korrek en geldig.",
+      "explanation": "Sleutel mnemonic, privaat sleutel, WIF, of enige text verwysing. BlueWallet sal die korrekte formaat kies en u beursie importeer ",
+      "imported": "Invoer suksesvol",
+      "scan_qr": "of skandeer QR kode?",
+      "success": "Suksesvol",
+      "title": "Invoer"
+    },
+    "list": {
+      "add": "Skep Beursie",
+      "create_a_wallet": "Skep ‘n beursie",
+      "create_a_wallet1": "Dit is gratis so skep",
+      "create_a_wallet2": "soveel as wat u benodig",
+      "empty_txs1": "U transaksies is hier beskikbaar,",
+      "empty_txs2": "huidiglik geen transaksies",
+      "header": "U beursie verteenwoordig ‘n sleutelkombinasie, bestaande uit geheims (privaat sleutel) en addresswat u kan gebruik om fondse te ontvang.",
+      "latest_transaction": "laaste transaksie",
+      "tap_here_to_buy": "Raak hier om Bitcoin te koop",
+      "title": "beursies"
+    },
+    "options": "opsies",
+    "reorder": {
+      "title": "Herorganiseer Beursies"
+    },
+    "scanQrWif": {
+      "bad_password": "Wagwoord verkeerd",
+      "bad_wif": "WIF verkeerd",
+      "cancel": "Kanseleer",
+      "go_back": "Gaan Terug",
+      "imported_legacy": "Legacy Invoer",
+      "imported_segwit": "Segwit Invoer Suksesvol",
+      "imported_watchonly": "Kyk Slegs invoer suksesvol",
+      "imported_wif": "WIF invoer suksesvol ",
+      "password_explain": "Hierdie is ‘n BIP38 ge-enkripteerde privaat sleutel",
+      "wallet_already_exists": "Hierdie beursie bestaan alreeds",
+      "with_address": " met adres "
+    },
+    "select_wallet": "Kies Beursie",
+    "xpub": {
+      "copiedToClipboard": "Gestuur na klipbord.",
+      "title": "beursie XPUB"
+    }
+  }
+}

@@ -1,0 +1,223 @@
+{
+  "_": {
+    "bad_password": "パスワードが間違っています。",
+    "continue": "続行",
+    "enter_password": "パスワードを入力",
+    "never": "データなし",
+    "ok": "OK",
+    "storage_is_encrypted": "ウォレットは暗号化されています。復号にはパスワードが必要です。"
+  },
+  "buyBitcoin": {
+    "copied": "クリップボードにコピーしました!",
+    "header": "Bitcoin の購入",
+    "tap_your_address": "タップしてアドレスをクリップボードにコピー:"
+  },
+  "lnd": {
+    "choose_source_wallet": "送金元ウォレットを選択",
+    "expired": "失効",
+    "placeholder": "入金依頼",
+    "refill": "送金",
+    "refill_lnd_balance": "Lightning ウォレットへ送金",
+    "sameWalletAsInvoiceError": "以前作成したウォレットと同じウォレットへの支払いはできません。",
+    "title": "資金の管理",
+    "withdraw": "引き出し"
+  },
+  "lndViewInvoice": {
+    "additional_info": "追加情報",
+    "for": "メモ:",
+    "has_been_paid": "この請求書は支払い完了しました",
+    "open_direct_channel": "このノードの直接チャネルを作成:",
+    "please_pay": "支払う額",
+    "wasnt_paid_and_expired": "この請求書は支払いが行われなかったため無効になりました"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "ダミーの暗号化ウォレットの作成",
+    "create_password": "パスワードの作成",
+    "create_password_explanation": "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
+    "go_back": "戻る",
+    "help": "BuleWallet のウォレットの復号に必要なパスワードを第三者に強要される場合、コインを安全に保護するためにメインのウォレットとは異なるパスワードで暗号化されたダミーのウォレットを作成することが可能です。第三者へ異なるパスワードを提供すれば、BlueWallet のダミーの暗号化ウォレットを復号することとなり、メインのウォレットは隠匿されコインは安全に保護されます。",
+    "help2": "新規のダミーのウォレットはメインと同様に機能します。少額のコインを入金しておくことでダミーと疑われないようにすることが可能です。",
+    "password_should_not_match": "ダミーのウォレットのパスワードはメインのウォレットのパスワードと異なる必要があります。",
+    "passwords_do_not_match": "パスワードが一致しません",
+    "retype_password": "パスワードの再入力",
+    "success": "成功",
+    "title": "隠匿設定"
+  },
+  "pleasebackup": {
+    "ok": "すべてのニモニックを書きとめました",
+    "text": "すべてのニモニックを別紙に書きとめてください。他のデバイスへウォレットをリストアする際にニモニックが必要になります。デスクトップ用ウォレットの Electrum wallet (https://electrum.org/) へニモニックを使用してウォレットをリストアすることが可能です。",
+    "title": "ウォレットを作成しています..."
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "クリップボードにコピーしました。",
+      "create": "作成",
+      "label": "概要",
+      "setAmount": "入金額",
+      "share": "共有",
+      "title": "このアドレスを支払者と共有"
+    },
+    "header": "入金"
+  },
+  "send": {
+    "confirm": {
+      "header": "確認",
+      "sendNow": "送金実行"
+    },
+    "create": {
+      "amount": "送金額",
+      "broadcast": "送信",
+      "details": "詳細",
+      "error": "取引作成でエラーが発生しました。アドレスまたは送金額を確認してください。",
+      "fee": "手数料",
+      "go_back": "戻る",
+      "memo": "メモ",
+      "not_enough_fee": "手数料不足です。増額してください",
+      "satoshi_per_byte": "Satoshi/byte",
+      "this_is_hex": "署名されネットワークへ送信される 16 進数取引コードです",
+      "title": "取引の作成",
+      "to": "送金先",
+      "tx_size": "TX サイズ"
+    },
+    "details": {
+      "address": "アドレス",
+      "address_field_is_not_valid": "アドレス欄が正しくありません",
+      "amount_field_is_not_valid": "金額欄が正しくありません",
+      "amount_placeholder": "送金額 (BTC)",
+      "cancel": "中止",
+      "create": "作成",
+      "create_tx_error": "取引作成中にエラーが発生しました。有効な送金アドレスか確認してください。",
+      "fee_field_is_not_valid": "手数料欄が正しくありません",
+      "fee_placeholder": "取引手数料 (BTC)",
+      "note_placeholder": "ラベル",
+      "remaining_balance": "残高",
+      "scan": "読取り",
+      "send": "送金",
+      "title": "取引の作成",
+      "total_exceeds_balance": "送金額が利用可能残額を超えています。"
+    },
+    "header": "送金",
+    "success": {
+      "done": "完了"
+    }
+  },
+  "settings": {
+    "about": "BlueWallet について",
+    "currency": "通貨",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "ウォレットの暗号化",
+    "header": "設定",
+    "language": "言語",
+    "lightning_settings": "Lightning 設定",
+    "lightning_settings_explain": "他の LND ノードへ接続するには LndHub をインストール後、URL を入力してください。既定の設定を使用するには空欄にしますndHub\n (lndhub.io)",
+    "password": "パスワード",
+    "password_explain": "ウォレットの復号に使用するパスワードを作成",
+    "passwords_do_not_match": "パスワードが一致しません",
+    "plausible_deniability": "隠匿設定...",
+    "retype_password": "パスワードの再入力",
+    "save": "保存",
+    "storage_encrypted": "ウォレット: 暗号化されています",
+    "storage_not_encrypted": "ウォレット: 暗号化されていません"
+  },
+  "transactions": {
+    "details": {
+      "copy": "コピー",
+      "from": "送り主",
+      "show_in_block_explorer": "Block Explorer で表示",
+      "title": "取引",
+      "to": "送り先",
+      "transaction_details": "取引詳細"
+    },
+    "list": {
+      "conf": "確認",
+      "description": "ウォレットの送金または入金のリスト",
+      "tabBarLabel": "取引",
+      "title": "取引"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "準備中",
+      "create": "作成",
+      "description": "ペーパーウォレット(WIF 形式- Wallet Import Format)をスキャンするかウォレットを新規作成できます。既定で Segwit ウォレットが作成されます。",
+      "import_wallet": "ウォレットをインポート",
+      "imported": "インポート完了",
+      "label_new_lightning": "新規 Lightning",
+      "label_new_segwit": "新規 SegWit",
+      "or": "又は",
+      "scan": "読取り",
+      "title": "ウォレットの追加",
+      "wallet_name": "ウォレット名",
+      "wallet_type": "タイプ"
+    },
+    "createBitcoinWallet": "Bitcoin ウォレットを持っていません。Lightning ウォレットへ課金する場合は Bitcoin ウォレットを新規作成するかインポートする必要があります。続行しますか?",
+    "details": {
+      "address": "アドレス",
+      "are_you_sure": "実行しますか?",
+      "buy_bitcoin": "Bitcoin の購入",
+      "delete": "削除",
+      "delete_this_wallet": "このウォレットの削除",
+      "description": "内容",
+      "destination": "送り先",
+      "export_backup": "エクスポート / バックアップ",
+      "label": "ラベル",
+      "no_cancel": "いいえ、中止します",
+      "save": "保存",
+      "show_xpub": "ウォレット XPUB の表示",
+      "title": "ウォレット",
+      "type": "タイプ",
+      "yes_delete": "はい、削除します"
+    },
+    "export": {
+      "title": "ウォレットのエクスポート"
+    },
+    "import": {
+      "do_import": "インポート",
+      "error": "インポートに失敗しました。入力したデータが有効か確認してください。",
+      "explanation": "ここにニモニック、秘密鍵(プライベートキー）、WIFなどを入力してください。BlueWallet が正しい形式を推測しウォレットをインポートします。",
+      "imported": "インポート完了",
+      "scan_qr": "QR コードの読み取り",
+      "success": "成功",
+      "title": "インポート"
+    },
+    "list": {
+      "add": "ウォレットの追加",
+      "create_a_button": "今すぐ追加",
+      "create_a_wallet": "ウォレットを追加",
+      "create_a_wallet1": "ウォレット作成は無料で",
+      "create_a_wallet2": "好きなだけ複数作成できます",
+      "empty_txs1": "ここに取引が表示されます",
+      "empty_txs1_lightning": "Lightning ウォレットを日常の取引にご利用ください。手数料は安く、送金はあっという間に完了します。",
+      "empty_txs2": "現在は何もありません",
+      "empty_txs2_lightning": "\n利用を開始するには\"資金の管理\"をタップしてウォレットへ送金してください。",
+      "header": "ウォレットは秘密鍵(プライベートキー)とウォレットアドレスのペアで構成されています。コインを受信するために共有できます。",
+      "latest_transaction": "最新の取引",
+      "tap_here_to_buy": "Bitcoin を購入するにはここをタップ",
+      "title": "ウォレット"
+    },
+    "options": "オプション",
+    "reorder": {
+      "title": "ウォレットの並び替え"
+    },
+    "scanQrWif": {
+      "bad_password": "パスワードが違います",
+      "bad_wif": "WIF 形式が間違っています",
+      "cancel": "中止",
+      "decoding": "解読中",
+      "go_back": "戻る",
+      "imported_legacy": "Legacy インポート完了",
+      "imported_segwit": "SegWit インポート完了",
+      "imported_watchonly": "閲覧専用 インポート完了",
+      "imported_wif": "WIF インポート完了 ",
+      "input_password": "パスワードの入力",
+      "password_explain": "これは BIP38 暗号化秘密鍵です",
+      "wallet_already_exists": "同じウォレットが既に存在します",
+      "with_address": " アドレス "
+    },
+    "select_wallet": "ウォレット選択",
+    "xpub": {
+      "copiedToClipboard": "クリップボードにコピーしました。",
+      "title": "ウォレット XPUB"
+    }
+  }
+}

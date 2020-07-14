@@ -1,0 +1,200 @@
+{
+  "_": {
+    "bad_password": "Verkeerd wachtwoord, probeer opnieuw",
+    "enter_password": "Voer wachtwoord in",
+    "never": "nooit",
+    "ok": "OK",
+    "storage_is_encrypted": "Uw opslag is versleuteld. Wachtwoord is vereist om het te ontcijferen"
+  },
+  "buyBitcoin": {
+    "copied": "Gekopieerd naar het klembord!",
+    "header": "Koop Bitcoin",
+    "tap_your_address": "Tik op uw adres om het naar het klembord te kopiëren:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Kies een bron portemonnee",
+    "expired": "Verlopen",
+    "refill": "Bijvullen",
+    "refill_lnd_balance": "Vul Lightning-portemonneesaldo bij",
+    "sameWalletAsInvoiceError": "U kunt geen factuur betalen met dezelfde portemonnee die is gebruikt om de factuur te maken.",
+    "title": "fondsen beheren",
+    "withdraw": "Opvragen"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Nep versleutelde opslag aanmaken",
+    "create_password": "Wachtwoord aanmaken",
+    "create_password_explanation": "Wachtwoord voor nep-opslag hoort niet overeen te komen met wachtwoord voor uw hoofdopslag",
+    "go_back": "Ga terug",
+    "help": "Onder bepaalde omstandigheden kunt u worden gedwongen om uw wachtwoord te onthullen. Om uw munten veilig te houden, kan BlueWallet nog een versleutelde opslag aanmaken, met een ander wachtwoord. Onder druk kunt u dit wachtwoord bekendmaken aan de derde partij. Indien ingevoerd in BlueWallet, zal het nieuwe nep'-opslagruimte worden ontgrendeld. Dit lijkt legitiem voor de derde partij, maar zal uw hoofdopslag met munten niet bekend maken aan de derde partij",
+    "help2": "De nieuwe opslag zal volledig functioneel zijn en u kunt er een minimum aantal munten opslaan zodat het geloofwaardig lijkt.",
+    "password_should_not_match": "Wachtwoord voor nep-opslag hoort niet overeen te komen met wachtwoord voor uw hoofdopslag",
+    "passwords_do_not_match": "Wachtwoorden komen niet overeen, probeer het opnieuw",
+    "retype_password": "Herhaal wachtwoord",
+    "success": "Succes",
+    "title": "Plausibele ontkenning"
+  },
+  "pleasebackup": {
+    "ok": "OK, I wrote this down!"
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Gekopieerd naar het klembord.",
+      "label": "Omschrijving",
+      "setAmount": "Ontvang met bedrag",
+      "share": "delen",
+      "title": "Deel dit adres met betaler"
+    },
+    "header": "Ontvang"
+  },
+  "send": {
+    "confirm": {
+      "header": "Bevestig",
+      "sendNow": "Nu verzenden"
+    },
+    "create": {
+      "amount": "Bedrag",
+      "broadcast": "Uitzenden",
+      "error": "Fout bij het maken van transactie. Ongeldig adres of bedrag?",
+      "fee": "Vergoeding",
+      "go_back": "Ga terug",
+      "not_enough_fee": "Niet genoeg vergoeding. Verhoog de vergoeding",
+      "this_is_hex": "Dit is de transactie-hex, ondertekend en klaar om op het netwerk te worden uitgezonden.",
+      "title": "transactie aanmaken",
+      "to": "Naar",
+      "tx_size": "TX grootte"
+    },
+    "details": {
+      "address": "adres",
+      "address_field_is_not_valid": "Adresveld is niet geldig",
+      "amount_field_is_not_valid": "Bedrag veld is niet geldig",
+      "amount_placeholder": "te verzenden bedrag (in BTC)",
+      "cancel": "Annuleren",
+      "create": "Aanmaken",
+      "create_tx_error": "Er is een fout opgetreden bij het maken van de transactie. Zorg ervoor dat het adres geldig is.",
+      "fee_field_is_not_valid": "Tarief is niet geldig",
+      "fee_placeholder": "plus transactie vergoeding (in BTC)",
+      "note_placeholder": "notitie voor mezelf",
+      "remaining_balance": "Resterende saldo",
+      "scan": "Scannen",
+      "send": "Verzenden",
+      "title": "transacties aanmaken",
+      "total_exceeds_balance": "Het verzendingsbedrag overschrijdt het beschikbare saldo."
+    },
+    "header": "Verstuur",
+    "success": {
+      "done": "Klaar"
+    }
+  },
+  "settings": {
+    "about": "Over",
+    "currency": "Valuta",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "Versleutel opslag",
+    "header": "instellingen",
+    "language": "Taal",
+    "lightning_settings": "Lightning instellingen",
+    "lightning_settings_explain": "Om verbinding te maken met uw eigen LND-knooppunt installeert u LndHub en zet u de URL hier in de instellingen. Laat dit leeg om de standaard lndHub (lndhub.io) te gebruiken.",
+    "password": "Wachtwoord",
+    "password_explain": "Maak een wachtwoord aan dat u wilt gebruiken om de opslag te versleutelen",
+    "passwords_do_not_match": "Wachtwoorden komen niet overeen",
+    "plausible_deniability": "Plausibele ontkenning...",
+    "retype_password": "Geef nogmaals het wachtwoord",
+    "save": "Opslaan",
+    "storage_encrypted": "Opslag: versleuteld",
+    "storage_not_encrypted": "Opslag: niet versleuteld"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Kopiëren",
+      "from": "Invoer",
+      "show_in_block_explorer": "Weergeven in blokverkenner",
+      "title": "Transacties",
+      "to": "Uitgang",
+      "transaction_details": "Transactie details"
+    },
+    "list": {
+      "description": "Een lijst met ingaande of uitgaande transacties van uw portemonnee",
+      "tabBarLabel": "Transacties",
+      "title": "transacties"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Komt binnenkort",
+      "create": "Aanmaken",
+      "description": "U kunt een back-up papieren portemonnee scannen (in WIF - Wallet Import Format) of een nieuwe portemonnee maken. Segwit-wallets worden standaard ondersteund.",
+      "import_wallet": "Portemonnee importeren",
+      "imported": "Geïmporteerd",
+      "label_new_lightning": "Nieuwe Lightning",
+      "label_new_segwit": "Nieuwe SegWit",
+      "or": "of",
+      "title": "portemonnee toevoegen",
+      "wallet_name": "portemonnee naam"
+    },
+    "createBitcoinWallet": "Om een Lightning-portemonnee te kunnen gebruiken, is een Bitcoin-portemonnee nodig om deze te financieren. Wil je toch doorgaan?",
+    "details": {
+      "address": "Adres",
+      "are_you_sure": "Weet u het zeker?",
+      "buy_bitcoin": "Koop Bitcoin",
+      "delete": "Verwijderen",
+      "delete_this_wallet": "Verwijder deze portemonnee",
+      "description": "beschrijving",
+      "destination": "bestemming",
+      "export_backup": "Exporteren / back-up maken",
+      "no_cancel": "Nee, annuleren",
+      "save": "Opslaan",
+      "show_xpub": "Toon portemonnee XPUB",
+      "title": "Portemonnee",
+      "yes_delete": "Ja, verwijderen"
+    },
+    "export": {
+      "title": "portemonnee exporteren"
+    },
+    "import": {
+      "do_import": "Importeren",
+      "error": "Importeren mislukt. Zorg ervoor dat de verstrekte gegevens geldig zijn.",
+      "explanation": "Schrijf hier uw ezelsbruggetje, privésleutel, WIF, of een ander formaat. BlueWallet zal zijn best doen om het juiste formaat te raden en uw portemonnee te importeren",
+      "imported": "Geïmporteerd",
+      "scan_qr": "of QR-code scannen?",
+      "success": "Succes",
+      "title": "importeren"
+    },
+    "list": {
+      "add": "Portemonnee toevoegen",
+      "create_a_button": "Voeg nu toe",
+      "create_a_wallet": "Portemonnee aanmaken",
+      "create_a_wallet1": "Het is gratis en u kunt er",
+      "create_a_wallet2": "zoveel maken als u wilt",
+      "empty_txs1": "Uw transacties verschijnen hier,",
+      "empty_txs2": "geen transacties op dit moment",
+      "header": "Een portemonnee vertegenwoordigt een geheime (privésleutel) en een adresdat u kunt delen om munten te ontvangen.",
+      "latest_transaction": "laatste transactie",
+      "tap_here_to_buy": "Klik hier om Bitcoin te kopen",
+      "title": "portemonnees"
+    },
+    "options": "opties",
+    "reorder": {
+      "title": "Portemonnees opnieuw ordenen"
+    },
+    "scanQrWif": {
+      "bad_password": "Verkeerd wachtwoord",
+      "bad_wif": "Verkeerde WIF",
+      "cancel": "Annuleren",
+      "decoding": "Decoderen",
+      "go_back": "Ga terug",
+      "imported_legacy": "Legacy geïmporteerd",
+      "imported_segwit": "SegWit geïmporteerd",
+      "imported_watchonly": "Watch-only geïmporteerd",
+      "imported_wif": "WIF geïmporteerd ",
+      "input_password": "Voer wachtwoord in",
+      "password_explain": "Dit is een BIP38-gecodeerde privésleutel",
+      "wallet_already_exists": "Zo'n portemonnee bestaat al",
+      "with_address": " met adres "
+    },
+    "select_wallet": "Selecteer portemonnee",
+    "xpub": {
+      "copiedToClipboard": "Gekopieerd naar het klembord.",
+      "title": "portemonnee XPUB"
+    }
+  }
+}

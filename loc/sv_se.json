@@ -1,0 +1,217 @@
+{
+  "_": {
+    "bad_password": "Felaktigt lösenord, försök igen",
+    "continue": "Fortsätt",
+    "enter_password": "Ange lösenord",
+    "never": "aldrig",
+    "ok": "OK",
+    "storage_is_encrypted": "Lagringen är krypterad. Lösenords krävs för att dekryptera"
+  },
+  "buyBitcoin": {
+    "copied": "Kopierad till urklipp!",
+    "header": "Köp bitcoin",
+    "tap_your_address": "Tryck på adressen för att kopiera den till urklipp:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Välj en plånbok",
+    "expired": "Förfallen",
+    "placeholder": "Faktura",
+    "refill": "Sätt in",
+    "refill_lnd_balance": "Fyll på Lightning-plånbok",
+    "sameWalletAsInvoiceError": "Du kan inte betala en faktura från samma plånbok som användes för att skapa den.",
+    "title": "sätt in / ta ut",
+    "withdraw": "Ta ut"
+  },
+  "lndViewInvoice": {
+    "additional_info": "Ytterligare information",
+    "for": "För:",
+    "has_been_paid": "Denna faktura är betald",
+    "open_direct_channel": "Öppna en direkt kanal med denna nod:",
+    "please_pay": "Var god betala",
+    "wasnt_paid_and_expired": "Denna faktura har ej betalats och är nu utgången"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Skapa fejkad lagringsyta",
+    "create_password": "Skapa ett lösenord",
+    "create_password_explanation": "Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord",
+    "go_back": "Tillbaka",
+    "help": "Under vissa omständigheter kan du bli tvingad att uppge ditt lösenord. För att se till att dina pengar är säkra kan BlueWallet skapa ytterligare en krypterad lagringsyta, med ett annat lösenord. Vid tvång kan du uppge detta alternativa lösenord. När det matas in i BlueWallet så kommer det att låsa upp din 'fejkade' lagringsyta. Det kommer att se ut precis som vanligt men i själva verket är dina pengar i säkert förvar på din primära lagringsyta.",
+    "help2": "Den alternativa lagringsytan kommer att vara fullt fungerade och du kan eventuellt spara en mindre summa där för att den ska verka mer trovärdig.",
+    "password_should_not_match": "Lösenordet för den fejkade lagringsytan får inte vara samma som ditt huvudlösenord",
+    "passwords_do_not_match": "Lösenorden är olika!",
+    "retype_password": "Ange lösenord igen",
+    "success": "Fejkad lagringsyta skapad!",
+    "title": "Trovärdigt förnekande"
+  },
+  "pleasebackup": {
+    "ok": "OK, jag har skrivit ned orden!",
+    "text": "Innan du går vidare, var snäll och skriv ned dessa ord på ett papper och förvara på ett säkert ställe. De är din backup och säkerställer att du kan återställa din plånbok igen om något händer.",
+    "title": "Din plånbok har skapats..."
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Kopierad till urklipp.",
+      "create": "Skapa",
+      "label": "Beskrivning",
+      "setAmount": "Ta emot med belopp",
+      "share": "dela",
+      "title": "Dela den här adressen med betalaren"
+    },
+    "header": "Ta emot"
+  },
+  "send": {
+    "confirm": {
+      "header": "Bekräfta",
+      "sendNow": "Skicka nu"
+    },
+    "create": {
+      "amount": "Belopp",
+      "broadcast": "Publicera",
+      "details": "Detaljer",
+      "error": "Något gick fel när transaktionen skulle skapas. Felaktig adress eller belopp?",
+      "fee": "Avgift",
+      "go_back": "Tillbaka",
+      "not_enough_fee": "För låg avgift. Öka avgiften",
+      "this_is_hex": "Detta är transaktionens hex, signerad och redo att skickas ut på nätverket.",
+      "title": "skapa transaktion",
+      "to": "Till",
+      "tx_size": "Transaktionsstorlek"
+    },
+    "details": {
+      "address": "adress",
+      "address_field_is_not_valid": "Angiven adress är inte giltig",
+      "amount_field_is_not_valid": "Angivet belopp är inte giltigt",
+      "amount_placeholder": "belopp att skicka (i BTC)",
+      "cancel": "Avbryt",
+      "create": "Skapa",
+      "create_tx_error": "Något gick fel när transaktionen skulle skapas. Kontrollera att adressen är giltig.",
+      "fee_field_is_not_valid": "Angiven avgift är inte giltig",
+      "fee_placeholder": "plus avgift (i BTC)",
+      "note_placeholder": "egen notering",
+      "remaining_balance": "Återstående saldo",
+      "scan": "Skanna",
+      "send": "Skicka",
+      "title": "skapa transaktion",
+      "total_exceeds_balance": "Beloppet överstiger plånbokens tillgängliga belopp"
+    },
+    "header": "Skicka",
+    "success": {
+      "done": "Klart!"
+    }
+  },
+  "settings": {
+    "about": "Om",
+    "currency": "Valuta",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "Kryptera lagring",
+    "header": "inställningar",
+    "language": "Språk",
+    "lightning_settings": "Lightning Network",
+    "lightning_settings_explain": "För att ansluta till din egen LND-nod, installera LndHub och mata in dess URL nedan. Lämna blankt för att använda BlueWallet's LNDHub (lndhub.io). Plånböcker skapade efter att inställningarna sparats kommer att använda den angivna LNDHub:en",
+    "password": "Lösenord",
+    "password_explain": "Skapa ett lösenord som du kommer att använda vid dekryptering",
+    "passwords_do_not_match": "Lösenorden är olika!",
+    "plausible_deniability": "Trovärdigt förnekande...",
+    "retype_password": "Ange lösenord igen",
+    "save": "Spara",
+    "storage_encrypted": "Lagring: krypterad",
+    "storage_not_encrypted": "Lagring: ej krypterad"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Kopiera",
+      "show_in_block_explorer": "Visa i block explorer",
+      "title": "Transaktion",
+      "transaction_details": "Transaktionsdetaljer"
+    },
+    "list": {
+      "conf": "konf",
+      "description": "Lista över dina plånböckers inkommande och utgående transaktioner",
+      "tabBarLabel": "Transaktioner",
+      "title": "transaktioner"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Kommer snart",
+      "create": "Skapa",
+      "description": "Du kan antingen skanna in en backup (i WIF - Wallet Import Format) eller skapa en ny plånbok. Segwit-plånböcker stöds som standard.",
+      "import_wallet": "Importera plånbok",
+      "imported": "Importerad",
+      "label_new_lightning": "Ny Lightning",
+      "label_new_segwit": "Ny SegWit",
+      "or": "eller",
+      "scan": "Skanna",
+      "title": "ny plånbok",
+      "wallet_name": "namn",
+      "wallet_type": "typ"
+    },
+    "createBitcoinWallet": "Du har ännu ingen Bitcoinplånbok. För att kunna sätta in pengar i en Lightningplånbok behöver en Bitcoinplånbok skapas eller importeras. Vill du fortsätta ändå?",
+    "details": {
+      "address": "Adress",
+      "are_you_sure": "Är du säker?",
+      "buy_bitcoin": "Köp bitcoin",
+      "delete": "Radera",
+      "delete_this_wallet": "Radera denna plånbok",
+      "description": "beskrivning",
+      "export_backup": "Exportera / ta backup",
+      "label": "Etikett",
+      "no_cancel": "Nej, avbryt",
+      "save": "Spara",
+      "show_xpub": "Visa plånbokens XPUB",
+      "title": "Plånbok",
+      "type": "Typ",
+      "yes_delete": "Ja, ta bort"
+    },
+    "export": {
+      "title": "exportera plånbok"
+    },
+    "import": {
+      "do_import": "Importera",
+      "error": "Import misslyckades. Kontrollera att informationen du matade in är korrekt.",
+      "explanation": "Skriv in dina ord, din privata nyckel, WIF, eller vad du kan tänkas ha. BlueWallet kommer att göra sitt bästa för att gissa formatet och importera plånboken",
+      "imported": "Importerad",
+      "scan_qr": "eller skanna QR-kod istället?",
+      "success": "Import lyckad!"
+    },
+    "list": {
+      "add": "Ny Plånbok",
+      "create_a_button": "Ny plånbok",
+      "create_a_wallet": "Ny plånbok",
+      "create_a_wallet1": "Det är gratis och du kan skapa",
+      "create_a_wallet2": "hur många du vill",
+      "empty_txs1": "Dina transaktioner kommer att visas här",
+      "empty_txs1_lightning": "Lightningplånboken ska användas för dagliga småtransaktioner. Avgifterna är minimala och transaktioner sker direkt.",
+      "empty_txs2": "men än så länge finns inga!",
+      "empty_txs2_lightning": "\nFör att komma igång klicka på \"sätt in / ta ut\" ovan och sätt in dina första bitcoin.",
+      "header": "En plånbok representerar ett par av en privat nyckel samt en adresssom du kan dela med andra för att ta emot coins",
+      "latest_transaction": "senaste transaktion",
+      "tap_here_to_buy": "Tryck här för att köpa bitcoin",
+      "title": "plånböcker"
+    },
+    "options": "inställningar",
+    "reorder": {
+      "title": "Sortera plånböcker"
+    },
+    "scanQrWif": {
+      "bad_password": "Felaktigt lösenord",
+      "bad_wif": "Felaktigt WIF",
+      "cancel": "Avbryt",
+      "decoding": "Avkodar",
+      "go_back": "Tillbaka",
+      "imported_legacy": "Importerade Legacy",
+      "imported_segwit": "Importerade SegWit",
+      "imported_watchonly": "Importerade Watch-only",
+      "imported_wif": "Importerade WIF ",
+      "input_password": "Ange lösenord",
+      "password_explain": "Detta är BIP38-krypterad privat nyckel",
+      "wallet_already_exists": "En sådan plånbok existerar redan",
+      "with_address": " med adress "
+    },
+    "select_wallet": "Välj plånbok",
+    "xpub": {
+      "copiedToClipboard": "Kopierad till urklipp",
+      "title": "plånbokens XPUB"
+    }
+  }
+}

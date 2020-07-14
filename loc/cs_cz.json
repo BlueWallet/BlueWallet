@@ -1,0 +1,203 @@
+{
+  "_": {
+    "bad_password": "Špatné heslo, prosím zkuste to znovu",
+    "enter_password": "Zadejte heslo",
+    "never": "nikdy",
+    "ok": "OK",
+    "storage_is_encrypted": "Vaše úložiště je zašifrované. Zadejte heslo k odemčení"
+  },
+  "buyBitcoin": {
+    "copied": "Zkopírováno do schránky.",
+    "header": "Koupit Bitcoin",
+    "tap_your_address": "Klikněte na svojí adresu pro zkopírování do schránky:"
+  },
+  "lnd": {
+    "choose_source_wallet": "Vyberte zdrojovou peněženku",
+    "expired": "Expirováno",
+    "refill": "Doplnit",
+    "refill_lnd_balance": "Doplnit zůstatek na Lightning peněžence",
+    "title": "spravovat zůstatek",
+    "withdraw": "Vybrat"
+  },
+  "plausibledeniability": {
+    "create_fake_storage": "Vytvořit falešné zašifrované úložiště",
+    "create_password": "Vytvořit heslo",
+    "create_password_explanation": "Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti",
+    "go_back": "Zpět",
+    "help": "Za určitých okolností můžete být donuceni k prozrazení vašeho hesla.K zajištění bezpečností vašich prostředků, BlueWallet může vytvořitdalší zašifrované úložiště s rozdílný heslem. V případě potřebymůžete toto heslo dát třetí straně. Pokud bude zadáno do BlueWallet,odemkne nové \"falešné\" úložiště. Toto bude vypadat legitimně, aleudrží vaše pravé hlavní úložiště v bezpečí.",
+    "help2": "Nové úložiště bude plně funkční, můžete na něj uložit minimální částku, aby vypadalo více uvěřitelně.",
+    "password_should_not_match": "Heslo k falešnému úložišti nesmí být stejné jako heslo k hlavnímu úložišti",
+    "passwords_do_not_match": "Hesla se neshodují, zkuste to znovu",
+    "retype_password": "Heslo znovu",
+    "success": "Úspěch"
+  },
+  "pleasebackup": {
+    "ok": "OK, I wrote this down!"
+  },
+  "receive": {
+    "details": {
+      "copiedToClipboard": "Zkopírováno do schránky.",
+      "label": "Popis",
+      "setAmount": "Přijmout částku...",
+      "share": "sdílet",
+      "title": "Sdílejte tuto adresu s plátcem"
+    },
+    "header": "Přijmout"
+  },
+  "send": {
+    "confirm": {
+      "header": "Potvrdit",
+      "sendNow": "Poslat hned"
+    },
+    "create": {
+      "amount": "Částka",
+      "broadcast": "Odeslat do sítě",
+      "details": "Detaily",
+      "error": "Chyba při vytváření transakce. Nesprávná adresa nebo částka?",
+      "fee": "Poplatek",
+      "go_back": "Zpět",
+      "memo": "Popisek",
+      "not_enough_fee": "Nedostatečný poplatek. Zvyšte poplatek.",
+      "satoshi_per_byte": "Satoshi/byte",
+      "this_is_hex": "Toto je vaše transakce, podepsána a připravena k odeslání do sítě.",
+      "title": "vytvořit transakci",
+      "tx_size": "velikost transakce"
+    },
+    "details": {
+      "address": "adresa",
+      "address_field_is_not_valid": "Adresa není správně vyplněna",
+      "amount_field_is_not_valid": "Čáskta není správně vyplněna",
+      "amount_placeholder": "částka k odeslání (v BTC)",
+      "cancel": "Zrušit",
+      "create": "Vytvořit",
+      "create_tx_error": "Nastala chyba při vytváření transakce. Prosím ujistěte se, že adresa je platná.",
+      "fee_field_is_not_valid": "Poplatek není správně vyplněn",
+      "fee_placeholder": "plus transakční poplatek (v BTC)",
+      "note_placeholder": "poznámka pro sebe",
+      "remaining_balance": "Zbývající zůstatek",
+      "scan": "Skenovat",
+      "send": "Poslat",
+      "title": "vytvořit transakci",
+      "total_exceeds_balance": "Částka, kterou se snažíte poslat, přesahuje dostupný zůstatek."
+    },
+    "header": "Poslat",
+    "success": {
+      "done": "Hotovo"
+    }
+  },
+  "settings": {
+    "about": "O BlueWallet",
+    "currency": "Měna",
+    "enable_advanced_mode": "Enable advanced mode",
+    "encrypt_storage": "Zašifrovat úložiště",
+    "header": "nastavení",
+    "language": "Jazyk",
+    "lightning_settings": "Lightning settings",
+    "lightning_settings_explain": "To connect to your own LND node please install LndHub and put its URL here in settings. Leave blank to use default ndHub\n (lndhub.io)",
+    "password": "Heslo",
+    "password_explain": "Vytořte si heslo k zašifrování úložiště.",
+    "passwords_do_not_match": "Hesla se neshodují",
+    "plausible_deniability": "Plausible deniability...",
+    "retype_password": "Heslo znovu",
+    "save": "save",
+    "storage_encrypted": "Úložiště: zašifrováno",
+    "storage_not_encrypted": "Uložiště: nezašifrováno"
+  },
+  "transactions": {
+    "details": {
+      "copy": "Kopírovat",
+      "show_in_block_explorer": "Ukázat v block exploreru",
+      "title": "Transakce",
+      "transaction_details": "Detaily transakce"
+    },
+    "list": {
+      "conf": "potvrzení",
+      "description": "Seznam příchozích a odchozích transakcí vašich peněženek",
+      "tabBarLabel": "Transakce",
+      "title": "transakce"
+    }
+  },
+  "wallets": {
+    "add": {
+      "coming_soon": "Již brzy",
+      "create": "Vytvořit",
+      "description": "Můžete naskenovat zálohovoanou papírovou peněženku (WIF - Wallet Import Format), nevo vytvořit novou peněženku. Segwit peněženky jsou podporovány standardně.",
+      "import_wallet": "Importovat peněženku",
+      "imported": "Importována",
+      "label_new_lightning": "Nová Lightning",
+      "label_new_segwit": "Nová SegWit",
+      "or": "nebo",
+      "scan": "Skenovat",
+      "title": "přidat peněženku",
+      "wallet_name": "název peněženky",
+      "wallet_type": "typ"
+    },
+    "createBitcoinWallet": "In order to use a Lightning wallet, a Bitcoin wallet is needed to fund it. Would you like to continue anyway?",
+    "details": {
+      "address": "Adresa",
+      "are_you_sure": "Jste si jistý?",
+      "buy_bitcoin": "Koupit Bitcoin",
+      "delete": "Smazat",
+      "delete_this_wallet": "Smazat peněženku",
+      "description": "Popis",
+      "destination": "cíl",
+      "export_backup": "Exportovat / zálohovat",
+      "label": "Popisek",
+      "no_cancel": "Ne, zrušit",
+      "save": "Uložit",
+      "show_xpub": "Ukázat XPUB",
+      "title": "Peněženka",
+      "type": "Typ",
+      "yes_delete": "Ano, smazat"
+    },
+    "export": {
+      "title": "exportovat peněženku"
+    },
+    "import": {
+      "do_import": "Importovat",
+      "error": "Chyba při importu. Prosím ujistěte se, že poskytnutá data jsou správná.",
+      "explanation": "Zadejte zde svůj mnemonic seed, privátní klíč, WIF, nebo cokoliv co máte. BlueWallet se pokusí uhodnout správný formát a naimportovat vaší peněženku",
+      "imported": "Importováno",
+      "scan_qr": "nebo raději naskenovat QR kód?",
+      "success": "Úspěch",
+      "title": "importovat"
+    },
+    "list": {
+      "add": "Přidat peněženku",
+      "create_a_button": "přidat nyní",
+      "create_a_wallet": "přidat peněženku",
+      "create_a_wallet1": "Je to zdarma a můžete vytvořit",
+      "create_a_wallet2": "tolik, kolik budete chtít",
+      "empty_txs1": "Zde budou zobrazeny vaše transakce,",
+      "empty_txs2": "zatím žádné",
+      "header": "Peněženka reprezentuje pár tajného (privátního) klíče a adresykterou můžete sdílet, abyste získali mince",
+      "latest_transaction": "poslední transakce",
+      "tap_here_to_buy": "Klikněte zde pro zakoupení Bitcoinu",
+      "title": "peněženky"
+    },
+    "options": "možnosti",
+    "reorder": {
+      "title": "Seřadit peěženky"
+    },
+    "scanQrWif": {
+      "bad_password": "Špatné heslo",
+      "bad_wif": "Špatný WIF",
+      "cancel": "Zrušit",
+      "decoding": "Dekóduji",
+      "go_back": "Zpět",
+      "imported_legacy": "Importovaná Legacy",
+      "imported_segwit": "Importovaná SegWit",
+      "imported_watchonly": "Importovaná Watch-only",
+      "imported_wif": "Importovaný WIF ",
+      "input_password": "Vložte heslo",
+      "password_explain": "Toto je BIP38 zašifrovaný privátní klíč",
+      "wallet_already_exists": "Tato peněženka již existuje",
+      "with_address": " s adresou "
+    },
+    "select_wallet": "Vyberte peněženku",
+    "xpub": {
+      "copiedToClipboard": "Zkopírováno do schránky.",
+      "title": "XPUB peněženky"
+    }
+  }
+}
