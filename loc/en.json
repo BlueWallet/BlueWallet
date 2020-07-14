@@ -131,7 +131,8 @@
     "header": "Send",
     "success": {
       "done": "Done"
-    }
+    },
+    "txSaved": "This transaction has been saved in {filePath}"
   },
   "settings": {
     "about": "About",

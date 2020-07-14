@@ -1,5 +1,6 @@
 /* global alert */
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import {
   TextInput,
   FlatList,
@@ -15,13 +16,13 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
-import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
-import PropTypes from 'prop-types';
-import Privacy from '../../Privacy';
-import { BitcoinUnit } from '../../models/bitcoinUnits';
 import { Icon } from 'react-native-elements';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
+
+import { BlueNavigationStyle, SafeBlueArea, BlueCard, BlueText } from '../../BlueComponents';
+import Privacy from '../../Privacy';
+import { BitcoinUnit } from '../../models/bitcoinUnits';
 import loc from '../../loc';
 /** @type {AppStorage} */
 const BlueApp = require('../../BlueApp');
@@ -94,7 +95,7 @@ export default class SendCreate extends Component {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
         await RNFS.writeFile(filePath, this.state.tx);
-        alert(`This transaction has been saved in ${filePath}`);
+        alert(loc.formatString(loc.send.txSaved, { filePath }));
       } else {
         console.log('Storage Permission: Denied');
       }
@@ -120,7 +121,7 @@ export default class SendCreate extends Component {
           </Text>
           {this.state.recipients.length > 1 && (
             <BlueText style={styles.itemOf}>
-              {index + 1} of {this.state.recipients.length}
+              {loc.formatString(loc._.of, { number: index + 1, total: this.state.recipients.length })}
             </BlueText>
           )}
         </View>

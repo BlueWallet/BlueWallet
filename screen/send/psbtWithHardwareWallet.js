@@ -349,7 +349,7 @@ export default class PsbtWithHardwareWallet extends Component {
         console.log('Storage Permission: Granted');
         const filePath = RNFS.ExternalCachesDirectoryPath + `/${this.fileName}`;
         await RNFS.writeFile(filePath, this.state.isFirstPSBTAlreadyBase64 ? this.state.psbt : this.state.psbt.toBase64());
-        alert(`This transaction has been saved in ${filePath}`);
+        alert(loc.formatString(loc.send.txSaved, { filePath }));
       } else {
         console.log('Storage Permission: Denied');
       }
