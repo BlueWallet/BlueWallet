@@ -299,7 +299,7 @@ export default class PsbtWithHardwareWallet extends Component {
       <SafeBlueArea style={styles.root}>
         <BlueBigCheckmark style={styles.blueBigCheckmark} />
         <BlueCard>
-          <BlueButton onPress={() => this.props.navigation.dangerouslyGetParent().pop()} title={loc.send.successDone} />
+          <BlueButton onPress={() => this.props.navigation.dangerouslyGetParent().pop()} title={loc.send.success.done} />
         </BlueCard>
       </SafeBlueArea>
     );
@@ -309,7 +309,7 @@ export default class PsbtWithHardwareWallet extends Component {
     return (
       <View style={styles.rootPadding}>
         <BlueCard style={styles.hexWrap}>
-          <BlueText style={styles.hexLabel}>{loc.send.createThis_is_hex}</BlueText>
+          <BlueText style={styles.hexLabel}>{loc.send.create.this_is_hex}</BlueText>
           <TextInput style={styles.hexInput} height={112} multiline editable value={this.state.txhex} />
 
           <TouchableOpacity style={styles.hexTouch} onPress={() => Clipboard.setString(this.state.txhex)}>
@@ -319,7 +319,7 @@ export default class PsbtWithHardwareWallet extends Component {
             <Text style={styles.hexText}>Verify on coinb.in</Text>
           </TouchableOpacity>
           <BlueSpacing20 />
-          <BlueButton onPress={this.broadcast} title={loc.send.confirmSendNow} />
+          <BlueButton onPress={this.broadcast} title={loc.send.confirm.sendNow} />
         </BlueCard>
       </View>
     );

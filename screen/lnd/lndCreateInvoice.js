@@ -334,7 +334,7 @@ export default class LNDCreateInvoice extends Component {
         {this.state.isLoading ? (
           <ActivityIndicator />
         ) : (
-          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.detailsCreate} />
+          <BlueButton disabled={!(this.state.amount > 0)} onPress={() => this.createInvoice()} title={loc.send.details.create} />
         )}
       </View>
     );
@@ -357,7 +357,7 @@ export default class LNDCreateInvoice extends Component {
         style={styles.scanRoot}
       >
         <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
-        <Text style={styles.scanClick}>{loc.send.detailsScan}</Text>
+        <Text style={styles.scanClick}>{loc.send.details.scan}</Text>
       </TouchableOpacity>
     );
   };
@@ -441,7 +441,7 @@ export default class LNDCreateInvoice extends Component {
               <View style={styles.fiat}>
                 <TextInput
                   onChangeText={text => this.setState({ description: text })}
-                  placeholder={loc.receive.detailsLabel}
+                  placeholder={loc.receive.details.label}
                   value={this.state.description}
                   numberOfLines={1}
                   placeholderTextColor="#81868e"

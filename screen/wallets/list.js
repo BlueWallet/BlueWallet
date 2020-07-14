@@ -181,11 +181,11 @@ export default class WalletsList extends Component {
     if (wallet) {
       if (wallet.type === PlaceholderWallet.type) {
         Alert.alert(
-          loc.wallets.addDetails,
+          loc.wallets.add.details,
           'There was a problem importing this wallet.',
           [
             {
-              text: loc.wallets.detailsDelete,
+              text: loc.wallets.details.delete,
               onPress: () => {
                 WalletImport.removePlaceholderWallet();
                 EV(EV.enum.WALLETS_COUNT_CHANGED);
@@ -290,7 +290,7 @@ export default class WalletsList extends Component {
   renderListHeaderComponent = () => {
     return (
       <View style={styles.listHeader}>
-        <Text style={styles.listHeaderText}>{loc.transactions.listTitle}</Text>
+        <Text style={styles.listHeaderText}>{loc.transactions.list.title}</Text>
       </View>
     );
   };
@@ -366,7 +366,7 @@ export default class WalletsList extends Component {
       case WalletsListSections.CAROUSEL:
         return (
           <BlueHeaderDefaultMain
-            leftText={loc.wallets.listTitle}
+            leftText={loc.wallets.list.title}
             onNewWalletPress={
               !BlueApp.getWallets().some(wallet => wallet.type === PlaceholderWallet.type)
                 ? () => this.props.navigation.navigate('AddWalletRoot')
@@ -387,8 +387,8 @@ export default class WalletsList extends Component {
         if (this.state.dataSource.length === 0 && !this.state.isLoading) {
           return (
             <View style={styles.footerRoot}>
-              <Text style={styles.footerEmpty}>{loc.wallets.listEmpty_txs1}</Text>
-              <Text style={styles.footerStart}>{loc.wallets.listEmpty_txs2}</Text>
+              <Text style={styles.footerEmpty}>{loc.wallets.list.empty_txs1}</Text>
+              <Text style={styles.footerStart}>{loc.wallets.list.empty_txs2}</Text>
             </View>
           );
         } else {
@@ -466,7 +466,7 @@ export default class WalletsList extends Component {
   sendButtonLongPress = async () => {
     const isClipboardEmpty = (await Clipboard.getString()).replace(' ', '').length === 0;
     if (Platform.OS === 'ios') {
-      const options = [loc.send.detailsCancel, 'Choose Photo', 'Scan QR Code'];
+      const options = [loc.send.details.cancel, 'Choose Photo', 'Scan QR Code'];
       if (!isClipboardEmpty) {
         options.push('Copy from Clipboard');
       }
@@ -489,7 +489,7 @@ export default class WalletsList extends Component {
     } else if (Platform.OS === 'android') {
       const buttons = [
         {
-          text: loc.send.detailsCancel,
+          text: loc.send.details.cancel,
           onPress: () => {},
           style: 'cancel',
         },

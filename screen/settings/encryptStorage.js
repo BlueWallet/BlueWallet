@@ -109,7 +109,7 @@ export default class EncryptStorage extends Component {
           'Are you sure you want to decrypt your storage? This will allow your wallets to be accessed without a password.',
           [
             {
-              text: loc.send.detailsCancel,
+              text: loc.send.details.cancel,
               style: 'cancel',
               onPress: () => this.setState({ isLoading: false }),
             },

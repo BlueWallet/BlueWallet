@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
 export default class WalletXpub extends Component {
   static navigationOptions = ({ navigation }) => ({
     ...BlueNavigationStyle(navigation, true),
-    title: loc.wallets.xpubTitle,
+    title: loc.wallets.xpub.title,
     headerLeft: null,
   });
 

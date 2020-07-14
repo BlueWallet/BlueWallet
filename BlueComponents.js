@@ -110,7 +110,7 @@ export class BitcoinButton extends Component {
           }}
         >
           <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-            <Text style={{ color: BlueApp.settings.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.addBitcoin}</Text>
+            <Text style={{ color: BlueApp.settings.hdborderColor, fontWeight: 'bold' }}>{loc.wallets.add.bitcoin}</Text>
           </View>
           <Image
             style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
@@ -143,7 +143,7 @@ export class LightningButton extends Component {
           }}
         >
           <View style={{ marginTop: 16, marginLeft: 16, marginBottom: 16 }}>
-            <Text style={{ color: BlueApp.settings.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.addLightning}</Text>
+            <Text style={{ color: BlueApp.settings.lnborderColor, fontWeight: 'bold' }}>{loc.wallets.add.lightning}</Text>
           </View>
           <Image
             style={{ width: 34, height: 34, marginRight: 8, marginBottom: 8, justifyContent: 'flex-end', alignSelf: 'flex-end' }}
@@ -208,7 +208,7 @@ export class BlueWalletNavigationHeader extends Component {
   };
 
   handleToolTipSelection = item => {
-    if (item === loc.transactions.detailsCopy || item.id === loc.transactions.details.copy) {
+    if (item === loc.transactions.details.copy || item.id === loc.transactions.details.copy) {
       this.handleCopyPress();
     } else if (item === 'balancePrivacy' || item.id === 'balancePrivacy') {
       this.handleBalanceVisibility();
@@ -220,13 +220,13 @@ export class BlueWalletNavigationHeader extends Component {
       // NOT WORKING ATM.
       // ios: [
       //   { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
-      //   { text: loc.transactions.detailsCopy, onPress: this.handleCopyPress },
+      //   { text: loc.transactions.details.copy, onPress: this.handleCopyPress },
       // ],
       android: this.state.wallet.hideBalance
         ? [{ id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' }]
         : [
             { id: 'balancePrivacy', label: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance' },
-            { id: loc.transactions.detailsCopy, label: loc.transactions.details.copy },
+            { id: loc.transactions.details.copy, label: loc.transactions.details.copy },
           ],
     });
   }
@@ -294,7 +294,7 @@ export class BlueWalletNavigationHeader extends Component {
                 ? [{ text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility }]
                 : [
                     { text: this.state.wallet.hideBalance ? 'Show Balance' : 'Hide Balance', onPress: this.handleBalanceVisibility },
-                    { text: loc.transactions.detailsCopy, onPress: this.handleCopyPress },
+                    { text: loc.transactions.details.copy, onPress: this.handleCopyPress },
                   ]
             }
           />
@@ -489,7 +489,7 @@ export const BluePrivateBalance = () => {
 export const BlueCopyToClipboardButton = ({ stringToCopy, displayText = false }) => {
   return (
     <TouchableOpacity {...this.props} onPress={() => Clipboard.setString(stringToCopy)}>
-      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.detailsCopy}</Text>
+      <Text style={{ fontSize: 13, fontWeight: '400', color: '#68bbe1' }}>{displayText || loc.transactions.details.copy}</Text>
     </TouchableOpacity>
   );
 };
@@ -522,7 +522,7 @@ export class BlueCopyTextToClipboard extends Component {
   copyToClipboard = () => {
     this.setState({ hasTappedText: true }, () => {
       Clipboard.setString(this.props.text);
-      this.setState({ address: loc.wallets.xpubCopiedToClipboard }, () => {
+      this.setState({ address: loc.wallets.xpub.copiedToClipboard }, () => {
         setTimeout(() => {
           this.setState({ hasTappedText: false, address: this.props.text });
         }, 1000);
@@ -1273,7 +1273,7 @@ export class BlueScanButton extends Component {
                 backgroundColor: 'transparent',
               }}
             >
-              {loc.send.detailsScan}
+              {loc.send.details.scan}
             </Text>
           </View>
         </View>
@@ -1387,7 +1387,7 @@ export class NewWalletPanel extends Component {
               marginBottom: 4,
             }}
           >
-            {loc.wallets.listCreate_a_wallet}
+            {loc.wallets.list.create_a_wallet}
           </Text>
           <Text
             style={{
@@ -1395,7 +1395,7 @@ export class NewWalletPanel extends Component {
               color: BlueApp.settings.alternativeTextColor,
             }}
           >
-            {loc.wallets.listCreate_a_wallet1}
+            {loc.wallets.list.create_a_wallet1}
           </Text>
           <Text
             style={{
@@ -1404,10 +1404,10 @@ export class NewWalletPanel extends Component {
               color: BlueApp.settings.alternativeTextColor,
             }}
           >
-            {loc.wallets.listCreate_a_wallet2}
+            {loc.wallets.list.create_a_wallet2}
           </Text>
           <View style={{ marginTop: 12, backgroundColor: '#007AFF', paddingHorizontal: 32, paddingVertical: 12, borderRadius: 8 }}>
-            <Text style={{ color: BlueApp.settings.brandingColor, fontWeight: '500' }}>{loc.wallets.listCreate_a_button}</Text>
+            <Text style={{ color: BlueApp.settings.brandingColor, fontWeight: '500' }}>{loc.wallets.list.create_a_button}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -1547,7 +1547,7 @@ export const BlueTransactionListItem = React.memo(({ item, itemPriceUnit = Bitco
   };
 
   const subtitle = () => {
-    return (item.confirmations < 7 ? loc.transactions.listConf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
+    return (item.confirmations < 7 ? loc.transactions.list.conf + ': ' + item.confirmations + ' ' : '') + txMemo() + (item.memo || '');
   };
 
   const onPress = () => {
@@ -1736,7 +1736,7 @@ export class BlueListTransactionItem extends Component {
 
   subtitle = () => {
     return (
-      (this.props.item.confirmations < 7 ? loc.transactions.listConf + ': ' + this.props.item.confirmations + ' ' : '') +
+      (this.props.item.confirmations < 7 ? loc.transactions.list.conf + ': ' + this.props.item.confirmations + ' ' : '') +
       this.txMemo() +
       (this.props.item.memo || '')
     );
@@ -1956,7 +1956,7 @@ const WalletCarouselItem = ({ item, index, onPress, handleLongPress }) => {
                 color: BlueApp.settings.inverseForegroundColor,
               }}
             >
-              {loc.wallets.listLatest_transaction}
+              {loc.wallets.list.latest_transaction}
             </Text>
             <Text
               numberOfLines={1}
@@ -2038,7 +2038,7 @@ export class BlueAddressInput extends Component {
   static defaultProps = {
     isLoading: false,
     address: '',
-    placeholder: loc.send.detailsAddress,
+    placeholder: loc.send.details.address,
   };
 
   render() {
@@ -2098,7 +2098,7 @@ export class BlueAddressInput extends Component {
           }}
         >
           <Icon name="qrcode" size={22} type="font-awesome" color={BlueApp.settings.inverseForegroundColor} />
-          <Text style={{ marginLeft: 4, color: BlueApp.settings.inverseForegroundColor }}>{loc.send.detailsScan}</Text>
+          <Text style={{ marginLeft: 4, color: BlueApp.settings.inverseForegroundColor }}>{loc.send.details.scan}</Text>
         </TouchableOpacity>
       </View>
     );

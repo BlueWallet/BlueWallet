@@ -438,17 +438,17 @@ export default class SendDetails extends Component {
     const requestedSatPerByte = this.state.fee.toString().replace(/\D/g, '');
     for (const [index, transaction] of this.state.addresses.entries()) {
       if (!transaction.amount || transaction.amount < 0 || parseFloat(transaction.amount) === 0) {
-        error = loc.send.detailsAmount_field_is_not_valid;
+        error = loc.send.details.amount_field_is_not_valid;
         console.log('validation error');
       } else if (!this.state.fee || !requestedSatPerByte || parseFloat(requestedSatPerByte) < 1) {
-        error = loc.send.detailsFee_field_is_not_valid;
+        error = loc.send.details.fee_field_is_not_valid;
         console.log('validation error');
       } else if (!transaction.address) {
-        error = loc.send.detailsAddress_field_is_not_valid;
+        error = loc.send.details.address_field_is_not_valid;
         console.log('validation error');
       } else if (this.state.fromWallet.getBalance() - transaction.amountSats < 0) {
         // first sanity check is that sending amount is not bigger than available balance
-        error = loc.send.detailsTotal_exceeds_balance;
+        error = loc.send.details.total_exceeds_balance;
         console.log('validation error');
       } else if (transaction.address) {
         const address = transaction.address.trim().toLowerCase();
@@ -465,7 +465,7 @@ export default class SendDetails extends Component {
         } catch (err) {
           console.log('validation error');
           console.log(err);
-          error = loc.send.detailsAddress_field_is_not_valid;
+          error = loc.send.details.address_field_is_not_valid;
         }
       }
       if (error) {
@@ -586,7 +586,7 @@ export default class SendDetails extends Component {
             },
             style: 'default',
           },
-          { text: loc.send.detailsCancel, onPress: () => {}, style: 'cancel' },
+          { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
         ],
         { cancelable: false },
       );
@@ -608,7 +608,7 @@ export default class SendDetails extends Component {
             },
             style: 'default',
           },
-          { text: loc.send.detailsCancel, onPress: () => {}, style: 'cancel' },
+          { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
         ],
         { cancelable: false },
       );
@@ -983,7 +983,7 @@ export default class SendDetails extends Component {
           },
           style: 'default',
         },
-        { text: loc.send.detailsCancel, onPress: () => {}, style: 'cancel' },
+        { text: loc.send.details.cancel, onPress: () => {}, style: 'cancel' },
       ],
       { cancelable: false },
     );
@@ -1020,7 +1020,7 @@ export default class SendDetails extends Component {
               <View hide={!this.state.showMemoRow} style={styles.memo}>
                 <TextInput
                   onChangeText={text => this.setState({ memo: text })}
-                  placeholder={loc.send.detailsNote_placeholder}
+                  placeholder={loc.send.details.note_placeholder}
                   placeholderTextColor="#81868e"
                   value={this.state.memo}
                   numberOfLines={1}

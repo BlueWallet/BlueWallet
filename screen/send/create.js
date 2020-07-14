@@ -43,7 +43,7 @@ export default class SendCreate extends Component {
 
     return {
       ...BlueNavigationStyle,
-      title: loc.send.createDetails,
+      title: loc.send.create.details,
       headerRight,
     };
   };
@@ -110,9 +110,9 @@ export default class SendCreate extends Component {
     return (
       <>
         <View>
-          <Text style={styles.transactionDetailsTitle}>{loc.send.createTo}</Text>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create.to}</Text>
           <Text style={styles.transactionDetailsSubtitle}>{item.address}</Text>
-          <Text style={styles.transactionDetailsTitle}>{loc.send.createAmount}</Text>
+          <Text style={styles.transactionDetailsTitle}>{loc.send.create.amount}</Text>
           <Text style={styles.transactionDetailsSubtitle}>
             {item.value === BitcoinUnit.MAX || !item.value
               ? currency.satoshiToBTC(this.state.wallet.getBalance()) - this.state.fee
@@ -139,7 +139,7 @@ export default class SendCreate extends Component {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <ScrollView>
             <BlueCard style={styles.card}>
-              <BlueText style={styles.cardText}>{loc.send.createThis_is_hex}</BlueText>
+              <BlueText style={styles.cardText}>{loc.send.create.this_is_hex}</BlueText>
               <TextInput testID="TxhexInput" style={styles.cardTx} height={72} multiline editable value={this.state.tx} />
 
               <TouchableOpacity style={styles.actionTouch} onPress={() => Clipboard.setString(this.state.tx)}>
@@ -158,19 +158,19 @@ export default class SendCreate extends Component {
                 keyExtractor={(_item, index) => `${index}`}
                 ItemSeparatorComponent={this.renderSeparator}
               />
-              <Text style={styles.transactionDetailsTitle}>{loc.send.createFee}</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.fee}</Text>
               <Text style={styles.transactionDetailsSubtitle}>
                 {this.state.fee} {BitcoinUnit.BTC}
               </Text>
 
-              <Text style={styles.transactionDetailsTitle}>{loc.send.createTx_size}</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.tx_size}</Text>
               <Text style={styles.transactionDetailsSubtitle}>{this.state.size} bytes</Text>
 
-              <Text style={styles.transactionDetailsTitle}>{loc.send.createSatoshi_per_byte}</Text>
+              <Text style={styles.transactionDetailsTitle}>{loc.send.create.satoshi_per_byte}</Text>
               <Text style={styles.transactionDetailsSubtitle}>{this.state.satoshiPerByte} Sat/B</Text>
               {this.state.memo.length > 0 && (
                 <>
-                  <Text style={styles.transactionDetailsTitle}>{loc.send.createMemo}</Text>
+                  <Text style={styles.transactionDetailsTitle}>{loc.send.create.memo}</Text>
                   <Text style={styles.transactionDetailsSubtitle}>{this.state.memo}</Text>
                 </>
               )}
